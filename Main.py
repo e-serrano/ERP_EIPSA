@@ -2,34 +2,33 @@ import tkinter as tk
 from tkinter import *
 import os, sys
 from Window_creation import *
-from Registration import *
 
 #importación de módulos de SQL
              
 class Login:
-    def __init__(self):
-        self.login_window = Windows()
-        self.frame_login=Frame(self.login_window)
-        self.frame_login.pack()
-        self.frame_login.config(width=650, height=400)
-        Label(self.frame_login, text='').pack()
+    # def __init__(self):
+    #     self.login_window = Windows()
+    #     self.frame_login=Frame(self.login_window)
+    #     self.frame_login.pack()
+    #     self.frame_login.config(width=650, height=400)
+    #     Label(self.frame_login, text='').pack()
 
-        #User Name input
-        Label(self.frame_login, text= 'Nombre de Usuario: ').pack()
-        self.namelog = Entry(self.frame_login)
-        self.namelog.pack()
-        Label(self.frame_login, text='').pack()
+    #     #User Name input
+    #     Label(self.frame_login, text= 'Nombre de Usuario: ').pack()
+    #     self.namelog = Entry(self.frame_login)
+    #     self.namelog.pack()
+    #     Label(self.frame_login, text='').pack()
 
-        #Password input
-        Label(self.frame_login, text= 'Contraseña: ').pack()
-        self.passwordlog = Entry(self.frame_login, show='*')
-        self.passwordlog.pack()
-        Label(self.frame_login, text='').pack()
+    #     #Password input
+    #     Label(self.frame_login, text= 'Contraseña: ').pack()
+    #     self.passwordlog = Entry(self.frame_login, show='*')
+    #     self.passwordlog.pack()
+    #     Label(self.frame_login, text='').pack()
 
-        #Entry Button
-        Button(self.frame_login, text='Acceder', command = self.verification_login).pack()
+    #     #Entry Button
+    #     Button(self.frame_login, text='Acceder', command = self.verification_login).pack()
 
-        self.login_window.mainloop()
+    #     self.login_window.mainloop()
 
     def verification_login(self):
         window = self.login_window
