@@ -2,12 +2,12 @@ import tkinter as tk
 from tkinter import *
 import os, sys
 from Window_creation import *
+from Registration import *
 
 #importación de módulos de SQL
              
 class Login:
     def __init__(self):
-        #Creating initial window
         self.login_window = Windows()
         self.frame_login=Frame(self.login_window)
         self.frame_login.pack()
@@ -37,7 +37,8 @@ class Login:
         password = self.passwordlog.get()
         list_files = os.listdir(os.getcwd() + '\Passwords')
         if name in list_files:
-            verif_file = open(name, 'r')
+            path=os.path.join(os.getcwd(),'Passwords',name)
+            verif_file = open(path, 'r')
             verification = verif_file.read().splitlines()
             if password in verification:
                 print('Abrir aplicación')
@@ -46,7 +47,7 @@ class Login:
         else:
             self.user_error()
 
-        del self.login_window,self.frame_login, self.namelog, self.passwordlog, window, name, password, list_files, verif_file, verification
+        del self.login_window,self.frame_login, self.namelog, self.passwordlog, window, path, name, password, list_files, verif_file, verification
 
     def password_error(self):
         self.pass_error_root = Toplevel()
@@ -66,4 +67,3 @@ class Login:
 
 if __name__ == '__main__':
     application = Login()
-    application.mainloop()

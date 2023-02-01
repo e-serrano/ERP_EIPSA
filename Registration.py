@@ -34,6 +34,12 @@ class Register:
         self.reg_root=Toplevel()
         Label(self.reg_root, text = 'Usuario registrado con éxito').pack()
         Button(self.reg_root, text ='Ok', command = self.reg_root.destroy).pack()
+        self.register_window.destroy()
         self.reg_root.mainloop()
 
         del self.register_window, self.frame_register, self.namereg, self.passwordreg, path, file, self.reg_root
+
+
+
+if __name__ == '__main__':
+    application = Register()
