@@ -9,7 +9,6 @@ import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 from Login_Check import *
 from Registration_Window import *
-import subprocess
 
 
 class Ui_Login_Window(object):
@@ -247,20 +246,10 @@ class Ui_Login_Window(object):
             verif_file = open(path, 'r')
             verification = verif_file.read().splitlines()
             if login_password in verification:
-                print('Hola')
-
-
-
-
-
-                ###################################################################
-                #CÓDIGO PARA IR A LA VENTANA DE REGISTRO
-                ################################################################
-
-
-
-
-
+                self.reg_window=QtWidgets.QMainWindow()
+                self.ui=Ui_RegistrationWindow()
+                self.ui.setupUi(self.reg_window)
+                self.reg_window.show()
 
             else:
                 Login().password_error()
@@ -268,7 +257,7 @@ class Ui_Login_Window(object):
             Login().user_error()
 
         del login_name, login_password, list_files
-        
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
