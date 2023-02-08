@@ -22,7 +22,7 @@ class Ui_Login_Window(object):
         Login_Window.setSizePolicy(sizePolicy)
         Login_Window.setMaximumSize(QtCore.QSize(670, 392))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("C:/Users/Enrique.serrano/Documents/GIT/ERP_EIPSA/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Login_Window.setWindowIcon(icon)
         Login_Window.setAutoFillBackground(False)
         Login_Window.setStyleSheet("QWidget {\n"
@@ -101,7 +101,7 @@ class Ui_Login_Window(object):
         self.logo.setSizePolicy(sizePolicy)
         self.logo.setMaximumSize(QtCore.QSize(256, 234))
         self.logo.setText("")
-        self.logo.setPixmap(QtGui.QPixmap("Logo.ico"))
+        self.logo.setPixmap(QtGui.QPixmap("C:/Users/Enrique.serrano/Documents/GIT/ERP_EIPSA/Logo.ico"))
         self.logo.setScaledContents(False)
         self.logo.setObjectName("logo")
         self.horizontalLayout.addWidget(self.logo)
@@ -110,37 +110,37 @@ class Ui_Login_Window(object):
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetFixedSize)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.label_name_login = QtWidgets.QLabel(parent=self.frame)
-        self.label_name_login.setEnabled(True)
+        self.label_username_login = QtWidgets.QLabel(parent=self.frame)
+        self.label_username_login.setEnabled(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_name_login.sizePolicy().hasHeightForWidth())
-        self.label_name_login.setSizePolicy(sizePolicy)
-        self.label_name_login.setMinimumSize(QtCore.QSize(200, 25))
-        self.label_name_login.setMaximumSize(QtCore.QSize(200, 25))
+        sizePolicy.setHeightForWidth(self.label_username_login.sizePolicy().hasHeightForWidth())
+        self.label_username_login.setSizePolicy(sizePolicy)
+        self.label_username_login.setMinimumSize(QtCore.QSize(200, 25))
+        self.label_username_login.setMaximumSize(QtCore.QSize(200, 25))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
-        self.label_name_login.setFont(font)
-        self.label_name_login.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.label_name_login.setObjectName("label_name_login")
-        self.verticalLayout.addWidget(self.label_name_login)
-        self.name_login = QtWidgets.QLineEdit(parent=self.frame)
-        self.name_login.setEnabled(True)
+        self.label_username_login.setFont(font)
+        self.label_username_login.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.label_username_login.setObjectName("label_username_login")
+        self.verticalLayout.addWidget(self.label_username_login)
+        self.username_login = QtWidgets.QLineEdit(parent=self.frame)
+        self.username_login.setEnabled(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.name_login.sizePolicy().hasHeightForWidth())
-        self.name_login.setSizePolicy(sizePolicy)
-        self.name_login.setMinimumSize(QtCore.QSize(200, 25))
-        self.name_login.setMaximumSize(QtCore.QSize(200, 25))
+        sizePolicy.setHeightForWidth(self.username_login.sizePolicy().hasHeightForWidth())
+        self.username_login.setSizePolicy(sizePolicy)
+        self.username_login.setMinimumSize(QtCore.QSize(200, 25))
+        self.username_login.setMaximumSize(QtCore.QSize(200, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.name_login.setFont(font)
-        self.name_login.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.name_login.setObjectName("name_login")
-        self.verticalLayout.addWidget(self.name_login)
+        self.username_login.setFont(font)
+        self.username_login.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.username_login.setObjectName("username_login")
+        self.verticalLayout.addWidget(self.username_login)
         spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.verticalLayout.addItem(spacerItem2)
         self.label_password_login = QtWidgets.QLabel(parent=self.frame)
@@ -229,22 +229,26 @@ class Ui_Login_Window(object):
         self.exit_login.clicked.connect(Login_Window.close) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(Login_Window)
 
+
     def retranslateUi(self, Login_Window):
         _translate = QtCore.QCoreApplication.translate
         Login_Window.setWindowTitle(_translate("Login_Window", "ERP EIPSA"))
-        self.label_name_login.setText(_translate("Login_Window", "Nombre de Usuario:"))
+        self.label_username_login.setText(_translate("Login_Window", "Nombre de Usuario:"))
         self.label_password_login.setText(_translate("Login_Window", "Contraseña:"))
         self.accept_login.setText(_translate("Login_Window", "Acceder"))
         self.exit_login.setText(_translate("Login_Window", "Salir"))
 
+
     def verification_login(self):
-        login_name = self.name_login.text()
+        login_username = self.username_login.text()
         login_password = self.password_login.text()
-        list_files = os.listdir(os.getcwd() + '\Passwords')
-        if login_name in list_files:
-            path=os.path.join(os.getcwd(),'Passwords',login_name)
+        list_files = os.listdir('C:/Users/Enrique.serrano/Documents/GIT/ERP_EIPSA/Passwords')
+
+        if login_username in list_files:
+            path=os.path.join('C:/Users/Enrique.serrano/Documents/GIT/ERP_EIPSA/Passwords',login_username)
             verif_file = open(path, 'r')
             verification = verif_file.read().splitlines()
+
             if login_password in verification:
                 self.reg_window=QtWidgets.QMainWindow()
                 self.ui=Ui_RegistrationWindow()
@@ -253,10 +257,11 @@ class Ui_Login_Window(object):
 
             else:
                 Login().password_error()
+
         else:
             Login().user_error()
 
-        del login_name, login_password, list_files
+        del login_username, login_password, list_files
 
 
 if __name__ == "__main__":

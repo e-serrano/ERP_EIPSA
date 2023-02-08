@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>270</width>
-    <height>413</height>
+    <height>500</height>
    </rect>
   </property>
   <property name="maximumSize">
    <size>
     <width>270</width>
-    <height>413</height>
+    <height>500</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../icon.ico</normaloff>../icon.ico</iconset>
+    <normaloff>../../../../.designer/icon.ico</normaloff>../../../../.designer/icon.ico</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget {
@@ -75,13 +75,13 @@ QPushButton:pressed {
       <property name="minimumSize">
        <size>
         <width>250</width>
-        <height>352</height>
+        <height>450</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>250</width>
-        <height>352</height>
+        <height>450</height>
        </size>
       </property>
       <property name="styleSheet">
@@ -103,6 +103,132 @@ QPushButton:pressed {
            </property>
            <item>
             <widget class="QLabel" name="label_name_reg">
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>200</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Nombre:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="name_reg">
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>200</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="vSpacer1">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_secondname_reg">
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>200</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Apellido:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="secondname_reg">
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>200</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="vSpacer2">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_username_reg">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -139,7 +265,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="name_reg">
+            <widget class="QLineEdit" name="username_reg">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -167,12 +293,12 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+              <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
            <item>
-            <spacer name="vSpacer_top_fields">
+            <spacer name="vSpacer3">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
@@ -259,12 +385,12 @@ QPushButton:pressed {
               <enum>QLineEdit::Password</enum>
              </property>
              <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+              <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
            <item>
-            <spacer name="vSpacer_bottom_fields">
+            <spacer name="vSpacer4">
              <property name="enabled">
               <bool>true</bool>
              </property>

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1041</width>
-    <height>866</height>
+    <width>1063</width>
+    <height>914</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,14 +28,14 @@
       </property>
       <layout class="QGridLayout" name="gridLayout">
        <item row="3" column="0">
-        <layout class="QVBoxLayout" name="verticalLayout_2">
+        <layout class="QVBoxLayout" name="FrameApp">
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <layout class="QHBoxLayout" name="Header">
            <property name="topMargin">
             <number>0</number>
            </property>
            <item>
-            <widget class="QLabel" name="label">
+            <widget class="QLabel" name="LogoIcon">
              <property name="minimumSize">
               <size>
                <width>220</width>
@@ -60,7 +60,7 @@
             </widget>
            </item>
            <item>
-            <spacer name="horizontalSpacer_2">
+            <spacer name="hSpacer1">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
@@ -72,12 +72,57 @@
              </property>
             </spacer>
            </item>
+           <item>
+            <widget class="QLabel" name="HeaderName">
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color:rgb(3, 174, 236)</string>
+             </property>
+             <property name="text">
+              <string>ENRIQUE SERRANO</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="hSpacer2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>10</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="UserIcon">
+             <property name="text">
+              <string/>
+             </property>
+             <property name="pixmap">
+              <pixmap>../button_icons/User.png</pixmap>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout">
+          <layout class="QHBoxLayout" name="PrincipalScreen">
            <item>
-            <widget class="QFrame" name="frame_2">
+            <widget class="QFrame" name="ButtonFrame">
              <property name="minimumSize">
               <size>
                <width>220</width>
@@ -103,7 +148,25 @@ QPushButton{
 	color: rgb(3, 174, 236);
 	box-sizing: border-box;
 	background-color: rgb(255, 255, 255);
-	border-radius: 20px;
+	border-radius: 10px;
+}
+
+QPushButton:hover{
+	border: 1px solid transparent;
+	border-color: rgb(0, 0, 0);
+	color: rgb(0,0,0);
+	box-sizing: border-box;
+	background-color: rgb(255, 255, 255);
+	border-radius: 10px;
+}
+
+QPushButton:pressed{
+	border: 1px solid transparent;
+	border-color: rgb(0, 0, 0);
+	color: rgb(0,0,0);
+	box-sizing: border-box;
+	background-color: rgb(200, 200, 200);
+	border-radius: 10px;
 }</string>
              </property>
              <property name="frameShape">
@@ -126,20 +189,23 @@ QPushButton{
                <number>0</number>
               </property>
               <item>
-               <spacer name="verticalSpacer_4">
+               <spacer name="vSpacer1">
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Fixed</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
                   <width>20</width>
-                  <height>40</height>
+                  <height>20</height>
                  </size>
                 </property>
                </spacer>
               </item>
               <item>
-               <widget class="QPushButton" name="pushButton_4">
+               <widget class="QPushButton" name="Button_NewOffer">
                 <property name="minimumSize">
                  <size>
                   <width>200</width>
@@ -159,11 +225,11 @@ QPushButton{
                  </font>
                 </property>
                 <property name="text">
-                 <string>    Ofertas</string>
+                 <string>    Nueva Oferta</string>
                 </property>
                 <property name="icon">
                  <iconset>
-                  <normaloff>../button_icons/icons8-new-copy-50.png</normaloff>../button_icons/icons8-new-copy-50.png</iconset>
+                  <normaloff>../button_icons/Offer_New.png</normaloff>../button_icons/Offer_New.png</iconset>
                 </property>
                 <property name="iconSize">
                  <size>
@@ -183,7 +249,7 @@ QPushButton{
                </widget>
               </item>
               <item>
-               <spacer name="verticalSpacer">
+               <spacer name="vSpacer2">
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
                 </property>
@@ -196,7 +262,7 @@ QPushButton{
                </spacer>
               </item>
               <item>
-               <widget class="QPushButton" name="pushButton_2">
+               <widget class="QPushButton" name="Button_EditOffer">
                 <property name="minimumSize">
                  <size>
                   <width>200</width>
@@ -216,56 +282,22 @@ QPushButton{
                  </font>
                 </property>
                 <property name="text">
-                 <string>Pedidos</string>
+                 <string>    Editar Oferta</string>
                 </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="verticalSpacer_2">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pushButton">
-                <property name="minimumSize">
-                 <size>
-                  <width>200</width>
-                  <height>50</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>200</width>
-                  <height>50</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>12</pointsize>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="text">
-                 <string>PushButton</string>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../button_icons/Offer_Edit.png</normaloff>../button_icons/Offer_Edit.png</iconset>
                 </property>
                 <property name="iconSize">
                  <size>
-                  <width>30</width>
-                  <height>30</height>
+                  <width>40</width>
+                  <height>40</height>
                  </size>
                 </property>
                </widget>
               </item>
               <item>
-               <spacer name="verticalSpacer_3">
+               <spacer name="vSpacer3">
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
                 </property>
@@ -278,7 +310,49 @@ QPushButton{
                </spacer>
               </item>
               <item>
-               <widget class="QPushButton" name="pushButton_3">
+               <widget class="QPushButton" name="Button_FindOffer">
+                <property name="minimumSize">
+                 <size>
+                  <width>200</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>    Consultar Oferta</string>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../button_icons/Offer_Search.png</normaloff>../button_icons/Offer_Search.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>40</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="vSpacer8">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="Button_NewOrder">
                 <property name="minimumSize">
                  <size>
                   <width>200</width>
@@ -298,12 +372,22 @@ QPushButton{
                  </font>
                 </property>
                 <property name="text">
-                 <string>PushButton</string>
+                 <string>    Nuevo Pedido</string>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../button_icons/Order_New.png</normaloff>../button_icons/Order_New.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>40</width>
+                  <height>40</height>
+                 </size>
                 </property>
                </widget>
               </item>
               <item>
-               <spacer name="verticalSpacer_5">
+               <spacer name="vSpacer4">
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
                 </property>
@@ -311,6 +395,237 @@ QPushButton{
                  <size>
                   <width>20</width>
                   <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="Button_EditOrder">
+                <property name="minimumSize">
+                 <size>
+                  <width>200</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>200</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>    Editar Pedido</string>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../button_icons/Order_Edit.png</normaloff>../button_icons/Order_Edit.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>40</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="vSpacer5">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="Button_FindOrder">
+                <property name="minimumSize">
+                 <size>
+                  <width>200</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>    Consultar Pedido</string>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../button_icons/Order_Search.png</normaloff>../button_icons/Order_Search.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>40</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="vSpacer9">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="Button_NewTag">
+                <property name="minimumSize">
+                 <size>
+                  <width>200</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>200</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>    Nuevo(s) TAG(s)</string>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../button_icons/TAG_New.png</normaloff>../button_icons/TAG_New.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>40</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="vSpacer6">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="Button_EditTag">
+                <property name="minimumSize">
+                 <size>
+                  <width>200</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>200</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>    Editar TAG(s)</string>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../button_icons/TAG_Edit.png</normaloff>../button_icons/TAG_Edit.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>40</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="vSpacer10">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="Button_FindTag">
+                <property name="minimumSize">
+                 <size>
+                  <width>200</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>    Consultar TAG(s)</string>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../button_icons/TAG_Search.png</normaloff>../button_icons/TAG_Search.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>40</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="vSpacer7">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Fixed</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
                  </size>
                 </property>
                </spacer>
@@ -319,7 +634,7 @@ QPushButton{
             </widget>
            </item>
            <item>
-            <spacer name="horizontalSpacer">
+            <spacer name="hSpacer3">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
@@ -335,20 +650,310 @@ QPushButton{
             </spacer>
            </item>
            <item>
-            <widget class="QTableView" name="tableView">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
+            <layout class="QVBoxLayout" name="MainLayout">
+             <item>
+              <widget class="QTabWidget" name="tabWidget">
+               <property name="currentIndex">
+                <number>0</number>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>16</width>
+                 <height>16</height>
+                </size>
+               </property>
+               <widget class="QWidget" name="tabOffer">
+                <attribute name="title">
+                 <string>Ofertas</string>
+                </attribute>
+                <layout class="QGridLayout" name="gridLayout_4">
+                 <item row="0" column="0">
+                  <widget class="QTableWidget" name="tableOffer">
+                   <property name="minimumSize">
+                    <size>
+                     <width>370</width>
+                     <height>340</height>
+                    </size>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Sunken</enum>
+                   </property>
+                   <property name="verticalScrollBarPolicy">
+                    <enum>Qt::ScrollBarAsNeeded</enum>
+                   </property>
+                   <property name="sizeAdjustPolicy">
+                    <enum>QAbstractScrollArea::AdjustIgnored</enum>
+                   </property>
+                   <property name="sortingEnabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="rowCount">
+                    <number>0</number>
+                   </property>
+                   <property name="columnCount">
+                    <number>6</number>
+                   </property>
+                   <attribute name="horizontalHeaderVisible">
+                    <bool>true</bool>
+                   </attribute>
+                   <attribute name="horizontalHeaderCascadingSectionResizes">
+                    <bool>false</bool>
+                   </attribute>
+                   <attribute name="horizontalHeaderDefaultSectionSize">
+                    <number>73</number>
+                   </attribute>
+                   <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+                    <bool>true</bool>
+                   </attribute>
+                   <attribute name="horizontalHeaderStretchLastSection">
+                    <bool>true</bool>
+                   </attribute>
+                   <column>
+                    <property name="text">
+                     <string>Oferta</string>
+                    </property>
+                    <property name="textAlignment">
+                     <set>AlignCenter</set>
+                    </property>
+                   </column>
+                   <column>
+                    <property name="text">
+                     <string>Cliente</string>
+                    </property>
+                    <property name="textAlignment">
+                     <set>AlignCenter</set>
+                    </property>
+                   </column>
+                   <column>
+                    <property name="text">
+                     <string>Material</string>
+                    </property>
+                    <property name="textAlignment">
+                     <set>AlignCenter</set>
+                    </property>
+                   </column>
+                   <column>
+                    <property name="text">
+                     <string>Fecha Presentación</string>
+                    </property>
+                    <property name="textAlignment">
+                     <set>AlignCenter</set>
+                    </property>
+                   </column>
+                   <column>
+                    <property name="text">
+                     <string>Importe</string>
+                    </property>
+                    <property name="textAlignment">
+                     <set>AlignCenter</set>
+                    </property>
+                   </column>
+                   <column>
+                    <property name="text">
+                     <string>Estado</string>
+                    </property>
+                    <property name="textAlignment">
+                     <set>AlignCenter</set>
+                    </property>
+                   </column>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+               <widget class="QWidget" name="tabOrder">
+                <attribute name="title">
+                 <string>Pedidos</string>
+                </attribute>
+                <layout class="QGridLayout" name="gridLayout_3">
+                 <item row="0" column="0">
+                  <widget class="QTableWidget" name="tableOrder">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>370</width>
+                     <height>340</height>
+                    </size>
+                   </property>
+                   <property name="sizeIncrement">
+                    <size>
+                     <width>0</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="sizeAdjustPolicy">
+                    <enum>QAbstractScrollArea::AdjustToContents</enum>
+                   </property>
+                   <property name="columnCount">
+                    <number>5</number>
+                   </property>
+                   <attribute name="horizontalHeaderCascadingSectionResizes">
+                    <bool>true</bool>
+                   </attribute>
+                   <attribute name="horizontalHeaderMinimumSectionSize">
+                    <number>73</number>
+                   </attribute>
+                   <attribute name="horizontalHeaderDefaultSectionSize">
+                    <number>73</number>
+                   </attribute>
+                   <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+                    <bool>true</bool>
+                   </attribute>
+                   <attribute name="horizontalHeaderStretchLastSection">
+                    <bool>true</bool>
+                   </attribute>
+                   <column/>
+                   <column/>
+                   <column/>
+                   <column/>
+                   <column/>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </widget>
+             </item>
+             <item>
+              <spacer name="vSpacer11">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>5</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="BottomLayout">
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QWidget" name="widget" native="true">
+                 <property name="minimumSize">
+                  <size>
+                   <width>300</width>
+                   <height>360</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Fixed</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>10</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QCalendarWidget" name="calendar">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>300</width>
+                   <height>360</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">QCalendarWidget QWidget{
+background-color: rgb(3, 174, 236);
+}
+
+QCalendarWidget QTableView{
+	background-color: white;
+}
+
+QCalendarWidget QToolButton {
+	color: white;
+	font-size:20px;
+	icon-size:30px,30px;
+	background-color:rgb(3, 174, 236);
+}
+
+QCalendarWidget QToolButton::hover {
+	background-color : #019ad2;
+}
+
+QCalendarWidget QToolButton::pressed {
+	background-color: rgb(1, 140, 190);
+	border: 3px solid;
+	border-color: rgb(255, 255, 255);
+}
+
+QCalendarWidget QSpinBox{
+	
+	background-color: rgb(255, 255, 255);
+	border: 2px solid;
+	border-color: rgb(3,174, 236);
+}
+
+QCalendarWidget QAbstractItemView:enabled{
+	selection-background-color: rgb(3, 174, 236);
+	selection-color: white;
+	selection-font-weight: bold;
+}
+
+#qt_calendar_prevmonth {
+    qproperty-icon: url(C:/Users/Enrique.serrano/Documents/GIT/ERP_EIPSA/button_icons/back_arrow.png);
+}
+#qt_calendar_nextmonth {
+    qproperty-icon: url(C:/Users/Enrique.serrano/Documents/GIT/ERP_EIPSA/button_icons/forward_arrow.png);
+}</string>
+                 </property>
+                 <property name="selectedDate">
+                  <date>
+                   <year>2023</year>
+                   <month>2</month>
+                   <day>6</day>
+                  </date>
+                 </property>
+                 <property name="gridVisible">
+                  <bool>true</bool>
+                 </property>
+                 <property name="navigationBarVisible">
+                  <bool>true</bool>
+                 </property>
+                 <property name="dateEditEnabled">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
            </item>
           </layout>
          </item>
@@ -364,7 +969,7 @@ QPushButton{
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1041</width>
+     <width>1063</width>
      <height>22</height>
     </rect>
    </property>
