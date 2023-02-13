@@ -22,7 +22,7 @@ class Ui_Login_Window(object):
         Login_Window.setSizePolicy(sizePolicy)
         Login_Window.setMaximumSize(QtCore.QSize(670, 392))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("C:/Users/Enrique.serrano/Documents/GIT/ERP_EIPSA/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Login_Window.setWindowIcon(icon)
         Login_Window.setAutoFillBackground(False)
         Login_Window.setStyleSheet("QWidget {\n"
@@ -101,7 +101,7 @@ class Ui_Login_Window(object):
         self.logo.setSizePolicy(sizePolicy)
         self.logo.setMaximumSize(QtCore.QSize(256, 234))
         self.logo.setText("")
-        self.logo.setPixmap(QtGui.QPixmap("C:/Users/Enrique.serrano/Documents/GIT/ERP_EIPSA/Logo.ico"))
+        self.logo.setPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Logo.ico"))
         self.logo.setScaledContents(False)
         self.logo.setObjectName("logo")
         self.horizontalLayout.addWidget(self.logo)

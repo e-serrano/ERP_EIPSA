@@ -4,7 +4,7 @@ from tkinter import *
 import os, sys
 
 #importación de módulos de SQL
-             
+
 class Login():
     def __init__(self):
         super().__init__()
@@ -13,7 +13,7 @@ class Login():
         self.pass_error_root = tk.Tk()
         self.pass_error_root.geometry('300x50')
         self.pass_error_root.title('Error')
-        self.pass_error_root.iconbitmap('icon.ico')
+        self.pass_error_root.iconbitmap('//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico')
         Label(self.pass_error_root, text = 'Contraseña incorrecta').pack()
         Button(self.pass_error_root, text = 'Ok', command = self.pass_error_root.destroy).pack()
         self.pass_error_root.mainloop()
@@ -24,7 +24,7 @@ class Login():
         self.user_error_root=tk.Tk()
         self.user_error_root.geometry('300x50')
         self.user_error_root.title('Error')
-        self.user_error_root.iconbitmap('icon.ico')
+        self.user_error_root.iconbitmap('//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico')
         Label(self.user_error_root, text = 'Usuario incorrecto o inexistente').pack()
         Button(self.user_error_root, text ='Ok', command = self.user_error_root.destroy).pack()
         self.user_error_root.mainloop()

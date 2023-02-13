@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>App_Comercial</class>
+ <widget class="QMainWindow" name="App_Comercial">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1063</width>
+    <width>942</width>
     <height>914</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -654,7 +660,7 @@ QPushButton:pressed{
              <item>
               <widget class="QTabWidget" name="tabWidget">
                <property name="currentIndex">
-                <number>0</number>
+                <number>1</number>
                </property>
                <property name="iconSize">
                 <size>
@@ -668,7 +674,7 @@ QPushButton:pressed{
                 </attribute>
                 <layout class="QGridLayout" name="gridLayout_4">
                  <item row="0" column="0">
-                  <widget class="QTableWidget" name="tableOffer">
+                  <widget class="QTableWidget" name="TableOffer">
                    <property name="minimumSize">
                     <size>
                      <width>370</width>
@@ -682,7 +688,7 @@ QPushButton:pressed{
                     <enum>Qt::ScrollBarAsNeeded</enum>
                    </property>
                    <property name="sizeAdjustPolicy">
-                    <enum>QAbstractScrollArea::AdjustIgnored</enum>
+                    <enum>QAbstractScrollArea::AdjustToContents</enum>
                    </property>
                    <property name="sortingEnabled">
                     <bool>true</bool>
@@ -694,7 +700,7 @@ QPushButton:pressed{
                     <number>6</number>
                    </property>
                    <attribute name="horizontalHeaderVisible">
-                    <bool>true</bool>
+                    <bool>false</bool>
                    </attribute>
                    <attribute name="horizontalHeaderCascadingSectionResizes">
                     <bool>false</bool>
@@ -766,7 +772,7 @@ QPushButton:pressed{
                 </attribute>
                 <layout class="QGridLayout" name="gridLayout_3">
                  <item row="0" column="0">
-                  <widget class="QTableWidget" name="tableOrder">
+                  <widget class="QTableWidget" name="TableOrder">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                      <horstretch>0</horstretch>
@@ -839,12 +845,24 @@ QPushButton:pressed{
                 <number>0</number>
                </property>
                <item>
-                <widget class="QWidget" name="widget" native="true">
+                <widget class="QWidget" name="Graph1" native="true">
                  <property name="minimumSize">
                   <size>
-                   <width>300</width>
+                   <width>200</width>
                    <height>360</height>
                   </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>583</width>
+                   <height>360</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">border:2px solid;
+
+border-color: rgb(0, 0, 0);
+</string>
                  </property>
                 </widget>
                </item>
@@ -858,14 +876,52 @@ QPushButton:pressed{
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
-                   <width>10</width>
+                   <width>15</width>
                    <height>20</height>
                   </size>
                  </property>
                 </spacer>
                </item>
                <item>
-                <widget class="QCalendarWidget" name="calendar">
+                <widget class="QWidget" name="Graph2" native="true">
+                 <property name="minimumSize">
+                  <size>
+                   <width>200</width>
+                   <height>360</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>583</width>
+                   <height>360</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">border:2px solid;
+
+border-color: rgb(0, 0, 0);
+</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_2">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Fixed</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>15</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QCalendarWidget" name="Calendar">
                  <property name="enabled">
                   <bool>true</bool>
                  </property>
@@ -877,14 +933,14 @@ QPushButton:pressed{
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>300</width>
+                   <width>200</width>
                    <height>360</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>16777215</width>
-                   <height>16777215</height>
+                   <width>583</width>
+                   <height>360</height>
                   </size>
                  </property>
                  <property name="styleSheet">
@@ -969,7 +1025,7 @@ QCalendarWidget QAbstractItemView:enabled{
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1063</width>
+     <width>942</width>
      <height>22</height>
     </rect>
    </property>
