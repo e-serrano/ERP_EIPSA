@@ -212,6 +212,15 @@ class Ui_Login_Window(object):
         self.exit_login.setFont(font)
         self.exit_login.setObjectName("exit_login")
         self.verticalLayout.addWidget(self.exit_login)
+        self.label_error_login = QtWidgets.QLabel(parent=self.frame)
+        self.label_error_login.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
+        self.label_error_login.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.label_error_login.setMinimumSize(QtCore.QSize(200, 25))
+        self.label_error_login.setMaximumSize(QtCore.QSize(200, 25))
+        self.label_error_login.setStyleSheet("color: rgb(255, 0, 0);")
+        self.label_error_login.setText("")
+        self.label_error_login.setObjectName("label_error_login")
+        self.verticalLayout.addWidget(self.label_error_login)
         self.horizontalLayout.addLayout(self.verticalLayout)
         spacerItem4 = QtWidgets.QSpacerItem(48, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.horizontalLayout.addItem(spacerItem4)
@@ -244,22 +253,25 @@ class Ui_Login_Window(object):
         login_password = self.password_login.text()
         list_files = os.listdir('C:/Users/Enrique.serrano/Documents/GIT/ERP_EIPSA/Passwords')
 
-        if login_username in list_files:
-            path=os.path.join('C:/Users/Enrique.serrano/Documents/GIT/ERP_EIPSA/Passwords',login_username)
-            verif_file = open(path, 'r')
-            verification = verif_file.read().splitlines()
+        if login_username =="" or login_password=="":
+            self.label_error_login.setText('Rellene todos los campos')
+        else:
+            if login_username in list_files:
+                path=os.path.join('C:/Users/Enrique.serrano/Documents/GIT/ERP_EIPSA/Passwords',login_username)
+                verif_file = open(path, 'r')
+                verification = verif_file.read().splitlines()
 
-            if login_password in verification:
-                self.reg_window=QtWidgets.QMainWindow()
-                self.ui=Ui_RegistrationWindow()
-                self.ui.setupUi(self.reg_window)
-                self.reg_window.show()
+                if login_password in verification:
+                    self.reg_window=QtWidgets.QMainWindow()
+                    self.ui=Ui_RegistrationWindow()
+                    self.ui.setupUi(self.reg_window)
+                    self.reg_window.show()
+
+                else:
+                    Login().password_error()
 
             else:
-                Login().password_error()
-
-        else:
-            Login().user_error()
+                Login().user_error()
 
         del login_username, login_password, list_files
 
