@@ -27,7 +27,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../icon.ico</normaloff>../icon.ico</iconset>
+    <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico</iconset>
   </property>
   <property name="autoFillBackground">
    <bool>false</bool>
@@ -154,7 +154,7 @@ QPushButton:pressed {
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap>../Logo.ico</pixmap>
+            <pixmap>//nas01/DATOS/Comunes/EIPSA-ERP/Logo.ico</pixmap>
            </property>
            <property name="scaledContents">
             <bool>false</bool>
