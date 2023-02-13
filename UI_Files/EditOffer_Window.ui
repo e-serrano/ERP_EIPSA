@@ -114,7 +114,7 @@ QPushButton:pressed {
         </spacer>
        </item>
        <item row="1" column="0">
-        <widget class="QPushButton" name="Button_Edit">
+        <widget class="QPushButton" name="Button_Submit">
          <property name="minimumSize">
           <size>
            <width>250</width>
@@ -149,7 +149,7 @@ QPushButton:pressed {
         </spacer>
        </item>
        <item row="3" column="0">
-        <widget class="QPushButton" name="Button_Present">
+        <widget class="QPushButton" name="Button_Edit">
          <property name="minimumSize">
           <size>
            <width>250</width>

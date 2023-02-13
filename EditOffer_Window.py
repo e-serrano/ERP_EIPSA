@@ -7,6 +7,7 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
+from SubmitOffer_Window import *
 
 
 class Ui_Edit_Offer(object):
@@ -75,18 +76,18 @@ class Ui_Edit_Offer(object):
         self.gridLayout_2.setObjectName("gridLayout_2")
         spacerItem = QtWidgets.QSpacerItem(20, 80, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 4, 0, 1, 1)
+        self.Button_Submit = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Submit.setMinimumSize(QtCore.QSize(250, 35))
+        self.Button_Submit.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_Submit.setObjectName("Button_Submit")
+        self.gridLayout_2.addWidget(self.Button_Submit, 1, 0, 1, 1)
+        spacerItem1 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.gridLayout_2.addItem(spacerItem1, 2, 0, 1, 1)
         self.Button_Edit = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Edit.setMinimumSize(QtCore.QSize(250, 35))
         self.Button_Edit.setMaximumSize(QtCore.QSize(250, 35))
         self.Button_Edit.setObjectName("Button_Edit")
-        self.gridLayout_2.addWidget(self.Button_Edit, 1, 0, 1, 1)
-        spacerItem1 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem1, 2, 0, 1, 1)
-        self.Button_Present = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Present.setMinimumSize(QtCore.QSize(250, 35))
-        self.Button_Present.setMaximumSize(QtCore.QSize(250, 35))
-        self.Button_Present.setObjectName("Button_Present")
-        self.gridLayout_2.addWidget(self.Button_Present, 3, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_Edit, 3, 0, 1, 1)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout.setObjectName("horizontalLayout")
@@ -113,14 +114,22 @@ class Ui_Edit_Offer(object):
 
         self.retranslateUi(Edit_Offer)
         self.Button_Cancel.clicked.connect(Edit_Offer.close) # type: ignore
+        self.Button_Submit.clicked.connect(self.SubmitOffer)
         QtCore.QMetaObject.connectSlotsByName(Edit_Offer)
 
     def retranslateUi(self, Edit_Offer):
         _translate = QtCore.QCoreApplication.translate
         Edit_Offer.setWindowTitle(_translate("Edit_Offer", "Editar Oferta"))
-        self.Button_Edit.setText(_translate("Edit_Offer", "Presentar Oferta"))
-        self.Button_Present.setText(_translate("Edit_Offer", "Editar Oferta"))
+        self.Button_Submit.setText(_translate("Edit_Offer", "Presentar Oferta"))
+        self.Button_Edit.setText(_translate("Edit_Offer", "Editar Oferta"))
         self.Button_Cancel.setText(_translate("Edit_Offer", "Cancelar"))
+
+
+    def SubmitOffer(self):
+        self.submitoffer_window=QtWidgets.QMainWindow()
+        self.ui=Ui_SubmitOffer()
+        self.ui.setupUi(self.submitoffer_window)
+        self.submitoffer_window.show()
 
 
 if __name__ == "__main__":
