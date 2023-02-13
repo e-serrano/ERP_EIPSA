@@ -158,14 +158,14 @@ class Ui_SubmitOffer(object):
         self.Button_Present.setText(_translate("MainWindow", "Presentar"))
         self.Button_Cancel.setText(_translate("MainWindow", "Cancelar"))
         self.label_Offer_Submit.setText(_translate("MainWindow", "Nº Oferta:"))
-        self.label_amount_Submit.setText(_translate("MainWindow", "Importe:"))
+        self.label_amount_Submit.setText(_translate("MainWindow", "Importe (€):"))
 
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
+    ui = Ui_SubmitOffer()
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec())

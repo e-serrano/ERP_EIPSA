@@ -263,6 +263,15 @@ class Ui_RegistrationWindow(object):
         self.exit_reg.setFont(font)
         self.exit_reg.setObjectName("exit_reg")
         self.verticalLayout.addWidget(self.exit_reg)
+        self.label_error_reg = QtWidgets.QLabel(parent=self.frame)
+        self.label_error_reg.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
+        self.label_error_reg.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.label_error_reg.setMinimumSize(QtCore.QSize(200, 25))
+        self.label_error_reg.setMaximumSize(QtCore.QSize(200, 25))
+        self.label_error_reg.setStyleSheet("color: rgb(255, 0, 0);")
+        self.label_error_reg.setText("")
+        self.label_error_reg.setObjectName("label_error_reg")
+        self.verticalLayout.addWidget(self.label_error_reg)
         self.horizontalLayout.addLayout(self.verticalLayout)
         self.gridLayout.addLayout(self.horizontalLayout, 0, 0, 1, 1)
         self.gridLayout_2.addWidget(self.frame, 0, 0, 1, 1)
@@ -299,17 +308,22 @@ class Ui_RegistrationWindow(object):
         reg_username=self.username_reg.text()
         reg_email=self.email_reg.text()
         reg_password=self.password_reg.text()
-        path=os.path.join('C:/Users/Enrique.serrano/Documents/GIT/ERP_EIPSA/Passwords', reg_username)
-        file=open(path, 'w')
-        file.write(reg_name + '\n' + reg_secondname + '\n' + reg_username + '\n' + reg_email + '\n' + reg_password)
-        file.close()
-        self.reg_root=tk.Tk()
-        self.reg_root.iconbitmap('//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico')
-        Label(self.reg_root, text = 'Usuario registrado con éxito').pack()
-        Button(self.reg_root, text ='Ok', command = self.reg_root.destroy).pack()
-        self.reg_root.mainloop()
 
-        del path, file, self.reg_root
+        if reg_name=="" or (reg_secondname=="" or (reg_username=="" or (reg_email=="" or reg_password==""))):
+            self.label_error_reg.setText('Rellene todos los campos')
+
+        else:
+            path=os.path.join('C:/Users/Enrique.serrano/Documents/GIT/ERP_EIPSA/Passwords', reg_username)
+            file=open(path, 'w')
+            file.write(reg_name + '\n' + reg_secondname + '\n' + reg_username + '\n' + reg_email + '\n' + reg_password)
+            file.close()
+            self.reg_root=tk.Tk()
+            self.reg_root.iconbitmap('//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico')
+            Label(self.reg_root, text = 'Usuario registrado con éxito').pack()
+            Button(self.reg_root, text ='Ok', command = self.reg_root.destroy).pack()
+            self.reg_root.mainloop()
+
+            del path, file, self.reg_root
 
 
 if __name__ == "__main__":
