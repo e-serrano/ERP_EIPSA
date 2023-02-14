@@ -7,18 +7,19 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
+from datetime import *
 
 
-class Ui_SubmitOffer(object):
-    def setupUi(self, SubmitOffer):
-        SubmitOffer.setObjectName("SubmitOffer")
-        SubmitOffer.resize(450, 325)
-        SubmitOffer.setMinimumSize(QtCore.QSize(450, 325))
-        SubmitOffer.setMaximumSize(QtCore.QSize(450, 325))
+class Ui_SubmitOffer_Window(object):
+    def setupUi(self, SubmitOffer_Window):
+        SubmitOffer_Window.setObjectName("SubmitOffer_Window")
+        SubmitOffer_Window.resize(450, 325)
+        SubmitOffer_Window.setMinimumSize(QtCore.QSize(450, 325))
+        SubmitOffer_Window.setMaximumSize(QtCore.QSize(450, 325))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        SubmitOffer.setWindowIcon(icon)
-        SubmitOffer.setStyleSheet("QWidget {\n"
+        SubmitOffer_Window.setWindowIcon(icon)
+        SubmitOffer_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
 "}\n"
 "\n"
@@ -61,7 +62,7 @@ class Ui_SubmitOffer(object):
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
 "}")
-        self.centralwidget = QtWidgets.QWidget(parent=SubmitOffer)
+        self.centralwidget = QtWidgets.QWidget(parent=SubmitOffer_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
         self.frame.setGeometry(QtCore.QRect(20, 20, 400, 275))
@@ -138,34 +139,57 @@ class Ui_SubmitOffer(object):
         self.Amount_Submit.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.Amount_Submit.setObjectName("Amount_Submit")
         self.horizontalLayout_3.addWidget(self.Amount_Submit)
+        self.label_error_submitorder = QtWidgets.QLabel(parent=self.frame)
+        self.label_error_submitorder.setMinimumSize(QtCore.QSize(0, 25))
+        self.label_error_submitorder.setMaximumSize(QtCore.QSize(16777215, 25))
+        self.label_error_submitorder.setStyleSheet("color: rgb(255, 0, 0);")
+        self.label_error_submitorder.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.label_error_submitorder.setObjectName("label_error_submitorder")
+        self.gridLayout_2.addWidget(self.label_error_submitorder, 10, 0, 1, 1)
         self.gridLayout_2.addLayout(self.horizontalLayout_3, 6, 0, 1, 1)
-        SubmitOffer.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=SubmitOffer)
+        SubmitOffer_Window.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=SubmitOffer_Window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 450, 22))
         self.menubar.setObjectName("menubar")
-        SubmitOffer.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=SubmitOffer)
+        SubmitOffer_Window.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=SubmitOffer_Window)
         self.statusbar.setObjectName("statusbar")
-        SubmitOffer.setStatusBar(self.statusbar)
+        SubmitOffer_Window.setStatusBar(self.statusbar)
 
-        self.retranslateUi(SubmitOffer)
-        self.Button_Cancel.clicked.connect(SubmitOffer.close) # type: ignore
-        QtCore.QMetaObject.connectSlotsByName(SubmitOffer)
+        self.retranslateUi(SubmitOffer_Window)
+        self.Button_Cancel.clicked.connect(SubmitOffer_Window.close) # type: ignore
+        self.Button_Present.clicked.connect(self.SubmitOffer)
+        QtCore.QMetaObject.connectSlotsByName(SubmitOffer_Window)
 
-    def retranslateUi(self, SubmitOffer):
+
+    def retranslateUi(self, SubmitOffer_Window):
         _translate = QtCore.QCoreApplication.translate
-        SubmitOffer.setWindowTitle(_translate("SubmitOffer", "Presentar Oferta"))
-        self.Button_Present.setText(_translate("SubmitOffer", "Presentar"))
-        self.Button_Cancel.setText(_translate("SubmitOffer", "Cancelar"))
-        self.label_Offer_Submit.setText(_translate("SubmitOffer", "Nº Oferta:"))
-        self.label_amount_Submit.setText(_translate("SubmitOffer", "Importe (€):"))
+        SubmitOffer_Window.setWindowTitle(_translate("SubmitOffer_Window", "Presentar Oferta"))
+        self.Button_Present.setText(_translate("SubmitOffer_Window", "Presentar"))
+        self.Button_Cancel.setText(_translate("SubmitOffer_Window", "Cancelar"))
+        self.label_Offer_Submit.setText(_translate("SubmitOffer_Window", "Nº Oferta:"))
+        self.label_amount_Submit.setText(_translate("SubmitOffer_Window", "Importe (€):"))
+        self.label_error_submitorder.setText(_translate("SubmitOffer_Window", ""))
+
+
+    def SubmitOffer(self):
+        numoffer=self.Offer_Submit.text()
+        amount=self.Amount_Submit.text()
+        state="Presentada"
+        actual_date=date.today()
+        actual_date= actual_date.strftime("%d/%m/%Y")
+
+        if numoffer=="" or amount=="":
+            self.label_error_submitorder.setText('Rellene todos los campos')
+        else:
+            print(numoffer, amount, state, actual_date)
 
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    SubmitOffer = QtWidgets.QMainWindow()
-    ui = Ui_SubmitOffer()
-    ui.setupUi(SubmitOffer)
-    SubmitOffer.show()
+    SubmitOffer_Window = QtWidgets.QMainWindow()
+    ui = Ui_SubmitOffer_Window()
+    ui.setupUi(SubmitOffer_Window)
+    SubmitOffer_Window.show()
     sys.exit(app.exec())

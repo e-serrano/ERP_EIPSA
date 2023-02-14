@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'EditOffer_Window.ui'
+# Form implementation generated from reading ui file 'CreateTAG_Menu.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.1
 #
@@ -7,19 +7,20 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-from SubmitOffer_Window import *
+from TypeTAG_Menu import *
+from ImportTAG_Window import *
 
+class Ui_CreateTAG_Menu(object):
 
-class Ui_EditOffer_Menu(object):
-    def setupUi(self, EditOffer_Menu):
-        EditOffer_Menu.setObjectName("EditOffer_Menu")
-        EditOffer_Menu.resize(300, 336)
-        EditOffer_Menu.setMinimumSize(QtCore.QSize(300, 300))
-        EditOffer_Menu.setMaximumSize(QtCore.QSize(300, 340))
+    def setupUi(self, CreateTAG_Menu):
+        CreateTAG_Menu.setObjectName("CreateTAG_Menu")
+        CreateTAG_Menu.resize(300, 340)
+        CreateTAG_Menu.setMinimumSize(QtCore.QSize(300, 340))
+        CreateTAG_Menu.setMaximumSize(QtCore.QSize(300, 340))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        EditOffer_Menu.setWindowIcon(icon)
-        EditOffer_Menu.setStyleSheet("QWidget {\n"
+        CreateTAG_Menu.setWindowIcon(icon)
+        CreateTAG_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
 "}\n"
 "\n"
@@ -62,7 +63,7 @@ class Ui_EditOffer_Menu(object):
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
 "}")
-        self.centralwidget = QtWidgets.QWidget(parent=EditOffer_Menu)
+        self.centralwidget = QtWidgets.QWidget(parent=CreateTAG_Menu)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -76,18 +77,18 @@ class Ui_EditOffer_Menu(object):
         self.gridLayout_2.setObjectName("gridLayout_2")
         spacerItem = QtWidgets.QSpacerItem(20, 80, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 4, 0, 1, 1)
-        self.Button_Submit = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Submit.setMinimumSize(QtCore.QSize(250, 35))
-        self.Button_Submit.setMaximumSize(QtCore.QSize(250, 35))
-        self.Button_Submit.setObjectName("Button_Submit")
-        self.gridLayout_2.addWidget(self.Button_Submit, 1, 0, 1, 1)
+        self.Button_Create = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Create.setMinimumSize(QtCore.QSize(250, 35))
+        self.Button_Create.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_Create.setObjectName("Button_Create")
+        self.gridLayout_2.addWidget(self.Button_Create, 1, 0, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem1, 2, 0, 1, 1)
-        self.Button_Edit = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Edit.setMinimumSize(QtCore.QSize(250, 35))
-        self.Button_Edit.setMaximumSize(QtCore.QSize(250, 35))
-        self.Button_Edit.setObjectName("Button_Edit")
-        self.gridLayout_2.addWidget(self.Button_Edit, 3, 0, 1, 1)
+        self.Button_Import = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Import.setMinimumSize(QtCore.QSize(250, 35))
+        self.Button_Import.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_Import.setObjectName("Button_Import")
+        self.gridLayout_2.addWidget(self.Button_Import, 3, 0, 1, 1)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout.setObjectName("horizontalLayout")
@@ -103,43 +104,53 @@ class Ui_EditOffer_Menu(object):
         spacerItem3 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem3, 0, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
-        EditOffer_Menu.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=EditOffer_Menu)
+        CreateTAG_Menu.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=CreateTAG_Menu)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 300, 22))
         self.menubar.setObjectName("menubar")
-        EditOffer_Menu.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=EditOffer_Menu)
+        CreateTAG_Menu.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=CreateTAG_Menu)
         self.statusbar.setObjectName("statusbar")
-        EditOffer_Menu.setStatusBar(self.statusbar)
+        CreateTAG_Menu.setStatusBar(self.statusbar)
 
-        self.retranslateUi(EditOffer_Menu)
-        self.Button_Cancel.clicked.connect(EditOffer_Menu.close) # type: ignore
-        self.Button_Submit.clicked.connect(self.SubmitOffer)
-        QtCore.QMetaObject.connectSlotsByName(EditOffer_Menu)
+        self.retranslateUi(CreateTAG_Menu)
+        self.Button_Cancel.clicked.connect(CreateTAG_Menu.close) # type: ignore
+        self.Button_Create.clicked.connect(self.CreateTAG)
+        self.Button_Import.clicked.connect(self.ImportTAG)
+        QtCore.QMetaObject.connectSlotsByName(CreateTAG_Menu)
 
 
-    def retranslateUi(self, EditOffer_Menu):
+    def retranslateUi(self, CreateTAG_Menu):
         _translate = QtCore.QCoreApplication.translate
-        EditOffer_Menu.setWindowTitle(_translate("EditOffer_Menu", "Editar Oferta"))
-        self.Button_Submit.setText(_translate("EditOffer_Menu", "Presentar Oferta"))
-        self.Button_Edit.setText(_translate("EditOffer_Menu", "Editar Oferta"))
-        self.Button_Cancel.setText(_translate("EditOffer_Menu", "Cancelar"))
+        CreateTAG_Menu.setWindowTitle(_translate("CreateTAG_Menu", "Crear TAG"))
+        self.Button_Create.setText(_translate("CreateTAG_Menu", "Crear TAG"))
+        self.Button_Import.setText(_translate("CreateTAG_Menu", "Importar TAG"))
+        self.Button_Cancel.setText(_translate("CreateTAG_Menu", "Cancelar"))
 
 
-    def SubmitOffer(self):
-        self.submitoffer_window=QtWidgets.QMainWindow()
-        self.ui=Ui_SubmitOffer_Window()
-        self.ui.setupUi(self.submitoffer_window)
-        self.submitoffer_window.show()
-        EditOffer_Menu.hide()
-        self.ui.Button_Cancel.clicked.connect(EditOffer_Menu.show)
+    def CreateTAG(self):
+        self.typetag_window=QtWidgets.QMainWindow()
+        self.ui=Ui_TypeTag_Menu()
+        self.ui.setupUi(self.typetag_window)
+        self.typetag_window.show()
+        CreateTAG_Menu.hide()
+        self.ui.Button_Cancel.clicked.connect(CreateTAG_Menu.show)
+
+
+    def ImportTAG(self):
+        self.importtag_window=QtWidgets.QMainWindow()
+        self.ui=Ui_ImportTAG_Window()
+        self.ui.setupUi(self.importtag_window)
+        self.importtag_window.show()
+        CreateTAG_Menu.hide()
+        self.ui.Button_Cancel.clicked.connect(CreateTAG_Menu.show)
 
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    EditOffer_Menu = QtWidgets.QMainWindow()
-    ui = Ui_EditOffer_Menu()
-    ui.setupUi(EditOffer_Menu)
-    EditOffer_Menu.show()
+    CreateTAG_Menu = QtWidgets.QMainWindow()
+    ui = Ui_CreateTAG_Menu()
+    ui.setupUi(CreateTAG_Menu)
+    CreateTAG_Menu.show()
     sys.exit(app.exec())
