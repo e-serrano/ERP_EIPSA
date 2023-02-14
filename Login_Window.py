@@ -255,7 +255,9 @@ class Ui_Login_Window(object):
 
         if login_username =="" or login_password=="":
             self.label_error_login.setText('Rellene todos los campos')
+
         else:
+
             if login_username in list_files:
                 path=os.path.join('C:/Users/Enrique.serrano/Documents/GIT/ERP_EIPSA/Passwords',login_username)
                 verif_file = open(path, 'r')
@@ -273,7 +275,8 @@ class Ui_Login_Window(object):
             else:
                 Login().user_error()
 
-        del login_username, login_password, list_files
+        del login_password, list_files
+        return login_username
 
 
 if __name__ == "__main__":

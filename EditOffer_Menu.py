@@ -130,6 +130,8 @@ class Ui_Edit_Offer(object):
         self.ui=Ui_SubmitOffer()
         self.ui.setupUi(self.submitoffer_window)
         self.submitoffer_window.show()
+        Edit_Offer.hide()
+        self.ui.Button_Cancel.clicked.connect(Edit_Offer.show)
 
 
 if __name__ == "__main__":

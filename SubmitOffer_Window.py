@@ -10,15 +10,15 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 
 
 class Ui_SubmitOffer(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(450, 325)
-        MainWindow.setMinimumSize(QtCore.QSize(450, 325))
-        MainWindow.setMaximumSize(QtCore.QSize(450, 325))
+    def setupUi(self, SubmitOffer):
+        SubmitOffer.setObjectName("SubmitOffer")
+        SubmitOffer.resize(450, 325)
+        SubmitOffer.setMinimumSize(QtCore.QSize(450, 325))
+        SubmitOffer.setMaximumSize(QtCore.QSize(450, 325))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        MainWindow.setWindowIcon(icon)
-        MainWindow.setStyleSheet("QWidget {\n"
+        SubmitOffer.setWindowIcon(icon)
+        SubmitOffer.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
 "}\n"
 "\n"
@@ -61,7 +61,7 @@ class Ui_SubmitOffer(object):
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
 "}")
-        self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
+        self.centralwidget = QtWidgets.QWidget(parent=SubmitOffer)
         self.centralwidget.setObjectName("centralwidget")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
         self.frame.setGeometry(QtCore.QRect(20, 20, 400, 275))
@@ -139,33 +139,33 @@ class Ui_SubmitOffer(object):
         self.Amount_Submit.setObjectName("Amount_Submit")
         self.horizontalLayout_3.addWidget(self.Amount_Submit)
         self.gridLayout_2.addLayout(self.horizontalLayout_3, 6, 0, 1, 1)
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=MainWindow)
+        SubmitOffer.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=SubmitOffer)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 450, 22))
         self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=MainWindow)
+        SubmitOffer.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=SubmitOffer)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        SubmitOffer.setStatusBar(self.statusbar)
 
-        self.retranslateUi(MainWindow)
-        self.Button_Cancel.clicked.connect(MainWindow.close) # type: ignore
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateUi(SubmitOffer)
+        self.Button_Cancel.clicked.connect(SubmitOffer.close) # type: ignore
+        QtCore.QMetaObject.connectSlotsByName(SubmitOffer)
 
-    def retranslateUi(self, MainWindow):
+    def retranslateUi(self, SubmitOffer):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Presentar Oferta"))
-        self.Button_Present.setText(_translate("MainWindow", "Presentar"))
-        self.Button_Cancel.setText(_translate("MainWindow", "Cancelar"))
-        self.label_Offer_Submit.setText(_translate("MainWindow", "Nº Oferta:"))
-        self.label_amount_Submit.setText(_translate("MainWindow", "Importe (€):"))
+        SubmitOffer.setWindowTitle(_translate("SubmitOffer", "Presentar Oferta"))
+        self.Button_Present.setText(_translate("SubmitOffer", "Presentar"))
+        self.Button_Cancel.setText(_translate("SubmitOffer", "Cancelar"))
+        self.label_Offer_Submit.setText(_translate("SubmitOffer", "Nº Oferta:"))
+        self.label_amount_Submit.setText(_translate("SubmitOffer", "Importe (€):"))
 
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
+    SubmitOffer = QtWidgets.QMainWindow()
     ui = Ui_SubmitOffer()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    ui.setupUi(SubmitOffer)
+    SubmitOffer.show()
     sys.exit(app.exec())
