@@ -7,7 +7,6 @@
 
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
-from Login_Check import *
 from Registration_Window import *
 
 
@@ -270,10 +269,11 @@ class Ui_Login_Window(object):
                     self.reg_window.show()
 
                 else:
-                    Login().password_error()
+                    self.label_error_login.setText('Contraseña incorrecta')
 
             else:
-                Login().user_error()
+                self.label_error_login.setText('Usuario y/o contraseña incorrecto')
+
 
         del login_password, list_files
         return login_username
