@@ -6,9 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>713</width>
-    <height>557</height>
+    <width>705</width>
+    <height>605</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>705</width>
+    <height>605</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>705</width>
+    <height>605</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Crear TAG Caudal</string>
@@ -73,6 +85,22 @@ QPushButton:pressed {
        <enum>QFrame::Raised</enum>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <spacer name="vSpacer1">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>15</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
        <item>
         <layout class="QHBoxLayout" name="hLayout1">
          <item>
@@ -226,7 +254,7 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>Tamaño Línea</string>
+              <string>Tamaño Línea:</string>
              </property>
             </widget>
            </item>
@@ -591,7 +619,7 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>Tapping Nº Size:</string>
+              <string>Tomas Pres. (Nº):</string>
              </property>
             </widget>
            </item>
@@ -671,6 +699,31 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
+            <widget class="QLabel" name="label_Platestd">
+             <property name="minimumSize">
+              <size>
+               <width>120</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>120</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>STD Placa:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QLabel" name="label_Gasketmat">
              <property name="minimumSize">
               <size>
@@ -717,31 +770,6 @@ QPushButton:pressed {
              </property>
              <property name="text">
               <string>Mat. Tornillería:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_Platestd">
-             <property name="minimumSize">
-              <size>
-               <width>120</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>120</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>11</pointsize>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>STD Placa:</string>
              </property>
             </widget>
            </item>
@@ -828,7 +856,7 @@ QPushButton:pressed {
             <number>15</number>
            </property>
            <item>
-            <widget class="QLineEdit" name="Tapping_CreatetagQ">
+            <widget class="QComboBox" name="Tapping_CreatetagQ">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -840,16 +868,11 @@ QPushButton:pressed {
                <width>175</width>
                <height>25</height>
               </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="PlateMat_CreatetagQ">
+            <widget class="QComboBox" name="PlateMat_CreatetagQ">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -861,16 +884,11 @@ QPushButton:pressed {
                <width>175</width>
                <height>25</height>
               </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="PlateType_CreatetagQ">
+            <widget class="QComboBox" name="PlateType_CreatetagQ">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -882,16 +900,11 @@ QPushButton:pressed {
                <width>175</width>
                <height>25</height>
               </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="PlateThk_CreatetagQ">
+            <widget class="QComboBox" name="PlateThk_CreatetagQ">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -903,16 +916,11 @@ QPushButton:pressed {
                <width>175</width>
                <height>25</height>
               </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="GasketMat_CreatetagQ">
+            <widget class="QComboBox" name="PlateStd_CreatetagQ">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -924,16 +932,11 @@ QPushButton:pressed {
                <width>175</width>
                <height>25</height>
               </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="BnMat_CreatetagQ">
+            <widget class="QComboBox" name="GasketMat_CreatetagQ">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -945,16 +948,11 @@ QPushButton:pressed {
                <width>175</width>
                <height>25</height>
               </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="PlateStd_CreatetagQ">
+            <widget class="QComboBox" name="BnMat_CreatetagQ">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -966,16 +964,11 @@ QPushButton:pressed {
                <width>175</width>
                <height>25</height>
               </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="Nace_CreatetagQ">
+            <widget class="QComboBox" name="Nace_CreatetagQ">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -988,11 +981,21 @@ QPushButton:pressed {
                <height>25</height>
               </size>
              </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
+             <item>
+              <property name="text">
+               <string>HOLD</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>NO</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>YES</string>
+              </property>
+             </item>
             </widget>
            </item>
            <item>
@@ -1042,7 +1045,7 @@ QPushButton:pressed {
         </layout>
        </item>
        <item>
-        <spacer name="vSpacer">
+        <spacer name="vSpacer2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -1052,7 +1055,7 @@ QPushButton:pressed {
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>10</height>
+           <height>40</height>
           </size>
          </property>
         </spacer>
@@ -1128,7 +1131,7 @@ QPushButton:pressed {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>713</width>
+     <width>705</width>
      <height>22</height>
     </rect>
    </property>
@@ -1137,6 +1140,24 @@ QPushButton:pressed {
  </widget>
  <tabstops>
   <tabstop>TAG_CreatetagQ</tabstop>
+  <tabstop>NumOffer_CreatetagQ</tabstop>
+  <tabstop>Pos_CreatetagQ</tabstop>
+  <tabstop>Subpos_CreatetagQ</tabstop>
+  <tabstop>Type_CreatetagQ</tabstop>
+  <tabstop>Linesize_CreatetagQ</tabstop>
+  <tabstop>Rating_CreatetagQ</tabstop>
+  <tabstop>Facing_CreatetagQ</tabstop>
+  <tabstop>Sch_CreatetagQ</tabstop>
+  <tabstop>Flangemat_CreatetagQ</tabstop>
+  <tabstop>Tapping_CreatetagQ</tabstop>
+  <tabstop>PlateMat_CreatetagQ</tabstop>
+  <tabstop>PlateType_CreatetagQ</tabstop>
+  <tabstop>PlateThk_CreatetagQ</tabstop>
+  <tabstop>GasketMat_CreatetagQ</tabstop>
+  <tabstop>BnMat_CreatetagQ</tabstop>
+  <tabstop>Nace_CreatetagQ</tabstop>
+  <tabstop>StagesNum_CreatetagQ</tabstop>
+  <tabstop>PipeSpec_CreatetagQ</tabstop>
   <tabstop>Button_Create</tabstop>
   <tabstop>Button_Cancel</tabstop>
  </tabstops>

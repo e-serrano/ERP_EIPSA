@@ -237,8 +237,6 @@ class Ui_New_Offer(object):
         self.NacExt_NewOffer.setFont(font)
         self.NacExt_NewOffer.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         self.NacExt_NewOffer.setObjectName("NacExt_NewOffer")
-        self.NacExt_NewOffer.addItem("")
-        self.NacExt_NewOffer.addItem("")
         self.vlLayout4.addWidget(self.NacExt_NewOffer)
         spacerItem14 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vlLayout4.addItem(spacerItem14)
@@ -279,7 +277,7 @@ class Ui_New_Offer(object):
         self.vlLayout4.addItem(spacerItem17)
         self.hLayout.addLayout(self.vlLayout4)
         self.verticalLayout.addLayout(self.hLayout)
-        spacerItem18 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        spacerItem18 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.verticalLayout.addItem(spacerItem18)
         self.hLayout1 = QtWidgets.QHBoxLayout()
         self.hLayout1.setObjectName("hLayout1")
@@ -304,8 +302,6 @@ class Ui_New_Offer(object):
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.hLayout1.addWidget(self.Button_Cancel)
         self.verticalLayout.addLayout(self.hLayout1)
-        spacerItem19 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.verticalLayout.addItem(spacerItem19)
         self.label_error_newoffer = QtWidgets.QLabel(parent=self.frame)
         self.label_error_newoffer.setStyleSheet("color: rgb(255, 0, 0);")
         self.label_error_newoffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
@@ -326,14 +322,6 @@ class Ui_New_Offer(object):
         self.Button_NewOffer.clicked.connect(self.NewOffer)
         QtCore.QMetaObject.connectSlotsByName(New_Offer)
 
-        New_Offer.setTabOrder(self.NumOffer_NewOffer, self.Client_NewOffer)
-        New_Offer.setTabOrder(self.Client_NewOffer, self.FinalClient_NewOffer)
-        New_Offer.setTabOrder(self.FinalClient_NewOffer, self.NumRef_NewOffer)
-        New_Offer.setTabOrder(self.NumRef_NewOffer, self.NacExt_NewOffer)
-        New_Offer.setTabOrder(self.NacExt_NewOffer, self.Buyer_NewOffer)
-        New_Offer.setTabOrder(self.Buyer_NewOffer, self.Notes_NewOffer)
-        New_Offer.setTabOrder(self.Notes_NewOffer, self.Button_NewOffer)
-        New_Offer.setTabOrder(self.Button_NewOffer, self.Button_Cancel)
 
     def retranslateUi(self, New_Offer):
         _translate = QtCore.QCoreApplication.translate
@@ -350,8 +338,9 @@ class Ui_New_Offer(object):
         self.Button_Cancel.setText(_translate("New_Offer", "Cancelar"))
         self.label_error_newoffer.setText(_translate("New_Offer", ""))
 
-        self.NacExt_NewOffer.setItemText(0, _translate("New_Offer", "Exterior"))
-        self.NacExt_NewOffer.setItemText(1, _translate("New_Offer", "Nacional"))
+        list_nacext=['Exterior','Nacional']
+        self.NacExt_NewOffer.addItems(list_nacext)
+
         self.Material_NewOffer.setItemText(0, _translate("New_Offer", "Material1"))
         self.Material_NewOffer.setItemText(1, _translate("New_Offer", "Material2"))
 
