@@ -61,7 +61,8 @@ class Ui_EditOffer_Menu(object):
 "QPushButton:pressed {\n"
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
-"}")
+"}"
+)
         self.centralwidget = QtWidgets.QWidget(parent=EditOffer_Menu)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)

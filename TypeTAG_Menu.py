@@ -8,6 +8,7 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from CreateTAG_Menu import *
+from CreateTAGFlow_Window import *
 
 class Ui_TypeTag_Menu(object):
     def setupUi(self, TypeTag_Menu):
@@ -128,10 +129,10 @@ class Ui_TypeTag_Menu(object):
 
         self.retranslateUi(TypeTag_Menu)
         self.Button_Cancel.clicked.connect(TypeTag_Menu.close) # type: ignore
-        self.Button_Flow.clicked.connect(lambda: self.Typetag('Caudal'))
-        self.Button_Temp.clicked.connect(lambda: self.Typetag('Temperatura'))
-        self.Button_Level.clicked.connect(lambda: self.Typetag('Nivel'))
-        self.Button_Others.clicked.connect(lambda: self.Typetag('Otros'))
+        self.Button_Flow.clicked.connect(lambda: self.Typetag(TypeTag_Menu, 'Caudal'))
+        self.Button_Temp.clicked.connect(lambda: self.Typetag(TypeTag_Menu, 'Temperatura'))
+        self.Button_Level.clicked.connect(lambda: self.Typetag(TypeTag_Menu, 'Nivel'))
+        self.Button_Others.clicked.connect(lambda: self.Typetag(TypeTag_Menu, 'Otros'))
         QtCore.QMetaObject.connectSlotsByName(TypeTag_Menu)
 
 
@@ -144,9 +145,16 @@ class Ui_TypeTag_Menu(object):
         self.Button_Level.setText(_translate("TypeTag_Menu", "Nivel"))
         self.Button_Others.setText(_translate("TypeTag_Menu", "Otros"))
 
-    def Typetag(self, variable):
+    def Typetag(self, TypeTag_Menu, variable):
         final_variable=variable
-        print(final_variable)
+        
+        if final_variable=='Caudal':
+            self.createtagQ_window=QtWidgets.QMainWindow()
+            self.ui=Ui_CreateTAGFlow_Window()
+            self.ui.setupUi(self.createtagQ_window)
+            self.createtagQ_window.show()
+            TypeTag_Menu.hide()
+            self.ui.Button_Cancel.clicked.connect(TypeTag_Menu.show)
 
 
 if __name__ == "__main__":
