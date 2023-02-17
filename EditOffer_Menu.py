@@ -87,6 +87,7 @@ class Ui_EditOffer_Menu(object):
         self.Button_Edit = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Edit.setMinimumSize(QtCore.QSize(250, 35))
         self.Button_Edit.setMaximumSize(QtCore.QSize(250, 35))
+
         self.Button_Edit.setObjectName("Button_Edit")
         self.gridLayout_2.addWidget(self.Button_Edit, 3, 0, 1, 1)
         self.horizontalLayout = QtWidgets.QHBoxLayout()

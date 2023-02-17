@@ -238,6 +238,12 @@ class Ui_RegistrationWindow(object):
         self.accept_reg.setSizePolicy(sizePolicy)
         self.accept_reg.setMinimumSize(QtCore.QSize(200, 30))
         self.accept_reg.setMaximumSize(QtCore.QSize(200, 30))
+        self.accept_reg.setStyleSheet("QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}"
+)
+        self.accept_reg.setAutoDefault(True)
         font = QtGui.QFont()
         font.setPointSize(-1)
         font.setBold(True)
@@ -255,6 +261,12 @@ class Ui_RegistrationWindow(object):
         self.exit_reg.setSizePolicy(sizePolicy)
         self.exit_reg.setMinimumSize(QtCore.QSize(200, 30))
         self.exit_reg.setMaximumSize(QtCore.QSize(200, 30))
+        self.exit_reg.setStyleSheet("QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}"
+)
+        self.exit_reg.setAutoDefault(True)
         font = QtGui.QFont()
         font.setPointSize(-1)
         font.setBold(True)

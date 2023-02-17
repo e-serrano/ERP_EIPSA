@@ -186,6 +186,12 @@ class Ui_Login_Window(object):
         self.accept_login.setSizePolicy(sizePolicy)
         self.accept_login.setMinimumSize(QtCore.QSize(200, 30))
         self.accept_login.setMaximumSize(QtCore.QSize(200, 30))
+        self.accept_login.setStyleSheet("QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}"
+)
+        self.accept_login.setAutoDefault(True)
         font = QtGui.QFont()
         font.setPointSize(-1)
         font.setBold(True)
@@ -203,6 +209,12 @@ class Ui_Login_Window(object):
         self.exit_login.setSizePolicy(sizePolicy)
         self.exit_login.setMinimumSize(QtCore.QSize(200, 30))
         self.exit_login.setMaximumSize(QtCore.QSize(200, 30))
+        self.exit_login.setStyleSheet("QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}"
+)
+        self.exit_login.setAutoDefault(True)
         font = QtGui.QFont()
         font.setPointSize(-1)
         font.setBold(True)

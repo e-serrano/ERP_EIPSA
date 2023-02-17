@@ -61,7 +61,8 @@ class Ui_SubmitOffer_Window(object):
 "QPushButton:pressed {\n"
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
-"}")
+"}"
+)
         self.centralwidget = QtWidgets.QWidget(parent=SubmitOffer_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
@@ -79,8 +80,16 @@ class Ui_SubmitOffer_Window(object):
         self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.Button_Present = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Present.setEnabled(True)
+        self.Button_Present.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Present.setMinimumSize(QtCore.QSize(100, 35))
         self.Button_Present.setMaximumSize(QtCore.QSize(100, 35))
+        self.Button_Present.setStyleSheet("QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}"
+)
+        self.Button_Present.setAutoDefault(True)
         self.Button_Present.setObjectName("Button_Present")
         self.horizontalLayout.addWidget(self.Button_Present)
         spacerItem1 = QtWidgets.QSpacerItem(80, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -89,6 +98,13 @@ class Ui_SubmitOffer_Window(object):
         self.Button_Cancel.setEnabled(True)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(100, 35))
         self.Button_Cancel.setMaximumSize(QtCore.QSize(100, 35))
+        self.Button_Cancel.setStyleSheet("QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}"
+)
+        self.Button_Cancel.setAutoDefault(True)
+        self.Button_Cancel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.horizontalLayout.addWidget(self.Button_Cancel)
         self.gridLayout_2.addLayout(self.horizontalLayout, 9, 0, 1, 1)
@@ -160,6 +176,8 @@ class Ui_SubmitOffer_Window(object):
         self.Button_Cancel.clicked.connect(SubmitOffer_Window.close) # type: ignore
         self.Button_Present.clicked.connect(self.SubmitOffer)
         QtCore.QMetaObject.connectSlotsByName(SubmitOffer_Window)
+
+        SubmitOffer_Window.setTabOrder(self.Offer_Submit,self.Amount_Submit)
 
 
     def retranslateUi(self, SubmitOffer_Window):

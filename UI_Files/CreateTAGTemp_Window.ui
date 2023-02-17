@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1066</width>
+    <width>1091</width>
     <height>605</height>
    </rect>
   </property>
@@ -21,6 +21,9 @@
     <width>2000</width>
     <height>605</height>
    </size>
+  </property>
+  <property name="cursor">
+   <cursorShape>ArrowCursor</cursorShape>
   </property>
   <property name="windowTitle">
    <string>Crear TAG Temperatura</string>
@@ -112,13 +115,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_TAG">
              <property name="minimumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -137,13 +140,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_NumOffer">
              <property name="minimumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -162,13 +165,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_Pos">
              <property name="minimumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -187,13 +190,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_SubPos">
              <property name="minimumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -212,13 +215,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_Type">
              <property name="minimumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -229,7 +232,7 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>Tipo:</string>
+              <string>*Tipo:</string>
              </property>
             </widget>
            </item>
@@ -237,13 +240,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_Typetw">
              <property name="minimumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -262,13 +265,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_Linesize">
              <property name="minimumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -287,13 +290,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_Rating">
              <property name="minimumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -312,13 +315,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_Facing">
              <property name="minimumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -337,13 +340,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_Stdtw">
              <property name="minimumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>75</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -355,6 +358,31 @@ QPushButton:pressed {
              </property>
              <property name="text">
               <string>STD TW:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_Mattw">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Material TW:</string>
              </property>
             </widget>
            </item>
@@ -575,6 +603,22 @@ QPushButton:pressed {
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QComboBox" name="Mattw_CreatetagT">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
          <item>
@@ -598,31 +642,6 @@ QPushButton:pressed {
            <property name="spacing">
             <number>15</number>
            </property>
-           <item>
-            <widget class="QLabel" name="label_Mattw">
-             <property name="minimumSize">
-              <size>
-               <width>150</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>150</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>11</pointsize>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Material TW:</string>
-             </property>
-            </widget>
-           </item>
            <item>
             <widget class="QLabel" name="label_Stdlength">
              <property name="minimumSize">
@@ -848,29 +867,63 @@ QPushButton:pressed {
              </property>
             </widget>
            </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="vLayout4" stretch="0,0,0,0,0,0,0,0,0,0">
-           <property name="spacing">
-            <number>15</number>
-           </property>
            <item>
-            <widget class="QComboBox" name="Mattw_CreatetagT">
+            <widget class="QLabel" name="label_tempinf">
              <property name="minimumSize">
               <size>
-               <width>175</width>
+               <width>150</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>175</width>
+               <width>150</width>
                <height>25</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Temp. Inf (°C):</string>
+             </property>
             </widget>
            </item>
+           <item>
+            <widget class="QLabel" name="label_tempsup">
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>150</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Temp. Sup (°C):</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="vLayout4" stretch="0,0,0,0,0,0,0,0,0,0,0">
+           <property name="spacing">
+            <number>15</number>
+           </property>
            <item>
             <widget class="QLineEdit" name="Stdlength_CreatetagT">
              <property name="minimumSize">
@@ -1050,6 +1103,48 @@ QPushButton:pressed {
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QComboBox" name="Tempinf_CreatetagT">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="Tempsup_CreatetagT">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
          <item>
@@ -1074,57 +1169,7 @@ QPushButton:pressed {
             <number>15</number>
            </property>
            <item>
-            <widget class="QLabel" name="label_2">
-             <property name="minimumSize">
-              <size>
-               <width>160</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>160</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>11</pointsize>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Temp. Inf (°C):</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label">
-             <property name="minimumSize">
-              <size>
-               <width>160</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>160</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>11</pointsize>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Temp. Sup (°C):</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_3">
+            <widget class="QLabel" name="label_nipextmat">
              <property name="minimumSize">
               <size>
                <width>160</width>
@@ -1149,7 +1194,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_4">
+            <widget class="QLabel" name="label_nipextlength">
              <property name="minimumSize">
               <size>
                <width>160</width>
@@ -1174,7 +1219,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_7">
+            <widget class="QLabel" name="label_headmat">
              <property name="minimumSize">
               <size>
                <width>160</width>
@@ -1199,7 +1244,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_6">
+            <widget class="QLabel" name="label_elecconn">
              <property name="minimumSize">
               <size>
                <width>160</width>
@@ -1224,7 +1269,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_9">
+            <widget class="QLabel" name="labelttcerblock">
              <property name="minimumSize">
               <size>
                <width>160</width>
@@ -1249,7 +1294,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_8">
+            <widget class="QLabel" name="label_flangelapjointmat">
              <property name="minimumSize">
               <size>
                <width>160</width>
@@ -1274,7 +1319,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_10">
+            <widget class="QLabel" name="label_gasketmat">
              <property name="minimumSize">
               <size>
                <width>160</width>
@@ -1299,7 +1344,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_5">
+            <widget class="QLabel" name="label_puntal">
              <property name="minimumSize">
               <size>
                <width>160</width>
@@ -1324,7 +1369,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_11">
+            <widget class="QLabel" name="label_tube">
              <property name="minimumSize">
               <size>
                <width>160</width>
@@ -1356,7 +1401,7 @@ QPushButton:pressed {
             <number>15</number>
            </property>
            <item>
-            <widget class="QComboBox" name="comboBox_2">
+            <widget class="QComboBox" name="Nipextmat_CreatetagT">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -1377,7 +1422,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBox_8">
+            <widget class="QComboBox" name="Nipextlength_CreatetagT">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -1398,7 +1443,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBox_7">
+            <widget class="QComboBox" name="Headmat_CreatetagT">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -1419,7 +1464,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBox_9">
+            <widget class="QComboBox" name="Elecconn_CreatetagT">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -1440,7 +1485,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBox_10">
+            <widget class="QComboBox" name="TTcerblock_CreatetagT">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -1461,7 +1506,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBox_11">
+            <widget class="QComboBox" name="Flangelapjointmat_CreatetagT">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -1482,7 +1527,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBox_6">
+            <widget class="QComboBox" name="Gasketmat_CreatetagT">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -1503,7 +1548,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBox_5">
+            <widget class="QComboBox" name="Puntal_CreatetagT">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -1524,49 +1569,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="comboBox_4">
-             <property name="minimumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="comboBox_3">
-             <property name="minimumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="comboBox">
+            <widget class="QComboBox" name="Tube_CreatetagT">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -1601,7 +1604,7 @@ QPushButton:pressed {
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>40</height>
+           <height>30</height>
           </size>
          </property>
         </spacer>
@@ -1622,8 +1625,18 @@ QPushButton:pressed {
              <height>35</height>
             </size>
            </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton:focus{
+	background-color: #019ad2;
+	border-color: rgb(0, 0, 0);
+}
+</string>
+           </property>
            <property name="text">
             <string>Crear</string>
+           </property>
+           <property name="autoDefault">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -1647,8 +1660,21 @@ QPushButton:pressed {
              <height>35</height>
             </size>
            </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton:focus{
+	background-color: #019ad2;
+	border-color: rgb(0, 0, 0);
+}
+</string>
+           </property>
            <property name="text">
             <string>Cancelar</string>
+           </property>
+           <property name="autoDefault">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -1656,6 +1682,18 @@ QPushButton:pressed {
        </item>
        <item>
         <widget class="QLabel" name="label_error">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>25</height>
+          </size>
+         </property>
          <property name="styleSheet">
           <string notr="true">color: rgb(255, 0, 0);</string>
          </property>
@@ -1677,7 +1715,7 @@ QPushButton:pressed {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1066</width>
+     <width>1091</width>
      <height>22</height>
     </rect>
    </property>
@@ -1690,13 +1728,32 @@ QPushButton:pressed {
   <tabstop>Pos_CreatetagT</tabstop>
   <tabstop>Subpos_CreatetagT</tabstop>
   <tabstop>Type_CreatetagT</tabstop>
+  <tabstop>Typetw_CreatetagT</tabstop>
   <tabstop>Linesize_CreatetagT</tabstop>
   <tabstop>Rating_CreatetagT</tabstop>
   <tabstop>Facing_CreatetagT</tabstop>
+  <tabstop>Stdtw_CreatetagT</tabstop>
   <tabstop>Mattw_CreatetagT</tabstop>
+  <tabstop>Stdlength_CreatetagT</tabstop>
+  <tabstop>Insertionlength_CreatetagT</tabstop>
   <tabstop>Rootdiam_CreatetagT</tabstop>
+  <tabstop>Tipdiam_CreatetagT</tabstop>
+  <tabstop>Nace_CreatetagT</tabstop>
   <tabstop>Sensor_CreatetagT</tabstop>
   <tabstop>SheathMat_CreatetagT</tabstop>
+  <tabstop>Sheathdiam_CreatetagT</tabstop>
+  <tabstop>Insulation_CreatetagT</tabstop>
+  <tabstop>Tempinf_CreatetagT</tabstop>
+  <tabstop>Tempsup_CreatetagT</tabstop>
+  <tabstop>Nipextmat_CreatetagT</tabstop>
+  <tabstop>Nipextlength_CreatetagT</tabstop>
+  <tabstop>Headmat_CreatetagT</tabstop>
+  <tabstop>Elecconn_CreatetagT</tabstop>
+  <tabstop>TTcerblock_CreatetagT</tabstop>
+  <tabstop>Flangelapjointmat_CreatetagT</tabstop>
+  <tabstop>Gasketmat_CreatetagT</tabstop>
+  <tabstop>Puntal_CreatetagT</tabstop>
+  <tabstop>Tube_CreatetagT</tabstop>
   <tabstop>Button_Create</tabstop>
   <tabstop>Button_Cancel</tabstop>
  </tabstops>
@@ -1709,12 +1766,28 @@ QPushButton:pressed {
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>483</x>
-     <y>489</y>
+     <x>854</x>
+     <y>531</y>
     </hint>
     <hint type="destinationlabel">
      <x>520</x>
      <y>534</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Button_Create</sender>
+   <signal>pressed()</signal>
+   <receiver>CreateTAGTemp_Window</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>371</x>
+     <y>510</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>427</x>
+     <y>23</y>
     </hint>
    </hints>
   </connection>

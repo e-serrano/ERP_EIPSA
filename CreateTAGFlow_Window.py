@@ -392,9 +392,8 @@ class Ui_CreateTAGFlow_Window(object):
         self.Nace_CreatetagQ.setMinimumSize(QtCore.QSize(175, 25))
         self.Nace_CreatetagQ.setMaximumSize(QtCore.QSize(175, 25))
         self.Nace_CreatetagQ.setObjectName("Nace_CreatetagQ")
-        self.Nace_CreatetagQ.addItem("")
-        self.Nace_CreatetagQ.addItem("")
-        self.Nace_CreatetagQ.addItem("")
+        list_nace=['HOLD','NO','YES']
+        self.Nace_CreatetagQ.addItems(list_nace)
         self.vLayout4.addWidget(self.Nace_CreatetagQ)
         self.StagesNum_CreatetagQ = QtWidgets.QLineEdit(parent=self.frame)
         self.StagesNum_CreatetagQ.setMinimumSize(QtCore.QSize(175, 25))
@@ -421,6 +420,12 @@ class Ui_CreateTAGFlow_Window(object):
         self.Button_Create = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Create.setMinimumSize(QtCore.QSize(200, 35))
         self.Button_Create.setMaximumSize(QtCore.QSize(200, 35))
+        self.Button_Create.setStyleSheet("QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}"
+)
+        self.Button_Create.setAutoDefault(True)
         self.Button_Create.setObjectName("Button_Create")
         self.hLayout2.addWidget(self.Button_Create)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
@@ -431,6 +436,12 @@ class Ui_CreateTAGFlow_Window(object):
         self.Button_Cancel.setSizePolicy(sizePolicy)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(200, 35))
         self.Button_Cancel.setMaximumSize(QtCore.QSize(200, 35))
+        self.Button_Cancel.setStyleSheet("QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}"
+)
+        self.Button_Cancel.setAutoDefault(True)
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.hLayout2.addWidget(self.Button_Cancel)
         self.verticalLayout_5.addLayout(self.hLayout2)
@@ -479,11 +490,8 @@ class Ui_CreateTAGFlow_Window(object):
         self.label_Nace.setText(_translate("CreateTAGFlow_Window", "NACE:"))
         self.label_Stagesnum.setText(_translate("CreateTAGFlow_Window", "Nº Saltos:"))
         self.label_Pipespec.setText(_translate("CreateTAGFlow_Window", "Espec. Línea:"))
-        self.Nace_CreatetagQ.setItemText(0, _translate("CreateTAGFlow_Window", "HOLD"))
-        self.Nace_CreatetagQ.setItemText(1, _translate("CreateTAGFlow_Window", "NO"))
-        self.Nace_CreatetagQ.setItemText(2, _translate("CreateTAGFlow_Window", "YES"))
         self.Button_Create.setText(_translate("CreateTAGFlow_Window", "Crear"))
-        self.Button_Cancel.setText(_translate("CreateTAGFlow_Window", "Cancelar"))
+        self.Button_Cancel.setText(_translate("CreateTAGFlow_Window","Cancelar"))
 
 
     def createtagF(self):
