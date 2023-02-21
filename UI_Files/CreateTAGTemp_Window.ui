@@ -520,7 +520,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="Linesize_CreatetagT">
+            <widget class="QComboBox" name="Size_CreatetagT">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -868,7 +868,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_tempinf">
+            <widget class="QLabel" name="label_Tempinf">
              <property name="minimumSize">
               <size>
                <width>150</width>
@@ -893,7 +893,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_tempsup">
+            <widget class="QLabel" name="label_Tempsup">
              <property name="minimumSize">
               <size>
                <width>150</width>
@@ -1169,7 +1169,7 @@ QPushButton:pressed {
             <number>15</number>
            </property>
            <item>
-            <widget class="QLabel" name="label_nipextmat">
+            <widget class="QLabel" name="label_Nipextmat">
              <property name="minimumSize">
               <size>
                <width>160</width>
@@ -1194,7 +1194,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_nipextlength">
+            <widget class="QLabel" name="label_Nipextlength">
              <property name="minimumSize">
               <size>
                <width>160</width>
@@ -1219,7 +1219,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_headmat">
+            <widget class="QLabel" name="label_Headmat">
              <property name="minimumSize">
               <size>
                <width>160</width>
@@ -1244,7 +1244,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_elecconn">
+            <widget class="QLabel" name="label_Elecconn">
              <property name="minimumSize">
               <size>
                <width>160</width>
@@ -1269,7 +1269,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="labelttcerblock">
+            <widget class="QLabel" name="label_Ttcerblock">
              <property name="minimumSize">
               <size>
                <width>160</width>
@@ -1294,7 +1294,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_flangelapjointmat">
+            <widget class="QLabel" name="label_Flangelapjointmat">
              <property name="minimumSize">
               <size>
                <width>160</width>
@@ -1319,7 +1319,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_gasketmat">
+            <widget class="QLabel" name="label_Gasketmat">
              <property name="minimumSize">
               <size>
                <width>160</width>
@@ -1344,7 +1344,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_puntal">
+            <widget class="QLabel" name="label_Puntal">
              <property name="minimumSize">
               <size>
                <width>160</width>
@@ -1369,7 +1369,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_tube">
+            <widget class="QLabel" name="label_Tube">
              <property name="minimumSize">
               <size>
                <width>160</width>
@@ -1729,7 +1729,7 @@ QPushButton:pressed {
   <tabstop>Subpos_CreatetagT</tabstop>
   <tabstop>Type_CreatetagT</tabstop>
   <tabstop>Typetw_CreatetagT</tabstop>
-  <tabstop>Linesize_CreatetagT</tabstop>
+  <tabstop>Size_CreatetagT</tabstop>
   <tabstop>Rating_CreatetagT</tabstop>
   <tabstop>Facing_CreatetagT</tabstop>
   <tabstop>Stdtw_CreatetagT</tabstop>

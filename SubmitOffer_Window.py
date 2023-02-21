@@ -79,34 +79,7 @@ class Ui_SubmitOffer_Window(object):
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.Button_Present = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Present.setEnabled(True)
-        self.Button_Present.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_Present.setMinimumSize(QtCore.QSize(100, 35))
-        self.Button_Present.setMaximumSize(QtCore.QSize(100, 35))
-        self.Button_Present.setStyleSheet("QPushButton:focus{\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}"
-)
-        self.Button_Present.setAutoDefault(True)
-        self.Button_Present.setObjectName("Button_Present")
-        self.horizontalLayout.addWidget(self.Button_Present)
-        spacerItem1 = QtWidgets.QSpacerItem(80, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.horizontalLayout.addItem(spacerItem1)
-        self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Cancel.setEnabled(True)
-        self.Button_Cancel.setMinimumSize(QtCore.QSize(100, 35))
-        self.Button_Cancel.setMaximumSize(QtCore.QSize(100, 35))
-        self.Button_Cancel.setStyleSheet("QPushButton:focus{\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}"
-)
-        self.Button_Cancel.setAutoDefault(True)
-        self.Button_Cancel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_Cancel.setObjectName("Button_Cancel")
-        self.horizontalLayout.addWidget(self.Button_Cancel)
+        
         self.gridLayout_2.addLayout(self.horizontalLayout, 9, 0, 1, 1)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setContentsMargins(-1, 10, -1, 0)
@@ -163,6 +136,34 @@ class Ui_SubmitOffer_Window(object):
         self.label_error_submitorder.setObjectName("label_error_submitorder")
         self.gridLayout_2.addWidget(self.label_error_submitorder, 10, 0, 1, 1)
         self.gridLayout_2.addLayout(self.horizontalLayout_3, 6, 0, 1, 1)
+        self.Button_Present = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Present.setEnabled(True)
+        self.Button_Present.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Present.setMinimumSize(QtCore.QSize(100, 35))
+        self.Button_Present.setMaximumSize(QtCore.QSize(100, 35))
+        self.Button_Present.setStyleSheet("QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}"
+)
+        self.Button_Present.setAutoDefault(True)
+        self.Button_Present.setObjectName("Button_Present")
+        self.horizontalLayout.addWidget(self.Button_Present)
+        spacerItem1 = QtWidgets.QSpacerItem(80, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.horizontalLayout.addItem(spacerItem1)
+        self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Cancel.setEnabled(True)
+        self.Button_Cancel.setMinimumSize(QtCore.QSize(100, 35))
+        self.Button_Cancel.setMaximumSize(QtCore.QSize(100, 35))
+        self.Button_Cancel.setStyleSheet("QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}"
+)
+        self.Button_Cancel.setAutoDefault(True)
+        self.Button_Cancel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Cancel.setObjectName("Button_Cancel")
+        self.horizontalLayout.addWidget(self.Button_Cancel)
         SubmitOffer_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=SubmitOffer_Window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 450, 22))

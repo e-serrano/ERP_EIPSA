@@ -9,6 +9,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from CreateTAG_Menu import *
 from CreateTAGFlow_Window import *
+from CreateTAGTemp_Window import *
 
 class Ui_TypeTag_Menu(object):
     def setupUi(self, TypeTag_Menu):
@@ -155,6 +156,15 @@ class Ui_TypeTag_Menu(object):
             self.createtagQ_window.show()
             TypeTag_Menu.hide()
             self.ui.Button_Cancel.clicked.connect(TypeTag_Menu.show)
+
+        if final_variable=='Temperatura':
+            self.createtagT_window=QtWidgets.QMainWindow()
+            self.ui=Ui_CreateTAGTemp_Window()
+            self.ui.setupUi(self.createtagT_window)
+            self.createtagT_window.show()
+            TypeTag_Menu.hide()
+            self.ui.Button_Cancel.clicked.connect(TypeTag_Menu.show)
+
 
 
 if __name__ == "__main__":
