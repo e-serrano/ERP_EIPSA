@@ -9,7 +9,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from datetime import *
 
-class Ui_New_Offer(object):
+class Ui_New_Offer_Window(object):
     def setupUi(self, New_Offer):
         New_Offer.setObjectName("New_Offer")
         New_Offer.resize(670, 425)
@@ -237,6 +237,8 @@ class Ui_New_Offer(object):
         self.NacExt_NewOffer.setFont(font)
         self.NacExt_NewOffer.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         self.NacExt_NewOffer.setObjectName("NacExt_NewOffer")
+        list_nacext=['Exterior','Nacional']
+        self.NacExt_NewOffer.addItems(list_nacext)
         self.vlLayout4.addWidget(self.NacExt_NewOffer)
         spacerItem14 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vlLayout4.addItem(spacerItem14)
@@ -350,9 +352,6 @@ class Ui_New_Offer(object):
         self.Button_Cancel.setText(_translate("New_Offer", "Cancelar"))
         self.label_error_newoffer.setText(_translate("New_Offer", ""))
 
-        list_nacext=['Exterior','Nacional']
-        self.NacExt_NewOffer.addItems(list_nacext)
-
         self.Material_NewOffer.setItemText(0, _translate("New_Offer", "Material1"))
         self.Material_NewOffer.setItemText(1, _translate("New_Offer", "Material2"))
 
@@ -383,7 +382,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     New_Offer = QtWidgets.QMainWindow()
-    ui = Ui_New_Offer()
+    ui = Ui_New_Offer_Window()
     ui.setupUi(New_Offer)
     New_Offer.show()
     sys.exit(app.exec())

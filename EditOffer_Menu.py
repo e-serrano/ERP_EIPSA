@@ -8,6 +8,7 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from SubmitOffer_Window import *
+from EditOffer_Window import *
 
 
 class Ui_EditOffer_Menu(object):
@@ -117,6 +118,7 @@ class Ui_EditOffer_Menu(object):
         self.retranslateUi(EditOffer_Menu)
         self.Button_Cancel.clicked.connect(EditOffer_Menu.close) # type: ignore
         self.Button_Submit.clicked.connect(self.SubmitOffer)
+        self.Button_Edit.clicked.connect(self.EditOffer)
         QtCore.QMetaObject.connectSlotsByName(EditOffer_Menu)
 
 
@@ -133,6 +135,15 @@ class Ui_EditOffer_Menu(object):
         self.ui=Ui_SubmitOffer_Window()
         self.ui.setupUi(self.submitoffer_window)
         self.submitoffer_window.show()
+        EditOffer_Menu.hide()
+        self.ui.Button_Cancel.clicked.connect(EditOffer_Menu.show)
+
+
+    def EditOffer(self):
+        self.editoffer_window=QtWidgets.QMainWindow()
+        self.ui=Ui_Edit_Offer_Window()
+        self.ui.setupUi(self.editoffer_window)
+        self.editoffer_window.show()
         EditOffer_Menu.hide()
         self.ui.Button_Cancel.clicked.connect(EditOffer_Menu.show)
 

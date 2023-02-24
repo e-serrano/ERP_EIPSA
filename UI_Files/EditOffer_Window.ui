@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>New_Offer_Window</class>
- <widget class="QMainWindow" name="New_Offer_Window">
+ <class>Edit_Offer_Window</class>
+ <widget class="QMainWindow" name="Edit_Offer_Window">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Nueva Oferta</string>
+   <string>Editar Oferta</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -85,8 +85,11 @@ QPushButton:pressed {
        <enum>QFrame::Raised</enum>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>10</number>
+       </property>
        <item>
-        <spacer name="verticalSpacer_6">
+        <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -272,50 +275,6 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <spacer name="verticalSpacer">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="vLayout2">
-           <item>
-            <widget class="QLineEdit" name="NumOffer_NewOffer">
-             <property name="minimumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
             <spacer name="vSpacer4">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -332,26 +291,27 @@ QPushButton:pressed {
             </spacer>
            </item>
            <item>
-            <widget class="QLineEdit" name="Client_NewOffer">
+            <widget class="QLabel" name="label_State">
              <property name="minimumSize">
               <size>
-               <width>175</width>
+               <width>105</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>175</width>
+               <width>105</width>
                <height>25</height>
               </size>
              </property>
              <property name="font">
               <font>
-               <pointsize>10</pointsize>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
               </font>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
+             <property name="text">
+              <string>Estado:</string>
              </property>
             </widget>
            </item>
@@ -366,13 +326,17 @@ QPushButton:pressed {
              <property name="sizeHint" stdset="0">
               <size>
                <width>20</width>
-               <height>40</height>
+               <height>10</height>
               </size>
              </property>
             </spacer>
            </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="vLayout2">
            <item>
-            <widget class="QLineEdit" name="FinalClient_NewOffer">
+            <widget class="QLineEdit" name="NumOffer_EditOffer">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -412,7 +376,7 @@ QPushButton:pressed {
             </spacer>
            </item>
            <item>
-            <widget class="QLineEdit" name="NumRef_NewOffer">
+            <widget class="QLineEdit" name="Client_EditOffer">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -436,7 +400,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <spacer name="verticalSpacer_2">
+            <spacer name="vSpacer7">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
@@ -446,7 +410,124 @@ QPushButton:pressed {
              <property name="sizeHint" stdset="0">
               <size>
                <width>20</width>
-               <height>20</height>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="FinalClient_EditOffer">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="vSpacer8">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="NumRef_EditOffer">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="vSpacer9">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="State_EditOffer">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="vSpacer10">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>10</height>
               </size>
              </property>
             </spacer>
@@ -500,7 +581,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <spacer name="vSpacer7">
+            <spacer name="vSpacer11">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
@@ -544,7 +625,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <spacer name="vSpacer8">
+            <spacer name="vSpacer12">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
@@ -588,7 +669,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <spacer name="vSpacer9">
+            <spacer name="vSpacer13">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
@@ -632,7 +713,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <spacer name="verticalSpacer_3">
+            <spacer name="vSpacer14">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
@@ -642,7 +723,48 @@ QPushButton:pressed {
              <property name="sizeHint" stdset="0">
               <size>
                <width>20</width>
-               <height>20</height>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_Amount">
+             <property name="minimumSize">
+              <size>
+               <width>130</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>130</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Importe (€):</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="vSpacer15">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>10</height>
               </size>
              </property>
             </spacer>
@@ -652,7 +774,7 @@ QPushButton:pressed {
          <item>
           <layout class="QVBoxLayout" name="vlLayout4">
            <item>
-            <widget class="QComboBox" name="NacExt_NewOffer">
+            <widget class="QComboBox" name="NacExt_EditOffer">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -686,7 +808,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <spacer name="vSpacer10">
+            <spacer name="vSpacer16">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
@@ -702,7 +824,7 @@ QPushButton:pressed {
             </spacer>
            </item>
            <item>
-            <widget class="QLineEdit" name="Buyer_NewOffer">
+            <widget class="QLineEdit" name="Buyer_EditOffer">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -726,7 +848,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <spacer name="vSpacer11">
+            <spacer name="vSpacer17">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
@@ -742,7 +864,7 @@ QPushButton:pressed {
             </spacer>
            </item>
            <item>
-            <widget class="QComboBox" name="Material_NewOffer">
+            <widget class="QComboBox" name="Material_EditOffer">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -776,7 +898,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <spacer name="vSpacer12">
+            <spacer name="vSpacer18">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
@@ -792,7 +914,7 @@ QPushButton:pressed {
             </spacer>
            </item>
            <item>
-            <widget class="QLineEdit" name="Notes_NewOffer">
+            <widget class="QLineEdit" name="Notes_EditOffer">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -816,7 +938,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <spacer name="verticalSpacer_4">
+            <spacer name="vSpacer19">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
@@ -826,7 +948,44 @@ QPushButton:pressed {
              <property name="sizeHint" stdset="0">
               <size>
                <width>20</width>
-               <height>20</height>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="Amount_EditOffer">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="vSpacer20">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>10</height>
               </size>
              </property>
             </spacer>
@@ -836,7 +995,7 @@ QPushButton:pressed {
         </layout>
        </item>
        <item>
-        <spacer name="vSpacer">
+        <spacer name="verticalSpacer2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -854,7 +1013,7 @@ QPushButton:pressed {
        <item>
         <layout class="QHBoxLayout" name="hLayout1">
          <item>
-          <widget class="QPushButton" name="Button_NewOffer">
+          <widget class="QPushButton" name="Button_EditOffer">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
              <horstretch>0</horstretch>
@@ -874,7 +1033,7 @@ QPushButton:pressed {
             </size>
            </property>
            <property name="text">
-            <string>Crear Oferta</string>
+            <string>Editar Oferta</string>
            </property>
           </widget>
          </item>
@@ -904,22 +1063,6 @@ QPushButton:pressed {
           </widget>
          </item>
         </layout>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_5">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
-         </property>
-        </spacer>
        </item>
        <item>
         <widget class="QLabel" name="label_error">
@@ -952,14 +1095,14 @@ QPushButton:pressed {
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <tabstops>
-  <tabstop>NumOffer_NewOffer</tabstop>
-  <tabstop>Client_NewOffer</tabstop>
-  <tabstop>FinalClient_NewOffer</tabstop>
-  <tabstop>NumRef_NewOffer</tabstop>
-  <tabstop>NacExt_NewOffer</tabstop>
-  <tabstop>Buyer_NewOffer</tabstop>
-  <tabstop>Notes_NewOffer</tabstop>
-  <tabstop>Button_NewOffer</tabstop>
+  <tabstop>NumOffer_EditOffer</tabstop>
+  <tabstop>Client_EditOffer</tabstop>
+  <tabstop>FinalClient_EditOffer</tabstop>
+  <tabstop>NumRef_EditOffer</tabstop>
+  <tabstop>NacExt_EditOffer</tabstop>
+  <tabstop>Buyer_EditOffer</tabstop>
+  <tabstop>Notes_EditOffer</tabstop>
+  <tabstop>Button_EditOffer</tabstop>
   <tabstop>Button_Cancel</tabstop>
  </tabstops>
  <resources/>
@@ -967,7 +1110,7 @@ QPushButton:pressed {
   <connection>
    <sender>Button_Cancel</sender>
    <signal>clicked()</signal>
-   <receiver>New_Offer_Window</receiver>
+   <receiver>Edit_Offer_Window</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
