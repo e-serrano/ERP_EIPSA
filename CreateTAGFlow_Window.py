@@ -535,7 +535,7 @@ class Ui_CreateTAGFlow_Window(object):
         numoffer=self.NumOffer_CreatetagQ.text()
         pos=self.Pos_CreatetagQ.text()
         subpos=self.Subpos_CreatetagQ.text()
-        type=self.Type_CreatetagQ.currentText()
+        typeF=self.Type_CreatetagQ.currentText()
         linesize=self.Linesize_CreatetagQ.currentText()
         rating=self.Rating_CreatetagQ.currentText()
         facing=self.Facing_CreatetagQ.currentText()
@@ -554,11 +554,12 @@ class Ui_CreateTAGFlow_Window(object):
         pipespec=self.PipeSpec_CreatetagQ.text()
         notes=self.Notes_CreatetagQ.toPlainText()
 
-        if tag==""or (numoffer=="" or (linesize=="" or (rating=="" or (facing=="" or schedule=="")))):
+
+        if tag==""or (typeF=="" or (numoffer=="" or (linesize=="" or (rating=="" or (facing=="" or schedule==""))))):
             self.label_error.setText('Rellene los campos con * mínimo')
         
         else:
-            print(notes)
+            print('a')
 
 
 if __name__ == "__main__":

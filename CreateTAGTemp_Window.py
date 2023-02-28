@@ -753,7 +753,7 @@ class Ui_CreateTAGTemp_Window(object):
         numoffer=self.NumOffer_CreatetagT.text()
         pos=self.Pos_CreatetagT.text()
         subpos=self.Subpos_CreatetagT.text()
-        type=self.Type_CreatetagT.currentText()
+        typeT=self.Type_CreatetagT.currentText()
         typetw=self.Typetw_CreatetagT.currentText()
         size=self.Size_CreatetagT.currentText()
         rating=self.Rating_CreatetagT.currentText()
@@ -784,7 +784,7 @@ class Ui_CreateTAGTemp_Window(object):
         notes=self.Notes_CreatetagT.toPlainText()
 
 
-        if tag=="" or (numoffer=="" or type==""):
+        if tag=="" or (numoffer=="" or typeT==""):
             self.label_error.setText('Rellene los campos con * mínimo')
         
         else:

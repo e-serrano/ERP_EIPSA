@@ -1154,7 +1154,7 @@ QPushButton:pressed {
             <number>15</number>
            </property>
            <item>
-            <widget class="QLabel" name="label_NipTub">
+            <widget class="QLabel" name="label_NipHex">
              <property name="minimumSize">
               <size>
                <width>125</width>
@@ -1354,6 +1354,31 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
+            <widget class="QLabel" name="label_NipTub">
+             <property name="minimumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Niplo Tub.:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QLabel" name="label_Nace">
              <property name="minimumSize">
               <size>
@@ -1436,7 +1461,7 @@ QPushButton:pressed {
             <number>15</number>
            </property>
            <item>
-            <widget class="QComboBox" name="Niptub_CreatetagN">
+            <widget class="QComboBox" name="Niphex_CreatetagN">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -1457,7 +1482,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="Antifrost_CreatetagN">
+            <widget class="QComboBox" name="Antifrost_CreatetagN">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -1595,6 +1620,22 @@ QPushButton:pressed {
               <font>
                <pointsize>10</pointsize>
               </font>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="Niptub_CreatetagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
              </property>
             </widget>
            </item>
@@ -1801,9 +1842,12 @@ QPushButton:pressed {
   <tabstop>Subpos_CreatetagN</tabstop>
   <tabstop>Type_CreatetagN</tabstop>
   <tabstop>ModelNum_CreatetagN</tabstop>
+  <tabstop>BodyMat_CreatetagN</tabstop>
+  <tabstop>ProcConnType_CreatetagN</tabstop>
   <tabstop>ProcConnSize_CreatetagN</tabstop>
   <tabstop>ProcConnRating_CreatetagN</tabstop>
   <tabstop>ProcConnFacing_CreatetagN</tabstop>
+  <tabstop>ConnType_CreatetagN</tabstop>
   <tabstop>Visibility_CreatetagN</tabstop>
   <tabstop>LCC_CreatetagN</tabstop>
   <tabstop>Valvetype_CreatetagN</tabstop>
@@ -1813,12 +1857,19 @@ QPushButton:pressed {
   <tabstop>DVFacing_CreatetagN</tabstop>
   <tabstop>GasketMica_CreatetagN</tabstop>
   <tabstop>MatTorn_CreatetagN</tabstop>
-  <tabstop>Niptub_CreatetagN</tabstop>
+  <tabstop>Iluminator_CreatetagN</tabstop>
+  <tabstop>Niphex_CreatetagN</tabstop>
+  <tabstop>Antifrost_CreatetagN</tabstop>
+  <tabstop>Scale_CreatetagN</tabstop>
   <tabstop>Matflot_CreatetagN</tabstop>
   <tabstop>Matcover_CreatetagN</tabstop>
   <tabstop>Flags_CreatetagN</tabstop>
   <tabstop>IP_CreatetagN</tabstop>
   <tabstop>FlangeType_CreatetagN</tabstop>
+  <tabstop>Niptub_CreatetagN</tabstop>
+  <tabstop>Nace_CreatetagN</tabstop>
+  <tabstop>Amount_CreatetagN</tabstop>
+  <tabstop>Notes_CreatetagN</tabstop>
   <tabstop>Button_Create</tabstop>
   <tabstop>Button_Cancel</tabstop>
  </tabstops>
