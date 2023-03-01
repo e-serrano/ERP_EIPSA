@@ -396,4 +396,3 @@ if __name__ == "__main__":
     ui.setupUi(Edit_Offer_Window)
     Edit_Offer_Window.show()
     sys.exit(app.exec())
-    
