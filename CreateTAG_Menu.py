@@ -7,8 +7,9 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-from TypeTAG_Menu import *
-from ImportTAG_Window import *
+
+from ImportTAG_Window import Ui_ImportTAG_Window
+from TypeTAG_Menu import Ui_TypeTag_Menu
 
 class Ui_CreateTAG_Menu(object):
 

@@ -7,8 +7,8 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-from SubmitOffer_Window import *
-from EditOffer_Window import *
+from SubmitOffer_Window import Ui_SubmitOffer_Window
+from EditOffer_Window import Ui_Edit_Offer_Window
 
 
 class Ui_EditOffer_Menu(object):
@@ -32,11 +32,7 @@ class Ui_EditOffer_Menu(object):
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
 "  border-radius: 3px;\n"
-"  box-shadow: rgba(255, 255, 255, .4) 0 1px 0 0 inset;\n"
-"  box-sizing: border-box;\n"
 "  color: #fff;\n"
-"  cursor: pointer;\n"
-"  display: inline-block;\n"
 "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
 "  font-size: 15px;\n"
 "  font-weight: 800;\n"
@@ -46,10 +42,6 @@ class Ui_EditOffer_Menu(object):
 "  padding: 8px .8em;\n"
 "  text-align: center;\n"
 "  text-decoration: none;\n"
-"  text-shadow: 0px 1px 0px #263666;\n"
-"  user-select: none;\n"
-"  -webkit-user-select: none;\n"
-"  touch-action: manipulation;\n"
 "  vertical-align: baseline;\n"
 "  white-space: nowrap;\n"
 "}\n"

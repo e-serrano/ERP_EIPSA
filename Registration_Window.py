@@ -12,6 +12,9 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 
 
 class Ui_RegistrationWindow(object):
+    def __init__(self, string):
+        self.app_name=string
+        print(self.app_name)
     def setupUi(self, RegistrationWindow):
         RegistrationWindow.setObjectName("RegistrationWindow")
         RegistrationWindow.resize(270, 615)
@@ -31,11 +34,7 @@ class Ui_RegistrationWindow(object):
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
 "  border-radius: 3px;\n"
-"  box-shadow: rgba(255, 255, 255, .4) 0 1px 0 0 inset;\n"
-"  box-sizing: border-box;\n"
 "  color: #fff;\n"
-"  cursor: pointer;\n"
-"  display: inline-block;\n"
 "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
 "  font-size: 15px;\n"
 "  font-weight: 800;\n"
@@ -45,10 +44,6 @@ class Ui_RegistrationWindow(object):
 "  padding: 0px .8em;\n"
 "  text-align: center;\n"
 "  text-decoration: none;\n"
-"  text-shadow: 0px 1px 0px #263666;\n"
-"  user-select: none;\n"
-"  -webkit-user-select: none;\n"
-"  touch-action: manipulation;\n"
 "  vertical-align: baseline;\n"
 "  white-space: nowrap;\n"
 "}\n"
@@ -245,7 +240,7 @@ class Ui_RegistrationWindow(object):
 )
         self.accept_reg.setAutoDefault(True)
         font = QtGui.QFont()
-        font.setPointSize(-1)
+        font.setPointSize(10)
         font.setBold(True)
         font.setUnderline(False)
         font.setStrikeOut(False)
@@ -268,7 +263,7 @@ class Ui_RegistrationWindow(object):
 )
         self.exit_reg.setAutoDefault(True)
         font = QtGui.QFont()
-        font.setPointSize(-1)
+        font.setPointSize(10)
         font.setBold(True)
         font.setUnderline(False)
         font.setStrikeOut(False)
@@ -325,7 +320,7 @@ class Ui_RegistrationWindow(object):
             self.label_error_reg.setText('Rellene todos los campos')
 
         else:
-            path=os.path.join('C:/Users/Enrique.serrano/Documents/GIT/ERP_EIPSA/Passwords', reg_username)
+            path=os.path.join('//nas01/DATOS/Comunes/EIPSA-ERP/Passwords', reg_username)
             file=open(path, 'w')
             file.write(reg_name + '\n' + reg_secondname + '\n' + reg_username + '\n' + reg_email + '\n' + reg_password)
             file.close()

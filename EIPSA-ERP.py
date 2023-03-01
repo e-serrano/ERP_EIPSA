@@ -1,6 +1,6 @@
 import sys
 from PyQt6 import QtWidgets
-from Login_Window import *
+from Login_Window import Ui_Login_Window
 
 
 if __name__ == "__main__":
