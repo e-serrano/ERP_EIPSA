@@ -225,6 +225,7 @@ class Ui_Edit_Order_Window(object):
         self.Button_EditOrder.setSizePolicy(sizePolicy)
         self.Button_EditOrder.setMinimumSize(QtCore.QSize(200, 30))
         self.Button_EditOrder.setMaximumSize(QtCore.QSize(200, 30))
+        self.Button_EditOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_EditOrder.setStyleSheet("QPushButton:focus{\n"
 "    background-color: #019ad2;\n"
 "    border-color: rgb(0, 0, 0);\n"
@@ -241,6 +242,7 @@ class Ui_Edit_Order_Window(object):
         self.Button_Cancel.setSizePolicy(sizePolicy)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(200, 30))
         self.Button_Cancel.setMaximumSize(QtCore.QSize(200, 30))
+        self.Button_Cancel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Cancel.setStyleSheet("QPushButton:focus{\n"
 "    background-color: #019ad2;\n"
 "    border-color: rgb(0, 0, 0);\n"

@@ -52,6 +52,11 @@ class Ui_CreateTAGFlow_Window(object):
 "QPushButton:pressed {\n"
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
+"}\n"
+"\n"
+"QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
 "}"
 )
         self.centralwidget = QtWidgets.QWidget(parent=CreateTAGFlow_Window)
@@ -446,11 +451,7 @@ class Ui_CreateTAGFlow_Window(object):
         self.Button_Create = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Create.setMinimumSize(QtCore.QSize(200, 35))
         self.Button_Create.setMaximumSize(QtCore.QSize(200, 35))
-        self.Button_Create.setStyleSheet("QPushButton:focus{\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}"
-)
+        self.Button_Create.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Create.setAutoDefault(True)
         self.Button_Create.setObjectName("Button_Create")
         self.hLayout2.addWidget(self.Button_Create)
@@ -462,11 +463,7 @@ class Ui_CreateTAGFlow_Window(object):
         self.Button_Cancel.setSizePolicy(sizePolicy)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(200, 35))
         self.Button_Cancel.setMaximumSize(QtCore.QSize(200, 35))
-        self.Button_Cancel.setStyleSheet("QPushButton:focus{\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}"
-)
+        self.Button_Cancel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Cancel.setAutoDefault(True)
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.hLayout2.addWidget(self.Button_Cancel)
@@ -547,7 +544,7 @@ class Ui_CreateTAGFlow_Window(object):
         notes=self.Notes_CreatetagQ.toPlainText()
 
 
-        if tag==""or (typeF=="" or (numoffer=="" or (linesize=="" or (rating=="" or (facing=="" or schedule==""))))):
+        if (tag=="" or tag==" ") or (typeF=="" or typeF==" ") or (numoffer=="" or numoffer==" ") or (linesize=="" or linesize==" ") or (rating=="" or rating==" ") or (facing=="" or facing==" ") or (schedule=="" or schedule==" "):
             self.label_error.setText('Rellene los campos con * mínimo')
         
         else:

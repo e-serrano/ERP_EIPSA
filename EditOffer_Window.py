@@ -51,6 +51,11 @@ class Ui_Edit_Offer_Window(object):
 "QPushButton:pressed {\n"
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
+"}\n"
+"\n"
+"QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
 "}")
         self.centralwidget = QtWidgets.QWidget(parent=Edit_Offer_Window)
         self.centralwidget.setObjectName("centralwidget")
@@ -327,11 +332,7 @@ class Ui_Edit_Offer_Window(object):
         self.Button_EditOffer.setSizePolicy(sizePolicy)
         self.Button_EditOffer.setMinimumSize(QtCore.QSize(200, 30))
         self.Button_EditOffer.setMaximumSize(QtCore.QSize(200, 30))
-        self.Button_EditOffer.setStyleSheet("QPushButton:focus{\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}"
-)
+        self.Button_EditOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_EditOffer.setAutoDefault(True)
         self.Button_EditOffer.setObjectName("Button_EditOffer")
         self.hLayout1.addWidget(self.Button_EditOffer)
@@ -343,11 +344,7 @@ class Ui_Edit_Offer_Window(object):
         self.Button_Cancel.setSizePolicy(sizePolicy)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(200, 30))
         self.Button_Cancel.setMaximumSize(QtCore.QSize(200, 30))
-        self.Button_Cancel.setStyleSheet("QPushButton:focus{\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}"
-)
+        self.Button_Cancel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Cancel.setAutoDefault(True)
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.hLayout1.addWidget(self.Button_Cancel)

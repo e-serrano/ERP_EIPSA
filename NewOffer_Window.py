@@ -52,6 +52,11 @@ class Ui_New_Offer_Window(object):
 "QPushButton:pressed {\n"
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
+"}\n"
+"\n"
+"QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
 "}")
         self.centralwidget = QtWidgets.QWidget(parent=New_Offer)
         self.centralwidget.setObjectName("centralwidget")
@@ -283,11 +288,7 @@ class Ui_New_Offer_Window(object):
         self.Button_NewOffer.setSizePolicy(sizePolicy)
         self.Button_NewOffer.setMinimumSize(QtCore.QSize(200, 30))
         self.Button_NewOffer.setMaximumSize(QtCore.QSize(200, 30))
-        self.Button_NewOffer.setStyleSheet("QPushButton:focus{\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}"
-)
+        self.Button_NewOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_NewOffer.setAutoDefault(True)
         self.Button_NewOffer.setObjectName("Button_NewOffer")
         self.hLayout1.addWidget(self.Button_NewOffer)
@@ -299,11 +300,7 @@ class Ui_New_Offer_Window(object):
         self.Button_Cancel.setSizePolicy(sizePolicy)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(200, 30))
         self.Button_Cancel.setMaximumSize(QtCore.QSize(200, 30))
-        self.Button_Cancel.setStyleSheet("QPushButton:focus{\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}"
-)
+        self.Button_Cancel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Cancel.setAutoDefault(True)
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.hLayout1.addWidget(self.Button_Cancel)

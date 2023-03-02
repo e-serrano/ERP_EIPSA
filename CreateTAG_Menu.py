@@ -7,12 +7,11 @@
 
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
-
 from ImportTAG_Window import Ui_ImportTAG_Window
 from TypeTAG_Menu import Ui_TypeTag_Menu
 
-class Ui_CreateTAG_Menu(object):
 
+class Ui_CreateTAG_Menu(object):
     def setupUi(self, CreateTAG_Menu):
         CreateTAG_Menu.setObjectName("CreateTAG_Menu")
         CreateTAG_Menu.resize(300, 340)
@@ -33,11 +32,7 @@ class Ui_CreateTAG_Menu(object):
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
 "  border-radius: 3px;\n"
-"  box-shadow: rgba(255, 255, 255, .4) 0 1px 0 0 inset;\n"
-"  box-sizing: border-box;\n"
 "  color: #fff;\n"
-"  cursor: pointer;\n"
-"  display: inline-block;\n"
 "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
 "  font-size: 15px;\n"
 "  font-weight: 800;\n"
@@ -47,10 +42,6 @@ class Ui_CreateTAG_Menu(object):
 "  padding: 8px .8em;\n"
 "  text-align: center;\n"
 "  text-decoration: none;\n"
-"  text-shadow: 0px 1px 0px #263666;\n"
-"  user-select: none;\n"
-"  -webkit-user-select: none;\n"
-"  touch-action: manipulation;\n"
 "  vertical-align: baseline;\n"
 "  white-space: nowrap;\n"
 "}\n"
@@ -82,6 +73,7 @@ class Ui_CreateTAG_Menu(object):
         self.Button_Create = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Create.setMinimumSize(QtCore.QSize(250, 35))
         self.Button_Create.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_Create.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Create.setObjectName("Button_Create")
         self.gridLayout_2.addWidget(self.Button_Create, 1, 0, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -89,6 +81,7 @@ class Ui_CreateTAG_Menu(object):
         self.Button_Import = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Import.setMinimumSize(QtCore.QSize(250, 35))
         self.Button_Import.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_Import.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Import.setObjectName("Button_Import")
         self.gridLayout_2.addWidget(self.Button_Import, 3, 0, 1, 1)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
@@ -100,6 +93,7 @@ class Ui_CreateTAG_Menu(object):
         self.Button_Cancel.setEnabled(True)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(100, 35))
         self.Button_Cancel.setMaximumSize(QtCore.QSize(100, 35))
+        self.Button_Cancel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.horizontalLayout.addWidget(self.Button_Cancel)
         self.gridLayout_2.addLayout(self.horizontalLayout, 5, 0, 1, 1)
