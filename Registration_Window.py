@@ -349,7 +349,6 @@ class Ui_RegistrationWindow(object):
 
 
 if __name__ == "__main__":
-    import sys
     app = QtWidgets.QApplication(sys.argv)
     RegistrationWindow = QtWidgets.QMainWindow()
     ui = Ui_RegistrationWindow()

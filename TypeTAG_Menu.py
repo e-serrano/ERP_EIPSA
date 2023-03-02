@@ -169,7 +169,6 @@ class Ui_TypeTag_Menu(object):
 
 
 if __name__ == "__main__":
-    import sys
     app = QtWidgets.QApplication(sys.argv)
     TypeTag_Menu = QtWidgets.QMainWindow()
     ui = Ui_TypeTag_Menu()

@@ -196,7 +196,6 @@ class Ui_ImportTAG_Window(object):
 
 
 if __name__ == "__main__":
-    import sys
     app = QtWidgets.QApplication(sys.argv)
     ImportTAG_Window = QtWidgets.QMainWindow()
     ui = Ui_ImportTAG_Window()
