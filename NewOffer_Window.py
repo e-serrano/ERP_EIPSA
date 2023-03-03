@@ -57,6 +57,11 @@ class Ui_New_Offer_Window(object):
 "QPushButton:focus{\n"
 "    background-color: #019ad2;\n"
 "    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:focus:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
 "}")
         self.centralwidget = QtWidgets.QWidget(parent=New_Offer)
         self.centralwidget.setObjectName("centralwidget")
@@ -355,7 +360,7 @@ class Ui_New_Offer_Window(object):
         material=self.Material_NewOffer.currentText()
         notes=self.Notes_NewOffer.text()
         state="Registrada"
-        # self.responsible=Login_Window.login_username
+        # responsible=self.user[0] + self.user[self.user.find(' ')+1]
         actual_date=date.today()
         year=actual_date.year
         month=actual_date.month

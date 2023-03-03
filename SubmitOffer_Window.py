@@ -58,8 +58,12 @@ class Ui_SubmitOffer_Window(object):
 "QPushButton:focus{\n"
 "    background-color: #019ad2;\n"
 "    border-color: rgb(0, 0, 0);\n"
-"}"
-)
+"}\n"
+"\n"
+"QPushButton:focus:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
         self.centralwidget = QtWidgets.QWidget(parent=SubmitOffer_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)

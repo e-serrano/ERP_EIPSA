@@ -60,9 +60,14 @@ class Ui_Login_Window(object):
 "    border-color: rgb(255, 255, 255);\n"
 "}\n"
 "\n"
-"QPushButton:focus{\n"
+"QPushButton:focus {\n"
 "    background-color: #019ad2;\n"
 "    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:focus:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
 "}")
         Login_Window.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly)
         self.centralwidget = QtWidgets.QWidget(parent=Login_Window)
@@ -263,21 +268,19 @@ class Ui_Login_Window(object):
                 verification = verif_file.read().splitlines()
 
                 if login_password in verification:
-                    app_name=verification[0] + " " + verification[1]
-                    self.reg_window=QtWidgets.QMainWindow()
-                    self.ui=Ui_RegistrationWindow(app_name)
-                    self.ui.setupUi(self.reg_window)
-                    self.reg_window.show()
+                    app_name=verification[0].upper() + " " + verification[1].upper()
+                    # self.reg_window=QtWidgets.QMainWindow()
+                    # self.ui=Ui_RegistrationWindow(app_name)
+                    # self.ui.setupUi(self.reg_window)
+                    # self.reg_window.show()
 
                 else:
                     self.label_error_login.setText('Contraseña incorrecta')
 
             else:
-                self.label_error_login.setText('Usuario y/o contraseña incorrecto')
-
+                self.label_error_login.setText('Usuario y/o contraseña incorrectos')
 
         del login_password, list_files
-        return login_username
 
 
 if __name__ == "__main__":

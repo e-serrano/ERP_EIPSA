@@ -99,6 +99,9 @@
                <height>50</height>
               </size>
              </property>
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
              <property name="styleSheet">
               <string notr="true">QPushButton{
 	border: 1px solid transparent;
@@ -202,7 +205,7 @@ QPushButton:pressed{
           </layout>
          </item>
          <item>
-          <spacer name="verticalSpacer">
+          <spacer name="vSpacer1">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
@@ -275,7 +278,7 @@ QPushButton:pressed{
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_3">
               <property name="spacing">
-               <number>2</number>
+               <number>25</number>
               </property>
               <property name="leftMargin">
                <number>9</number>
@@ -286,22 +289,6 @@ QPushButton:pressed{
               <property name="bottomMargin">
                <number>0</number>
               </property>
-              <item>
-               <spacer name="vSpacer1">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Fixed</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
               <item>
                <widget class="QPushButton" name="Button_NewOffer">
                 <property name="minimumSize">
@@ -321,6 +308,9 @@ QPushButton:pressed{
                   <pointsize>12</pointsize>
                   <bold>true</bold>
                  </font>
+                </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
                 </property>
                 <property name="text">
                  <string>    Nueva Oferta</string>
@@ -347,19 +337,6 @@ QPushButton:pressed{
                </widget>
               </item>
               <item>
-               <spacer name="vSpacer2">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
                <widget class="QPushButton" name="Button_EditOffer">
                 <property name="minimumSize">
                  <size>
@@ -379,6 +356,9 @@ QPushButton:pressed{
                   <bold>true</bold>
                  </font>
                 </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>    Editar Oferta</string>
                 </property>
@@ -395,21 +375,14 @@ QPushButton:pressed{
                </widget>
               </item>
               <item>
-               <spacer name="vSpacer3">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
                <widget class="QPushButton" name="Button_FindOffer">
                 <property name="minimumSize">
+                 <size>
+                  <width>200</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
                  <size>
                   <width>200</width>
                   <height>50</height>
@@ -421,8 +394,11 @@ QPushButton:pressed{
                   <bold>true</bold>
                  </font>
                 </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
-                 <string>    Consultar Oferta</string>
+                 <string>    Consultar Ofertas</string>
                 </property>
                 <property name="icon">
                  <iconset>
@@ -435,19 +411,6 @@ QPushButton:pressed{
                  </size>
                 </property>
                </widget>
-              </item>
-              <item>
-               <spacer name="vSpacer8">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
               </item>
               <item>
                <widget class="QPushButton" name="Button_NewOrder">
@@ -469,6 +432,9 @@ QPushButton:pressed{
                   <bold>true</bold>
                  </font>
                 </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>    Nuevo Pedido</string>
                 </property>
@@ -483,19 +449,6 @@ QPushButton:pressed{
                  </size>
                 </property>
                </widget>
-              </item>
-              <item>
-               <spacer name="vSpacer4">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
               </item>
               <item>
                <widget class="QPushButton" name="Button_EditOrder">
@@ -517,6 +470,9 @@ QPushButton:pressed{
                   <bold>true</bold>
                  </font>
                 </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>    Editar Pedido</string>
                 </property>
@@ -533,21 +489,14 @@ QPushButton:pressed{
                </widget>
               </item>
               <item>
-               <spacer name="vSpacer5">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
                <widget class="QPushButton" name="Button_FindOrder">
                 <property name="minimumSize">
+                 <size>
+                  <width>200</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
                  <size>
                   <width>200</width>
                   <height>50</height>
@@ -559,8 +508,11 @@ QPushButton:pressed{
                   <bold>true</bold>
                  </font>
                 </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
-                 <string>    Consultar Pedido</string>
+                 <string>   Consultar Pedidos</string>
                 </property>
                 <property name="icon">
                  <iconset>
@@ -573,19 +525,6 @@ QPushButton:pressed{
                  </size>
                 </property>
                </widget>
-              </item>
-              <item>
-               <spacer name="vSpacer9">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
               </item>
               <item>
                <widget class="QPushButton" name="Button_NewTag">
@@ -607,6 +546,9 @@ QPushButton:pressed{
                   <bold>true</bold>
                  </font>
                 </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>    Nuevo(s) TAG(s)</string>
                 </property>
@@ -621,19 +563,6 @@ QPushButton:pressed{
                  </size>
                 </property>
                </widget>
-              </item>
-              <item>
-               <spacer name="vSpacer6">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
               </item>
               <item>
                <widget class="QPushButton" name="Button_EditTag">
@@ -655,6 +584,9 @@ QPushButton:pressed{
                   <bold>true</bold>
                  </font>
                 </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string>    Editar TAG(s)</string>
                 </property>
@@ -671,21 +603,14 @@ QPushButton:pressed{
                </widget>
               </item>
               <item>
-               <spacer name="vSpacer10">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
                <widget class="QPushButton" name="Button_FindTag">
                 <property name="minimumSize">
+                 <size>
+                  <width>200</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
                  <size>
                   <width>200</width>
                   <height>50</height>
@@ -696,6 +621,9 @@ QPushButton:pressed{
                   <pointsize>12</pointsize>
                   <bold>true</bold>
                  </font>
+                </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
                 </property>
                 <property name="text">
                  <string>    Consultar TAG(s)</string>
@@ -711,22 +639,6 @@ QPushButton:pressed{
                  </size>
                 </property>
                </widget>
-              </item>
-              <item>
-               <spacer name="vSpacer7">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Fixed</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
               </item>
              </layout>
             </widget>
@@ -751,14 +663,11 @@ QPushButton:pressed{
             <layout class="QVBoxLayout" name="MainLayout">
              <item>
               <widget class="QTabWidget" name="tabWidget">
+               <property name="cursor">
+                <cursorShape>ArrowCursor</cursorShape>
+               </property>
                <property name="currentIndex">
                 <number>0</number>
-               </property>
-               <property name="iconSize">
-                <size>
-                 <width>16</width>
-                 <height>16</height>
-                </size>
                </property>
                <widget class="QWidget" name="tabOffer">
                 <attribute name="title">
@@ -1027,6 +936,9 @@ border-color: rgb(0, 0, 0);
                    <height>360</height>
                   </size>
                  </property>
+                 <property name="cursor">
+                  <cursorShape>ArrowCursor</cursorShape>
+                 </property>
                  <property name="styleSheet">
                   <string notr="true">QCalendarWidget QWidget{
 background-color: rgb(3, 174, 236);
@@ -1054,7 +966,6 @@ QCalendarWidget QToolButton::pressed {
 }
 
 QCalendarWidget QSpinBox{
-	
 	background-color: rgb(255, 255, 255);
 	border: 2px solid;
 	border-color: rgb(3,174, 236);

@@ -52,6 +52,11 @@ class Ui_Edit_Order_Window(object):
 "QPushButton:pressed {\n"
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
+"}\n"
+"\n"
+"QPushButton:focus:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
 "}")
         self.centralwidget = QtWidgets.QWidget(parent=Edit_Order_Window)
         self.centralwidget.setObjectName("centralwidget")

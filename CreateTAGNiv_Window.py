@@ -57,6 +57,11 @@ class Ui_CreateTAGNiv_Window(object):
 "QPushButton:focus{\n"
 "    background-color: #019ad2;\n"
 "    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:focus:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
 "}")
         self.centralwidget = QtWidgets.QWidget(parent=CreateTAGNiv_Window)
         self.centralwidget.setObjectName("centralwidget")
