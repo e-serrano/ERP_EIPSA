@@ -132,7 +132,7 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>*TAG:</string>
+              <string>TAG:</string>
              </property>
             </widget>
            </item>
@@ -157,7 +157,7 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>*Nº Oferta:</string>
+              <string>Nº Oferta:</string>
              </property>
             </widget>
            </item>
@@ -232,7 +232,7 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>*Tipo:</string>
+              <string>Tipo:</string>
              </property>
             </widget>
            </item>
@@ -1830,22 +1830,6 @@ QPushButton:pressed {
     <hint type="destinationlabel">
      <x>520</x>
      <y>534</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Button_Create</sender>
-   <signal>pressed()</signal>
-   <receiver>EditTAGTemp_Window</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>371</x>
-     <y>510</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>427</x>
-     <y>23</y>
     </hint>
    </hints>
   </connection>

@@ -6,13 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>785</width>
+    <width>845</width>
     <height>590</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>785</width>
+    <width>845</width>
+    <height>590</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>845</width>
     <height>590</height>
    </size>
   </property>
@@ -74,12 +80,6 @@ QPushButton:focus:pressed {
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
      <widget class="QFrame" name="frame">
-      <property name="minimumSize">
-       <size>
-        <width>640</width>
-        <height>480</height>
-       </size>
-      </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>
@@ -91,7 +91,96 @@ QPushButton:focus:pressed {
         <number>10</number>
        </property>
        <item row="7" column="0">
-        <widget class="QTableWidget" name="tableQueryOffer"/>
+        <widget class="QTableWidget" name="tableQueryOffer">
+         <column>
+          <property name="text">
+           <string>Nº Oferta</string>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Responsable</string>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Estado</string>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Referencia</string>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Cliente</string>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Cliente Final</string>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Importe (€)</string>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Nº Pedido</string>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+         </column>
+        </widget>
        </item>
        <item row="5" column="0">
         <layout class="QHBoxLayout" name="hLayout4">
@@ -215,7 +304,7 @@ QPushButton:focus:pressed {
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="Cleint_QueryOffer">
+          <widget class="QLineEdit" name="Client_QueryOffer">
            <property name="minimumSize">
             <size>
              <width>250</width>
@@ -487,7 +576,7 @@ QPushButton:focus:pressed {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>785</width>
+     <width>845</width>
      <height>22</height>
     </rect>
    </property>
@@ -498,7 +587,7 @@ QPushButton:focus:pressed {
   <tabstop>Numoffer_QueryOffer</tabstop>
   <tabstop>Year_QueryOffer</tabstop>
   <tabstop>Ref_QueryOffer</tabstop>
-  <tabstop>Cleint_QueryOffer</tabstop>
+  <tabstop>Client_QueryOffer</tabstop>
   <tabstop>FinalClient_QueryOffer</tabstop>
   <tabstop>EqType_QueryOffer</tabstop>
   <tabstop>Button_Clean</tabstop>

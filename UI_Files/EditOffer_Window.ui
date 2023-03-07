@@ -496,7 +496,7 @@ QPushButton:pressed {
             </spacer>
            </item>
            <item>
-            <widget class="QLineEdit" name="State_EditOffer">
+            <widget class="QComboBox" name="State_EditOffer">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -795,6 +795,9 @@ QPushButton:pressed {
              <property name="focusPolicy">
               <enum>Qt::StrongFocus</enum>
              </property>
+             <property name="insertPolicy">
+              <enum>QComboBox::InsertAtCurrent</enum>
+             </property>
              <item>
               <property name="text">
                <string>Exterior</string>
@@ -914,7 +917,7 @@ QPushButton:pressed {
             </spacer>
            </item>
            <item>
-            <widget class="QLineEdit" name="Notes_EditOffer">
+            <widget class="QTextEdit" name="Notes_EditOffer">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -926,14 +929,6 @@ QPushButton:pressed {
                <width>175</width>
                <height>25</height>
               </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
@@ -1101,7 +1096,6 @@ QPushButton:pressed {
   <tabstop>NumRef_EditOffer</tabstop>
   <tabstop>NacExt_EditOffer</tabstop>
   <tabstop>Buyer_EditOffer</tabstop>
-  <tabstop>Notes_EditOffer</tabstop>
   <tabstop>Button_EditOffer</tabstop>
   <tabstop>Button_Cancel</tabstop>
  </tabstops>

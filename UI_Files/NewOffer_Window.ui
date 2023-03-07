@@ -792,7 +792,7 @@ QPushButton:pressed {
             </spacer>
            </item>
            <item>
-            <widget class="QLineEdit" name="Notes_NewOffer">
+            <widget class="QTextEdit" name="Notes_NewOffer">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -804,14 +804,6 @@ QPushButton:pressed {
                <width>175</width>
                <height>25</height>
               </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
@@ -958,7 +950,6 @@ QPushButton:pressed {
   <tabstop>NumRef_NewOffer</tabstop>
   <tabstop>NacExt_NewOffer</tabstop>
   <tabstop>Buyer_NewOffer</tabstop>
-  <tabstop>Notes_NewOffer</tabstop>
   <tabstop>Button_NewOffer</tabstop>
   <tabstop>Button_Cancel</tabstop>
  </tabstops>

@@ -123,15 +123,15 @@ class Ui_Edit_Order_Window(object):
         self.vLayout2.addWidget(self.NumOrder_EditOrder)
         spacerItem3 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout2.addItem(spacerItem3)
-        self.NewOffer_EditOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.NewOffer_EditOrder.setMinimumSize(QtCore.QSize(175, 25))
-        self.NewOffer_EditOrder.setMaximumSize(QtCore.QSize(175, 25))
+        self.NumOffer_EditOrder = QtWidgets.QLineEdit(parent=self.frame)
+        self.NumOffer_EditOrder.setMinimumSize(QtCore.QSize(175, 25))
+        self.NumOffer_EditOrder.setMaximumSize(QtCore.QSize(175, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.NewOffer_EditOrder.setFont(font)
-        self.NewOffer_EditOrder.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.NewOffer_EditOrder.setObjectName("NewOffer_EditOrder")
-        self.vLayout2.addWidget(self.NewOffer_EditOrder)
+        self.NumOffer_EditOrder.setFont(font)
+        self.NumOffer_EditOrder.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.NumOffer_EditOrder.setObjectName("NumOffer_EditOrder")
+        self.vLayout2.addWidget(self.NumOffer_EditOrder)
         spacerItem4 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout2.addItem(spacerItem4)
         self.NumRef_EditOrder = QtWidgets.QLineEdit(parent=self.frame)
@@ -269,6 +269,8 @@ class Ui_Edit_Order_Window(object):
 
         self.retranslateUi(Edit_Order_Window)
         self.Button_Cancel.clicked.connect(Edit_Order_Window.close) # type: ignore
+        self.Button_EditOrder.clicked.connect(self.editorder) # type: ignore
+        self.NumOrder_EditOrder.returnPressed.connect(self.queryorderdata)
         QtCore.QMetaObject.connectSlotsByName(Edit_Order_Window)
 
 
@@ -283,6 +285,55 @@ class Ui_Edit_Order_Window(object):
         self.label_Amount.setText(_translate("Edit_Order_Window", "Importe (€):"))
         self.Button_EditOrder.setText(_translate("Edit_Order_Window", "Editar Pedido"))
         self.Button_Cancel.setText(_translate("Edit_Order_Window", "Cancelar"))
+
+
+    def editorder(self):
+        numorder=self.NumOrder_EditOrder.text()
+        numoffer=self.NumOffer_EditOrder.text()
+        numref=self.NumRef_EditOrder.text()
+        contracdate=self.ContracDate_EditOrder.text()
+        numitems=self.NumItems_EditOrder.text()
+        amount=self.Amount_EditOrder.text()
+
+        if numorder=="" or numorder==" ": #añadir busqueda de num pedido en BBDD
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Editar Pedido")
+            dlg.setText("Introduce un número de pedido")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+
+        else:
+            #consulta SQL para guardar los datos del formulario
+
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Editar Pedido")
+            dlg.setText("Pedido editado con exito")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+            dlg.exec()
+
+            self.NumOrder_EditOrder.setText('')
+            self.NumOffer_EditOrder.setText('')
+            self.NumRef_EditOrder.setText('')
+            self.ContracDate_EditOrder.setText('')
+            self.NumItems_EditOrder.setText('')
+            self.Amount_EditOrder.setText('')
+
+            del dlg, new_icon
+
+
+    def queryorderdata(self):
+        #consultaSQL para cargar los datos de la query
+        self.NumOffer_EditOrder.setText('texto')
+        self.NumRef_EditOrder.setText('texto')
+        self.ContracDate_EditOrder.setText('Rechazada')
+        self.NumItems_EditOrder.setText('Nacional')
+        self.Amount_EditOrder.setText('texto')
 
 
 if __name__ == "__main__":

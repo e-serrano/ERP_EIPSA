@@ -1,29 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CreateTAGFlow_Window</class>
- <widget class="QMainWindow" name="CreateTAGFlow_Window">
+ <class>EditTAGNiv_Window</class>
+ <widget class="QMainWindow" name="EditTAGNiv_Window">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>705</width>
+    <width>1091</width>
     <height>605</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>705</width>
+    <width>0</width>
     <height>605</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>705</width>
+    <width>2000</width>
     <height>605</height>
    </size>
   </property>
+  <property name="cursor">
+   <cursorShape>ArrowCursor</cursorShape>
+  </property>
   <property name="windowTitle">
-   <string>Crear TAG Caudal</string>
+   <string>Editar TAG Nivel</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -112,13 +115,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_TAG">
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
@@ -129,7 +132,7 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>*TAG:</string>
+              <string>TAG:</string>
              </property>
             </widget>
            </item>
@@ -137,13 +140,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_NumOffer">
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
@@ -154,7 +157,7 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>*Nº Oferta:</string>
+              <string>Nº Oferta:</string>
              </property>
             </widget>
            </item>
@@ -162,13 +165,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_Pos">
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
@@ -187,13 +190,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_SubPos">
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
@@ -212,13 +215,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_Type">
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
@@ -229,21 +232,21 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>*Tipo:</string>
+              <string>Tipo:</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_Linesize">
+            <widget class="QLabel" name="label_Modelnum">
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
@@ -254,21 +257,21 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>*Tamaño Línea:</string>
+              <string>Modelo Nº</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_Rating">
+            <widget class="QLabel" name="label_BodyMat">
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
@@ -279,21 +282,21 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>*Rating:</string>
+              <string>Mat. Cuerpo:</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_Facing">
+            <widget class="QLabel" name="label_ProcConnType">
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
@@ -304,21 +307,21 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>*Facing:</string>
+              <string>Tipo Con. Proc:</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_Sch">
+            <widget class="QLabel" name="label_ProcConnSize">
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
@@ -329,21 +332,21 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>*SCH:</string>
+              <string>Tamaño Con. Proc.:</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_Flangemat">
+            <widget class="QLabel" name="label_ProcConnRating">
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>120</width>
+               <width>140</width>
                <height>25</height>
               </size>
              </property>
@@ -354,12 +357,24 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>Mat. Brida:</string>
+              <string>Rating Con. Proc.:</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_Amount">
+            <widget class="QLabel" name="label_ProcConnFacing">
+             <property name="minimumSize">
+              <size>
+               <width>140</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>140</width>
+               <height>25</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>11</pointsize>
@@ -367,7 +382,7 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>Importe (€):</string>
+              <string>Facing Con. Proc.:</string>
              </property>
             </widget>
            </item>
@@ -379,7 +394,7 @@ QPushButton:pressed {
             <number>15</number>
            </property>
            <item>
-            <widget class="QLineEdit" name="TAG_CreatetagQ">
+            <widget class="QLineEdit" name="TAG_EdittagN">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -400,7 +415,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="NumOffer_CreatetagQ">
+            <widget class="QLineEdit" name="NumOffer_EdittagN">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -421,7 +436,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="Pos_CreatetagQ">
+            <widget class="QLineEdit" name="Pos_EdittagN">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -442,7 +457,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="Subpos_CreatetagQ">
+            <widget class="QLineEdit" name="Subpos_EdittagN">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -463,7 +478,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="Type_CreatetagQ">
+            <widget class="QComboBox" name="Type_EdittagN">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -484,7 +499,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="Linesize_CreatetagQ">
+            <widget class="QComboBox" name="ModelNum_EdittagN">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -505,7 +520,39 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="Rating_CreatetagQ">
+            <widget class="QComboBox" name="BodyMat_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="ProcConnType_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="ProcConnSize_EdittagN">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -526,7 +573,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="Facing_CreatetagQ">
+            <widget class="QComboBox" name="ProcConnRating_EdittagN">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -547,49 +594,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="Sch_CreatetagQ">
-             <property name="minimumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="Flangemat_CreatetagQ">
-             <property name="minimumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="Amount_CreatetagQ">
+            <widget class="QComboBox" name="ProcConnFacing_EdittagN">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -612,7 +617,7 @@ QPushButton:pressed {
           </layout>
          </item>
          <item>
-          <spacer name="hSpacer">
+          <spacer name="hSpacer1">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -621,7 +626,7 @@ QPushButton:pressed {
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>40</width>
+             <width>30</width>
              <height>20</height>
             </size>
            </property>
@@ -633,16 +638,16 @@ QPushButton:pressed {
             <number>15</number>
            </property>
            <item>
-            <widget class="QLabel" name="label_Tapping">
+            <widget class="QLabel" name="label_Rootdiam">
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>125</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>120</width>
+               <width>125</width>
                <height>25</height>
               </size>
              </property>
@@ -653,21 +658,21 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>Tomas Pres. (Nº):</string>
+              <string>Tipo Conex.:</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_Platemat">
+            <widget class="QLabel" name="label_Visibility">
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>125</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>120</width>
+               <width>125</width>
                <height>25</height>
               </size>
              </property>
@@ -678,21 +683,21 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>Mat. Placa:</string>
+              <string>Visibilidad (mm):</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_Platetype">
+            <widget class="QLabel" name="label_LCC">
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>125</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>120</width>
+               <width>125</width>
                <height>25</height>
               </size>
              </property>
@@ -703,21 +708,21 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>Tipo Placa:</string>
+              <string>Long. C-C (mm):</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_Platethk">
+            <widget class="QLabel" name="label_ValveType">
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>125</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>120</width>
+               <width>125</width>
                <height>25</height>
               </size>
              </property>
@@ -728,21 +733,21 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>Esp. Placa (mm):</string>
+              <string>Tipo Valv.:</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_Platestd">
+            <widget class="QLabel" name="label_DVConn">
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>125</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>120</width>
+               <width>125</width>
                <height>25</height>
               </size>
              </property>
@@ -753,21 +758,21 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>STD Placa:</string>
+              <string>Conex. D/V:</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_Gasketmat">
+            <widget class="QLabel" name="label_DVSize">
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>125</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>120</width>
+               <width>125</width>
                <height>25</height>
               </size>
              </property>
@@ -778,21 +783,21 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>Mat. Junta:</string>
+              <string>Tamaño D/V:</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_Bnmat">
+            <widget class="QLabel" name="label_DVRating">
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>125</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>120</width>
+               <width>125</width>
                <height>25</height>
               </size>
              </property>
@@ -803,7 +808,573 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>Mat. Tornillería:</string>
+              <string>Rating D/V:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_DVFacing">
+             <property name="minimumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Facing D/V:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_GasketMica">
+             <property name="minimumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Junta y Mica:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_Mattorn">
+             <property name="minimumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Mat. Torn.:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_Iluminator">
+             <property name="minimumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Iluminador:</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="vLayout4" stretch="0,0,0,0,0,0,0,0,0,0,0">
+           <property name="spacing">
+            <number>15</number>
+           </property>
+           <item>
+            <widget class="QComboBox" name="ConnType_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="Visibility_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="LCC_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="Valvetype_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="DVConn_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="DVSize_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="DVRating_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="DVFacing_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="GasketMica_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="MatTorn_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="Iluminator_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="hSpacer2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>30</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="vLayout5">
+           <property name="spacing">
+            <number>15</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="label_NipHex">
+             <property name="minimumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Niplo Hex.:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_Antifrost">
+             <property name="minimumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>AntiFrost:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_Scale">
+             <property name="minimumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Escala:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_MatFlot">
+             <property name="minimumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Mat. Flot.:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_MatCover">
+             <property name="minimumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Mat. Cover:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_Flags">
+             <property name="minimumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Flags:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_IP">
+             <property name="minimumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>IP Code:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_FlangeType">
+             <property name="minimumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Tipo Brida:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_NipTub">
+             <property name="minimumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Niplo Tub.:</string>
              </property>
             </widget>
            </item>
@@ -811,13 +1382,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_Nace">
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>125</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>120</width>
+               <width>125</width>
                <height>25</height>
               </size>
              </property>
@@ -833,16 +1404,16 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_Stagesnum">
+            <widget class="QLabel" name="label_Amount">
              <property name="minimumSize">
               <size>
-               <width>120</width>
+               <width>125</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>120</width>
+               <width>125</width>
                <height>25</height>
               </size>
              </property>
@@ -853,37 +1424,24 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>Nº Saltos:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_Pipespec">
-             <property name="minimumSize">
-              <size>
-               <width>120</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>120</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>11</pointsize>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Espec. Línea:</string>
+              <string>Importe (€):</string>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QLabel" name="label_Notes">
+             <property name="minimumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>125</width>
+               <height>25</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>11</pointsize>
@@ -898,12 +1456,33 @@ QPushButton:pressed {
           </layout>
          </item>
          <item>
-          <layout class="QVBoxLayout" name="vLayout4" stretch="0,0,0,0,0,0,0,0,0,0,0">
+          <layout class="QVBoxLayout" name="vLayout6">
            <property name="spacing">
             <number>15</number>
            </property>
            <item>
-            <widget class="QComboBox" name="Tapping_CreatetagQ">
+            <widget class="QComboBox" name="Niphex_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="Antifrost_EdittagN">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -919,7 +1498,133 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="PlateMat_CreatetagQ">
+            <widget class="QComboBox" name="Scale_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="Matflot_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="Matcover_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="Flags_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="IP_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="FlangeType_EdittagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="Niptub_EdittagN">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -935,87 +1640,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="PlateType_CreatetagQ">
-             <property name="minimumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="PlateThk_CreatetagQ">
-             <property name="minimumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="PlateStd_CreatetagQ">
-             <property name="minimumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="GasketMat_CreatetagQ">
-             <property name="minimumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="BnMat_CreatetagQ">
-             <property name="minimumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="Nace_CreatetagQ">
+            <widget class="QComboBox" name="Nace_EdittagN">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -1046,7 +1671,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="StagesNum_CreatetagQ">
+            <widget class="QLineEdit" name="Amount_EdittagN">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -1059,36 +1684,10 @@ QPushButton:pressed {
                <height>25</height>
               </size>
              </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="PipeSpec_CreatetagQ">
-             <property name="minimumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QTextEdit" name="Notes_CreatetagQ">
+            <widget class="QTextEdit" name="Notes_EdittagN">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -1118,7 +1717,7 @@ QPushButton:pressed {
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>40</height>
+           <height>30</height>
           </size>
          </property>
         </spacer>
@@ -1139,8 +1738,18 @@ QPushButton:pressed {
              <height>35</height>
             </size>
            </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton:focus{
+	background-color: #019ad2;
+	border-color: rgb(0, 0, 0);
+}
+</string>
+           </property>
            <property name="text">
             <string>Crear</string>
+           </property>
+           <property name="autoDefault">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -1164,8 +1773,21 @@ QPushButton:pressed {
              <height>35</height>
             </size>
            </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton:focus{
+	background-color: #019ad2;
+	border-color: rgb(0, 0, 0);
+}
+</string>
+           </property>
            <property name="text">
             <string>Cancelar</string>
+           </property>
+           <property name="autoDefault">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -1173,6 +1795,18 @@ QPushButton:pressed {
        </item>
        <item>
         <widget class="QLabel" name="label_error">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>25</height>
+          </size>
+         </property>
          <property name="styleSheet">
           <string notr="true">color: rgb(255, 0, 0);</string>
          </property>
@@ -1194,7 +1828,7 @@ QPushButton:pressed {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>705</width>
+     <width>1091</width>
      <height>22</height>
     </rect>
    </property>
@@ -1202,25 +1836,40 @@ QPushButton:pressed {
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <tabstops>
-  <tabstop>TAG_CreatetagQ</tabstop>
-  <tabstop>NumOffer_CreatetagQ</tabstop>
-  <tabstop>Pos_CreatetagQ</tabstop>
-  <tabstop>Subpos_CreatetagQ</tabstop>
-  <tabstop>Type_CreatetagQ</tabstop>
-  <tabstop>Linesize_CreatetagQ</tabstop>
-  <tabstop>Rating_CreatetagQ</tabstop>
-  <tabstop>Facing_CreatetagQ</tabstop>
-  <tabstop>Sch_CreatetagQ</tabstop>
-  <tabstop>Flangemat_CreatetagQ</tabstop>
-  <tabstop>Tapping_CreatetagQ</tabstop>
-  <tabstop>PlateMat_CreatetagQ</tabstop>
-  <tabstop>PlateType_CreatetagQ</tabstop>
-  <tabstop>PlateThk_CreatetagQ</tabstop>
-  <tabstop>GasketMat_CreatetagQ</tabstop>
-  <tabstop>BnMat_CreatetagQ</tabstop>
-  <tabstop>Nace_CreatetagQ</tabstop>
-  <tabstop>StagesNum_CreatetagQ</tabstop>
-  <tabstop>PipeSpec_CreatetagQ</tabstop>
+  <tabstop>TAG_EdittagN</tabstop>
+  <tabstop>NumOffer_EdittagN</tabstop>
+  <tabstop>Pos_EdittagN</tabstop>
+  <tabstop>Subpos_EdittagN</tabstop>
+  <tabstop>Type_EdittagN</tabstop>
+  <tabstop>ModelNum_EdittagN</tabstop>
+  <tabstop>BodyMat_EdittagN</tabstop>
+  <tabstop>ProcConnType_EdittagN</tabstop>
+  <tabstop>ProcConnSize_EdittagN</tabstop>
+  <tabstop>ProcConnRating_EdittagN</tabstop>
+  <tabstop>ProcConnFacing_EdittagN</tabstop>
+  <tabstop>ConnType_EdittagN</tabstop>
+  <tabstop>Visibility_EdittagN</tabstop>
+  <tabstop>LCC_EdittagN</tabstop>
+  <tabstop>Valvetype_EdittagN</tabstop>
+  <tabstop>DVConn_EdittagN</tabstop>
+  <tabstop>DVSize_EdittagN</tabstop>
+  <tabstop>DVRating_EdittagN</tabstop>
+  <tabstop>DVFacing_EdittagN</tabstop>
+  <tabstop>GasketMica_EdittagN</tabstop>
+  <tabstop>MatTorn_EdittagN</tabstop>
+  <tabstop>Iluminator_EdittagN</tabstop>
+  <tabstop>Niphex_EdittagN</tabstop>
+  <tabstop>Antifrost_EdittagN</tabstop>
+  <tabstop>Scale_EdittagN</tabstop>
+  <tabstop>Matflot_EdittagN</tabstop>
+  <tabstop>Matcover_EdittagN</tabstop>
+  <tabstop>Flags_EdittagN</tabstop>
+  <tabstop>IP_EdittagN</tabstop>
+  <tabstop>FlangeType_EdittagN</tabstop>
+  <tabstop>Niptub_EdittagN</tabstop>
+  <tabstop>Nace_EdittagN</tabstop>
+  <tabstop>Amount_EdittagN</tabstop>
+  <tabstop>Notes_EdittagN</tabstop>
   <tabstop>Button_Create</tabstop>
   <tabstop>Button_Cancel</tabstop>
  </tabstops>
@@ -1229,12 +1878,12 @@ QPushButton:pressed {
   <connection>
    <sender>Button_Cancel</sender>
    <signal>clicked()</signal>
-   <receiver>CreateTAGFlow_Window</receiver>
+   <receiver>EditTAGNiv_Window</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>483</x>
-     <y>489</y>
+     <x>854</x>
+     <y>531</y>
     </hint>
     <hint type="destinationlabel">
      <x>520</x>

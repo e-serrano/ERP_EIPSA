@@ -4,6 +4,7 @@ import pandas as pd
 from PyQt6.QtCore import QAbstractTableModel, Qt
 from PyQt6.QtWidgets import QApplication, QMainWindow, QTableView
 
+# código para hacer editable tabla
 
 class PandasModel(QAbstractTableModel):
     def __init__(self, data):
@@ -56,3 +57,68 @@ app = QApplication(sys.argv)
 window = MainWindow()
 window.show()
 app.exec()
+
+
+import psycopg2
+from config import config
+def prueba(self):
+    commands = (
+                """
+                CREATE TABLE ssss (
+                    vendor_id SERIAL PRIMARY KEY,
+                    vendor_name VARCHAR(255) NOT NULL
+                )
+                """
+                )
+    conn = None
+    try:
+    # read the connection parameters
+        params = config()
+    # connect to the PostgreSQL server
+        conn = psycopg2.connect(**params)
+        cur = conn.cursor()
+    # execution of commands one by one
+        #for command in commands:
+        cur.execute(commands)
+    # close communication with the PostgreSQL database server
+        cur.close()
+    # commit the changes
+        conn.commit()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+#Sure, here's an example script that shows how to insert data from an Excel file into a PostgreSQL table using Python:
+
+import pandas as pd
+import psycopg2
+
+# Connect to PostgreSQL server
+conn = psycopg2.connect(
+    host="your_host",
+    database="your_database",
+    user="your_username",
+    password="your_password",
+    port="your_port")
+
+# Load Excel file into a pandas DataFrame
+excel_file_path = 'path_to_excel_file.xlsx'
+df = pd.read_excel(excel_file_path)
+
+# Create a cursor
+cursor = conn.cursor()
+
+# Iterate over each row of the DataFrame and insert into PostgreSQL table
+table_name = 'your_table_name'
+for index, row in df.iterrows():
+    values = tuple(row)
+    query = f"INSERT INTO {table_name} VALUES {values}"
+    cursor.execute(query)
+
+# Commit changes and close connection
+conn.commit()
+cursor.close()
+conn.close()

@@ -148,7 +148,6 @@ class Ui_Edit_Offer_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.NumOffer_EditOffer.setFont(font)
-        self.NumOffer_EditOffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.NumOffer_EditOffer.setObjectName("NumOffer_EditOffer")
         self.vLayout2.addWidget(self.NumOffer_EditOffer)
         spacerItem6 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -159,7 +158,6 @@ class Ui_Edit_Offer_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Client_EditOffer.setFont(font)
-        self.Client_EditOffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.Client_EditOffer.setObjectName("Client_EditOffer")
         self.vLayout2.addWidget(self.Client_EditOffer)
         spacerItem7 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -170,7 +168,6 @@ class Ui_Edit_Offer_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.FinalClient_EditOffer.setFont(font)
-        self.FinalClient_EditOffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.FinalClient_EditOffer.setObjectName("FinalClient_EditOffer")
         self.vLayout2.addWidget(self.FinalClient_EditOffer)
         spacerItem8 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -181,19 +178,20 @@ class Ui_Edit_Offer_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.NumRef_EditOffer.setFont(font)
-        self.NumRef_EditOffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.NumRef_EditOffer.setObjectName("NumRef_EditOffer")
         self.vLayout2.addWidget(self.NumRef_EditOffer)
         spacerItem9 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout2.addItem(spacerItem9)
-        self.State_EditOffer = QtWidgets.QLineEdit(parent=self.frame)
+        self.State_EditOffer = QtWidgets.QComboBox(parent=self.frame)
         self.State_EditOffer.setMinimumSize(QtCore.QSize(175, 25))
         self.State_EditOffer.setMaximumSize(QtCore.QSize(175, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.State_EditOffer.setFont(font)
-        self.State_EditOffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.State_EditOffer.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         self.State_EditOffer.setObjectName("State_EditOffer")
+        list_state=['Adjudicada','Desestimada','Estimación','Presentada','Rechazada','Registrada']
+        self.State_EditOffer.addItems(list_state)
         self.vLayout2.addWidget(self.State_EditOffer)
         spacerItem10 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout2.addItem(spacerItem10)
@@ -283,7 +281,6 @@ class Ui_Edit_Offer_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Buyer_EditOffer.setFont(font)
-        self.Buyer_EditOffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.Buyer_EditOffer.setObjectName("Buyer_EditOffer")
         self.vlLayout4.addWidget(self.Buyer_EditOffer)
         spacerItem18 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -301,13 +298,12 @@ class Ui_Edit_Offer_Window(object):
         self.vlLayout4.addWidget(self.Material_EditOffer)
         spacerItem19 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vlLayout4.addItem(spacerItem19)
-        self.Notes_EditOffer = QtWidgets.QLineEdit(parent=self.frame)
+        self.Notes_EditOffer = QtWidgets.QTextEdit(parent=self.frame)
         self.Notes_EditOffer.setMinimumSize(QtCore.QSize(175, 25))
         self.Notes_EditOffer.setMaximumSize(QtCore.QSize(175, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Notes_EditOffer.setFont(font)
-        self.Notes_EditOffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.Notes_EditOffer.setObjectName("Notes_EditOffer")
         self.vlLayout4.addWidget(self.Notes_EditOffer)
         spacerItem20 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -318,7 +314,6 @@ class Ui_Edit_Offer_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Amount_EditOffer.setFont(font)
-        self.Amount_EditOffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.Amount_EditOffer.setObjectName("Amount_EditOffer")
         self.vlLayout4.addWidget(self.Amount_EditOffer)
         spacerItem21 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -366,6 +361,8 @@ class Ui_Edit_Offer_Window(object):
 
         self.retranslateUi(Edit_Offer_Window)
         self.Button_Cancel.clicked.connect(Edit_Offer_Window.close) # type: ignore
+        self.Button_EditOffer.clicked.connect(self.editoffer) # type: ignore
+        self.NumOffer_EditOffer.returnPressed.connect(self.queryofferdata)
         QtCore.QMetaObject.connectSlotsByName(Edit_Offer_Window)
 
 
@@ -388,6 +385,64 @@ class Ui_Edit_Offer_Window(object):
         self.Material_EditOffer.setItemText(1, _translate("Edit_Offer_Window", "Material2"))
         self.Button_EditOffer.setText(_translate("Edit_Offer_Window", "Editar Oferta"))
         self.Button_Cancel.setText(_translate("Edit_Offer_Window", "Cancelar"))
+
+
+    def editoffer(self):
+        numoffer=self.NumOffer_EditOffer.text()
+        client=self.Client_EditOffer.text()
+        finalclient=self.FinalClient_EditOffer.text()
+        numref=self.NumRef_EditOffer.text()
+        state=self.State_EditOffer.currentText()
+        nacext=self.NacExt_EditOffer.currentText()
+        buyer=self.Buyer_EditOffer.text()
+        material=self.Material_EditOffer.currentText()
+        notes=self.Notes_EditOffer.toPlainText()
+        amount=self.Amount_EditOffer.text()
+
+        if numoffer=="" or numoffer==" ": #añadir busqueda de num oferta en BBDD
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Editar Oferta")
+            dlg.setText("Introduce un número de oferta")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+
+        else:
+            #consulta SQL para guardar los datos del formulario
+
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Editar Oferta")
+            dlg.setText("Oferta editada con exito")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+            dlg.exec()
+
+            self.NumOffer_EditOffer.setText('')
+            self.Client_EditOffer.setText('')
+            self.FinalClient_EditOffer.setText('')
+            self.NumRef_EditOffer.setText('')
+            self.Buyer_EditOffer.setText('')
+            self.Notes_EditOffer.setText('')
+            self.Amount_EditOffer.setText('')
+
+            del dlg, new_icon
+
+
+    def queryofferdata(self):
+        #consultaSQL para cargar los datos de la query
+        self.Client_EditOffer.setText('texto')
+        self.FinalClient_EditOffer.setText('texto')
+        self.NumRef_EditOffer.setText('texto')
+        self.State_EditOffer.setCurrentText('Rechazada')
+        self.NacExt_EditOffer.setCurrentText('Nacional')
+        self.Buyer_EditOffer.setText('texto')
+        self.Material_EditOffer.setCurrentText('Material2')
+        self.Notes_EditOffer.setText('texto')
+        self.Amount_EditOffer.setText('texto')
 
 
 if __name__ == "__main__":

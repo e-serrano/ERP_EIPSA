@@ -8,8 +8,6 @@
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QFileDialog
-import psycopg2
-from config import config
 
 class Ui_ImportTAG_Window(object):
     def setupUi(self, ImportTAG_Window):
@@ -149,7 +147,7 @@ class Ui_ImportTAG_Window(object):
         self.retranslateUi(ImportTAG_Window)
         self.Button_Cancel.clicked.connect(ImportTAG_Window.close)
         self.Button_Select.clicked.connect(self.browsefiles) # type: ignore
-        self.Button_Import.clicked.connect(self.prueba)
+        self.Button_Import.clicked.connect(self.importag)
 
         self.radioFlow.toggled.connect(lambda:self.btnstate(self.radioFlow))
         self.radioTemp.toggled.connect(lambda:self.btnstate(self.radioTemp))
@@ -196,34 +194,9 @@ class Ui_ImportTAG_Window(object):
             if b.isChecked() == True:
                 print('d')
 
-    def prueba(self):
-        commands = (
-                    """
-                    CREATE TABLE ssss (
-                        vendor_id SERIAL PRIMARY KEY,
-                        vendor_name VARCHAR(255) NOT NULL
-                    )
-                    """
-                    )
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            #for command in commands:
-            cur.execute(commands)
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-        finally:
-            if conn is not None:
-                conn.close()
+
+    def importtag(self):
+        print('se importa el tag')
 
 
 if __name__ == "__main__":

@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>942</width>
-    <height>925</height>
+    <width>945</width>
+    <height>860</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>0</width>
-    <height>0</height>
+    <width>945</width>
+    <height>860</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -662,158 +662,125 @@ QPushButton:pressed{
            <item>
             <layout class="QVBoxLayout" name="MainLayout">
              <item>
-              <widget class="QTabWidget" name="tabWidget">
-               <property name="cursor">
-                <cursorShape>ArrowCursor</cursorShape>
+              <widget class="QTableWidget" name="tableOffer">
+               <property name="minimumSize">
+                <size>
+                 <width>650</width>
+                 <height>280</height>
+                </size>
                </property>
-               <property name="currentIndex">
-                <number>0</number>
+               <property name="sortingEnabled">
+                <bool>true</bool>
                </property>
-               <widget class="QWidget" name="tabOffer">
-                <attribute name="title">
-                 <string>Ofertas</string>
-                </attribute>
-                <layout class="QGridLayout" name="gridLayout_4">
-                 <item row="0" column="0">
-                  <widget class="QTableWidget" name="TableOffer">
-                   <property name="minimumSize">
-                    <size>
-                     <width>370</width>
-                     <height>340</height>
-                    </size>
-                   </property>
-                   <property name="frameShadow">
-                    <enum>QFrame::Sunken</enum>
-                   </property>
-                   <property name="verticalScrollBarPolicy">
-                    <enum>Qt::ScrollBarAsNeeded</enum>
-                   </property>
-                   <property name="sizeAdjustPolicy">
-                    <enum>QAbstractScrollArea::AdjustToContents</enum>
-                   </property>
-                   <property name="sortingEnabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="rowCount">
-                    <number>0</number>
-                   </property>
-                   <property name="columnCount">
-                    <number>5</number>
-                   </property>
-                   <attribute name="horizontalHeaderVisible">
-                    <bool>true</bool>
-                   </attribute>
-                   <attribute name="horizontalHeaderCascadingSectionResizes">
-                    <bool>false</bool>
-                   </attribute>
-                   <attribute name="horizontalHeaderDefaultSectionSize">
-                    <number>73</number>
-                   </attribute>
-                   <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-                    <bool>true</bool>
-                   </attribute>
-                   <attribute name="horizontalHeaderStretchLastSection">
-                    <bool>true</bool>
-                   </attribute>
-                   <column>
-                    <property name="text">
-                     <string>Oferta</string>
-                    </property>
-                    <property name="textAlignment">
-                     <set>AlignCenter</set>
-                    </property>
-                   </column>
-                   <column>
-                    <property name="text">
-                     <string>Cliente</string>
-                    </property>
-                    <property name="textAlignment">
-                     <set>AlignCenter</set>
-                    </property>
-                   </column>
-                   <column>
-                    <property name="text">
-                     <string>Material</string>
-                    </property>
-                    <property name="textAlignment">
-                     <set>AlignCenter</set>
-                    </property>
-                   </column>
-                   <column>
-                    <property name="text">
-                     <string>Fecha Presentación</string>
-                    </property>
-                    <property name="textAlignment">
-                     <set>AlignCenter</set>
-                    </property>
-                   </column>
-                   <column>
-                    <property name="text">
-                     <string>Importe</string>
-                    </property>
-                    <property name="textAlignment">
-                     <set>AlignCenter</set>
-                    </property>
-                   </column>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-               <widget class="QWidget" name="tabOrder">
-                <attribute name="title">
-                 <string>Pedidos</string>
-                </attribute>
-                <layout class="QGridLayout" name="gridLayout_3">
-                 <item row="0" column="0">
-                  <widget class="QTableWidget" name="TableOrder">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>370</width>
-                     <height>340</height>
-                    </size>
-                   </property>
-                   <property name="sizeIncrement">
-                    <size>
-                     <width>0</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="sizeAdjustPolicy">
-                    <enum>QAbstractScrollArea::AdjustToContents</enum>
-                   </property>
-                   <property name="columnCount">
-                    <number>5</number>
-                   </property>
-                   <attribute name="horizontalHeaderCascadingSectionResizes">
-                    <bool>true</bool>
-                   </attribute>
-                   <attribute name="horizontalHeaderMinimumSectionSize">
-                    <number>73</number>
-                   </attribute>
-                   <attribute name="horizontalHeaderDefaultSectionSize">
-                    <number>73</number>
-                   </attribute>
-                   <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-                    <bool>true</bool>
-                   </attribute>
-                   <attribute name="horizontalHeaderStretchLastSection">
-                    <bool>true</bool>
-                   </attribute>
-                   <column/>
-                   <column/>
-                   <column/>
-                   <column/>
-                   <column/>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
+               <attribute name="verticalHeaderVisible">
+                <bool>false</bool>
+               </attribute>
+               <row>
+                <property name="text">
+                 <string>Nueva fila</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Nueva fila</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Nueva fila</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Nueva fila</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Nueva fila</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Nueva fila</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Nueva fila</string>
+                </property>
+               </row>
+               <row>
+                <property name="text">
+                 <string>Nueva fila</string>
+                </property>
+               </row>
+               <column>
+                <property name="text">
+                 <string>Nº Oferta</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Estado</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Cliente</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Fecha Presentación</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Tipo Equipo</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Importe (€)</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </column>
               </widget>
              </item>
              <item>
@@ -842,13 +809,13 @@ QPushButton:pressed{
                  <property name="minimumSize">
                   <size>
                    <width>200</width>
-                   <height>360</height>
+                   <height>400</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>583</width>
-                   <height>360</height>
+                   <height>400</height>
                   </size>
                  </property>
                  <property name="styleSheet">
@@ -880,13 +847,13 @@ border-color: rgb(0, 0, 0);
                  <property name="minimumSize">
                   <size>
                    <width>200</width>
-                   <height>360</height>
+                   <height>400</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>583</width>
-                   <height>360</height>
+                   <height>400</height>
                   </size>
                  </property>
                  <property name="styleSheet">
@@ -927,13 +894,13 @@ border-color: rgb(0, 0, 0);
                  <property name="minimumSize">
                   <size>
                    <width>200</width>
-                   <height>360</height>
+                   <height>400</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>583</width>
-                   <height>360</height>
+                   <height>400</height>
                   </size>
                  </property>
                  <property name="cursor">
@@ -1020,7 +987,7 @@ QCalendarWidget QAbstractItemView:enabled{
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>942</width>
+     <width>945</width>
      <height>22</height>
     </rect>
    </property>
