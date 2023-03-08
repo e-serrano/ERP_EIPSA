@@ -7,7 +7,8 @@
 
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
-
+import psycopg2
+from config import config
 
 class Ui_Edit_Order_Window(object):
     def setupUi(self, Edit_Order_Window):
@@ -295,18 +296,68 @@ class Ui_Edit_Order_Window(object):
         numitems=self.NumItems_EditOrder.text()
         amount=self.Amount_EditOrder.text()
 
-        if numorder=="" or numorder==" ": #añadir busqueda de num pedido en BBDD
+        #SQL Query
+        commands = ("""
+                    SELECT * 
+                    FROM pedidos
+                    WHERE "Num_Pedido" = %s
+                    """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands,(numorder,))
+            results=cur.fetchall()
+            match=list(filter(lambda x:numorder in x, results))
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        if numorder=="" or (numorder==" " or len(match)==0): #añadir busqueda de num pedido en BBDD
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Editar Pedido")
-            dlg.setText("Introduce un número de pedido")
+            dlg.setText("Introduce un número de pedido válido")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
 
         else:
-            #consulta SQL para guardar los datos del formulario
+            #SQL Query
+            commands = ("""
+                        UPDATE pedidos
+                        SET "Num_Oferta" = %s, "Num_Referencia" = %s, "Fecha_Contractual" = %s, "Num_Equipos" = %s, "Importe" = %s
+                        WHERE "Num_Pedido" = %s
+                        """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(commands,(numoffer,numref,contracdate,numitems,amount,numorder,))
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
 
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
@@ -328,12 +379,62 @@ class Ui_Edit_Order_Window(object):
 
 
     def queryorderdata(self):
-        #consultaSQL para cargar los datos de la query
-        self.NumOffer_EditOrder.setText('texto')
-        self.NumRef_EditOrder.setText('texto')
-        self.ContracDate_EditOrder.setText('Rechazada')
-        self.NumItems_EditOrder.setText('Nacional')
-        self.Amount_EditOrder.setText('texto')
+        numorder=self.NumOrder_EditOrder.text()
+
+        if numorder=="" or numorder==" ":
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Editar Pedido")
+            dlg.setText("Introduce un número de pedido")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+
+        else:
+        #SQL Query
+            commands = ("""
+                        SELECT "Num_Pedido","Num_Oferta","Num_Referencia","Fecha_Contractual","Num_Equipos","Importe"
+                        FROM pedidos
+                        WHERE "Num_Pedido" = %s
+                        """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(commands,(numorder,))
+                results=cur.fetchall()
+                match=list(filter(lambda x:numorder in x, results))
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
+
+            if len(match)==0:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Editar Pedido")
+                dlg.setText("No existe ese número de pedido")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+
+            else:
+                self.NumOffer_EditOrder.setText(str(results[0][1]))
+                self.NumRef_EditOrder.setText(str(results[0][2]))
+                self.ContracDate_EditOrder.setText(str(results[0][3]))
+                self.NumItems_EditOrder.setText(str(results[0][4]))
+                self.Amount_EditOrder.setText(str(results[0][5]))
 
 
 if __name__ == "__main__":

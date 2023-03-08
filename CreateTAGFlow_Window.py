@@ -548,7 +548,8 @@ class Ui_CreateTAGFlow_Window(object):
         notes=self.Notes_CreatetagQ.toPlainText()
 
 
-        if (tag=="" or tag==" ") or (typeF=="" or typeF==" ") or (numoffer=="" or numoffer==" ") or (linesize=="" or linesize==" ") or (rating=="" or rating==" ") or (facing=="" or facing==" ") or (schedule=="" or schedule==" "):
+        if ((tag=="" or tag==" ") or (typeF=="" or typeF==" ") or (numoffer=="" or numoffer==" ") or (linesize=="" or linesize==" ")
+        or (rating=="" or rating==" ") or (facing=="" or facing==" ") or (schedule=="" or schedule==" ")):
             self.label_error.setText('Rellene los campos con * mínimo')
         
         else:

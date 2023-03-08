@@ -7,7 +7,8 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-
+import psycopg2
+from config import config
 
 
 class Ui_QueryOrder_Window(object):
@@ -316,9 +317,9 @@ class Ui_QueryOrder_Window(object):
         item = self.tableQueryOrder.horizontalHeaderItem(0)
         item.setText(_translate("QueryOrder_Window", "Nº Pedido"))
         item = self.tableQueryOrder.horizontalHeaderItem(1)
-        item.setText(_translate("QueryOrder_Window", "Referencia"))
-        item = self.tableQueryOrder.horizontalHeaderItem(2)
         item.setText(_translate("QueryOrder_Window", "Nº Oferta"))
+        item = self.tableQueryOrder.horizontalHeaderItem(2)
+        item.setText(_translate("QueryOrder_Window", "Nº Referencia"))
         item = self.tableQueryOrder.horizontalHeaderItem(3)
         item.setText(_translate("QueryOrder_Window", "Cliente"))
         item = self.tableQueryOrder.horizontalHeaderItem(4)
@@ -359,9 +360,77 @@ class Ui_QueryOrder_Window(object):
         amount=self.Amount_QueryOrder.text()
         eqtype=self.EqType_QueryOrder.currentText()
 
-        #consulta SQL para captar datos en tabla
+        conn = None
+        # read the connection parameters
+        params = config()
+        # connect to the PostgreSQL server
+        conn = psycopg2.connect(**params)
+        cur = conn.cursor()
+        cur.execute("""SELECT * FROM pedidos WHERE "Num_Pedido" LIKE '%%'||%s||'%%'""",(numorder,))
+        results=cur.fetchall()
 
-        print('hola')
+        if ((numorder=="" or numorder==" ") and (numoffer=="" or numoffer==" ") and (client=="" or client==" ") 
+        and (year=="" or year==" ") and (finalclient=="" or finalclient==" ") and (ref=="" or ref==" ")
+        and (amount=="" or amount==" ") and (eqtype=="" or eqtype==" ")):
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Consultar Pedido")
+            dlg.setText("Introduce un filtro en alguno de los campos")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+
+        else:
+            commands = ("""
+                        SELECT "Num_Pedido","Num_Referencia","Num_Oferta","Cliente","Cliente_Final" ,"Tipo_Equipo","Importe"
+                        FROM pedidos
+                        WHERE ("Num_Pedido" LIKE '%%'||%s||'%%'
+                        AND
+                        "Num_Referencia" LIKE '%%'||%s||'%%'
+                        AND
+                        "Num_Oferta" LIKE '%%'||%s||'%%'
+                        AND
+                        "Cliente" LIKE '%%'||%s||'%%'
+                        AND
+                        "Cliente_Final" LIKE '%%'||%s||'%%'
+                        AND
+                        "Tipo_Equipo" LIKE '%%'||%s||'%%'
+                        AND
+                        CONCAT("Importe",'') LIKE '%%'||%s||'%%'
+                        AND
+                        "Year"::text LIKE '%%'||%s||'%%'
+                        )
+                        ORDER BY "Num_Pedido"
+                        """)
+            try:
+            # execution of commands
+                data=(numorder,ref,numoffer,client,finalclient,eqtype,amount,year,)
+                cur.execute(commands, data)
+                results=cur.fetchall()
+                self.tableQueryOrder.setRowCount(len(results))
+                tablerow=0
+                print(results)
+                for row in results:
+                    self.tableQueryOrder.setItem(tablerow, 0, QtWidgets.QTableWidgetItem(str(row[0])))
+                    self.tableQueryOrder.setItem(tablerow, 1, QtWidgets.QTableWidgetItem(str(row[1])))
+                    self.tableQueryOrder.setItem(tablerow, 2, QtWidgets.QTableWidgetItem(str(row[2])))
+                    self.tableQueryOrder.setItem(tablerow, 3, QtWidgets.QTableWidgetItem(str(row[3])))
+                    self.tableQueryOrder.setItem(tablerow, 4, QtWidgets.QTableWidgetItem(str(row[4])))
+                    self.tableQueryOrder.setItem(tablerow, 5, QtWidgets.QTableWidgetItem(str(row[5])))
+                    self.tableQueryOrder.setItem(tablerow, 6, QtWidgets.QTableWidgetItem(str(row[6])))
+                    tablerow+=1
+
+                self.tableQueryOrder.verticalHeader().hide()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
 
 
 if __name__ == "__main__":

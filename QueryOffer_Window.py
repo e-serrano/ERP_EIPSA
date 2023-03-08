@@ -7,7 +7,8 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-
+import psycopg2
+from config import config
 
 class Ui_QueryOffer_Window(object):
     def setupUi(self, QueryOffer_Window):
@@ -321,9 +322,77 @@ class Ui_QueryOffer_Window(object):
         reference=self.Ref_QueryOffer.text()
         eqtype=self.EqType_QueryOffer.currentText()
 
+        conn = None
+        # read the connection parameters
+        params = config()
+        # connect to the PostgreSQL server
+        conn = psycopg2.connect(**params)
+        cur = conn.cursor()
+        cur.execute("""SELECT * FROM ofertas""")
+        results=cur.fetchall()
+        match=list(filter(lambda x:numoffer in x, results))
+
+        if ((numoffer=="" or numoffer==" ") and (client=="" or client==" ") and (year=="" or year==" ")
+        and (finalclient=="" or finalclient==" ") and (reference=="" or reference==" ") and (eqtype=="" or eqtype==" ")):
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Consultar Pedido")
+            dlg.setText("Introduce un filtro en alguno de los campos")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+
+        elif numoffer !='' and len(match)==0:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Consultar Pedido")
+            dlg.setText("Ese número de pedido no existe")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+
+        else:
         #consulta SQL para captar datos en tabla
         
-        print('hola')
+            commands = ("""
+                        SELECT "Num_Oferta","Responsable","Estado","Num_Referencia","Cliente","Cliente_Final","Importe","Num_Pedido"
+                        FROM ofertas
+                        WHERE "Num_Oferta" LIKE '%%'||%s||'%%'
+                        ORDER BY "Num_Oferta"
+                        """)
+            try:
+            # execution of commands one by one
+            #for command in commands:
+                cur.execute(commands,(numoffer,))
+                results=cur.fetchall()
+                self.tableQueryOffer.setRowCount(len(results))
+                tablerow=0
+                for row in results:
+                    self.tableQueryOffer.setItem(tablerow, 0, QtWidgets.QTableWidgetItem(str(row[0])))
+                    self.tableQueryOffer.setItem(tablerow, 1, QtWidgets.QTableWidgetItem(str(row[2])))
+                    self.tableQueryOffer.setItem(tablerow, 2, QtWidgets.QTableWidgetItem(str(row[1])))
+                    self.tableQueryOffer.setItem(tablerow, 3, QtWidgets.QTableWidgetItem(str(row[3])))
+                    # self.tableQueryOffer.setItem(tablerow, 4, QtWidgets.QTableWidgetItem(str(row[4])))
+                    # self.tableQueryOffer.setItem(tablerow, 5, QtWidgets.QTableWidgetItem(str(row[6])))
+                    # self.tableQueryOffer.setItem(tablerow, 6, QtWidgets.QTableWidgetItem(str(row[7])))
+
+                    tablerow+=1
+                
+                self.tableQueryOffer.verticalHeader().hide()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
+                    
+            
+            print('hola')
 
 
 

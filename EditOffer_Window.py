@@ -7,7 +7,8 @@
 
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
-
+import psycopg2
+from config import config
 
 class Ui_Edit_Offer_Window(object):
     def setupUi(self, Edit_Offer_Window):
@@ -399,18 +400,68 @@ class Ui_Edit_Offer_Window(object):
         notes=self.Notes_EditOffer.toPlainText()
         amount=self.Amount_EditOffer.text()
 
-        if numoffer=="" or numoffer==" ": #añadir busqueda de num oferta en BBDD
+        #SQL Query
+        commands = ("""
+                    SELECT * 
+                    FROM ofertas
+                    WHERE "Num_Oferta" = %s
+                    """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands,(numoffer,))
+            results=cur.fetchall()
+            match=list(filter(lambda x:numoffer in x, results))
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        if numoffer=="" or (numoffer==" " or len(match)==0): #añadir busqueda de num oferta en BBDD
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Editar Oferta")
-            dlg.setText("Introduce un número de oferta")
+            dlg.setText("Introduce un número de oferta válido")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
 
         else:
-            #consulta SQL para guardar los datos del formulario
+            #SQL Query
+            commands = ("""
+                        UPDATE ofertas
+                        SET "Cliente" = %s, "Cliente_Final" = %s, "Num_Referencia" = %s, "Estado" = %s, "Nac_Ext" = %s, "Comprador" = %s, "Material" = %s, "Notas" = %s, "Importe" = %s
+                        WHERE "Num_Oferta" = %s
+                        """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(commands,(client,finalclient,numref,state,nacext,buyer,material,notes,amount,numoffer,))
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
 
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
