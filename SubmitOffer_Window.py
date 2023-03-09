@@ -8,7 +8,8 @@
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 from datetime import *
-
+import psycopg2
+from config import config
 
 class Ui_SubmitOffer_Window(object):
     def setupUi(self, SubmitOffer_Window):
@@ -191,6 +192,77 @@ class Ui_SubmitOffer_Window(object):
         if numoffer=="" or amount=="":
             self.label_error_submitorder.setText('Rellene todos los campos')
         else:
+            commands = ("""
+                        SELECT *
+                        FROM ofertas
+                        WHERE "Num_Oferta" = %s
+                        """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(commands,(numoffer,))
+                results=cur.fetchall()
+                match=list(filter(lambda x:numoffer in x, results))
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
+
+            if len(match)==0:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Registrar Oferta")
+                    dlg.setText("El número de oferta introducido no existe")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+            
+            else:
+                commands = ("""
+                            UPDATE ofertas 
+                            SET "Importe"=%s, "Estado"=%s, "Fecha_Presentacion"=%s
+                            WHERE "Num_Oferta"=%s
+                            """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    data=(amount,state,actual_date,numoffer,)
+                    cur.execute(commands, data)
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Presentar Oferta")
+                    dlg.setText("Oferta presentada con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
+                finally:
+                    if conn is not None:
+                        conn.close()
             print(numoffer, amount, state, actual_date)
 
 

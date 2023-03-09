@@ -8,8 +8,13 @@
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 from datetime import *
+import psycopg2
+from config import config
 
 class Ui_New_Offer_Window(object):
+    def __init__(self,username):
+        self.user=username
+
     def setupUi(self, New_Offer):
         New_Offer.setObjectName("New_Offer")
         New_Offer.resize(670, 425)
@@ -354,7 +359,7 @@ class Ui_New_Offer_Window(object):
         material=self.Material_NewOffer.currentText()
         notes=self.Notes_NewOffer.toPlainText()
         state="Registrada"
-        # responsible=self.user[0] + self.user[self.user.find(' ')+1]
+        responsible=self.user[0] + self.user[self.user.find(' ')+1]
         actual_date=date.today()
         year=actual_date.year
         month=actual_date.month
@@ -364,6 +369,42 @@ class Ui_New_Offer_Window(object):
             self.label_error_newoffer.setText('Rellene todos los campos')
         else:
             print(numoffer, client, finalclient, numref, nacext, buyer, material, notes, state, actual_date, year, month)
+
+            commands = ("""
+                        INSERT INTO ofertas (
+                        "Num_Oferta","Responsable","Cliente","Cliente_Final","Num_Referencia","Nac_Ext","Comprador","Notas","Estado","Fecha_Registro","Year","Mes"
+                        )
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                        """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                data=(numoffer,responsible,client, finalclient, numref, nacext, buyer, material, notes, state, actual_date, year, month,)
+                cur.execute(commands, data)
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Crear Oferta")
+                dlg.setText("Oferta creada con éxito")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
 
 
 if __name__ == "__main__":

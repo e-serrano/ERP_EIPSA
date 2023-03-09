@@ -209,7 +209,7 @@ class Ui_QueryOffer_Window(object):
         self.gridLayout_2.addItem(spacerItem1, 6, 0, 1, 1)
         self.tableQueryOffer = QtWidgets.QTableWidget(parent=self.frame)
         self.tableQueryOffer.setObjectName("tableQueryOffer")
-        self.tableQueryOffer.setColumnCount(8)
+        self.tableQueryOffer.setColumnCount(9)
         self.tableQueryOffer.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
@@ -259,6 +259,12 @@ class Ui_QueryOffer_Window(object):
         font.setBold(True)
         item.setFont(font)
         self.tableQueryOffer.setHorizontalHeaderItem(7, item)
+        item = QtWidgets.QTableWidgetItem()
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        item.setFont(font)
+        self.tableQueryOffer.setHorizontalHeaderItem(8, item)
         self.gridLayout_2.addWidget(self.tableQueryOffer, 7, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         QueryOffer_Window.setCentralWidget(self.centralwidget)
@@ -293,8 +299,10 @@ class Ui_QueryOffer_Window(object):
         item = self.tableQueryOffer.horizontalHeaderItem(5)
         item.setText(_translate("QueryOffer_Window", "Cliente Final"))
         item = self.tableQueryOffer.horizontalHeaderItem(6)
-        item.setText(_translate("QueryOffer_Window", "Importe (€)"))
+        item.setText(_translate("QueryOffer_Window", "Tipo Equipo"))
         item = self.tableQueryOffer.horizontalHeaderItem(7)
+        item.setText(_translate("QueryOffer_Window", "Importe (€)"))
+        item = self.tableQueryOffer.horizontalHeaderItem(8)
         item.setText(_translate("QueryOffer_Window", "Nº Pedido"))
         self.Button_Clean.setText(_translate("QueryOffer_Window", "Limpiar Filtros"))
         self.Button_Query.setText(_translate("QueryOffer_Window", "Buscar"))
@@ -354,29 +362,46 @@ class Ui_QueryOffer_Window(object):
             dlg.exec()
 
         else:
-        #consulta SQL para captar datos en tabla
-        
             commands = ("""
-                        SELECT "Num_Oferta","Responsable","Estado","Num_Referencia","Cliente","Cliente_Final","Importe","Num_Pedido"
+                        SELECT "Num_Oferta","Responsable","Estado","Num_Referencia","Cliente","Cliente_Final","Tipo_Equipo","Importe","Num_Pedido"
                         FROM ofertas
-                        WHERE "Num_Oferta" LIKE '%%'||%s||'%%'
+                        WHERE ("Num_Oferta" LIKE '%%'||%s||'%%'
+                        AND
+                        "Num_Referencia" LIKE '%%'||%s||'%%'
+                        AND
+                        "Cliente" LIKE '%%'||%s||'%%'
+                        AND
+                        "Cliente_Final" LIKE '%%'||%s||'%%'
+                        AND
+                        "Tipo_Equipo" LIKE '%%'||%s||'%%'
+                        AND
+                        "Year"::text LIKE '%%'||%s||'%%' LIKE '%%'||%s||'%%'
+                        )
                         ORDER BY "Num_Oferta"
                         """)
+            conn = None
             try:
-            # execution of commands one by one
-            #for command in commands:
-                cur.execute(commands,(numoffer,))
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                data=(numoffer,reference,client,finalclient,eqtype,year,)
+                cur.execute(commands,data)
                 results=cur.fetchall()
                 self.tableQueryOffer.setRowCount(len(results))
                 tablerow=0
                 for row in results:
                     self.tableQueryOffer.setItem(tablerow, 0, QtWidgets.QTableWidgetItem(str(row[0])))
-                    self.tableQueryOffer.setItem(tablerow, 1, QtWidgets.QTableWidgetItem(str(row[2])))
-                    self.tableQueryOffer.setItem(tablerow, 2, QtWidgets.QTableWidgetItem(str(row[1])))
+                    self.tableQueryOffer.setItem(tablerow, 1, QtWidgets.QTableWidgetItem(str(row[1])))
+                    self.tableQueryOffer.setItem(tablerow, 2, QtWidgets.QTableWidgetItem(str(row[2])))
                     self.tableQueryOffer.setItem(tablerow, 3, QtWidgets.QTableWidgetItem(str(row[3])))
-                    # self.tableQueryOffer.setItem(tablerow, 4, QtWidgets.QTableWidgetItem(str(row[4])))
-                    # self.tableQueryOffer.setItem(tablerow, 5, QtWidgets.QTableWidgetItem(str(row[6])))
-                    # self.tableQueryOffer.setItem(tablerow, 6, QtWidgets.QTableWidgetItem(str(row[7])))
+                    self.tableQueryOffer.setItem(tablerow, 4, QtWidgets.QTableWidgetItem(str(row[4])))
+                    self.tableQueryOffer.setItem(tablerow, 5, QtWidgets.QTableWidgetItem(str(row[5])))
+                    self.tableQueryOffer.setItem(tablerow, 6, QtWidgets.QTableWidgetItem(str(row[6])))
+                    self.tableQueryOffer.setItem(tablerow, 7, QtWidgets.QTableWidgetItem(str(row[7])))
+                    self.tableQueryOffer.setItem(tablerow, 8, QtWidgets.QTableWidgetItem(str(row[8])))
 
                     tablerow+=1
                 
@@ -390,9 +415,6 @@ class Ui_QueryOffer_Window(object):
             finally:
                 if conn is not None:
                     conn.close()
-                    
-            
-            print('hola')
 
 
 

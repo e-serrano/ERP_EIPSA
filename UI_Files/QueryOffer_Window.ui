@@ -160,6 +160,17 @@ QPushButton:focus:pressed {
          </column>
          <column>
           <property name="text">
+           <string>Tipo Equipo</string>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>10</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+         </column>
+         <column>
+          <property name="text">
            <string>Importe (€)</string>
           </property>
           <property name="font">

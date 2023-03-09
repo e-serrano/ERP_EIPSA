@@ -400,7 +400,7 @@ class Ui_Edit_Offer_Window(object):
         notes=self.Notes_EditOffer.toPlainText()
         amount=self.Amount_EditOffer.text()
 
-        #SQL Query
+        #SQL Query for checking if offer number exists in database
         commands = ("""
                     SELECT * 
                     FROM ofertas
@@ -427,7 +427,7 @@ class Ui_Edit_Offer_Window(object):
             if conn is not None:
                 conn.close()
 
-        if numoffer=="" or (numoffer==" " or len(match)==0): #añadir busqueda de num oferta en BBDD
+        if numoffer=="" or (numoffer==" " or len(match)==0):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -438,7 +438,7 @@ class Ui_Edit_Offer_Window(object):
             dlg.exec()
 
         else:
-            #SQL Query
+            #SQL Query for updating values in database
             commands = ("""
                         UPDATE ofertas
                         SET "Cliente" = %s, "Cliente_Final" = %s, "Num_Referencia" = %s, "Estado" = %s, "Nac_Ext" = %s, "Comprador" = %s, "Material" = %s, "Notas" = %s, "Importe" = %s
@@ -452,7 +452,8 @@ class Ui_Edit_Offer_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands one by one
-                cur.execute(commands,(client,finalclient,numref,state,nacext,buyer,material,notes,amount,numoffer,))
+                data=(client,finalclient,numref,state,nacext,buyer,material,notes,amount,numoffer,)
+                cur.execute(commands,data)
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes
@@ -484,16 +485,54 @@ class Ui_Edit_Offer_Window(object):
 
 
     def queryofferdata(self):
-        #consultaSQL para cargar los datos de la query
-        self.Client_EditOffer.setText('texto')
-        self.FinalClient_EditOffer.setText('texto')
-        self.NumRef_EditOffer.setText('texto')
-        self.State_EditOffer.setCurrentText('Rechazada')
-        self.NacExt_EditOffer.setCurrentText('Nacional')
-        self.Buyer_EditOffer.setText('texto')
-        self.Material_EditOffer.setCurrentText('Material2')
-        self.Notes_EditOffer.setText('texto')
-        self.Amount_EditOffer.setText('texto')
+            numoffer=self.NumOffer_EditOffer.text()
+        #SQL Query for loading existing data in database
+            commands = ("""
+                        SELECT "Num_Oferta","Cliente","Cliente_Final","Num_Referencia","Estado","Nac_Ext","Comprador","Material","Notas","Importe"
+                        FROM ofertas
+                        WHERE "Num_Oferta" = %s
+                        """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(commands,(numoffer,))
+                results=cur.fetchall()
+                match=list(filter(lambda x:numoffer in x, results))
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
+
+            if len(match)==0:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Editar Oferta")
+                dlg.setText("El número de oferta introducido no existe")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+
+            else:
+                self.Client_EditOffer.setText(str(results[0][1]))
+                self.FinalClient_EditOffer.setText(str(results[0][2]))
+                self.NumRef_EditOffer.setText(str(results[0][3]))
+                self.State_EditOffer.setCurrentText(str(results[0][4]))
+                self.NacExt_EditOffer.setCurrentText(str(results[0][5]))
+                self.Buyer_EditOffer.setText(str(results[0][6]))
+                self.Material_EditOffer.setCurrentText(str(results[0][7]))
+                self.Notes_EditOffer.setText(str(results[0][8]))
+                self.Amount_EditOffer.setText(str(results[0][9]))
 
 
 if __name__ == "__main__":

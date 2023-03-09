@@ -403,7 +403,13 @@ class Ui_QueryOrder_Window(object):
                         )
                         ORDER BY "Num_Pedido"
                         """)
+            conn = None
             try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
             # execution of commands
                 data=(numorder,ref,numoffer,client,finalclient,eqtype,amount,year,)
                 cur.execute(commands, data)
@@ -431,6 +437,7 @@ class Ui_QueryOrder_Window(object):
             finally:
                 if conn is not None:
                     conn.close()
+
 
 
 if __name__ == "__main__":

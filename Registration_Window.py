@@ -14,7 +14,7 @@ class Ui_RegistrationWindow(object):
         RegistrationWindow.setObjectName("RegistrationWindow")
         RegistrationWindow.resize(270, 615)
         RegistrationWindow.setMinimumSize(QtCore.QSize(270, 615))
-        RegistrationWindow.setMaximumSize(QtCore.QSize(270, 650))
+        RegistrationWindow.setMaximumSize(QtCore.QSize(270, 615))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         RegistrationWindow.setWindowIcon(icon)

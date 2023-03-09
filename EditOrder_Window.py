@@ -296,7 +296,7 @@ class Ui_Edit_Order_Window(object):
         numitems=self.NumItems_EditOrder.text()
         amount=self.Amount_EditOrder.text()
 
-        #SQL Query
+        #SQL Query for checking if order number exists in database
         commands = ("""
                     SELECT * 
                     FROM pedidos
@@ -323,7 +323,7 @@ class Ui_Edit_Order_Window(object):
             if conn is not None:
                 conn.close()
 
-        if numorder=="" or (numorder==" " or len(match)==0): #añadir busqueda de num pedido en BBDD
+        if numorder=="" or (numorder==" " or len(match)==0):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -334,7 +334,7 @@ class Ui_Edit_Order_Window(object):
             dlg.exec()
 
         else:
-            #SQL Query
+            #SQL Query for updating values in database
             commands = ("""
                         UPDATE pedidos
                         SET "Num_Oferta" = %s, "Num_Referencia" = %s, "Fecha_Contractual" = %s, "Num_Equipos" = %s, "Importe" = %s
@@ -348,7 +348,8 @@ class Ui_Edit_Order_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands one by one
-                cur.execute(commands,(numoffer,numref,contracdate,numitems,amount,numorder,))
+                data=(numoffer,numref,contracdate,numitems,amount,numorder,)
+                cur.execute(commands,data)
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes
@@ -392,7 +393,7 @@ class Ui_Edit_Order_Window(object):
             dlg.exec()
 
         else:
-        #SQL Query
+        #SQL Query for loading existing data in database
             commands = ("""
                         SELECT "Num_Pedido","Num_Oferta","Num_Referencia","Fecha_Contractual","Num_Equipos","Importe"
                         FROM pedidos
@@ -425,7 +426,7 @@ class Ui_Edit_Order_Window(object):
                 new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Editar Pedido")
-                dlg.setText("No existe ese número de pedido")
+                dlg.setText("El número de pedido introducido no existe")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg.exec()
 

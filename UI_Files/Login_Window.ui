@@ -39,42 +39,6 @@ background-color: rgb(255, 255, 255);
 
 .QFrame {
 	border: 2px solid black;
-}
-
-QPushButton {
-background-color: #33bdef;
-  border: 1px solid transparent;
-  border-radius: 3px;
-  box-shadow: rgba(255, 255, 255, .4) 0 1px 0 0 inset;
-  box-sizing: border-box;
-  color: #fff;
-  cursor: pointer;
-  display: inline-block;
-  font-family: -apple-system,system-ui,&quot;Segoe UI&quot;,&quot;Liberation Sans&quot;,sans-serif;
-  font-size: 15px;
-  font-weight: 800;
-  line-height: 1.15385;
-  margin: 0;
-  outline: none;
-  padding: 8px .8em;
-  text-align: center;
-  text-decoration: none;
-  text-shadow: 0px 1px 0px #263666;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  vertical-align: baseline;
-  white-space: nowrap;
-}
-
-QPushButton:hover {
-	background-color: #019ad2;
-	border-color: rgb(0, 0, 0);
-}
-
-QPushButton:pressed {
-	background-color: rgb(1, 140, 190);
-	border-color: rgb(255, 255, 255);
 }</string>
   </property>
   <property name="toolButtonStyle">
@@ -146,8 +110,8 @@ QPushButton:pressed {
            </property>
            <property name="maximumSize">
             <size>
-             <width>256</width>
-             <height>234</height>
+             <width>255</width>
+             <height>235</height>
             </size>
            </property>
            <property name="text">
@@ -183,7 +147,7 @@ QPushButton:pressed {
             <enum>QLayout::SetFixedSize</enum>
            </property>
            <item>
-            <widget class="QLabel" name="label_name_login">
+            <widget class="QLabel" name="label_username_login">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -220,7 +184,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="name_login">
+            <widget class="QLineEdit" name="username_login">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -383,22 +347,52 @@ QPushButton:pressed {
              <property name="minimumSize">
               <size>
                <width>200</width>
-               <height>30</height>
+               <height>35</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>200</width>
-               <height>30</height>
+               <height>35</height>
               </size>
              </property>
              <property name="font">
               <font>
+               <family>-apple-system</family>
                <pointsize>-1</pointsize>
                <bold>true</bold>
                <underline>false</underline>
                <strikeout>false</strikeout>
               </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+background-color: #33bdef;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: #fff;
+  font-family: -apple-system,system-ui,&quot;Segoe UI&quot;,&quot;Liberation Sans&quot;,sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.15385;
+  margin: 0;
+  outline: none;
+  padding: 8px .8em;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
+QPushButton:hover {
+	background-color: #019ad2;
+	border-color: rgb(0, 0, 0);
+}
+
+QPushButton:pressed {
+	background-color: rgb(1, 140, 190);
+	border-color: rgb(255, 255, 255);
+}</string>
              </property>
              <property name="text">
               <string>Acceder</string>
@@ -406,7 +400,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="exit_login">
+            <widget class="QPushButton" name="forgetpass_login">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -419,25 +413,56 @@ QPushButton:pressed {
              <property name="minimumSize">
               <size>
                <width>200</width>
-               <height>30</height>
+               <height>35</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>200</width>
-               <height>30</height>
+               <height>35</height>
               </size>
              </property>
              <property name="font">
               <font>
+               <family>-apple-system</family>
                <pointsize>-1</pointsize>
                <bold>true</bold>
                <underline>false</underline>
                <strikeout>false</strikeout>
               </font>
              </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+background-color: #fff;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  border-color: #33bdef;
+  color: #33bdef;
+  font-family: -apple-system,system-ui,&quot;Segoe UI&quot;,&quot;Liberation Sans&quot;,sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.15385;
+  margin: 0;
+  outline: none;
+  padding: 8px .8em;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: center;
+  white-space: nowrap;
+}
+
+QPushButton:hover {
+	background-color: rgb(236, 236, 236);
+	border-color: rgb(0, 0, 0);
+}
+
+QPushButton:pressed {
+	background-color: rgb(220, 220, 220);
+	border-color: rgb(255, 255, 255);
+}</string>
+             </property>
              <property name="text">
-              <string>Salir</string>
+              <string>¿Olvidaste la contraseña?</string>
              </property>
             </widget>
            </item>
@@ -460,6 +485,9 @@ QPushButton:pressed {
              </property>
              <property name="text">
               <string/>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -505,7 +533,7 @@ QPushButton:pressed {
  <resources/>
  <connections>
   <connection>
-   <sender>exit_login</sender>
+   <sender>forgetpass_login</sender>
    <signal>clicked()</signal>
    <receiver>Login_Window</receiver>
    <slot>close()</slot>
