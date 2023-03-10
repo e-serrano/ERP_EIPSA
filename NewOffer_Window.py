@@ -367,14 +367,13 @@ class Ui_New_Offer_Window(object):
 
         if numoffer=="" or (client=="" or  (finalclient=="" or  (numref=="" or  buyer==""))):
             self.label_error_newoffer.setText('Rellene todos los campos')
-        else:
-            print(numoffer, client, finalclient, numref, nacext, buyer, material, notes, state, actual_date, year, month)
 
+        else:
+        #SQL Query for checking if offer number exists in database
             commands = ("""
-                        INSERT INTO ofertas (
-                        "Num_Oferta","Responsable","Cliente","Cliente_Final","Num_Referencia","Nac_Ext","Comprador","Notas","Estado","Fecha_Registro","Year","Mes"
-                        )
-                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                        SELECT * 
+                        FROM ofertas
+                        WHERE "Num_Oferta" = %s
                         """)
             conn = None
             try:
@@ -383,28 +382,78 @@ class Ui_New_Offer_Window(object):
             # connect to the PostgreSQL server
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
-            # execution of commands
-                data=(numoffer,responsible,client, finalclient, numref, nacext, buyer, material, notes, state, actual_date, year, month,)
-                cur.execute(commands, data)
+            # execution of commands one by one
+                cur.execute(commands,(numoffer,))
+                results=cur.fetchall()
+                match=list(filter(lambda x:numoffer in x, results))
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes
                 conn.commit()
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Crear Oferta")
-                dlg.setText("Oferta creada con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-
             except (Exception, psycopg2.DatabaseError) as error:
                 print(error)
             finally:
                 if conn is not None:
                     conn.close()
+
+            if len(match)>0:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Crear Oferta")
+                dlg.setText("El número de oferta introducido ya está registrado")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+
+                del dlg,new_icon
+
+
+            else:
+                commands = ("""
+                            INSERT INTO ofertas (
+                            "Num_Oferta","Responsable","Cliente","Cliente_Final","Num_Referencia","Nac_Ext","Comprador","Notas","Estado","Fecha_Registro","Year","Mes"
+                            )
+                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                            """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    data=(numoffer,responsible,client, finalclient, numref, nacext, buyer, material, notes, state, actual_date, year, month,)
+                    cur.execute(commands, data)
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Crear Oferta")
+                    dlg.setText("Oferta creada con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+
+                    self.NumOffer_NewOffer.setText('')
+                    self.Client_NewOffer.setText('')
+                    self.FinalClient_NewOffer.setText('')
+                    self.NumRef_NewOffer.setText('')
+                    self.Buyer_NewOffer.setText('')
+                    self.Notes_NewOffer.setText('')
+
+                    del dlg,new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
+                finally:
+                    if conn is not None:
+                        conn.close()
 
 
 if __name__ == "__main__":
