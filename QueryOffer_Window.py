@@ -10,6 +10,13 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
 
+
+class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    def initStyleOption(self, option, index):
+        super(AlignDelegate, self).initStyleOption(option, index)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+
+
 class Ui_QueryOffer_Window(object):
     def setupUi(self, QueryOffer_Window):
         QueryOffer_Window.setObjectName("QueryOffer_Window")
@@ -170,23 +177,23 @@ class Ui_QueryOffer_Window(object):
         self.Ref_QueryOffer.setFont(font)
         self.Ref_QueryOffer.setObjectName("Ref_QueryOffer")
         self.hLayout3.addWidget(self.Ref_QueryOffer)
-        self.label_EqType = QtWidgets.QLabel(parent=self.frame)
-        self.label_EqType.setMinimumSize(QtCore.QSize(90, 25))
-        self.label_EqType.setMaximumSize(QtCore.QSize(90, 25))
+        self.label_Material = QtWidgets.QLabel(parent=self.frame)
+        self.label_Material.setMinimumSize(QtCore.QSize(90, 25))
+        self.label_Material.setMaximumSize(QtCore.QSize(90, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
-        self.label_EqType.setFont(font)
-        self.label_EqType.setObjectName("label_EqType")
-        self.hLayout3.addWidget(self.label_EqType)
-        self.EqType_QueryOffer = QtWidgets.QComboBox(parent=self.frame)
-        self.EqType_QueryOffer.setMinimumSize(QtCore.QSize(250, 25))
-        self.EqType_QueryOffer.setMaximumSize(QtCore.QSize(250, 25))
+        self.label_Material.setFont(font)
+        self.label_Material.setObjectName("label_Material")
+        self.hLayout3.addWidget(self.label_Material)
+        self.Material_QueryOffer = QtWidgets.QComboBox(parent=self.frame)
+        self.Material_QueryOffer.setMinimumSize(QtCore.QSize(250, 25))
+        self.Material_QueryOffer.setMaximumSize(QtCore.QSize(250, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.EqType_QueryOffer.setFont(font)
-        self.EqType_QueryOffer.setObjectName("EqType_QueryOffer")
-        self.hLayout3.addWidget(self.EqType_QueryOffer)
+        self.Material_QueryOffer.setFont(font)
+        self.Material_QueryOffer.setObjectName("Material_QueryOffer")
+        self.hLayout3.addWidget(self.Material_QueryOffer)
         self.gridLayout_2.addLayout(self.hLayout3, 3, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 4, 0, 1, 1)
@@ -209,7 +216,7 @@ class Ui_QueryOffer_Window(object):
         self.gridLayout_2.addItem(spacerItem1, 6, 0, 1, 1)
         self.tableQueryOffer = QtWidgets.QTableWidget(parent=self.frame)
         self.tableQueryOffer.setObjectName("tableQueryOffer")
-        self.tableQueryOffer.setColumnCount(9)
+        self.tableQueryOffer.setColumnCount(8)
         self.tableQueryOffer.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
@@ -299,11 +306,9 @@ class Ui_QueryOffer_Window(object):
         item = self.tableQueryOffer.horizontalHeaderItem(5)
         item.setText(_translate("QueryOffer_Window", "Cliente Final"))
         item = self.tableQueryOffer.horizontalHeaderItem(6)
-        item.setText(_translate("QueryOffer_Window", "Tipo Equipo"))
+        item.setText(_translate("QueryOffer_Window", "Material"))
         item = self.tableQueryOffer.horizontalHeaderItem(7)
-        item.setText(_translate("QueryOffer_Window", "Importe (€)"))
-        item = self.tableQueryOffer.horizontalHeaderItem(8)
-        item.setText(_translate("QueryOffer_Window", "Nº Pedido"))
+        item.setText(_translate("QueryOffer_Window", "Importe"))
         self.Button_Clean.setText(_translate("QueryOffer_Window", "Limpiar Filtros"))
         self.Button_Query.setText(_translate("QueryOffer_Window", "Buscar"))
         self.label_NumOffer.setText(_translate("QueryOffer_Window", "Nº Oferta:"))
@@ -311,7 +316,7 @@ class Ui_QueryOffer_Window(object):
         self.label_Year.setText(_translate("QueryOffer_Window", "Año:"))
         self.label_FinalClient.setText(_translate("QueryOffer_Window", "Cliente Final:"))
         self.label_RefNum.setText(_translate("QueryOffer_Window", "Referencia:"))
-        self.label_EqType.setText(_translate("QueryOffer_Window", "Tipo Equipo:"))
+        self.label_Material.setText(_translate("QueryOffer_Window", "Material:"))
 
 
     def clean_boxes(self):
@@ -328,20 +333,10 @@ class Ui_QueryOffer_Window(object):
         year=self.Year_QueryOffer.text()
         finalclient=self.FinalClient_QueryOffer.text()
         reference=self.Ref_QueryOffer.text()
-        eqtype=self.EqType_QueryOffer.currentText()
-
-        conn = None
-        # read the connection parameters
-        params = config()
-        # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-        cur.execute("""SELECT * FROM ofertas""")
-        results=cur.fetchall()
-        match=list(filter(lambda x:numoffer in x, results))
+        material=self.Material_QueryOffer.currentText()
 
         if ((numoffer=="" or numoffer==" ") and (client=="" or client==" ") and (year=="" or year==" ")
-        and (finalclient=="" or finalclient==" ") and (reference=="" or reference==" ") and (eqtype=="" or eqtype==" ")):
+        and (finalclient=="" or finalclient==" ") and (reference=="" or reference==" ") and (material=="" or material==" ")):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -351,71 +346,81 @@ class Ui_QueryOffer_Window(object):
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
 
-        elif numoffer !='' and len(match)==0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Consultar Pedido")
-            dlg.setText("Ese número de pedido no existe")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-
         else:
-            commands = ("""
-                        SELECT "Num_Oferta","Responsable","Estado","Num_Referencia","Cliente","Cliente_Final","Tipo_Equipo","Importe","Num_Pedido"
-                        FROM ofertas
-                        WHERE ("Num_Oferta" LIKE '%%'||%s||'%%'
-                        AND
-                        "Num_Referencia" LIKE '%%'||%s||'%%'
-                        AND
-                        "Cliente" LIKE '%%'||%s||'%%'
-                        AND
-                        "Cliente_Final" LIKE '%%'||%s||'%%'
-                        AND
-                        "Tipo_Equipo" LIKE '%%'||%s||'%%'
-                        AND
-                        "Year"::text LIKE '%%'||%s||'%%' LIKE '%%'||%s||'%%'
-                        )
-                        ORDER BY "Num_Oferta"
-                        """)
             conn = None
-            try:
             # read the connection parameters
-                params = config()
+            params = config()
             # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                data=(numoffer,reference,client,finalclient,eqtype,year,)
-                cur.execute(commands,data)
-                results=cur.fetchall()
-                self.tableQueryOffer.setRowCount(len(results))
-                tablerow=0
-                for row in results:
-                    self.tableQueryOffer.setItem(tablerow, 0, QtWidgets.QTableWidgetItem(str(row[0])))
-                    self.tableQueryOffer.setItem(tablerow, 1, QtWidgets.QTableWidgetItem(str(row[1])))
-                    self.tableQueryOffer.setItem(tablerow, 2, QtWidgets.QTableWidgetItem(str(row[2])))
-                    self.tableQueryOffer.setItem(tablerow, 3, QtWidgets.QTableWidgetItem(str(row[3])))
-                    self.tableQueryOffer.setItem(tablerow, 4, QtWidgets.QTableWidgetItem(str(row[4])))
-                    self.tableQueryOffer.setItem(tablerow, 5, QtWidgets.QTableWidgetItem(str(row[5])))
-                    self.tableQueryOffer.setItem(tablerow, 6, QtWidgets.QTableWidgetItem(str(row[6])))
-                    self.tableQueryOffer.setItem(tablerow, 7, QtWidgets.QTableWidgetItem(str(row[7])))
-                    self.tableQueryOffer.setItem(tablerow, 8, QtWidgets.QTableWidgetItem(str(row[8])))
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            cur.execute("""SELECT * FROM ofertas""")
+            results=cur.fetchall()
+            match=list(filter(lambda x:numoffer in x, results))
+            if numoffer !='' and len(match)==0:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Consultar Pedido")
+                dlg.setText("Ese número de pedido no existe")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
 
-                    tablerow+=1
-                
-                self.tableQueryOffer.verticalHeader().hide()
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-            except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-            finally:
-                if conn is not None:
-                    conn.close()
+            else:
+                commands = ("""
+                            SELECT "num_oferta","responsable","estado","num_ref_oferta","cliente","cliente_final","material","importe"
+                            FROM ofertas
+                            WHERE ("num_oferta" LIKE '%%'||%s||'%%'
+                            AND
+                            "num_ref_oferta" LIKE '%%'||%s||'%%'
+                            AND
+                            "cliente" LIKE '%%'||%s||'%%'
+                            AND
+                            "cliente_final" LIKE '%%'||%s||'%%'
+                            AND
+                            "material" LIKE '%%'||%s||'%%'
+                            AND
+                            "year"::text LIKE '%%'||%s||'%%'
+                            )
+                            ORDER BY "num_oferta"
+                            """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    data=(numoffer,reference,client,finalclient,material,year,)
+                    cur.execute(commands,data)
+                    results=cur.fetchall()
+                    self.tableQueryOffer.setRowCount(len(results))
+                    tablerow=0
+                    for row in results:
+                        self.tableQueryOffer.setItem(tablerow, 0, QtWidgets.QTableWidgetItem(str(row[0])))
+                        self.tableQueryOffer.setItem(tablerow, 1, QtWidgets.QTableWidgetItem(str(row[1])))
+                        self.tableQueryOffer.setItem(tablerow, 2, QtWidgets.QTableWidgetItem(str(row[2])))
+                        self.tableQueryOffer.setItem(tablerow, 3, QtWidgets.QTableWidgetItem(str(row[3])))
+                        self.tableQueryOffer.setItem(tablerow, 4, QtWidgets.QTableWidgetItem(str(row[4])))
+                        self.tableQueryOffer.setItem(tablerow, 5, QtWidgets.QTableWidgetItem(str(row[5])))
+                        self.tableQueryOffer.setItem(tablerow, 6, QtWidgets.QTableWidgetItem(str(row[6])))
+                        self.tableQueryOffer.setItem(tablerow, 7, QtWidgets.QTableWidgetItem(str(row[7])))
 
+                        tablerow+=1
+
+                    self.tableQueryOffer.verticalHeader().hide()
+                    self.tableQueryOffer.setItemDelegate(AlignDelegate(self.tableQueryOffer))
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
+                finally:
+                    if conn is not None:
+                        conn.close()
 
 
 if __name__ == "__main__":

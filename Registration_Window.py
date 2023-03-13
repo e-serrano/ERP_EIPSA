@@ -222,7 +222,7 @@ class Ui_RegistrationWindow(object):
         font.setPointSize(10)
         self.rol_reg.setFont(font)
         self.rol_reg.setObjectName("rol_reg")
-        list_rol=['Comercial','Compras','Fábrica','Facturación','Técnico',]
+        list_rol=['Comercial','Compras','Dirección','Fábrica','Facturación','Técnico',]
         self.rol_reg.addItems(list_rol)
         self.verticalLayout.addWidget(self.rol_reg)
         spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -414,7 +414,7 @@ class Ui_RegistrationWindow(object):
                 else:
                     commands = ("""
                                 INSERT INTO datos_registro(
-                                "Id_registro","Nombre","Apellido","Username","Email","Password","Perfil")
+                                "id_registro","nombre","apellido","username","email","password","perfil")
                                 VALUES (DEFAULT,%s,%s,%s,%s,%s,%s)
                                 """)
                     conn = None

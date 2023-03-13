@@ -13,6 +13,7 @@ from ForgetPass_Window import Ui_ForgetPass_Window
 import psycopg2
 from config import config
 
+
 class Ui_Login_Window(object):
     def setupUi(self, Login_Window):
         Login_Window.setObjectName("Login_Window")
@@ -278,10 +279,8 @@ class Ui_Login_Window(object):
         Login_Window.setMenuBar(self.menubar)
 
         self.retranslateUi(Login_Window)
-        self.accept_login.clicked.connect(self.verification_login) # type: ignore
-
-        self.forgetpass_login.clicked.connect(self.forgetpassword) # type: ignore
-
+        self.accept_login.clicked.connect(self.verification_login) # action when button 1 is pressed
+        self.forgetpass_login.clicked.connect(self.forgetpassword) # action when button 2 is pressed
         QtCore.QMetaObject.connectSlotsByName(Login_Window)
 
 
@@ -298,47 +297,51 @@ class Ui_Login_Window(object):
         login_username = self.username_login.text()
         login_password = self.password_login.text()
 
-    #SQL Query for loading existing data in database
-        commands = ("""
-                    SELECT *
-                    FROM datos_registro
-                    """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands)
-            results=cur.fetchall()
-            match=list(filter(lambda x:login_username in x, results))
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-        finally:
-            if conn is not None:
-                conn.close()
-
-    # checking if username is correct
-        if len(match)==0:
-            self.label_error_login.setText('Usuario incorrecto. Inténtalo de nuevo')
-
-    # checking if password is correct
-        elif login_password!=match[0][5]:
-            self.label_error_login.setText('Contraseña incorrecta. Inténtalo de nuevo')
-
+        if login_username=='' or login_password=='':
+            self.label_error_login.setText('Por favor, rellena los campos')
+        
         else:
-            rol_app=match[0][6]
-            self.app_window=QtWidgets.QMainWindow()
-            self.ui=Ui_New_Offer_Window(login_username) #cambiar por app_window cuando esté lista y abrir una u otra en función de perfil
-            self.ui.setupUi(self.app_window)
-            Login_Window.close()
-            self.app_window.show()
+        #SQL Query for loading existing data in database
+            commands = ("""
+                        SELECT *
+                        FROM datos_registro
+                        """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(commands)
+                results=cur.fetchall()
+                match=list(filter(lambda x:login_username in x, results))
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
+
+        # checking if username is correct
+            if len(match)==0:
+                self.label_error_login.setText('Usuario incorrecto. Inténtalo de nuevo')
+
+        # checking if password is correct
+            elif login_password!=match[0][5]:
+                self.label_error_login.setText('Contraseña incorrecta. Inténtalo de nuevo')
+
+            else:
+                rol_app=match[0][6]
+                self.app_window=QtWidgets.QMainWindow()
+                self.ui=Ui_New_Offer_Window(login_username) #cambiar por app_window cuando esté lista y abrir una u otra en función de perfil
+                self.ui.setupUi(self.app_window)
+                Login_Window.close()
+                self.app_window.show()
 
 
     def forgetpassword(self):

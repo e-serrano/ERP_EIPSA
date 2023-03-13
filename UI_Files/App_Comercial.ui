@@ -781,6 +781,11 @@ QPushButton:pressed{
                  </font>
                 </property>
                </column>
+               <item row="0" column="0">
+                <property name="textAlignment">
+                 <set>AlignCenter</set>
+                </property>
+               </item>
               </widget>
              </item>
              <item>

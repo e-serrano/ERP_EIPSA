@@ -12,8 +12,8 @@ import psycopg2
 from config import config
 
 class Ui_New_Offer_Window(object):
-    def __init__(self,username):
-        self.user=username
+    # def __init__(self,username):
+    #     self.user=username
 
     def setupUi(self, New_Offer):
         New_Offer.setObjectName("New_Offer")
@@ -240,8 +240,6 @@ class Ui_New_Offer_Window(object):
         self.NacExt_NewOffer.setFont(font)
         self.NacExt_NewOffer.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         self.NacExt_NewOffer.setObjectName("NacExt_NewOffer")
-        list_nacext=['Exterior','Nacional']
-        self.NacExt_NewOffer.addItems(list_nacext)
         self.vlLayout4.addWidget(self.NacExt_NewOffer)
         spacerItem14 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vlLayout4.addItem(spacerItem14)
@@ -263,8 +261,6 @@ class Ui_New_Offer_Window(object):
         self.Material_NewOffer.setFont(font)
         self.Material_NewOffer.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         self.Material_NewOffer.setObjectName("Material_NewOffer")
-        self.Material_NewOffer.addItem("")
-        self.Material_NewOffer.addItem("")
         self.vlLayout4.addWidget(self.Material_NewOffer)
         spacerItem16 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vlLayout4.addItem(spacerItem16)
@@ -329,6 +325,39 @@ class Ui_New_Offer_Window(object):
         self.Button_NewOffer.clicked.connect(self.NewOffer)
         QtCore.QMetaObject.connectSlotsByName(New_Offer)
 
+        self.user="Enrique Serrano"
+
+        list_nacext=['Exterior','Nacional']
+        self.NacExt_NewOffer.addItems(list_nacext)
+
+        commands = ("""
+                        SELECT * 
+                        FROM tipo_producto
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands)
+            results=cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        list_material=[x[0] for x in results]
+        list_material.sort()
+        self.Material_NewOffer.addItems(list_material)
+
 
     def retranslateUi(self, New_Offer):
         _translate = QtCore.QCoreApplication.translate
@@ -344,9 +373,6 @@ class Ui_New_Offer_Window(object):
         self.Button_NewOffer.setText(_translate("New_Offer", "Crear Oferta"))
         self.Button_Cancel.setText(_translate("New_Offer", "Cancelar"))
         self.label_error_newoffer.setText(_translate("New_Offer", ""))
-
-        self.Material_NewOffer.setItemText(0, _translate("New_Offer", "Material1"))
-        self.Material_NewOffer.setItemText(1, _translate("New_Offer", "Material2"))
 
 
     def NewOffer(self):
@@ -373,7 +399,7 @@ class Ui_New_Offer_Window(object):
             commands = ("""
                         SELECT * 
                         FROM ofertas
-                        WHERE "Num_Oferta" = %s
+                        WHERE "num_oferta" = %s
                         """)
             conn = None
             try:
@@ -408,13 +434,12 @@ class Ui_New_Offer_Window(object):
 
                 del dlg,new_icon
 
-
             else:
                 commands = ("""
                             INSERT INTO ofertas (
-                            "Num_Oferta","Responsable","Cliente","Cliente_Final","Num_Referencia","Nac_Ext","Comprador","Notas","Estado","Fecha_Registro","Year","Mes"
+                            "num_oferta","estado","responsable","cliente","cliente_final","num_ref_oferta","fecha_registro","nac_ext","comprador","material","notas"
                             )
-                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                             """)
                 conn = None
                 try:
@@ -424,7 +449,7 @@ class Ui_New_Offer_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    data=(numoffer,responsible,client, finalclient, numref, nacext, buyer, material, notes, state, actual_date, year, month,)
+                    data=(numoffer, state, responsible, client, finalclient, numref, actual_date, nacext, buyer, material, notes,)
                     cur.execute(commands, data)
                 # close communication with the PostgreSQL database server
                     cur.close()

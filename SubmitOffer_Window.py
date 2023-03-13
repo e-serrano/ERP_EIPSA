@@ -185,17 +185,19 @@ class Ui_SubmitOffer_Window(object):
     def SubmitOffer(self):
         numoffer=self.Offer_Submit.text()
         amount=self.Amount_Submit.text()
+        amount=amount.replace(".",",")
         state="Presentada"
         actual_date=date.today()
         actual_date= actual_date.strftime("%d/%m/%Y")
 
         if numoffer=="" or amount=="":
             self.label_error_submitorder.setText('Rellene todos los campos')
+
         else:
             commands = ("""
                         SELECT *
                         FROM ofertas
-                        WHERE "Num_Oferta" = %s
+                        WHERE "num_oferta" = %s
                         """)
             conn = None
             try:
@@ -212,8 +214,10 @@ class Ui_SubmitOffer_Window(object):
                 cur.close()
             # commit the changes
                 conn.commit()
+
             except (Exception, psycopg2.DatabaseError) as error:
                 print(error)
+
             finally:
                 if conn is not None:
                     conn.close()
@@ -231,8 +235,8 @@ class Ui_SubmitOffer_Window(object):
             else:
                 commands = ("""
                             UPDATE ofertas 
-                            SET "Importe"=%s, "Estado"=%s, "Fecha_Presentacion"=%s
-                            WHERE "Num_Oferta"=%s
+                            SET "importe"=%s, "estado"=%s, "fecha_presentacion"=%s
+                            WHERE "num_oferta"=%s
                             """)
                 conn = None
                 try:
@@ -257,13 +261,13 @@ class Ui_SubmitOffer_Window(object):
                     dlg.setText("Oferta presentada con éxito")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
-                    
+
                 except (Exception, psycopg2.DatabaseError) as error:
                     print(error)
+
                 finally:
                     if conn is not None:
                         conn.close()
-            print(numoffer, amount, state, actual_date)
 
 
 if __name__ == "__main__":

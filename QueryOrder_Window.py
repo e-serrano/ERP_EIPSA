@@ -11,6 +11,12 @@ import psycopg2
 from config import config
 
 
+class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    def initStyleOption(self, option, index):
+        super(AlignDelegate, self).initStyleOption(option, index)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+
+
 class Ui_QueryOrder_Window(object):
     def setupUi(self, QueryOrder_Window):
         QueryOrder_Window.setObjectName("QueryOrder_Window")
@@ -425,9 +431,12 @@ class Ui_QueryOrder_Window(object):
                     self.tableQueryOrder.setItem(tablerow, 4, QtWidgets.QTableWidgetItem(str(row[4])))
                     self.tableQueryOrder.setItem(tablerow, 5, QtWidgets.QTableWidgetItem(str(row[5])))
                     self.tableQueryOrder.setItem(tablerow, 6, QtWidgets.QTableWidgetItem(str(row[6])))
+
                     tablerow+=1
 
                 self.tableQueryOrder.verticalHeader().hide()
+                self.tableQueryOrder.setItemDelegate(AlignDelegate(self.tableQueryOrder))
+
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes

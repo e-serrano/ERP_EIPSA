@@ -404,7 +404,7 @@ class Ui_Edit_Offer_Window(object):
         commands = ("""
                     SELECT * 
                     FROM ofertas
-                    WHERE "Num_Oferta" = %s
+                    WHERE "num_oferta" = %s
                     """)
         conn = None
         try:
@@ -441,8 +441,8 @@ class Ui_Edit_Offer_Window(object):
             #SQL Query for updating values in database
             commands = ("""
                         UPDATE ofertas
-                        SET "Cliente" = %s, "Cliente_Final" = %s, "Num_Referencia" = %s, "Estado" = %s, "Nac_Ext" = %s, "Comprador" = %s, "Material" = %s, "Notas" = %s, "Importe" = %s
-                        WHERE "Num_Oferta" = %s
+                        SET "cliente" = %s, "cliente_final" = %s, "num_ref_oferta" = %s, "estado" = %s, "nac_ext" = %s, "comprador" = %s, "material" = %s, "notas" = %s, "importe" = %s
+                        WHERE "num_oferta" = %s
                         """)
             conn = None
             try:
@@ -488,9 +488,9 @@ class Ui_Edit_Offer_Window(object):
             numoffer=self.NumOffer_EditOffer.text()
         #SQL Query for loading existing data in database
             commands = ("""
-                        SELECT "Num_Oferta","Cliente","Cliente_Final","Num_Referencia","Estado","Nac_Ext","Comprador","Material","Notas","Importe"
+                        SELECT "num_oferta","cliente","cliente_final","num_ref_oferta","estado","nac_ext","comprador","material","notas","importe"
                         FROM ofertas
-                        WHERE "Num_Oferta" = %s
+                        WHERE "num_oferta" = %s
                         """)
             conn = None
             try:
