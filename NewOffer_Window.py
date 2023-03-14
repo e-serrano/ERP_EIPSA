@@ -12,8 +12,8 @@ import psycopg2
 from config import config
 
 class Ui_New_Offer_Window(object):
-    # def __init__(self,username):
-    #     self.user=username
+    def __init__(self,username):
+        self.user=username
 
     def setupUi(self, New_Offer):
         New_Offer.setObjectName("New_Offer")
@@ -324,8 +324,6 @@ class Ui_New_Offer_Window(object):
         self.Button_Cancel.clicked.connect(New_Offer.close) # type: ignore
         self.Button_NewOffer.clicked.connect(self.NewOffer)
         QtCore.QMetaObject.connectSlotsByName(New_Offer)
-
-        self.user="Enrique Serrano"
 
         list_nacext=['Exterior','Nacional']
         self.NacExt_NewOffer.addItems(list_nacext)

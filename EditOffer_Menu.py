@@ -111,8 +111,8 @@ class Ui_EditOffer_Menu(object):
 
         self.retranslateUi(EditOffer_Menu)
         self.Button_Cancel.clicked.connect(EditOffer_Menu.close) # type: ignore
-        self.Button_Submit.clicked.connect(self.SubmitOffer)
-        self.Button_Edit.clicked.connect(self.EditOffer)
+        self.Button_Submit.clicked.connect(lambda: self.SubmitOffer(EditOffer_Menu))
+        self.Button_Edit.clicked.connect(lambda: self.EditOffer(EditOffer_Menu))
         QtCore.QMetaObject.connectSlotsByName(EditOffer_Menu)
 
 
@@ -124,7 +124,7 @@ class Ui_EditOffer_Menu(object):
         self.Button_Cancel.setText(_translate("EditOffer_Menu", "Cancelar"))
 
 
-    def SubmitOffer(self):
+    def SubmitOffer(self,EditOffer_Menu):
         self.submitoffer_window=QtWidgets.QMainWindow()
         self.ui=Ui_SubmitOffer_Window()
         self.ui.setupUi(self.submitoffer_window)
@@ -133,7 +133,7 @@ class Ui_EditOffer_Menu(object):
         self.ui.Button_Cancel.clicked.connect(EditOffer_Menu.show)
 
 
-    def EditOffer(self):
+    def EditOffer(self,EditOffer_Menu):
         self.editoffer_window=QtWidgets.QMainWindow()
         self.ui=Ui_Edit_Offer_Window()
         self.ui.setupUi(self.editoffer_window)

@@ -8,7 +8,7 @@
 
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
-from NewOffer_Window import Ui_New_Offer_Window
+from App_Comercial import Ui_App_Comercial
 from ForgetPass_Window import Ui_ForgetPass_Window
 import psycopg2
 from config import config
@@ -338,7 +338,8 @@ class Ui_Login_Window(object):
             else:
                 rol_app=match[0][6]
                 self.app_window=QtWidgets.QMainWindow()
-                self.ui=Ui_New_Offer_Window(login_username) #cambiar por app_window cuando esté lista y abrir una u otra en función de perfil
+                if rol_app=='Comercial':
+                    self.ui=Ui_App_Comercial(match[0][1]+' '+match[0][2]) #cambiar por app_window cuando esté lista y abrir una u otra en función de perfil
                 self.ui.setupUi(self.app_window)
                 Login_Window.close()
                 self.app_window.show()

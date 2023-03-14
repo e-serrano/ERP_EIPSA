@@ -380,7 +380,7 @@ class Ui_QueryOffer_Window(object):
                             AND
                             "material" LIKE '%%'||%s||'%%'
                             AND
-                            "year"::text LIKE '%%'||%s||'%%'
+                            "year_oferta"::text LIKE '%%'||%s||'%%'
                             )
                             ORDER BY "num_oferta"
                             """)

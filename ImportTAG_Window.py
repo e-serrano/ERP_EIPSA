@@ -147,7 +147,7 @@ class Ui_ImportTAG_Window(object):
         self.retranslateUi(ImportTAG_Window)
         self.Button_Cancel.clicked.connect(ImportTAG_Window.close)
         self.Button_Select.clicked.connect(self.browsefiles) # type: ignore
-        self.Button_Import.clicked.connect(self.importag)
+        self.Button_Import.clicked.connect(self.importtag)
 
         self.radioFlow.toggled.connect(lambda:self.btnstate(self.radioFlow))
         self.radioTemp.toggled.connect(lambda:self.btnstate(self.radioTemp))

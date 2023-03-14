@@ -86,7 +86,7 @@
             </spacer>
            </item>
            <item>
-            <widget class="QPushButton" name="Button_Documentation">
+            <widget class="QPushButton" name="Button_Doc">
              <property name="minimumSize">
               <size>
                <width>50</width>
@@ -135,6 +135,78 @@ QPushButton:pressed{
              <property name="icon">
               <iconset>
                <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Documents.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Documents.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>40</width>
+               <height>40</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="hSpacer4">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="Button_Graphs">
+             <property name="minimumSize">
+              <size>
+               <width>50</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton{
+	border: 1px solid transparent;
+	border-color: rgb(3, 174, 236);
+	box-sizing: border-box;
+	background-color: rgb(255, 255, 255);
+	border-radius: 10px;
+}
+
+QPushButton:hover{
+	border: 1px solid transparent;
+	border-color: rgb(0, 0, 0);
+	color: rgb(0,0,0);
+	box-sizing: border-box;
+	background-color: rgb(255, 255, 255);
+	border-radius: 10px;
+}
+
+QPushButton:pressed{
+	border: 1px solid transparent;
+	border-color: rgb(0, 0, 0);
+	color: rgb(0,0,0);
+	box-sizing: border-box;
+	background-color: rgb(200, 200, 200);
+	border-radius: 10px;
+}</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Chart.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Chart.png</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -758,10 +830,13 @@ QPushButton:pressed{
                   <bold>true</bold>
                  </font>
                 </property>
+                <property name="textAlignment">
+                 <set>AlignLeading|AlignVCenter</set>
+                </property>
                </column>
                <column>
                 <property name="text">
-                 <string>Tipo Equipo</string>
+                 <string>Material</string>
                 </property>
                 <property name="font">
                  <font>
@@ -772,7 +847,7 @@ QPushButton:pressed{
                </column>
                <column>
                 <property name="text">
-                 <string>Importe (€)</string>
+                 <string>Importe</string>
                 </property>
                 <property name="font">
                  <font>
@@ -782,6 +857,9 @@ QPushButton:pressed{
                 </property>
                </column>
                <item row="0" column="0">
+                <property name="text">
+                 <string/>
+                </property>
                 <property name="textAlignment">
                  <set>AlignCenter</set>
                 </property>

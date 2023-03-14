@@ -305,15 +305,15 @@ class Ui_New_Order_Window(object):
         month=actual_date.month
         actual_date= actual_date.strftime("%d/%m/%Y")
 
-        if numorder=="" or (numoffer=="" or  (numref=="" or  (contractdate=="" or  (numitems=="" or amount=="")))):
-            self.label_error_neworder.setText('Rellene todos los campos')
+        if numorder=="" or (numoffer=="" or  (numref=="" or   (numitems=="" or amount==""))):
+            self.label_error_neworder.setText('Rellene todos los campos. Solo el campo de fecha contractual puede estar en blanco')
 
         else:
             print(numorder, numoffer, numref, numref, contractdate, numitems, amount, state, actual_date, year, month)
             commands = ("""
                         SELECT *
                         FROM ofertas
-                        WHERE "Num_Oferta" = %s
+                        WHERE "num_oferta" = %s
                         """)
             conn = None
             try:
@@ -349,12 +349,12 @@ class Ui_New_Order_Window(object):
             else:
                 commands = ("""
                             INSERT INTO pedidos (
-                            "Num_Pedido","Num_Oferta","Num_Referencia","Fecha_Pedido","Fecha_Contractual","Num_Equipos","Importe","Año_Pedido"
+                            "num_pedido","num_oferta","num_ref_pedido","fecha_pedido","fecha_contractual","num_equipos","importe"
                             )
-                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s);
+                            VALUES (%s,%s,%s,%s,%s,%s,%s);
                             UPDATE ofertas
-                            SET "Estado" = %s
-                            WHERE "Num_Oferta"=%s;
+                            SET "estado" = %s
+                            WHERE "num_oferta"=%s;
                             """)
                 conn = None
                 try:
@@ -364,7 +364,7 @@ class Ui_New_Order_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    data=(numorder, numoffer, numref, actual_date, contractdate, numitems, amount, year, state, numoffer,)
+                    data=(numorder, numoffer, numref, actual_date, contractdate, numitems, amount, state, numoffer,)
                     cur.execute(commands, data)
                 # close communication with the PostgreSQL database server
                     cur.close()
