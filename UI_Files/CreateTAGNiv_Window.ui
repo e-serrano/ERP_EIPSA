@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1091</width>
+    <width>1275</width>
     <height>605</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>0</width>
+    <width>1275</width>
     <height>605</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>2000</width>
-    <height>605</height>
+    <width>1275</width>
+    <height>644</height>
    </size>
   </property>
   <property name="cursor">
@@ -88,22 +88,9 @@ QPushButton:pressed {
        <enum>QFrame::Raised</enum>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
-       <item>
-        <spacer name="vSpacer1">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>15</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
+       <property name="spacing">
+        <number>0</number>
+       </property>
        <item>
         <layout class="QHBoxLayout" name="hLayout1">
          <item>
@@ -158,6 +145,31 @@ QPushButton:pressed {
              </property>
              <property name="text">
               <string>*Nº Oferta:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_NumOrder">
+             <property name="minimumSize">
+              <size>
+               <width>140</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>140</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Nº Pedido:</string>
              </property>
             </widget>
            </item>
@@ -416,6 +428,27 @@ QPushButton:pressed {
            </item>
            <item>
             <widget class="QLineEdit" name="NumOffer_CreatetagN">
+             <property name="minimumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>175</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="NumOrder_CreatetagN">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -923,13 +956,13 @@ QPushButton:pressed {
             <widget class="QComboBox" name="ConnType_CreatetagN">
              <property name="minimumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
@@ -939,13 +972,13 @@ QPushButton:pressed {
             <widget class="QLineEdit" name="Visibility_CreatetagN">
              <property name="minimumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
@@ -960,13 +993,13 @@ QPushButton:pressed {
             <widget class="QLineEdit" name="LCC_CreatetagN">
              <property name="minimumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
@@ -981,13 +1014,13 @@ QPushButton:pressed {
             <widget class="QComboBox" name="Valvetype_CreatetagN">
              <property name="minimumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
@@ -997,13 +1030,13 @@ QPushButton:pressed {
             <widget class="QComboBox" name="DVConn_CreatetagN">
              <property name="minimumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
@@ -1013,13 +1046,13 @@ QPushButton:pressed {
             <widget class="QComboBox" name="DVSize_CreatetagN">
              <property name="minimumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
@@ -1029,13 +1062,13 @@ QPushButton:pressed {
             <widget class="QComboBox" name="DVRating_CreatetagN">
              <property name="minimumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
@@ -1050,13 +1083,13 @@ QPushButton:pressed {
             <widget class="QComboBox" name="DVFacing_CreatetagN">
              <property name="minimumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
@@ -1071,13 +1104,13 @@ QPushButton:pressed {
             <widget class="QComboBox" name="GasketMica_CreatetagN">
              <property name="minimumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
@@ -1092,13 +1125,13 @@ QPushButton:pressed {
             <widget class="QComboBox" name="MatTorn_CreatetagN">
              <property name="minimumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
@@ -1113,13 +1146,13 @@ QPushButton:pressed {
             <widget class="QComboBox" name="Iluminator_CreatetagN">
              <property name="minimumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>175</width>
+               <width>400</width>
                <height>25</height>
               </size>
              </property>
@@ -1157,13 +1190,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_NipHex">
              <property name="minimumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -1182,13 +1215,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_Antifrost">
              <property name="minimumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -1207,13 +1240,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_Scale">
              <property name="minimumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -1232,13 +1265,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_MatFlot">
              <property name="minimumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -1257,13 +1290,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_MatCover">
              <property name="minimumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -1282,13 +1315,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_Flags">
              <property name="minimumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -1307,13 +1340,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_IP">
              <property name="minimumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -1332,13 +1365,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_FlangeType">
              <property name="minimumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -1357,13 +1390,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_NipTub">
              <property name="minimumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -1382,13 +1415,13 @@ QPushButton:pressed {
             <widget class="QLabel" name="label_Nace">
              <property name="minimumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -1404,41 +1437,16 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_Amount">
-             <property name="minimumSize">
-              <size>
-               <width>125</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>125</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>11</pointsize>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Importe (€):</string>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QLabel" name="label_Notes">
              <property name="minimumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>125</width>
+               <width>100</width>
                <height>25</height>
               </size>
              </property>
@@ -1450,6 +1458,31 @@ QPushButton:pressed {
              </property>
              <property name="text">
               <string>Notas:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_Amount">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Importe (€):</string>
              </property>
             </widget>
            </item>
@@ -1671,7 +1704,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="Amount_CreatetagN">
+            <widget class="QTextEdit" name="Notes_CreatetagN">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -1687,7 +1720,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QTextEdit" name="Notes_CreatetagN">
+            <widget class="QLineEdit" name="Amount_CreatetagN">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -1807,6 +1840,12 @@ QPushButton:pressed {
            <height>25</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+           <bold>true</bold>
+          </font>
+         </property>
          <property name="styleSheet">
           <string notr="true">color: rgb(255, 0, 0);</string>
          </property>
@@ -1828,7 +1867,7 @@ QPushButton:pressed {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1091</width>
+     <width>1275</width>
      <height>22</height>
     </rect>
    </property>
@@ -1868,7 +1907,6 @@ QPushButton:pressed {
   <tabstop>FlangeType_CreatetagN</tabstop>
   <tabstop>Niptub_CreatetagN</tabstop>
   <tabstop>Nace_CreatetagN</tabstop>
-  <tabstop>Amount_CreatetagN</tabstop>
   <tabstop>Notes_CreatetagN</tabstop>
   <tabstop>Button_Create</tabstop>
   <tabstop>Button_Cancel</tabstop>
