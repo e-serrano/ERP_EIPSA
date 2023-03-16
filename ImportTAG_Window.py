@@ -134,6 +134,15 @@ class Ui_ImportTAG_Window(object):
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.hLayout2.addWidget(self.Button_Cancel)
         self.verticalLayout.addLayout(self.hLayout2)
+        self.label_error = QtWidgets.QLabel(parent=self.frame)
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.label_error.setFont(font)
+        self.label_error.setStyleSheet("color: rgb(255, 0, 0);")
+        self.label_error.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.label_error.setObjectName("label_error")
+        self.verticalLayout.addWidget(self.label_error)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         ImportTAG_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=ImportTAG_Window)
@@ -148,11 +157,6 @@ class Ui_ImportTAG_Window(object):
         self.Button_Cancel.clicked.connect(ImportTAG_Window.close)
         self.Button_Select.clicked.connect(self.browsefiles) # type: ignore
         self.Button_Import.clicked.connect(self.importtag)
-
-        self.radioFlow.toggled.connect(lambda:self.btnstate(self.radioFlow))
-        self.radioTemp.toggled.connect(lambda:self.btnstate(self.radioTemp))
-        self.radioLevel.toggled.connect(lambda:self.btnstate(self.radioLevel))
-        self.radioOthers.toggled.connect(lambda:self.btnstate(self.radioOthers))
 
         QtCore.QMetaObject.connectSlotsByName(ImportTAG_Window)
 
@@ -177,26 +181,25 @@ class Ui_ImportTAG_Window(object):
         self.label_name_file.setText(fname[0])
 
 
-    def btnstate(self,b):
-        if b.text() == 'Caudal':
-            if b.isChecked() == True:
-                print('a')
-
-        if b.text() == 'Temperatura':
-            if b.isChecked() == True:
-                print('b')
-
-        if b.text() == 'Nivel':
-            if b.isChecked() == True:
-                print('c')
-
-        if b.text() == 'Otros':
-            if b.isChecked() == True:
-                print('d')
-
-
     def importtag(self):
-        print('se importa el tag')
+        if self.label_name_file.text()=='':
+            self.label_error.setText('Elige un archivo')
+
+        else:
+            if self.radioFlow.isChecked()==True:
+                print('aslo')
+
+            elif self.radioTemp.isChecked()==True:
+                print('bslo')
+
+            elif self.radioLevel.isChecked()==True:
+                print('cslo')
+
+            elif self.radioOthers.isChecked()==True:
+                print('dslo')
+
+            else:
+                self.label_error.setText('Elige un tipo de equipo')
 
 
 if __name__ == "__main__":

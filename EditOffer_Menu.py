@@ -108,6 +108,7 @@ class Ui_EditOffer_Menu(object):
         self.statusbar = QtWidgets.QStatusBar(parent=EditOffer_Menu)
         self.statusbar.setObjectName("statusbar")
         EditOffer_Menu.setStatusBar(self.statusbar)
+        EditOffer_Menu.setWindowFlags(QtCore.Qt.WindowType.WindowMinimizeButtonHint)
 
         self.retranslateUi(EditOffer_Menu)
         self.Button_Cancel.clicked.connect(EditOffer_Menu.close) # type: ignore

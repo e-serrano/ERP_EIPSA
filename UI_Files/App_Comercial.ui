@@ -86,6 +86,84 @@
             </spacer>
            </item>
            <item>
+            <widget class="QPushButton" name="Button_ExpOffer">
+             <property name="minimumSize">
+              <size>
+               <width>50</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
+             <property name="toolTip">
+              <string>Exportar Oferta</string>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton{
+	border: 1px solid transparent;
+	border-color: rgb(3, 174, 236);
+	box-sizing: border-box;
+	background-color: rgb(255, 255, 255);
+	border-radius: 10px;
+}
+
+QPushButton:hover{
+	border: 1px solid transparent;
+	border-color: rgb(0, 0, 0);
+	color: rgb(0,0,0);
+	box-sizing: border-box;
+	background-color: rgb(255, 255, 255);
+	border-radius: 10px;
+}
+
+QPushButton:pressed{
+	border: 1px solid transparent;
+	border-color: rgb(0, 0, 0);
+	color: rgb(0,0,0);
+	box-sizing: border-box;
+	background-color: rgb(200, 200, 200);
+	border-radius: 10px;
+}</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Offer_Export.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Offer_Export.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>40</width>
+               <height>40</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
             <widget class="QPushButton" name="Button_Doc">
              <property name="minimumSize">
               <size>
@@ -101,6 +179,9 @@
              </property>
              <property name="cursor">
               <cursorShape>PointingHandCursor</cursorShape>
+             </property>
+             <property name="toolTip">
+              <string>Documentación</string>
              </property>
              <property name="styleSheet">
               <string notr="true">QPushButton{
@@ -173,6 +254,12 @@ QPushButton:pressed{
                <width>50</width>
                <height>50</height>
               </size>
+             </property>
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
+             <property name="toolTip">
+              <string>Estadísticas Ofertas</string>
              </property>
              <property name="styleSheet">
               <string notr="true">QPushButton{
@@ -747,46 +834,6 @@ QPushButton:pressed{
                <attribute name="verticalHeaderVisible">
                 <bool>false</bool>
                </attribute>
-               <row>
-                <property name="text">
-                 <string>Nueva fila</string>
-                </property>
-               </row>
-               <row>
-                <property name="text">
-                 <string>Nueva fila</string>
-                </property>
-               </row>
-               <row>
-                <property name="text">
-                 <string>Nueva fila</string>
-                </property>
-               </row>
-               <row>
-                <property name="text">
-                 <string>Nueva fila</string>
-                </property>
-               </row>
-               <row>
-                <property name="text">
-                 <string>Nueva fila</string>
-                </property>
-               </row>
-               <row>
-                <property name="text">
-                 <string>Nueva fila</string>
-                </property>
-               </row>
-               <row>
-                <property name="text">
-                 <string>Nueva fila</string>
-                </property>
-               </row>
-               <row>
-                <property name="text">
-                 <string>Nueva fila</string>
-                </property>
-               </row>
                <column>
                 <property name="text">
                  <string>Nº Oferta</string>
@@ -856,14 +903,6 @@ QPushButton:pressed{
                  </font>
                 </property>
                </column>
-               <item row="0" column="0">
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </item>
               </widget>
              </item>
              <item>

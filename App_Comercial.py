@@ -21,12 +21,14 @@ from EditOrder_Window import Ui_Edit_Order_Window
 from QueryOrder_Window import Ui_QueryOrder_Window
 from CreateTAG_Menu import Ui_CreateTag_Menu
 from EditUser_Menu import Ui_EditUser_Menu
+from ExportOffer_Window import Ui_ExportOffer_Window
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+
 
 class Ui_App_Comercial(object):
     # def __init__(self,username):
@@ -67,9 +69,46 @@ class Ui_App_Comercial(object):
         self.Header.addWidget(self.LogoIcon)
         spacerItem = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem)
+        self.Button_ExpOffer = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_ExpOffer.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_ExpOffer.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_ExpOffer.setToolTip('Exportar Oferta')
+        self.Button_ExpOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_ExpOffer.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
+        self.Button_ExpOffer.setText("")
+        icon12 = QtGui.QIcon()
+        icon12.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Offer_Export.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_ExpOffer.setIcon(icon12)
+        self.Button_ExpOffer.setIconSize(QtCore.QSize(40, 40))
+        self.Button_ExpOffer.setObjectName("Button_ExpOffer")
+        self.Header.addWidget(self.Button_ExpOffer)
+        spacerItem11 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem11)
         self.Button_Doc = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Doc.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_Doc.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Doc.setToolTip('Documentación')
         self.Button_Doc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Doc.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
@@ -105,6 +144,7 @@ class Ui_App_Comercial(object):
         self.Button_Graphs = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Graphs.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_Graphs.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Graphs.setToolTip('Estadísticas Ofertas')
         self.Button_Graphs.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Graphs.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
@@ -142,6 +182,7 @@ class Ui_App_Comercial(object):
             self.Button_Users = QtWidgets.QPushButton(parent=self.frame)
             self.Button_Users.setMinimumSize(QtCore.QSize(50, 50))
             self.Button_Users.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_Users.setToolTip('Gestión Usuarios')
             self.Button_Users.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
             self.Button_Users.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
@@ -595,18 +636,21 @@ class Ui_App_Comercial(object):
         self.Button_EditOrder.clicked.connect(self.edit_order)
         self.Button_FindOrder.clicked.connect(self.query_order)
         self.Button_NewTag.clicked.connect(self.new_tag)
+
+        self.Button_ExpOffer.clicked.connect(self.export_offer)
         
         if self.user=='Ana Calvo':
             self.Button_Users.clicked.connect(self.user_edition)
-
 
         commands = ("""
                     SELECT "num_oferta","estado","cliente","fecha_presentacion","material","importe"
                     FROM ofertas
                     WHERE ("responsable" = %s
                     AND
-                    "estado" = 'Presentada'
-                    )
+                    ("estado" = 'Presentada'
+                    OR
+                    "estado" = 'Registrada'
+                    ))
                     ORDER BY "num_oferta"
                     """)
         conn = None
@@ -680,6 +724,7 @@ class Ui_App_Comercial(object):
         self.ui=Ui_New_Offer_Window(self.user)
         self.ui.setupUi(self.new_offer_window)
         self.new_offer_window.show()
+        self.ui.Button_Cancel.clicked.connect(self.update_table)
 
 
     def edit_offer(self):
@@ -687,6 +732,7 @@ class Ui_App_Comercial(object):
         self.ui=Ui_EditOffer_Menu()
         self.ui.setupUi(self.edit_offer_window)
         self.edit_offer_window.show()
+        self.ui.Button_Cancel.clicked.connect(self.update_table)
 
 
     def query_offer(self):
@@ -738,6 +784,12 @@ class Ui_App_Comercial(object):
     #     self.importtag_window.show()
 
 
+    def export_offer(self):
+        self.exportoffer_window=QtWidgets.QMainWindow()
+        self.ui=Ui_ExportOffer_Window()
+        self.ui.setupUi(self.exportoffer_window)
+        self.exportoffer_window.show()
+
     # def documents(self):
     #     self.importtag_window=QtWidgets.QMainWindow()
     #     self.ui=Ui_ImportTAG_Window()
@@ -758,6 +810,53 @@ class Ui_App_Comercial(object):
         self.ui.setupUi(self.edit_user_menu)
         self.edit_user_menu.show()
 
+
+    def update_table(self):
+        commands = ("""
+                    SELECT "num_oferta","estado","cliente","fecha_presentacion","material","importe"
+                    FROM ofertas
+                    WHERE ("responsable" = %s
+                    AND
+                    ("estado" = 'Presentada'
+                    OR
+                    "estado" = 'Registrada'
+                    ))
+                    ORDER BY "num_oferta"
+                    """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(commands,(self.user[0] + self.user[self.user.find(' ')+1],))
+            results=cur.fetchall()
+            self.tableOffer.setRowCount(len(results))
+            tablerow=0
+            for row in results:
+                self.tableOffer.setItem(tablerow, 0, QtWidgets.QTableWidgetItem(str(row[0])))
+                self.tableOffer.setItem(tablerow, 1, QtWidgets.QTableWidgetItem(str(row[1])))
+                self.tableOffer.setItem(tablerow, 2, QtWidgets.QTableWidgetItem(str(row[2])))
+                self.tableOffer.setItem(tablerow, 3, QtWidgets.QTableWidgetItem(str(row[3])))
+                self.tableOffer.setItem(tablerow, 4, QtWidgets.QTableWidgetItem(str(row[4])))
+                self.tableOffer.setItem(tablerow, 5, QtWidgets.QTableWidgetItem(str(row[5])))
+
+                tablerow+=1
+
+            self.tableOffer.verticalHeader().hide()
+            self.tableOffer.setItemDelegate(AlignDelegate(self.tableOffer))
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
 
 
 if __name__ == "__main__":

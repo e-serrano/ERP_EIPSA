@@ -307,6 +307,10 @@ class Ui_New_Offer_Window(object):
         self.verticalLayout.addLayout(self.hLayout1)
         self.label_error_newoffer = QtWidgets.QLabel(parent=self.frame)
         self.label_error_newoffer.setStyleSheet("color: rgb(255, 0, 0);")
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.label_error_newoffer.setFont(font)
         self.label_error_newoffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.label_error_newoffer.setObjectName("label_error_newoffer")
         self.verticalLayout.addWidget(self.label_error_newoffer)
@@ -319,6 +323,7 @@ class Ui_New_Offer_Window(object):
         self.statusbar = QtWidgets.QStatusBar(parent=New_Offer)
         self.statusbar.setObjectName("statusbar")
         New_Offer.setStatusBar(self.statusbar)
+        New_Offer.setWindowFlags(QtCore.Qt.WindowType.WindowMinimizeButtonHint)
 
         self.retranslateUi(New_Offer)
         self.Button_Cancel.clicked.connect(New_Offer.close) # type: ignore

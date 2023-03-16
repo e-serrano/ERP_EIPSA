@@ -271,8 +271,6 @@ class Ui_Edit_Offer_Window(object):
         self.NacExt_EditOffer.setFont(font)
         self.NacExt_EditOffer.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         self.NacExt_EditOffer.setObjectName("NacExt_EditOffer")
-        list_nacext=['Exterior','Nacional']
-        self.NacExt_EditOffer.addItems(list_nacext)
         self.vlLayout4.addWidget(self.NacExt_EditOffer)
         spacerItem17 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vlLayout4.addItem(spacerItem17)
@@ -294,8 +292,6 @@ class Ui_Edit_Offer_Window(object):
         self.Material_EditOffer.setFont(font)
         self.Material_EditOffer.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         self.Material_EditOffer.setObjectName("Material_EditOffer")
-        self.Material_EditOffer.addItem("")
-        self.Material_EditOffer.addItem("")
         self.vlLayout4.addWidget(self.Material_EditOffer)
         spacerItem19 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vlLayout4.addItem(spacerItem19)
@@ -359,12 +355,44 @@ class Ui_Edit_Offer_Window(object):
         self.statusbar = QtWidgets.QStatusBar(parent=Edit_Offer_Window)
         self.statusbar.setObjectName("statusbar")
         Edit_Offer_Window.setStatusBar(self.statusbar)
+        Edit_Offer_Window.setWindowFlags(QtCore.Qt.WindowType.WindowMinimizeButtonHint)
 
         self.retranslateUi(Edit_Offer_Window)
         self.Button_Cancel.clicked.connect(Edit_Offer_Window.close) # type: ignore
         self.Button_EditOffer.clicked.connect(self.editoffer) # type: ignore
         self.NumOffer_EditOffer.returnPressed.connect(self.queryofferdata)
         QtCore.QMetaObject.connectSlotsByName(Edit_Offer_Window)
+
+        list_nacext=['Exterior','Nacional']
+        self.NacExt_EditOffer.addItems(list_nacext)
+
+        commands = ("""
+                        SELECT * 
+                        FROM tipo_producto
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands)
+            results=cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        list_material=[x[0] for x in results]
+        list_material.sort()
+        self.Material_EditOffer.addItems(list_material)
 
 
     def retranslateUi(self, Edit_Offer_Window):
@@ -380,10 +408,6 @@ class Ui_Edit_Offer_Window(object):
         self.label_Material.setText(_translate("Edit_Offer_Window", "Material:"))
         self.label_Notes.setText(_translate("Edit_Offer_Window", "Notas:"))
         self.label_Amount.setText(_translate("Edit_Offer_Window", "Importe (€):"))
-
-
-        self.Material_EditOffer.setItemText(0, _translate("Edit_Offer_Window", "Material1"))
-        self.Material_EditOffer.setItemText(1, _translate("Edit_Offer_Window", "Material2"))
         self.Button_EditOffer.setText(_translate("Edit_Offer_Window", "Editar Oferta"))
         self.Button_Cancel.setText(_translate("Edit_Offer_Window", "Cancelar"))
 

@@ -163,6 +163,7 @@ class Ui_SubmitOffer_Window(object):
         self.statusbar = QtWidgets.QStatusBar(parent=SubmitOffer_Window)
         self.statusbar.setObjectName("statusbar")
         SubmitOffer_Window.setStatusBar(self.statusbar)
+        SubmitOffer_Window.setWindowFlags(QtCore.Qt.WindowType.WindowMinimizeButtonHint)
 
         self.retranslateUi(SubmitOffer_Window)
         self.Button_Cancel.clicked.connect(SubmitOffer_Window.close) # type: ignore
