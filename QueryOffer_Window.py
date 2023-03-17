@@ -289,6 +289,8 @@ class Ui_QueryOffer_Window(object):
         self.Button_Clean.clicked.connect(self.clean_boxes) # type: ignore
         self.Button_Query.clicked.connect(self.query_offer) # type: ignore
 
+        list_material=['','Caudal','Temperatura','Nivel','Otros']
+        self.Material_QueryOffer.addItems(list_material)
 
     def retranslateUi(self, QueryOffer_Window):
         _translate = QtCore.QCoreApplication.translate
@@ -356,33 +358,35 @@ class Ui_QueryOffer_Window(object):
             cur.execute("""SELECT * FROM ofertas""")
             results=cur.fetchall()
             match=list(filter(lambda x:numoffer in x, results))
+
             if numoffer !='' and len(match)==0:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Consultar Pedido")
-                dlg.setText("Ese número de pedido no existe")
+                dlg.setWindowTitle("Consultar Oferta")
+                dlg.setText("El número de oferta introducido no existe")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg.exec()
 
             else:
                 commands = ("""
-                            SELECT "num_oferta","responsable","estado","num_ref_oferta","cliente","cliente_final","material","importe"
+                            SELECT ofertas."num_oferta",ofertas."responsable",ofertas."estado",ofertas."num_ref_oferta",ofertas."cliente",ofertas."cliente_final",tipo_producto."variable",ofertas."importe"
                             FROM ofertas
+                            INNER JOIN tipo_producto ON (ofertas."material"=tipo_producto."material")
                             WHERE ("num_oferta" LIKE '%%'||%s||'%%'
                             AND
-                            "num_ref_oferta" LIKE '%%'||%s||'%%'
+                            ofertas."num_ref_oferta" LIKE '%%'||%s||'%%'
                             AND
-                            "cliente" LIKE '%%'||%s||'%%'
+                            ofertas."cliente" LIKE '%%'||%s||'%%'
                             AND
-                            "cliente_final" LIKE '%%'||%s||'%%'
+                            ofertas."cliente_final" LIKE '%%'||%s||'%%'
                             AND
-                            "material" LIKE '%%'||%s||'%%'
+                            tipo_producto."variable" LIKE '%%'||%s||'%%'
                             AND
-                            "year_oferta"::text LIKE '%%'||%s||'%%'
+                            ofertas."year_oferta"::text LIKE '%%'||%s||'%%'
                             )
-                            ORDER BY "num_oferta"
+                            ORDER BY ofertas."num_oferta"
                             """)
                 conn = None
                 try:

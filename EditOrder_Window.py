@@ -161,16 +161,16 @@ class Ui_Edit_Order_Window(object):
         self.vLayout3.addWidget(self.label_ContracDate)
         spacerItem6 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout3.addItem(spacerItem6)
-        self.label_NumItems = QtWidgets.QLabel(parent=self.frame)
-        self.label_NumItems.setMinimumSize(QtCore.QSize(130, 25))
-        self.label_NumItems.setMaximumSize(QtCore.QSize(130, 25))
+        self.label_Notes = QtWidgets.QLabel(parent=self.frame)
+        self.label_Notes.setMinimumSize(QtCore.QSize(130, 25))
+        self.label_Notes.setMaximumSize(QtCore.QSize(130, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
-        self.label_NumItems.setFont(font)
-        self.label_NumItems.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_NumItems.setObjectName("label_NumItems")
-        self.vLayout3.addWidget(self.label_NumItems)
+        self.label_Notes.setFont(font)
+        self.label_Notes.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_Notes.setObjectName("label_Notes")
+        self.vLayout3.addWidget(self.label_Notes)
         spacerItem7 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout3.addItem(spacerItem7)
         self.label_Amount = QtWidgets.QLabel(parent=self.frame)
@@ -197,15 +197,15 @@ class Ui_Edit_Order_Window(object):
         self.vlLayout4.addWidget(self.ContracDate_EditOrder)
         spacerItem8 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vlLayout4.addItem(spacerItem8)
-        self.NumItems_EditOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.NumItems_EditOrder.setMinimumSize(QtCore.QSize(175, 25))
-        self.NumItems_EditOrder.setMaximumSize(QtCore.QSize(175, 25))
+        self.Notes_EditOrder = QtWidgets.QTextEdit(parent=self.frame)
+        self.Notes_EditOrder.setMinimumSize(QtCore.QSize(175, 25))
+        self.Notes_EditOrder.setMaximumSize(QtCore.QSize(175, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.NumItems_EditOrder.setFont(font)
-        self.NumItems_EditOrder.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.NumItems_EditOrder.setObjectName("NumItems_EditOrder")
-        self.vlLayout4.addWidget(self.NumItems_EditOrder)
+        self.Notes_EditOrder.setFont(font)
+        self.Notes_EditOrder.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.Notes_EditOrder.setObjectName("Notes_EditOrder")
+        self.vlLayout4.addWidget(self.Notes_EditOrder)
         spacerItem9 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vlLayout4.addItem(spacerItem9)
         self.Amount_EditOrder = QtWidgets.QLineEdit(parent=self.frame)
@@ -282,7 +282,7 @@ class Ui_Edit_Order_Window(object):
         self.label_NumOffer.setText(_translate("Edit_Order_Window", "Nº Oferta:"))
         self.label_NumRef.setText(_translate("Edit_Order_Window", "Nº Referencia:"))
         self.label_ContracDate.setText(_translate("Edit_Order_Window", "Fecha Contractual:"))
-        self.label_NumItems.setText(_translate("Edit_Order_Window", "Nº Equipos:"))
+        self.label_Notes.setText(_translate("Edit_Order_Window", "Notas:"))
         self.label_Amount.setText(_translate("Edit_Order_Window", "Importe (€):"))
         self.Button_EditOrder.setText(_translate("Edit_Order_Window", "Editar Pedido"))
         self.Button_Cancel.setText(_translate("Edit_Order_Window", "Cancelar"))
@@ -293,14 +293,14 @@ class Ui_Edit_Order_Window(object):
         numoffer=self.NumOffer_EditOrder.text()
         numref=self.NumRef_EditOrder.text()
         contracdate=self.ContracDate_EditOrder.text()
-        numitems=self.NumItems_EditOrder.text()
+        notes=self.Notes_EditOrder.toPlainText()
         amount=self.Amount_EditOrder.text()
 
         #SQL Query for checking if order number exists in database
         commands = ("""
                     SELECT * 
                     FROM pedidos
-                    WHERE "Num_Pedido" = %s
+                    WHERE "num_pedido" = %s
                     """)
         conn = None
         try:
@@ -337,8 +337,8 @@ class Ui_Edit_Order_Window(object):
             #SQL Query for updating values in database
             commands = ("""
                         UPDATE pedidos
-                        SET "Num_Oferta" = %s, "Num_Referencia" = %s, "Fecha_Contractual" = %s, "Num_Equipos" = %s, "Importe" = %s
-                        WHERE "Num_Pedido" = %s
+                        SET "num_oferta" = %s, "num_ref_pedido" = %s, "fecha_contractual" = %s, "notas" = %s, "importe" = %s
+                        WHERE "num_pedido" = %s
                         """)
             conn = None
             try:
@@ -348,7 +348,7 @@ class Ui_Edit_Order_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands one by one
-                data=(numoffer,numref,contracdate,numitems,amount,numorder,)
+                data=(numoffer,numref,contracdate,notes,amount,numorder,)
                 cur.execute(commands,data)
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -373,7 +373,7 @@ class Ui_Edit_Order_Window(object):
             self.NumOffer_EditOrder.setText('')
             self.NumRef_EditOrder.setText('')
             self.ContracDate_EditOrder.setText('')
-            self.NumItems_EditOrder.setText('')
+            self.Notes_EditOrder.setText('')
             self.Amount_EditOrder.setText('')
 
             del dlg, new_icon
@@ -381,61 +381,49 @@ class Ui_Edit_Order_Window(object):
 
     def queryorderdata(self):
         numorder=self.NumOrder_EditOrder.text()
+    #SQL Query for loading existing data in database
+        commands = ("""
+                    SELECT "num_pedido","num_oferta","num_ref_pedido","fecha_contractual","notas","importe"
+                    FROM pedidos
+                    WHERE "num_pedido" = %s
+                    """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands,(numorder,))
+            results=cur.fetchall()
+            match=list(filter(lambda x:numorder in x, results))
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
 
-        if numorder=="" or numorder==" ":
+        if len(match)==0:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Editar Pedido")
-            dlg.setText("Introduce un número de pedido")
+            dlg.setText("El número de pedido introducido no existe")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
 
         else:
-        #SQL Query for loading existing data in database
-            commands = ("""
-                        SELECT "Num_Pedido","Num_Oferta","Num_Referencia","Fecha_Contractual","Num_Equipos","Importe"
-                        FROM pedidos
-                        WHERE "Num_Pedido" = %s
-                        """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands,(numorder,))
-                results=cur.fetchall()
-                match=list(filter(lambda x:numorder in x, results))
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-            except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-            finally:
-                if conn is not None:
-                    conn.close()
-
-            if len(match)==0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Editar Pedido")
-                dlg.setText("El número de pedido introducido no existe")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-
-            else:
-                self.NumOffer_EditOrder.setText(str(results[0][1]))
-                self.NumRef_EditOrder.setText(str(results[0][2]))
-                self.ContracDate_EditOrder.setText(str(results[0][3]))
-                self.NumItems_EditOrder.setText(str(results[0][4]))
-                self.Amount_EditOrder.setText(str(results[0][5]))
+            self.NumOffer_EditOrder.setText(str(results[0][1]))
+            self.NumRef_EditOrder.setText(str(results[0][2]))
+            self.ContracDate_EditOrder.setText(str(results[0][3]))
+            self.Notes_EditOrder.setText(str(results[0][4]))
+            self.Amount_EditOrder.setText(str(results[0][5]))
 
 
 if __name__ == "__main__":

@@ -20,8 +20,12 @@ from NewOrder_Window import Ui_New_Order_Window
 from EditOrder_Window import Ui_Edit_Order_Window
 from QueryOrder_Window import Ui_QueryOrder_Window
 from CreateTAG_Menu import Ui_CreateTag_Menu
-from EditUser_Menu import Ui_EditUser_Menu
+
+from QueryTags_Window import Ui_QueryTags_Window
 from ExportOffer_Window import Ui_ExportOffer_Window
+
+
+from EditUser_Menu import Ui_EditUser_Menu
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -466,6 +470,7 @@ class Ui_App_Comercial(object):
                     AND
                     "estado"='Adjudicada')
                     GROUP BY "mes_oferta"
+                    ORDER BY "mes_oferta"
                     """)
         conn = None
         try:
@@ -777,11 +782,11 @@ class Ui_App_Comercial(object):
     #     self.importtag_window.show()
 
 
-    # def query_tag(self):
-    #     self.importtag_window=QtWidgets.QMainWindow()
-    #     self.ui=Ui_ImportTAG_Window()
-    #     self.ui.setupUi(self.importtag_window)
-    #     self.importtag_window.show()
+    def query_tag(self):
+        self.querytag_window=QtWidgets.QMainWindow()
+        self.ui=Ui_QueryTags_Window()
+        self.ui.setupUi(self.querytag_window)
+        self.querytag_window.show()
 
 
     def export_offer(self):

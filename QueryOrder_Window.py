@@ -315,6 +315,9 @@ class Ui_QueryOrder_Window(object):
         self.Button_Clean.clicked.connect(self.clean_boxes) # type: ignore
         self.Button_Query.clicked.connect(self.query_order) # type: ignore
 
+        list_material=['','Caudal','Temperatura','Nivel','Otros']
+        self.EqType_QueryOrder.addItems(list_material)
+
 
     def retranslateUi(self, QueryOrder_Window):
         _translate = QtCore.QCoreApplication.translate
@@ -364,16 +367,8 @@ class Ui_QueryOrder_Window(object):
         finalclient=self.Finalclient_QueryOrder.text()
         ref=self.Ref_QueryOrder.text()
         amount=self.Amount_QueryOrder.text()
+        amount=amount.replace(".",",")
         eqtype=self.EqType_QueryOrder.currentText()
-
-        conn = None
-        # read the connection parameters
-        params = config()
-        # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
-        cur = conn.cursor()
-        cur.execute("""SELECT * FROM pedidos WHERE "Num_Pedido" LIKE '%%'||%s||'%%'""",(numorder,))
-        results=cur.fetchall()
 
         if ((numorder=="" or numorder==" ") and (numoffer=="" or numoffer==" ") and (client=="" or client==" ") 
         and (year=="" or year==" ") and (finalclient=="" or finalclient==" ") and (ref=="" or ref==" ")
@@ -388,64 +383,86 @@ class Ui_QueryOrder_Window(object):
             dlg.exec()
 
         else:
-            commands = ("""
-                        SELECT "Num_Pedido","Num_Referencia","Num_Oferta","Cliente","Cliente_Final" ,"Tipo_Equipo","Importe"
-                        FROM pedidos
-                        WHERE ("Num_Pedido" LIKE '%%'||%s||'%%'
-                        AND
-                        "Num_Referencia" LIKE '%%'||%s||'%%'
-                        AND
-                        "Num_Oferta" LIKE '%%'||%s||'%%'
-                        AND
-                        "Cliente" LIKE '%%'||%s||'%%'
-                        AND
-                        "Cliente_Final" LIKE '%%'||%s||'%%'
-                        AND
-                        "Tipo_Equipo" LIKE '%%'||%s||'%%'
-                        AND
-                        CONCAT("Importe",'') LIKE '%%'||%s||'%%'
-                        AND
-                        "Year"::text LIKE '%%'||%s||'%%'
-                        )
-                        ORDER BY "Num_Pedido"
-                        """)
             conn = None
-            try:
             # read the connection parameters
-                params = config()
+            params = config()
             # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                data=(numorder,ref,numoffer,client,finalclient,eqtype,amount,year,)
-                cur.execute(commands, data)
-                results=cur.fetchall()
-                self.tableQueryOrder.setRowCount(len(results))
-                tablerow=0
-                print(results)
-                for row in results:
-                    self.tableQueryOrder.setItem(tablerow, 0, QtWidgets.QTableWidgetItem(str(row[0])))
-                    self.tableQueryOrder.setItem(tablerow, 1, QtWidgets.QTableWidgetItem(str(row[1])))
-                    self.tableQueryOrder.setItem(tablerow, 2, QtWidgets.QTableWidgetItem(str(row[2])))
-                    self.tableQueryOrder.setItem(tablerow, 3, QtWidgets.QTableWidgetItem(str(row[3])))
-                    self.tableQueryOrder.setItem(tablerow, 4, QtWidgets.QTableWidgetItem(str(row[4])))
-                    self.tableQueryOrder.setItem(tablerow, 5, QtWidgets.QTableWidgetItem(str(row[5])))
-                    self.tableQueryOrder.setItem(tablerow, 6, QtWidgets.QTableWidgetItem(str(row[6])))
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            cur.execute("""SELECT * FROM pedidos""")
+            results=cur.fetchall()
+            match=list(filter(lambda x:numoffer in x, results))
 
-                    tablerow+=1
+            if numoffer !='' and len(match)==0:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Consultar Pedido")
+                dlg.setText("El número de pedido introducido no existe")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+            
+            else:
+                commands = ("""
+                            SELECT pedidos."num_pedido",pedidos."num_oferta",pedidos."num_ref_pedido",ofertas."cliente",ofertas."cliente_final",tipo_producto."variable",pedidos."importe"
+                            FROM ofertas
+                            INNER JOIN pedidos ON (ofertas."num_oferta"=pedidos."num_oferta")
+                            INNER JOIN tipo_producto ON (ofertas."material"=tipo_producto."material")
+                            WHERE (pedidos."num_pedido" LIKE '%%'||%s||'%%'
+                            AND
+                            pedidos."num_oferta" LIKE '%%'||%s||'%%'
+                            AND
+                            pedidos."num_ref_pedido" LIKE '%%'||%s||'%%'
+                            AND
+                            ofertas."cliente" LIKE '%%'||%s||'%%'
+                            AND
+                            ofertas."cliente_final" LIKE '%%'||%s||'%%'
+                            AND
+                            tipo_producto."variable" LIKE '%%'||%s||'%%'
+                            AND
+                            pedidos."importe"::text LIKE '%%'||%s||'%%'
+                            AND
+                            pedidos."year_pedido"::text LIKE '%%'||%s||'%%'
+                            )
+                            ORDER BY pedidos."num_pedido"
+                            """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    data=(numorder,numoffer,ref,client,finalclient,eqtype,amount,year,)
+                    cur.execute(commands, data)
+                    results=cur.fetchall()
+                    self.tableQueryOrder.setRowCount(len(results))
+                    tablerow=0
+                    for row in results:
+                        self.tableQueryOrder.setItem(tablerow, 0, QtWidgets.QTableWidgetItem(str(row[0])))
+                        self.tableQueryOrder.setItem(tablerow, 1, QtWidgets.QTableWidgetItem(str(row[1])))
+                        self.tableQueryOrder.setItem(tablerow, 2, QtWidgets.QTableWidgetItem(str(row[2])))
+                        self.tableQueryOrder.setItem(tablerow, 3, QtWidgets.QTableWidgetItem(str(row[3])))
+                        self.tableQueryOrder.setItem(tablerow, 4, QtWidgets.QTableWidgetItem(str(row[4])))
+                        self.tableQueryOrder.setItem(tablerow, 5, QtWidgets.QTableWidgetItem(str(row[5])))
+                        self.tableQueryOrder.setItem(tablerow, 6, QtWidgets.QTableWidgetItem(str(row[6])))
 
-                self.tableQueryOrder.verticalHeader().hide()
-                self.tableQueryOrder.setItemDelegate(AlignDelegate(self.tableQueryOrder))
+                        tablerow+=1
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-            except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-            finally:
-                if conn is not None:
-                    conn.close()
+                    self.tableQueryOrder.verticalHeader().hide()
+                    self.tableQueryOrder.setItemDelegate(AlignDelegate(self.tableQueryOrder))
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
+                finally:
+                    if conn is not None:
+                        conn.close()
 
 
 

@@ -509,54 +509,54 @@ class Ui_Edit_Offer_Window(object):
 
 
     def queryofferdata(self):
-            numoffer=self.NumOffer_EditOffer.text()
-        #SQL Query for loading existing data in database
-            commands = ("""
-                        SELECT "num_oferta","cliente","cliente_final","num_ref_oferta","estado","nac_ext","comprador","material","notas","importe"
-                        FROM ofertas
-                        WHERE "num_oferta" = %s
-                        """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands,(numoffer,))
-                results=cur.fetchall()
-                match=list(filter(lambda x:numoffer in x, results))
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-            except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-            finally:
-                if conn is not None:
-                    conn.close()
+        numoffer=self.NumOffer_EditOffer.text()
+    #SQL Query for loading existing data in database
+        commands = ("""
+                    SELECT "num_oferta","cliente","cliente_final","num_ref_oferta","estado","nac_ext","comprador","material","notas","importe"
+                    FROM ofertas
+                    WHERE "num_oferta" = %s
+                    """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands,(numoffer,))
+            results=cur.fetchall()
+            match=list(filter(lambda x:numoffer in x, results))
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
 
-            if len(match)==0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Editar Oferta")
-                dlg.setText("El número de oferta introducido no existe")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
+        if len(match)==0:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Editar Oferta")
+            dlg.setText("El número de oferta introducido no existe")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
 
-            else:
-                self.Client_EditOffer.setText(str(results[0][1]))
-                self.FinalClient_EditOffer.setText(str(results[0][2]))
-                self.NumRef_EditOffer.setText(str(results[0][3]))
-                self.State_EditOffer.setCurrentText(str(results[0][4]))
-                self.NacExt_EditOffer.setCurrentText(str(results[0][5]))
-                self.Buyer_EditOffer.setText(str(results[0][6]))
-                self.Material_EditOffer.setCurrentText(str(results[0][7]))
-                self.Notes_EditOffer.setText(str(results[0][8]))
-                self.Amount_EditOffer.setText(str(results[0][9]))
+        else:
+            self.Client_EditOffer.setText(str(results[0][1]))
+            self.FinalClient_EditOffer.setText(str(results[0][2]))
+            self.NumRef_EditOffer.setText(str(results[0][3]))
+            self.State_EditOffer.setCurrentText(str(results[0][4]))
+            self.NacExt_EditOffer.setCurrentText(str(results[0][5]))
+            self.Buyer_EditOffer.setText(str(results[0][6]))
+            self.Material_EditOffer.setCurrentText(str(results[0][7]))
+            self.Notes_EditOffer.setText(str(results[0][8]))
+            self.Amount_EditOffer.setText(str(results[0][9]))
 
 
 if __name__ == "__main__":

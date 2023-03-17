@@ -390,8 +390,6 @@ class Ui_New_Offer_Window(object):
         state="Registrada"
         responsible=self.user[0] + self.user[self.user.find(' ')+1]
         actual_date=date.today()
-        year=actual_date.year
-        month=actual_date.month
         actual_date= actual_date.strftime("%d/%m/%Y")
 
         if numoffer=="" or (client=="" or  (finalclient=="" or  (numref=="" or  buyer==""))):

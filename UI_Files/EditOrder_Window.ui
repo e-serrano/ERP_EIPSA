@@ -400,7 +400,7 @@ QPushButton:pressed {
             </spacer>
            </item>
            <item>
-            <widget class="QLabel" name="label_NumItems">
+            <widget class="QLabel" name="label_Notes">
              <property name="minimumSize">
               <size>
                <width>130</width>
@@ -420,7 +420,7 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>Nº Equipos:</string>
+              <string>Notas:</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -489,6 +489,11 @@ QPushButton:pressed {
                <height>25</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
             </widget>
            </item>
            <item>
@@ -508,7 +513,7 @@ QPushButton:pressed {
             </spacer>
            </item>
            <item>
-            <widget class="QLineEdit" name="NumItems_EditOrder">
+            <widget class="QTextEdit" name="Notes_EditOrder">
              <property name="minimumSize">
               <size>
                <width>175</width>
@@ -525,9 +530,6 @@ QPushButton:pressed {
               <font>
                <pointsize>10</pointsize>
               </font>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
@@ -665,7 +667,6 @@ QPushButton:pressed {
  <tabstops>
   <tabstop>NumOrder_EditOrder</tabstop>
   <tabstop>NewOffer_EditOrder</tabstop>
-  <tabstop>NumItems_EditOrder</tabstop>
   <tabstop>Button_EditOrder</tabstop>
   <tabstop>Button_Cancel</tabstop>
  </tabstops>
