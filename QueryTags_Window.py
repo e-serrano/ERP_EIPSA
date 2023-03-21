@@ -85,50 +85,8 @@ class Ui_QueryTags_Window(object):
         self.tableQueryTags = QtWidgets.QTableWidget(parent=self.frame)
         self.tableQueryTags.setAlternatingRowColors(False)
         self.tableQueryTags.setObjectName("tableQueryTags")
-        self.tableQueryTags.setColumnCount(7)
+        self.tableQueryTags.setColumnCount(0)
         self.tableQueryTags.setRowCount(0)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        item.setFont(font)
-        self.tableQueryTags.setHorizontalHeaderItem(0, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        item.setFont(font)
-        self.tableQueryTags.setHorizontalHeaderItem(1, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        item.setFont(font)
-        self.tableQueryTags.setHorizontalHeaderItem(2, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        item.setFont(font)
-        self.tableQueryTags.setHorizontalHeaderItem(3, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        item.setFont(font)
-        self.tableQueryTags.setHorizontalHeaderItem(4, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        item.setFont(font)
-        self.tableQueryTags.setHorizontalHeaderItem(5, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        item.setFont(font)
-        self.tableQueryTags.setHorizontalHeaderItem(6, item)
         self.gridLayout_2.addWidget(self.tableQueryTags, 3, 0, 1, 1)
         self.hLayout2 = QtWidgets.QHBoxLayout()
         self.hLayout2.setObjectName("hLayout2")
@@ -204,20 +162,6 @@ class Ui_QueryTags_Window(object):
         _translate = QtCore.QCoreApplication.translate
         QueryTags_Window.setWindowTitle(_translate("QueryTags_Window", "Consultar Tags"))
         self.tableQueryTags.setSortingEnabled(True)
-        item = self.tableQueryTags.horizontalHeaderItem(0)
-        item.setText(_translate("QueryTags_Window", "Nº Pedido"))
-        item = self.tableQueryTags.horizontalHeaderItem(1)
-        item.setText(_translate("QueryTags_Window", "Referencia"))
-        item = self.tableQueryTags.horizontalHeaderItem(2)
-        item.setText(_translate("QueryTags_Window", "Nº Oferta"))
-        item = self.tableQueryTags.horizontalHeaderItem(3)
-        item.setText(_translate("QueryTags_Window", "Cliente"))
-        item = self.tableQueryTags.horizontalHeaderItem(4)
-        item.setText(_translate("QueryTags_Window", "Cliente Final"))
-        item = self.tableQueryTags.horizontalHeaderItem(5)
-        item.setText(_translate("QueryTags_Window", "Tipo Equipo"))
-        item = self.tableQueryTags.horizontalHeaderItem(6)
-        item.setText(_translate("QueryTags_Window", "Importe (€)"))
         self.label_NumOffer.setText(_translate("QueryTags_Window", "Nº Oferta:"))
         self.Button_Query.setText(_translate("QueryTags_Window", "Buscar"))
         self.label_NumOrder.setText(_translate("QueryTags_Window", "Nº Pedido:"))
@@ -257,6 +201,10 @@ class Ui_QueryTags_Window(object):
             cur.execute("""SELECT * FROM ofertas""")
             results2=cur.fetchall()
             match2=list(filter(lambda x:numoffer in x, results2))
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
 
             if numorder !='' and len(match)==0:
                 dlg = QtWidgets.QMessageBox()
@@ -311,23 +259,13 @@ class Ui_QueryTags_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    
                     cur.execute(commands, data)
                     result_variable=cur.fetchall()
-                    print(result_variable)
                     if len(result_variable[0])==3:
                         variable=result_variable[0][2]
                     elif len(result_variable[0])==2:
                         variable=result_variable[0][1]
 
-                    if variable=='Caudal':
-                        print('a')
-                    elif variable=='Temperatura':
-                        print('b')
-                    elif variable=='Nivel':
-                        print('c')
-                    elif variable=='Otros':
-                        print('d')
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
@@ -338,25 +276,109 @@ class Ui_QueryTags_Window(object):
                     if conn is not None:
                         conn.close()
 
+                if variable=='Caudal':
+                    print('a')
+                    # commands = ("""
+                    #         SELECT *
+                    #         FROM tags_caudal
+                    #         WHERE (num_oferta LIKE '%%'||%s||'%%'
+                    #         AND
+                    #         num_pedido LIKE '%%'||%s||'%%'
+                    #         )
+                    #         ORDER BY tag
+                    #         """)
+                    # data=(numoffer,numorder,)
+                    commands = ("""
+                        SELECT *
+                        FROM pedidos
+                        WHERE num_oferta LIKE '%%'||%s||'%%'
+                        """)
+                    data=(numorder,)
 
-                    # self.tableQueryTags.setRowCount(len(results))
-                    # tablerow=0
-                    # for row in results:
-                    #     self.tableQueryTags.setItem(tablerow, 0, QtWidgets.QTableWidgetItem(str(row[0])))
-                    #     self.tableQueryTags.setItem(tablerow, 1, QtWidgets.QTableWidgetItem(str(row[1])))
-                    #     self.tableQueryTags.setItem(tablerow, 2, QtWidgets.QTableWidgetItem(str(row[2])))
-                    #     self.tableQueryTags.setItem(tablerow, 3, QtWidgets.QTableWidgetItem(str(row[3])))
-                    #     self.tableQueryTags.setItem(tablerow, 4, QtWidgets.QTableWidgetItem(str(row[4])))
-                    #     self.tableQueryTags.setItem(tablerow, 5, QtWidgets.QTableWidgetItem(str(row[5])))
-                    #     self.tableQueryTags.setItem(tablerow, 6, QtWidgets.QTableWidgetItem(str(row[6])))
+                elif variable=='Temperatura':
+                    print('b')
+                    # commands = ("""
+                    #         SELECT *
+                    #         FROM tags_temperatura
+                    #         WHERE (num_oferta LIKE '%%'||%s||'%%'
+                    #         AND
+                    #         num_pedido LIKE '%%'||%s||'%%'
+                    #         )
+                    #         ORDER BY tag
+                    #         """)
+                    # data=(numoffer,numorder,)
 
-                    #     tablerow+=1
+                elif variable=='Nivel':
+                    print('c')
+                    # commands = ("""
+                    #         SELECT *
+                    #         FROM tags_nivel
+                    #         WHERE (num_oferta LIKE '%%'||%s||'%%'
+                    #         AND
+                    #         num_pedido LIKE '%%'||%s||'%%'
+                    #         )
+                    #         ORDER BY tag
+                    #         """)
+                    # data=(numoffer,numorder,)
+                    commands = ("""
+                            SELECT *
+                            FROM ofertas
+                            WHERE num_oferta LIKE '%%'||%s||'%%'
+                            """)
+                    data=(numoffer,)
 
-                    # self.tableQueryTags.verticalHeader().hide()
-                    # self.tableQueryTags.setItemDelegate(AlignDelegate(self.tableQueryTags))
+                elif variable=='Otros':
+                    print('d')
+                    # commands = ("""
+                    #         SELECT *
+                    #         FROM tags_others
+                    #         WHERE (num_oferta LIKE '%%'||%s||'%%'
+                    #         AND
+                    #         num_pedido LIKE '%%'||%s||'%%'
+                    #         )
+                    #         ORDER BY tag
+                    #         """)
+                    # data=(numoffer,numorder,)
+
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands and savind results
+                    cur.execute(commands, data)
+                    results=cur.fetchall()
+                    field_names=[i[0] for i in cur.description]
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+                self.tableQueryTags.setRowCount(len(results))
+                self.tableQueryTags.setColumnCount(len(cur.description))
+                self.tableQueryTags.setHorizontalHeaderLabels(field_names)
+                tablerow=0
+                tablecolumn=0
+                for row in results:
+                    for column in field_names:
+                        self.tableQueryTags.setItem(tablerow, tablecolumn, QtWidgets.QTableWidgetItem(str(row[tablecolumn])))
+                        tablecolumn+=1
+
+                    tablerow+=1
+
+                self.tableQueryTags.verticalHeader().hide()
+                self.tableQueryTags.setItemDelegate(AlignDelegate(self.tableQueryTags))
+                self.tableQueryTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                self.tableQueryTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt}")
 
 
-                
 
 if __name__ == "__main__":
     import sys
