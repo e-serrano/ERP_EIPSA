@@ -8,17 +8,13 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import QtSql
+from Database_Connection import createConnection
 
 
-def createConnection():
-    db=QtSql.QSqlDatabase.addDatabase('QPSQL')
-    db.setHostName('10.1.20.252')
-    db.setDatabaseName('ERP_EIPSA')
-    db.setUserName('postgres')
-    db.setPassword('EIPS@0545$@!')
-    db.open()
-    print(db.lastError().text())
-    return True
+class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    def initStyleOption(self, option, index):
+        super(AlignDelegate, self).initStyleOption(option, index)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
 class Ui_EditTags_Window(object):
@@ -137,20 +133,9 @@ class Ui_EditTags_Window(object):
         self.Button_Query.setObjectName("Button_Query")
         self.hLayout2.addWidget(self.Button_Query)
         self.gridLayout_2.addLayout(self.hLayout2, 2, 0, 1, 1)
-
-        self.model = QtSql.QSqlTableModel()
-        self.model.setTable("ofertas")
-        self.query = QtSql.QSqlQuery()
-        self.query.exec("SELECT num_oferta, responsable FROM ofertas")
-        self.model.EditStrategy.OnFieldChange
         self.tableEditTags=QtWidgets.QTableView(parent=self.frame)
-        self.tableEditTags.setModel(self.model)
-
         self.tableEditTags.setObjectName("tableEditTags")
-
         self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
-        
-
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
@@ -165,6 +150,8 @@ class Ui_EditTags_Window(object):
 
         self.retranslateUi(EditTags_Window)
         QtCore.QMetaObject.connectSlotsByName(EditTags_Window)
+        self.Button_Clean.clicked.connect(self.clean_boxes)
+        self.Button_Query.clicked.connect(self.edit_tags)
 
 
     def retranslateUi(self, EditTags_Window):
@@ -175,6 +162,36 @@ class Ui_EditTags_Window(object):
         self.Button_Query.setText(_translate("EditTags_Window", "Buscar"))
         self.label_NumOrder.setText(_translate("EditTags_Window", "Nº Pedido:"))
         self.Button_Clean.setText(_translate("EditTags_Window", "Limpiar Filtros"))
+
+
+    def clean_boxes(self):
+        self.Numorder_EditTags.setText("")
+        self.Numoffer_EditTags.setText("")
+
+
+    def edit_tags(self):
+        numorder=self.Numorder_EditTags.text()
+        numoffer=self.Numoffer_EditTags.text()
+
+        self.model = QtSql.QSqlTableModel()
+        self.model.setTable("pedidos")
+        self.model.setFilter("num_oferta LIKE '%%'||'%s'||'%%' AND num_pedido LIKE '%%'||'%s'||'%%'" % (numoffer,numorder))
+        self.model.select()
+        self.model.EditStrategy.OnFieldChange
+
+        self.tableEditTags=QtWidgets.QTableView(parent=self.frame)
+        self.tableEditTags.setModel(self.model)
+
+        columns_number=self.model.columnCount()
+        for i in range(13,columns_number):
+            self.tableEditTags.hideColumn(i)
+
+        self.tableEditTags.verticalHeader().hide()
+        self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
+        self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt}")
+        self.tableEditTags.setObjectName("tableEditTags")
+        self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
 
 
 if __name__ == "__main__":

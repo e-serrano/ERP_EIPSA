@@ -22,7 +22,6 @@ class Ui_QueryOffer_Window(object):
         QueryOffer_Window.setObjectName("QueryOffer_Window")
         QueryOffer_Window.resize(845, 590)
         QueryOffer_Window.setMinimumSize(QtCore.QSize(845, 590))
-        QueryOffer_Window.setMaximumSize(QtCore.QSize(845, 590))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         QueryOffer_Window.setWindowIcon(icon)
@@ -349,82 +348,59 @@ class Ui_QueryOffer_Window(object):
             dlg.exec()
 
         else:
+            commands = ("""
+                        SELECT ofertas."num_oferta",ofertas."responsable",ofertas."estado",ofertas."num_ref_oferta",ofertas."cliente",ofertas."cliente_final",tipo_producto."variable",ofertas."importe"
+                        FROM ofertas
+                        INNER JOIN tipo_producto ON (ofertas."material"=tipo_producto."material")
+                        WHERE (UPPER(ofertas."num_oferta") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        UPPER(ofertas."num_ref_oferta") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        UPPER(ofertas."cliente") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        UPPER(ofertas."cliente_final") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        tipo_producto."variable" LIKE '%%'||%s||'%%'
+                        AND
+                        ofertas."year_oferta"::text LIKE '%%'||%s||'%%'
+                        )
+                        ORDER BY ofertas."num_oferta"
+                        """)
             conn = None
+            try:
             # read the connection parameters
-            params = config()
+                params = config()
             # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            cur.execute("""SELECT * FROM ofertas""")
-            results=cur.fetchall()
-            match=list(filter(lambda x:numoffer in x, results))
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                data=(numoffer,reference,client,finalclient,material,year,)
+                cur.execute(commands,data)
+                results=cur.fetchall()
+                self.tableQueryOffer.setRowCount(len(results))
+                tablerow=0
 
-            if numoffer !='' and len(match)==0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Consultar Oferta")
-                dlg.setText("El número de oferta introducido no existe")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
+                for row in results:
+                    for column in range(8):
+                        it=QtWidgets.QTableWidgetItem(str(row[column]))
+                        it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                        self.tableQueryOffer.setItem(tablerow, column, it)
 
-            else:
-                commands = ("""
-                            SELECT ofertas."num_oferta",ofertas."responsable",ofertas."estado",ofertas."num_ref_oferta",ofertas."cliente",ofertas."cliente_final",tipo_producto."variable",ofertas."importe"
-                            FROM ofertas
-                            INNER JOIN tipo_producto ON (ofertas."material"=tipo_producto."material")
-                            WHERE ("num_oferta" LIKE '%%'||%s||'%%'
-                            AND
-                            ofertas."num_ref_oferta" LIKE '%%'||%s||'%%'
-                            AND
-                            ofertas."cliente" LIKE '%%'||%s||'%%'
-                            AND
-                            ofertas."cliente_final" LIKE '%%'||%s||'%%'
-                            AND
-                            tipo_producto."variable" LIKE '%%'||%s||'%%'
-                            AND
-                            ofertas."year_oferta"::text LIKE '%%'||%s||'%%'
-                            )
-                            ORDER BY ofertas."num_oferta"
-                            """)
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    data=(numoffer,reference,client,finalclient,material,year,)
-                    cur.execute(commands,data)
-                    results=cur.fetchall()
-                    self.tableQueryOffer.setRowCount(len(results))
-                    tablerow=0
-                    for row in results:
-                        self.tableQueryOffer.setItem(tablerow, 0, QtWidgets.QTableWidgetItem(str(row[0])))
-                        self.tableQueryOffer.setItem(tablerow, 1, QtWidgets.QTableWidgetItem(str(row[1])))
-                        self.tableQueryOffer.setItem(tablerow, 2, QtWidgets.QTableWidgetItem(str(row[2])))
-                        self.tableQueryOffer.setItem(tablerow, 3, QtWidgets.QTableWidgetItem(str(row[3])))
-                        self.tableQueryOffer.setItem(tablerow, 4, QtWidgets.QTableWidgetItem(str(row[4])))
-                        self.tableQueryOffer.setItem(tablerow, 5, QtWidgets.QTableWidgetItem(str(row[5])))
-                        self.tableQueryOffer.setItem(tablerow, 6, QtWidgets.QTableWidgetItem(str(row[6])))
-                        self.tableQueryOffer.setItem(tablerow, 7, QtWidgets.QTableWidgetItem(str(row[7])))
+                    tablerow+=1
 
-                        tablerow+=1
+                self.tableQueryOffer.verticalHeader().hide()
+                self.tableQueryOffer.setItemDelegate(AlignDelegate(self.tableQueryOffer))
 
-                    self.tableQueryOffer.verticalHeader().hide()
-                    self.tableQueryOffer.setItemDelegate(AlignDelegate(self.tableQueryOffer))
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
 
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-                except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
-                finally:
-                    if conn is not None:
-                        conn.close()
 
 
 if __name__ == "__main__":

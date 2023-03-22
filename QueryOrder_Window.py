@@ -22,7 +22,6 @@ class Ui_QueryOrder_Window(object):
         QueryOrder_Window.setObjectName("QueryOrder_Window")
         QueryOrder_Window.resize(790, 595)
         QueryOrder_Window.setMinimumSize(QtCore.QSize(790, 595))
-        QueryOrder_Window.setMaximumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         QueryOrder_Window.setWindowIcon(icon)
@@ -383,86 +382,63 @@ class Ui_QueryOrder_Window(object):
             dlg.exec()
 
         else:
+            commands = ("""
+                        SELECT pedidos."num_pedido",pedidos."num_oferta",pedidos."num_ref_pedido",ofertas."cliente",ofertas."cliente_final",tipo_producto."variable",pedidos."importe"
+                        FROM ofertas
+                        INNER JOIN pedidos ON (ofertas."num_oferta"=pedidos."num_oferta")
+                        INNER JOIN tipo_producto ON (ofertas."material"=tipo_producto."material")
+                        WHERE (UPPER(pedidos."num_pedido") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        UPPER(pedidos."num_oferta") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        UPPER(pedidos."num_ref_pedido") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        UPPER(ofertas."cliente") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        UPPER(ofertas."cliente_final") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        tipo_producto."variable" LIKE '%%'||%s||'%%'
+                        AND
+                        pedidos."importe"::text LIKE '%%'||%s||'%%'
+                        AND
+                        pedidos."year_pedido"::text LIKE '%%'||%s||'%%'
+                        )
+                        ORDER BY pedidos."num_pedido"
+                        """)
             conn = None
+            try:
             # read the connection parameters
-            params = config()
+                params = config()
             # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            cur.execute("""SELECT * FROM pedidos""")
-            results=cur.fetchall()
-            match=list(filter(lambda x:numoffer in x, results))
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                data=(numorder,numoffer,ref,client,finalclient,eqtype,amount,year,)
+                cur.execute(commands, data)
+                results=cur.fetchall()
+                self.tableQueryOrder.setRowCount(len(results))
+                tablerow=0
 
-            if numoffer !='' and len(match)==0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Consultar Pedido")
-                dlg.setText("El número de pedido introducido no existe")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-            
-            else:
-                commands = ("""
-                            SELECT pedidos."num_pedido",pedidos."num_oferta",pedidos."num_ref_pedido",ofertas."cliente",ofertas."cliente_final",tipo_producto."variable",pedidos."importe"
-                            FROM ofertas
-                            INNER JOIN pedidos ON (ofertas."num_oferta"=pedidos."num_oferta")
-                            INNER JOIN tipo_producto ON (ofertas."material"=tipo_producto."material")
-                            WHERE (pedidos."num_pedido" LIKE '%%'||%s||'%%'
-                            AND
-                            pedidos."num_oferta" LIKE '%%'||%s||'%%'
-                            AND
-                            pedidos."num_ref_pedido" LIKE '%%'||%s||'%%'
-                            AND
-                            ofertas."cliente" LIKE '%%'||%s||'%%'
-                            AND
-                            ofertas."cliente_final" LIKE '%%'||%s||'%%'
-                            AND
-                            tipo_producto."variable" LIKE '%%'||%s||'%%'
-                            AND
-                            pedidos."importe"::text LIKE '%%'||%s||'%%'
-                            AND
-                            pedidos."year_pedido"::text LIKE '%%'||%s||'%%'
-                            )
-                            ORDER BY pedidos."num_pedido"
-                            """)
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    data=(numorder,numoffer,ref,client,finalclient,eqtype,amount,year,)
-                    cur.execute(commands, data)
-                    results=cur.fetchall()
-                    self.tableQueryOrder.setRowCount(len(results))
-                    tablerow=0
-                    for row in results:
-                        self.tableQueryOrder.setItem(tablerow, 0, QtWidgets.QTableWidgetItem(str(row[0])))
-                        self.tableQueryOrder.setItem(tablerow, 1, QtWidgets.QTableWidgetItem(str(row[1])))
-                        self.tableQueryOrder.setItem(tablerow, 2, QtWidgets.QTableWidgetItem(str(row[2])))
-                        self.tableQueryOrder.setItem(tablerow, 3, QtWidgets.QTableWidgetItem(str(row[3])))
-                        self.tableQueryOrder.setItem(tablerow, 4, QtWidgets.QTableWidgetItem(str(row[4])))
-                        self.tableQueryOrder.setItem(tablerow, 5, QtWidgets.QTableWidgetItem(str(row[5])))
-                        self.tableQueryOrder.setItem(tablerow, 6, QtWidgets.QTableWidgetItem(str(row[6])))
+                for row in results:
+                    for column in range(7):
+                        it=QtWidgets.QTableWidgetItem(str(row[column]))
+                        it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                        self.tableQueryOrder.setItem(tablerow, column, it)
 
-                        tablerow+=1
+                    tablerow+=1
 
-                    self.tableQueryOrder.verticalHeader().hide()
-                    self.tableQueryOrder.setItemDelegate(AlignDelegate(self.tableQueryOrder))
+                self.tableQueryOrder.verticalHeader().hide()
+                self.tableQueryOrder.setItemDelegate(AlignDelegate(self.tableQueryOrder))
 
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-                except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
-                finally:
-                    if conn is not None:
-                        conn.close()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
 
 
 

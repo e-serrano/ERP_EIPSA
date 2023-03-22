@@ -8,10 +8,10 @@
 
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
-from App_Comercial import Ui_App_Comercial
-from ForgetPass_Window import Ui_ForgetPass_Window
 import psycopg2
 from config import config
+from App_Comercial import Ui_App_Comercial
+from ForgetPass_Window import Ui_ForgetPass_Window
 
 
 class Ui_Login_Window(object):
@@ -340,6 +340,17 @@ class Ui_Login_Window(object):
                 self.app_window=QtWidgets.QMainWindow()
                 if rol_app=='Comercial':
                     self.ui=Ui_App_Comercial(match[0][1]+' '+match[0][2]) #cambiar por app_window cuando esté lista y abrir una u otra en función de perfil
+
+                else:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("La aplicación no está disponible para este usuario. Disculpe las molestias")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+
                 self.ui.setupUi(self.app_window)
                 Login_Window.close()
                 self.app_window.show()

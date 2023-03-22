@@ -22,7 +22,6 @@ class Ui_QueryTags_Window(object):
         QueryTags_Window.setObjectName("QueryTags_Window")
         QueryTags_Window.resize(790, 595)
         QueryTags_Window.setMinimumSize(QtCore.QSize(790, 595))
-        QueryTags_Window.setMaximumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         QueryTags_Window.setWindowIcon(icon)
@@ -196,11 +195,11 @@ class Ui_QueryTags_Window(object):
             cur = conn.cursor()
             cur.execute("""SELECT * FROM pedidos""")
             results=cur.fetchall()
-            match=list(filter(lambda x:numorder in x, results))
+            match=list(filter(lambda x:numorder.upper() in x, results))
 
             cur.execute("""SELECT * FROM ofertas""")
             results2=cur.fetchall()
-            match2=list(filter(lambda x:numoffer in x, results2))
+            match2=list(filter(lambda x:numoffer.upper() in x, results2))
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
@@ -232,7 +231,7 @@ class Ui_QueryTags_Window(object):
                                 SELECT ofertas."num_oferta",tipo_producto."variable"
                                 FROM ofertas
                                 INNER JOIN tipo_producto ON (ofertas."material"=tipo_producto."material")
-                                WHERE ofertas."num_oferta" LIKE '%%'||%s||'%%'
+                                WHERE UPPER(ofertas."num_oferta") LIKE UPPER('%%'||%s||'%%')
                                 ORDER BY ofertas."num_oferta"
                                 """)
                     data=(numoffer,)
@@ -243,9 +242,9 @@ class Ui_QueryTags_Window(object):
                                 FROM ofertas
                                 INNER JOIN pedidos ON (ofertas."num_oferta"=pedidos."num_oferta")
                                 INNER JOIN tipo_producto ON (ofertas."material"=tipo_producto."material")
-                                WHERE (pedidos."num_oferta" LIKE '%%'||%s||'%%'
+                                WHERE (UPPER(pedidos."num_oferta") LIKE UPPER('%%'||%s||'%%')
                                 AND
-                                pedidos."num_pedido" LIKE '%%'||%s||'%%'
+                                UPPER(pedidos."num_pedido") LIKE UPPER('%%'||%s||'%%')
                                 )
                                 ORDER BY pedidos."num_pedido"
                                 """)
@@ -291,7 +290,7 @@ class Ui_QueryTags_Window(object):
                     commands = ("""
                         SELECT *
                         FROM pedidos
-                        WHERE num_oferta LIKE '%%'||%s||'%%'
+                        WHERE UPPER(num_oferta) LIKE UPPER('%%'||%s||'%%')
                         """)
                     data=(numorder,)
 
@@ -323,7 +322,7 @@ class Ui_QueryTags_Window(object):
                     commands = ("""
                             SELECT *
                             FROM ofertas
-                            WHERE num_oferta LIKE '%%'||%s||'%%'
+                            WHERE UPPER(num_oferta) LIKE UPPER('%%'||%s||'%%')
                             """)
                     data=(numoffer,)
 
@@ -368,7 +367,9 @@ class Ui_QueryTags_Window(object):
                 tablecolumn=0
                 for row in results:
                     for column in field_names:
-                        self.tableQueryTags.setItem(tablerow, tablecolumn, QtWidgets.QTableWidgetItem(str(row[tablecolumn])))
+                        it=QtWidgets.QTableWidgetItem(str(row[tablecolumn]))
+                        it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                        self.tableQueryTags.setItem(tablerow, tablecolumn, it)
                         tablecolumn+=1
 
                     tablerow+=1
