@@ -115,7 +115,7 @@ class Ui_EditUser_Menu(object):
     def retranslateUi(self, EditUser_Menu):
         _translate = QtCore.QCoreApplication.translate
         EditUser_Menu.setWindowTitle(_translate("EditUser_Menu", "Editar Usuarios"))
-        self.Button_Register.setText(_translate("EditUser_Menu", "Registrar_Usuario"))
+        self.Button_Register.setText(_translate("EditUser_Menu", "Registrar Usuario"))
         self.Button_Delete.setText(_translate("EditUser_Menu", "Eliminar Usuario"))
         self.Button_Cancel.setText(_translate("EditUser_Menu", "Cancelar"))
 

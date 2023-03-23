@@ -8,6 +8,7 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import QtSql
+import configparser
 from Database_Connection import createConnection
 
 
@@ -194,11 +195,21 @@ class Ui_EditTags_Window(object):
         self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
 
 
+
 if __name__ == "__main__":
     import sys
-    app = QtWidgets.QApplication(sys.argv)
-    if not createConnection():
+
+    config_obj = configparser.ConfigParser()
+    config_obj.read("database.ini")
+    dbparam = config_obj["postgresql"]
+    # set your parameters for the database connection URI using the keys from the configfile.ini
+    user = dbparam["user"]
+    password = dbparam["password"]
+
+    if not createConnection(user,password):
         sys.exit()
+
+    app = QtWidgets.QApplication(sys.argv)
     EditTags_Window = QtWidgets.QMainWindow()
     ui = Ui_EditTags_Window()
     ui.setupUi(EditTags_Window)

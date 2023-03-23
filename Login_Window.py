@@ -12,6 +12,8 @@ import psycopg2
 from config import config
 from App_Comercial import Ui_App_Comercial
 from ForgetPass_Window import Ui_ForgetPass_Window
+import configparser
+
 
 
 class Ui_Login_Window(object):
@@ -105,7 +107,7 @@ class Ui_Login_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.username_login.setFont(font)
-        self.username_login.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.username_login.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.username_login.setObjectName("username_login")
         self.verticalLayout.addWidget(self.username_login)
         spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -140,7 +142,7 @@ class Ui_Login_Window(object):
         font.setPointSize(10)
         self.password_login.setFont(font)
         self.password_login.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
-        self.password_login.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.password_login.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.password_login.setObjectName("password_login")
         self.verticalLayout.addWidget(self.password_login)
         spacerItem3 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -341,6 +343,7 @@ class Ui_Login_Window(object):
                 if rol_app=='Comercial':
                     self.ui=Ui_App_Comercial(match[0][1]+' '+match[0][2]) #cambiar por app_window cuando esté lista y abrir una u otra en función de perfil
 
+
                 else:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
@@ -350,6 +353,18 @@ class Ui_Login_Window(object):
                     dlg.setText("La aplicación no está disponible para este usuario. Disculpe las molestias")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                     dlg.exec()
+
+            # editing the database.ini file for each user
+                edit = configparser.ConfigParser()
+                edit.read("database.ini")
+            #Get the postgresql section
+                postgresql = edit["postgresql"]
+            #Update the user and password
+                postgresql["user"] = login_username
+                postgresql["password"] = login_password
+            #Write changes back to file
+                with open('database.ini', 'w') as configfile:
+                    edit.write(configfile)
 
                 self.ui.setupUi(self.app_window)
                 Login_Window.close()

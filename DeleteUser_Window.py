@@ -10,6 +10,8 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
 
+
+
 class Ui_DeleteUser_Window(object):
     def setupUi(self, ForgetPass_Window):
         ForgetPass_Window.setObjectName("ForgetPass_Window")
@@ -233,6 +235,8 @@ class Ui_DeleteUser_Window(object):
                 self.email_deleteuser.setText('')
 
                 del dlg, new_icon
+
+
 
 if __name__ == "__main__":
     import sys
