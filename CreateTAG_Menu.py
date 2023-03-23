@@ -8,7 +8,7 @@
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 from ImportTAG_Window import Ui_ImportTAG_Window
-from TypeTAG_Menu import Ui_TypeTag_Menu
+from TypeTAGCreation_Menu import Ui_TypeTagCreation_Menu
 
 
 class Ui_CreateTag_Menu(object):
@@ -126,7 +126,7 @@ class Ui_CreateTag_Menu(object):
 
     def create_tag(self,Create_Tag_Menu):
         self.typetag_window=QtWidgets.QMainWindow()
-        self.ui=Ui_TypeTag_Menu()
+        self.ui=Ui_TypeTagCreation_Menu()
         self.ui.setupUi(self.typetag_window)
         self.typetag_window.show()
         Create_Tag_Menu.hide()

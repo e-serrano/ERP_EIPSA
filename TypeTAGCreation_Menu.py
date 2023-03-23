@@ -13,7 +13,7 @@ from CreateTAGTemp_Window import Ui_CreateTAGTemp_Window
 from CreateTAGNiv_Window import Ui_CreateTAGNiv_Window
 
 
-class Ui_TypeTag_Menu(object):
+class Ui_TypeTagCreation_Menu(object):
     def setupUi(self, TypeTag_Menu):
         TypeTag_Menu.setObjectName("Type_Tag_Menu")
         TypeTag_Menu.setWindowModality(QtCore.Qt.WindowModality.WindowModal)
@@ -177,7 +177,7 @@ class Ui_TypeTag_Menu(object):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     TypeTag_Menu = QtWidgets.QMainWindow()
-    ui = Ui_TypeTag_Menu()
+    ui = Ui_TypeTagCreation_Menu()
     ui.setupUi(TypeTag_Menu)
     TypeTag_Menu.show()
     sys.exit(app.exec())
