@@ -35,12 +35,12 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
 
 class Ui_App_Comercial(object):
-    def __init__(self,username):
-        self.user=username
+    # def __init__(self,username):
+    #     self.user=username
 
 
     def setupUi(self, App_Comercial):
-        # self.user='Enrique Serrano'
+        self.user='Enrique Serrano'
         App_Comercial.setObjectName("App_Comercial")
         App_Comercial.resize(945, 860)
         App_Comercial.setMinimumSize(QtCore.QSize(945, 860))

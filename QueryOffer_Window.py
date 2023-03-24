@@ -271,6 +271,7 @@ class Ui_QueryOffer_Window(object):
         font.setBold(True)
         item.setFont(font)
         self.tableQueryOffer.setHorizontalHeaderItem(8, item)
+        self.tableQueryOffer.setSortingEnabled(True)
         self.gridLayout_2.addWidget(self.tableQueryOffer, 7, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         QueryOffer_Window.setCentralWidget(self.centralwidget)
@@ -290,6 +291,7 @@ class Ui_QueryOffer_Window(object):
 
         list_material=['','Caudal','Temperatura','Nivel','Otros']
         self.Material_QueryOffer.addItems(list_material)
+
 
     def retranslateUi(self, QueryOffer_Window):
         _translate = QtCore.QCoreApplication.translate

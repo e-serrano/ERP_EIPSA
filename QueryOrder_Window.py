@@ -297,6 +297,7 @@ class Ui_QueryOrder_Window(object):
         font.setBold(True)
         item.setFont(font)
         self.tableQueryOrder.setHorizontalHeaderItem(6, item)
+        self.tableQueryOrder.setSortingEnabled(True)
         self.gridLayout_2.addWidget(self.tableQueryOrder, 8, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         QueryOrder_Window.setCentralWidget(self.centralwidget)

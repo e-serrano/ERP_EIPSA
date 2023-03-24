@@ -8,6 +8,7 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import QtSql
+import re
 import configparser
 from Database_Connection import createConnection
 
@@ -26,15 +27,46 @@ class Ui_EditTags_Window(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditTags_Window.setWindowIcon(icon)
-        EditTags_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
+        EditTags_Window.setStyleSheet(
 ".QFrame {\n"
 "    border: 2px solid black;\n"
-"}\n"
-"\n"
-"QPushButton {\n"
+"}")
+        self.centralwidget = QtWidgets.QWidget(parent=EditTags_Window)
+        self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.centralwidget.setObjectName("centralwidget")
+        self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout.setObjectName("gridLayout")
+        self.frame = QtWidgets.QFrame(parent=self.centralwidget)
+        self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
+        self.frame.setObjectName("frame")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
+        self.gridLayout_2.setVerticalSpacing(10)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.hLayout1 = QtWidgets.QHBoxLayout()
+        self.hLayout1.setObjectName("hLayout1")
+        self.label_NumOrder = QtWidgets.QLabel(parent=self.frame)
+        self.label_NumOrder.setMinimumSize(QtCore.QSize(80, 25))
+        self.label_NumOrder.setMaximumSize(QtCore.QSize(80, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_NumOrder.setFont(font)
+        self.label_NumOrder.setObjectName("label_NumOrder")
+        self.hLayout1.addWidget(self.label_NumOrder)
+        self.Numorder_EditTags = QtWidgets.QLineEdit(parent=self.frame)
+        self.Numorder_EditTags.setMinimumSize(QtCore.QSize(250, 25))
+        self.Numorder_EditTags.setMaximumSize(QtCore.QSize(250, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Numorder_EditTags.setFont(font)
+        self.Numorder_EditTags.setObjectName("Numorder_EditTags")
+        self.hLayout1.addWidget(self.Numorder_EditTags)
+        self.Button_Clean = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Clean.setMinimumSize(QtCore.QSize(150, 35))
+        self.Button_Clean.setMaximumSize(QtCore.QSize(150, 35))
+        self.Button_Clean.setAutoDefault(True)
+        self.Button_Clean.setStyleSheet("QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
 "  border-radius: 3px;\n"
@@ -71,40 +103,6 @@ class Ui_EditTags_Window(object):
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
 "}")
-        self.centralwidget = QtWidgets.QWidget(parent=EditTags_Window)
-        self.centralwidget.setObjectName("centralwidget")
-        self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
-        self.gridLayout.setObjectName("gridLayout")
-        self.frame = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
-        self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
-        self.frame.setObjectName("frame")
-        self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
-        self.gridLayout_2.setVerticalSpacing(10)
-        self.gridLayout_2.setObjectName("gridLayout_2")
-        self.hLayout1 = QtWidgets.QHBoxLayout()
-        self.hLayout1.setObjectName("hLayout1")
-        self.label_NumOrder = QtWidgets.QLabel(parent=self.frame)
-        self.label_NumOrder.setMinimumSize(QtCore.QSize(80, 25))
-        self.label_NumOrder.setMaximumSize(QtCore.QSize(80, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_NumOrder.setFont(font)
-        self.label_NumOrder.setObjectName("label_NumOrder")
-        self.hLayout1.addWidget(self.label_NumOrder)
-        self.Numorder_EditTags = QtWidgets.QLineEdit(parent=self.frame)
-        self.Numorder_EditTags.setMinimumSize(QtCore.QSize(250, 25))
-        self.Numorder_EditTags.setMaximumSize(QtCore.QSize(250, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Numorder_EditTags.setFont(font)
-        self.Numorder_EditTags.setObjectName("Numorder_EditTags")
-        self.hLayout1.addWidget(self.Numorder_EditTags)
-        self.Button_Clean = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Clean.setMinimumSize(QtCore.QSize(150, 35))
-        self.Button_Clean.setMaximumSize(QtCore.QSize(150, 35))
-        self.Button_Clean.setAutoDefault(True)
         self.Button_Clean.setObjectName("Button_Clean")
         self.hLayout1.addWidget(self.Button_Clean)
         self.gridLayout_2.addLayout(self.hLayout1, 1, 0, 1, 1)
@@ -131,6 +129,43 @@ class Ui_EditTags_Window(object):
         self.Button_Query.setMinimumSize(QtCore.QSize(150, 35))
         self.Button_Query.setMaximumSize(QtCore.QSize(150, 35))
         self.Button_Query.setAutoDefault(True)
+        self.Button_Query.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 8px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:focus {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255)\n"
+"}\n"
+"\n"
+"QPushButton:focus:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
         self.Button_Query.setObjectName("Button_Query")
         self.hLayout2.addWidget(self.Button_Query)
         self.gridLayout_2.addLayout(self.hLayout2, 2, 0, 1, 1)
@@ -180,8 +215,11 @@ class Ui_EditTags_Window(object):
         self.model.select()
         self.model.EditStrategy.OnFieldChange
 
+        self.proxy = QtCore.QSortFilterProxyModel(self.tableEditTags)
+        self.proxy.setSourceModel(self.model)
+
         self.tableEditTags=QtWidgets.QTableView(parent=self.frame)
-        self.tableEditTags.setModel(self.model)
+        self.tableEditTags.setModel(self.proxy)
 
         columns_number=self.model.columnCount()
         for i in range(13,columns_number):
@@ -193,6 +231,66 @@ class Ui_EditTags_Window(object):
         self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt}")
         self.tableEditTags.setObjectName("tableEditTags")
         self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
+        self.tableEditTags.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked)
+
+
+    def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
+        self.logicalIndex   = logicalIndex
+        self.menuValues     = QtWidgets.QMenu(self.tableEditTags)
+        self.signalMapper   = QtCore.QSignalMapper(self.tableEditTags)  
+
+        valuesUnique = []
+        for row in range(self.model.rowCount()):
+            value = self.model.record(row).value(self.logicalIndex)
+            if value not in valuesUnique:
+                if isinstance(value, QtCore.QDate):
+                    value=value.toString("dd/MM/yyyy")
+                valuesUnique.append(str(value))
+
+        actionAll = QtGui.QAction("All", self.tableEditTags)
+        actionAll.triggered.connect(self.on_actionAll_triggered)
+        self.menuValues.addAction(actionAll)
+        self.menuValues.addSeparator()
+
+        for actionNumber, actionName in enumerate(sorted(list(set(valuesUnique)))):              
+            action = QtGui.QAction(str(actionName), self.tableEditTags)
+            self.signalMapper.setMapping(action, actionNumber)  
+            action.triggered.connect(self.signalMapper.map)  
+            self.menuValues.addAction(action)
+
+        self.menuValues.setStyleSheet("QMenu { color: black; }"
+"QMenu::item:selected { background-color: #33bdef; }"
+"QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        self.signalMapper.mappedInt.connect(self.on_signalMapper_mapped)  
+
+        headerPos = self.tableEditTags.mapToGlobal(self.tableEditTags.horizontalHeader().pos())        
+
+        posY = headerPos.y() + self.tableEditTags.horizontalHeader().height()
+        posX = headerPos.x() + self.tableEditTags.horizontalHeader().sectionPosition(self.logicalIndex)
+
+        self.menuValues.exec(QtCore.QPoint(posX, posY))
+
+
+    def on_actionAll_triggered(self):
+        filterColumn = self.logicalIndex
+        filterString = QtCore.QRegularExpression("", QtCore.QRegularExpression.PatternOption(0))
+
+        self.proxy.setFilterRegularExpression(filterString)
+        self.proxy.setFilterKeyColumn(filterColumn)
+
+
+    def on_signalMapper_mapped(self, i):
+        stringAction = self.signalMapper.mapping(i).text()
+        filterColumn = self.logicalIndex
+
+        if re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', stringAction):
+            stringAction=QtCore.QDate.fromString(stringAction,"dd/MM/yyyy")
+            stringAction=stringAction.toString("yyyy-MM-dd")
+
+        filterString = QtCore.QRegularExpression(stringAction, QtCore.QRegularExpression.PatternOption(0))
+
+        self.proxy.setFilterRegularExpression(filterString)
+        self.proxy.setFilterKeyColumn(filterColumn)
 
 
 

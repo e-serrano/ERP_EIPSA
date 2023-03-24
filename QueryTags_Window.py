@@ -86,6 +86,7 @@ class Ui_QueryTags_Window(object):
         self.tableQueryTags.setObjectName("tableQueryTags")
         self.tableQueryTags.setColumnCount(0)
         self.tableQueryTags.setRowCount(0)
+        self.tableQueryTags.setSortingEnabled(True)
         self.gridLayout_2.addWidget(self.tableQueryTags, 3, 0, 1, 1)
         self.hLayout2 = QtWidgets.QHBoxLayout()
         self.hLayout2.setObjectName("hLayout2")
