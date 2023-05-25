@@ -202,7 +202,7 @@ class Ui_ForgetPass_Window(object):
             user=match[0][3]
             password=match[0][5]
             sender_email = "erp.eipsa@gmail.com"
-            sender_password = "skufbrfxofwhkizk"
+            sender_password = "Eips@123"
             subject = "Recordar contraseña ERP"
             body = """
             <html>

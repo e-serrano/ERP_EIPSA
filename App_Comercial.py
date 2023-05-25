@@ -35,12 +35,12 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
 
 class Ui_App_Comercial(object):
-    # def __init__(self,username):
-    #     self.user=username
+    def __init__(self,username):
+        self.user=username
 
 
     def setupUi(self, App_Comercial):
-        self.user='Enrique Serrano'
+        #self.user='Enrique Serrano'
         App_Comercial.setObjectName("App_Comercial")
         App_Comercial.resize(945, 860)
         App_Comercial.setMinimumSize(QtCore.QSize(945, 860))
@@ -460,102 +460,105 @@ class Ui_App_Comercial(object):
         self.BottomLayout = QtWidgets.QHBoxLayout()
         self.BottomLayout.setContentsMargins(-1, 0, -1, -1)
         self.BottomLayout.setObjectName("BottomLayout")
-
-        commands = ("""
-                    SELECT "mes_oferta", CAST(SUM("importe") AS numeric)
-                    FROM ofertas
-                    WHERE ("responsable"=%s
-                    AND
-                    "year_oferta"=%s
-                    AND
-                    "estado"='Adjudicada')
-                    GROUP BY "mes_oferta"
-                    ORDER BY "mes_oferta"
-                    """)
-        conn = None
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            data=(self.user[0] + self.user[self.user.find(' ')+1], date.today().year,)
-            cur.execute(commands, data)
-            results=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-        finally:
-            if conn is not None:
-                conn.close()
-        
-        months=[int(x[0]) for x in results]
-        amounts=[float(x[1]) for x in results]
-        self.canvas=FigureCanvas(Figure())
-        ax=self.canvas.figure.subplots()
-        ax.plot(months,amounts)
-        ax.set_xticks(range(1,13))
-        ax.set_title('Ventas totales año actual')
-        ax.set_xlabel('Mes')
-        ax.set_ylabel('Importe (€)')
-        
-        self.canvas.setMinimumSize(QtCore.QSize(200, 400))
-        self.canvas.setMaximumSize(QtCore.QSize(583, 400))
+            commands = ("""
+                        SELECT "mes_oferta", CAST(SUM("importe") AS numeric)
+                        FROM ofertas
+                        WHERE ("responsable"=%s
+                        AND
+                        "year_oferta"=%s
+                        AND
+                        "estado"='Adjudicada')
+                        GROUP BY "mes_oferta"
+                        ORDER BY "mes_oferta"
+                        """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                data=(self.user[0] + self.user[self.user.find(' ')+1], date.today().year,)
+                cur.execute(commands, data)
+                results=cur.fetchall()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
+            
+            months=[int(x[0]) for x in results]
+            amounts=[float(x[1]) for x in results]
+            self.canvas=FigureCanvas(Figure())
+            ax=self.canvas.figure.subplots()
+            ax.plot(months,amounts)
+            ax.set_xticks(range(1,13))
+            ax.set_title('Ventas totales año actual')
+            ax.set_xlabel('Mes')
+            ax.set_ylabel('Importe (€)')
+            
+            self.canvas.setMinimumSize(QtCore.QSize(200, 400))
+            self.canvas.setMaximumSize(QtCore.QSize(583, 400))
 
-        self.canvas.setObjectName("Graph1")
-        self.BottomLayout.addWidget(self.canvas)
+            self.canvas.setObjectName("Graph1")
+            self.BottomLayout.addWidget(self.canvas)
 
-        spacerItem7 = QtWidgets.QSpacerItem(15, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.BottomLayout.addItem(spacerItem7)
+            spacerItem7 = QtWidgets.QSpacerItem(15, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.BottomLayout.addItem(spacerItem7)
 
-        commands = ("""
-                    SELECT COUNT(ofertas."num_oferta"), tipo_producto."variable"
-                    FROM ofertas
-                    INNER JOIN tipo_producto ON (ofertas."material"=tipo_producto."material")
-                    WHERE ("responsable"=%s
-                    AND
-                    "year_oferta"=%s
-                    AND
-                    "estado"='Adjudicada')
-                    GROUP BY tipo_producto."variable"
-                    """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            data=(self.user[0] + self.user[self.user.find(' ')+1], date.today().year,)
-            cur.execute(commands, data)
-            results2=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-        finally:
-            if conn is not None:
-                conn.close()
-        
-        
-        count=[x[0] for x in results2]
-        labels=[x[1] for x in results2]
-        self.canvas2=FigureCanvas(Figure())
-        bx=self.canvas2.figure.subplots()
-        bx.pie(count,labels=labels,autopct='%1.1f%%')
-        bx.set_title('Proporción equipos vendidos')
+            commands = ("""
+                        SELECT COUNT(ofertas."num_oferta"), tipo_producto."variable"
+                        FROM ofertas
+                        INNER JOIN tipo_producto ON (ofertas."material"=tipo_producto."material")
+                        WHERE ("responsable"=%s
+                        AND
+                        "year_oferta"=%s
+                        AND
+                        "estado"='Adjudicada')
+                        GROUP BY tipo_producto."variable"
+                        """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                data=(self.user[0] + self.user[self.user.find(' ')+1], date.today().year,)
+                cur.execute(commands, data)
+                results2=cur.fetchall()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
+            
+            
+            count=[x[0] for x in results2]
+            labels=[x[1] for x in results2]
+            self.canvas2=FigureCanvas(Figure())
+            bx=self.canvas2.figure.subplots()
+            bx.pie(count,labels=labels,autopct='%1.1f%%')
+            bx.set_title('Proporción equipos vendidos')
 
-        self.canvas2.setMinimumSize(QtCore.QSize(200, 400))
-        self.canvas2.setMaximumSize(QtCore.QSize(583, 400))
-        self.canvas2.setObjectName("canvas2")
-        self.BottomLayout.addWidget(self.canvas2)
+            self.canvas2.setMinimumSize(QtCore.QSize(200, 400))
+            self.canvas2.setMaximumSize(QtCore.QSize(583, 400))
+            self.canvas2.setObjectName("canvas2")
+            self.BottomLayout.addWidget(self.canvas2)
+
+        except:
+            pass
 
         spacerItem8 = QtWidgets.QSpacerItem(15, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.BottomLayout.addItem(spacerItem8)

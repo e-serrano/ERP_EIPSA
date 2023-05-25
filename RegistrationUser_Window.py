@@ -12,7 +12,7 @@ import psycopg2
 from config import config
 from PyQt6 import QtSql
 from Database_Connection import createConnection
-
+from passlib.hash import scram
 
 
 class Ui_RegistrationWindow(object):
@@ -434,16 +434,7 @@ class Ui_RegistrationWindow(object):
                         cur.close()
                     # commit the changes
                         conn.commit()
-                    # query = QtSql.QSqlQuery()
-                    # query.prepare("INSERT INTO datos_registro (id_registro, nombre, apellido, username, email, password, perfil) "
-                    #             "VALUES (DEFAULT, ?, ?, ?, ?, ?, ?)")
-                    # query.addBindValue(reg_name)
-                    # query.addBindValue(reg_secondname)
-                    # query.addBindValue(reg_username)
-                    # query.addBindValue(reg_email)
-                    # query.addBindValue(reg_password)
-                    # query.addBindValue(reg_rol)
-                    # query.exec()
+
 
                     # showing success window
                         dlg = QtWidgets.QMessageBox()
