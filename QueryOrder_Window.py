@@ -357,6 +357,7 @@ class Ui_QueryOrder_Window(object):
         self.Finalclient_QueryOrder.setText("")
         self.Ref_QueryOrder.setText("")
         self.Amount_QueryOrder.setText("")
+        self.EqType_QueryOrder.setCurrentText("")
 
 
     def query_order(self):
@@ -420,6 +421,7 @@ class Ui_QueryOrder_Window(object):
                 self.tableQueryOrder.setRowCount(len(results))
                 tablerow=0
 
+            # fill the Qt Table with the query results
                 for row in results:
                     for column in range(7):
                         it=QtWidgets.QTableWidgetItem(str(row[column]))

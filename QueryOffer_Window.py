@@ -328,6 +328,7 @@ class Ui_QueryOffer_Window(object):
         self.Year_QueryOffer.setText("")
         self.FinalClient_QueryOffer.setText("")
         self.Ref_QueryOffer.setText("")
+        self.Material_QueryOffer.setCurrentText("")
 
 
     def query_offer(self):
@@ -382,6 +383,7 @@ class Ui_QueryOffer_Window(object):
                 self.tableQueryOffer.setRowCount(len(results))
                 tablerow=0
 
+            # fill the Qt Table with the query results
                 for row in results:
                     for column in range(8):
                         it=QtWidgets.QTableWidgetItem(str(row[column]))

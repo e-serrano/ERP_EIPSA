@@ -366,6 +366,8 @@ class Ui_QueryTags_Window(object):
                 self.tableQueryTags.setHorizontalHeaderLabels(field_names)
                 tablerow=0
                 tablecolumn=0
+
+            # fill the Qt Table with the query results
                 for row in results:
                     for column in field_names:
                         it=QtWidgets.QTableWidgetItem(str(row[tablecolumn]))

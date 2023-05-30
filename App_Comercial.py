@@ -460,6 +460,7 @@ class Ui_App_Comercial(object):
         self.BottomLayout = QtWidgets.QHBoxLayout()
         self.BottomLayout.setContentsMargins(-1, 0, -1, -1)
         self.BottomLayout.setObjectName("BottomLayout")
+
         try:
             commands = ("""
                         SELECT "mes_oferta", CAST(SUM("importe") AS numeric)
@@ -679,6 +680,7 @@ class Ui_App_Comercial(object):
             self.tableOffer.setRowCount(len(results))
             tablerow=0
 
+        # fill the Qt Table with the query results
             for row in results:
                 for column in range(6):
                     it=QtWidgets.QTableWidgetItem(str(row[column]))
@@ -852,6 +854,7 @@ class Ui_App_Comercial(object):
             self.tableOffer.setRowCount(len(results))
             tablerow=0
 
+        # fill the Qt Table with the query results
             for row in results:
                 for column in range(6):
                     it=QtWidgets.QTableWidgetItem(str(row[column]))
