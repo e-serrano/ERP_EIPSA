@@ -23,7 +23,7 @@ from CreateTAG_Menu import Ui_CreateTag_Menu
 from EditTags_Commercial_Window import Ui_EditTags_Window
 from QueryTags_Window import Ui_QueryTags_Window
 from ExportOffer_Window import Ui_ExportOffer_Window
-
+from QueryDoc_Window import Ui_QueryDoc_Window
 
 from EditUser_Menu import Ui_EditUser_Menu
 
@@ -808,10 +808,10 @@ class Ui_App_Comercial(object):
 
     def documents(self):
         print('documents')
-    #     self.importtag_window=QtWidgets.QMainWindow()
-    #     self.ui=Ui_ImportTAG_Window()
-    #     self.ui.setupUi(self.importtag_window)
-    #     self.importtag_window.show()
+        self.querydoc_menu=QtWidgets.QMainWindow()
+        self.ui=Ui_QueryDoc_Window()
+        self.ui.setupUi(self.querydoc_menu)
+        self.querydoc_menu.show()
 
 
     def graphs(self):

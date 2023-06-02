@@ -8,6 +8,11 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from NewDoc_Window import Ui_New_Doc_Window
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
+from config import config
+import pandas as pd
+import psycopg2
 
 
 class Ui_CreateDoc_Menu(object):
@@ -129,13 +134,51 @@ class Ui_CreateDoc_Menu(object):
 
 
     def ImportDoc(self,CreateDoc_Menu):
-        print('importar')
-        #self.editdoc_window=QtWidgets.QMainWindow()
-        #self.ui=Ui_ImportDoc_Menu()
-        #self.ui.setupUi(self.editdoc_window)
-        #self.editdoc_window.show()
-        #CreateDoc_Menu.hide()
-        #self.ui.Button_Cancel.clicked.connect(CreateDoc_Menu.show)
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+
+        # File dialog to select Excel file
+            # Tk().withdraw()  # Ocultar la ventana principal de tkinter
+            excel_file = askopenfilename(title="Seleccionar archivo Excel")
+
+        # Saving Excel in Pandas Dataframe
+            df = pd.read_excel(excel_file)
+
+        # Reading each row and inserting data in table
+            for index, fila in df.iterrows():
+            # Creating SQL sentence
+                valores = "', '".join([str(valor) for valor in fila.values])
+                sql_insercion = f"INSERT INTO documentacion VALUES ('{valores}')"
+
+        # Executing SQL sentence
+            cur.execute(sql_insercion)
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Importar Documentos")
+            dlg.setText("Documentos importados con éxito")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+            dlg.exec()
+
+            del dlg, new_icon
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+
 
 
 if __name__ == "__main__":

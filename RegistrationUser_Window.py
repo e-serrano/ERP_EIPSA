@@ -10,9 +10,6 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import re
 import psycopg2
 from config import config
-from PyQt6 import QtSql
-from Database_Connection import createConnection
-from passlib.hash import scram
 
 
 class Ui_RegistrationWindow(object):
@@ -464,8 +461,6 @@ class Ui_RegistrationWindow(object):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    if not createConnection():
-        sys.exit()
     RegistrationWindow = QtWidgets.QMainWindow()
     ui = Ui_RegistrationWindow()
     ui.setupUi(RegistrationWindow)
