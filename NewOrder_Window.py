@@ -11,6 +11,7 @@ from datetime import *
 import psycopg2
 from config import config
 
+
 class Ui_New_Order_Window(object):
     def setupUi(self, New_Order):
         New_Order.setObjectName("New_Order")
@@ -313,8 +314,8 @@ class Ui_New_Order_Window(object):
         else:
             commands = ("""
                         SELECT *
-                        FROM ofertas
-                        WHERE "num_oferta" = %s
+                        FROM offer
+                        WHERE "num_offer" = %s
                         """)
             conn = None
             try:
@@ -349,13 +350,13 @@ class Ui_New_Order_Window(object):
             
             else:
                 commands = ("""
-                            INSERT INTO pedidos (
-                            "num_pedido","num_oferta","num_ref_pedido","fecha_pedido","fecha_contractual","notas","importe"
+                            INSERT INTO orders (
+                            "num_order","offer_id","num_ref_order","order_date","contract_date","notes","order_amount"
                             )
                             VALUES (%s,%s,%s,%s,%s,%s,%s);
-                            UPDATE ofertas
-                            SET "estado" = %s
-                            WHERE "num_oferta"=%s;
+                            UPDATE offer
+                            SET "state" = %s
+                            WHERE "num_offer"=%s;
                             """)
                 conn = None
                 try:

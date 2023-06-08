@@ -10,6 +10,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
 
+
 class Ui_Edit_Offer_Window(object):
     def setupUi(self, Edit_Offer_Window):
         Edit_Offer_Window.setObjectName("Edit_Offer_Window")
@@ -368,7 +369,7 @@ class Ui_Edit_Offer_Window(object):
 
         commands = ("""
                         SELECT * 
-                        FROM tipo_producto
+                        FROM product_type
                         """)
         conn = None
         try:
@@ -427,8 +428,8 @@ class Ui_Edit_Offer_Window(object):
         #SQL Query for checking if offer number exists in database
         commands = ("""
                     SELECT * 
-                    FROM ofertas
-                    WHERE "num_oferta" = %s
+                    FROM offer
+                    WHERE "num_offer" = %s
                     """)
         conn = None
         try:
@@ -464,9 +465,9 @@ class Ui_Edit_Offer_Window(object):
         else:
             #SQL Query for updating values in database
             commands = ("""
-                        UPDATE ofertas
-                        SET "cliente" = %s, "cliente_final" = %s, "num_ref_oferta" = %s, "estado" = %s, "nac_ext" = %s, "comprador" = %s, "material" = %s, "notas" = %s, "importe" = %s
-                        WHERE "num_oferta" = %s
+                        UPDATE offer
+                        SET "client" = %s, "final_client" = %s, "num_ref_offer" = %s, "state" = %s, "nac_ext" = %s, "buyer" = %s, "material" = %s, "notes" = %s, "offer_amount" = %s
+                        WHERE "num_offer" = %s
                         """)
             conn = None
             try:
@@ -512,9 +513,9 @@ class Ui_Edit_Offer_Window(object):
         numoffer=self.NumOffer_EditOffer.text()
     #SQL Query for loading existing data in database
         commands = ("""
-                    SELECT "num_oferta","cliente","cliente_final","num_ref_oferta","estado","nac_ext","comprador","material","notas","importe"
-                    FROM ofertas
-                    WHERE "num_oferta" = %s
+                    SELECT "num_offer","client","final_client","num_ref_offer","state","nac_ext","buyer","material","notes","offer_amount"
+                    FROM offer
+                    WHERE "num_offer" = %s
                     """)
         conn = None
         try:

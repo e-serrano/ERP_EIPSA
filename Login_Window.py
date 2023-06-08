@@ -306,7 +306,7 @@ class Ui_Login_Window(object):
         #SQL Query for loading existing data in database
             commands = ("""
                         SELECT *
-                        FROM datos_registro
+                        FROM registration
                         """)
             conn = None
             try:
@@ -342,7 +342,6 @@ class Ui_Login_Window(object):
                 self.app_window=QtWidgets.QMainWindow()
                 if rol_app=='Comercial':
                     self.ui=Ui_App_Comercial(match[0][1]+' '+match[0][2]) #cambiar por app_window cuando esté lista y abrir una u otra en función de perfil
-
 
                 else:
                     dlg = QtWidgets.QMessageBox()

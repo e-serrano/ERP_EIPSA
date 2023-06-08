@@ -463,15 +463,15 @@ class Ui_App_Comercial(object):
 
         try:
             commands = ("""
-                        SELECT "mes_oferta", CAST(SUM("importe") AS numeric)
-                        FROM ofertas
-                        WHERE ("responsable"=%s
+                        SELECT "offer_month", CAST(SUM("offer_amount") AS numeric)
+                        FROM offer
+                        WHERE ("responsible"=%s
                         AND
-                        "year_oferta"=%s
+                        "offer_year"=%s
                         AND
-                        "estado"='Adjudicada')
-                        GROUP BY "mes_oferta"
-                        ORDER BY "mes_oferta"
+                        "state"='Adjudicada')
+                        GROUP BY "offer_month"
+                        ORDER BY "offer_month"
                         """)
             conn = None
             try:
@@ -514,15 +514,15 @@ class Ui_App_Comercial(object):
             self.BottomLayout.addItem(spacerItem7)
 
             commands = ("""
-                        SELECT COUNT(ofertas."num_oferta"), tipo_producto."variable"
-                        FROM ofertas
-                        INNER JOIN tipo_producto ON (ofertas."material"=tipo_producto."material")
-                        WHERE ("responsable"=%s
+                        SELECT COUNT(offer."num_offer"), product_type."variable"
+                        FROM offer
+                        INNER JOIN product_type ON (offer."material"=product_type."material")
+                        WHERE ("responsible"=%s
                         AND
-                        "year_oferta"=%s
+                        "offer_year"=%s
                         AND
-                        "estado"='Adjudicada')
-                        GROUP BY tipo_producto."variable"
+                        "state"='Adjudicada')
+                        GROUP BY product_type."variable"
                         """)
             conn = None
             try:
@@ -657,15 +657,15 @@ class Ui_App_Comercial(object):
             self.Button_Users.clicked.connect(self.user_edition)
 
         commands = ("""
-                    SELECT "num_oferta","estado","cliente","fecha_presentacion","material","importe"
-                    FROM ofertas
-                    WHERE ("responsable" = %s
+                    SELECT "num_offer","state","client","presentation_date","material","offer_amount"
+                    FROM offer
+                    WHERE ("responsible" = %s
                     AND
-                    ("estado" = 'Presentada'
+                    ("state" = 'Presentada'
                     OR
-                    "estado" = 'Registrada'
+                    "state" = 'Registrada'
                     ))
-                    ORDER BY "num_oferta"
+                    ORDER BY "num_offer"
                     """)
         conn = None
         try:
@@ -831,15 +831,15 @@ class Ui_App_Comercial(object):
 
     def update_table(self):
         commands = ("""
-                    SELECT "num_oferta","estado","cliente","fecha_presentacion","material","importe"
-                    FROM ofertas
-                    WHERE ("responsable" = %s
+                    SELECT "num_offer","state","client","presentation_date","material","offer_amount"
+                    FROM offer
+                    WHERE ("responsible" = %s
                     AND
-                    ("estado" = 'Presentada'
+                    ("state" = 'Presentada'
                     OR
-                    "estado" = 'Registrada'
+                    "state" = 'Registrada'
                     ))
-                    ORDER BY "num_oferta"
+                    ORDER BY "num_offer"
                     """)
         conn = None
         try:

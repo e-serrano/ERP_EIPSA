@@ -12,6 +12,7 @@ from config import config
 from openpyxl import load_workbook
 import pandas as pd
 
+
 class Ui_ExportOffer_Window(object):
     def setupUi(self, ExportOffer_Window):
         ExportOffer_Window.setObjectName("ExportOffer_Window")
@@ -163,8 +164,8 @@ class Ui_ExportOffer_Window(object):
 
         commands = ("""
                     SELECT * 
-                    FROM ofertas
-                    WHERE "num_oferta" = %s
+                    FROM offer
+                    WHERE "num_offer" = %s
                     """)
         conn = None
         try:
@@ -202,8 +203,8 @@ class Ui_ExportOffer_Window(object):
         else:
             commands = ("""
                         SELECT *
-                        FROM ofertas
-                        WHERE "num_oferta" = %s
+                        FROM offer
+                        WHERE "num_offer" = %s
                         """)
             conn = None
             try:

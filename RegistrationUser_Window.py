@@ -364,7 +364,7 @@ class Ui_RegistrationWindow(object):
             #SQL Query for loading existing data in database
                 commands = ("""
                             SELECT *
-                            FROM datos_registro
+                            FROM registration
                             """)
                 conn = None
                 try:
@@ -413,8 +413,8 @@ class Ui_RegistrationWindow(object):
 
                 else:
                     commands = ("""
-                                INSERT INTO datos_registro(
-                                "id_registro","nombre","apellido","username","email","password","perfil")
+                                INSERT INTO registration(
+                                "id","name","surname","username","email","password","profile")
                                 VALUES (DEFAULT,%s,%s,%s,%s,%s,%s)
                                 """)
                     conn = None

@@ -301,7 +301,7 @@ class Ui_New_Doc_Window(object):
         #SQL Query for checking if offer number exists in database
             commands = ("""
                         SELECT * 
-                        FROM documentacion
+                        FROM documentation
                         WHERE "num_doc_eipsa" = %s
                         """)
             conn = None
@@ -339,8 +339,8 @@ class Ui_New_Doc_Window(object):
 
             else:
                 commands = ("""
-                            INSERT INTO documentacion (
-                            "num_pedido","num_doc_eipsa","num_doc_cliente","tipo_doc","titulo_doc","critical"
+                            INSERT INTO documentation (
+                            "order_id","num_doc_eipsa","num_doc_client","doc_type","doc_title","critical"
                             )
                             VALUES (%s,%s,%s,%s,%s,%s)
                             """)

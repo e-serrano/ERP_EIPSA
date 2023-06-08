@@ -210,8 +210,8 @@ class Ui_EditTags_Window(object):
         numoffer=self.Numoffer_EditTags.text()
 
         self.model = QtSql.QSqlTableModel()
-        self.model.setTable("pedidos")
-        self.model.setFilter("num_oferta LIKE '%%'||'%s'||'%%' AND num_pedido LIKE '%%'||'%s'||'%%'" % (numoffer,numorder))
+        self.model.setTable("orders")
+        self.model.setFilter("offer_id LIKE '%%'||'%s'||'%%' AND num_order LIKE '%%'||'%s'||'%%'" % (numoffer,numorder))
         self.model.select()
         self.model.EditStrategy.OnFieldChange
 
@@ -304,8 +304,8 @@ if __name__ == "__main__":
     user = dbparam["user"]
     password = dbparam["password"]
 
-    if not createConnection(user,password):
-        sys.exit()
+    # if not createConnection(user,password):
+    #     sys.exit()
 
     app = QtWidgets.QApplication(sys.argv)
     EditTags_Window = QtWidgets.QMainWindow()

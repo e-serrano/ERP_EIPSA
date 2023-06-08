@@ -385,27 +385,27 @@ class Ui_QueryOrder_Window(object):
 
         else:
             commands = ("""
-                        SELECT pedidos."num_pedido",pedidos."num_oferta",pedidos."num_ref_pedido",ofertas."cliente",ofertas."cliente_final",tipo_producto."variable",pedidos."importe"
-                        FROM ofertas
-                        INNER JOIN pedidos ON (ofertas."num_oferta"=pedidos."num_oferta")
-                        INNER JOIN tipo_producto ON (ofertas."material"=tipo_producto."material")
-                        WHERE (UPPER(pedidos."num_pedido") LIKE UPPER('%%'||%s||'%%')
+                        SELECT orders."num_order",orders."offer_id",orders."num_ref_order",offer."client",offer."final_client",product_type."variable",orders."order_amount"
+                        FROM offer
+                        INNER JOIN orders ON (offer."num_offer"=orders."offer_id")
+                        INNER JOIN product_type ON (offer."material"=product_type."material")
+                        WHERE (UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        UPPER(pedidos."num_oferta") LIKE UPPER('%%'||%s||'%%')
+                        UPPER(orders."offer_id") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        UPPER(pedidos."num_ref_pedido") LIKE UPPER('%%'||%s||'%%')
+                        UPPER(orders."num_ref_order") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        UPPER(ofertas."cliente") LIKE UPPER('%%'||%s||'%%')
+                        UPPER(offer."client") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        UPPER(ofertas."cliente_final") LIKE UPPER('%%'||%s||'%%')
+                        UPPER(offer."final_client") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        tipo_producto."variable" LIKE '%%'||%s||'%%'
+                        product_type."variable" LIKE '%%'||%s||'%%'
                         AND
-                        pedidos."importe"::text LIKE '%%'||%s||'%%'
+                        orders."order_amount"::text LIKE '%%'||%s||'%%'
                         AND
-                        pedidos."year_pedido"::text LIKE '%%'||%s||'%%'
+                        orders."order_year"::text LIKE '%%'||%s||'%%'
                         )
-                        ORDER BY pedidos."num_pedido"
+                        ORDER BY orders."num_order"
                         """)
             conn = None
             try:

@@ -352,22 +352,22 @@ class Ui_QueryOffer_Window(object):
 
         else:
             commands = ("""
-                        SELECT ofertas."num_oferta",ofertas."responsable",ofertas."estado",ofertas."num_ref_oferta",ofertas."cliente",ofertas."cliente_final",tipo_producto."variable",ofertas."importe"
-                        FROM ofertas
-                        INNER JOIN tipo_producto ON (ofertas."material"=tipo_producto."material")
-                        WHERE (UPPER(ofertas."num_oferta") LIKE UPPER('%%'||%s||'%%')
+                        SELECT offer."num_offer",offer."responsible",offer."state",offer."num_ref_offer",offer."client",offer."final_client",product_type."variable",offer."offer_amount"
+                        FROM offer
+                        INNER JOIN product_type ON (offer."material"=product_type."material")
+                        WHERE (UPPER(offer."num_offer") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        UPPER(ofertas."num_ref_oferta") LIKE UPPER('%%'||%s||'%%')
+                        UPPER(offer."num_ref_offer") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        UPPER(ofertas."cliente") LIKE UPPER('%%'||%s||'%%')
+                        UPPER(offer."client") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        UPPER(ofertas."cliente_final") LIKE UPPER('%%'||%s||'%%')
+                        UPPER(offer."final_client") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        tipo_producto."variable" LIKE '%%'||%s||'%%'
+                        product_type."variable" LIKE '%%'||%s||'%%'
                         AND
-                        ofertas."year_oferta"::text LIKE '%%'||%s||'%%'
+                        offer."offer_year"::text LIKE '%%'||%s||'%%'
                         )
-                        ORDER BY ofertas."num_oferta"
+                        ORDER BY offer."num_offer"
                         """)
             conn = None
             try:

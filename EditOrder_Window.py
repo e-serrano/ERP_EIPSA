@@ -10,6 +10,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
 
+
 class Ui_Edit_Order_Window(object):
     def setupUi(self, Edit_Order_Window):
         Edit_Order_Window.setObjectName("Edit_Order_Window")
@@ -299,8 +300,8 @@ class Ui_Edit_Order_Window(object):
         #SQL Query for checking if order number exists in database
         commands = ("""
                     SELECT * 
-                    FROM pedidos
-                    WHERE "num_pedido" = %s
+                    FROM orders
+                    WHERE "num_order" = %s
                     """)
         conn = None
         try:
@@ -336,9 +337,9 @@ class Ui_Edit_Order_Window(object):
         else:
             #SQL Query for updating values in database
             commands = ("""
-                        UPDATE pedidos
-                        SET "num_oferta" = %s, "num_ref_pedido" = %s, "fecha_contractual" = %s, "notas" = %s, "importe" = %s
-                        WHERE "num_pedido" = %s
+                        UPDATE orders
+                        SET "offer_id" = %s, "num_ref_order" = %s, "contract_date" = %s, "notes" = %s, "order_amount" = %s
+                        WHERE "num_order" = %s
                         """)
             conn = None
             try:
@@ -383,9 +384,9 @@ class Ui_Edit_Order_Window(object):
         numorder=self.NumOrder_EditOrder.text()
     #SQL Query for loading existing data in database
         commands = ("""
-                    SELECT "num_pedido","num_oferta","num_ref_pedido","fecha_contractual","notas","importe"
-                    FROM pedidos
-                    WHERE "num_pedido" = %s
+                    SELECT "num_order","offer_id","num_ref_order","contract_date","notes","order_amount"
+                    FROM orders
+                    WHERE "num_order" = %s
                     """)
         conn = None
         try:

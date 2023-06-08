@@ -11,6 +11,7 @@ from datetime import *
 import psycopg2
 from config import config
 
+
 class Ui_SubmitOffer_Window(object):
     def setupUi(self, SubmitOffer_Window):
         SubmitOffer_Window.setObjectName("SubmitOffer_Window")
@@ -197,8 +198,8 @@ class Ui_SubmitOffer_Window(object):
         else:
             commands = ("""
                         SELECT *
-                        FROM ofertas
-                        WHERE "num_oferta" = %s
+                        FROM offer
+                        WHERE "num_offer" = %s
                         """)
             conn = None
             try:
@@ -235,9 +236,9 @@ class Ui_SubmitOffer_Window(object):
             
             else:
                 commands = ("""
-                            UPDATE ofertas 
-                            SET "importe"=%s, "estado"=%s, "fecha_presentacion"=%s
-                            WHERE "num_oferta"=%s
+                            UPDATE offer 
+                            SET "offer_amount"=%s, "state"=%s, "presentation_date"=%s
+                            WHERE "num_offer"=%s
                             """)
                 conn = None
                 try:
@@ -262,6 +263,9 @@ class Ui_SubmitOffer_Window(object):
                     dlg.setText("Oferta presentada con éxito")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
+
+                    self.Offer_Submit.setText('')
+                    self.Amount_Submit.setText('')
 
                 except (Exception, psycopg2.DatabaseError) as error:
                     print(error)

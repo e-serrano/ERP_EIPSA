@@ -11,6 +11,7 @@ from datetime import *
 import psycopg2
 from config import config
 
+
 class Ui_New_Offer_Window(object):
     def __init__(self,username):
         self.user=username
@@ -335,7 +336,7 @@ class Ui_New_Offer_Window(object):
 
         commands = ("""
                         SELECT * 
-                        FROM tipo_producto
+                        FROM product_type
                         """)
         conn = None
         try:
@@ -399,8 +400,8 @@ class Ui_New_Offer_Window(object):
         #SQL Query for checking if offer number exists in database
             commands = ("""
                         SELECT * 
-                        FROM ofertas
-                        WHERE "num_oferta" = %s
+                        FROM offer
+                        WHERE "num_offer" = %s
                         """)
             conn = None
             try:
@@ -437,8 +438,8 @@ class Ui_New_Offer_Window(object):
 
             else:
                 commands = ("""
-                            INSERT INTO ofertas (
-                            "num_oferta","estado","responsable","cliente","cliente_final","num_ref_oferta","fecha_registro","nac_ext","comprador","material","notas"
+                            INSERT INTO offer (
+                            "num_offer","state","responsible","client","final_client","num_ref_offer","register_date","nac_ext","buyer","material","notes"
                             )
                             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                             """)

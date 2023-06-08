@@ -10,6 +10,7 @@ import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 import smtplib
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import psycopg2
 from config import config
 
@@ -201,27 +202,54 @@ class Ui_ForgetPass_Window(object):
         else:
             user=match[0][3]
             password=match[0][5]
-            sender_email = "erp.eipsa@gmail.com"
-            sender_password = "Eips@123"
-            subject = "Recordar contraseña ERP"
-            body = """
-            <html>
-            <body>
-                <p>Este correo electrónico ha sido generado de manera automática desde la aplicación.</p>
-                <p>La contraseña para el usuario <strong>{user}</strong> es: <strong>{password}</strong></p>
-            </body>
-            </html>
-            """.format(user=user,password=password)
+            # sender_email = "erp.eipsa@gmail.com"
+            # sender_password = "Eips@123"
+            # subject = "Recordar contraseña ERP"
+            # body = """
+            # <html>
+            # <body>
+            #     <p>Este correo electrónico ha sido generado de manera automática desde la aplicación.</p>
+            #     <p>La contraseña para el usuario <strong>{user}</strong> es: <strong>{password}</strong></p>
+            # </body>
+            # </html>
+            # """.format(user=user,password=password)
 
-            html_message = MIMEText(body, 'html')
-            html_message['Subject'] = subject
-            html_message['From'] = sender_email
-            html_message['To'] = recipient_email
+            # html_message = MIMEText(body, 'html')
+            # html_message['Subject'] = subject
+            # html_message['From'] = sender_email
+            # html_message['To'] = recipient_email
 
-            server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-            server.login(sender_email, sender_password)
-            server.sendmail(sender_email, recipient_email, html_message.as_string())
-            server.quit()
+            # server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+            # server.login(sender_email, sender_password)
+            # server.sendmail(sender_email, recipient_email, html_message.as_string())
+            # server.quit()
+
+            msg = MIMEMultipart()
+            msg['From'] = 'enrique-serrano@eipsa.es'
+            msg['To'] = recipient_email
+            msg['Subject'] = 'Recordar contraseña ERP'
+            message="""
+            # <html>
+            # <body>
+            #     <p>Este correo electrónico ha sido generado de manera automática desde la aplicación.</p>
+            #     <p>La contraseña para el usuario <strong>{user}</strong> es: <strong>{password}</strong></p>
+            # </body>
+            # </html>
+            # """.format(user=user,password=password)
+
+            # Agregar el mensaje al objeto
+            msg.attach(MIMEText(message, 'html'))
+
+            # Configurar conexión SMTP
+            smtp = smtplib.SMTP('smtp.office365.com', 587)
+            smtp.starttls()
+
+            # Iniciar sesión en la cuenta de Outlook
+            smtp.login('enrique-serrano@eipsa.es', 'Enri2023$$')
+
+            # Enviar el correo
+            smtp.send_message(msg)
+            smtp.quit()
 
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
