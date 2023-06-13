@@ -11,6 +11,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
 from App_Comercial import Ui_App_Comercial
+from Purchasing_Menu import Ui_Purchasing_Menu
 from ForgetPass_Window import Ui_ForgetPass_Window
 import configparser
 
@@ -342,6 +343,9 @@ class Ui_Login_Window(object):
                 self.app_window=QtWidgets.QMainWindow()
                 if rol_app=='Comercial':
                     self.ui=Ui_App_Comercial(match[0][1]+' '+match[0][2]) #cambiar por app_window cuando esté lista y abrir una u otra en función de perfil
+
+                elif rol_app=="Compras":
+                    self.ui=Ui_Purchasing_Menu()
 
                 else:
                     dlg = QtWidgets.QMessageBox()

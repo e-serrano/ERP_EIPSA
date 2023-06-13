@@ -304,8 +304,8 @@ if __name__ == "__main__":
     user = dbparam["user"]
     password = dbparam["password"]
 
-    # if not createConnection(user,password):
-    #     sys.exit()
+    if not createConnection(user,password):
+        sys.exit()
 
     app = QtWidgets.QApplication(sys.argv)
     EditTags_Window = QtWidgets.QMainWindow()

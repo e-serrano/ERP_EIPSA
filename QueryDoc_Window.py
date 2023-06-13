@@ -437,27 +437,28 @@ class Ui_QueryDoc_Window(object):
 
         else:
             commands = ("""
-                        SELECT pedidos."num_pedido",pedidos."num_oferta",pedidos."num_ref_pedido",ofertas."cliente",ofertas."cliente_final",tipo_producto."variable",pedidos."importe"
-                        FROM ofertas
-                        INNER JOIN pedidos ON (ofertas."num_oferta"=pedidos."num_oferta")
-                        INNER JOIN tipo_producto ON (ofertas."material"=tipo_producto."material")
-                        WHERE (UPPER(pedidos."num_pedido") LIKE UPPER('%%'||%s||'%%')
+                        SELECT documentation."order_id",orders."num_ref_order",offer."client",product_type."variable",documentation."num_doc_client",documentation."num_doc_eipsa",documentation."doc_title",documentation."doc_type",documentation."critical",documentation."state",documentation."revision",documentation."state_date",documentation."hist_rev"
+                        FROM orders
+                        INNER JOIN offer ON (offer."num_offer"=orders."offer_id")
+                        INNER JOIN documentation ON (orders."num_order"=documentation."order_id")
+                        INNER JOIN product_type ON (offer."material"=product_type."material")
+                        WHERE (UPPER(documentation."order_id") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        UPPER(pedidos."num_oferta") LIKE UPPER('%%'||%s||'%%')
+                        UPPER(offer."client") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        UPPER(pedidos."num_ref_pedido") LIKE UPPER('%%'||%s||'%%')
+                        product_type."variable" LIKE '%%'||%s||'%%'
                         AND
-                        UPPER(ofertas."cliente") LIKE UPPER('%%'||%s||'%%')
+                        documentation."doc_type" LIKE '%%'||%s||'%%'
                         AND
-                        UPPER(ofertas."cliente_final") LIKE UPPER('%%'||%s||'%%')
+                        UPPER(documentation."num_doc_client") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        tipo_producto."variable" LIKE '%%'||%s||'%%'
+                        UPPER(documentation."num_doc_eipsa") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        pedidos."importe"::text LIKE '%%'||%s||'%%'
+                        documentation."state" LIKE '%%'||%s||'%%'
                         AND
-                        pedidos."year_pedido"::text LIKE '%%'||%s||'%%'
+                        documentation."critical" LIKE '%%'||%s||'%%'
                         )
-                        ORDER BY pedidos."num_pedido"
+                        ORDER BY documentation."order_id"
                         """)
             conn = None
             try:
@@ -467,7 +468,7 @@ class Ui_QueryDoc_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                data=(numorder,client,material,client,typedoc,numdocclient,numdoceipsa,state,critical,)
+                data=(numorder,client,material,typedoc,numdocclient,numdoceipsa,state,critical,)
                 cur.execute(commands, data)
                 results=cur.fetchall()
                 self.tableQueryDoc.setRowCount(len(results))
@@ -475,7 +476,7 @@ class Ui_QueryDoc_Window(object):
 
             # fill the Qt Table with the query results
                 for row in results:
-                    for column in range(7):
+                    for column in range(13):
                         it=QtWidgets.QTableWidgetItem(str(row[column]))
                         it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                         self.tableQueryDoc.setItem(tablerow, column, it)
@@ -485,6 +486,10 @@ class Ui_QueryDoc_Window(object):
                 self.tableQueryDoc.verticalHeader().hide()
                 self.tableQueryDoc.setItemDelegate(AlignDelegate(self.tableQueryDoc))
 
+                self.tableQueryDoc.itemDoubleClicked.connect(self.expand_cell)
+
+
+                
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes
@@ -496,7 +501,22 @@ class Ui_QueryDoc_Window(object):
                     conn.close()
 
 
+    def expand_cell(self, item):
+        row = item.row()
+        column = item.column()
+        cell_content = item.text()
+        dlg = QtWidgets.QMessageBox()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle("Documentación")
+        dlg.setText(cell_content)
+        dlg.exec()
 
+        expanded_widget = QtWidgets.QTableWidgetItem(cell_content)
+        expanded_widget.setFlags(QtCore.Qt.ItemFlag.ItemIsSelectable | QtCore.Qt.ItemFlag.ItemIsEnabled)
+
+        self.tableQueryDoc.setItem(row, column, expanded_widget)
 
 
 
