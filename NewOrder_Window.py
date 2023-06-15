@@ -351,7 +351,7 @@ class Ui_New_Order_Window(object):
             else:
                 commands = ("""
                             INSERT INTO orders (
-                            "num_order","offer_id","num_ref_order","order_date","contract_date","notes","order_amount"
+                            "num_order","num_offer","num_ref_order","order_date","contract_date","notes","order_amount"
                             )
                             VALUES (%s,%s,%s,%s,%s,%s,%s);
                             UPDATE offer

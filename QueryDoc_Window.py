@@ -348,17 +348,44 @@ class Ui_QueryDoc_Window(object):
         self.Button_Clean.clicked.connect(self.clean_boxes) # type: ignore
         self.Button_Query.clicked.connect(self.query_doc) # type: ignore
 
-        list_material=['','Caudal','Temperatura','Nivel','Otros']
-        self.Material_QueryDoc.addItems(list_material)
-        list_typedoc=['','Cálculo y plano','Cálculos','Catálogo','Certificados','Datos técnicos','Dossier',
-                    'Índice','Informe','Instrucciones','Listado','Manual','Nameplate','Otros','Packing',
-                    'Planos','PMI','PPI','Procedimientos','Programa','Repuestos','Soldadura','VDDL']
-        self.TypeDoc_QueryDoc.addItems(list_typedoc)
+
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute("""SELECT * FROM product_type""")
+            results_material=cur.fetchall()
+
+            cur.execute("""SELECT * FROM document_type""")
+            results_doctype=cur.fetchall()
+
+            # cur.execute("""SELECT * FROM product_type""")
+            # results_material=cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        list_material=['']+list(set([x[1] for x in results_material]))
+        self.Material_QueryDoc.addItems(sorted(list_material))
+
+        list_typedoc=['']+[x[1] for x in results_doctype]
+        self.TypeDoc_QueryDoc.addItems(sorted(list_typedoc))
+
         list_state=['','Aprobado','Comentado','Eliminado','Enviado','Rechazado']
-        self.State_QueryDoc.addItems(list_state)
+        self.State_QueryDoc.addItems(sorted(list_state))
+
         list_critical=['','No','Sí']
         self.Critical_QueryDoc.addItems(list_critical)
-
 
 
     def retranslateUi(self, QueryDoc_Window):
@@ -437,18 +464,20 @@ class Ui_QueryDoc_Window(object):
 
         else:
             commands = ("""
-                        SELECT documentation."order_id",orders."num_ref_order",offer."client",product_type."variable",documentation."num_doc_client",documentation."num_doc_eipsa",documentation."doc_title",documentation."doc_type",documentation."critical",documentation."state",documentation."revision",documentation."state_date",documentation."hist_rev"
-                        FROM orders
-                        INNER JOIN offer ON (offer."num_offer"=orders."offer_id")
-                        INNER JOIN documentation ON (orders."num_order"=documentation."order_id")
-                        INNER JOIN product_type ON (offer."material"=product_type."material")
-                        WHERE (UPPER(documentation."order_id") LIKE UPPER('%%'||%s||'%%')
+                        SELECT documentation."num_order",orders."num_ref_order",offer."client",product_type."variable",documentation."num_doc_client",documentation."num_doc_eipsa",documentation."doc_title",document_type."doc_type",documentation."critical",documentation."state",documentation."revision",documentation."state_date",documentation."hist_rev"
+                        FROM documentation
+                        INNER JOIN orders ON (orders."num_order" = documentation."num_order")
+                        INNER JOIN offer ON (offer."num_offer" = orders."num_offer")
+                        INNER JOIN document_type ON (document_type."id" = documentation."doc_type_id")
+                        INNER JOIN product_type ON (product_type."material" = offer."material")
+                        WHERE
+                        (UPPER(documentation."num_order") LIKE UPPER('%%'||%s||'%%')
                         AND
                         UPPER(offer."client") LIKE UPPER('%%'||%s||'%%')
                         AND
                         product_type."variable" LIKE '%%'||%s||'%%'
                         AND
-                        documentation."doc_type" LIKE '%%'||%s||'%%'
+                        document_type."doc_type" LIKE '%%'||%s||'%%'
                         AND
                         UPPER(documentation."num_doc_client") LIKE UPPER('%%'||%s||'%%')
                         AND
@@ -458,7 +487,7 @@ class Ui_QueryDoc_Window(object):
                         AND
                         documentation."critical" LIKE '%%'||%s||'%%'
                         )
-                        ORDER BY documentation."order_id"
+                        ORDER BY documentation."num_order"
                         """)
             conn = None
             try:
@@ -488,8 +517,6 @@ class Ui_QueryDoc_Window(object):
 
                 self.tableQueryDoc.itemDoubleClicked.connect(self.expand_cell)
 
-
-                
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes
@@ -517,15 +544,6 @@ class Ui_QueryDoc_Window(object):
         expanded_widget.setFlags(QtCore.Qt.ItemFlag.ItemIsSelectable | QtCore.Qt.ItemFlag.ItemIsEnabled)
 
         self.tableQueryDoc.setItem(row, column, expanded_widget)
-
-
-
-
-
-
-
-
-
 
 
 if __name__ == "__main__":

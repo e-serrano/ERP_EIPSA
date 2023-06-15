@@ -508,7 +508,7 @@ class Ui_CreateTAGFlow_Window(object):
         self.statusbar.setObjectName("statusbar")
         CreateTAGFlow_Window.setStatusBar(self.statusbar)
 
-        list_nace=['HOLD','NO','YES']
+        list_nace=['Hold','No','Yes']
         self.Nace_CreatetagQ.addItems(list_nace)
 
         self.retranslateUi(CreateTAGFlow_Window)

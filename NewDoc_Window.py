@@ -265,10 +265,28 @@ class Ui_New_Doc_Window(object):
         self.Button_NewDoc.clicked.connect(lambda: self.NewDoc(New_Doc_Window))
         QtCore.QMetaObject.connectSlotsByName(New_Doc_Window)
 
-        list_typedoc=['Cálculo y plano','Cálculos','Catálogo','Certificados','Datos técnicos','Dossier',
-                'Índice','Informe','Instrucciones','Listado','Manual','Nameplate','Otros','Packing',
-                'Planos','PMI','PPI','Procedimientos','Programa','Repuestos','Soldadura','VDDL']
-        self.DocType_NewDoc.addItems(list_typedoc)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute("""SELECT * FROM document_type""")
+            results_doctype=cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        list_typedoc=[x[1] for x in results_doctype]
+        self.DocType_NewDoc.addItems(sorted(list_typedoc))
         list_critical=['No','Sí']
         self.Critical_NewDoc.addItems(list_critical)
 
@@ -340,7 +358,7 @@ class Ui_New_Doc_Window(object):
             else:
                 commands = ("""
                             INSERT INTO documentation (
-                            "order_id","num_doc_eipsa","num_doc_client","doc_type","doc_title","critical"
+                            "num_order","num_doc_eipsa","num_doc_client","doc_type_id","doc_title","critical"
                             )
                             VALUES (%s,%s,%s,%s,%s,%s)
                             """)
@@ -352,7 +370,14 @@ class Ui_New_Doc_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    data=(neworder, numdoceipsa, numdocclient, doctype, titledoc,critical,)
+                    query = "SELECT id FROM document_type WHERE doc_type = %s"
+                    cur.execute(query, (doctype,))
+                # get results from query
+                    resultado = cur.fetchone()
+                # get id from table
+                    id_doctype = resultado[0]
+                # execution of principal command
+                    data=(neworder, numdoceipsa, numdocclient, id_doctype, titledoc,critical,)
                     cur.execute(commands, data)
                 # close communication with the PostgreSQL database server
                     cur.close()

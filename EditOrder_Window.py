@@ -338,7 +338,7 @@ class Ui_Edit_Order_Window(object):
             #SQL Query for updating values in database
             commands = ("""
                         UPDATE orders
-                        SET "offer_id" = %s, "num_ref_order" = %s, "contract_date" = %s, "notes" = %s, "order_amount" = %s
+                        SET "num_offer" = %s, "num_ref_order" = %s, "contract_date" = %s, "notes" = %s, "order_amount" = %s
                         WHERE "num_order" = %s
                         """)
             conn = None
@@ -384,7 +384,7 @@ class Ui_Edit_Order_Window(object):
         numorder=self.NumOrder_EditOrder.text()
     #SQL Query for loading existing data in database
         commands = ("""
-                    SELECT "num_order","offer_id","num_ref_order","contract_date","notes","order_amount"
+                    SELECT "num_order","num_offer","num_ref_order","contract_date","notes","order_amount"
                     FROM orders
                     WHERE "num_order" = %s
                     """)

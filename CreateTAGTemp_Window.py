@@ -416,9 +416,6 @@ class Ui_CreateTAGTemp_Window(object):
         self.Nace_CreatetagT.setMinimumSize(QtCore.QSize(175, 25))
         self.Nace_CreatetagT.setMaximumSize(QtCore.QSize(175, 25))
         self.Nace_CreatetagT.setObjectName("Nace_CreatetagT")
-        self.Nace_CreatetagT.addItem("")
-        self.Nace_CreatetagT.addItem("")
-        self.Nace_CreatetagT.addItem("")
         self.vLayout4.addWidget(self.Nace_CreatetagT)
         self.Sensor_CreatetagT = QtWidgets.QComboBox(parent=self.frame)
         self.Sensor_CreatetagT.setMinimumSize(QtCore.QSize(175, 25))
@@ -706,6 +703,9 @@ class Ui_CreateTAGTemp_Window(object):
         self.statusbar.setObjectName("statusbar")
         CreateTAGTemp_Window.setStatusBar(self.statusbar)
 
+        list_nace=['Hold','No','Yes']
+        self.Nace_CreatetagT.addItems(list_nace)
+
         self.retranslateUi(CreateTAGTemp_Window)
         self.Button_Cancel.clicked.connect(CreateTAGTemp_Window.close) # type: ignore
         self.Button_Create.clicked.connect(self.createtagT) # type: ignore
@@ -751,7 +751,6 @@ class Ui_CreateTAGTemp_Window(object):
         self.label_Notes.setText(_translate("CreateTAGTemp_Window", "Notas:"))
         self.Button_Create.setText(_translate("CreateTAGTemp_Window", "Crear"))
         self.Button_Cancel.setText(_translate("CreateTAGTemp_Window", "Cancelar"))
-
 
 
     def createtagT(self):

@@ -385,13 +385,13 @@ class Ui_QueryOrder_Window(object):
 
         else:
             commands = ("""
-                        SELECT orders."num_order",orders."offer_id",orders."num_ref_order",offer."client",offer."final_client",product_type."variable",orders."order_amount"
+                        SELECT orders."num_order",orders."num_offer",orders."num_ref_order",offer."client",offer."final_client",product_type."variable",orders."order_amount"
                         FROM offer
-                        INNER JOIN orders ON (offer."num_offer"=orders."offer_id")
+                        INNER JOIN orders ON (offer."num_offer"=orders."num_offer")
                         INNER JOIN product_type ON (offer."material"=product_type."material")
                         WHERE (UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        UPPER(orders."offer_id") LIKE UPPER('%%'||%s||'%%')
+                        UPPER(orders."num_offer") LIKE UPPER('%%'||%s||'%%')
                         AND
                         UPPER(orders."num_ref_order") LIKE UPPER('%%'||%s||'%%')
                         AND

@@ -645,9 +645,6 @@ class Ui_CreateTAGNiv_Window(object):
         self.Nace_CreatetagN.setMinimumSize(QtCore.QSize(175, 25))
         self.Nace_CreatetagN.setMaximumSize(QtCore.QSize(175, 25))
         self.Nace_CreatetagN.setObjectName("Nace_CreatetagN")
-        self.Nace_CreatetagN.addItem("")
-        self.Nace_CreatetagN.addItem("")
-        self.Nace_CreatetagN.addItem("")
         self.vLayout6.addWidget(self.Nace_CreatetagN)
         self.Notes_CreatetagN = QtWidgets.QTextEdit(parent=self.frame)
         self.Notes_CreatetagN.setMinimumSize(QtCore.QSize(175, 25))
@@ -716,6 +713,9 @@ class Ui_CreateTAGNiv_Window(object):
         self.statusbar.setObjectName("statusbar")
         CreateTAGNiv_Window.setStatusBar(self.statusbar)
 
+        list_nace=['Hold','No','Yes']
+        self.Nace_CreatetagN.addItems(list_nace)
+
         self.retranslateUi(CreateTAGNiv_Window)
         self.Button_Cancel.clicked.connect(CreateTAGNiv_Window.close) # type: ignore
         self.Button_Create.pressed.connect(self.createtagN) # type: ignore
@@ -760,9 +760,6 @@ class Ui_CreateTAGNiv_Window(object):
         self.label_Nace.setText(_translate("CreateTAGNiv_Window", "NACE:"))
         self.label_Amount.setText(_translate("CreateTAGNiv_Window", "Importe (€):"))
         self.label_Notes.setText(_translate("CreateTAGNiv_Window", "Notas:"))
-        self.Nace_CreatetagN.setItemText(0, _translate("CreateTAGNiv_Window", "HOLD"))
-        self.Nace_CreatetagN.setItemText(1, _translate("CreateTAGNiv_Window", "NO"))
-        self.Nace_CreatetagN.setItemText(2, _translate("CreateTAGNiv_Window", "YES"))
         self.Button_Create.setText(_translate("CreateTAGNiv_Window", "Crear"))
         self.Button_Cancel.setText(_translate("CreateTAGNiv_Window", "Cancelar"))
 

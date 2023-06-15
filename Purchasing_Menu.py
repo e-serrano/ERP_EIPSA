@@ -9,6 +9,11 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 
+
+
+
+from Purchasing_DB_Menu import Ui_Purchasing_DB_Menu
+
 class Ui_Purchasing_Menu(object):
     def setupUi(self, Purchasing_Menu):
         Purchasing_Menu.setObjectName("Purchasing_Menu")
@@ -140,12 +145,12 @@ class Ui_Purchasing_Menu(object):
         Purchasing_Menu.setStatusBar(self.statusbar)
 
         self.retranslateUi(Purchasing_Menu)
-        self.Button_Supplies.clicked.connect(self.supplies)
-        self.Button_ClientOrder.clicked.connect(self.clientorder)
-        self.Button_SupplierOrder.clicked.connect(self.supplierorder)
-        self.Button_Quotation.clicked.connect(self.quotation)
-        self.Button_Databases.clicked.connect(self.databases)
-        self.Button_Reports.clicked.connect(self.reports)
+        self.Button_Supplies.clicked.connect(lambda: self.supplies(Purchasing_Menu))
+        self.Button_ClientOrder.clicked.connect(lambda: self.clientorder(Purchasing_Menu))
+        self.Button_SupplierOrder.clicked.connect(lambda: self.supplierorder(Purchasing_Menu))
+        self.Button_Quotation.clicked.connect(lambda: self.quotation(Purchasing_Menu))
+        self.Button_Databases.clicked.connect(lambda: self.databases(Purchasing_Menu))
+        self.Button_Reports.clicked.connect(lambda: self.reports(Purchasing_Menu))
         self.Button_Cancel.clicked.connect(Purchasing_Menu.close)
         QtCore.QMetaObject.connectSlotsByName(Purchasing_Menu)
 
@@ -162,27 +167,32 @@ class Ui_Purchasing_Menu(object):
         self.Button_Cancel.setText(_translate("Purchasing_Menu", "Cancelar"))
 
 
-    def supplies(self):
+    def supplies(self,Purchasing_Menu):
         print('supplies')
 
 
-    def clientorder(self):
+    def clientorder(self,Purchasing_Menu):
         print('clientorder')
 
 
-    def supplierorder(self):
+    def supplierorder(self,Purchasing_Menu):
         print('supplierorder')
 
 
-    def quotation(self):
+    def quotation(self,Purchasing_Menu):
         print('quotation')
 
 
-    def databases(self):
-        print('databases')
+    def databases(self,Purchasing_Menu):
+        self.pruchase_DB_window=QtWidgets.QMainWindow()
+        self.ui=Ui_Purchasing_DB_Menu()
+        self.ui.setupUi(self.pruchase_DB_window)
+        self.pruchase_DB_window.show()
+        Purchasing_Menu.hide()
+        self.ui.Button_Cancel.clicked.connect(Purchasing_Menu.show)
 
 
-    def reports(self):
+    def reports(self,Purchasing_Menu):
         print('reports')
 
 

@@ -35,12 +35,12 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
 
 class Ui_App_Comercial(object):
-    def __init__(self,username):
-        self.user=username
+    def __init__(self):
+        self.user='Enrique Serrano'
 
 
     def setupUi(self, App_Comercial):
-        #self.user='Enrique Serrano'
+        # self.user='Enrique Serrano'
         App_Comercial.setObjectName("App_Comercial")
         App_Comercial.resize(945, 860)
         App_Comercial.setMinimumSize(QtCore.QSize(945, 860))
@@ -503,7 +503,7 @@ class Ui_App_Comercial(object):
             ax.set_title('Ventas totales año actual')
             ax.set_xlabel('Mes')
             ax.set_ylabel('Importe (€)')
-            
+
             self.canvas.setMinimumSize(QtCore.QSize(200, 400))
             self.canvas.setMaximumSize(QtCore.QSize(583, 400))
 
@@ -544,8 +544,8 @@ class Ui_App_Comercial(object):
             finally:
                 if conn is not None:
                     conn.close()
-            
-            
+
+
             count=[x[0] for x in results2]
             labels=[x[1] for x in results2]
             self.canvas2=FigureCanvas(Figure())
@@ -651,7 +651,6 @@ class Ui_App_Comercial(object):
         self.Button_ExpOffer.clicked.connect(self.export_offer)
         self.Button_Doc.clicked.connect(self.documents)
         self.Button_Graphs.clicked.connect(self.graphs)
-
 
         if self.user=='Ana Calvo':
             self.Button_Users.clicked.connect(self.user_edition)
