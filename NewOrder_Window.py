@@ -312,10 +312,15 @@ class Ui_New_Order_Window(object):
             self.label_error_neworder.setText('Rellene todos los campos. Solo los campos de fecha contractual y notas pueden estar en blanco')
 
         else:
-            commands = ("""
+            commands_offer = ("""
                         SELECT *
                         FROM offer
                         WHERE "num_offer" = %s
+                        """)
+            commands_order = ("""
+                        SELECT *
+                        FROM orders
+                        WHERE "num_order" = %s
                         """)
             conn = None
             try:
@@ -325,9 +330,12 @@ class Ui_New_Order_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands one by one
-                cur.execute(commands,(numoffer,))
-                results=cur.fetchall()
-                match=list(filter(lambda x:numoffer in x, results))
+                cur.execute(commands_offer,(numoffer,))
+                results_offer=cur.fetchall()
+                match_offer=list(filter(lambda x:numoffer in x, results_offer))
+                cur.execute(commands_order,(numorder,))
+                results_order=cur.fetchall()
+                match_order=list(filter(lambda x:numorder in x, results_order))
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes
@@ -338,7 +346,7 @@ class Ui_New_Order_Window(object):
                 if conn is not None:
                     conn.close()
 
-            if len(match)==0:
+            if len(match_offer)==0:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -347,7 +355,17 @@ class Ui_New_Order_Window(object):
                 dlg.setText("El número de oferta introducido no existe")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg.exec()
-            
+
+            elif len(match_order)>0:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Nuevo Pedido")
+                dlg.setText("El número de pedido introducido ya existe")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+
             else:
                 commands = ("""
                             INSERT INTO orders (

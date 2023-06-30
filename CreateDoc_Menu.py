@@ -142,7 +142,7 @@ class Ui_CreateDoc_Menu(object):
             cur = conn.cursor()
 
         # File dialog to select Excel file
-            # Tk().withdraw()  # Ocultar la ventana principal de tkinter
+        # Tk().withdraw()  # Ocultar la ventana principal de tkinter
             excel_file = askopenfilename(title="Seleccionar archivo Excel")
 
         # Saving Excel in Pandas Dataframe
@@ -151,11 +151,37 @@ class Ui_CreateDoc_Menu(object):
         # Reading each row and inserting data in table
             for index, fila in df.iterrows():
             # Creating SQL sentence
-                valores = "', '".join([str(valor) for valor in fila.values])
-                sql_insercion = f"INSERT INTO documentacion VALUES ('{valores}')"
+                valores=[str(valor) for valor in fila.values]
 
-        # Executing SQL sentence
-            cur.execute(sql_insercion)
+                query = "SELECT * FROM documentation WHERE num_doc_eipsa = %s"
+                cur.execute(query, (valores[0],))
+                results=cur.fetchall()
+                match=list(filter(lambda x:valores[0] in x, results))
+
+                if len(match)>0:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Nuevo Documento")
+                    dlg.setText(f"El número de documento '{valores[0]}' ya existe y no será importado. Por favor, edítalo y vuelve a importarlo")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+
+                else:
+                    query = "SELECT id FROM document_type WHERE doc_type = %s"
+                    cur.execute(query, (valores[4],))
+                # get results from query
+                    resultado = cur.fetchone()
+                # get id from table
+                    id_doctype = resultado[0]
+                #inserting values to BBDD
+                    valores[4]=str(id_doctype)
+                    valores = "', '".join(valores)
+                    sql_insercion = f"INSERT INTO documentation VALUES ('{valores}')"
+                # Executing SQL sentence
+                    cur.execute(sql_insercion)
+
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
@@ -166,7 +192,7 @@ class Ui_CreateDoc_Menu(object):
             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Importar Documentos")
-            dlg.setText("Documentos importados con éxito")
+            dlg.setText("Importación completada")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
             dlg.exec()
 
@@ -177,8 +203,6 @@ class Ui_CreateDoc_Menu(object):
         finally:
             if conn is not None:
                 conn.close()
-
-
 
 
 if __name__ == "__main__":
