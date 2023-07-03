@@ -522,7 +522,7 @@ class Ui_CreateTAGFlow_Window(object):
         CreateTAGFlow_Window.setWindowTitle(_translate("CreateTAGFlow_Window", "Crear TAG Caudal"))
         self.label_TAG.setText(_translate("CreateTAGFlow_Window", "*TAG:"))
         self.label_NumOffer.setText(_translate("CreateTAGFlow_Window", "*Nº Oferta:"))
-        self.label_NumOrder.setText(_translate("CreateTAGFlow_Window", "*Nº Pedido:"))
+        self.label_NumOrder.setText(_translate("CreateTAGFlow_Window", "Nº Pedido:"))
         self.label_Pos.setText(_translate("CreateTAGFlow_Window", "Posición:"))
         self.label_SubPos.setText(_translate("CreateTAGFlow_Window", "Sub-Pos:"))
         self.label_Type.setText(_translate("CreateTAGFlow_Window", "*Tipo:"))

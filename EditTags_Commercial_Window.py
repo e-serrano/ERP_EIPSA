@@ -11,6 +11,7 @@ from PyQt6 import QtSql
 import re
 import configparser
 from Database_Connection import createConnection
+from PyQt6.QtCore import Qt, QSortFilterProxyModel
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -20,6 +21,10 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
 
 class Ui_EditTags_Window(object):
+
+    def __init__(self):
+        self.proxy = QSortFilterProxyModel()
+
     def setupUi(self, EditTags_Window):
         EditTags_Window.setObjectName("EditTags_Window")
         EditTags_Window.resize(790, 595)
@@ -211,7 +216,7 @@ class Ui_EditTags_Window(object):
 
         self.model = QtSql.QSqlTableModel()
         self.model.setTable("orders")
-        self.model.setFilter("offer_id LIKE '%%'||'%s'||'%%' AND num_order LIKE '%%'||'%s'||'%%'" % (numoffer,numorder))
+        self.model.setFilter("num_offer LIKE '%%'||'%s'||'%%' AND num_order LIKE '%%'||'%s'||'%%'" % (numoffer,numorder))
         self.model.select()
         self.model.EditStrategy.OnFieldChange
 
@@ -247,7 +252,15 @@ class Ui_EditTags_Window(object):
                     value=value.toString("dd/MM/yyyy")
                 valuesUnique.append(str(value))
 
-        actionAll = QtGui.QAction("All", self.tableEditTags)
+        actionSortAscending = QtGui.QAction("Ordenar Ascendente", self.tableEditTags)
+        actionSortAscending.triggered.connect(self.on_actionSortAscending_triggered)
+        self.menuValues.addAction(actionSortAscending)
+        actionSortDescending = QtGui.QAction("Ordenar Descendente", self.tableEditTags)
+        actionSortDescending.triggered.connect(self.on_actionSortDescending_triggered)
+        self.menuValues.addAction(actionSortDescending)
+        self.menuValues.addSeparator()
+
+        actionAll = QtGui.QAction("Quitar Filtro", self.tableEditTags)
         actionAll.triggered.connect(self.on_actionAll_triggered)
         self.menuValues.addAction(actionAll)
         self.menuValues.addSeparator()
@@ -292,6 +305,17 @@ class Ui_EditTags_Window(object):
         self.proxy.setFilterRegularExpression(filterString)
         self.proxy.setFilterKeyColumn(filterColumn)
 
+
+    def on_actionSortAscending_triggered(self):
+        sortColumn = self.logicalIndex
+        sortOrder = Qt.SortOrder.AscendingOrder
+        self.tableEditTags.sortByColumn(sortColumn, sortOrder)
+
+
+    def on_actionSortDescending_triggered(self):
+        sortColumn = self.logicalIndex
+        sortOrder = Qt.SortOrder.DescendingOrder
+        self.tableEditTags.sortByColumn(sortColumn, sortOrder)
 
 
 if __name__ == "__main__":

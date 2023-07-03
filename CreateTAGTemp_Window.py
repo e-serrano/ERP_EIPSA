@@ -717,7 +717,7 @@ class Ui_CreateTAGTemp_Window(object):
         CreateTAGTemp_Window.setWindowTitle(_translate("CreateTAGTemp_Window", "Crear TAG Temperatura"))
         self.label_TAG.setText(_translate("CreateTAGTemp_Window", "*TAG:"))
         self.label_NumOffer.setText(_translate("CreateTAGTemp_Window", "*Nº Oferta:"))
-        self.label_NumOrder.setText(_translate("CreateTAGTemp_Window", "*Nº Pedido:"))
+        self.label_NumOrder.setText(_translate("CreateTAGTemp_Window", "Nº Pedido:"))
         self.label_Pos.setText(_translate("CreateTAGTemp_Window", "Posición:"))
         self.label_SubPos.setText(_translate("CreateTAGTemp_Window", "Sub-Pos:"))
         self.label_Type.setText(_translate("CreateTAGTemp_Window", "*Tipo:"))

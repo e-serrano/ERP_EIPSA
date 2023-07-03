@@ -11,6 +11,9 @@ import psycopg2
 from config import config  
 from openpyxl import load_workbook
 import pandas as pd
+import os
+from tkinter import Tk
+from tkinter.filedialog import asksaveasfilename
 
 
 class Ui_ExportOffer_Window(object):
@@ -221,13 +224,22 @@ class Ui_ExportOffer_Window(object):
                     columns.append(elt[0])
                 df = pd.DataFrame(data=data,columns=columns)
 
-                # Export dataframe to an Excel file
-                file_path = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Excel Ofertas\prueba.xlsx"
-                book=load_workbook(file_path)
-                writer = pd.ExcelWriter(file_path, engine='openpyxl')
-                writer.book = book
-                df.to_excel(writer, "Hoja1", startrow=6, index=False, header=False)
-                writer.close()
+            # Saving the dataframe in an excel file
+                # template_file = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Excel Ofertas\prueba.xlsx"
+                wb = load_workbook(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Excel Ofertas\Template.xlsx")    # Loading Excel Template
+                sheet_name = "Hoja1"    # Selecting template sheet
+                ws = wb[sheet_name]
+                last_row = ws.max_row    # Obtaining last row used
+                for index, row in df.iterrows():    # Data in desired row
+                    for col_num, value in enumerate(row, start=1):
+                        ws.cell(row=last_row + index, column=col_num).value = value
+                root = Tk()
+                root.withdraw()  # Hiding main window Tkinter
+
+                # Dialog window to select folder and file name
+                output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")])
+                if output_path: # Check if path is selected
+                    wb.save(output_path) # Saving Excel file
 
             # close communication with the PostgreSQL database server
             # commit the changes

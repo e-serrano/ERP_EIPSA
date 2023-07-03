@@ -342,7 +342,7 @@ class Ui_Login_Window(object):
                 rol_app=match[0][6]
                 self.app_window=QtWidgets.QMainWindow()
                 if rol_app=='Comercial':
-                    self.ui=Ui_App_Comercial(match[0][1]+' '+match[0][2]) #cambiar por app_window cuando esté lista y abrir una u otra en función de perfil
+                    self.ui=Ui_App_Comercial(match[0][1]+' '+match[0][2], login_username) #cambiar por app_window cuando esté lista y abrir una u otra en función de perfil
 
                 elif rol_app=="Compras":
                     self.ui=Ui_Purchasing_Menu()

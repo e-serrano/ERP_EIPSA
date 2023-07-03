@@ -727,7 +727,7 @@ class Ui_CreateTAGNiv_Window(object):
         CreateTAGNiv_Window.setWindowTitle(_translate("CreateTAGNiv_Window", "Crear TAG Nivel"))
         self.label_TAG.setText(_translate("CreateTAGNiv_Window", "*TAG:"))
         self.label_NumOffer.setText(_translate("CreateTAGNiv_Window", "*Nº Oferta:"))
-        self.label_NumOrder.setText(_translate("CreateTAGNiv_Window", "*Nº Pedido:"))
+        self.label_NumOrder.setText(_translate("CreateTAGNiv_Window", "Nº Pedido:"))
         self.label_Pos.setText(_translate("CreateTAGNiv_Window", "Posición:"))
         self.label_SubPos.setText(_translate("CreateTAGNiv_Window", "Sub-Pos:"))
         self.label_Type.setText(_translate("CreateTAGNiv_Window", "*Tipo:"))
