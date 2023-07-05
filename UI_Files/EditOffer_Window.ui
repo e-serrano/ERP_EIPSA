@@ -772,7 +772,7 @@ QPushButton:pressed {
           </layout>
          </item>
          <item>
-          <layout class="QVBoxLayout" name="vlLayout4">
+          <layout class="QVBoxLayout" name="vLayout4">
            <item>
             <widget class="QComboBox" name="NacExt_EditOffer">
              <property name="minimumSize">

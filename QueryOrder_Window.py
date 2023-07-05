@@ -314,6 +314,7 @@ class Ui_QueryOrder_Window(object):
         QtCore.QMetaObject.connectSlotsByName(QueryOrder_Window)
         self.Button_Clean.clicked.connect(self.clean_boxes) # type: ignore
         self.Button_Query.clicked.connect(self.query_order) # type: ignore
+        self.Numorder_QueryOrder.returnPressed.connect(self.query_order)
 
         list_material=['','Caudal','Temperatura','Nivel','Otros']
         self.EqType_QueryOrder.addItems(list_material)

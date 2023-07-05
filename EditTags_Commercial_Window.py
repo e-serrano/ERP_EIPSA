@@ -12,6 +12,7 @@ import re
 import configparser
 from Database_Connection import createConnection
 from PyQt6.QtCore import Qt, QSortFilterProxyModel
+from PyQt6.QtSql import QSqlDatabase, QSqlQuery
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -20,9 +21,83 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
-class Ui_EditTags_Window(object):
+class EditableTableModel(QtSql.QSqlTableModel):
+    updateFailed = QtCore.pyqtSignal(str)
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.originalData = {}
 
+
+    def flags(self, index):
+        flags = super().flags(index)
+        return flags | QtCore.Qt.ItemFlag.ItemIsEditable
+
+
+    def setOriginalData(self, index, value, role=Qt.ItemDataRole.EditRole):
+        if index.isValid() and role == Qt.ItemDataRole.EditRole:
+            column = index.column()
+            if column not in self.originalData:
+                self.originalData[column] = self.data(index) # Saving the original data before edition
+        return super().setData(index, value, role)
+
+
+    def getOriginalValue(self, index):
+        row = index.row()
+        column = index.column()
+        return self.originalData.get(column)
+
+
+    def setChanges(self, index, value, role=Qt.ItemDataRole.EditRole):
+        if role == Qt.ItemDataRole.EditRole:
+            column = index.column()
+            self.modifiedCells.append((index.row(), column, value))  # Saving changes in list
+        return super().setChanges(index, value, role)
+
+
+    def update_record(self, record, index):
+        query = QSqlQuery(self.database())
+        primary_key = self.primaryKey()
+        id_column = primary_key.fieldName(0)
+
+        column_index = index.column() # Obtaining modified column index from modified cell index
+        column_name = self.record().fieldName(column_index) # Obtaining modified column name
+        new_value = index.data(Qt.ItemDataRole.EditRole) #Obtaining new value
+        old_value = self.originalData.get(column_index, "") # Obtaining old value
+
+        # Verify if values are NULL
+        if new_value is None:
+            new_value = ""
+        if old_value is None:
+            old_value = ""
+
+        query.prepare(f"UPDATE {self.tableName()} SET {column_name} = :newValue WHERE {id_column} = :id")
+        query.bindValue(":newValue", new_value)
+        query.bindValue(":id", record.value(id_column))
+
+        query.exec()
+        query_text = query.executedQuery()
+        # print("SQL Query:", query_text)
+
+        if query.lastError().isValid():
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Editar Tags")
+            dlg.setText("Ha habido un error al actualizar los datos. No serán guardados")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+
+            print("Error en la consulta:", query.lastError().nativeErrorCode())
+            print("Mensaje de error:", query.lastError().text())
+            return None
+        else:
+            return query_text
+
+
+class Ui_EditTags_Window(object):
     def __init__(self):
+        self.model = EditableTableModel()
         self.proxy = QSortFilterProxyModel()
 
     def setupUi(self, EditTags_Window):
@@ -48,6 +123,17 @@ class Ui_EditTags_Window(object):
         self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
         self.gridLayout_2.setVerticalSpacing(10)
         self.gridLayout_2.setObjectName("gridLayout_2")
+        self.hcab=QtWidgets.QHBoxLayout()
+        self.hcab.setObjectName("hcab")
+        self.toolSave = QtWidgets.QToolButton(self.frame)
+        self.toolSave.setObjectName("Save_Button")
+        self.hcab.addWidget(self.toolSave)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Save.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolSave.setIcon(icon)
+        self.hcabspacer1=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer1)
+        self.gridLayout_2.addLayout(self.hcab, 0, 0, 1, 1)
         self.hLayout1 = QtWidgets.QHBoxLayout()
         self.hLayout1.setObjectName("hLayout1")
         self.label_NumOrder = QtWidgets.QLabel(parent=self.frame)
@@ -174,7 +260,16 @@ class Ui_EditTags_Window(object):
         self.Button_Query.setObjectName("Button_Query")
         self.hLayout2.addWidget(self.Button_Query)
         self.gridLayout_2.addLayout(self.hLayout2, 2, 0, 1, 1)
+
+        self.model = EditableTableModel()
+        self.model.setEditStrategy(QtSql.QSqlTableModel.EditStrategy.OnManualSubmit)
+        self.model.select()
+        # Establecer el modelo en la vista de la tabla
+        self.proxy = QtCore.QSortFilterProxyModel()
+        self.proxy.setSourceModel(self.model)
+
         self.tableEditTags=QtWidgets.QTableView(parent=self.frame)
+        self.tableEditTags.setModel(self.proxy)
         self.tableEditTags.setObjectName("tableEditTags")
         self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -192,7 +287,8 @@ class Ui_EditTags_Window(object):
         self.retranslateUi(EditTags_Window)
         QtCore.QMetaObject.connectSlotsByName(EditTags_Window)
         self.Button_Clean.clicked.connect(self.clean_boxes)
-        self.Button_Query.clicked.connect(self.edit_tags)
+        self.Button_Query.clicked.connect(self.query_tags)
+        self.toolSave.clicked.connect(self.submit_all)
 
 
     def retranslateUi(self, EditTags_Window):
@@ -210,20 +306,66 @@ class Ui_EditTags_Window(object):
         self.Numoffer_EditTags.setText("")
 
 
-    def edit_tags(self):
+    def submit_all(self):
+        if self.model.database().isOpen():
+            self.model.database().transaction()
+            success = True
+
+            for row in range(self.model.rowCount()):
+                for column in range(self.model.columnCount()):
+                    index = self.model.index(row, column)
+                    current_value = index.data(Qt.ItemDataRole.DisplayRole)
+                    original_value = self.model.getOriginalValue(index)
+                    if current_value != original_value:
+                        record = self.model.record(row)
+                        query = self.model.update_record(record, index)
+                        if not query:
+                            success = False
+                            break
+
+            if success:
+                self.model.database().commit()
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Editar Tags")
+                dlg.setText("Datos guardados con éxito")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+            else:
+                self.model.database().rollback()
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Editar Tags")
+                dlg.setText("Ha habido un problema al guardar los datos")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+
+        else:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Editar Tags")
+            dlg.setText("No ha sido posible conectar con la base de datos")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+
+
+    def query_tags(self):
         numorder=self.Numorder_EditTags.text()
         numoffer=self.Numoffer_EditTags.text()
 
-        self.model = QtSql.QSqlTableModel()
         self.model.setTable("orders")
         self.model.setFilter("num_offer LIKE '%%'||'%s'||'%%' AND num_order LIKE '%%'||'%s'||'%%'" % (numoffer,numorder))
         self.model.select()
-        self.model.EditStrategy.OnFieldChange
+        self.model.setEditStrategy(QtSql.QSqlTableModel.EditStrategy.OnManualSubmit)
 
         self.proxy = QtCore.QSortFilterProxyModel(self.tableEditTags)
         self.proxy.setSourceModel(self.model)
-
-        self.tableEditTags=QtWidgets.QTableView(parent=self.frame)
         self.tableEditTags.setModel(self.proxy)
 
         columns_number=self.model.columnCount()
@@ -232,11 +374,17 @@ class Ui_EditTags_Window(object):
 
         self.tableEditTags.verticalHeader().hide()
         self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
-        self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt}")
         self.tableEditTags.setObjectName("tableEditTags")
         self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
+        self.tableEditTags.setSortingEnabled(False)
         self.tableEditTags.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked)
+
+        for row in range(self.model.rowCount()):
+            for column in range(self.model.columnCount()):
+                index = self.model.index(row, column)
+                self.model.setOriginalData(index, self.model.data(index))
 
 
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
@@ -272,8 +420,8 @@ class Ui_EditTags_Window(object):
             self.menuValues.addAction(action)
 
         self.menuValues.setStyleSheet("QMenu { color: black; }"
-"QMenu::item:selected { background-color: #33bdef; }"
-"QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+                                        "QMenu::item:selected { background-color: #33bdef; }"
+                                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
         self.signalMapper.mappedInt.connect(self.on_signalMapper_mapped)  
 
         headerPos = self.tableEditTags.mapToGlobal(self.tableEditTags.horizontalHeader().pos())        
@@ -318,9 +466,13 @@ class Ui_EditTags_Window(object):
         self.tableEditTags.sortByColumn(sortColumn, sortOrder)
 
 
+    def closeEvent(self, event):
+        self.model.database().close()
+
+
 if __name__ == "__main__":
     import sys
-
+    app = QtWidgets.QApplication(sys.argv)
     config_obj = configparser.ConfigParser()
     config_obj.read("database.ini")
     dbparam = config_obj["postgresql"]
@@ -328,12 +480,11 @@ if __name__ == "__main__":
     user = dbparam["user"]
     password = dbparam["password"]
 
-    if not createConnection(user,password):
+    if not createConnection(user, password):
         sys.exit()
 
-    app = QtWidgets.QApplication(sys.argv)
     EditTags_Window = QtWidgets.QMainWindow()
     ui = Ui_EditTags_Window()
     ui.setupUi(EditTags_Window)
-    EditTags_Window.show()
+    EditTags_Window.showMaximized()
     sys.exit(app.exec())

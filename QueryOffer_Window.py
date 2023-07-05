@@ -288,6 +288,7 @@ class Ui_QueryOffer_Window(object):
         QtCore.QMetaObject.connectSlotsByName(QueryOffer_Window)
         self.Button_Clean.clicked.connect(self.clean_boxes) # type: ignore
         self.Button_Query.clicked.connect(self.query_offer) # type: ignore
+        self.Numoffer_QueryOffer.returnPressed.connect(self.query_offer)
 
         list_material=['','Caudal','Temperatura','Nivel','Otros']
         self.Material_QueryOffer.addItems(list_material)
@@ -404,6 +405,47 @@ class Ui_QueryOffer_Window(object):
             finally:
                 if conn is not None:
                     conn.close()
+
+
+    def keyPressEvent(self, event):
+        if event.matches(QtGui.QKeySequence.Copy):
+            self.copiar_datos()
+        elif event.matches(QtGui.QKeySequence.Paste):
+            self.pegar_datos()
+
+    def copiar_datos(self):
+        seleccion = self.tableOffer.selectedRanges()
+        if seleccion:
+            fila_inicial = seleccion[0].topRow()
+            columna_inicial = seleccion[0].leftColumn()
+            fila_final = seleccion[0].bottomRow()
+            columna_final = seleccion[0].rightColumn()
+
+            texto = ''
+            for fila in range(fila_inicial, fila_final + 1):
+                for columna in range(columna_inicial, columna_final + 1):
+                    item = self.tableOffer.item(fila, columna)
+                    texto += item.text() if item is not None else ''
+                    if columna < columna_final:
+                        texto += '\t'
+                texto += '\n'
+
+            clipboard = QtWidgets.QApplication.clipboard()
+            mime_data = QtGui.QClipboard.MimeData()
+            mime_data.setText(texto)
+            clipboard.setMimeData(mime_data)
+
+    def pegar_datos(self):
+        texto = QtWidgets.QApplication.clipboard().text()
+        filas = texto.split('\n')
+        for fila_index, fila_texto in enumerate(filas):
+            if not fila_texto.strip():
+                continue
+
+            columnas = fila_texto.split('\t')
+            for columna_index, columna_texto in enumerate(columnas):
+                item = QtWidgets.QTableWidgetItem(columna_texto)
+                self.tableOffer.setItem(fila_index, columna_index, item)
 
 
 

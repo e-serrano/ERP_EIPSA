@@ -7,6 +7,8 @@
 
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
+from config import config
+import psycopg2
 
 
 class Ui_CreateTAGFlow_Window(object):
@@ -514,6 +516,7 @@ class Ui_CreateTAGFlow_Window(object):
         self.retranslateUi(CreateTAGFlow_Window)
         self.Button_Cancel.clicked.connect(CreateTAGFlow_Window.close) # type: ignore
         self.Button_Create.clicked.connect(self.createtagF) # type: ignore
+        self.NumOrder_CreatetagQ.returnPressed.connect(self.queryoffernumber)
         QtCore.QMetaObject.connectSlotsByName(CreateTAGFlow_Window)
 
 
@@ -579,6 +582,49 @@ class Ui_CreateTAGFlow_Window(object):
         
         else:
             print('a')
+
+
+    def queryoffernumber(self):
+        numorder=self.NumOrder_CreatetagQ.text()
+    #SQL Query for loading existing data in database
+        commands = ("""
+                    SELECT "num_order","num_offer"
+                    FROM orders
+                    WHERE "num_order" = %s
+                    """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands,(numorder,))
+            results=cur.fetchall()
+            match=list(filter(lambda x:numorder in x, results))
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        if len(match)==0:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Crear Tag")
+            dlg.setText("El número de oferta introducido no existe")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+
+        else:
+            self.NumOffer_CreatetagQ.setText(str(results[0][1]))
 
 
 if __name__ == "__main__":
