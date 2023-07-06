@@ -12,6 +12,7 @@ from config import config
 from datetime import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+import numpy as np
 from NewOffer_Window import Ui_New_Offer_Window
 from EditOffer_Menu import Ui_EditOffer_Menu
 from QueryOffer_Window import Ui_QueryOffer_Window
@@ -491,6 +492,34 @@ class Ui_App_Comercial(object):
             
             months=[int(x[0]) for x in results]
             amounts=[float(x[1]) for x in results]
+            
+            # months=[int(x[0]) for x in results]
+            # amounts=[float(x[1]) for x in results]
+            # amounts2=[float(x[1])*2 for x in results]
+            # dict1 = dict(zip(months, amounts))
+            # for i in range(1,13):
+            #     if i not in months:
+            #         dict1[i] = 0
+
+            # dict2 = dict(zip(months, amounts2))
+            # for i in range(1,13):
+            #     if i not in months:
+            #         dict2[i] = 0
+
+            # dict1 = {key:dict1[key] for key in sorted(dict1.keys())}
+            # dict2 = {key:dict2[key] for key in sorted(dict2.keys())}
+            # final_amounts=list(dict1.values())
+            # final_amounts2=list(dict2.values())
+
+            # self.canvas=FigureCanvas(Figure())
+            # ax=self.canvas.figure.subplots()
+            # bar_width = 0.35
+            # bar_positions1 = np.arange(1,13) - bar_width / 2
+            # bar_positions2 = np.arange(1,13) + bar_width / 2
+            # ax.bar(bar_positions1, final_amounts, width=bar_width, label='Ofertado')
+            # ax.bar(bar_positions2, final_amounts2, width=bar_width, label='Vendido')
+            # ax.legend(loc='best')
+
             self.canvas=FigureCanvas(Figure())
             ax=self.canvas.figure.subplots()
             ax.plot(months,amounts)
@@ -579,7 +608,7 @@ class Ui_App_Comercial(object):
 "QCalendarWidget QToolButton {\n"
 "    color: white;\n"
 "    font-size:20px;\n"
-"    icon-size:30px,30px;\n"
+"    icon-size:30px 30px;\n"
 "    background-color:rgb(3, 174, 236);\n"
 "}\n"
 "\n"
