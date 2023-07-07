@@ -274,7 +274,6 @@ class Ui_New_Offer_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.LimitDate_NewOffer.setFont(font)
-        self.LimitDate_NewOffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.LimitDate_NewOffer.setObjectName("LimitDate_NewOffer")
         self.vLayout4.addWidget(self.LimitDate_NewOffer)
         spacerItem16 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -316,7 +315,6 @@ class Ui_New_Offer_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.RateType_NewOffer.setFont(font)
-        self.RateType_NewOffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.RateType_NewOffer.setObjectName("RateType_NewOffer")
         self.vLayout4.addWidget(self.RateType_NewOffer)
         spacerItem20 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -449,7 +447,7 @@ class Ui_New_Offer_Window(object):
         #SQL Query for checking if offer number exists in database
             commands = ("""
                         SELECT * 
-                        FROM offer
+                        FROM offers
                         WHERE "num_offer" = %s
                         """)
             conn = None
@@ -487,7 +485,7 @@ class Ui_New_Offer_Window(object):
 
             else:
                 commands = ("""
-                            INSERT INTO offer (
+                            INSERT INTO offers (
                             "num_offer","state","responsible","client","final_client","num_ref_offer","register_date","nac_ext","buyer","material","notes"
                             )
                             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)

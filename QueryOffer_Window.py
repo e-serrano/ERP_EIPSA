@@ -201,13 +201,13 @@ class Ui_QueryOffer_Window(object):
         self.Button_Clean = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Clean.setMinimumSize(QtCore.QSize(150, 35))
         self.Button_Clean.setMaximumSize(QtCore.QSize(150, 35))
-        self.Button_Clean.setAutoDefault(True)
+        self.Button_Clean.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.Button_Clean.setObjectName("Button_Clean")
         self.hLayout4.addWidget(self.Button_Clean)
         self.Button_Query = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Query.setMinimumSize(QtCore.QSize(150, 35))
         self.Button_Query.setMaximumSize(QtCore.QSize(150, 35))
-        self.Button_Query.setAutoDefault(True)
+        self.Button_Query.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.Button_Query.setObjectName("Button_Query")
         self.hLayout4.addWidget(self.Button_Query)
         self.gridLayout_2.addLayout(self.hLayout4, 5, 0, 1, 1)
@@ -353,22 +353,22 @@ class Ui_QueryOffer_Window(object):
 
         else:
             commands = ("""
-                        SELECT offer."num_offer",offer."responsible",offer."state",offer."num_ref_offer",offer."client",offer."final_client",product_type."variable",offer."offer_amount"
-                        FROM offer
-                        INNER JOIN product_type ON (offer."material"=product_type."material")
-                        WHERE (UPPER(offer."num_offer") LIKE UPPER('%%'||%s||'%%')
+                        SELECT offers."num_offer",offers."responsible",offers."state",offers."num_ref_offer",offers."client",offers."final_client",product_type."variable",offers."offer_amount"
+                        FROM offers
+                        INNER JOIN product_type ON (offers."material"=product_type."material")
+                        WHERE (UPPER(offers."num_offer") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        UPPER(offer."num_ref_offer") LIKE UPPER('%%'||%s||'%%')
+                        UPPER(offers."num_ref_offer") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        UPPER(offer."client") LIKE UPPER('%%'||%s||'%%')
+                        UPPER(offers."client") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        UPPER(offer."final_client") LIKE UPPER('%%'||%s||'%%')
+                        UPPER(offers."final_client") LIKE UPPER('%%'||%s||'%%')
                         AND
                         product_type."variable" LIKE '%%'||%s||'%%'
                         AND
-                        offer."offer_year"::text LIKE '%%'||%s||'%%'
+                        offers."offer_year"::text LIKE '%%'||%s||'%%'
                         )
-                        ORDER BY offer."num_offer"
+                        ORDER BY offers."num_offer"
                         """)
             conn = None
             try:

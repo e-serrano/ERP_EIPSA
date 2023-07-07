@@ -10,6 +10,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import re
 import psycopg2
 from config import config
+from User_Creation_DB import create_user_database
 
 
 class Ui_RegistrationWindow(object):
@@ -409,7 +410,6 @@ class Ui_RegistrationWindow(object):
                     dlg.setText("El correo electrónico introducido ya está registrado")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                     dlg.exec()
-                    del file, dlg, new_icon
 
                 else:
                     commands = ("""
@@ -418,6 +418,7 @@ class Ui_RegistrationWindow(object):
                                 VALUES (DEFAULT,%s,%s,%s,%s,%s,%s)
                                 """)
                     conn = None
+                    create_user_database(reg_username,reg_password)
                     try:
                     # read the connection parameters
                         params = config()

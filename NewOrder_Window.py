@@ -126,7 +126,6 @@ class Ui_New_Order_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.NumOrder_NewOrder.setFont(font)
-        self.NumOrder_NewOrder.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.NumOrder_NewOrder.setObjectName("NumOrder_NewOrder")
         self.vLayout2.addWidget(self.NumOrder_NewOrder)
         spacerItem3 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -137,7 +136,6 @@ class Ui_New_Order_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.NumOffer_NewOrder.setFont(font)
-        self.NumOffer_NewOrder.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.NumOffer_NewOrder.setObjectName("NumOffer_NewOrder")
         self.vLayout2.addWidget(self.NumOffer_NewOrder)
         spacerItem4 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -148,7 +146,6 @@ class Ui_New_Order_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.NumRef_NewOrder.setFont(font)
-        self.NumRef_NewOrder.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.NumRef_NewOrder.setObjectName("NumRef_NewOrder")
         self.vLayout2.addWidget(self.NumRef_NewOrder)
         self.hLayout.addLayout(self.vLayout2)
@@ -199,7 +196,6 @@ class Ui_New_Order_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.ContracDate_NewOrder.setFont(font)
-        self.ContracDate_NewOrder.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.ContracDate_NewOrder.setObjectName("ContracDate_NewOrder")
         self.vlLayout4.addWidget(self.ContracDate_NewOrder)
         spacerItem8 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -210,7 +206,6 @@ class Ui_New_Order_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Notes_NewOrder.setFont(font)
-        self.Notes_NewOrder.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.Notes_NewOrder.setObjectName("Notes_NewOrder")
         self.vlLayout4.addWidget(self.Notes_NewOrder)
         spacerItem9 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -221,7 +216,6 @@ class Ui_New_Order_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Amount_NewOrder.setFont(font)
-        self.Amount_NewOrder.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.Amount_NewOrder.setObjectName("Amount_NewOrder")
         self.vlLayout4.addWidget(self.Amount_NewOrder)
         self.hLayout.addLayout(self.vlLayout4)
@@ -314,7 +308,7 @@ class Ui_New_Order_Window(object):
         else:
             commands_offer = ("""
                         SELECT *
-                        FROM offer
+                        FROM offers
                         WHERE "num_offer" = %s
                         """)
             commands_order = ("""
@@ -372,7 +366,7 @@ class Ui_New_Order_Window(object):
                             "num_order","num_offer","num_ref_order","order_date","contract_date","notes","order_amount"
                             )
                             VALUES (%s,%s,%s,%s,%s,%s,%s);
-                            UPDATE offer
+                            UPDATE offers
                             SET "state" = %s
                             WHERE "num_offer"=%s;
                             """)

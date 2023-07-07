@@ -167,7 +167,7 @@ class Ui_ExportOffer_Window(object):
 
         commands = ("""
                     SELECT * 
-                    FROM offer
+                    FROM offers
                     WHERE "num_offer" = %s
                     """)
         conn = None
@@ -206,7 +206,7 @@ class Ui_ExportOffer_Window(object):
         else:
             commands = ("""
                         SELECT *
-                        FROM offer
+                        FROM offers
                         WHERE "num_offer" = %s
                         """)
             conn = None

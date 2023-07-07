@@ -236,7 +236,7 @@ class Ui_SubmitOffer_Window(object):
             
             else:
                 commands = ("""
-                            UPDATE offer 
+                            UPDATE offers 
                             SET "offer_amount"=%s, "state"=%s, "presentation_date"=%s
                             WHERE "num_offer"=%s
                             """)

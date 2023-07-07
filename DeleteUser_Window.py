@@ -9,7 +9,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
-
+from User_Delete_DB import delete_user_database
 
 
 class Ui_DeleteUser_Window(object):
@@ -152,6 +152,7 @@ class Ui_DeleteUser_Window(object):
         self.delete_deleteuser.clicked.connect(self.delete_user)
         QtCore.QMetaObject.connectSlotsByName(ForgetPass_Window)
 
+
     def retranslateUi(self, ForgetPass_Window):
         _translate = QtCore.QCoreApplication.translate
         ForgetPass_Window.setWindowTitle(_translate("ForgetPass_Window", "Eliminar Usuario"))
@@ -205,6 +206,7 @@ class Ui_DeleteUser_Window(object):
                         WHERE "email" = %s
                         """)
             conn = None
+            delete_user_database(email)
             try:
             # read the connection parameters
                 params = config()
@@ -235,7 +237,6 @@ class Ui_DeleteUser_Window(object):
                 self.email_deleteuser.setText('')
 
                 del dlg, new_icon
-
 
 
 if __name__ == "__main__":

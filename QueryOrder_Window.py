@@ -238,13 +238,13 @@ class Ui_QueryOrder_Window(object):
         self.Button_Clean = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Clean.setMinimumSize(QtCore.QSize(150, 35))
         self.Button_Clean.setMaximumSize(QtCore.QSize(150, 35))
-        self.Button_Clean.setAutoDefault(True)
+        self.Button_Clean.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.Button_Clean.setObjectName("Button_Clean")
         self.hLayout5.addWidget(self.Button_Clean)
         self.Button_Query = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Query.setMinimumSize(QtCore.QSize(150, 35))
         self.Button_Query.setMaximumSize(QtCore.QSize(150, 35))
-        self.Button_Query.setAutoDefault(True)
+        self.Button_Query.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.Button_Query.setObjectName("Button_Query")
         self.hLayout5.addWidget(self.Button_Query)
         self.gridLayout_2.addLayout(self.hLayout5, 6, 0, 1, 1)
@@ -386,19 +386,19 @@ class Ui_QueryOrder_Window(object):
 
         else:
             commands = ("""
-                        SELECT orders."num_order",orders."num_offer",orders."num_ref_order",offer."client",offer."final_client",product_type."variable",orders."order_amount"
-                        FROM offer
-                        INNER JOIN orders ON (offer."num_offer"=orders."num_offer")
-                        INNER JOIN product_type ON (offer."material"=product_type."material")
+                        SELECT orders."num_order",orders."num_offer",orders."num_ref_order",offers."client",offers."final_client",product_type."variable",orders."order_amount"
+                        FROM offers
+                        INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
+                        INNER JOIN product_type ON (offers."material"=product_type."material")
                         WHERE (UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
                         AND
                         UPPER(orders."num_offer") LIKE UPPER('%%'||%s||'%%')
                         AND
                         UPPER(orders."num_ref_order") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        UPPER(offer."client") LIKE UPPER('%%'||%s||'%%')
+                        UPPER(offers."client") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        UPPER(offer."final_client") LIKE UPPER('%%'||%s||'%%')
+                        UPPER(offers."final_client") LIKE UPPER('%%'||%s||'%%')
                         AND
                         product_type."variable" LIKE '%%'||%s||'%%'
                         AND

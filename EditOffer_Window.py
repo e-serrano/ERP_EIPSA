@@ -10,7 +10,6 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
 
-
 class Ui_Edit_Offer_Window(object):
     def setupUi(self, Edit_Offer_Window):
         Edit_Offer_Window.setObjectName("Edit_Offer_Window")
@@ -407,6 +406,7 @@ class Ui_Edit_Offer_Window(object):
         self.NumOffer_EditOffer.returnPressed.connect(self.queryofferdata)
         QtCore.QMetaObject.connectSlotsByName(Edit_Offer_Window)
 
+    #Adding items to ComboBox
         list_nacext=['Exterior','Nacional']
         self.NacExt_EditOffer.addItems(list_nacext)
 
@@ -475,7 +475,7 @@ class Ui_Edit_Offer_Window(object):
         #SQL Query for checking if offer number exists in database
         commands = ("""
                     SELECT * 
-                    FROM offer
+                    FROM offers
                     WHERE "num_offer" = %s
                     """)
         conn = None
@@ -512,7 +512,7 @@ class Ui_Edit_Offer_Window(object):
         else:
             #SQL Query for updating values in database
             commands = ("""
-                        UPDATE offer
+                        UPDATE offers
                         SET "client" = %s, "final_client" = %s, "num_ref_offer" = %s, "state" = %s, "nac_ext" = %s, "buyer" = %s, "material" = %s, "notes" = %s, "offer_amount" = %s, "limit_date" = %s, "rate_type" = %s
                         WHERE "num_offer" = %s
                         """)
@@ -563,7 +563,7 @@ class Ui_Edit_Offer_Window(object):
     #SQL Query for loading existing data in database
         commands = ("""
                     SELECT "num_offer","client","final_client","num_ref_offer","state","nac_ext","buyer","material","notes","offer_amount","limit_date","rate_type"
-                    FROM offer
+                    FROM offers
                     WHERE "num_offer" = %s
                     """)
         conn = None

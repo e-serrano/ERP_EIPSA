@@ -322,12 +322,12 @@ class Ui_EditTags_Window(object):
 "    border-color: rgb(0, 0, 0);\n"
 "}\n"
 "\n"
-"QPushButton:pressed, {\n"
+"QPushButton:pressed {\n"
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255)\n"
 "}\n"
 "\n"
-"QPushButton:focus:pressed, {\n"
+"QPushButton:focus:pressed {\n"
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
 "}")
@@ -362,7 +362,6 @@ class Ui_EditTags_Window(object):
         self.Button_Query.clicked.connect(self.query_tags)
         self.toolSave.clicked.connect(self.submit_all)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
-        self.Button_Query.setProperty("pressed", False)
 
 
     def retranslateUi(self, EditTags_Window):
@@ -589,7 +588,6 @@ if __name__ == "__main__":
     # set your parameters for the database connection URI using the keys from the configfile.ini
     user = dbparam["user"]
     password = dbparam["password"]
-    print(user)
 
     if not createConnection(user, password):
         sys.exit()
@@ -597,5 +595,5 @@ if __name__ == "__main__":
     EditTags_Window = QtWidgets.QMainWindow()
     ui = Ui_EditTags_Window()
     ui.setupUi(EditTags_Window)
-    EditTags_Window.showMaximized()
+    EditTags_Window.show()
     sys.exit(app.exec())

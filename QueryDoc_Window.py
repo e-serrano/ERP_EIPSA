@@ -236,13 +236,13 @@ class Ui_QueryDoc_Window(object):
         self.Button_Clean = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Clean.setMinimumSize(QtCore.QSize(150, 35))
         self.Button_Clean.setMaximumSize(QtCore.QSize(150, 35))
-        self.Button_Clean.setAutoDefault(True)
+        self.Button_Clean.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.Button_Clean.setObjectName("Button_Clean")
         self.hLayout5.addWidget(self.Button_Clean)
         self.Button_Query = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Query.setMinimumSize(QtCore.QSize(150, 35))
         self.Button_Query.setMaximumSize(QtCore.QSize(150, 35))
-        self.Button_Query.setAutoDefault(True)
+        self.Button_Query.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.Button_Query.setObjectName("Button_Query")
         self.hLayout5.addWidget(self.Button_Query)
         self.gridLayout_2.addLayout(self.hLayout5, 6, 0, 1, 1)
@@ -464,16 +464,16 @@ class Ui_QueryDoc_Window(object):
 
         else:
             commands = ("""
-                        SELECT documentation."num_order",orders."num_ref_order",offer."client",product_type."variable",documentation."num_doc_client",documentation."num_doc_eipsa",documentation."doc_title",document_type."doc_type",documentation."critical",documentation."state",documentation."revision",documentation."state_date",documentation."hist_rev"
+                        SELECT documentation."num_order",orders."num_ref_order",offers."client",product_type."variable",documentation."num_doc_client",documentation."num_doc_eipsa",documentation."doc_title",document_type."doc_type",documentation."critical",documentation."state",documentation."revision",documentation."state_date",documentation."hist_rev"
                         FROM documentation
                         INNER JOIN orders ON (orders."num_order" = documentation."num_order")
-                        INNER JOIN offer ON (offer."num_offer" = orders."num_offer")
+                        INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
                         INNER JOIN document_type ON (document_type."id" = documentation."doc_type_id")
-                        INNER JOIN product_type ON (product_type."material" = offer."material")
+                        INNER JOIN product_type ON (product_type."material" = offers."material")
                         WHERE
                         (UPPER(documentation."num_order") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        UPPER(offer."client") LIKE UPPER('%%'||%s||'%%')
+                        UPPER(offers."client") LIKE UPPER('%%'||%s||'%%')
                         AND
                         product_type."variable" LIKE '%%'||%s||'%%'
                         AND

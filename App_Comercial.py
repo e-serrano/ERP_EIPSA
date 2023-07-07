@@ -8,6 +8,9 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QMenu
 import psycopg2
+import sys
+import configparser
+from Database_Connection import createConnection
 from config import config
 from datetime import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -148,6 +151,42 @@ class Ui_App_Comercial(object):
         self.Header.addWidget(self.Button_Doc)
         spacerItem1 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
+        self.Button_Graphs = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Graphs.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Graphs.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Graphs.setToolTip('Gráficos')
+        self.Button_Graphs.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Graphs.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
+        self.Button_Graphs.setText("")
+        icon14 = QtGui.QIcon()
+        icon14.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Chart.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Graphs.setIcon(icon14)
+        self.Button_Graphs.setIconSize(QtCore.QSize(40, 40))
+        self.Button_Graphs.setObjectName("Button_Graphs")
+        self.Header.addWidget(self.Button_Graphs)
+        spacerItem10 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem10)
 
         if self.user in ['Ana Calvo','Enrique Serrano']:
             self.Button_Users = QtWidgets.QPushButton(parent=self.frame)
@@ -460,7 +499,7 @@ class Ui_App_Comercial(object):
         try:
             commands = ("""
                         SELECT "offer_month", CAST(SUM("offer_amount") AS numeric)
-                        FROM offer
+                        FROM offers
                         WHERE ("responsible"=%s
                         AND
                         "offer_year"=%s
@@ -538,9 +577,9 @@ class Ui_App_Comercial(object):
             self.BottomLayout.addItem(spacerItem7)
 
             commands = ("""
-                        SELECT COUNT(offer."num_offer"), product_type."variable"
-                        FROM offer
-                        INNER JOIN product_type ON (offer."material"=product_type."material")
+                        SELECT COUNT(offers."num_offer"), product_type."variable"
+                        FROM offers
+                        INNER JOIN product_type ON (offers."material"=product_type."material")
                         WHERE ("responsible"=%s
                         AND
                         "offer_year"=%s
@@ -674,6 +713,7 @@ class Ui_App_Comercial(object):
         self.Button_QueryTag.clicked.connect(self.query_tag)
         self.Button_ExpOffer.clicked.connect(self.export_offer)
         self.Button_Doc.clicked.connect(self.documents)
+        self.Button_Graphs.clicked.connect(self.graphs)
         self.Button_Profile.clicked.connect(self.showMenu)
 
         if self.user in ['Ana Calvo','Enrique Serrano']:
@@ -681,7 +721,7 @@ class Ui_App_Comercial(object):
 
         commands = ("""
                     SELECT "num_offer","state","client","presentation_date","material","offer_amount"
-                    FROM offer
+                    FROM offers
                     WHERE ("responsible" = %s
                     AND
                     ("state" = 'Presentada'
@@ -809,6 +849,16 @@ class Ui_App_Comercial(object):
 
 
     def edit_tag(self):
+        config_obj = configparser.ConfigParser()
+        config_obj.read("database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user = dbparam["user"]
+        password = dbparam["password"]
+
+        if not createConnection(user, password):
+            sys.exit()
+
         self.edittag_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditTags_Window()
         self.ui.setupUi(self.edittag_window)
@@ -830,21 +880,30 @@ class Ui_App_Comercial(object):
 
 
     def documents(self):
-        print('documents')
         self.querydoc_menu=QtWidgets.QMainWindow()
         self.ui=Ui_QueryDoc_Window()
         self.ui.setupUi(self.querydoc_menu)
         self.querydoc_menu.show()
 
 
+    def graphs(self):
+        print('graphs')
+        # self.graphswindow=QtWidgets.QMainWindow()
+        # self.ui=Ui_Graphs_Window()
+        # self.ui.setupUi(self.graphswindow)
+        # self.graphswindow.show()
+
+
     def showMenu(self):
         menu = QMenu(self.centralwidget)
-        menu.setStyleSheet("QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
+        menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; }"
+        "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
         option1 = menu.addAction("Editar contraseña")
         option1.triggered.connect(lambda: self.editpassword())
         menu.addAction(option1)
         button = self.Button_Profile
-        menu.exec(button.mapToGlobal(button.pos()))
+        menu.exec(button.mapToGlobal(QtCore.QPoint(-75, 50)))
+
 
     def editpassword(self):
         self.edit_password_window=QtWidgets.QMainWindow()
@@ -863,7 +922,7 @@ class Ui_App_Comercial(object):
     def update_table(self):
         commands = ("""
                     SELECT "num_offer","state","client","presentation_date","material","offer_amount"
-                    FROM offer
+                    FROM offers
                     WHERE ("responsible" = %s
                     AND
                     ("state" = 'Presentada'
