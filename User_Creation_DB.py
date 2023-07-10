@@ -20,22 +20,22 @@ def create_user_database(username,password):
     conn = psycopg2.connect(**params)
     cur = conn.cursor()
 
-    command_create_user = "CREATE USER {} WITH PASSWORD %s".format(username)
+    command_create_user = f"CREATE USER \"{username}\" WITH PASSWORD '{password}'"
     commands_privileges = """
-        GRANT INSERT, SELECT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO {};
-        GRANT TRUNCATE ON ALL TABLES IN SCHEMA public TO {};
-        GRANT REFERENCES ON ALL TABLES IN SCHEMA public TO {};
-        GRANT TRIGGER ON ALL TABLES IN SCHEMA public TO {};
-        GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO {};
-        GRANT INSERT, SELECT, UPDATE, DELETE ON ALL TABLES IN SCHEMA logging TO {};
-        GRANT TRUNCATE ON ALL TABLES IN SCHEMA logging TO {};
-        GRANT REFERENCES ON ALL TABLES IN SCHEMA logging TO {};
-        GRANT TRIGGER ON ALL TABLES IN SCHEMA logging TO {};
-        GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA logging TO {};
+        GRANT INSERT, SELECT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO "{}";
+        GRANT TRUNCATE ON ALL TABLES IN SCHEMA public TO "{}";
+        GRANT REFERENCES ON ALL TABLES IN SCHEMA public TO "{}";
+        GRANT TRIGGER ON ALL TABLES IN SCHEMA public TO "{}";
+        GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO "{}";
+        GRANT INSERT, SELECT, UPDATE, DELETE ON ALL TABLES IN SCHEMA logging TO "{}";
+        GRANT TRUNCATE ON ALL TABLES IN SCHEMA logging TO "{}";
+        GRANT REFERENCES ON ALL TABLES IN SCHEMA logging TO "{}";
+        GRANT TRIGGER ON ALL TABLES IN SCHEMA logging TO "{}";
+        GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA logging TO "{}";
     """.format(username, username, username, username, username, username, username, username, username, username)
 
     # Create user
-    cur.execute(command_create_user, (password,))
+    cur.execute(command_create_user)
 
     # Grant privileges
     cur.execute(commands_privileges)

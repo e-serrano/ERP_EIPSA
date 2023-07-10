@@ -561,6 +561,9 @@ class Ui_EditTags_Window(object):
     def on_actionTextFilter_triggered(self):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Buscar')
         clickedButton=dlg.exec()
 
@@ -573,10 +576,6 @@ class Ui_EditTags_Window(object):
             filterString = QtCore.QRegularExpression(stringAction, QtCore.QRegularExpression.PatternOption(0))
 
             self.proxy.setFilter(filterString, filterColumn)
-
-
-    def closeEvent(self, event):
-        self.model.database().close()
 
 
 if __name__ == "__main__":

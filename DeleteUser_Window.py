@@ -197,7 +197,6 @@ class Ui_DeleteUser_Window(object):
             dlg.setText("El correo introducido no está registrado")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
-
             del dlg, new_icon
 
         else:
@@ -206,8 +205,8 @@ class Ui_DeleteUser_Window(object):
                         WHERE "email" = %s
                         """)
             conn = None
-            delete_user_database(email)
             try:
+                delete_user_database(email)
             # read the connection parameters
                 params = config()
             # connect to the PostgreSQL server
@@ -233,10 +232,9 @@ class Ui_DeleteUser_Window(object):
                 dlg.setText("Usuario eliminado con éxito")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                 dlg.exec()
+                del dlg, new_icon
 
                 self.email_deleteuser.setText('')
-
-                del dlg, new_icon
 
 
 if __name__ == "__main__":

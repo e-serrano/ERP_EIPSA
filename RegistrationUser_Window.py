@@ -101,7 +101,6 @@ class Ui_RegistrationWindow(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.name_reg.setFont(font)
-        self.name_reg.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.name_reg.setObjectName("name_reg")
         self.verticalLayout.addWidget(self.name_reg)
         self.label_secondname_reg = QtWidgets.QLabel(parent=self.frame)
@@ -120,7 +119,6 @@ class Ui_RegistrationWindow(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.secondname_reg.setFont(font)
-        self.secondname_reg.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.secondname_reg.setObjectName("secondname_reg")
         self.verticalLayout.addWidget(self.secondname_reg)
         self.label_username_reg = QtWidgets.QLabel(parent=self.frame)
@@ -151,7 +149,6 @@ class Ui_RegistrationWindow(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.username_reg.setFont(font)
-        self.username_reg.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.username_reg.setObjectName("username_reg")
         self.verticalLayout.addWidget(self.username_reg)
         self.label_email_reg = QtWidgets.QLabel(parent=self.frame)
@@ -170,7 +167,6 @@ class Ui_RegistrationWindow(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.email_reg.setFont(font)
-        self.email_reg.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.email_reg.setObjectName("email_reg")
         self.verticalLayout.addWidget(self.email_reg)
         self.label_password_reg = QtWidgets.QLabel(parent=self.frame)
@@ -203,7 +199,6 @@ class Ui_RegistrationWindow(object):
         font.setPointSize(10)
         self.password_reg.setFont(font)
         self.password_reg.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
-        self.password_reg.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.password_reg.setObjectName("password_reg")
         self.verticalLayout.addWidget(self.password_reg)
         self.label_rol_reg = QtWidgets.QLabel(parent=self.frame)
@@ -328,7 +323,6 @@ class Ui_RegistrationWindow(object):
                 dlg.setText("El Username debe tener al menos 6 caracteres")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg.exec()
-
                 del dlg, new_icon
 
 
@@ -344,7 +338,6 @@ class Ui_RegistrationWindow(object):
                             "·Debe contener al menos un número")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg.exec()
-
                 del dlg, new_icon
 
 
@@ -357,7 +350,6 @@ class Ui_RegistrationWindow(object):
                 dlg.setText("Por favor, introduzca un email válido")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg.exec()
-
                 del dlg, new_icon
 
 
@@ -396,9 +388,10 @@ class Ui_RegistrationWindow(object):
                     new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Registrar Usuario")
-                    dlg.setText("El Nombre de Usuario introducido ya está registrado")
+                    dlg.setText("El nombre de usuario introducido ya está registrado")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                     dlg.exec()
+                    del dlg, new_icon
 
             # checking if email registered in database
                 elif len(match_email)>0:
@@ -410,6 +403,7 @@ class Ui_RegistrationWindow(object):
                     dlg.setText("El correo electrónico introducido ya está registrado")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                     dlg.exec()
+                    del dlg, new_icon
 
                 else:
                     commands = ("""
@@ -418,8 +412,8 @@ class Ui_RegistrationWindow(object):
                                 VALUES (DEFAULT,%s,%s,%s,%s,%s,%s)
                                 """)
                     conn = None
-                    create_user_database(reg_username,reg_password)
                     try:
+                        create_user_database(reg_username,reg_password)
                     # read the connection parameters
                         params = config()
                     # connect to the PostgreSQL server
@@ -433,7 +427,6 @@ class Ui_RegistrationWindow(object):
                     # commit the changes
                         conn.commit()
 
-
                     # showing success window
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
@@ -443,6 +436,7 @@ class Ui_RegistrationWindow(object):
                         dlg.setText("Usuario registrado con éxito")
                         dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                         dlg.exec()
+                        del dlg, new_icon
 
                     # putting all fields in blank
                         self.name_reg.setText('')
@@ -450,8 +444,6 @@ class Ui_RegistrationWindow(object):
                         self.username_reg.setText('')
                         self.email_reg.setText('')
                         self.password_reg.setText('')
-
-                        del dlg, new_icon
 
                     except (Exception, psycopg2.DatabaseError) as error:
                         print(error)

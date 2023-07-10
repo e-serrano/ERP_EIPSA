@@ -27,6 +27,7 @@ from EditTags_Commercial_Window import Ui_EditTags_Window
 from QueryTags_Window import Ui_QueryTags_Window
 from ExportOffer_Window import Ui_ExportOffer_Window
 from QueryDoc_Window import Ui_QueryDoc_Window
+from GraphsOffer_Window import Ui_GraphsOffer_Window
 from EditUser_Menu import Ui_EditUser_Menu
 from EditPassword_Window import Ui_EditPasswordWindow
 
@@ -38,12 +39,12 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
 
 class Ui_App_Comercial(object):
-    # def __init__(self, user, username):
-    #     self.user=user
-    #     self.username=username
-    def __init__(self):
-        self.user='Enrique Serrano'
-        self.username='e.serranog'
+    def __init__(self, user, username):
+        self.user=user
+        self.username=username
+    # def __init__(self):
+    #     self.user='Enrique Serrano'
+    #     self.username='e.serranog'
 
 
     def setupUi(self, App_Comercial):
@@ -528,36 +529,9 @@ class Ui_App_Comercial(object):
             finally:
                 if conn is not None:
                     conn.close()
-            
+
             months=[int(x[0]) for x in results]
             amounts=[float(x[1]) for x in results]
-            
-            # months=[int(x[0]) for x in results]
-            # amounts=[float(x[1]) for x in results]
-            # amounts2=[float(x[1])*2 for x in results]
-            # dict1 = dict(zip(months, amounts))
-            # for i in range(1,13):
-            #     if i not in months:
-            #         dict1[i] = 0
-
-            # dict2 = dict(zip(months, amounts2))
-            # for i in range(1,13):
-            #     if i not in months:
-            #         dict2[i] = 0
-
-            # dict1 = {key:dict1[key] for key in sorted(dict1.keys())}
-            # dict2 = {key:dict2[key] for key in sorted(dict2.keys())}
-            # final_amounts=list(dict1.values())
-            # final_amounts2=list(dict2.values())
-
-            # self.canvas=FigureCanvas(Figure())
-            # ax=self.canvas.figure.subplots()
-            # bar_width = 0.35
-            # bar_positions1 = np.arange(1,13) - bar_width / 2
-            # bar_positions2 = np.arange(1,13) + bar_width / 2
-            # ax.bar(bar_positions1, final_amounts, width=bar_width, label='Ofertado')
-            # ax.bar(bar_positions2, final_amounts2, width=bar_width, label='Vendido')
-            # ax.legend(loc='best')
 
             self.canvas=FigureCanvas(Figure())
             ax=self.canvas.figure.subplots()
@@ -842,34 +816,64 @@ class Ui_App_Comercial(object):
 
 
     def new_tag(self):
-        self.new_tag_window=QtWidgets.QMainWindow()
-        self.ui=Ui_CreateTag_Menu()
-        self.ui.setupUi(self.new_tag_window)
-        self.new_tag_window.show()
+        # self.new_tag_window=QtWidgets.QMainWindow()
+        # self.ui=Ui_CreateTag_Menu()
+        # self.ui.setupUi(self.new_tag_window)
+        # self.new_tag_window.show()
+
+        dlg = QtWidgets.QMessageBox()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle("ERP EIPSA")
+        dlg.setText("Este módulo aún no está disponible.\nDisculpe las molestias")
+        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        dlg.exec()
+        del dlg, new_icon
 
 
     def edit_tag(self):
-        config_obj = configparser.ConfigParser()
-        config_obj.read("database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
-        user = dbparam["user"]
-        password = dbparam["password"]
+        # config_obj = configparser.ConfigParser()
+        # config_obj.read("database.ini")
+        # dbparam = config_obj["postgresql"]
+        # # set your parameters for the database connection URI using the keys from the configfile.ini
+        # user = dbparam["user"]
+        # password = dbparam["password"]
 
-        if not createConnection(user, password):
-            sys.exit()
+        # if not createConnection(user, password):
+        #     sys.exit()
 
-        self.edittag_window=QtWidgets.QMainWindow()
-        self.ui=Ui_EditTags_Window()
-        self.ui.setupUi(self.edittag_window)
-        self.edittag_window.show()
+        # self.edittag_window=QtWidgets.QMainWindow()
+        # self.ui=Ui_EditTags_Window()
+        # self.ui.setupUi(self.edittag_window)
+        # self.edittag_window.show()
+
+        dlg = QtWidgets.QMessageBox()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle("ERP EIPSA")
+        dlg.setText("Este módulo aún no está disponible.\nDisculpe las molestias")
+        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        dlg.exec()
+        del dlg, new_icon
 
 
     def query_tag(self):
-        self.querytag_window=QtWidgets.QMainWindow()
-        self.ui=Ui_QueryTags_Window()
-        self.ui.setupUi(self.querytag_window)
-        self.querytag_window.show()
+        # self.querytag_window=QtWidgets.QMainWindow()
+        # self.ui=Ui_QueryTags_Window()
+        # self.ui.setupUi(self.querytag_window)
+        # self.querytag_window.show()
+
+        dlg = QtWidgets.QMessageBox()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle("ERP EIPSA")
+        dlg.setText("Este módulo aún no está disponible.\nDisculpe las molestias")
+        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        dlg.exec()
+        del dlg, new_icon
 
 
     def export_offer(self):
@@ -887,11 +891,10 @@ class Ui_App_Comercial(object):
 
 
     def graphs(self):
-        print('graphs')
-        # self.graphswindow=QtWidgets.QMainWindow()
-        # self.ui=Ui_Graphs_Window()
-        # self.ui.setupUi(self.graphswindow)
-        # self.graphswindow.show()
+        self.graphswindow=QtWidgets.QMainWindow()
+        self.ui=Ui_GraphsOffer_Window()
+        self.ui.setupUi(self.graphswindow)
+        self.graphswindow.show()
 
 
     def showMenu(self):

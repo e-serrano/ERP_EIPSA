@@ -33,11 +33,11 @@ def delete_user_database(email):
 
     # Revoke all privileges and delete user from database
     commands_delete_privileges = """
-        REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA logging FROM {};
-        REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM {};
-        REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM {};
-        REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA logging FROM {};
-        DROP USER  {};
+        REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA logging FROM "{}";
+        REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM "{}";
+        REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM "{}";
+        REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA logging FROM "{}";
+        DROP USER  "{}";
     """.format(user_db, user_db, user_db, user_db, user_db)
 
     cur.execute(commands_delete_privileges)

@@ -159,7 +159,7 @@ class Ui_Login_Window(object):
         self.accept_login.setMaximumSize(QtCore.QSize(200, 35))
         self.accept_login.setAutoDefault(True)
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(12)
         font.setBold(True)
         font.setUnderline(False)
         font.setStrikeOut(False)
@@ -171,7 +171,6 @@ class Ui_Login_Window(object):
 "  border-radius: 3px;\n"
 "  color: #fff;\n"
 "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
 "  font-weight: 800;\n"
 "  line-height: 1.15385;\n"
 "  margin: 0;\n"
@@ -227,7 +226,6 @@ class Ui_Login_Window(object):
 "  border-color: #33bdef;\n"
 "  color: #33bdef;\n"
 "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 14px;\n"
 "  font-weight: 800;\n"
 "  line-height: 1.15385;\n"
 "  margin: 0;\n"
@@ -342,7 +340,7 @@ class Ui_Login_Window(object):
                 rol_app=match[0][6]
                 self.app_window=QtWidgets.QMainWindow()
                 if rol_app=='Comercial':
-                    self.ui=Ui_App_Comercial(match[0][1]+' '+match[0][2], login_username) #cambiar por app_window cuando esté lista y abrir una u otra en función de perfil
+                    self.ui=Ui_App_Comercial(match[0][1]+' '+match[0][2], login_username)
 
                 elif rol_app=="Compras":
                     self.ui=Ui_Purchasing_Menu()
@@ -356,6 +354,7 @@ class Ui_Login_Window(object):
                     dlg.setText("La aplicación no está disponible para este usuario. Disculpe las molestias")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                     dlg.exec()
+                    del dlg, new_icon
 
             # editing the database.ini file for each user
                 edit = configparser.ConfigParser()
@@ -375,10 +374,20 @@ class Ui_Login_Window(object):
 
 
     def forgetpassword(self):
-        self.forgetpass_window=QtWidgets.QMainWindow()
-        self.ui=Ui_ForgetPass_Window()
-        self.ui.setupUi(self.forgetpass_window)
-        self.forgetpass_window.show()
+        # self.forgetpass_window=QtWidgets.QMainWindow()
+        # self.ui=Ui_ForgetPass_Window()
+        # self.ui.setupUi(self.forgetpass_window)
+        # self.forgetpass_window.show()
+
+        dlg = QtWidgets.QMessageBox()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle("ERP EIPSA")
+        dlg.setText("Este módulo aún no está disponible. Póngase en contacto con el administrador del sistema.\nDisculpe las molestias")
+        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        dlg.exec()
+        del dlg, new_icon
 
 
 if __name__ == "__main__":
