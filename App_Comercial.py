@@ -39,12 +39,12 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
 
 class Ui_App_Comercial(object):
-    def __init__(self, user, username):
-        self.user=user
-        self.username=username
-    # def __init__(self):
-    #     self.user='Enrique Serrano'
-    #     self.username='e.serranog'
+    # def __init__(self, user, username):
+    #     self.user=user
+    #     self.username=username
+    def __init__(self):
+        self.user='Enrique Serrano'
+        self.username='e.serranog'
 
 
     def setupUi(self, App_Comercial):
@@ -145,7 +145,7 @@ class Ui_App_Comercial(object):
 "}")
         self.Button_Doc.setText("")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Documents.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon1.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Documents_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Doc.setIcon(icon1)
         self.Button_Doc.setIconSize(QtCore.QSize(40, 40))
         self.Button_Doc.setObjectName("Button_Doc")
@@ -686,7 +686,7 @@ class Ui_App_Comercial(object):
         self.Button_EditTag.clicked.connect(self.edit_tag)
         self.Button_QueryTag.clicked.connect(self.query_tag)
         self.Button_ExpOffer.clicked.connect(self.export_offer)
-        self.Button_Doc.clicked.connect(self.documents)
+        self.Button_Doc.clicked.connect(self.query_documents)
         self.Button_Graphs.clicked.connect(self.graphs)
         self.Button_Profile.clicked.connect(self.showMenu)
 
@@ -883,7 +883,7 @@ class Ui_App_Comercial(object):
         self.exportoffer_window.show()
 
 
-    def documents(self):
+    def query_documents(self):
         self.querydoc_menu=QtWidgets.QMainWindow()
         self.ui=Ui_QueryDoc_Window()
         self.ui.setupUi(self.querydoc_menu)

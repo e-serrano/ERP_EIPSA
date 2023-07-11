@@ -215,7 +215,7 @@ QPushButton:pressed{
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Documents.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Documents.png</iconset>
+               <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Documents_Search.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Documents_Search.png</iconset>
              </property>
              <property name="iconSize">
               <size>

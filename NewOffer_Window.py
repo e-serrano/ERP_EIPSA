@@ -436,7 +436,10 @@ class Ui_New_Offer_Window(object):
         notes=self.Notes_NewOffer.toPlainText()
         ratetype=self.RateType_NewOffer.text()
         state="Registrada"
-        responsible=self.user[0] + self.user[self.user.find(' ')+1]
+        if self.user=='Carlos Crespo':
+            responsible=self.user[0] + self.user[self.user.find(' ')+1]+'H'
+        else:
+            responsible=self.user[0] + self.user[self.user.find(' ')+1]
         actual_date=date.today()
         actual_date= actual_date.strftime("%d/%m/%Y")
 
@@ -486,7 +489,7 @@ class Ui_New_Offer_Window(object):
             else:
                 commands = ("""
                             INSERT INTO offers (
-                            "num_offer","state","responsible","client","final_client","num_ref_offer","register_date","nac_ext","buyer","material","notes"
+                            "num_offer","state","responsible","client","final_client","num_ref_offer","register_date","nac_ext","buyer","material","notes","limit_date","rate_type"
                             )
                             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                             """)
@@ -498,7 +501,7 @@ class Ui_New_Offer_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    data=(numoffer, state, responsible, client, finalclient, numref, actual_date, nacext, buyer, material, notes,)
+                    data=(numoffer, state, responsible, client, finalclient, numref, actual_date, nacext, buyer, material, notes, limitdate, ratetype)
                     cur.execute(commands, data)
                 # close communication with the PostgreSQL database server
                     cur.close()

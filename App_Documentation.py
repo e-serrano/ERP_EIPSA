@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'App_Purchasing.ui'
+# Form implementation generated from reading ui file 'App_Documentation.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -7,24 +7,30 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-from Purchasing_Menu import Ui_Purchasing_Menu
-from QueryOffer_Window import Ui_QueryOffer_Window
-from QueryOrder_Window import Ui_QueryOrder_Window
-from QueryTags_Window import Ui_QueryTags_Window
-from EditPassword_Window import Ui_EditPasswordWindow
 from PyQt6.QtWidgets import QMenu
+from config import config
+from datetime import *
+import psycopg2
+import sys
+import configparser
+from Database_Connection import createConnection
+from tkinter.filedialog import askopenfilename
+import pandas as pd
+from NewDoc_Window import Ui_New_Doc_Window
+from EditDoc_Window import Ui_EditDoc_Window
+from QueryDoc_Window import Ui_QueryDoc_Window
+from EditPassword_Window import Ui_EditPasswordWindow
 
-
-class Ui_App_Purchasing(object):
-    def setupUi(self, App_Purchasing):
-        App_Purchasing.setObjectName("App_Purchasing")
-        App_Purchasing.resize(945, 860)
-        App_Purchasing.setMinimumSize(QtCore.QSize(945, 860))
+class Ui_App_Documentation(object):
+    def setupUi(self, App_Documentation):
+        App_Documentation.setObjectName("App_Documentation")
+        App_Documentation.resize(945, 860)
+        App_Documentation.setMinimumSize(QtCore.QSize(945, 860))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        App_Purchasing.setWindowIcon(icon)
-        App_Purchasing.setStyleSheet("background-color: rgb(255, 255, 255);")
-        self.centralwidget = QtWidgets.QWidget(parent=App_Purchasing)
+        App_Documentation.setWindowIcon(icon)
+        App_Documentation.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.centralwidget = QtWidgets.QWidget(parent=App_Documentation)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_2.setObjectName("gridLayout_2")
@@ -138,88 +144,74 @@ class Ui_App_Purchasing(object):
         self.verticalLayout_3.setContentsMargins(9, 0, -1, 0)
         self.verticalLayout_3.setSpacing(25)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.Button_Purchasing = QtWidgets.QPushButton(parent=self.ButtonFrame)
-        self.Button_Purchasing.setMinimumSize(QtCore.QSize(200, 50))
-        self.Button_Purchasing.setMaximumSize(QtCore.QSize(200, 50))
+        self.Button_NewDoc = QtWidgets.QPushButton(parent=self.ButtonFrame)
+        self.Button_NewDoc.setMinimumSize(QtCore.QSize(200, 50))
+        self.Button_NewDoc.setMaximumSize(QtCore.QSize(200, 50))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
-        self.Button_Purchasing.setFont(font)
-        self.Button_Purchasing.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_NewDoc.setFont(font)
+        self.Button_NewDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Purchasing.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Purchasing.setIcon(icon1)
-        self.Button_Purchasing.setIconSize(QtCore.QSize(40, 40))
-        self.Button_Purchasing.setObjectName("Button_Purchasing")
-        self.verticalLayout_3.addWidget(self.Button_Purchasing)
-        self.Button_PurchaseOrder = QtWidgets.QPushButton(parent=self.ButtonFrame)
-        self.Button_PurchaseOrder.setMinimumSize(QtCore.QSize(200, 50))
-        self.Button_PurchaseOrder.setMaximumSize(QtCore.QSize(200, 50))
+        icon1.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Documents_New.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_NewDoc.setIcon(icon1)
+        self.Button_NewDoc.setIconSize(QtCore.QSize(40, 40))
+        self.Button_NewDoc.setObjectName("Button_NewDoc")
+        self.verticalLayout_3.addWidget(self.Button_NewDoc)
+        self.Button_ImportDoc = QtWidgets.QPushButton(parent=self.ButtonFrame)
+        self.Button_ImportDoc.setMinimumSize(QtCore.QSize(200, 50))
+        self.Button_ImportDoc.setMaximumSize(QtCore.QSize(200, 50))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
-        self.Button_PurchaseOrder.setFont(font)
-        self.Button_PurchaseOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_ImportDoc.setFont(font)
+        self.Button_ImportDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Purchase_Order.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_PurchaseOrder.setIcon(icon2)
-        self.Button_PurchaseOrder.setIconSize(QtCore.QSize(40, 40))
-        self.Button_PurchaseOrder.setObjectName("Button_PurchaseOrder")
-        self.verticalLayout_3.addWidget(self.Button_PurchaseOrder)
-        self.Button_QueryOffer = QtWidgets.QPushButton(parent=self.ButtonFrame)
-        self.Button_QueryOffer.setMinimumSize(QtCore.QSize(200, 50))
-        self.Button_QueryOffer.setMaximumSize(QtCore.QSize(200, 50))
+        icon2.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Documents_Import.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_ImportDoc.setIcon(icon2)
+        self.Button_ImportDoc.setIconSize(QtCore.QSize(40, 40))
+        self.Button_ImportDoc.setObjectName("Button_ImportDoc")
+        self.verticalLayout_3.addWidget(self.Button_ImportDoc)
+        self.Button_EditDoc = QtWidgets.QPushButton(parent=self.ButtonFrame)
+        self.Button_EditDoc.setMinimumSize(QtCore.QSize(200, 50))
+        self.Button_EditDoc.setMaximumSize(QtCore.QSize(200, 50))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
-        self.Button_QueryOffer.setFont(font)
-        self.Button_QueryOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_EditDoc.setFont(font)
+        self.Button_EditDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Offer_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_QueryOffer.setIcon(icon3)
-        self.Button_QueryOffer.setIconSize(QtCore.QSize(40, 40))
-        self.Button_QueryOffer.setObjectName("Button_QueryOffer")
-        self.verticalLayout_3.addWidget(self.Button_QueryOffer)
-        self.Button_QueryOrder = QtWidgets.QPushButton(parent=self.ButtonFrame)
-        self.Button_QueryOrder.setMinimumSize(QtCore.QSize(200, 50))
-        self.Button_QueryOrder.setMaximumSize(QtCore.QSize(200, 50))
+        icon3.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Documents_Edit.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_EditDoc.setIcon(icon3)
+        self.Button_EditDoc.setIconSize(QtCore.QSize(40, 40))
+        self.Button_EditDoc.setObjectName("Button_EditDoc")
+        self.verticalLayout_3.addWidget(self.Button_EditDoc)
+        self.Button_QueryDoc = QtWidgets.QPushButton(parent=self.ButtonFrame)
+        self.Button_QueryDoc.setMinimumSize(QtCore.QSize(200, 50))
+        self.Button_QueryDoc.setMaximumSize(QtCore.QSize(200, 50))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
-        self.Button_QueryOrder.setFont(font)
-        self.Button_QueryOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_QueryDoc.setFont(font)
+        self.Button_QueryDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Order_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_QueryOrder.setIcon(icon4)
-        self.Button_QueryOrder.setIconSize(QtCore.QSize(40, 40))
-        self.Button_QueryOrder.setObjectName("Button_QueryOrder")
-        self.verticalLayout_3.addWidget(self.Button_QueryOrder)
-        self.Button_QueryTag = QtWidgets.QPushButton(parent=self.ButtonFrame)
-        self.Button_QueryTag.setMinimumSize(QtCore.QSize(200, 50))
-        self.Button_QueryTag.setMaximumSize(QtCore.QSize(200, 50))
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        self.Button_QueryTag.setFont(font)
-        self.Button_QueryTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/TAG_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_QueryTag.setIcon(icon5)
-        self.Button_QueryTag.setIconSize(QtCore.QSize(40, 40))
-        self.Button_QueryTag.setObjectName("Button_QueryTag")
-        self.verticalLayout_3.addWidget(self.Button_QueryTag)
+        icon4.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Documents_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_QueryDoc.setIcon(icon4)
+        self.Button_QueryDoc.setIconSize(QtCore.QSize(40, 40))
+        self.Button_QueryDoc.setObjectName("Button_QueryDoc")
+        self.verticalLayout_3.addWidget(self.Button_QueryDoc)
         self.PrincipalScreen.addWidget(self.ButtonFrame)
         spacerItem4 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.PrincipalScreen.addItem(spacerItem4)
         self.MainLayout = QtWidgets.QVBoxLayout()
         self.MainLayout.setObjectName("MainLayout")
-        self.table = QtWidgets.QTableWidget(parent=self.frame)
-        self.table.setMinimumSize(QtCore.QSize(650, 280))
-        self.table.setObjectName("table")
-        self.table.setColumnCount(0)
-        self.table.setRowCount(0)
-        self.table.verticalHeader().setVisible(False)
-        self.MainLayout.addWidget(self.table)
+        self.tableOffer = QtWidgets.QTableWidget(parent=self.frame)
+        self.tableOffer.setMinimumSize(QtCore.QSize(650, 280))
+        self.tableOffer.setObjectName("tableOffer")
+        self.tableOffer.setColumnCount(0)
+        self.tableOffer.setRowCount(0)
+        self.tableOffer.verticalHeader().setVisible(False)
+        self.MainLayout.addWidget(self.tableOffer)
         spacerItem5 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.MainLayout.addItem(spacerItem5)
         self.BottomLayout = QtWidgets.QHBoxLayout()
@@ -245,7 +237,7 @@ class Ui_App_Purchasing(object):
 "QCalendarWidget QToolButton {\n"
 "    color: white;\n"
 "    font-size:20px;\n"
-"    icon-size:30px,30px;\n"
+"    icon-size:30px 30px;\n"
 "    background-color:rgb(3, 174, 236);\n"
 "}\n"
 "\n"
@@ -287,66 +279,135 @@ class Ui_App_Purchasing(object):
         self.FrameApp.addLayout(self.PrincipalScreen)
         self.gridLayout.addLayout(self.FrameApp, 3, 0, 1, 1)
         self.gridLayout_2.addWidget(self.frame, 0, 0, 1, 1)
-        App_Purchasing.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=App_Purchasing)
+        App_Documentation.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=App_Documentation)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 945, 22))
         self.menubar.setObjectName("menubar")
-        App_Purchasing.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=App_Purchasing)
+        App_Documentation.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=App_Documentation)
         self.statusbar.setObjectName("statusbar")
-        App_Purchasing.setStatusBar(self.statusbar)
+        App_Documentation.setStatusBar(self.statusbar)
 
-        self.retranslateUi(App_Purchasing)
-        QtCore.QMetaObject.connectSlotsByName(App_Purchasing)
-        self.Button_Purchasing.clicked.connect(self.purchase)
-        self.Button_PurchaseOrder.clicked.connect(self.purchase_order)
-        self.Button_QueryOffer.clicked.connect(self.query_offer)
-        self.Button_QueryOrder.clicked.connect(self.query_order)
-        self.Button_QueryTag.clicked.connect(self.query_tag)
+        self.retranslateUi(App_Documentation)
+        self.Button_NewDoc.clicked.connect(self.CreateDoc)
+        self.Button_ImportDoc.clicked.connect(self.ImportDoc)
+        self.Button_EditDoc.clicked.connect(self.EditDoc)
+        self.Button_QueryDoc.clicked.connect(self.query_documents)
         self.Button_Profile.clicked.connect(self.showMenu)
+        QtCore.QMetaObject.connectSlotsByName(App_Documentation)
 
 
-    def retranslateUi(self, App_Purchasing):
+    def retranslateUi(self, App_Documentation):
         _translate = QtCore.QCoreApplication.translate
-        App_Purchasing.setWindowTitle(_translate("App_Purchasing", "ERP EIPSA"))
-        self.HeaderName.setText(_translate("App_Purchasing", "ENRIQUE SERRANO"))
-        self.Button_Purchasing.setText(_translate("App_Purchasing", "    Compras"))
-        self.Button_PurchaseOrder.setText(_translate("App_Purchasing", " Orden de Compra"))
-        self.Button_QueryOffer.setText(_translate("App_Purchasing", "    Consultar Ofertas"))
-        self.Button_QueryOrder.setText(_translate("App_Purchasing", "   Consultar Pedidos"))
-        self.Button_QueryTag.setText(_translate("App_Purchasing", "    Consultar TAG(s)"))
-        self.table.setSortingEnabled(True)
+        App_Documentation.setWindowTitle(_translate("App_Documentation", "ERP EIPSA"))
+        self.HeaderName.setText(_translate("App_Documentation", "ENRIQUE SERRANO"))
+        self.Button_NewDoc.setText(_translate("App_Documentation", "    Crear Documento"))
+        self.Button_ImportDoc.setText(_translate("App_Documentation", "    Importar Docum."))
+        self.Button_EditDoc.setText(_translate("App_Documentation", "    Editar Docum."))
+        self.Button_QueryDoc.setText(_translate("App_Documentation", "    Consultar Docum."))
+        self.tableOffer.setSortingEnabled(True)
 
 
-    def purchase(self):
-        self.purchasing_window=QtWidgets.QMainWindow()
-        self.ui=Ui_Purchasing_Menu()
-        self.ui.setupUi(self.purchasing_window)
-        self.purchasing_window.show()
-
-    def purchase_order(self):
-        print('ordenes de compra')
+    def CreateDoc(self):
+        self.createdoc_window=QtWidgets.QMainWindow()
+        self.ui=Ui_New_Doc_Window()
+        self.ui.setupUi(self.createdoc_window)
+        self.createdoc_window.show()
 
 
-    def query_offer(self):
-        self.query_offer_window=QtWidgets.QMainWindow()
-        self.ui=Ui_QueryOffer_Window()
-        self.ui.setupUi(self.query_offer_window)
-        self.query_offer_window.show()
+    def ImportDoc(self):
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+
+        # File dialog to select Excel file
+        # Tk().withdraw()  # Ocultar la ventana principal de tkinter
+            excel_file = askopenfilename(title="Seleccionar archivo Excel")
+
+        # Saving Excel in Pandas Dataframe
+            df = pd.read_excel(excel_file)
+
+        # Reading each row and inserting data in table
+            for index, row in df.iterrows():
+            # Creating SQL sentence
+                values=[str(value) for value in row.values]
+
+                query = "SELECT * FROM documentation WHERE num_doc_eipsa = %s"
+                cur.execute(query, (values[0],))
+                results=cur.fetchall()
+                match=list(filter(lambda x:values[0] in x, results))
+
+                if len(match)>0:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Nuevo Documento")
+                    dlg.setText(f"El número de documento '{values[0]}' ya existe y no será importado. Por favor, edítalo y vuelve a importarlo")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                else:
+                    query = "SELECT id FROM document_type WHERE doc_type = %s"
+                    cur.execute(query, (values[4],))
+                # get results from query
+                    resultado = cur.fetchone()
+                # get id from table
+                    id_doctype = resultado[0]
+                #inserting values to BBDD
+                    values[4]=str(id_doctype)
+                    values = "', '".join(values)
+                    sql_insertion = f"INSERT INTO documentation VALUES ('{values}')"
+                # Executing SQL sentence
+                    cur.execute(sql_insertion)
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Importar Documentos")
+            dlg.setText("Importación completada")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+            dlg.exec()
+            del dlg, new_icon
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
 
 
-    def query_order(self):
-        self.query_order_window=QtWidgets.QMainWindow()
-        self.ui=Ui_QueryOrder_Window()
-        self.ui.setupUi(self.query_order_window)
-        self.query_order_window.show()
+    def EditDoc(self):
+        config_obj = configparser.ConfigParser()
+        config_obj.read("database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user = dbparam["user"]
+        password = dbparam["password"]
+
+        if not createConnection(user, password):
+            sys.exit()
+        self.editdoc_window=QtWidgets.QMainWindow()
+        self.ui=Ui_EditDoc_Window()
+        self.ui.setupUi(self.editdoc_window)
+        self.editdoc_window.show()
 
 
-    def query_tag(self):
-        self.querytag_window=QtWidgets.QMainWindow()
-        self.ui=Ui_QueryTags_Window()
-        self.ui.setupUi(self.querytag_window)
-        self.querytag_window.show()
+    def query_documents(self):
+        self.querydoc_menu=QtWidgets.QMainWindow()
+        self.ui=Ui_QueryDoc_Window()
+        self.ui.setupUi(self.querydoc_menu)
+        self.querydoc_menu.show()
 
 
     def showMenu(self):
@@ -370,8 +431,8 @@ class Ui_App_Purchasing(object):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    App_Purchasing = QtWidgets.QMainWindow()
-    ui = Ui_App_Purchasing()
-    ui.setupUi(App_Purchasing)
-    App_Purchasing.show()
+    App_Documentation = QtWidgets.QMainWindow()
+    ui = Ui_App_Documentation()
+    ui.setupUi(App_Documentation)
+    App_Documentation.show()
     sys.exit(app.exec())

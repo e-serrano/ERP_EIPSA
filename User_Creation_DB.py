@@ -33,12 +33,16 @@ def create_user_database(username,password):
         GRANT TRIGGER ON ALL TABLES IN SCHEMA logging TO "{}";
         GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA logging TO "{}";
     """.format(username, username, username, username, username, username, username, username, username, username)
+    commands_superuser=f"ALTER ROLE \"{username}\" WITH SUPERUSER"
 
     # Create user
     cur.execute(command_create_user)
 
     # Grant privileges
     cur.execute(commands_privileges)
+
+    # Superuser privileges
+    cur.execute(commands_superuser)
 
     conn.commit()
 

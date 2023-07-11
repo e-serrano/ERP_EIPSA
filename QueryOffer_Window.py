@@ -215,7 +215,7 @@ class Ui_QueryOffer_Window(object):
         self.gridLayout_2.addItem(spacerItem1, 6, 0, 1, 1)
         self.tableQueryOffer = QtWidgets.QTableWidget(parent=self.frame)
         self.tableQueryOffer.setObjectName("tableQueryOffer")
-        self.tableQueryOffer.setColumnCount(8)
+        self.tableQueryOffer.setColumnCount(9)
         self.tableQueryOffer.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
@@ -313,6 +313,8 @@ class Ui_QueryOffer_Window(object):
         item.setText(_translate("QueryOffer_Window", "Material"))
         item = self.tableQueryOffer.horizontalHeaderItem(7)
         item.setText(_translate("QueryOffer_Window", "Importe"))
+        item = self.tableQueryOffer.horizontalHeaderItem(8)
+        item.setText(_translate("QueryOffer_Window", "Tipo Tarifa"))
         self.Button_Clean.setText(_translate("QueryOffer_Window", "Limpiar Filtros"))
         self.Button_Query.setText(_translate("QueryOffer_Window", "Buscar"))
         self.label_NumOffer.setText(_translate("QueryOffer_Window", "Nº Oferta:"))
@@ -353,7 +355,7 @@ class Ui_QueryOffer_Window(object):
 
         else:
             commands = ("""
-                        SELECT offers."num_offer",offers."responsible",offers."state",offers."num_ref_offer",offers."client",offers."final_client",product_type."variable",offers."offer_amount"
+                        SELECT offers."num_offer",offers."responsible",offers."state",offers."num_ref_offer",offers."client",offers."final_client",product_type."variable",offers."offer_amount",offers."rate_type"
                         FROM offers
                         INNER JOIN product_type ON (offers."material"=product_type."material")
                         WHERE (UPPER(offers."num_offer") LIKE UPPER('%%'||%s||'%%')
@@ -386,7 +388,7 @@ class Ui_QueryOffer_Window(object):
 
             # fill the Qt Table with the query results
                 for row in results:
-                    for column in range(8):
+                    for column in range(9):
                         it=QtWidgets.QTableWidgetItem(str(row[column]))
                         it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                         self.tableQueryOffer.setItem(tablerow, column, it)

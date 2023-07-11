@@ -11,7 +11,8 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
 from App_Comercial import Ui_App_Comercial
-from Purchasing_Menu import Ui_Purchasing_Menu
+from App_Purchasing import Ui_App_Purchasing
+from App_Documentation import Ui_App_Documentation
 from ForgetPass_Window import Ui_ForgetPass_Window
 import configparser
 
@@ -343,7 +344,10 @@ class Ui_Login_Window(object):
                     self.ui=Ui_App_Comercial(match[0][1]+' '+match[0][2], login_username)
 
                 elif rol_app=="Compras":
-                    self.ui=Ui_Purchasing_Menu()
+                    self.ui=Ui_App_Purchasing()
+
+                elif rol_app=="Documentación":
+                    self.ui=Ui_App_Documentation()
 
                 else:
                     dlg = QtWidgets.QMessageBox()

@@ -21,7 +21,7 @@ class Ui_QueryDoc_Window(object):
     def setupUi(self, QueryDoc_Window):
         QueryDoc_Window.setObjectName("QueryDoc_Window")
         QueryDoc_Window.resize(845, 654)
-        QueryDoc_Window.setMinimumSize(QtCore.QSize(845, 590))
+        QueryDoc_Window.setMinimumSize(QtCore.QSize(1500, 790))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         QueryDoc_Window.setWindowIcon(icon)
@@ -464,11 +464,12 @@ class Ui_QueryDoc_Window(object):
 
         else:
             commands = ("""
-                        SELECT documentation."num_order",orders."num_ref_order",offers."client",product_type."variable",documentation."num_doc_client",documentation."num_doc_eipsa",documentation."doc_title",document_type."doc_type",documentation."critical",documentation."state",documentation."revision",documentation."state_date",documentation."hist_rev"
+                        SELECT documentation."num_order",orders."num_ref_order",offers."client",product_type."variable",documentation."num_doc_client",documentation."num_doc_eipsa",documentation."doc_title",document_type."doc_type",documentation."critical",documentation."state",documentation."revision",documentation."state_date",hist_doc."hist_rev_column"
                         FROM documentation
                         INNER JOIN orders ON (orders."num_order" = documentation."num_order")
                         INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
                         INNER JOIN document_type ON (document_type."id" = documentation."doc_type_id")
+                        INNER JOIN hist_doc ON (hist_doc."num_doc_eipsa" = documentation."num_doc_eipsa")
                         INNER JOIN product_type ON (product_type."material" = offers."material")
                         WHERE
                         (UPPER(documentation."num_order") LIKE UPPER('%%'||%s||'%%')

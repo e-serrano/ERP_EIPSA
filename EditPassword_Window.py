@@ -10,11 +10,12 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import re
 import psycopg2
 from config import config
+from User_Edit_Password_DB import edit_user_password_database
 
 
 class Ui_EditPasswordWindow(object):
-    def __init__(self, username):
-        self.username=username
+    def __init__(self):#, username):
+        self.username='a.calvo'
 
 
     def setupUi(self, EditPasswordWindow):
@@ -31,33 +32,6 @@ class Ui_EditPasswordWindow(object):
     "\n"
     ".QFrame {\n"
     "    border: 2px solid black;\n"
-    "}\n"
-    "\n"
-    "QPushButton {\n"
-    "background-color: #33bdef;\n"
-    "  border: 1px solid transparent;\n"
-    "  border-radius: 3px;\n"
-    "  color: #fff;\n"
-    "  font-size: 15px;\n"
-    "  font-weight: 800;\n"
-    "  line-height: 1.15385;\n"
-    "  margin: 0;\n"
-    "  outline: none;\n"
-    "  padding: 0px .8em;\n"
-    "  text-align: center;\n"
-    "  text-decoration: none;\n"
-    "  vertical-align: baseline;\n"
-    "  white-space: nowrap;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover {\n"
-    "    background-color: #019ad2;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed {\n"
-    "    background-color: rgb(1, 140, 190);\n"
-    "    border-color: rgb(255, 255, 255);\n"
     "}")
         self.centralwidget = QtWidgets.QWidget(parent=EditPasswordWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -134,7 +108,6 @@ class Ui_EditPasswordWindow(object):
         spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.verticalLayout.addItem(spacerItem)
         self.accept_editpassword = QtWidgets.QPushButton(parent=self.frame)
-        self.accept_editpassword.setEnabled(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -147,15 +120,47 @@ class Ui_EditPasswordWindow(object):
         font.setUnderline(False)
         font.setStrikeOut(False)
         self.accept_editpassword.setFont(font)
-        self.accept_editpassword.setStyleSheet("QPushButton:focus{\n"
-    "background-color: #019ad2;\n"
-    "border-color: rgb(0, 0, 0);\n"
-    "}")
-        self.accept_editpassword.setAutoDefault(True)
+        self.accept_editpassword.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.accept_editpassword.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 8px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:focus {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255)\n"
+"}\n"
+"\n"
+"QPushButton:focus:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
         self.accept_editpassword.setObjectName("accept_editpassword")
         self.verticalLayout.addWidget(self.accept_editpassword)
         self.exit_editpassword = QtWidgets.QPushButton(parent=self.frame)
-        self.exit_editpassword.setEnabled(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -168,11 +173,44 @@ class Ui_EditPasswordWindow(object):
         font.setUnderline(False)
         font.setStrikeOut(False)
         self.exit_editpassword.setFont(font)
-        self.exit_editpassword.setStyleSheet("QPushButton:focus{\n"
-    "background-color: #019ad2;\n"
-    "border-color: rgb(0, 0, 0);\n"
-    "}")
-        self.exit_editpassword.setAutoDefault(True)
+        self.exit_editpassword.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.exit_editpassword.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 8px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:focus {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255)\n"
+"}\n"
+"\n"
+"QPushButton:focus:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
         self.exit_editpassword.setObjectName("exit_editpassword")
         self.verticalLayout.addWidget(self.exit_editpassword)
         self.label_error = QtWidgets.QLabel(parent=self.frame)
@@ -238,6 +276,7 @@ class Ui_EditPasswordWindow(object):
                         """)
             conn = None
             try:
+                edit_user_password_database(self.username,new_password)
             # read the connection parameters
                 params = config()
             # connect to the PostgreSQL server

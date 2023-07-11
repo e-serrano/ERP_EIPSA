@@ -218,7 +218,7 @@ class Ui_RegistrationWindow(object):
         font.setPointSize(10)
         self.rol_reg.setFont(font)
         self.rol_reg.setObjectName("rol_reg")
-        list_rol=['Comercial','Compras','Dirección','Fábrica','Facturación','Técnico',]
+        list_rol=['Comercial','Compras','Dirección','Documentación','Fábrica','Facturación','Técnico',]
         self.rol_reg.addItems(list_rol)
         self.verticalLayout.addWidget(self.rol_reg)
         spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -241,6 +241,7 @@ class Ui_RegistrationWindow(object):
         font.setStrikeOut(False)
         self.accept_reg.setFont(font)
         self.accept_reg.setAutoDefault(True)
+        self.accept_reg.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.accept_reg.setObjectName("accept_reg")
         self.verticalLayout.addWidget(self.accept_reg)
         self.exit_reg = QtWidgets.QPushButton(parent=self.frame)
@@ -261,6 +262,7 @@ class Ui_RegistrationWindow(object):
         font.setStrikeOut(False)
         self.exit_reg.setFont(font)
         self.exit_reg.setAutoDefault(True)
+        self.exit_reg.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.exit_reg.setObjectName("exit_reg")
         self.verticalLayout.addWidget(self.exit_reg)
         self.label_error_reg = QtWidgets.QLabel(parent=self.frame)
