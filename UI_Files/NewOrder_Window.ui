@@ -404,13 +404,13 @@ QPushButton:pressed {
              <property name="minimumSize">
               <size>
                <width>130</width>
-               <height>25</height>
+               <height>40</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>130</width>
-               <height>25</height>
+               <height>40</height>
               </size>
              </property>
              <property name="font">
@@ -420,10 +420,10 @@ QPushButton:pressed {
               </font>
              </property>
              <property name="text">
-              <string>Notas</string>
+              <string>Notas:</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
              </property>
             </widget>
            </item>
@@ -517,13 +517,13 @@ QPushButton:pressed {
              <property name="minimumSize">
               <size>
                <width>175</width>
-               <height>25</height>
+               <height>40</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>175</width>
-               <height>25</height>
+               <height>40</height>
               </size>
              </property>
              <property name="font">

@@ -166,13 +166,13 @@ class Ui_New_Order_Window(object):
         spacerItem6 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout3.addItem(spacerItem6)
         self.label_Notes = QtWidgets.QLabel(parent=self.frame)
-        self.label_Notes.setMinimumSize(QtCore.QSize(130, 25))
-        self.label_Notes.setMaximumSize(QtCore.QSize(130, 25))
+        self.label_Notes.setMinimumSize(QtCore.QSize(130, 40))
+        self.label_Notes.setMaximumSize(QtCore.QSize(130, 40))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
         self.label_Notes.setFont(font)
-        self.label_Notes.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_Notes.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Notes.setObjectName("label_Notes")
         self.vLayout3.addWidget(self.label_Notes)
         spacerItem7 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -201,8 +201,8 @@ class Ui_New_Order_Window(object):
         spacerItem8 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vlLayout4.addItem(spacerItem8)
         self.Notes_NewOrder = QtWidgets.QTextEdit(parent=self.frame)
-        self.Notes_NewOrder.setMinimumSize(QtCore.QSize(175, 25))
-        self.Notes_NewOrder.setMaximumSize(QtCore.QSize(175, 25))
+        self.Notes_NewOrder.setMinimumSize(QtCore.QSize(175, 40))
+        self.Notes_NewOrder.setMaximumSize(QtCore.QSize(175, 40))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Notes_NewOrder.setFont(font)
@@ -361,7 +361,7 @@ class Ui_New_Order_Window(object):
                 dlg.exec()
 
             else:
-                commands = ("""
+                commands_neworder = ("""
                             INSERT INTO orders (
                             "num_order","num_offer","num_ref_order","order_date","contract_date","notes","order_amount"
                             )
@@ -379,7 +379,7 @@ class Ui_New_Order_Window(object):
                     cur = conn.cursor()
                 # execution of commands
                     data=(numorder, numoffer, numref, actual_date, contractdate, notes, amount, state, numoffer,)
-                    cur.execute(commands, data)
+                    cur.execute(commands_neworder, data)
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes

@@ -357,7 +357,7 @@ class Ui_RegistrationWindow(object):
 
             else:
             #SQL Query for loading existing data in database
-                commands = ("""
+                commands_loadregdatabase = ("""
                             SELECT *
                             FROM registration
                             """)
@@ -369,7 +369,7 @@ class Ui_RegistrationWindow(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands one by one
-                    cur.execute(commands)
+                    cur.execute(commands_loadregdatabase)
                     results=cur.fetchall()
                     match_username=list(filter(lambda x:reg_username in x, results))
                     match_email=list(filter(lambda x:reg_email in x, results))
@@ -408,7 +408,7 @@ class Ui_RegistrationWindow(object):
                     del dlg, new_icon
 
                 else:
-                    commands = ("""
+                    commands_reguser = ("""
                                 INSERT INTO registration(
                                 "id","name","surname","username","email","password","profile")
                                 VALUES (DEFAULT,%s,%s,%s,%s,%s,%s)
@@ -423,7 +423,7 @@ class Ui_RegistrationWindow(object):
                         cur = conn.cursor()
                     # execution of commands one by one
                         data=(reg_name,reg_secondname,reg_username,reg_email,reg_password,reg_rol,)
-                        cur.execute(commands,data)
+                        cur.execute(commands_reguser,data)
                     # close communication with the PostgreSQL database server
                         cur.close()
                     # commit the changes

@@ -802,7 +802,7 @@ class Ui_CreateTAGTemp_Window(object):
     def queryoffernumber(self):
         numorder=self.NumOrder_CreatetagT.text()
     #SQL Query for loading existing data in database
-        commands = ("""
+        commands_loadofferorder = ("""
                     SELECT "num_order","num_offer"
                     FROM orders
                     WHERE "num_order" = %s
@@ -815,7 +815,7 @@ class Ui_CreateTAGTemp_Window(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands one by one
-            cur.execute(commands,(numorder,))
+            cur.execute(commands_loadofferorder,(numorder,))
             results=cur.fetchall()
             match=list(filter(lambda x:numorder in x, results))
         # close communication with the PostgreSQL database server

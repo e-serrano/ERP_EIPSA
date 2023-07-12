@@ -9,6 +9,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
+import datetime
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -330,6 +331,7 @@ class Ui_QueryDoc_Window(object):
         font.setBold(True)
         item.setFont(font)
         self.tableQueryDoc.setHorizontalHeaderItem(12, item)
+        self.tableQueryDoc.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.gridLayout_2.addWidget(self.tableQueryDoc, 8, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
@@ -464,7 +466,7 @@ class Ui_QueryDoc_Window(object):
 
         else:
             commands = ("""
-                        SELECT documentation."num_order",orders."num_ref_order",offers."client",product_type."variable",documentation."num_doc_client",documentation."num_doc_eipsa",documentation."doc_title",document_type."doc_type",documentation."critical",documentation."state",documentation."revision",documentation."state_date",hist_doc."hist_rev_column"
+                        SELECT documentation."num_order",orders."num_ref_order",offers."client",product_type."variable",documentation."num_doc_client",documentation."num_doc_eipsa",documentation."doc_title",document_type."doc_type",documentation."critical",documentation."state",documentation."revision",TO_CHAR(documentation."state_date", 'DD-MM-YYYY'),hist_doc."hist_rev_column"
                         FROM documentation
                         INNER JOIN orders ON (orders."num_order" = documentation."num_order")
                         INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
@@ -515,6 +517,7 @@ class Ui_QueryDoc_Window(object):
 
                 self.tableQueryDoc.verticalHeader().hide()
                 self.tableQueryDoc.setItemDelegate(AlignDelegate(self.tableQueryDoc))
+                self.tableQueryDoc.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
                 self.tableQueryDoc.itemDoubleClicked.connect(self.expand_cell)
 

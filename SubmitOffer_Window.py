@@ -196,7 +196,7 @@ class Ui_SubmitOffer_Window(object):
             self.label_error_submitorder.setText('Rellene todos los campos')
 
         else:
-            commands = ("""
+            commands_checkoffer = ("""
                         SELECT *
                         FROM offer
                         WHERE "num_offer" = %s
@@ -209,7 +209,7 @@ class Ui_SubmitOffer_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands one by one
-                cur.execute(commands,(numoffer,))
+                cur.execute(commands_checkoffer,(numoffer,))
                 results=cur.fetchall()
                 match=list(filter(lambda x:numoffer in x, results))
             # close communication with the PostgreSQL database server
@@ -235,7 +235,7 @@ class Ui_SubmitOffer_Window(object):
                     dlg.exec()
             
             else:
-                commands = ("""
+                commands_submitoffer = ("""
                             UPDATE offers 
                             SET "offer_amount"=%s, "state"=%s, "presentation_date"=%s
                             WHERE "num_offer"=%s
@@ -249,7 +249,7 @@ class Ui_SubmitOffer_Window(object):
                     cur = conn.cursor()
                 # execution of commands
                     data=(amount,state,actual_date,numoffer,)
-                    cur.execute(commands, data)
+                    cur.execute(commands_submitoffer, data)
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes

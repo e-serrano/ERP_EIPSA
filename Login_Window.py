@@ -304,7 +304,7 @@ class Ui_Login_Window(object):
         
         else:
         #SQL Query for loading existing data in database
-            commands = ("""
+            commands_userlogin = ("""
                         SELECT *
                         FROM registration
                         """)
@@ -316,7 +316,7 @@ class Ui_Login_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands one by one
-                cur.execute(commands)
+                cur.execute(commands_userlogin)
                 results=cur.fetchall()
                 match=list(filter(lambda x:login_username in x, results))
             # close communication with the PostgreSQL database server
@@ -344,10 +344,10 @@ class Ui_Login_Window(object):
                     self.ui=Ui_App_Comercial(match[0][1]+' '+match[0][2], login_username)
 
                 elif rol_app=="Compras":
-                    self.ui=Ui_App_Purchasing()
+                    self.ui=Ui_App_Purchasing(match[0][1]+' '+match[0][2])
 
                 elif rol_app=="Documentación":
-                    self.ui=Ui_App_Documentation()
+                    self.ui=Ui_App_Documentation(match[0][1]+' '+match[0][2])
 
                 else:
                     dlg = QtWidgets.QMessageBox()

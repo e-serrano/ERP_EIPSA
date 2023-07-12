@@ -269,7 +269,7 @@ class Ui_EditPasswordWindow(object):
 
         else:
         #SQL Query for updating values in database
-            commands = ("""
+            commands_editpassword = ("""
                         UPDATE registration
                         SET "password" = %s
                         WHERE "username" = %s
@@ -284,7 +284,7 @@ class Ui_EditPasswordWindow(object):
                 cur = conn.cursor()
             # execution of commands one by one
                 data=(new_password,self.username,)
-                cur.execute(commands,data)
+                cur.execute(commands_editpassword,data)
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes

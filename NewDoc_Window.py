@@ -312,8 +312,8 @@ class Ui_New_Doc_Window(object):
             self.label_error.setText('Rellene todos los campos')
 
         else:
-        #SQL Query for checking if offer number exists in database
-            commands = ("""
+        #SQL Query for checking if document number exists in database
+            commands_checkdocument = ("""
                         SELECT * 
                         FROM documentation
                         WHERE "num_doc_eipsa" = %s
@@ -326,7 +326,7 @@ class Ui_New_Doc_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands one by one
-                cur.execute(commands,(numdoceipsa,))
+                cur.execute(commands_checkdocument,(numdoceipsa,))
                 results=cur.fetchall()
                 match=list(filter(lambda x:numdoceipsa in x, results))
             # close communication with the PostgreSQL database server
@@ -352,7 +352,7 @@ class Ui_New_Doc_Window(object):
                 del dlg,new_icon
 
             else:
-                commands = ("""
+                commands_newdoc = ("""
                             INSERT INTO documentation (
                             "num_order","num_doc_eipsa","num_doc_client","doc_type_id","doc_title","critical"
                             )
@@ -366,15 +366,15 @@ class Ui_New_Doc_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    query = "SELECT id FROM document_type WHERE doc_type = %s"
-                    cur.execute(query, (doctype,))
+                    query_doctype = "SELECT id FROM document_type WHERE doc_type = %s"
+                    cur.execute(query_doctype, (doctype,))
                 # get results from query
                     resultado = cur.fetchone()
                 # get id from table
                     id_doctype = resultado[0]
                 # execution of principal command
                     data=(neworder, numdoceipsa, numdocclient, id_doctype, titledoc,critical,)
-                    cur.execute(commands, data)
+                    cur.execute(commands_newdoc, data)
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes

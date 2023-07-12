@@ -160,13 +160,13 @@ class Ui_Edit_Order_Window(object):
         spacerItem6 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout3.addItem(spacerItem6)
         self.label_Notes = QtWidgets.QLabel(parent=self.frame)
-        self.label_Notes.setMinimumSize(QtCore.QSize(130, 25))
-        self.label_Notes.setMaximumSize(QtCore.QSize(130, 25))
+        self.label_Notes.setMinimumSize(QtCore.QSize(130, 40))
+        self.label_Notes.setMaximumSize(QtCore.QSize(130, 40))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
         self.label_Notes.setFont(font)
-        self.label_Notes.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_Notes.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Notes.setObjectName("label_Notes")
         self.vLayout3.addWidget(self.label_Notes)
         spacerItem7 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -195,8 +195,8 @@ class Ui_Edit_Order_Window(object):
         spacerItem8 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vlLayout4.addItem(spacerItem8)
         self.Notes_EditOrder = QtWidgets.QTextEdit(parent=self.frame)
-        self.Notes_EditOrder.setMinimumSize(QtCore.QSize(175, 25))
-        self.Notes_EditOrder.setMaximumSize(QtCore.QSize(175, 25))
+        self.Notes_EditOrder.setMinimumSize(QtCore.QSize(175, 40))
+        self.Notes_EditOrder.setMaximumSize(QtCore.QSize(175, 40))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Notes_EditOrder.setFont(font)
@@ -292,7 +292,7 @@ class Ui_Edit_Order_Window(object):
         amount=self.Amount_EditOrder.text()
 
         #SQL Query for checking if order number exists in database
-        commands = ("""
+        commands_checkorder = ("""
                     SELECT * 
                     FROM orders
                     WHERE "num_order" = %s
@@ -305,7 +305,7 @@ class Ui_Edit_Order_Window(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands one by one
-            cur.execute(commands,(numorder,))
+            cur.execute(commands_checkorder,(numorder,))
             results=cur.fetchall()
             match=list(filter(lambda x:numorder in x, results))
         # close communication with the PostgreSQL database server
@@ -330,7 +330,7 @@ class Ui_Edit_Order_Window(object):
 
         else:
             #SQL Query for updating values in database
-            commands = ("""
+            commands_editorder = ("""
                         UPDATE orders
                         SET "num_offer" = %s, "num_ref_order" = %s, "contract_date" = %s, "notes" = %s, "order_amount" = %s
                         WHERE "num_order" = %s
@@ -344,7 +344,7 @@ class Ui_Edit_Order_Window(object):
                 cur = conn.cursor()
             # execution of commands one by one
                 data=(numoffer,numref,contracdate,notes,amount,numorder,)
-                cur.execute(commands,data)
+                cur.execute(commands_editorder,data)
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes
@@ -377,8 +377,8 @@ class Ui_Edit_Order_Window(object):
     def queryorderdata(self):
         numorder=self.NumOrder_EditOrder.text()
     #SQL Query for loading existing data in database
-        commands = ("""
-                    SELECT "num_order","num_offer","num_ref_order","contract_date","notes","order_amount"
+        commands_loaddataorder = ("""
+                    SELECT "num_order","num_offer","num_ref_order",TO_CHAR("contract_date", 'DD-MM-YYYY'),"notes","order_amount"
                     FROM orders
                     WHERE "num_order" = %s
                     """)
@@ -390,7 +390,7 @@ class Ui_Edit_Order_Window(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands one by one
-            cur.execute(commands,(numorder,))
+            cur.execute(commands_loaddataorder,(numorder,))
             results=cur.fetchall()
             match=list(filter(lambda x:numorder in x, results))
         # close communication with the PostgreSQL database server

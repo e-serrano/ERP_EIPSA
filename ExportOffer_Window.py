@@ -165,7 +165,7 @@ class Ui_ExportOffer_Window(object):
     def exportoffer(self):
         numoffer=self.numoffer_expoffer.text()
 
-        commands = ("""
+        commands_checkoffer = ("""
                     SELECT * 
                     FROM offers
                     WHERE "num_offer" = %s
@@ -178,7 +178,7 @@ class Ui_ExportOffer_Window(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands one by one
-            cur.execute(commands,(numoffer,))
+            cur.execute(commands_checkoffer,(numoffer,))
             results=cur.fetchall()
             match=list(filter(lambda x:numoffer in x, results))
         # close communication with the PostgreSQL database server
@@ -204,7 +204,7 @@ class Ui_ExportOffer_Window(object):
             del dlg, new_icon
 
         else:
-            commands = ("""
+            commands_exportoffer = ("""
                         SELECT *
                         FROM offers
                         WHERE "num_offer" = %s
@@ -216,7 +216,7 @@ class Ui_ExportOffer_Window(object):
             # connect to the PostgreSQL server
                 conn = psycopg2.connect(**params)
                 cur=conn.cursor()
-                cur.execute(commands,(numoffer,))
+                cur.execute(commands_exportoffer,(numoffer,))
                 data=cur.fetchall()
 
                 columns=[]

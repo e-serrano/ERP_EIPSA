@@ -194,11 +194,11 @@ class Ui_QueryTags_Window(object):
             # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
-            cur.execute("""SELECT * FROM pedidos""")
+            cur.execute("""SELECT * FROM orders""")
             results=cur.fetchall()
             match=list(filter(lambda x:numorder.upper() in x, results))
 
-            cur.execute("""SELECT * FROM ofertas""")
+            cur.execute("""SELECT * FROM offers""")
             results2=cur.fetchall()
             match2=list(filter(lambda x:numoffer.upper() in x, results2))
         # close communication with the PostgreSQL database server
@@ -228,26 +228,26 @@ class Ui_QueryTags_Window(object):
 
             else:
                 if numoffer!='' and numorder=='':
-                    commands = ("""
-                                SELECT ofertas."num_oferta",tipo_producto."variable"
-                                FROM ofertas
-                                INNER JOIN tipo_producto ON (ofertas."material"=tipo_producto."material")
-                                WHERE UPPER(ofertas."num_oferta") LIKE UPPER('%%'||%s||'%%')
-                                ORDER BY ofertas."num_oferta"
+                    commands_querytags = ("""
+                                SELECT offers."num_offer",product_type."variable"
+                                FROM offers
+                                INNER JOIN product_type ON (offers."material"=product_type."material")
+                                WHERE UPPER(offers."num_offer") LIKE UPPER('%%'||%s||'%%')
+                                ORDER BY offers."num_offer"
                                 """)
                     data=(numoffer,)
 
                 else:
-                    commands = ("""
-                                SELECT pedidos."num_oferta",pedidos."num_pedido",tipo_producto."variable"
-                                FROM ofertas
-                                INNER JOIN pedidos ON (ofertas."num_oferta"=pedidos."num_oferta")
-                                INNER JOIN tipo_producto ON (ofertas."material"=tipo_producto."material")
-                                WHERE (UPPER(pedidos."num_oferta") LIKE UPPER('%%'||%s||'%%')
+                    commands_querytags = ("""
+                                SELECT orders."num_offer",orders."num_order",product_type."variable"
+                                FROM offers
+                                INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
+                                INNER JOIN product_type ON (offers."material"=product_type."material")
+                                WHERE (UPPER(orders."num_offer") LIKE UPPER('%%'||%s||'%%')
                                 AND
-                                UPPER(pedidos."num_pedido") LIKE UPPER('%%'||%s||'%%')
+                                UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
                                 )
-                                ORDER BY pedidos."num_pedido"
+                                ORDER BY orders."num_order"
                                 """)
                     data=(numoffer,numorder,)
 
@@ -259,7 +259,7 @@ class Ui_QueryTags_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    cur.execute(commands, data)
+                    cur.execute(commands_querytags, data)
                     result_variable=cur.fetchall()
                     if len(result_variable[0])==3:
                         variable=result_variable[0][2]
@@ -275,34 +275,34 @@ class Ui_QueryTags_Window(object):
                 finally:
                     if conn is not None:
                         conn.close()
-
+                print(variable)
                 if variable=='Caudal':
                     print('a')
-                    # commands = ("""
+                    # commands_querytagsvariable = ("""
                     #         SELECT *
-                    #         FROM tags_caudal
-                    #         WHERE (num_oferta LIKE '%%'||%s||'%%'
+                    #         FROM tags_flow
+                    #         WHERE (num_offer LIKE '%%'||%s||'%%'
                     #         AND
-                    #         num_pedido LIKE '%%'||%s||'%%'
+                    #         num_order LIKE '%%'||%s||'%%'
                     #         )
                     #         ORDER BY tag
                     #         """)
                     # data=(numoffer,numorder,)
-                    commands = ("""
+                    commands_querytagsvariable = ("""
                         SELECT *
-                        FROM pedidos
-                        WHERE UPPER(num_oferta) LIKE UPPER('%%'||%s||'%%')
+                        FROM orders
+                        WHERE UPPER(num_offer) LIKE UPPER('%%'||%s||'%%')
                         """)
                     data=(numorder,)
 
                 elif variable=='Temperatura':
                     print('b')
-                    # commands = ("""
+                    # commands_querytagsvariable = ("""
                     #         SELECT *
-                    #         FROM tags_temperatura
-                    #         WHERE (num_oferta LIKE '%%'||%s||'%%'
+                    #         FROM tags_temp
+                    #         WHERE (num_offer LIKE '%%'||%s||'%%'
                     #         AND
-                    #         num_pedido LIKE '%%'||%s||'%%'
+                    #         num_order LIKE '%%'||%s||'%%'
                     #         )
                     #         ORDER BY tag
                     #         """)
@@ -310,31 +310,31 @@ class Ui_QueryTags_Window(object):
 
                 elif variable=='Nivel':
                     print('c')
-                    # commands = ("""
+                    # commands_querytagsvariable = ("""
                     #         SELECT *
-                    #         FROM tags_nivel
-                    #         WHERE (num_oferta LIKE '%%'||%s||'%%'
+                    #         FROM tags_level
+                    #         WHERE (num_offer LIKE '%%'||%s||'%%'
                     #         AND
-                    #         num_pedido LIKE '%%'||%s||'%%'
+                    #         num_order LIKE '%%'||%s||'%%'
                     #         )
                     #         ORDER BY tag
                     #         """)
                     # data=(numoffer,numorder,)
-                    commands = ("""
+                    commands_querytagsvariable = ("""
                             SELECT *
-                            FROM ofertas
-                            WHERE UPPER(num_oferta) LIKE UPPER('%%'||%s||'%%')
+                            FROM offers
+                            WHERE UPPER(num_offer) LIKE UPPER('%%'||%s||'%%')
                             """)
                     data=(numoffer,)
 
                 elif variable=='Otros':
                     print('d')
-                    # commands = ("""
+                    # commands_querytagsvariable = ("""
                     #         SELECT *
                     #         FROM tags_others
-                    #         WHERE (num_oferta LIKE '%%'||%s||'%%'
+                    #         WHERE (num_offer LIKE '%%'||%s||'%%'
                     #         AND
-                    #         num_pedido LIKE '%%'||%s||'%%'
+                    #         num_order LIKE '%%'||%s||'%%'
                     #         )
                     #         ORDER BY tag
                     #         """)
@@ -348,7 +348,7 @@ class Ui_QueryTags_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands and savind results
-                    cur.execute(commands, data)
+                    cur.execute(commands_querytagsvariable, data)
                     results=cur.fetchall()
                     field_names=[i[0] for i in cur.description]
                 # close communication with the PostgreSQL database server
@@ -365,15 +365,13 @@ class Ui_QueryTags_Window(object):
                 self.tableQueryTags.setColumnCount(len(cur.description))
                 self.tableQueryTags.setHorizontalHeaderLabels(field_names)
                 tablerow=0
-                tablecolumn=0
 
             # fill the Qt Table with the query results
                 for row in results:
-                    for column in field_names:
-                        it=QtWidgets.QTableWidgetItem(str(row[tablecolumn]))
+                    for column in range(len(field_names)):
+                        it=QtWidgets.QTableWidgetItem(str(row[column]))
                         it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                        self.tableQueryTags.setItem(tablerow, tablecolumn, it)
-                        tablecolumn+=1
+                        self.tableQueryTags.setItem(tablerow, column, it)
 
                     tablerow+=1
 
@@ -381,7 +379,6 @@ class Ui_QueryTags_Window(object):
                 self.tableQueryTags.setItemDelegate(AlignDelegate(self.tableQueryTags))
                 self.tableQueryTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
                 self.tableQueryTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt}")
-
 
 
 if __name__ == "__main__":

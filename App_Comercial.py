@@ -39,12 +39,12 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
 
 class Ui_App_Comercial(object):
-    # def __init__(self, user, username):
-    #     self.user=user
-    #     self.username=username
-    def __init__(self):
-        self.user='Enrique Serrano'
-        self.username='e.serranog'
+    def __init__(self, user, username):
+        self.user=user
+        self.username=username
+    # def __init__(self):
+    #     self.user='Enrique Serrano'
+    #     self.username='e.serranog'
 
 
     def setupUi(self, App_Comercial):
@@ -498,7 +498,7 @@ class Ui_App_Comercial(object):
         self.BottomLayout.setObjectName("BottomLayout")
 
         try:
-            commands = ("""
+            commands_graph1 = ("""
                         SELECT "offer_month", CAST(SUM("offer_amount") AS numeric)
                         FROM offers
                         WHERE ("responsible"=%s
@@ -518,7 +518,7 @@ class Ui_App_Comercial(object):
                 cur = conn.cursor()
             # execution of commands
                 data=(self.user[0] + self.user[self.user.find(' ')+1], date.today().year,)
-                cur.execute(commands, data)
+                cur.execute(commands_graph1, data)
                 results=cur.fetchall()
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -550,7 +550,7 @@ class Ui_App_Comercial(object):
             spacerItem7 = QtWidgets.QSpacerItem(15, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
             self.BottomLayout.addItem(spacerItem7)
 
-            commands = ("""
+            commands_graph2 = ("""
                         SELECT COUNT(offers."num_offer"), product_type."variable"
                         FROM offers
                         INNER JOIN product_type ON (offers."material"=product_type."material")
@@ -570,7 +570,7 @@ class Ui_App_Comercial(object):
                 cur = conn.cursor()
             # execution of commands
                 data=(self.user[0] + self.user[self.user.find(' ')+1], date.today().year,)
-                cur.execute(commands, data)
+                cur.execute(commands_graph2, data)
                 results2=cur.fetchall()
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -693,8 +693,8 @@ class Ui_App_Comercial(object):
         if self.user in ['Ana Calvo','Enrique Serrano']:
             self.Button_Users.clicked.connect(self.user_edition)
 
-        commands = ("""
-                    SELECT "num_offer","state","client","presentation_date","material","offer_amount"
+        commands_appcomercial = ("""
+                    SELECT "num_offer","state","client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount"
                     FROM offers
                     WHERE ("responsible" = %s
                     AND
@@ -712,7 +712,7 @@ class Ui_App_Comercial(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            cur.execute(commands,(self.user[0] + self.user[self.user.find(' ')+1],))
+            cur.execute(commands_appcomercial,(self.user[0] + self.user[self.user.find(' ')+1],))
             results=cur.fetchall()
             self.tableOffer.setRowCount(len(results))
             tablerow=0
@@ -923,8 +923,8 @@ class Ui_App_Comercial(object):
 
 
     def update_table(self):
-        commands = ("""
-                    SELECT "num_offer","state","client","presentation_date","material","offer_amount"
+        commands_appcomercial = ("""
+                    SELECT "num_offer","state","client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount"
                     FROM offers
                     WHERE ("responsible" = %s
                     AND
@@ -942,7 +942,7 @@ class Ui_App_Comercial(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            cur.execute(commands,(self.user[0] + self.user[self.user.find(' ')+1],))
+            cur.execute(commands_appcomercial,(self.user[0] + self.user[self.user.find(' ')+1],))
             results=cur.fetchall()
             self.tableOffer.setRowCount(len(results))
             tablerow=0

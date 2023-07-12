@@ -267,7 +267,7 @@ class Ui_Edit_Offer_Window(object):
         font.setPointSize(11)
         font.setBold(True)
         self.label_Notes.setFont(font)
-        self.label_Notes.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_Notes.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Notes.setObjectName("label_Notes")
         self.vLayout3.addWidget(self.label_Notes)
         spacerItem15 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -329,8 +329,8 @@ class Ui_Edit_Offer_Window(object):
         spacerItem19 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout4.addItem(spacerItem19)
         self.Notes_EditOffer = QtWidgets.QTextEdit(parent=self.frame)
-        self.Notes_EditOffer.setMinimumSize(QtCore.QSize(175, 25))
-        self.Notes_EditOffer.setMaximumSize(QtCore.QSize(175, 25))
+        self.Notes_EditOffer.setMinimumSize(QtCore.QSize(175, 40))
+        self.Notes_EditOffer.setMaximumSize(QtCore.QSize(175, 40))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Notes_EditOffer.setFont(font)
@@ -410,7 +410,7 @@ class Ui_Edit_Offer_Window(object):
         list_nacext=['Exterior','Nacional']
         self.NacExt_EditOffer.addItems(list_nacext)
 
-        commands = ("""
+        commands_producttype = ("""
                         SELECT * 
                         FROM product_type
                         """)
@@ -422,7 +422,7 @@ class Ui_Edit_Offer_Window(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands one by one
-            cur.execute(commands)
+            cur.execute(commands_producttype)
             results=cur.fetchall()
         # close communication with the PostgreSQL database server
             cur.close()
@@ -473,7 +473,7 @@ class Ui_Edit_Offer_Window(object):
         rate_type=self.RateType_EditOffer.text()
 
         #SQL Query for checking if offer number exists in database
-        commands = ("""
+        commands_checkoffer = ("""
                     SELECT * 
                     FROM offers
                     WHERE "num_offer" = %s
@@ -486,7 +486,7 @@ class Ui_Edit_Offer_Window(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands one by one
-            cur.execute(commands,(numoffer,))
+            cur.execute(commands_checkoffer,(numoffer,))
             results=cur.fetchall()
             match=list(filter(lambda x:numoffer in x, results))
         # close communication with the PostgreSQL database server
@@ -511,7 +511,7 @@ class Ui_Edit_Offer_Window(object):
 
         else:
             #SQL Query for updating values in database
-            commands = ("""
+            commands_updateoffer = ("""
                         UPDATE offers
                         SET "client" = %s, "final_client" = %s, "num_ref_offer" = %s, "state" = %s, "nac_ext" = %s, "buyer" = %s, "material" = %s, "notes" = %s, "offer_amount" = %s, "limit_date" = %s, "rate_type" = %s
                         WHERE "num_offer" = %s
@@ -525,7 +525,7 @@ class Ui_Edit_Offer_Window(object):
                 cur = conn.cursor()
             # execution of commands one by one
                 data=(client,finalclient,numref,state,nacext,buyer,material,notes,amount,limit_date,rate_type,numoffer,)
-                cur.execute(commands,data)
+                cur.execute(commands_updateoffer,data)
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes
@@ -561,8 +561,8 @@ class Ui_Edit_Offer_Window(object):
     def queryofferdata(self):
         numoffer=self.NumOffer_EditOffer.text()
     #SQL Query for loading existing data in database
-        commands = ("""
-                    SELECT "num_offer","client","final_client","num_ref_offer","state","nac_ext","buyer","material","notes","offer_amount","limit_date","rate_type"
+        commands_loaddataoffer = ("""
+                    SELECT "num_offer","client","final_client","num_ref_offer","state","nac_ext","buyer","material","notes","offer_amount",TO_CHAR("limit_date", 'DD-MM-YYYY'),"rate_type"
                     FROM offers
                     WHERE "num_offer" = %s
                     """)
@@ -574,7 +574,7 @@ class Ui_Edit_Offer_Window(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands one by one
-            cur.execute(commands,(numoffer,))
+            cur.execute(commands_loaddataoffer,(numoffer,))
             results=cur.fetchall()
             match=list(filter(lambda x:numoffer in x, results))
         # close communication with the PostgreSQL database server

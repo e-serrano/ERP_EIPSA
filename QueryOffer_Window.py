@@ -354,7 +354,7 @@ class Ui_QueryOffer_Window(object):
             dlg.exec()
 
         else:
-            commands = ("""
+            commands_queryoffer = ("""
                         SELECT offers."num_offer",offers."responsible",offers."state",offers."num_ref_offer",offers."client",offers."final_client",product_type."variable",offers."offer_amount",offers."rate_type"
                         FROM offers
                         INNER JOIN product_type ON (offers."material"=product_type."material")
@@ -381,7 +381,7 @@ class Ui_QueryOffer_Window(object):
                 cur = conn.cursor()
             # execution of commands
                 data=(numoffer,reference,client,finalclient,material,year,)
-                cur.execute(commands,data)
+                cur.execute(commands_queryoffer,data)
                 results=cur.fetchall()
                 self.tableQueryOffer.setRowCount(len(results))
                 tablerow=0

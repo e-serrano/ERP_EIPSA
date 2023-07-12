@@ -385,7 +385,7 @@ class Ui_QueryOrder_Window(object):
             dlg.exec()
 
         else:
-            commands = ("""
+            commands_queryorder = ("""
                         SELECT orders."num_order",orders."num_offer",orders."num_ref_order",offers."client",offers."final_client",product_type."variable",orders."order_amount"
                         FROM offers
                         INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
@@ -417,7 +417,7 @@ class Ui_QueryOrder_Window(object):
                 cur = conn.cursor()
             # execution of commands
                 data=(numorder,numoffer,ref,client,finalclient,eqtype,amount,year,)
-                cur.execute(commands, data)
+                cur.execute(commands_queryorder, data)
                 results=cur.fetchall()
                 self.tableQueryOrder.setRowCount(len(results))
                 tablerow=0

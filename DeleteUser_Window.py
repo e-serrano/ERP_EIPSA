@@ -162,7 +162,7 @@ class Ui_DeleteUser_Window(object):
 
     def delete_user(self):
         email=self.email_deleteuser.text()
-        commands = ("""
+        commands_checkemail = ("""
                     SELECT *
                     FROM registration
                     WHERE "email" = %s
@@ -175,7 +175,7 @@ class Ui_DeleteUser_Window(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            cur.execute(commands,(email,))
+            cur.execute(commands_checkemail,(email,))
             results=cur.fetchall()
             match=list(filter(lambda x:email in x, results))
         # close communication with the PostgreSQL database server
@@ -200,7 +200,7 @@ class Ui_DeleteUser_Window(object):
             del dlg, new_icon
 
         else:
-            commands = ("""
+            commands_deleteuser = ("""
                         DELETE FROM registration
                         WHERE "email" = %s
                         """)
@@ -213,7 +213,7 @@ class Ui_DeleteUser_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                cur.execute(commands,(email,))
+                cur.execute(commands_deleteuser,(email,))
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes
