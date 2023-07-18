@@ -13,8 +13,8 @@ from config import config
 
 
 class Ui_New_Offer_Window(object):
-    def __init__(self,username):
-        self.user=username
+    def __init__(self,name):
+        self.name=name
 
     def setupUi(self, New_Offer):
         New_Offer.setObjectName("New_Offer")
@@ -22,7 +22,7 @@ class Ui_New_Offer_Window(object):
         New_Offer.setMinimumSize(QtCore.QSize(670, 425))
         New_Offer.setMaximumSize(QtCore.QSize(670, 425))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         New_Offer.setWindowIcon(icon)
         New_Offer.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -409,16 +409,16 @@ class Ui_New_Offer_Window(object):
     def retranslateUi(self, New_Offer):
         _translate = QtCore.QCoreApplication.translate
         New_Offer.setWindowTitle(_translate("New_Offer", "Nueva Oferta"))
-        self.label_NumOffer.setText(_translate("New_Offer", "Nº Oferta:"))
-        self.label_Client.setText(_translate("New_Offer", "Cliente:"))
+        self.label_NumOffer.setText(_translate("New_Offer", "*Nº Oferta:"))
+        self.label_Client.setText(_translate("New_Offer", "*Cliente:"))
         self.label_FinalClient.setText(_translate("New_Offer", "Cliente Final:"))
-        self.label_NumRef.setText(_translate("New_Offer", "Nº Referencia:"))
+        self.label_NumRef.setText(_translate("New_Offer", "*Nº Referencia:"))
         self.label_NacExt.setText(_translate("New_Offer", "Nacional/Exterior:"))
-        self.label_LimitDate.setText(_translate("New_Offer", "Fecha Límite:"))
+        self.label_LimitDate.setText(_translate("New_Offer", "*Fecha Límite:"))
         self.label_Buyer.setText(_translate("New_Offer", "Comprador:"))
         self.label_Material.setText(_translate("New_Offer", "Instrumento:"))
         self.label_Notes.setText(_translate("New_Offer", "Notas:"))
-        self.label_RateType.setText(_translate("New_Offer", "Tipo Tarifa:"))
+        self.label_RateType.setText(_translate("New_Offer", "*Tipo Tarifa:"))
         self.Button_NewOffer.setText(_translate("New_Offer", "Crear Oferta"))
         self.Button_Cancel.setText(_translate("New_Offer", "Cancelar"))
         self.label_error_newoffer.setText(_translate("New_Offer", ""))
@@ -436,15 +436,15 @@ class Ui_New_Offer_Window(object):
         notes=self.Notes_NewOffer.toPlainText()
         ratetype=self.RateType_NewOffer.text()
         state="Registrada"
-        if self.user=='Carlos Crespo':
-            responsible=self.user[0] + self.user[self.user.find(' ')+1]+'H'
+        if self.name=='Carlos Crespo':
+            responsible=self.name[0] + self.name[self.name.find(' ')+1]+'H'
         else:
-            responsible=self.user[0] + self.user[self.user.find(' ')+1]
+            responsible=self.name[0] + self.name[self.name.find(' ')+1]
         actual_date=date.today()
         actual_date= actual_date.strftime("%d/%m/%Y")
 
-        if numoffer=="" or (client=="" or  (finalclient=="" or  (numref=="" or  buyer==""))):
-            self.label_error_newoffer.setText('Rellene todos los campos')
+        if numoffer=="" or (client=="" or (numref=="" or (limitdate=="" or ratetype==""))):
+            self.label_error_newoffer.setText('Rellene todos los campos con *')
 
         else:
         #SQL Query for checking if offer number exists in database
@@ -477,7 +477,7 @@ class Ui_New_Offer_Window(object):
             if len(match)>0:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Crear Oferta")
                 dlg.setText("El número de oferta introducido ya está registrado")
@@ -491,7 +491,7 @@ class Ui_New_Offer_Window(object):
                             INSERT INTO offers (
                             "num_offer","state","responsible","client","final_client","num_ref_offer","register_date","nac_ext","buyer","material","notes","limit_date","rate_type"
                             )
-                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                             """)
                 conn = None
                 try:
@@ -510,7 +510,7 @@ class Ui_New_Offer_Window(object):
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Crear Oferta")
                     dlg.setText("Oferta creada con éxito")
@@ -523,6 +523,8 @@ class Ui_New_Offer_Window(object):
                     self.NumRef_NewOffer.setText('')
                     self.Buyer_NewOffer.setText('')
                     self.Notes_NewOffer.setText('')
+                    self.LimitDate_NewOffer.setText('')
+                    self.RateType_NewOffer.setText('')
 
                     del dlg,new_icon
 

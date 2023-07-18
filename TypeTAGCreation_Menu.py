@@ -21,7 +21,7 @@ class Ui_TypeTagCreation_Menu(object):
         TypeTag_Menu.setMinimumSize(QtCore.QSize(300, 400))
         TypeTag_Menu.setMaximumSize(QtCore.QSize(300, 400))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         TypeTag_Menu.setWindowIcon(icon)
         TypeTag_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -157,7 +157,7 @@ class Ui_TypeTagCreation_Menu(object):
             TypeTag_Menu.hide()
             self.ui.Button_Cancel.clicked.connect(TypeTag_Menu.show)
 
-        if final_variable=='Temperatura':
+        elif final_variable=='Temperatura':
             self.createtagT_window=QtWidgets.QMainWindow()
             self.ui=Ui_CreateTAGTemp_Window()
             self.ui.setupUi(self.createtagT_window)
@@ -165,7 +165,7 @@ class Ui_TypeTagCreation_Menu(object):
             TypeTag_Menu.hide()
             self.ui.Button_Cancel.clicked.connect(TypeTag_Menu.show)
 
-        if final_variable=='Nivel':
+        elif final_variable=='Nivel':
             self.createtagN_window=QtWidgets.QMainWindow()
             self.ui=Ui_CreateTAGNiv_Window()
             self.ui.setupUi(self.createtagN_window)

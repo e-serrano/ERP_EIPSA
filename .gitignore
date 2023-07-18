@@ -1,7 +1,3 @@
-database.ini
-
-database_master.ini
-
 exportar_df_a_excel.py
 
 pruebas_generales.py
@@ -11,3 +7,7 @@ Database_Connection.py
 tableExcel_to_database.py
 
 test.py
+
+icon.ico
+
+setup.ico

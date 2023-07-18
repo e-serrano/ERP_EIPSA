@@ -21,13 +21,28 @@ from EditDoc_Window import Ui_EditDoc_Window
 from QueryDoc_Window import Ui_QueryDoc_Window
 from EditPassword_Window import Ui_EditPasswordWindow
 
+
+class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    def initStyleOption(self, option, index):
+        super(AlignDelegate, self).initStyleOption(option, index)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+
+
 class Ui_App_Documentation(object):
+    def __init__(self, name, username):
+        self.name=name
+        self.username=username
+
+    # def __init__(self):
+    #     self.name='Enrique Serrano'
+    #     self.username='e.serrano'
+
     def setupUi(self, App_Documentation):
         App_Documentation.setObjectName("App_Documentation")
         App_Documentation.resize(945, 860)
         App_Documentation.setMinimumSize(QtCore.QSize(945, 860))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Documentation.setWindowIcon(icon)
         App_Documentation.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget = QtWidgets.QWidget(parent=App_Documentation)
@@ -49,7 +64,7 @@ class Ui_App_Documentation(object):
         self.LogoIcon.setMinimumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setMaximumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setText("")
-        self.LogoIcon.setPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Logo.ico"))
+        self.LogoIcon.setPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Logo.ico"))
         self.LogoIcon.setScaledContents(True)
         self.LogoIcon.setObjectName("LogoIcon")
         self.Header.addWidget(self.LogoIcon)
@@ -97,7 +112,7 @@ class Ui_App_Documentation(object):
 "}")
         self.Button_Profile.setText("")
         icon13 = QtGui.QIcon()
-        icon13.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/User.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon13.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/User.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Profile.setIcon(icon13)
         self.Button_Profile.setIconSize(QtCore.QSize(40, 40))
         self.Button_Profile.setObjectName("Button_Profile")
@@ -153,7 +168,7 @@ class Ui_App_Documentation(object):
         self.Button_NewDoc.setFont(font)
         self.Button_NewDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Documents_New.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon1.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Documents_New.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_NewDoc.setIcon(icon1)
         self.Button_NewDoc.setIconSize(QtCore.QSize(40, 40))
         self.Button_NewDoc.setObjectName("Button_NewDoc")
@@ -167,7 +182,7 @@ class Ui_App_Documentation(object):
         self.Button_ImportDoc.setFont(font)
         self.Button_ImportDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Documents_Import.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon2.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Documents_Import.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_ImportDoc.setIcon(icon2)
         self.Button_ImportDoc.setIconSize(QtCore.QSize(40, 40))
         self.Button_ImportDoc.setObjectName("Button_ImportDoc")
@@ -181,7 +196,7 @@ class Ui_App_Documentation(object):
         self.Button_EditDoc.setFont(font)
         self.Button_EditDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Documents_Edit.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon3.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Documents_Edit.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_EditDoc.setIcon(icon3)
         self.Button_EditDoc.setIconSize(QtCore.QSize(40, 40))
         self.Button_EditDoc.setObjectName("Button_EditDoc")
@@ -195,7 +210,7 @@ class Ui_App_Documentation(object):
         self.Button_QueryDoc.setFont(font)
         self.Button_QueryDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Documents_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon4.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Documents_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryDoc.setIcon(icon4)
         self.Button_QueryDoc.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryDoc.setObjectName("Button_QueryDoc")
@@ -205,13 +220,49 @@ class Ui_App_Documentation(object):
         self.PrincipalScreen.addItem(spacerItem4)
         self.MainLayout = QtWidgets.QVBoxLayout()
         self.MainLayout.setObjectName("MainLayout")
-        self.tableOffer = QtWidgets.QTableWidget(parent=self.frame)
-        self.tableOffer.setMinimumSize(QtCore.QSize(650, 280))
-        self.tableOffer.setObjectName("tableOffer")
-        self.tableOffer.setColumnCount(0)
-        self.tableOffer.setRowCount(0)
-        self.tableOffer.verticalHeader().setVisible(False)
-        self.MainLayout.addWidget(self.tableOffer)
+        self.tableDocs = QtWidgets.QTableWidget(parent=self.frame)
+        self.tableDocs.setMinimumSize(QtCore.QSize(650, 280))
+        self.tableDocs.setObjectName("tableDocs")
+        self.tableDocs.setColumnCount(6)
+        self.tableDocs.setRowCount(0)
+        item = QtWidgets.QTableWidgetItem()
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        item.setFont(font)
+        self.tableDocs.setHorizontalHeaderItem(0, item)
+        item = QtWidgets.QTableWidgetItem()
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        item.setFont(font)
+        self.tableDocs.setHorizontalHeaderItem(1, item)
+        item = QtWidgets.QTableWidgetItem()
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        item.setFont(font)
+        self.tableDocs.setHorizontalHeaderItem(2, item)
+        item = QtWidgets.QTableWidgetItem()
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        item.setFont(font)
+        self.tableDocs.setHorizontalHeaderItem(3, item)
+        item = QtWidgets.QTableWidgetItem()
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        item.setFont(font)
+        self.tableDocs.setHorizontalHeaderItem(4, item)
+        item = QtWidgets.QTableWidgetItem()
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        item.setFont(font)
+        self.tableDocs.setHorizontalHeaderItem(5, item)
+        self.tableDocs.verticalHeader().setVisible(False)
+        self.MainLayout.addWidget(self.tableDocs)
         spacerItem5 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.MainLayout.addItem(spacerItem5)
         self.BottomLayout = QtWidgets.QHBoxLayout()
@@ -263,10 +314,10 @@ class Ui_App_Documentation(object):
 "}\n"
 "\n"
 "#qt_calendar_prevmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/back_arrow.png);\n"
+"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/back_arrow.png);\n"
 "}\n"
 "#qt_calendar_nextmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/forward_arrow.png);\n"
+"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/forward_arrow.png);\n"
 "}")
         self.Calendar.setSelectedDate(QtCore.QDate.currentDate())
         self.Calendar.setGridVisible(True)
@@ -287,6 +338,56 @@ class Ui_App_Documentation(object):
         self.statusbar = QtWidgets.QStatusBar(parent=App_Documentation)
         self.statusbar.setObjectName("statusbar")
         App_Documentation.setStatusBar(self.statusbar)
+        self.tableDocs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+
+
+        delay_date=QtCore.QDate.currentDate().addDays(-10)
+        commands_documentation = ("""
+                    SELECT "num_doc_eipsa","num_order","doc_title","state","revision",TO_CHAR("state_date", 'DD-MM-YYYY')
+                    FROM documentation
+                    WHERE ("state_date" < %s::date
+                    AND
+                    ("state" = 'Enviado'
+                    OR
+                    "state" = 'Comentado'
+                    ))
+                    ORDER BY "num_doc_eipsa"
+                    """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(commands_documentation,(delay_date.toString(QtCore.Qt.DateFormat.ISODate),))
+            results=cur.fetchall()
+            self.tableDocs.setRowCount(len(results))
+            tablerow=0
+
+        # fill the Qt Table with the query results
+            for row in results:
+                for column in range(6):
+                    it=QtWidgets.QTableWidgetItem(str(row[column]))
+                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                    self.tableDocs.setItem(tablerow, column, it)
+
+                tablerow+=1
+
+            self.tableDocs.verticalHeader().hide()
+            self.tableDocs.setItemDelegate(AlignDelegate(self.tableDocs))
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
 
         self.retranslateUi(App_Documentation)
         self.Button_NewDoc.clicked.connect(self.CreateDoc)
@@ -300,12 +401,24 @@ class Ui_App_Documentation(object):
     def retranslateUi(self, App_Documentation):
         _translate = QtCore.QCoreApplication.translate
         App_Documentation.setWindowTitle(_translate("App_Documentation", "ERP EIPSA"))
-        self.HeaderName.setText(_translate("App_Documentation", "ENRIQUE SERRANO"))
+        self.HeaderName.setText(_translate("App_Documentation", self.name))
         self.Button_NewDoc.setText(_translate("App_Documentation", "    Crear Documento"))
         self.Button_ImportDoc.setText(_translate("App_Documentation", "    Importar Docum."))
         self.Button_EditDoc.setText(_translate("App_Documentation", "    Editar Docum."))
         self.Button_QueryDoc.setText(_translate("App_Documentation", "    Consultar Docum."))
-        self.tableOffer.setSortingEnabled(True)
+        self.tableDocs.setSortingEnabled(True)
+        item = self.tableDocs.horizontalHeaderItem(0)
+        item.setText(_translate("App_Documentation", "Nº Doc Eipsa"))
+        item = self.tableDocs.horizontalHeaderItem(1)
+        item.setText(_translate("App_Documentation", "Nº Pedido"))
+        item = self.tableDocs.horizontalHeaderItem(2)
+        item.setText(_translate("App_Documentation", "Título"))
+        item = self.tableDocs.horizontalHeaderItem(3)
+        item.setText(_translate("App_Documentation", "Estado"))
+        item = self.tableDocs.horizontalHeaderItem(4)
+        item.setText(_translate("App_Documentation", "Revisión"))
+        item = self.tableDocs.horizontalHeaderItem(5)
+        item.setText(_translate("App_Documentation", "Fecha"))
 
 
     def CreateDoc(self):
@@ -343,7 +456,7 @@ class Ui_App_Documentation(object):
                 if len(match)>0:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Nuevo Documento")
                     dlg.setText(f"El número de documento '{values[0]}' ya existe y no será importado. Por favor, edítalo y vuelve a importarlo")
@@ -372,7 +485,7 @@ class Ui_App_Documentation(object):
 
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Importar Documentos")
             dlg.setText("Importación completada")
@@ -389,14 +502,15 @@ class Ui_App_Documentation(object):
 
     def EditDoc(self):
         config_obj = configparser.ConfigParser()
-        config_obj.read("database.ini")
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
         # set your parameters for the database connection URI using the keys from the configfile.ini
-        user = dbparam["user"]
-        password = dbparam["password"]
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
 
-        if not createConnection(user, password):
+        if not createConnection(user_database, password_database):
             sys.exit()
+
         self.editdoc_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditDoc_Window()
         self.ui.setupUi(self.editdoc_window)
@@ -426,6 +540,55 @@ class Ui_App_Documentation(object):
         self.ui=Ui_EditPasswordWindow(self.username)
         self.ui.setupUi(self.edit_password_window)
         self.edit_password_window.show()
+
+
+    def update_table(self):
+        delay_date=QtCore.QDate.currentDate().addDays(-10)
+        commands_documentation = ("""
+                    SELECT "num_doc_eipsa","num_order","doc_title","state","revision",TO_CHAR("state_date", 'DD-MM-YYYY')
+                    FROM documentation
+                    WHERE ("state_date" < %s::date
+                    AND
+                    ("state" = 'Enviado'
+                    OR
+                    "state" = 'Comentado'
+                    ))
+                    ORDER BY "num_doc_eipsa"
+                    """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(commands_documentation,(delay_date.toString(QtCore.Qt.DateFormat.ISODate),))
+            results=cur.fetchall()
+            self.tableDocs.setRowCount(len(results))
+            tablerow=0
+
+        # fill the Qt Table with the query results
+            for row in results:
+                for column in range(6):
+                    it=QtWidgets.QTableWidgetItem(str(row[column]))
+                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                    self.tableDocs.setItem(tablerow, column, it)
+
+                tablerow+=1
+
+            self.tableDocs.verticalHeader().hide()
+            self.tableDocs.setItemDelegate(AlignDelegate(self.tableDocs))
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
 
 
 if __name__ == "__main__":

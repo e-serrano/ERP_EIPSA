@@ -27,7 +27,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico</iconset>
+    <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico</iconset>
   </property>
   <property name="autoFillBackground">
    <bool>false</bool>
@@ -118,7 +118,7 @@ background-color: rgb(255, 255, 255);
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap>//nas01/DATOS/Comunes/EIPSA-ERP/Logo.ico</pixmap>
+            <pixmap>//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Logo.ico</pixmap>
            </property>
            <property name="scaledContents">
             <bool>false</bool>

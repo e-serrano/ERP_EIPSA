@@ -22,7 +22,7 @@ class Ui_Purchasing_Menu(object):
         Purchasing_Menu.setMinimumSize(QtCore.QSize(615, 400))
         Purchasing_Menu.setMaximumSize(QtCore.QSize(615, 400))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Purchasing_Menu.setWindowIcon(icon)
         Purchasing_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

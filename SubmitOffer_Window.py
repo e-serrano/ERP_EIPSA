@@ -19,7 +19,7 @@ class Ui_SubmitOffer_Window(object):
         SubmitOffer_Window.setMinimumSize(QtCore.QSize(450, 325))
         SubmitOffer_Window.setMaximumSize(QtCore.QSize(450, 325))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         SubmitOffer_Window.setWindowIcon(icon)
         SubmitOffer_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -198,7 +198,7 @@ class Ui_SubmitOffer_Window(object):
         else:
             commands_checkoffer = ("""
                         SELECT *
-                        FROM offer
+                        FROM offers
                         WHERE "num_offer" = %s
                         """)
             conn = None
@@ -227,7 +227,7 @@ class Ui_SubmitOffer_Window(object):
             if len(match)==0:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Registrar Oferta")
                     dlg.setText("El número de oferta introducido no existe")
@@ -257,7 +257,7 @@ class Ui_SubmitOffer_Window(object):
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Presentar Oferta")
                     dlg.setText("Oferta presentada con éxito")

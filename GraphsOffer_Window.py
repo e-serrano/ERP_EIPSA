@@ -21,7 +21,7 @@ class Ui_GraphsOffer_Window(object):
         GraphsOffer_Window.setObjectName("GraphsOffer_Window")
         GraphsOffer_Window.resize(1500, 800)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("Y:/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         GraphsOffer_Window.setWindowIcon(icon)
         GraphsOffer_Window.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget = QtWidgets.QWidget(parent=GraphsOffer_Window)
@@ -47,7 +47,9 @@ class Ui_GraphsOffer_Window(object):
             commands_offered_month = ("""
                         SELECT "offer_month", CAST(SUM("offer_amount") AS numeric)
                         FROM offers
-                        WHERE ("offer_year"=%s)
+                        WHERE ("offer_year"=%s
+                        AND
+                        "state" <> 'Registrada')
                         GROUP BY "offer_month"
                         ORDER BY "offer_month"
                         """)
@@ -118,6 +120,7 @@ class Ui_GraphsOffer_Window(object):
             commands_offered_year = ("""
                         SELECT "offer_year", CAST(SUM("offer_amount") AS numeric)
                         FROM offers
+                        WHERE ("state" <> 'Registrada')
                         GROUP BY "offer_year"
                         ORDER BY "offer_year"
                         """)

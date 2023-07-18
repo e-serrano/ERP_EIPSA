@@ -148,7 +148,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
         if query.lastError().isValid():
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Editar Documentos")
             dlg.setText("Ha habido un error al actualizar los datos. No serán guardados")
@@ -172,7 +172,7 @@ class Ui_EditDoc_Window(object):
         EditDocs_Window.resize(790, 595)
         EditDocs_Window.setMinimumSize(QtCore.QSize(900, 595))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditDocs_Window.setWindowIcon(icon)
         EditDocs_Window.setStyleSheet(
 ".QFrame {\n"
@@ -196,7 +196,7 @@ class Ui_EditDoc_Window(object):
         self.toolSave.setObjectName("Save_Button")
         self.hcab.addWidget(self.toolSave)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Save.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Save.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolSave.setIcon(icon)
         self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer1)
@@ -204,7 +204,7 @@ class Ui_EditDoc_Window(object):
         self.toolDeleteFilter.setObjectName("Save_Button")
         self.hcab.addWidget(self.toolDeleteFilter)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Filter_Delete.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Filter_Delete.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolDeleteFilter.setIcon(icon)
         self.hcabspacer2=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer2)
@@ -277,7 +277,7 @@ class Ui_EditDoc_Window(object):
                 self.model.database().commit()
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Editar Documentos")
                 dlg.setText("Datos guardados con éxito")
@@ -287,7 +287,7 @@ class Ui_EditDoc_Window(object):
                 self.model.database().rollback()
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Editar Documentos")
                 dlg.setText("Ha habido un problema al guardar los datos")
@@ -297,7 +297,7 @@ class Ui_EditDoc_Window(object):
         else:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Editar Documentos")
             dlg.setText("No ha sido posible conectar con la base de datos. Contacte con su administrador")
@@ -399,7 +399,7 @@ class Ui_EditDoc_Window(object):
         filterColumn = self.logicalIndex
         self.proxy.setFilter(stringAction, filterColumn)
 
-        imagen_path = "//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Filter_Active.png"
+        imagen_path = "//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Filter_Active.png"
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
         self.model.setIconColumnHeader(filterColumn, icono)
 
@@ -420,7 +420,7 @@ class Ui_EditDoc_Window(object):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Buscar')
         clickedButton=dlg.exec()
@@ -440,13 +440,13 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     config_obj = configparser.ConfigParser()
-    config_obj.read("database.ini")
+    config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
     dbparam = config_obj["postgresql"]
     # set your parameters for the database connection URI using the keys from the configfile.ini
-    user = dbparam["user"]
-    password = dbparam["password"]
+    user_database = dbparam["user"]
+    password_database = dbparam["password"]
 
-    if not createConnection(user, password):
+    if not createConnection(user_database, password_database):
         sys.exit()
 
     EditDocs_Window = QtWidgets.QMainWindow()

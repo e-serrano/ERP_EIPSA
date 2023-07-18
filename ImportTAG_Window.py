@@ -9,6 +9,7 @@ import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QFileDialog
 
+
 class Ui_ImportTAG_Window(object):
     def setupUi(self, ImportTAG_Window):
         ImportTAG_Window.setObjectName("ImportTAG_Window")
@@ -16,7 +17,7 @@ class Ui_ImportTAG_Window(object):
         ImportTAG_Window.setMinimumSize(QtCore.QSize(640, 330))
         ImportTAG_Window.setMaximumSize(QtCore.QSize(640, 330))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ImportTAG_Window.setWindowIcon(icon)
         ImportTAG_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

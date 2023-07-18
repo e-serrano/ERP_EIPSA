@@ -27,7 +27,7 @@ class Ui_ExportOffer_Window(object):
         ExportOffer_Window.setSizePolicy(sizePolicy)
         ExportOffer_Window.setMaximumSize(QtCore.QSize(275, 340))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ExportOffer_Window.setWindowIcon(icon)
         ExportOffer_Window.setAutoFillBackground(False)
         ExportOffer_Window.setStyleSheet("QWidget {\n"
@@ -194,7 +194,7 @@ class Ui_ExportOffer_Window(object):
         if numoffer=="" or (numoffer==" " or len(match)==0):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Exportar Oferta")
             dlg.setText("El número de oferta no se encuentra registrado")
@@ -252,7 +252,7 @@ class Ui_ExportOffer_Window(object):
 
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Exportar Oferta")
             dlg.setText("Oferta exportada con éxito")

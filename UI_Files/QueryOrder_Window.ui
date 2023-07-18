@@ -27,7 +27,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico</iconset>
+    <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget {

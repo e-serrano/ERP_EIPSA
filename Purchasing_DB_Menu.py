@@ -16,7 +16,7 @@ class Ui_Purchasing_DB_Menu(object):
         Purchasing_DB_Menu.setMinimumSize(QtCore.QSize(300, 340))
         Purchasing_DB_Menu.setMaximumSize(QtCore.QSize(300, 340))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Purchasing_DB_Menu.setWindowIcon(icon)
         Purchasing_DB_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

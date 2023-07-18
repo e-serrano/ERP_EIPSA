@@ -18,7 +18,7 @@ class Ui_EditOffer_Menu(object):
         EditOffer_Menu.setMinimumSize(QtCore.QSize(300, 300))
         EditOffer_Menu.setMaximumSize(QtCore.QSize(300, 340))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditOffer_Menu.setWindowIcon(icon)
         EditOffer_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

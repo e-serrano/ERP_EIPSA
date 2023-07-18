@@ -38,12 +38,34 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
+class ImageCalendarWidget(QtWidgets.QCalendarWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.task_dates = []
+
+    def set_task_dates(self, dates):
+        self.task_dates = dates
+        self.updateCells()
+
+    def paintCell(self, painter, rect, date):
+        QtWidgets.QCalendarWidget.paintCell(self, painter, rect, date)
+
+        if date in self.task_dates:
+            image_path = "//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Flag.png"
+            image = QtGui.QImage(image_path)
+            if not image.isNull():
+                image_scaled = image.scaled(rect.width() // 4, rect.height() // 4, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.SmoothTransformation)
+                image_rect = image_scaled.rect()
+                image_rect.moveTopRight(rect.topRight() - QtCore.QPoint(2, -5))
+                painter.drawImage(image_rect, image_scaled)
+
+
 class Ui_App_Comercial(object):
-    def __init__(self, user, username):
-        self.user=user
+    def __init__(self, name, username):
+        self.name=name
         self.username=username
     # def __init__(self):
-    #     self.user='Enrique Serrano'
+    #     self.name='Enrique Serrano'
     #     self.username='e.serranog'
 
 
@@ -52,7 +74,7 @@ class Ui_App_Comercial(object):
         App_Comercial.resize(945, 860)
         App_Comercial.setMinimumSize(QtCore.QSize(945, 860))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Comercial.setWindowIcon(icon)
         App_Comercial.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget = QtWidgets.QWidget(parent=App_Comercial)
@@ -74,7 +96,7 @@ class Ui_App_Comercial(object):
         self.LogoIcon.setMinimumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setMaximumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setText("")
-        self.LogoIcon.setPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Logo.ico"))
+        self.LogoIcon.setPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Logo.ico"))
         self.LogoIcon.setScaledContents(True)
         self.LogoIcon.setObjectName("LogoIcon")
         self.Header.addWidget(self.LogoIcon)
@@ -109,7 +131,7 @@ class Ui_App_Comercial(object):
 "}")
         self.Button_ExpOffer.setText("")
         icon12 = QtGui.QIcon()
-        icon12.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Offer_Export.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon12.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Offer_Export.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_ExpOffer.setIcon(icon12)
         self.Button_ExpOffer.setIconSize(QtCore.QSize(40, 40))
         self.Button_ExpOffer.setObjectName("Button_ExpOffer")
@@ -145,7 +167,7 @@ class Ui_App_Comercial(object):
 "}")
         self.Button_Doc.setText("")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Documents_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon1.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Documents_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Doc.setIcon(icon1)
         self.Button_Doc.setIconSize(QtCore.QSize(40, 40))
         self.Button_Doc.setObjectName("Button_Doc")
@@ -181,7 +203,7 @@ class Ui_App_Comercial(object):
 "}")
         self.Button_Graphs.setText("")
         icon14 = QtGui.QIcon()
-        icon14.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Chart.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon14.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Chart.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Graphs.setIcon(icon14)
         self.Button_Graphs.setIconSize(QtCore.QSize(40, 40))
         self.Button_Graphs.setObjectName("Button_Graphs")
@@ -189,7 +211,7 @@ class Ui_App_Comercial(object):
         spacerItem10 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem10)
 
-        if self.user in ['Ana Calvo','Enrique Serrano']:
+        if self.name in ['Ana Calvo']:
             self.Button_Users = QtWidgets.QPushButton(parent=self.frame)
             self.Button_Users.setMinimumSize(QtCore.QSize(50, 50))
             self.Button_Users.setMaximumSize(QtCore.QSize(50, 50))
@@ -219,7 +241,7 @@ class Ui_App_Comercial(object):
     "}")
             self.Button_Users.setText("")
             icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/User_Edit.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon2.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/User_Edit.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Users.setIcon(icon2)
             self.Button_Users.setIconSize(QtCore.QSize(40, 40))
             self.Button_Users.setObjectName("Button_Users")
@@ -267,7 +289,7 @@ class Ui_App_Comercial(object):
 "}")
         self.Button_Profile.setText("")
         icon13 = QtGui.QIcon()
-        icon13.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/User.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon13.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/User.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Profile.setIcon(icon13)
         self.Button_Profile.setIconSize(QtCore.QSize(40, 40))
         self.Button_Profile.setObjectName("Button_Profile")
@@ -323,7 +345,7 @@ class Ui_App_Comercial(object):
         self.Button_NewOffer.setFont(font)
         self.Button_NewOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Offer_New.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon3.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Offer_New.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_NewOffer.setIcon(icon3)
         self.Button_NewOffer.setIconSize(QtCore.QSize(40, 40))
         self.Button_NewOffer.setCheckable(False)
@@ -340,7 +362,7 @@ class Ui_App_Comercial(object):
         self.Button_EditOffer.setFont(font)
         self.Button_EditOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Offer_Edit.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon4.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Offer_Edit.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_EditOffer.setIcon(icon4)
         self.Button_EditOffer.setIconSize(QtCore.QSize(40, 40))
         self.Button_EditOffer.setObjectName("Button_EditOffer")
@@ -354,7 +376,7 @@ class Ui_App_Comercial(object):
         self.Button_QueryOffer.setFont(font)
         self.Button_QueryOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Offer_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon5.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Offer_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryOffer.setIcon(icon5)
         self.Button_QueryOffer.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryOffer.setObjectName("Button_QueryOffer")
@@ -368,7 +390,7 @@ class Ui_App_Comercial(object):
         self.Button_NewOrder.setFont(font)
         self.Button_NewOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Order_New.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon6.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Order_New.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_NewOrder.setIcon(icon6)
         self.Button_NewOrder.setIconSize(QtCore.QSize(40, 40))
         self.Button_NewOrder.setObjectName("Button_NewOrder")
@@ -382,7 +404,7 @@ class Ui_App_Comercial(object):
         self.Button_EditOrder.setFont(font)
         self.Button_EditOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon7 = QtGui.QIcon()
-        icon7.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Order_Edit.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon7.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Order_Edit.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_EditOrder.setIcon(icon7)
         self.Button_EditOrder.setIconSize(QtCore.QSize(40, 40))
         self.Button_EditOrder.setObjectName("Button_EditOrder")
@@ -396,7 +418,7 @@ class Ui_App_Comercial(object):
         self.Button_QueryOrder.setFont(font)
         self.Button_QueryOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon8 = QtGui.QIcon()
-        icon8.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/Order_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon8.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Order_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryOrder.setIcon(icon8)
         self.Button_QueryOrder.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryOrder.setObjectName("Button_QueryOrder")
@@ -410,7 +432,7 @@ class Ui_App_Comercial(object):
         self.Button_NewTag.setFont(font)
         self.Button_NewTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon9 = QtGui.QIcon()
-        icon9.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/TAG_New.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon9.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/TAG_New.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_NewTag.setIcon(icon9)
         self.Button_NewTag.setIconSize(QtCore.QSize(40, 40))
         self.Button_NewTag.setObjectName("Button_NewTag")
@@ -424,7 +446,7 @@ class Ui_App_Comercial(object):
         self.Button_EditTag.setFont(font)
         self.Button_EditTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon10 = QtGui.QIcon()
-        icon10.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/TAG_Edit.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon10.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/TAG_Edit.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_EditTag.setIcon(icon10)
         self.Button_EditTag.setIconSize(QtCore.QSize(40, 40))
         self.Button_EditTag.setObjectName("Button_EditTag")
@@ -438,7 +460,7 @@ class Ui_App_Comercial(object):
         self.Button_QueryTag.setFont(font)
         self.Button_QueryTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon11 = QtGui.QIcon()
-        icon11.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/TAG_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon11.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/TAG_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryTag.setIcon(icon11)
         self.Button_QueryTag.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryTag.setObjectName("Button_QueryTag")
@@ -517,7 +539,7 @@ class Ui_App_Comercial(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                data=(self.user[0] + self.user[self.user.find(' ')+1], date.today().year,)
+                data=(self.name[0] + self.name[self.name.find(' ')+1], date.today().year,)
                 cur.execute(commands_graph1, data)
                 results=cur.fetchall()
             # close communication with the PostgreSQL database server
@@ -529,13 +551,12 @@ class Ui_App_Comercial(object):
             finally:
                 if conn is not None:
                     conn.close()
-
             months=[int(x[0]) for x in results]
             amounts=[float(x[1]) for x in results]
 
             self.canvas=FigureCanvas(Figure())
             ax=self.canvas.figure.subplots()
-            ax.plot(months,amounts)
+            ax.bar(months,amounts)
             ax.set_xticks(range(1,13))
             ax.set_title('Ventas totales año actual')
             ax.set_xlabel('Mes')
@@ -569,7 +590,7 @@ class Ui_App_Comercial(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                data=(self.user[0] + self.user[self.user.find(' ')+1], date.today().year,)
+                data=(self.name[0] + self.name[self.name.find(' ')+1], date.today().year,)
                 cur.execute(commands_graph2, data)
                 results2=cur.fetchall()
             # close communication with the PostgreSQL database server
@@ -600,7 +621,7 @@ class Ui_App_Comercial(object):
 
         spacerItem8 = QtWidgets.QSpacerItem(15, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.BottomLayout.addItem(spacerItem8)
-        self.Calendar = QtWidgets.QCalendarWidget(parent=self.frame)
+        self.Calendar = ImageCalendarWidget(parent=self.frame)
         self.Calendar.setEnabled(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -647,10 +668,10 @@ class Ui_App_Comercial(object):
 "}\n"
 "\n"
 "#qt_calendar_prevmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/back_arrow.png);\n"
+"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/back_arrow.png);\n"
 "}\n"
 "#qt_calendar_nextmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/button_icons/forward_arrow.png);\n"
+"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/forward_arrow.png);\n"
 "}")
         self.Calendar.setSelectedDate(QtCore.QDate.currentDate())
         self.Calendar.setGridVisible(True)
@@ -689,8 +710,10 @@ class Ui_App_Comercial(object):
         self.Button_Doc.clicked.connect(self.query_documents)
         self.Button_Graphs.clicked.connect(self.graphs)
         self.Button_Profile.clicked.connect(self.showMenu)
+        self.Calendar.selectionChanged.connect(self.show_selected_date_tasks)
+        self.setup_task_dates()
 
-        if self.user in ['Ana Calvo','Enrique Serrano']:
+        if self.name in ['Ana Calvo']:
             self.Button_Users.clicked.connect(self.user_edition)
 
         commands_appcomercial = ("""
@@ -712,7 +735,10 @@ class Ui_App_Comercial(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            cur.execute(commands_appcomercial,(self.user[0] + self.user[self.user.find(' ')+1],))
+            if self.name == 'Carlos Crespo':
+                cur.execute(commands_appcomercial,(self.name[0] + self.name[self.name.find(' ')+1] + 'H',))
+            else:
+                cur.execute(commands_appcomercial,(self.name[0] + self.name[self.name.find(' ')+1],))
             results=cur.fetchall()
             self.tableOffer.setRowCount(len(results))
             tablerow=0
@@ -739,11 +765,12 @@ class Ui_App_Comercial(object):
             if conn is not None:
                 conn.close()
 
+        self.alert_offers()
 
     def retranslateUi(self, App_Comercial):
         _translate = QtCore.QCoreApplication.translate
         App_Comercial.setWindowTitle(_translate("App_Comercial", "ERP EIPSA - Comercial"))
-        self.HeaderName.setText(_translate("App_Comercial", self.user))
+        self.HeaderName.setText(_translate("App_Comercial", self.name))
         self.Button_NewOffer.setText(_translate("App_Comercial", "    Nueva Oferta"))
         self.Button_EditOffer.setText(_translate("App_Comercial", "    Editar Oferta"))
         self.Button_QueryOffer.setText(_translate("App_Comercial", "    Consultar Ofertas"))
@@ -773,7 +800,7 @@ class Ui_App_Comercial(object):
 
     def new_offer(self):
         self.new_offer_window=QtWidgets.QMainWindow()
-        self.ui=Ui_New_Offer_Window(self.user)
+        self.ui=Ui_New_Offer_Window(self.name)
         self.ui.setupUi(self.new_offer_window)
         self.new_offer_window.show()
         self.ui.Button_Cancel.clicked.connect(self.update_table)
@@ -823,7 +850,7 @@ class Ui_App_Comercial(object):
 
         dlg = QtWidgets.QMessageBox()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle("ERP EIPSA")
         dlg.setText("Este módulo aún no está disponible.\nDisculpe las molestias")
@@ -834,7 +861,7 @@ class Ui_App_Comercial(object):
 
     def edit_tag(self):
         # config_obj = configparser.ConfigParser()
-        # config_obj.read("database.ini")
+        # config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         # dbparam = config_obj["postgresql"]
         # # set your parameters for the database connection URI using the keys from the configfile.ini
         # user = dbparam["user"]
@@ -850,7 +877,7 @@ class Ui_App_Comercial(object):
 
         dlg = QtWidgets.QMessageBox()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle("ERP EIPSA")
         dlg.setText("Este módulo aún no está disponible.\nDisculpe las molestias")
@@ -867,7 +894,7 @@ class Ui_App_Comercial(object):
 
         dlg = QtWidgets.QMessageBox()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle("ERP EIPSA")
         dlg.setText("Este módulo aún no está disponible.\nDisculpe las molestias")
@@ -877,10 +904,20 @@ class Ui_App_Comercial(object):
 
 
     def export_offer(self):
-        self.exportoffer_window=QtWidgets.QMainWindow()
-        self.ui=Ui_ExportOffer_Window()
-        self.ui.setupUi(self.exportoffer_window)
-        self.exportoffer_window.show()
+        # self.exportoffer_window=QtWidgets.QMainWindow()
+        # self.ui=Ui_ExportOffer_Window()
+        # self.ui.setupUi(self.exportoffer_window)
+        # self.exportoffer_window.show()
+
+        dlg = QtWidgets.QMessageBox()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle("ERP EIPSA")
+        dlg.setText("Este módulo aún no está disponible.\nDisculpe las molestias")
+        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        dlg.exec()
+        del dlg, new_icon
 
 
     def query_documents(self):
@@ -942,7 +979,10 @@ class Ui_App_Comercial(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            cur.execute(commands_appcomercial,(self.user[0] + self.user[self.user.find(' ')+1],))
+            if self.name == 'Carlos Crespo':
+                cur.execute(commands_appcomercial,(self.name[0] + self.name[self.name.find(' ')+1] + 'H',))
+            else:
+                cur.execute(commands_appcomercial,(self.name[0] + self.name[self.name.find(' ')+1],))
             results=cur.fetchall()
             self.tableOffer.setRowCount(len(results))
             tablerow=0
@@ -968,6 +1008,95 @@ class Ui_App_Comercial(object):
         finally:
             if conn is not None:
                 conn.close()
+
+
+    def setup_task_dates(self):
+        # Stablish dates with task assigned to put icon on calendar
+        # task_dates = [QtCore.QDate.currentDate().addDays(0), QtCore.QDate.currentDate().addDays(3)]
+        task_dates = []
+        self.Calendar.set_task_dates(task_dates)
+
+
+    def show_selected_date_tasks(self):
+        selected_date = self.Calendar.selectedDate()
+        tasks = self.get_tasks_for_date(selected_date)
+
+        if tasks:
+            task_text = "\n".join(tasks)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Tareas para la fecha:\n"
+                        "\n"
+                        + task_text)
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+            dlg.exec()
+            del dlg, new_icon
+
+
+    def get_tasks_for_date(self, date):
+        # Función de ejemplo para obtener las tareas asociadas a una fecha // consiste en la asignación de tareas a las fechas
+        # Aquí puedes implementar tu propia lógica para recuperar las tareas de una fuente de datos
+        if date == QtCore.QDate.currentDate().addDays(-1):
+            return ["Tarea 1", "Tarea 2"]
+        elif date == QtCore.QDate.currentDate().addDays(-2):
+            return ["Tarea 3", "Tarea 4"]
+        else:
+            return []
+
+
+    def alert_offers(self):
+        delay_date=QtCore.QDate.currentDate().addDays(-10)
+
+        commands_offerdelay = ("""
+                    SELECT "num_offer"
+                    FROM offers
+                    WHERE ("responsible" = %s
+                    AND
+                    "state" = 'Presentada'
+                    AND
+                    "presentation_date" < %s::date )
+                    ORDER BY "num_offer"
+                    """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            if self.name == 'Carlos Crespo':
+                cur.execute(commands_offerdelay,(self.name[0] + self.name[self.name.find(' ')+1] + 'H',delay_date.toString(QtCore.Qt.DateFormat.ISODate),))
+            else:
+                cur.execute(commands_offerdelay,(self.name[0] + self.name[self.name.find(' ')+1],delay_date.toString(QtCore.Qt.DateFormat.ISODate),))
+            results=cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        offers_delay=[x[0] for x in results]
+        if len(offers_delay) != 0:
+            offers_delay_text = "\n".join(offers_delay)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Las siguientes ofertas llevan presentadas más de 10 días:\n"
+                        "\n"
+                        + offers_delay_text)
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+            dlg.exec()
+            del dlg, new_icon
 
 
 if __name__ == "__main__":

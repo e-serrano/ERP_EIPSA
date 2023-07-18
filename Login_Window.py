@@ -13,6 +13,7 @@ from config import config
 from App_Comercial import Ui_App_Comercial
 from App_Purchasing import Ui_App_Purchasing
 from App_Documentation import Ui_App_Documentation
+from App_Master import Ui_App_Master
 from ForgetPass_Window import Ui_ForgetPass_Window
 import configparser
 
@@ -20,6 +21,7 @@ import configparser
 
 class Ui_Login_Window(object):
     def setupUi(self, Login_Window):
+        self.Login_Window=Login_Window
         Login_Window.setObjectName("Login_Window")
         Login_Window.resize(670, 392)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.MinimumExpanding, QtWidgets.QSizePolicy.Policy.Preferred)
@@ -29,7 +31,7 @@ class Ui_Login_Window(object):
         Login_Window.setSizePolicy(sizePolicy)
         Login_Window.setMaximumSize(QtCore.QSize(670, 392))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Login_Window.setWindowIcon(icon)
         Login_Window.setAutoFillBackground(False)
         Login_Window.setStyleSheet("QWidget {\n"
@@ -72,7 +74,7 @@ class Ui_Login_Window(object):
         self.logo.setSizePolicy(sizePolicy)
         self.logo.setMaximumSize(QtCore.QSize(255, 235))
         self.logo.setText("")
-        self.logo.setPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Logo.ico"))
+        self.logo.setPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Logo.ico"))
         self.logo.setScaledContents(False)
         self.logo.setObjectName("logo")
         self.horizontalLayout.addWidget(self.logo)
@@ -339,42 +341,45 @@ class Ui_Login_Window(object):
 
             else:
                 rol_app=match[0][6]
-                self.app_window=QtWidgets.QMainWindow()
-                if rol_app=='Comercial':
-                    self.ui=Ui_App_Comercial(match[0][1]+' '+match[0][2], login_username)
 
-                elif rol_app=="Compras":
-                    self.ui=Ui_App_Purchasing(match[0][1]+' '+match[0][2])
+                if rol_app == 'Comercial':
+                    self.app_window=QtWidgets.QMainWindow()
+                    self.ui_comercial=Ui_App_Comercial(match[0][1]+' '+match[0][2], login_username)
+                    self.ui_comercial.setupUi(self.app_window)
+                    self.app_window.show()
+                    self.Login_Window.close()
 
-                elif rol_app=="Documentación":
-                    self.ui=Ui_App_Documentation(match[0][1]+' '+match[0][2])
+                elif rol_app == "Compras":
+                    self.app_window=QtWidgets.QMainWindow()
+                    self.ui_purchase=Ui_App_Purchasing(match[0][1]+' '+match[0][2], login_username)
+                    self.ui_purchase.setupUi(self.app_window)
+                    self.app_window.show()
+                    self.Login_Window.close()
+
+                elif rol_app == "Documentación":
+                    self.app_window=QtWidgets.QMainWindow()
+                    self.ui_documentation=Ui_App_Documentation(match[0][1]+' '+match[0][2], login_username)
+                    self.ui_documentation.setupUi(self.app_window)
+                    self.app_window.show()
+                    self.Login_Window.close()
+
+                elif rol_app == "Master":
+                    self.app_window=QtWidgets.QMainWindow()
+                    self.ui_master=Ui_App_Master(match[0][1]+' '+match[0][2], login_username)
+                    self.ui_master.setupUi(self.app_window)
+                    self.app_window.show()
+                    self.Login_Window.close()
 
                 else:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("La aplicación no está disponible para este usuario. Disculpe las molestias")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                     dlg.exec()
                     del dlg, new_icon
-
-            # editing the database.ini file for each user
-                edit = configparser.ConfigParser()
-                edit.read("database.ini")
-            #Get the postgresql section
-                postgresql = edit["postgresql"]
-            #Update the user and password
-                postgresql["user"] = login_username
-                postgresql["password"] = login_password
-            #Write changes back to file
-                with open('database.ini', 'w') as configfile:
-                    edit.write(configfile)
-
-                self.ui.setupUi(self.app_window)
-                Login_Window.close()
-                self.app_window.show()
 
 
     def forgetpassword(self):
@@ -385,7 +390,7 @@ class Ui_Login_Window(object):
 
         dlg = QtWidgets.QMessageBox()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle("ERP EIPSA")
         dlg.setText("Este módulo aún no está disponible. Póngase en contacto con el administrador del sistema.\nDisculpe las molestias")

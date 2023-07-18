@@ -23,7 +23,7 @@ class Ui_QueryTableChanges_Window(object):
         QueryTableChanges_Window.resize(1000, 590)
         QueryTableChanges_Window.setMinimumSize(QtCore.QSize(845, 590))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         QueryTableChanges_Window.setWindowIcon(icon)
         QueryTableChanges_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -220,7 +220,7 @@ class Ui_QueryTableChanges_Window(object):
 
     def retranslateUi(self, QueryTableChanges_Window):
         _translate = QtCore.QCoreApplication.translate
-        QueryTableChanges_Window.setWindowTitle(_translate("QueryTableChanges_Window", "Consultar Oferta"))
+        QueryTableChanges_Window.setWindowTitle(_translate("QueryTableChanges_Window", "Consultar Tablas Cambios"))
         self.label_TableChanges.setText(_translate("QueryTableChanges_Window", "Tabla:"))
         self.Button_Query.setText(_translate("QueryTableChanges_Window", "Buscar"))
         item = self.tableQueryTableChanges.horizontalHeaderItem(0)
