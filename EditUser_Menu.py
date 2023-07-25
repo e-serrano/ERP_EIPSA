@@ -134,6 +134,8 @@ class Ui_EditUser_Menu(object):
         self.ui=Ui_DeleteUser_Window()
         self.ui.setupUi(self.user_delete_window)
         self.user_delete_window.show()
+        EditUser_Menu.hide()
+        self.ui.Button_cancel.clicked.connect(EditUser_Menu.show)
 
 
 

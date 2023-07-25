@@ -16,7 +16,6 @@ from datetime import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib import ticker
-import numpy as np
 from NewOffer_Window import Ui_New_Offer_Window
 from EditOffer_Menu import Ui_EditOffer_Menu
 from QueryOffer_Window import Ui_QueryOffer_Window

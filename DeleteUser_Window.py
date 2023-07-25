@@ -85,22 +85,22 @@ class Ui_DeleteUser_Window(object):
         self.email_deleteuser.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.email_deleteuser.setObjectName("email_deleteuser")
         self.verticalLayout.addWidget(self.email_deleteuser, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
-        self.delete_deleteuser = QtWidgets.QPushButton(parent=self.frame)
-        self.delete_deleteuser.setEnabled(True)
+        self.Button_deleteuser = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_deleteuser.setEnabled(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.delete_deleteuser.sizePolicy().hasHeightForWidth())
-        self.delete_deleteuser.setSizePolicy(sizePolicy)
-        self.delete_deleteuser.setMinimumSize(QtCore.QSize(200, 35))
-        self.delete_deleteuser.setMaximumSize(QtCore.QSize(200, 35))
+        sizePolicy.setHeightForWidth(self.Button_deleteuser.sizePolicy().hasHeightForWidth())
+        self.Button_deleteuser.setSizePolicy(sizePolicy)
+        self.Button_deleteuser.setMinimumSize(QtCore.QSize(200, 35))
+        self.Button_deleteuser.setMaximumSize(QtCore.QSize(200, 35))
         font = QtGui.QFont()
         font.setPointSize(10)
         font.setBold(True)
         font.setUnderline(False)
         font.setStrikeOut(False)
-        self.delete_deleteuser.setFont(font)
-        self.delete_deleteuser.setStyleSheet("QPushButton {\n"
+        self.Button_deleteuser.setFont(font)
+        self.Button_deleteuser.setStyleSheet("QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
 "  border-radius: 3px;\n"
@@ -137,9 +137,64 @@ class Ui_DeleteUser_Window(object):
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
 "}")
-        self.delete_deleteuser.setAutoDefault(True)
-        self.delete_deleteuser.setObjectName("delete_deleteuser")
-        self.verticalLayout.addWidget(self.delete_deleteuser, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.Button_deleteuser.setAutoDefault(True)
+        self.Button_deleteuser.setObjectName("Button_deleteuser")
+        self.verticalLayout.addWidget(self.Button_deleteuser, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.Button_cancel = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_cancel.setEnabled(True)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.Button_cancel.sizePolicy().hasHeightForWidth())
+        self.Button_cancel.setSizePolicy(sizePolicy)
+        self.Button_cancel.setMinimumSize(QtCore.QSize(200, 35))
+        self.Button_cancel.setMaximumSize(QtCore.QSize(200, 35))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        font.setUnderline(False)
+        font.setStrikeOut(False)
+        self.Button_cancel.setFont(font)
+        self.Button_cancel.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 8px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}\n"
+"\n"
+"QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:focus:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        self.Button_cancel.setAutoDefault(True)
+        self.Button_cancel.setObjectName("Button_cancel")
+        self.verticalLayout.addWidget(self.Button_cancel, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
         self.gridLayout_2.addWidget(self.frame, 0, 0, 1, 1, QtCore.Qt.AlignmentFlag.AlignHCenter)
         ForgetPass_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=ForgetPass_Window)
@@ -149,7 +204,8 @@ class Ui_DeleteUser_Window(object):
         ForgetPass_Window.setMenuBar(self.menubar)
 
         self.retranslateUi(ForgetPass_Window)
-        self.delete_deleteuser.clicked.connect(self.delete_user)
+        self.Button_deleteuser.clicked.connect(self.delete_user)
+        self.Button_cancel.clicked.connect(ForgetPass_Window.close)
         QtCore.QMetaObject.connectSlotsByName(ForgetPass_Window)
 
 
@@ -157,7 +213,8 @@ class Ui_DeleteUser_Window(object):
         _translate = QtCore.QCoreApplication.translate
         ForgetPass_Window.setWindowTitle(_translate("ForgetPass_Window", "Eliminar Usuario"))
         self.label_email_deleteuser.setText(_translate("ForgetPass_Window", "Correo electrónico:"))
-        self.delete_deleteuser.setText(_translate("ForgetPass_Window", "Eliminar"))
+        self.Button_deleteuser.setText(_translate("ForgetPass_Window", "Eliminar"))
+        self.Button_cancel.setText(_translate("ForgetPass_Window", "Cancelar"))
 
 
     def delete_user(self):

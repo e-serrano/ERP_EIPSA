@@ -15,8 +15,6 @@ from Database_Connection import createConnection
 from config import config
 from datetime import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-import numpy as np
 from QueryOffer_Window import Ui_QueryOffer_Window
 from QueryOrder_Window import Ui_QueryOrder_Window
 from QueryDoc_Window import Ui_QueryDoc_Window
@@ -54,12 +52,12 @@ class ImageCalendarWidget(QtWidgets.QCalendarWidget):
 
 
 class Ui_App_Master(object):
-    # def __init__(self, name, username):
-    #     self.name=name
-    #     self.username=username
-    def __init__(self):
-        self.name='Enrique Serrano'
-        self.username='e.serranog'
+    def __init__(self, name, username):
+        self.name=name
+        self.username=username
+    # def __init__(self):
+    #     self.name='Enrique Serrano'
+    #     self.username='e.serranog'
 
 
     def setupUi(self, App_Master):
@@ -522,6 +520,7 @@ class Ui_App_Master(object):
         self.Button_QueryDoc.clicked.connect(self.query_doc)
         self.Button_QueryTag.clicked.connect(self.query_tag)
         self.Button_EditTag.clicked.connect(self.edit_tag)
+        self.Button_Users.clicked.connect(self.user_edition)
         self.Button_DBEdit.clicked.connect(self.editdb)
         self.Button_DBImport.clicked.connect(self.importdb)
         self.Button_DBChanges.clicked.connect(self.dbchanges)
