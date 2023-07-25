@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'EditDB_Menu.ui'
+# Form implementation generated from reading ui file 'ImportDB_Menu.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -7,22 +7,20 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-import configparser
-from Database_Connection import createConnection
-from AddReg_Window import Ui_AddReg_Window
-from EditReg_Window import Ui_EditReg_Window
+from ImportTableNew_Window import Ui_ImportTableNew_Window
+from ImportTableExist_Window import Ui_ImportTableExist_Window
 
 
-class Ui_EditDB_Menu(object):
-    def setupUi(self, EditDB_Menu):
-        EditDB_Menu.setObjectName("EditDB_Menu")
-        EditDB_Menu.resize(300, 336)
-        EditDB_Menu.setMinimumSize(QtCore.QSize(300, 300))
-        EditDB_Menu.setMaximumSize(QtCore.QSize(300, 340))
+class Ui_ImportDB_Menu(object):
+    def setupUi(self, ImportDB_Menu):
+        ImportDB_Menu.setObjectName("ImportDB_Menu")
+        ImportDB_Menu.resize(300, 336)
+        ImportDB_Menu.setMinimumSize(QtCore.QSize(300, 300))
+        ImportDB_Menu.setMaximumSize(QtCore.QSize(300, 340))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        EditDB_Menu.setWindowIcon(icon)
-        EditDB_Menu.setStyleSheet("QWidget {\n"
+        ImportDB_Menu.setWindowIcon(icon)
+        ImportDB_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
 "}\n"
 "\n"
@@ -57,7 +55,7 @@ class Ui_EditDB_Menu(object):
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
 "}")
-        self.centralwidget = QtWidgets.QWidget(parent=EditDB_Menu)
+        self.centralwidget = QtWidgets.QWidget(parent=ImportDB_Menu)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -71,18 +69,18 @@ class Ui_EditDB_Menu(object):
         self.gridLayout_2.setObjectName("gridLayout_2")
         spacerItem = QtWidgets.QSpacerItem(20, 80, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 4, 0, 1, 1)
-        self.Button_AddReg = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_AddReg.setMinimumSize(QtCore.QSize(250, 35))
-        self.Button_AddReg.setMaximumSize(QtCore.QSize(250, 35))
-        self.Button_AddReg.setObjectName("Button_AddReg")
-        self.gridLayout_2.addWidget(self.Button_AddReg, 1, 0, 1, 1)
+        self.Button_NewTable = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_NewTable.setMinimumSize(QtCore.QSize(250, 35))
+        self.Button_NewTable.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_NewTable.setObjectName("Button_NewTable")
+        self.gridLayout_2.addWidget(self.Button_NewTable, 1, 0, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem1, 2, 0, 1, 1)
-        self.Button_EditReg = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_EditReg.setMinimumSize(QtCore.QSize(250, 35))
-        self.Button_EditReg.setMaximumSize(QtCore.QSize(250, 35))
-        self.Button_EditReg.setObjectName("Button_EditReg")
-        self.gridLayout_2.addWidget(self.Button_EditReg, 3, 0, 1, 1)
+        self.Button_ExistTable = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_ExistTable.setMinimumSize(QtCore.QSize(250, 35))
+        self.Button_ExistTable.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_ExistTable.setObjectName("Button_ExistTable")
+        self.gridLayout_2.addWidget(self.Button_ExistTable, 3, 0, 1, 1)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout.setObjectName("horizontalLayout")
@@ -98,62 +96,53 @@ class Ui_EditDB_Menu(object):
         spacerItem3 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem3, 0, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
-        EditDB_Menu.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=EditDB_Menu)
+        ImportDB_Menu.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=ImportDB_Menu)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 300, 22))
         self.menubar.setObjectName("menubar")
-        EditDB_Menu.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=EditDB_Menu)
+        ImportDB_Menu.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=ImportDB_Menu)
         self.statusbar.setObjectName("statusbar")
-        EditDB_Menu.setStatusBar(self.statusbar)
+        ImportDB_Menu.setStatusBar(self.statusbar)
 
-        self.retranslateUi(EditDB_Menu)
-        self.Button_Cancel.clicked.connect(EditDB_Menu.close) # type: ignore
-        self.Button_AddReg.clicked.connect(lambda: self.addreg(EditDB_Menu))
-        self.Button_EditReg.clicked.connect(lambda: self.editreg(EditDB_Menu))
-        QtCore.QMetaObject.connectSlotsByName(EditDB_Menu)
+        self.retranslateUi(ImportDB_Menu)
+        self.Button_Cancel.clicked.connect(ImportDB_Menu.close) # type: ignore
+        self.Button_NewTable.clicked.connect(lambda: self.newtable(ImportDB_Menu))
+        self.Button_ExistTable.clicked.connect(lambda: self.existable(ImportDB_Menu))
+        QtCore.QMetaObject.connectSlotsByName(ImportDB_Menu)
 
 
-    def retranslateUi(self, EditDB_Menu):
+    def retranslateUi(self, ImportDB_Menu):
         _translate = QtCore.QCoreApplication.translate
-        EditDB_Menu.setWindowTitle(_translate("EditDB_Menu", "Editar Base de Datos"))
-        self.Button_AddReg.setText(_translate("EditDB_Menu", "Agregar Registros"))
-        self.Button_EditReg.setText(_translate("EditDB_Menu", "Editar Registros"))
-        self.Button_Cancel.setText(_translate("EditDB_Menu", "Cancelar"))
+        ImportDB_Menu.setWindowTitle(_translate("ImportDB_Menu", "Importar a Base de Datos"))
+        self.Button_NewTable.setText(_translate("ImportDB_Menu", "Tabla Nueva"))
+        self.Button_ExistTable.setText(_translate("ImportDB_Menu", "Tabla Existente"))
+        self.Button_Cancel.setText(_translate("ImportDB_Menu", "Cancelar"))
 
 
-    def addreg(self,EditDB_Menu):
+    def newtable(self,ImportDB_Menu):
         self.addreg_window=QtWidgets.QMainWindow()
-        self.ui=Ui_AddReg_Window()
+        self.ui=Ui_ImportTableNew_Window()
         self.ui.setupUi(self.addreg_window)
         self.addreg_window.show()
-        EditDB_Menu.hide()
-        self.ui.Button_Cancel.clicked.connect(EditDB_Menu.show)
+        ImportDB_Menu.hide()
+        self.ui.Button_Cancel.clicked.connect(ImportDB_Menu.show)
 
 
-    def editreg(self,EditDB_Menu):
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
-        user = dbparam["user"]
-        password = dbparam["password"]
-
-        if not createConnection(user, password):
-            sys.exit()
+    def existable(self,ImportDB_Menu):
         self.editreg_window=QtWidgets.QMainWindow()
-        self.ui=Ui_EditReg_Window()
+        self.ui=Ui_ImportTableExist_Window()
         self.ui.setupUi(self.editreg_window)
         self.editreg_window.show()
-        EditDB_Menu.hide()
-        self.ui.Button_Cancel.clicked.connect(EditDB_Menu.show)
+        ImportDB_Menu.hide()
+        self.ui.Button_Cancel.clicked.connect(ImportDB_Menu.show)
 
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    EditDB_Menu = QtWidgets.QMainWindow()
-    ui = Ui_EditDB_Menu()
-    ui.setupUi(EditDB_Menu)
-    EditDB_Menu.show()
+    ImportDB_Menu = QtWidgets.QMainWindow()
+    ui = Ui_ImportDB_Menu()
+    ui.setupUi(ImportDB_Menu)
+    ImportDB_Menu.show()
     sys.exit(app.exec())

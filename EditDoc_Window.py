@@ -11,8 +11,8 @@ from PyQt6 import QtSql
 import re
 import configparser
 from Database_Connection import createConnection
-from PyQt6.QtCore import Qt, QSortFilterProxyModel
-from PyQt6.QtSql import QSqlDatabase, QSqlQuery, QSqlRelation
+from PyQt6.QtCore import Qt
+from PyQt6.QtSql import QSqlQuery
 
 
 def imagen_to_base64(imagen):

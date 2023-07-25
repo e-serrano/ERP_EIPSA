@@ -23,7 +23,10 @@ from QueryDoc_Window import Ui_QueryDoc_Window
 from QueryTags_Window import Ui_QueryTags_Window
 from EditTags_Commercial_Window import Ui_EditTags_Window
 from EditUser_Menu import Ui_EditUser_Menu
+from EditDB_Menu import Ui_EditDB_Menu
+from ImportDB_Menu import Ui_ImportDB_Menu
 from QueryTableChanges_Window import Ui_QueryTableChanges_Window
+from AddTask_Window import Ui_AddTask_Window
 from EditPassword_Window import Ui_EditPasswordWindow
 
 
@@ -51,12 +54,12 @@ class ImageCalendarWidget(QtWidgets.QCalendarWidget):
 
 
 class Ui_App_Master(object):
-    def __init__(self, name, username):
-        self.name=name
-        self.username=username
-    # def __init__(self):
-    #     self.name='Enrique Serrano'
-    #     self.username='e.serranog'
+    # def __init__(self, name, username):
+    #     self.name=name
+    #     self.username=username
+    def __init__(self):
+        self.name='Enrique Serrano'
+        self.username='e.serranog'
 
 
     def setupUi(self, App_Master):
@@ -197,11 +200,11 @@ class Ui_App_Master(object):
         self.Header.addWidget(self.Button_DBImport)
         spacerItem3 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem3)
-        self.ButtonDBChanges = QtWidgets.QPushButton(parent=self.frame)
-        self.ButtonDBChanges.setMinimumSize(QtCore.QSize(50, 50))
-        self.ButtonDBChanges.setMaximumSize(QtCore.QSize(50, 50))
-        self.ButtonDBChanges.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.ButtonDBChanges.setStyleSheet("QPushButton{\n"
+        self.Button_DBChanges = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_DBChanges.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_DBChanges.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_DBChanges.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_DBChanges.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
 "    border-color: rgb(3, 174, 236);\n"
 "    background-color: rgb(255, 255, 255);\n"
@@ -223,13 +226,13 @@ class Ui_App_Master(object):
 "    background-color: rgb(200, 200, 200);\n"
 "    border-radius: 10px;\n"
 "}")
-        self.ButtonDBChanges.setText("")
+        self.Button_DBChanges.setText("")
         icon4 = QtGui.QIcon()
         icon4.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Database_Changes.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.ButtonDBChanges.setIcon(icon4)
-        self.ButtonDBChanges.setIconSize(QtCore.QSize(40, 40))
-        self.ButtonDBChanges.setObjectName("ButtonDBChanges")
-        self.Header.addWidget(self.ButtonDBChanges)
+        self.Button_DBChanges.setIcon(icon4)
+        self.Button_DBChanges.setIconSize(QtCore.QSize(40, 40))
+        self.Button_DBChanges.setObjectName("Button_DBChanges")
+        self.Header.addWidget(self.Button_DBChanges)
         spacerItem4 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem4)
         self.Button_NewTask = QtWidgets.QPushButton(parent=self.frame)
@@ -519,7 +522,9 @@ class Ui_App_Master(object):
         self.Button_QueryDoc.clicked.connect(self.query_doc)
         self.Button_QueryTag.clicked.connect(self.query_tag)
         self.Button_EditTag.clicked.connect(self.edit_tag)
-        self.ButtonDBChanges.clicked.connect(self.dbchanges)
+        self.Button_DBEdit.clicked.connect(self.editdb)
+        self.Button_DBImport.clicked.connect(self.importdb)
+        self.Button_DBChanges.clicked.connect(self.dbchanges)
         self.Button_NewTask.clicked.connect(self.newtask)
         self.Button_Profile.clicked.connect(self.showMenu)
         self.Calendar.selectionChanged.connect(self.show_selected_date_tasks)
@@ -532,7 +537,7 @@ class Ui_App_Master(object):
         self.Button_Users.setToolTip(_translate("App_Master", "Editar Usuarios"))
         self.Button_DBEdit.setToolTip(_translate("App_Master", "Editar BBDD"))
         self.Button_DBImport.setToolTip(_translate("App_Master", "Importar a BBDD"))
-        self.ButtonDBChanges.setToolTip(_translate("App_Master", "Tablas De Cambios"))
+        self.Button_DBChanges.setToolTip(_translate("App_Master", "Tablas De Cambios"))
         self.Button_NewTask.setToolTip(_translate("App_Master", "Crear Tarea"))
         self.HeaderName.setText(_translate("App_Master", self.name))
         self.Button_QueryOffer.setText(_translate("App_Master", "    Consultar Ofertas"))
@@ -615,6 +620,20 @@ class Ui_App_Master(object):
         self.edit_user_menu.show()
 
 
+    def editdb(self):
+        self.dbedit_menu=QtWidgets.QMainWindow()
+        self.ui=Ui_EditDB_Menu()
+        self.ui.setupUi(self.dbedit_menu)
+        self.dbedit_menu.show()
+
+
+    def importdb(self):
+        self.dbimport_menu=QtWidgets.QMainWindow()
+        self.ui=Ui_ImportDB_Menu()
+        self.ui.setupUi(self.dbimport_menu)
+        self.dbimport_menu.show()
+
+
     def dbchanges(self):
         self.tableschanges_menu=QtWidgets.QMainWindow()
         self.ui=Ui_QueryTableChanges_Window()
@@ -623,7 +642,11 @@ class Ui_App_Master(object):
 
 
     def newtask(self):
-        print('crear tarea')
+        self.newtaskwindow=QtWidgets.QMainWindow()
+        self.ui=Ui_AddTask_Window(self.name)
+        self.ui.setupUi(self.newtaskwindow)
+        self.newtaskwindow.show()
+        self.ui.Button_Cancel.clicked.connect(self.setup_task_dates)
 
 
     def showMenu(self):
@@ -644,9 +667,41 @@ class Ui_App_Master(object):
 
 
     def setup_task_dates(self):
-        # Stablish dates with task assigned
+        commands_loaddatestasks = ("""
+                    SELECT "task_date","task"
+                    FROM tasks
+                    WHERE ("responsible" = %s)
+                    ORDER BY "task_date"
+                    """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            if self.name == 'Carlos Crespo':
+                cur.execute(commands_loaddatestasks,(self.name[0] + self.name[self.name.find(' ')+1] + 'H',))
+            else:
+                cur.execute(commands_loaddatestasks,(self.name[0] + self.name[self.name.find(' ')+1],))
+            results=cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+            dates_with_tasks_raw=[x[0] for x in results]
+            dates_with_tasks=list(set(dates_with_tasks_raw))
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+        # Stablish dates with task assigned to put icon on calendar
         # task_dates = [QtCore.QDate.currentDate().addDays(0), QtCore.QDate.currentDate().addDays(3)]
-        task_dates = []
+        task_dates = dates_with_tasks
         self.Calendar.set_task_dates(task_dates)
 
 
@@ -672,12 +727,49 @@ class Ui_App_Master(object):
     def get_tasks_for_date(self, date):
         # Función de ejemplo para obtener las tareas asociadas a una fecha
         # Aquí puedes implementar tu propia lógica para recuperar las tareas de una fuente de datos
-        if date == QtCore.QDate.currentDate():
-            return ["Tarea 1", "Tarea 2"]
-        elif date == QtCore.QDate.currentDate().addDays(3):
-            return ["Tarea 3", "Tarea 4"]
-        else:
-            return []
+        commands_loaddatestasks = ("""
+                    SELECT "task_date","task"
+                    FROM tasks
+                    WHERE ("responsible" = %s)
+                    ORDER BY "task_date"
+                    """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            if self.name == 'Carlos Crespo':
+                cur.execute(commands_loaddatestasks,(self.name[0] + self.name[self.name.find(' ')+1] + 'H',))
+            else:
+                cur.execute(commands_loaddatestasks,(self.name[0] + self.name[self.name.find(' ')+1],))
+            results=cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+            dict={}
+            for i in range(len(results)):
+                key=results[i][0]
+                value=results[i][1]
+                if key not in dict:
+                    dict[key] = [value]
+                    
+                else:
+                    partial_list = dict.get(key)
+                    partial_list.append(value)
+                    dict.update({key: partial_list})
+            
+            return dict.get(date)
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
 
 
 if __name__ == "__main__":

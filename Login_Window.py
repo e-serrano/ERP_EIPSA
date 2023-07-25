@@ -15,8 +15,6 @@ from App_Purchasing import Ui_App_Purchasing
 from App_Documentation import Ui_App_Documentation
 from App_Master import Ui_App_Master
 from ForgetPass_Window import Ui_ForgetPass_Window
-import configparser
-
 
 
 class Ui_Login_Window(object):

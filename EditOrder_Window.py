@@ -147,16 +147,16 @@ class Ui_Edit_Order_Window(object):
         self.hLayout.addItem(spacerItem5)
         self.vLayout3 = QtWidgets.QVBoxLayout()
         self.vLayout3.setObjectName("vLayout3")
-        self.label_ContracDate = QtWidgets.QLabel(parent=self.frame)
-        self.label_ContracDate.setMinimumSize(QtCore.QSize(130, 25))
-        self.label_ContracDate.setMaximumSize(QtCore.QSize(130, 25))
+        self.label_ExpectDate = QtWidgets.QLabel(parent=self.frame)
+        self.label_ExpectDate.setMinimumSize(QtCore.QSize(130, 25))
+        self.label_ExpectDate.setMaximumSize(QtCore.QSize(130, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
-        self.label_ContracDate.setFont(font)
-        self.label_ContracDate.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_ContracDate.setObjectName("label_ContracDate")
-        self.vLayout3.addWidget(self.label_ContracDate)
+        self.label_ExpectDate.setFont(font)
+        self.label_ExpectDate.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_ExpectDate.setObjectName("label_ExpectDate")
+        self.vLayout3.addWidget(self.label_ExpectDate)
         spacerItem6 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout3.addItem(spacerItem6)
         self.label_Notes = QtWidgets.QLabel(parent=self.frame)
@@ -184,14 +184,14 @@ class Ui_Edit_Order_Window(object):
         self.hLayout.addLayout(self.vLayout3)
         self.vlLayout4 = QtWidgets.QVBoxLayout()
         self.vlLayout4.setObjectName("vlLayout4")
-        self.ContracDate_EditOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.ContracDate_EditOrder.setMinimumSize(QtCore.QSize(175, 25))
-        self.ContracDate_EditOrder.setMaximumSize(QtCore.QSize(175, 25))
+        self.ExpectDate_EditOrder = QtWidgets.QLineEdit(parent=self.frame)
+        self.ExpectDate_EditOrder.setMinimumSize(QtCore.QSize(175, 25))
+        self.ExpectDate_EditOrder.setMaximumSize(QtCore.QSize(175, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.ContracDate_EditOrder.setFont(font)
-        self.ContracDate_EditOrder.setObjectName("ContracDate_EditOrder")
-        self.vlLayout4.addWidget(self.ContracDate_EditOrder)
+        self.ExpectDate_EditOrder.setFont(font)
+        self.ExpectDate_EditOrder.setObjectName("ExpectDate_EditOrder")
+        self.vlLayout4.addWidget(self.ExpectDate_EditOrder)
         spacerItem8 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vlLayout4.addItem(spacerItem8)
         self.Notes_EditOrder = QtWidgets.QTextEdit(parent=self.frame)
@@ -276,7 +276,7 @@ class Ui_Edit_Order_Window(object):
         self.label_NumOrder.setText(_translate("Edit_Order_Window", "Nº Pedido:"))
         self.label_NumOffer.setText(_translate("Edit_Order_Window", "Nº Oferta:"))
         self.label_NumRef.setText(_translate("Edit_Order_Window", "Nº Referencia:"))
-        self.label_ContracDate.setText(_translate("Edit_Order_Window", "Fecha Contractual:"))
+        self.label_ExpectDate.setText(_translate("Edit_Order_Window", "Fecha Previstaual:"))
         self.label_Notes.setText(_translate("Edit_Order_Window", "Notas:"))
         self.label_Amount.setText(_translate("Edit_Order_Window", "Importe (€):"))
         self.Button_EditOrder.setText(_translate("Edit_Order_Window", "Editar Pedido"))
@@ -287,7 +287,7 @@ class Ui_Edit_Order_Window(object):
         numorder=self.NumOrder_EditOrder.text()
         numoffer=self.NumOffer_EditOrder.text()
         numref=self.NumRef_EditOrder.text()
-        contracdate=self.ContracDate_EditOrder.text()
+        expectdate=self.ExpectDate_EditOrder.text()
         notes=self.Notes_EditOrder.toPlainText()
         amount=self.Amount_EditOrder.text()
 
@@ -327,12 +327,24 @@ class Ui_Edit_Order_Window(object):
             dlg.setText("Introduce un número de pedido válido")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
+            del dlg, new_icon
+
+        elif numorder== "" or (numoffer== "" or (numref== "" or (expectdate=="" or (notes=="" or amount=="")))):
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Editar Pedido")
+            dlg.setText("Los campos no pueden estar vacíos")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
 
         else:
             #SQL Query for updating values in database
             commands_editorder = ("""
                         UPDATE orders
-                        SET "num_offer" = %s, "num_ref_order" = %s, "contract_date" = %s, "notes" = %s, "order_amount" = %s
+                        SET "num_offer" = %s, "num_ref_order" = %s, "expected_date" = %s, "notes" = %s, "order_amount" = %s
                         WHERE "num_order" = %s
                         """)
             conn = None
@@ -343,7 +355,7 @@ class Ui_Edit_Order_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands one by one
-                data=(numoffer,numref,contracdate,notes,amount,numorder,)
+                data=(numoffer,numref,expectdate,notes,amount,numorder,)
                 cur.execute(commands_editorder,data)
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -367,7 +379,7 @@ class Ui_Edit_Order_Window(object):
             self.NumOrder_EditOrder.setText('')
             self.NumOffer_EditOrder.setText('')
             self.NumRef_EditOrder.setText('')
-            self.ContracDate_EditOrder.setText('')
+            self.ExpectDate_EditOrder.setText('')
             self.Notes_EditOrder.setText('')
             self.Amount_EditOrder.setText('')
 
@@ -378,7 +390,7 @@ class Ui_Edit_Order_Window(object):
         numorder=self.NumOrder_EditOrder.text()
     #SQL Query for loading existing data in database
         commands_loaddataorder = ("""
-                    SELECT "num_order","num_offer","num_ref_order",TO_CHAR("contract_date", 'DD-MM-YYYY'),"notes","order_amount"
+                    SELECT "num_order","num_offer","num_ref_order",TO_CHAR("expected_date", 'DD-MM-YYYY'),"notes","order_amount"
                     FROM orders
                     WHERE "num_order" = %s
                     """)
@@ -416,7 +428,7 @@ class Ui_Edit_Order_Window(object):
         else:
             self.NumOffer_EditOrder.setText(str(results[0][1]))
             self.NumRef_EditOrder.setText(str(results[0][2]))
-            self.ContracDate_EditOrder.setText(str(results[0][3]))
+            self.ExpectDate_EditOrder.setText(str(results[0][3]))
             self.Notes_EditOrder.setText(str(results[0][4]))
             self.Amount_EditOrder.setText(str(results[0][5]))
 

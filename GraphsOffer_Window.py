@@ -10,6 +10,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+from matplotlib import ticker
 from config import config
 from datetime import *
 import numpy as np
@@ -42,14 +43,13 @@ class Ui_GraphsOffer_Window(object):
 
         bar_width = 0.35
 
-
         try:
             commands_offered_month = ("""
                         SELECT "offer_month", CAST(SUM("offer_amount") AS numeric)
                         FROM offers
                         WHERE ("offer_year"=%s
                         AND
-                        "state" <> 'Registrada')
+                        "state" <> 'Registrada' AND "state" <> 'Estimación')
                         GROUP BY "offer_month"
                         ORDER BY "offer_month"
                         """)
@@ -111,6 +111,8 @@ class Ui_GraphsOffer_Window(object):
             ax.bar(bar_positions1, final_offered_month, width=bar_width, label='Ofertado')
             ax.bar(bar_positions2, final_sold_month, width=bar_width, label='Adjudicado')
             ax.set_xticks(range(1,13))
+            axticks_y=ticker.FuncFormatter(self.format_y_ticks)
+            ax.yaxis.set_major_formatter(axticks_y)
             ax.set_title('Ofertado/Adjudicado año actual')
             ax.set_xlabel('Mes')
             ax.set_ylabel('Importe (€)')
@@ -120,7 +122,7 @@ class Ui_GraphsOffer_Window(object):
             commands_offered_year = ("""
                         SELECT "offer_year", CAST(SUM("offer_amount") AS numeric)
                         FROM offers
-                        WHERE ("state" <> 'Registrada')
+                        WHERE ("state" <> 'Registrada' AND "state" <> 'Estimación')
                         GROUP BY "offer_year"
                         ORDER BY "offer_year"
                         """)
@@ -182,6 +184,10 @@ class Ui_GraphsOffer_Window(object):
             bx.bar(bar_positions1, final_offered_year, width=bar_width, label='Ofertado')
             bx.bar(bar_positions2, final_sold_year, width=bar_width, label='Adjudicado')
             bx.set_xticks(range(min(years_offered),max(years_offered)+1))
+            bxticks_x=ticker.FuncFormatter(lambda x,pos: '{:02d}'.format(x-2000))
+            bxticks_y=ticker.FuncFormatter(self.format_y_ticks)
+            bx.xaxis.set_major_formatter(bxticks_x)
+            bx.yaxis.set_major_formatter(bxticks_y)
             bx.set_title('Ofertado/Adjudicado por años')
             bx.set_xlabel('Año')
             bx.set_ylabel('Importe (€)')
@@ -250,10 +256,14 @@ class Ui_GraphsOffer_Window(object):
             self.gridLayout.addWidget(self.canvas1, 0, 0, 1, 1)
             self.canvas2.setObjectName("Graph2")
             self.gridLayout.addWidget(self.canvas2, 0, 1, 1, 1)
+            spacerItem1 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+            self.gridLayout.addItem(spacerItem1, 1, 0, 1, 1)
+            spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+            self.gridLayout.addItem(spacerItem2, 1, 1, 1, 1)
             self.canvas3.setObjectName("Graph3")
-            self.gridLayout.addWidget(self.canvas3, 1, 0, 1, 1)
+            self.gridLayout.addWidget(self.canvas3, 2, 0, 1, 1)
             self.canvas4.setObjectName("Graph4")
-            self.gridLayout.addWidget(self.canvas4, 1, 1, 1, 1)
+            self.gridLayout.addWidget(self.canvas4, 2, 1, 1, 1)
 
         except:
             pass
@@ -263,6 +273,14 @@ class Ui_GraphsOffer_Window(object):
         _translate = QtCore.QCoreApplication.translate
         GraphsOffer_Window.setWindowTitle(_translate("GraphsOffer_Window", "Gráficos Ofertas"))
 
+
+    def format_y_ticks(self, y, pos):
+        if y >= 1e6:
+            return '{:.0f}M'.format(y * 1e-6)
+        elif y >= 1e3:
+            return '{:.0f}K'.format(y * 1e-3)
+        else:
+            return '{:d}'.format(int(y))
 
 if __name__ == "__main__":
     import sys

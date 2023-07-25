@@ -15,6 +15,7 @@ from config import config
 from datetime import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+from matplotlib import ticker
 import numpy as np
 from NewOffer_Window import Ui_New_Offer_Window
 from EditOffer_Menu import Ui_EditOffer_Menu
@@ -28,6 +29,7 @@ from QueryTags_Window import Ui_QueryTags_Window
 from ExportOffer_Window import Ui_ExportOffer_Window
 from QueryDoc_Window import Ui_QueryDoc_Window
 from GraphsOffer_Window import Ui_GraphsOffer_Window
+from AddTask_Window import Ui_AddTask_Window
 from EditUser_Menu import Ui_EditUser_Menu
 from EditPassword_Window import Ui_EditPasswordWindow
 
@@ -210,6 +212,41 @@ class Ui_App_Comercial(object):
         self.Header.addWidget(self.Button_Graphs)
         spacerItem10 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem10)
+        self.Button_NewTask = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_NewTask.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_NewTask.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_NewTask.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_NewTask.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
+        self.Button_NewTask.setText("")
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Task_New.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_NewTask.setIcon(icon5)
+        self.Button_NewTask.setIconSize(QtCore.QSize(40, 40))
+        self.Button_NewTask.setObjectName("Button_NewTask")
+        self.Header.addWidget(self.Button_NewTask)
+        spacerItem12 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem12)
 
         if self.name in ['Ana Calvo']:
             self.Button_Users = QtWidgets.QPushButton(parent=self.frame)
@@ -473,7 +510,7 @@ class Ui_App_Comercial(object):
         self.tableOffer = QtWidgets.QTableWidget(parent=self.frame)
         self.tableOffer.setMinimumSize(QtCore.QSize(650, 280))
         self.tableOffer.setObjectName("tableOffer")
-        self.tableOffer.setColumnCount(6)
+        self.tableOffer.setColumnCount(8)
         self.tableOffer.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
@@ -511,6 +548,18 @@ class Ui_App_Comercial(object):
         font.setBold(True)
         item.setFont(font)
         self.tableOffer.setHorizontalHeaderItem(5, item)
+        item = QtWidgets.QTableWidgetItem()
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        item.setFont(font)
+        self.tableOffer.setHorizontalHeaderItem(6, item)
+        item = QtWidgets.QTableWidgetItem()
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        item.setFont(font)
+        self.tableOffer.setHorizontalHeaderItem(7, item)
         self.tableOffer.verticalHeader().setVisible(False)
         self.MainLayout.addWidget(self.tableOffer)
         spacerItem6 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -558,6 +607,8 @@ class Ui_App_Comercial(object):
             ax=self.canvas.figure.subplots()
             ax.bar(months,amounts)
             ax.set_xticks(range(1,13))
+            axticks_y=ticker.FuncFormatter(self.format_y_ticks)
+            ax.yaxis.set_major_formatter(axticks_y)
             ax.set_title('Ventas totales año actual')
             ax.set_xlabel('Mes')
             ax.set_ylabel('Importe (€)')
@@ -709,6 +760,7 @@ class Ui_App_Comercial(object):
         self.Button_ExpOffer.clicked.connect(self.export_offer)
         self.Button_Doc.clicked.connect(self.query_documents)
         self.Button_Graphs.clicked.connect(self.graphs)
+        self.Button_NewTask.clicked.connect(self.newtask)
         self.Button_Profile.clicked.connect(self.showMenu)
         self.Calendar.selectionChanged.connect(self.show_selected_date_tasks)
         self.setup_task_dates()
@@ -717,7 +769,7 @@ class Ui_App_Comercial(object):
             self.Button_Users.clicked.connect(self.user_edition)
 
         commands_appcomercial = ("""
-                    SELECT "num_offer","state","client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount"
+                    SELECT "num_offer","state","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","notes"
                     FROM offers
                     WHERE ("responsible" = %s
                     AND
@@ -745,7 +797,7 @@ class Ui_App_Comercial(object):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(6):
+                for column in range(8):
                     it=QtWidgets.QTableWidgetItem(str(row[column]))
                     it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                     self.tableOffer.setItem(tablerow, column, it)
@@ -788,11 +840,15 @@ class Ui_App_Comercial(object):
         item = self.tableOffer.horizontalHeaderItem(2)
         item.setText(_translate("App_Comercial", "Cliente"))
         item = self.tableOffer.horizontalHeaderItem(3)
-        item.setText(_translate("App_Comercial", "Fecha Pres."))
+        item.setText(_translate("App_Comercial", "Cliente Final"))
         item = self.tableOffer.horizontalHeaderItem(4)
-        item.setText(_translate("App_Comercial", "Material"))
+        item.setText(_translate("App_Comercial", "Fecha Pres."))
         item = self.tableOffer.horizontalHeaderItem(5)
+        item.setText(_translate("App_Comercial", "Material"))
+        item = self.tableOffer.horizontalHeaderItem(6)
         item.setText(_translate("App_Comercial", "Importe"))
+        item = self.tableOffer.horizontalHeaderItem(7)
+        item.setText(_translate("App_Comercial", "Notas"))
         __sortingEnabled = self.tableOffer.isSortingEnabled()
         self.tableOffer.setSortingEnabled(False)
         self.tableOffer.setSortingEnabled(__sortingEnabled)
@@ -934,6 +990,14 @@ class Ui_App_Comercial(object):
         self.graphswindow.show()
 
 
+    def newtask(self):
+        self.newtaskwindow=QtWidgets.QMainWindow()
+        self.ui=Ui_AddTask_Window(self.name)
+        self.ui.setupUi(self.newtaskwindow)
+        self.newtaskwindow.show()
+        self.ui.Button_Cancel.clicked.connect(self.setup_task_dates)
+
+
     def showMenu(self):
         menu = QMenu(self.centralwidget)
         menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; }"
@@ -961,7 +1025,7 @@ class Ui_App_Comercial(object):
 
     def update_table(self):
         commands_appcomercial = ("""
-                    SELECT "num_offer","state","client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount"
+                    SELECT "num_offer","state","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","notes"
                     FROM offers
                     WHERE ("responsible" = %s
                     AND
@@ -989,7 +1053,7 @@ class Ui_App_Comercial(object):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(6):
+                for column in range(8):
                     it=QtWidgets.QTableWidgetItem(str(row[column]))
                     it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                     self.tableOffer.setItem(tablerow, column, it)
@@ -1011,9 +1075,41 @@ class Ui_App_Comercial(object):
 
 
     def setup_task_dates(self):
+        commands_loaddatestasks = ("""
+                    SELECT "task_date","task"
+                    FROM tasks
+                    WHERE ("responsible" = %s)
+                    ORDER BY "task_date"
+                    """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            if self.name == 'Carlos Crespo':
+                cur.execute(commands_loaddatestasks,(self.name[0] + self.name[self.name.find(' ')+1] + 'H',))
+            else:
+                cur.execute(commands_loaddatestasks,(self.name[0] + self.name[self.name.find(' ')+1],))
+            results=cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+            dates_with_tasks_raw=[x[0] for x in results]
+            dates_with_tasks=list(set(dates_with_tasks_raw))
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
         # Stablish dates with task assigned to put icon on calendar
         # task_dates = [QtCore.QDate.currentDate().addDays(0), QtCore.QDate.currentDate().addDays(3)]
-        task_dates = []
+        task_dates = dates_with_tasks
         self.Calendar.set_task_dates(task_dates)
 
 
@@ -1039,12 +1135,49 @@ class Ui_App_Comercial(object):
     def get_tasks_for_date(self, date):
         # Función de ejemplo para obtener las tareas asociadas a una fecha // consiste en la asignación de tareas a las fechas
         # Aquí puedes implementar tu propia lógica para recuperar las tareas de una fuente de datos
-        if date == QtCore.QDate.currentDate().addDays(-1):
-            return ["Tarea 1", "Tarea 2"]
-        elif date == QtCore.QDate.currentDate().addDays(-2):
-            return ["Tarea 3", "Tarea 4"]
-        else:
-            return []
+        commands_loaddatestasks = ("""
+                    SELECT "task_date","task"
+                    FROM tasks
+                    WHERE ("responsible" = %s)
+                    ORDER BY "task_date"
+                    """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            if self.name == 'Carlos Crespo':
+                cur.execute(commands_loaddatestasks,(self.name[0] + self.name[self.name.find(' ')+1] + 'H',))
+            else:
+                cur.execute(commands_loaddatestasks,(self.name[0] + self.name[self.name.find(' ')+1],))
+            results=cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+            dict={}
+            for i in range(len(results)):
+                key=QtCore.QDate(results[i][0].year, results[i][0].month, results[i][0].day)
+                value=results[i][1]
+                if key not in dict:
+                    dict[key] = [value]
+                    
+                else:
+                    partial_list = dict.get(key)
+                    partial_list.append(value)
+                    dict.update({key: partial_list})
+
+            return dict.get(date)
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
 
 
     def alert_offers(self):
@@ -1097,6 +1230,15 @@ class Ui_App_Comercial(object):
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
             dlg.exec()
             del dlg, new_icon
+
+
+    def format_y_ticks(self, y, pos):
+        if y >= 1e6:
+            return '{:.0f}M'.format(y * 1e-6)
+        elif y >= 1e3:
+            return '{:.0f}K'.format(y * 1e-3)
+        else:
+            return '{:d}'.format(int(y))
 
 
 if __name__ == "__main__":

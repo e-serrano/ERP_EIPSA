@@ -153,16 +153,16 @@ class Ui_New_Order_Window(object):
         self.hLayout.addItem(spacerItem5)
         self.vLayout3 = QtWidgets.QVBoxLayout()
         self.vLayout3.setObjectName("vLayout3")
-        self.label_ContracDate = QtWidgets.QLabel(parent=self.frame)
-        self.label_ContracDate.setMinimumSize(QtCore.QSize(130, 25))
-        self.label_ContracDate.setMaximumSize(QtCore.QSize(130, 25))
+        self.label_ExpectDate = QtWidgets.QLabel(parent=self.frame)
+        self.label_ExpectDate.setMinimumSize(QtCore.QSize(130, 25))
+        self.label_ExpectDate.setMaximumSize(QtCore.QSize(130, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
-        self.label_ContracDate.setFont(font)
-        self.label_ContracDate.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_ContracDate.setObjectName("label_ContracDate")
-        self.vLayout3.addWidget(self.label_ContracDate)
+        self.label_ExpectDate.setFont(font)
+        self.label_ExpectDate.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_ExpectDate.setObjectName("label_ExpectDate")
+        self.vLayout3.addWidget(self.label_ExpectDate)
         spacerItem6 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout3.addItem(spacerItem6)
         self.label_Notes = QtWidgets.QLabel(parent=self.frame)
@@ -190,14 +190,14 @@ class Ui_New_Order_Window(object):
         self.hLayout.addLayout(self.vLayout3)
         self.vlLayout4 = QtWidgets.QVBoxLayout()
         self.vlLayout4.setObjectName("vlLayout4")
-        self.ContracDate_NewOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.ContracDate_NewOrder.setMinimumSize(QtCore.QSize(175, 25))
-        self.ContracDate_NewOrder.setMaximumSize(QtCore.QSize(175, 25))
+        self.ExpectDate_NewOrder = QtWidgets.QLineEdit(parent=self.frame)
+        self.ExpectDate_NewOrder.setMinimumSize(QtCore.QSize(175, 25))
+        self.ExpectDate_NewOrder.setMaximumSize(QtCore.QSize(175, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.ContracDate_NewOrder.setFont(font)
-        self.ContracDate_NewOrder.setObjectName("ContracDate_NewOrder")
-        self.vlLayout4.addWidget(self.ContracDate_NewOrder)
+        self.ExpectDate_NewOrder.setFont(font)
+        self.ExpectDate_NewOrder.setObjectName("ExpectDate_NewOrder")
+        self.vlLayout4.addWidget(self.ExpectDate_NewOrder)
         spacerItem8 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vlLayout4.addItem(spacerItem8)
         self.Notes_NewOrder = QtWidgets.QTextEdit(parent=self.frame)
@@ -283,7 +283,7 @@ class Ui_New_Order_Window(object):
         self.label_NumOrder.setText(_translate("New_Order", "Nº Pedido:"))
         self.label_NumOffer.setText(_translate("New_Order", "Nº Oferta:"))
         self.label_NumRef.setText(_translate("New_Order", "Nº Referencia:"))
-        self.label_ContracDate.setText(_translate("New_Order", "Fecha Contractual:"))
+        self.label_ExpectDate.setText(_translate("New_Order", "Fecha Prevista:"))
         self.label_Notes.setText(_translate("New_Order", "Notas:"))
         self.label_Amount.setText(_translate("New_Order", "Importe (€):"))
         self.Button_NewOrder.setText(_translate("New_Order", "Crear Pedido"))
@@ -294,7 +294,7 @@ class Ui_New_Order_Window(object):
         numorder=self.NumOrder_NewOrder.text()
         numoffer=self.NumOffer_NewOrder.text()
         numref=self.NumRef_NewOrder.text()
-        contractdate=self.ContracDate_NewOrder.text()
+        expectdate=self.ExpectDate_NewOrder.text()
         notes=self.Notes_NewOrder.toPlainText()
         amount=self.Amount_NewOrder.text()
         amount=amount.replace(".",",")
@@ -303,7 +303,7 @@ class Ui_New_Order_Window(object):
         actual_date= actual_date.strftime("%d/%m/%Y")
 
         if numorder=="" or (numoffer=="" or  (numref=="" or amount=="")):
-            self.label_error_neworder.setText('Rellene todos los campos. Solo los campos de fecha contractual y notas pueden estar en blanco')
+            self.label_error_neworder.setText('Rellene todos los campos. Solo el campo notas pueden estar en blanco')
 
         else:
             commands_offer = ("""
@@ -363,7 +363,7 @@ class Ui_New_Order_Window(object):
             else:
                 commands_neworder = ("""
                             INSERT INTO orders (
-                            "num_order","num_offer","num_ref_order","order_date","contract_date","notes","order_amount"
+                            "num_order","num_offer","num_ref_order","order_date","expected_date","notes","order_amount"
                             )
                             VALUES (%s,%s,%s,%s,%s,%s,%s);
                             UPDATE offers
@@ -378,7 +378,7 @@ class Ui_New_Order_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    data=(numorder, numoffer, numref, actual_date, contractdate, notes, amount, state, numoffer,)
+                    data=(numorder, numoffer, numref, actual_date, expectdate, notes, amount, state, numoffer,)
                     cur.execute(commands_neworder, data)
                 # close communication with the PostgreSQL database server
                     cur.close()

@@ -204,8 +204,6 @@ class Ui_Edit_Offer_Window(object):
         self.State_EditOffer.setFont(font)
         self.State_EditOffer.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         self.State_EditOffer.setObjectName("State_EditOffer")
-        list_state=['Adjudicada','Desestimada','Estimación','Presentada','Rechazada','Registrada']
-        self.State_EditOffer.addItems(list_state)
         self.vLayout2.addWidget(self.State_EditOffer)
         spacerItem17 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout2.addItem(spacerItem17)
@@ -408,6 +406,9 @@ class Ui_Edit_Offer_Window(object):
         QtCore.QMetaObject.connectSlotsByName(Edit_Offer_Window)
 
     #Adding items to ComboBox
+        list_state=['Adjudicada','Desestimada','Estimación','Presentada','Reasignada','Rechazada','Registrada']
+        self.State_EditOffer.addItems(list_state)
+
         list_nacext=['Exterior','Nacional']
         self.NacExt_EditOffer.addItems(list_nacext)
 
@@ -509,6 +510,18 @@ class Ui_Edit_Offer_Window(object):
             dlg.setText("Introduce un número de oferta válido")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
+            del dlg, new_icon
+
+        elif numoffer=="" or (client=="" or (finalclient=="" or (numref=="" or (state=="" or (nacext=="" or (buyer=="" or (material=="" or (notes=="" or (amount=="" or (limit_date=="" or rate_type=="")))))))))):
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Editar Oferta")
+            dlg.setText("Los campos no pueden estar vacíos")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
 
         else:
             #SQL Query for updating values in database
