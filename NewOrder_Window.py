@@ -378,7 +378,7 @@ class Ui_New_Order_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    data=(numorder, numoffer, numref, actual_date, expectdate, notes, amount, state, numoffer,)
+                    data=(numorder, numoffer, numref, actual_date, expectdate, notes, amount, state, numoffer)
                     cur.execute(commands_neworder, data)
                 # close communication with the PostgreSQL database server
                     cur.close()

@@ -262,6 +262,7 @@ class Ui_Edit_Order_Window(object):
         self.statusbar = QtWidgets.QStatusBar(parent=Edit_Order_Window)
         self.statusbar.setObjectName("statusbar")
         Edit_Order_Window.setStatusBar(self.statusbar)
+        Edit_Order_Window.setWindowFlags(QtCore.Qt.WindowType.WindowMinimizeButtonHint)
 
         self.retranslateUi(Edit_Order_Window)
         self.Button_Cancel.clicked.connect(Edit_Order_Window.close) # type: ignore

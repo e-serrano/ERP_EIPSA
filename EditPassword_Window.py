@@ -253,7 +253,7 @@ class Ui_EditPasswordWindow(object):
         if new_password != confirm_password:
             self.label_error.setText('Las contraseñas no coinciden')
 
-        elif not re.fullmatch(r'[A-Za-z0-9]{8,}', new_password):
+        elif not re.fullmatch(r'[A-Za-z0-9¡!¿?%&]{8,}', new_password):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -262,7 +262,8 @@ class Ui_EditPasswordWindow(object):
             dlg.setText("·La contraseña debe tener al menos 8 caracteres\n"
                         "·Debe contener al menos una mayúscula\n"
                         "·Debe contener al menos una minúscula\n"
-                        "·Debe contener al menos un número")
+                        "·Debe contener al menos un número\n"
+                        "·Solo admite los siguientes caracteres speciales: ¡!¿?%&")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
 

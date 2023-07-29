@@ -8,6 +8,7 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import QtSql
+from PyQt6.QtWidgets import QScrollArea
 import re
 import configparser
 from Database_Connection import createConnection
@@ -22,6 +23,13 @@ def imagen_to_base64(imagen):
     base64_data = buffer.data().toBase64().data().decode()
     return base64_data
 
+
+class CheckboxWidget(QtWidgets.QWidget):
+    def __init__(self, text):
+        super().__init__()
+        layout = QtWidgets.QHBoxLayout(self)
+        self.checkbox = QtWidgets.QCheckBox(text)
+        layout.addWidget(self.checkbox)
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
@@ -334,6 +342,8 @@ class Ui_EditTags_Window(object):
         self.Button_Query.setObjectName("Button_Query")
         self.hLayout2.addWidget(self.Button_Query)
         self.gridLayout_2.addLayout(self.hLayout2, 2, 0, 1, 1)
+        spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.gridLayout_2.addItem(spacerItem, 3, 0, 1, 1)
 
         self.model = EditableTableModel()
         self.model.setEditStrategy(QtSql.QSqlTableModel.EditStrategy.OnManualSubmit)
@@ -343,7 +353,7 @@ class Ui_EditTags_Window(object):
         self.tableEditTags=QtWidgets.QTableView(parent=self.frame)
         self.tableEditTags.setModel(self.proxy)
         self.tableEditTags.setObjectName("tableEditTags")
-        self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.tableEditTags, 4, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
@@ -444,8 +454,29 @@ class Ui_EditTags_Window(object):
         numorder = self.Numorder_EditTags.text()
         numoffer = self.Numoffer_EditTags.text()
 
-        self.model.setTable("orders")
-        self.model.setFilter("num_offer LIKE '%%'||'%s'||'%%' AND num_order LIKE '%%'||'%s'||'%%'" % (numoffer,numorder))
+        if numoffer=="" and numorder=="":
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Rellena alguno de los campos")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
+
+        elif numoffer=="":
+            self.model.setTable("orders")
+            self.model.setFilter("num_order = '%s'" % (numorder))
+
+        elif numorder=="":
+            self.model.setTable("orders")
+            self.model.setFilter("num_offer = '%s'" % (numoffer))
+
+        else:
+            self.model.setTable("orders")
+            self.model.setFilter("num_offer = '%s' AND num_order = '%s'" % (numoffer,numorder))
+        
         self.model.select()
         self.model.setEditStrategy(QtSql.QSqlTableModel.EditStrategy.OnManualSubmit)
 
@@ -511,16 +542,30 @@ class Ui_EditTags_Window(object):
         self.menuValues.addAction(actionTextFilter)
         self.menuValues.addSeparator()
 
-        for actionNumber, actionName in enumerate(sorted(list(set(valuesUnique)))):              
-            action = QtGui.QAction(str(actionName), self.tableEditTags)
-            self.signalMapper.setMapping(action, actionNumber)  
-            action.triggered.connect(self.signalMapper.map)  
-            self.menuValues.addAction(action)
+        self.moreMenu = self.menuValues.addMenu("Más")
+
+        # for actionNumber, actionName in enumerate(sorted(list(set(valuesUnique)))):              
+        #     action = QtGui.QAction(str(actionName), self.tableEditTags)
+        #     self.signalMapper.setMapping(action, actionNumber)  
+        #     action.triggered.connect(self.signalMapper.map)  
+        #     self.moreMenu.addAction(action)
+        for actionNumber, actionName in enumerate(sorted(list(set(valuesUnique)))):
+            # Creamos un QCheckBox y lo asignamos como el widget de una QAction
+            checkbox_widget = CheckboxWidget(actionName)
+            action = QtWidgets.QWidgetAction(self.moreMenu)
+            action.setDefaultWidget(checkbox_widget)
+            self.moreMenu.addAction(action)
+
+            # Conectamos la señal toggled del checkbox a un slot
+            checkbox_widget.checkbox.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled(checked, name))
+
+
+        self.moreMenu.setStyleSheet("QMenu { menu-scrollable: True; }")
 
         self.menuValues.setStyleSheet("QMenu { color: black; }"
                                         "QMenu::item:selected { background-color: #33bdef; }"
                                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
-        self.signalMapper.mappedInt.connect(self.on_signalMapper_mapped)  
+        self.signalMapper.mappedInt.connect(self.on_signalMapper_mapped)
 
         headerPos = self.tableEditTags.mapToGlobal(self.tableEditTags.horizontalHeader().pos())        
 
@@ -528,6 +573,16 @@ class Ui_EditTags_Window(object):
         posX = headerPos.x() + self.tableEditTags.horizontalHeader().sectionPosition(self.logicalIndex)
 
         self.menuValues.exec(QtCore.QPoint(posX, posY))
+
+    def on_checkbox_toggled(self, checked, action_name):
+        # Slot que se ejecuta cuando un checkbox es marcado o desmarcado
+        if checked:
+            print(f"Ejecutando acción: {action_name}")
+            # Aquí puedes llamar a la función correspondiente para ejecutar la acción
+        else:
+            print(f"La acción {action_name} está desmarcada")
+
+
 
 
     def on_actionDeleteFilterColumn_triggered(self):

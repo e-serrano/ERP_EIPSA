@@ -16,12 +16,30 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
+        if index.column() == 2:  # Verifica que estemos en la tercera columna
+            value = index.data()
+
+            if value == "Adjudicada":  
+                color = QtGui.QColor(0, 255, 0)  # Green if "Adjudicada"
+            elif value == "Desestimada":
+                color = QtGui.QColor(255, 124, 128)  # Red if "Desestimada"
+            elif value == "Estimación":
+                color = QtGui.QColor(142, 162, 219)  # Blue if "Estimación"
+            elif value == "Presentada":
+                color = QtGui.QColor(255, 255, 0)  # Yellow if "Presentada"
+            elif value == "Rechazada":
+                color = QtGui.QColor(244, 176, 132)  # Orange if "Rechazada"
+            else:
+                color = QtGui.QColor(255, 255, 255)  # White for rest
+
+            option.backgroundBrush = color
+
 
 class Ui_QueryOffer_Window(object):
     def setupUi(self, QueryOffer_Window):
         QueryOffer_Window.setObjectName("QueryOffer_Window")
         QueryOffer_Window.resize(845, 590)
-        QueryOffer_Window.setMinimumSize(QtCore.QSize(845, 590))
+        QueryOffer_Window.setMinimumSize(QtCore.QSize(1000, 590))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         QueryOffer_Window.setWindowIcon(icon)
@@ -298,6 +316,7 @@ class Ui_QueryOffer_Window(object):
         item.setFont(font)
         self.tableQueryOffer.setHorizontalHeaderItem(9, item)
         self.tableQueryOffer.setSortingEnabled(True)
+        self.tableQueryOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         self.gridLayout_2.addWidget(self.tableQueryOffer, 8, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         QueryOffer_Window.setCentralWidget(self.centralwidget)
@@ -310,16 +329,11 @@ class Ui_QueryOffer_Window(object):
         QueryOffer_Window.setStatusBar(self.statusbar)
         self.tableQueryOffer.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
-        self.retranslateUi(QueryOffer_Window)
-        QtCore.QMetaObject.connectSlotsByName(QueryOffer_Window)
-        self.Button_Clean.clicked.connect(self.clean_boxes) # type: ignore
-        self.Button_Query.clicked.connect(self.query_offer) # type: ignore
-        self.Numoffer_QueryOffer.returnPressed.connect(self.query_offer)
-
-        list_material=['','Caudal','Temperatura','Nivel','Otros']
-        self.Material_QueryOffer.addItems(list_material)
-
-        commands_comboboxesqueryoffer = ("""
+        commands_comboboxes1queryoffer = ("""
+                        SELECT *
+                        FROM product_type
+                        """)
+        commands_comboboxes2queryoffer = ("""
                         SELECT *
                         FROM offers
                         """)
@@ -331,8 +345,10 @@ class Ui_QueryOffer_Window(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands one by one
-            cur.execute(commands_comboboxesqueryoffer)
-            results=cur.fetchall()
+            cur.execute(commands_comboboxes1queryoffer)
+            results1=cur.fetchall()
+            cur.execute(commands_comboboxes2queryoffer)
+            results2=cur.fetchall()
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
@@ -343,18 +359,26 @@ class Ui_QueryOffer_Window(object):
             if conn is not None:
                 conn.close()
 
-        states = [x[1] for x in results]
-        list_states= list(set(states))
-        list_states.sort()
-        list_states.insert(0,'')
-        self.State_QueryOffer.addItems(list_states)
+        list_material = [''] + list(set([x[1] for x in results1]))
+        self.Material_QueryOffer.addItems(sorted(list_material))
 
-        responsibles = [x[2] for x in results]
-        list_responsibles= list(set(responsibles))
-        list_responsibles.sort()
-        list_responsibles.insert(0,'')
-        self.Responsible_QueryOffer.addItems(list_responsibles)
+        list_states = [''] + list(set([x[1] for x in results2]))
+        self.State_QueryOffer.addItems(sorted(list_states))
 
+        list_responsibles = [''] + list(set([x[2] for x in results2]))
+        self.Responsible_QueryOffer.addItems(sorted(list_responsibles))
+
+        self.retranslateUi(QueryOffer_Window)
+        QtCore.QMetaObject.connectSlotsByName(QueryOffer_Window)
+        self.Button_Clean.clicked.connect(self.clean_boxes) # type: ignore
+        self.Button_Query.clicked.connect(self.query_offer) # type: ignore
+        self.Numoffer_QueryOffer.returnPressed.connect(self.query_offer)
+        self.Client_QueryOffer.returnPressed.connect(self.query_offer)
+        self.FinalClient_QueryOffer.returnPressed.connect(self.query_offer)
+        self.Ref_QueryOffer.returnPressed.connect(self.query_offer)
+        self.Responsible_QueryOffer.currentIndexChanged.connect(self.query_offer)
+        self.State_QueryOffer.currentIndexChanged.connect(self.query_offer)
+        self.Material_QueryOffer.currentIndexChanged.connect(self.query_offer)
 
     def retranslateUi(self, QueryOffer_Window):
         _translate = QtCore.QCoreApplication.translate
@@ -383,7 +407,7 @@ class Ui_QueryOffer_Window(object):
         self.Button_Query.setText(_translate("QueryOffer_Window", "Buscar"))
         self.label_NumOffer.setText(_translate("QueryOffer_Window", "Nº Oferta:"))
         self.label_Client.setText(_translate("QueryOffer_Window", "Cliente:"))
-        self.label_Responsible.setText(_translate("QueryOffer_Window", "Responsible:"))
+        self.label_Responsible.setText(_translate("QueryOffer_Window", "Responsable:"))
         self.label_State.setText(_translate("QueryOffer_Window", "Estado:"))
         self.label_FinalClient.setText(_translate("QueryOffer_Window", "Cliente Final:"))
         self.label_RefNum.setText(_translate("QueryOffer_Window", "Referencia:"))
@@ -462,10 +486,11 @@ class Ui_QueryOffer_Window(object):
                         it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                         self.tableQueryOffer.setItem(tablerow, column, it)
 
+                    self.tableQueryOffer.setItemDelegateForRow(tablerow, AlignDelegate(self.tableQueryOffer))
                     tablerow+=1
 
                 self.tableQueryOffer.verticalHeader().hide()
-                self.tableQueryOffer.setItemDelegate(AlignDelegate(self.tableQueryOffer))
+
 
             # close communication with the PostgreSQL database server
                 cur.close()

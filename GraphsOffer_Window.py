@@ -278,7 +278,7 @@ class Ui_GraphsOffer_Window(object):
         if y >= 1e6:
             return '{:.0f}M'.format(y * 1e-6)
         elif y >= 1e3:
-            return '{:.0f}K'.format(y * 1e-3)
+            return '{:.0f}k'.format(y * 1e-3)
         else:
             return '{:d}'.format(int(y))
 

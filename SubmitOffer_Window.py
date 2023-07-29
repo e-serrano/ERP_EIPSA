@@ -77,7 +77,7 @@ class Ui_SubmitOffer_Window(object):
         self.frame.setObjectName("frame")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        spacerItem = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
@@ -130,13 +130,6 @@ class Ui_SubmitOffer_Window(object):
         self.Amount_Submit.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.Amount_Submit.setObjectName("Amount_Submit")
         self.horizontalLayout_3.addWidget(self.Amount_Submit)
-        self.label_error_submitorder = QtWidgets.QLabel(parent=self.frame)
-        self.label_error_submitorder.setMinimumSize(QtCore.QSize(0, 25))
-        self.label_error_submitorder.setMaximumSize(QtCore.QSize(16777215, 25))
-        self.label_error_submitorder.setStyleSheet("color: rgb(255, 0, 0);")
-        self.label_error_submitorder.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.label_error_submitorder.setObjectName("label_error_submitorder")
-        self.gridLayout_2.addWidget(self.label_error_submitorder, 10, 0, 1, 1)
         self.gridLayout_2.addLayout(self.horizontalLayout_3, 6, 0, 1, 1)
         self.Button_Present = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Present.setEnabled(True)
@@ -156,6 +149,8 @@ class Ui_SubmitOffer_Window(object):
         self.Button_Cancel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.horizontalLayout.addWidget(self.Button_Cancel)
+        spacerItem4 = QtWidgets.QSpacerItem(80, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.gridLayout_2.addItem(spacerItem4, 10, 0, 1, 1)
         SubmitOffer_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=SubmitOffer_Window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 450, 22))
@@ -181,8 +176,6 @@ class Ui_SubmitOffer_Window(object):
         self.Button_Cancel.setText(_translate("SubmitOffer_Window", "Cancelar"))
         self.label_Offer_Submit.setText(_translate("SubmitOffer_Window", "Nº Oferta:"))
         self.label_amount_Submit.setText(_translate("SubmitOffer_Window", "Importe (€):"))
-        self.label_error_submitorder.setText(_translate("SubmitOffer_Window", ""))
-
 
     def SubmitOffer(self):
         numoffer=self.Offer_Submit.text()
@@ -193,7 +186,14 @@ class Ui_SubmitOffer_Window(object):
         actual_date= actual_date.strftime("%d/%m/%Y")
 
         if numoffer=="" or amount=="":
-            self.label_error_submitorder.setText('Rellene todos los campos')
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Registrar Oferta")
+            dlg.setText("Rellene todos los campos")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
 
         else:
             commands_checkoffer = ("""

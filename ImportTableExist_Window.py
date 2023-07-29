@@ -211,26 +211,24 @@ class Ui_ImportTableExist_Window(object):
 
         #Importing excel file into dataframe
             df_table = pd.read_excel(excel_file)
+            df_table = df_table.astype(str)
 
         # Loop through each row of the DataFrame and insert the data into the table
             for index, row in df_table.iterrows():
                 # Create a list of pairs (column_name, column_value) for each column with value
-                    columns_values = [(column, str(row[column])) for column in df_table.columns if not pd.isnull(row[column])]
-
-                # Wrap values with double quotes if they contain double quotes or spaces
-                    columns_values = [(column, f"'{values}'") for column, values in columns_values]
+                    columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
 
                 # Creating string for columns names
                     columns = ', '.join([column for column, _ in columns_values])
 
-                # Creating string for columns values
-                    values = ', '.join([values for _, values in columns_values])
+                # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
+                    values = ', '.join([f"'{values.replace('.', ',')}'" if column == 'amount' else f"'{values}'" for column, values in columns_values])
 
                 # Creating insertion query and executing it
                     sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
                     cursor.execute(sql_insertion)
 
-            # Closing cursor and database connection
+        # Closing cursor and database connection
             conn.commit()
             cursor.close()
             conn.close()

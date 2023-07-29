@@ -327,7 +327,7 @@ class Ui_RegistrationWindow(object):
                 del dlg, new_icon
 
 
-            elif not re.fullmatch(r'[A-Za-z0-9]{8,}', reg_password):
+            elif not re.fullmatch(r'[A-Za-z0-9¡!¿?%&]{8,}', reg_password):
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -336,7 +336,8 @@ class Ui_RegistrationWindow(object):
                 dlg.setText("·La contraseña debe tener al menos 8 caracteres\n"
                             "·Debe contener al menos una mayúscula\n"
                             "·Debe contener al menos una minúscula\n"
-                            "·Debe contener al menos un número")
+                            "·Debe contener al menos un número\n"
+                            "·Solo admite los siguientes caracteres speciales: ¡!¿?%&")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg.exec()
                 del dlg, new_icon

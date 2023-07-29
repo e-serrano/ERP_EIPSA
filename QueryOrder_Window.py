@@ -282,6 +282,7 @@ class Ui_QueryOrder_Window(object):
         item.setFont(font)
         self.tableQueryOrder.setHorizontalHeaderItem(6, item)
         self.tableQueryOrder.setSortingEnabled(True)
+        self.tableQueryOrder.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         self.gridLayout_2.addWidget(self.tableQueryOrder, 8, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         QueryOrder_Window.setCentralWidget(self.centralwidget)
@@ -294,14 +295,44 @@ class Ui_QueryOrder_Window(object):
         QueryOrder_Window.setStatusBar(self.statusbar)
         self.tableQueryOrder.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
+        commands_comboboxes1queryoffer = ("""
+                        SELECT *
+                        FROM product_type
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands_comboboxes1queryoffer)
+            results1=cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        list_material=[''] + list(set([x[1] for x in results1]))
+        self.EqType_QueryOrder.addItems(sorted(list_material))
+
         self.retranslateUi(QueryOrder_Window)
         QtCore.QMetaObject.connectSlotsByName(QueryOrder_Window)
         self.Button_Clean.clicked.connect(self.clean_boxes) # type: ignore
         self.Button_Query.clicked.connect(self.query_order) # type: ignore
         self.Numorder_QueryOrder.returnPressed.connect(self.query_order)
-
-        list_material=['','Caudal','Temperatura','Nivel','Otros']
-        self.EqType_QueryOrder.addItems(list_material)
+        self.Numoffer_QueryOrder.returnPressed.connect(self.query_order)
+        self.Ref_QueryOrder.returnPressed.connect(self.query_order)
+        self.Client_QueryOrder.returnPressed.connect(self.query_order)
+        self.Finalclient_QueryOrder.returnPressed.connect(self.query_order)
+        self.Amount_QueryOrder.returnPressed.connect(self.query_order)
+        self.EqType_QueryOrder.currentIndexChanged.connect(self.query_order)
 
 
     def retranslateUi(self, QueryOrder_Window):

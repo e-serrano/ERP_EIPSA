@@ -141,6 +141,7 @@ class Ui_QueryTableChanges_Window(object):
         font.setBold(True)
         item.setFont(font)
         self.tableQueryTableChanges.setHorizontalHeaderItem(8, item)
+        self.tableQueryTableChanges.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         self.gridLayout_2.addWidget(self.tableQueryTableChanges, 3, 0, 1, 1)
         self.hLayout1 = QtWidgets.QHBoxLayout()
         self.hLayout1.setObjectName("hLayout1")

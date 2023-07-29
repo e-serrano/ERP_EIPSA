@@ -28,9 +28,11 @@ from QueryTags_Window import Ui_QueryTags_Window
 from ExportOffer_Window import Ui_ExportOffer_Window
 from QueryDoc_Window import Ui_QueryDoc_Window
 from GraphsOffer_Window import Ui_GraphsOffer_Window
+from ClientsGeneralResume_Window import Ui_ClientsGeneralResume_Window
 from AddTask_Window import Ui_AddTask_Window
 from EditUser_Menu import Ui_EditUser_Menu
 from EditPassword_Window import Ui_EditPasswordWindow
+from ClientResume_Window import Ui_ClientResume_Window
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -211,6 +213,42 @@ class Ui_App_Comercial(object):
         self.Header.addWidget(self.Button_Graphs)
         spacerItem10 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem10)
+        self.Button_ClientsResume = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_ClientsResume.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_ClientsResume.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_ClientsResume.setToolTip('Resumen Clientes')
+        self.Button_ClientsResume.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_ClientsResume.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
+        self.Button_ClientsResume.setText("")
+        icon15 = QtGui.QIcon()
+        icon15.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Customers.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_ClientsResume.setIcon(icon15)
+        self.Button_ClientsResume.setIconSize(QtCore.QSize(40, 40))
+        self.Button_ClientsResume.setObjectName("Button_ClientsResume")
+        self.Header.addWidget(self.Button_ClientsResume)
+        spacerItem13 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem13)
         self.Button_NewTask = QtWidgets.QPushButton(parent=self.frame)
         self.Button_NewTask.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_NewTask.setMaximumSize(QtCore.QSize(50, 50))
@@ -560,6 +598,8 @@ class Ui_App_Comercial(object):
         item.setFont(font)
         self.tableOffer.setHorizontalHeaderItem(7, item)
         self.tableOffer.verticalHeader().setVisible(False)
+        self.tableOffer.setSortingEnabled(False)
+        self.tableOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         self.MainLayout.addWidget(self.tableOffer)
         spacerItem6 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.MainLayout.addItem(spacerItem6)
@@ -599,6 +639,7 @@ class Ui_App_Comercial(object):
             finally:
                 if conn is not None:
                     conn.close()
+
             months=[int(x[0]) for x in results]
             amounts=[float(x[1]) for x in results]
 
@@ -653,9 +694,9 @@ class Ui_App_Comercial(object):
                 if conn is not None:
                     conn.close()
 
-
             count=[x[0] for x in results2]
             labels=[x[1] for x in results2]
+
             self.canvas2=FigureCanvas(Figure())
             bx=self.canvas2.figure.subplots()
             bx.pie(count,labels=labels,autopct='%1.1f%%')
@@ -759,9 +800,11 @@ class Ui_App_Comercial(object):
         self.Button_ExpOffer.clicked.connect(self.export_offer)
         self.Button_Doc.clicked.connect(self.query_documents)
         self.Button_Graphs.clicked.connect(self.graphs)
+        self.Button_ClientsResume.clicked.connect(self.clients_generalresume)
         self.Button_NewTask.clicked.connect(self.newtask)
         self.Button_Profile.clicked.connect(self.showMenu)
         self.Calendar.selectionChanged.connect(self.show_selected_date_tasks)
+        self.tableOffer.itemDoubleClicked.connect(self.on_item_double_clicked) #Asign function when double click on cell
         self.setup_task_dates()
 
         if self.name in ['Ana Calvo']:
@@ -942,20 +985,10 @@ class Ui_App_Comercial(object):
 
 
     def query_tag(self):
-        # self.querytag_window=QtWidgets.QMainWindow()
-        # self.ui=Ui_QueryTags_Window()
-        # self.ui.setupUi(self.querytag_window)
-        # self.querytag_window.show()
-
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Este módulo aún no está disponible.\nDisculpe las molestias")
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-        dlg.exec()
-        del dlg, new_icon
+        self.querytag_window=QtWidgets.QMainWindow()
+        self.ui=Ui_QueryTags_Window()
+        self.ui.setupUi(self.querytag_window)
+        self.querytag_window.show()
 
 
     def export_offer(self):
@@ -987,6 +1020,13 @@ class Ui_App_Comercial(object):
         self.ui=Ui_GraphsOffer_Window()
         self.ui.setupUi(self.graphswindow)
         self.graphswindow.show()
+
+
+    def clients_generalresume(self):
+        self.clients_general_resume_window=QtWidgets.QMainWindow()
+        self.ui=Ui_ClientsGeneralResume_Window()
+        self.ui.setupUi(self.clients_general_resume_window)
+        self.clients_general_resume_window.show()
 
 
     def newtask(self):
@@ -1022,6 +1062,7 @@ class Ui_App_Comercial(object):
         self.edit_user_menu.show()
 
 
+#Function to update the table
     def update_table(self):
         commands_appcomercial = ("""
                     SELECT "num_offer","state","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","notes"
@@ -1073,6 +1114,7 @@ class Ui_App_Comercial(object):
                 conn.close()
 
 
+# Function to stablish dates with task assigned to put icon on calendar
     def setup_task_dates(self):
         commands_loaddatestasks = ("""
                     SELECT "task_date","task"
@@ -1106,7 +1148,6 @@ class Ui_App_Comercial(object):
         finally:
             if conn is not None:
                 conn.close()
-        # Stablish dates with task assigned to put icon on calendar
         # task_dates = [QtCore.QDate.currentDate().addDays(0), QtCore.QDate.currentDate().addDays(3)]
         task_dates = dates_with_tasks
         self.Calendar.set_task_dates(task_dates)
@@ -1123,7 +1164,7 @@ class Ui_App_Comercial(object):
             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Tareas para la fecha:\n"
+            dlg.setText("Tareas para la fecha " + selected_date.toString("dd-MM-yyyy") +":\n"
                         "\n"
                         + task_text)
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
@@ -1131,9 +1172,8 @@ class Ui_App_Comercial(object):
             del dlg, new_icon
 
 
+#Function to obtain tasks associated to a date
     def get_tasks_for_date(self, date):
-        # Función de ejemplo para obtener las tareas asociadas a una fecha // consiste en la asignación de tareas a las fechas
-        # Aquí puedes implementar tu propia lógica para recuperar las tareas de una fuente de datos
         commands_loaddatestasks = ("""
                     SELECT "task_date","task"
                     FROM tasks
@@ -1179,6 +1219,7 @@ class Ui_App_Comercial(object):
                 conn.close()
 
 
+#Function to show dialog showing delayed offers
     def alert_offers(self):
         delay_date=QtCore.QDate.currentDate().addDays(-10)
 
@@ -1216,6 +1257,7 @@ class Ui_App_Comercial(object):
                 conn.close()
 
         offers_delay=[x[0] for x in results]
+
         if len(offers_delay) != 0:
             offers_delay_text = "\n".join(offers_delay)
             dlg = QtWidgets.QMessageBox()
@@ -1231,13 +1273,29 @@ class Ui_App_Comercial(object):
             del dlg, new_icon
 
 
+#Function to formatting y axis of graps
     def format_y_ticks(self, y, pos):
         if y >= 1e6:
             return '{:.0f}M'.format(y * 1e-6)
         elif y >= 1e3:
-            return '{:.0f}K'.format(y * 1e-3)
+            return '{:.0f}k'.format(y * 1e-3)
         else:
             return '{:d}'.format(int(y))
+
+
+# Function to check if column index of double clicked cell is equal to first column index
+    def on_item_double_clicked(self, item):
+        if item.column() == 2:
+            self.clientresume(item)
+
+
+# Function when double clicked cell is in first column
+    def clientresume(self, item):
+        clientname=item.text()
+        self.client_resume_window=QtWidgets.QMainWindow()
+        self.ui=Ui_ClientResume_Window(clientname)
+        self.ui.setupUi(self.client_resume_window)
+        self.client_resume_window.show()
 
 
 if __name__ == "__main__":

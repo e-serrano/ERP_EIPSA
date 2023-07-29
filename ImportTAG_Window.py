@@ -7,7 +7,11 @@
 
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6.QtWidgets import QFileDialog
+import pandas as pd
+from tkinter.filedialog import askopenfilename
+import psycopg2
+from config import config
+import math
 
 
 class Ui_ImportTAG_Window(object):
@@ -135,15 +139,15 @@ class Ui_ImportTAG_Window(object):
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.hLayout2.addWidget(self.Button_Cancel)
         self.verticalLayout.addLayout(self.hLayout2)
-        self.label_error = QtWidgets.QLabel(parent=self.frame)
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        self.label_error.setFont(font)
-        self.label_error.setStyleSheet("color: rgb(255, 0, 0);")
-        self.label_error.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.label_error.setObjectName("label_error")
-        self.verticalLayout.addWidget(self.label_error)
+        # self.label_error = QtWidgets.QLabel(parent=self.frame)
+        # font = QtGui.QFont()
+        # font.setPointSize(12)
+        # font.setBold(True)
+        # self.label_error.setFont(font)
+        # self.label_error.setStyleSheet("color: rgb(255, 0, 0);")
+        # self.label_error.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        # self.label_error.setObjectName("label_error")
+        # self.verticalLayout.addWidget(self.label_error)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         ImportTAG_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=ImportTAG_Window)
@@ -178,29 +182,163 @@ class Ui_ImportTAG_Window(object):
 
 
     def browsefiles(self):
-        fname = QFileDialog.getOpenFileName(None, 'Open File', 'C:')
-        self.label_name_file.setText(fname[0])
+        fname = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")],
+                            title="Seleccionar archivo Excel")
+        if fname:
+            self.label_name_file.setText("Archivo: " + fname)
 
 
     def importtag(self):
         if self.label_name_file.text()=='':
-            self.label_error.setText('Elige un archivo')
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Selecciona un archivo para importar")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
 
         else:
+            excel_file=self.label_name_file.text().split("Archivo: ")[1]
+
+            params = config()
+            conn = psycopg2.connect(**params)
+            cursor = conn.cursor()
+
+        #Importing excel file into dataframe
+            df_table = pd.read_excel(excel_file, na_values=['NaN'])
+            df_table = df_table.astype(str)
+            df_table.replace('nan', '', inplace=True)
+
             if self.radioFlow.isChecked()==True:
-                print('aslo')
+                table_name='tags_flow'
+                try:
+                    for index, row in df_table.iterrows():
+                    # Create a list of pairs (column_name, column_value) for each column with value
+                        columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
+
+                    # Creating string for columns names
+                        columns = ', '.join([column for column, _ in columns_values])
+
+                    # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
+                        values = ', '.join([f"'{values.replace('.', ',')}'" if column == 'amount' else f"'{values}'" for column, values in columns_values])
+
+                    # Creating insertion query and executing it
+                        sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+                        cursor.execute(sql_insertion)
+
+                # Closing cursor and database connection
+                    conn.commit()
+                    cursor.close()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Datos importados con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
+                finally:
+                    if conn is not None:
+                        conn.close()
 
             elif self.radioTemp.isChecked()==True:
-                print('bslo')
+                table_name='tags_temp_prueba'
+                try:
+                    for index, row in df_table.iterrows():
+                    # Create a list of pairs (column_name, column_value) for each column with value
+                        columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
+
+                    # Creating string for columns names
+                        columns = ', '.join([column for column, _ in columns_values])
+
+                    # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
+                        values = ', '.join([f"'{values.replace('.', ',')}'" if column == 'amount' else f"'{values}'" for column, values in columns_values])
+
+                    # Creating insertion query and executing it
+                        sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+                        cursor.execute(sql_insertion)
+
+
+                # Closing cursor and database connection
+                    conn.commit()
+                    cursor.close()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Datos importados con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
+                finally:
+                    if conn is not None:
+                        conn.close()
 
             elif self.radioLevel.isChecked()==True:
-                print('cslo')
+                table_name='tags_level_prueba'
+                try:
+                    for index, row in df_table.iterrows():
+                    # Create a list of pairs (column_name, column_value) for each column with value
+                        columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
+
+                    # Creating string for columns names
+                        columns = ', '.join([column for column, _ in columns_values])
+
+                    # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
+                        values = ', '.join([f"'{values.replace('.', ',')}'" if column == 'amount' else f"'{values}'" for column, values in columns_values])
+
+                    # Creating insertion query and executing it
+                        sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+                        cursor.execute(sql_insertion)
+
+                # Closing cursor and database connection
+                    conn.commit()
+                    cursor.close()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Datos importados con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
+                finally:
+                    if conn is not None:
+                        conn.close()
 
             elif self.radioOthers.isChecked()==True:
-                print('dslo')
+                print(excel_file)
 
             else:
-                self.label_error.setText('Elige un tipo de equipo')
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Selecciona un tipo de equipo")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg, new_icon
+
+            self.label_name_file.setText("")
 
 
 if __name__ == "__main__":

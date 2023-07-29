@@ -332,6 +332,7 @@ class Ui_QueryDoc_Window(object):
         item.setFont(font)
         self.tableQueryDoc.setHorizontalHeaderItem(12, item)
         self.tableQueryDoc.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableQueryDoc.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         self.gridLayout_2.addWidget(self.tableQueryDoc, 8, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
@@ -344,11 +345,6 @@ class Ui_QueryDoc_Window(object):
         self.statusbar = QtWidgets.QStatusBar(parent=QueryDoc_Window)
         self.statusbar.setObjectName("statusbar")
         QueryDoc_Window.setStatusBar(self.statusbar)
-
-        self.retranslateUi(QueryDoc_Window)
-        QtCore.QMetaObject.connectSlotsByName(QueryDoc_Window)
-        self.Button_Clean.clicked.connect(self.clean_boxes) # type: ignore
-        self.Button_Query.clicked.connect(self.query_doc) # type: ignore
 
 
         conn = None
@@ -388,6 +384,19 @@ class Ui_QueryDoc_Window(object):
 
         list_critical=['','No','Sí']
         self.Critical_QueryDoc.addItems(list_critical)
+
+        self.retranslateUi(QueryDoc_Window)
+        QtCore.QMetaObject.connectSlotsByName(QueryDoc_Window)
+        self.Button_Clean.clicked.connect(self.clean_boxes) # type: ignore
+        self.Button_Query.clicked.connect(self.query_doc) # type: ignore
+        self.NumOrder_QueryDoc.returnPressed.connect(self.query_doc)
+        self.Client_QueryDoc.returnPressed.connect(self.query_doc)
+        self.Material_QueryDoc.currentIndexChanged.connect(self.query_doc)
+        self.TypeDoc_QueryDoc.currentIndexChanged.connect(self.query_doc)
+        self.NumDocClient_QueryDoc.returnPressed.connect(self.query_doc)
+        self.NumDocEipsa_QueryDoc.returnPressed.connect(self.query_doc)
+        self.State_QueryDoc.currentIndexChanged.connect(self.query_doc)
+        self.Critical_QueryDoc.currentIndexChanged.connect(self.query_doc)
 
 
     def retranslateUi(self, QueryDoc_Window):

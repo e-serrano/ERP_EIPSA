@@ -81,39 +81,6 @@ class Ui_QueryTags_Window(object):
         self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
         self.gridLayout_2.setVerticalSpacing(10)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        self.tableQueryTags = QtWidgets.QTableWidget(parent=self.frame)
-        self.tableQueryTags.setAlternatingRowColors(False)
-        self.tableQueryTags.setObjectName("tableQueryTags")
-        self.tableQueryTags.setColumnCount(0)
-        self.tableQueryTags.setRowCount(0)
-        self.tableQueryTags.setSortingEnabled(True)
-        self.gridLayout_2.addWidget(self.tableQueryTags, 3, 0, 1, 1)
-        self.hLayout2 = QtWidgets.QHBoxLayout()
-        self.hLayout2.setObjectName("hLayout2")
-        self.label_NumOffer = QtWidgets.QLabel(parent=self.frame)
-        self.label_NumOffer.setMinimumSize(QtCore.QSize(80, 25))
-        self.label_NumOffer.setMaximumSize(QtCore.QSize(80, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_NumOffer.setFont(font)
-        self.label_NumOffer.setObjectName("label_NumOffer")
-        self.hLayout2.addWidget(self.label_NumOffer)
-        self.Numoffer_QueryTags = QtWidgets.QLineEdit(parent=self.frame)
-        self.Numoffer_QueryTags.setMinimumSize(QtCore.QSize(250, 25))
-        self.Numoffer_QueryTags.setMaximumSize(QtCore.QSize(250, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Numoffer_QueryTags.setFont(font)
-        self.Numoffer_QueryTags.setObjectName("Numoffer_QueryTags")
-        self.hLayout2.addWidget(self.Numoffer_QueryTags)
-        self.Button_Query = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Query.setMinimumSize(QtCore.QSize(150, 35))
-        self.Button_Query.setMaximumSize(QtCore.QSize(150, 35))
-        self.Button_Query.setAutoDefault(True)
-        self.Button_Query.setObjectName("Button_Query")
-        self.hLayout2.addWidget(self.Button_Query)
-        self.gridLayout_2.addLayout(self.hLayout2, 2, 0, 1, 1)
         self.hLayout1 = QtWidgets.QHBoxLayout()
         self.hLayout1.setObjectName("hLayout1")
         self.label_NumOrder = QtWidgets.QLabel(parent=self.frame)
@@ -136,12 +103,48 @@ class Ui_QueryTags_Window(object):
         self.Button_Clean = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Clean.setMinimumSize(QtCore.QSize(150, 35))
         self.Button_Clean.setMaximumSize(QtCore.QSize(150, 35))
-        self.Button_Clean.setAutoDefault(True)
+        self.Button_Clean.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.Button_Clean.setObjectName("Button_Clean")
         self.hLayout1.addWidget(self.Button_Clean)
         self.gridLayout_2.addLayout(self.hLayout1, 1, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
+        self.hLayout2 = QtWidgets.QHBoxLayout()
+        self.hLayout2.setObjectName("hLayout2")
+        self.label_NumOffer = QtWidgets.QLabel(parent=self.frame)
+        self.label_NumOffer.setMinimumSize(QtCore.QSize(80, 25))
+        self.label_NumOffer.setMaximumSize(QtCore.QSize(80, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_NumOffer.setFont(font)
+        self.label_NumOffer.setObjectName("label_NumOffer")
+        self.hLayout2.addWidget(self.label_NumOffer)
+        self.Numoffer_QueryTags = QtWidgets.QLineEdit(parent=self.frame)
+        self.Numoffer_QueryTags.setMinimumSize(QtCore.QSize(250, 25))
+        self.Numoffer_QueryTags.setMaximumSize(QtCore.QSize(250, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Numoffer_QueryTags.setFont(font)
+        self.Numoffer_QueryTags.setObjectName("Numoffer_QueryTags")
+        self.hLayout2.addWidget(self.Numoffer_QueryTags)
+        self.Button_Query = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Query.setMinimumSize(QtCore.QSize(150, 35))
+        self.Button_Query.setMaximumSize(QtCore.QSize(150, 35))
+        self.Button_Query.setObjectName("Button_Query")
+        self.Button_Query.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.hLayout2.addWidget(self.Button_Query)
+        self.gridLayout_2.addLayout(self.hLayout2, 2, 0, 1, 1)
+        spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.gridLayout_2.addItem(spacerItem, 3, 0, 1, 1)
+        self.tableQueryTags = QtWidgets.QTableWidget(parent=self.frame)
+        self.tableQueryTags.setAlternatingRowColors(False)
+        self.tableQueryTags.setObjectName("tableQueryTags")
+        self.tableQueryTags.setColumnCount(0)
+        self.tableQueryTags.setRowCount(0)
+        self.tableQueryTags.setSortingEnabled(True)
+        self.tableQueryTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.gridLayout_2.addWidget(self.tableQueryTags, 4, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         QueryTags_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=QueryTags_Window)
@@ -156,6 +159,8 @@ class Ui_QueryTags_Window(object):
         QtCore.QMetaObject.connectSlotsByName(QueryTags_Window)
         self.Button_Clean.clicked.connect(self.clean_boxes) # type: ignore
         self.Button_Query.clicked.connect(self.query_tags) # type: ignore
+        self.Numoffer_QueryTags.returnPressed.connect(self.query_tags)
+        self.Numorder_QueryTags.returnPressed.connect(self.query_tags)
 
 
     def retranslateUi(self, QueryTags_Window):
@@ -194,11 +199,11 @@ class Ui_QueryTags_Window(object):
             # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
-            cur.execute("""SELECT * FROM orders""")
+            cur.execute(f"""SELECT * FROM orders WHERE UPPER("num_order") = UPPER('{numorder}')""")
             results=cur.fetchall()
             match=list(filter(lambda x:numorder.upper() in x, results))
 
-            cur.execute("""SELECT * FROM offers""")
+            cur.execute(f"""SELECT * FROM offers WHERE UPPER("num_offer") = UPPER('{numoffer}')""")
             results2=cur.fetchall()
             match2=list(filter(lambda x:numoffer.upper() in x, results2))
         # close communication with the PostgreSQL database server
@@ -228,29 +233,26 @@ class Ui_QueryTags_Window(object):
 
             else:
                 if numoffer!='' and numorder=='':
-                    commands_querytags = ("""
+                    commands_querytags = (f"""
                                 SELECT offers."num_offer",product_type."variable"
                                 FROM offers
                                 INNER JOIN product_type ON (offers."material"=product_type."material")
-                                WHERE UPPER(offers."num_offer") LIKE UPPER('%%'||%s||'%%')
+                                WHERE UPPER(offers."num_offer") LIKE UPPER('%%{numoffer}%%')
                                 ORDER BY offers."num_offer"
                                 """)
-                    data=(numoffer,)
 
                 else:
-                    commands_querytags = ("""
+                    commands_querytags = (f"""
                                 SELECT orders."num_offer",orders."num_order",product_type."variable"
                                 FROM offers
                                 INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                                 INNER JOIN product_type ON (offers."material"=product_type."material")
-                                WHERE (UPPER(orders."num_offer") LIKE UPPER('%%'||%s||'%%')
+                                WHERE (UPPER(orders."num_offer") LIKE UPPER('%%{numoffer}%%')
                                 AND
-                                UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
+                                UPPER(orders."num_order") LIKE UPPER('%%{numorder}%%')
                                 )
                                 ORDER BY orders."num_order"
                                 """)
-                    data=(numoffer,numorder,)
-
                 conn = None
                 try:
                 # read the connection parameters
@@ -259,7 +261,7 @@ class Ui_QueryTags_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    cur.execute(commands_querytags, data)
+                    cur.execute(commands_querytags)
                     result_variable=cur.fetchall()
                     if len(result_variable[0])==3:
                         variable=result_variable[0][2]
@@ -275,70 +277,18 @@ class Ui_QueryTags_Window(object):
                 finally:
                     if conn is not None:
                         conn.close()
-                print(variable)
+
                 if variable=='Caudal':
-                    print('a')
-                    # commands_querytagsvariable = ("""
-                    #         SELECT *
-                    #         FROM tags_flow
-                    #         WHERE (num_offer LIKE '%%'||%s||'%%'
-                    #         AND
-                    #         num_order LIKE '%%'||%s||'%%'
-                    #         )
-                    #         ORDER BY tag
-                    #         """)
-                    # data=(numoffer,numorder,)
-                    commands_querytagsvariable = ("""
-                        SELECT *
-                        FROM orders
-                        WHERE UPPER(num_offer) LIKE UPPER('%%'||%s||'%%')
-                        """)
-                    data=(numorder,)
+                    table_name='tags_flow_prueba'
 
                 elif variable=='Temperatura':
                     print('b')
-                    # commands_querytagsvariable = ("""
-                    #         SELECT *
-                    #         FROM tags_temp
-                    #         WHERE (num_offer LIKE '%%'||%s||'%%'
-                    #         AND
-                    #         num_order LIKE '%%'||%s||'%%'
-                    #         )
-                    #         ORDER BY tag
-                    #         """)
-                    # data=(numoffer,numorder,)
 
                 elif variable=='Nivel':
                     print('c')
-                    # commands_querytagsvariable = ("""
-                    #         SELECT *
-                    #         FROM tags_level
-                    #         WHERE (num_offer LIKE '%%'||%s||'%%'
-                    #         AND
-                    #         num_order LIKE '%%'||%s||'%%'
-                    #         )
-                    #         ORDER BY tag
-                    #         """)
-                    # data=(numoffer,numorder,)
-                    commands_querytagsvariable = ("""
-                            SELECT *
-                            FROM offers
-                            WHERE UPPER(num_offer) LIKE UPPER('%%'||%s||'%%')
-                            """)
-                    data=(numoffer,)
 
                 elif variable=='Otros':
                     print('d')
-                    # commands_querytagsvariable = ("""
-                    #         SELECT *
-                    #         FROM tags_others
-                    #         WHERE (num_offer LIKE '%%'||%s||'%%'
-                    #         AND
-                    #         num_order LIKE '%%'||%s||'%%'
-                    #         )
-                    #         ORDER BY tag
-                    #         """)
-                    # data=(numoffer,numorder,)
 
                 conn = None
                 try:
@@ -347,8 +297,17 @@ class Ui_QueryTags_Window(object):
                 # connect to the PostgreSQL server
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
+                    commands_querytagsvariable = (f"""
+                            SELECT * FROM {table_name}
+                            WHERE (
+                            UPPER(num_offer) LIKE UPPER('%%{numoffer}%%')
+                            AND
+                            UPPER(num_order) LIKE UPPER('%%{numorder}%%')
+                            )
+                            ORDER BY tag
+                            """)
                 # execution of commands and savind results
-                    cur.execute(commands_querytagsvariable, data)
+                    cur.execute(commands_querytagsvariable)
                     results=cur.fetchall()
                     field_names=[i[0] for i in cur.description]
                 # close communication with the PostgreSQL database server
@@ -369,7 +328,7 @@ class Ui_QueryTags_Window(object):
             # fill the Qt Table with the query results
                 for row in results:
                     for column in range(len(field_names)):
-                        it=QtWidgets.QTableWidgetItem(str(row[column]))
+                        it = QtWidgets.QTableWidgetItem(str(row[column]))
                         it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                         self.tableQueryTags.setItem(tablerow, column, it)
 
@@ -378,7 +337,7 @@ class Ui_QueryTags_Window(object):
                 self.tableQueryTags.verticalHeader().hide()
                 self.tableQueryTags.setItemDelegate(AlignDelegate(self.tableQueryTags))
                 self.tableQueryTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                self.tableQueryTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt}")
+                self.tableQueryTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font: 800 10pt;}")
 
 
 if __name__ == "__main__":

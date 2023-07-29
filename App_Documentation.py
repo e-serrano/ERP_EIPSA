@@ -262,6 +262,7 @@ class Ui_App_Documentation(object):
         item.setFont(font)
         self.tableDocs.setHorizontalHeaderItem(5, item)
         self.tableDocs.verticalHeader().setVisible(False)
+        self.tableDocs.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         self.MainLayout.addWidget(self.tableDocs)
         spacerItem5 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.MainLayout.addItem(spacerItem5)

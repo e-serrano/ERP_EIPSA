@@ -283,6 +283,7 @@ class Ui_Login_Window(object):
         self.retranslateUi(Login_Window)
         self.accept_login.clicked.connect(self.verification_login) # action when button 1 is pressed
         self.forgetpass_login.clicked.connect(self.forgetpassword) # action when button 2 is pressed
+        self.password_login.returnPressed.connect(self.verification_login)
         QtCore.QMetaObject.connectSlotsByName(Login_Window)
 
 
