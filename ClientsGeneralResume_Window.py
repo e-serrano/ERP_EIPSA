@@ -145,14 +145,33 @@ class Ui_ClientsGeneralResume_Window(object):
         self.tableClientsResume.setSortingEnabled(False)
         self.tableClientsResume.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font: 800 10pt;}")
 
-        commands_graph1 = (f"""
-                        SELECT "client", CAST(SUM("offer_amount") AS money)
+        commands_loadtableresume = (f"""SELECT
+                        a."client",
+                        COALESCE(a."sum(year-{date.today().year-2})", '0€') AS "sum(year-{date.today().year-2})",
+                        COALESCE(b."sum(year-{date.today().year-1})", '0€') AS "sum(year-{date.today().year-1})",
+                        COALESCE(c."sum(year-{date.today().year})", '0€') AS "sum(year-{date.today().year})"
+                        FROM (
+                        SELECT "client",
+                            CAST(SUM("offer_amount") AS money) AS "sum(year-{date.today().year-2})"
                         FROM offers
-                        WHERE ("offer_year"={date.today().year-2}
-                        AND
-                        "state"='Adjudicada')
+                        WHERE "offer_year" = {date.today().year-2} AND "state" = 'Adjudicada'
                         GROUP BY "client"
-                        ORDER BY "client"
+                        ) AS a
+                        LEFT JOIN (
+                        SELECT "client",
+                            CAST(SUM("offer_amount") AS money) AS "sum(year-{date.today().year-1})"
+                        FROM offers
+                        WHERE "offer_year" = {date.today().year-1} AND "state" = 'Adjudicada'
+                        GROUP BY "client"
+                        ) AS b ON a."client" = b."client"
+                        LEFT JOIN (
+                        SELECT "client",
+                            CAST(SUM("offer_amount") AS money) AS "sum(year-{date.today().year})"
+                        FROM offers
+                        WHERE "offer_year" = {date.today().year} AND "state" = 'Adjudicada'
+                        GROUP BY "client"
+                        ) AS c ON a."client" = c."client"
+                        ORDER BY "client";
                         """)
         conn = None
         try:
@@ -162,7 +181,7 @@ class Ui_ClientsGeneralResume_Window(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            cur.execute(commands_graph1)
+            cur.execute(commands_loadtableresume)
             results=cur.fetchall()
 
             self.tableClientsResume.setRowCount(len(results))
@@ -170,9 +189,9 @@ class Ui_ClientsGeneralResume_Window(object):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(2):
+                for column in range(4):
                     it=QtWidgets.QTableWidgetItem(str(row[column]))
-                    if column == 0: #EN FUNCIÓN DEL ÍNDICE DE LA COLUMNA DONDE SE QUIERA EL CHECKBOX
+                    if column == 0:
                         it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable | QtCore.Qt.ItemFlag.ItemIsUserCheckable | QtCore.Qt.ItemFlag.ItemIsEnabled)
                         it.setCheckState(QtCore.Qt.CheckState.Unchecked)
                         self.tableClientsResume.setItem(tablerow, column, it)
@@ -219,7 +238,8 @@ class Ui_ClientsGeneralResume_Window(object):
         for row in range(self.tableClientsResume.rowCount()):
             if self.tableClientsResume.item(row,0).checkState() == QtCore.Qt.CheckState.Checked:
                 print([self.tableClientsResume.item(row,col).text() for col in range(2)])#range(self.tableClientsResume.columnCount())]) #PRINTA UNA LISTA POR CADA FILA CON TODOS LOS VALORES DE LA FILA
-        commands_graph2 = ("""
+
+        commands_graph = ("""
                         SELECT COUNT(offers."num_offer"), product_type."variable"
                         FROM offers
                         INNER JOIN product_type ON (offers."material"=product_type."material")
@@ -239,7 +259,7 @@ class Ui_ClientsGeneralResume_Window(object):
             cur = conn.cursor()
         # execution of commands
             data=("AC", date.today().year,)
-            cur.execute(commands_graph2, data)
+            cur.execute(commands_graph, data)
             results2=cur.fetchall()
         # close communication with the PostgreSQL database server
             cur.close()

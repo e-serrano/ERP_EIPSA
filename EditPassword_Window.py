@@ -270,7 +270,7 @@ class Ui_EditPasswordWindow(object):
         else:
         #SQL Query for updating values in database
             commands_editpassword = ("""
-                        UPDATE registration
+                        UPDATE users_data.registration
                         SET "password" = %s
                         WHERE "username" = %s
                         """)

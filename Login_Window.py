@@ -307,7 +307,7 @@ class Ui_Login_Window(object):
         #SQL Query for loading existing data in database
             commands_userlogin = ("""
                         SELECT *
-                        FROM registration
+                        FROM users_data.registration
                         """)
             conn = None
             try:

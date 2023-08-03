@@ -17,18 +17,18 @@ import numpy as np
 
 
 class Ui_ClientResume_Window(object):
-    # def __init__(self, clientname):
-    #     self.clientname=clientname
+    def __init__(self, clientname):
+        self.clientname=clientname
 
-    def __init__(self):
-        self.clientname='ALMARAZ - TRILLO'
+    # def __init__(self):
+    #     self.clientname='ALMARAZ - TRILLO'
 
 
     def setupUi(self, ClientResume_Window):
         ClientResume_Window.setObjectName("ClientResume_Window")
         ClientResume_Window.resize(1165, 945)
         ClientResume_Window.setMinimumSize(QtCore.QSize(1165, 945))
-        ClientResume_Window.setMaximumSize(QtCore.QSize(1165, 945))
+        # ClientResume_Window.setMaximumSize(QtCore.QSize(1165, 945))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ClientResume_Window.setWindowIcon(icon)

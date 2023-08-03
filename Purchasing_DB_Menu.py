@@ -7,6 +7,8 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
+from Suppliers_Window import Ui_Suppliers_Window
+from Clients_Window import Ui_Clients_Window
 
 
 class Ui_Purchasing_DB_Menu(object):
@@ -105,6 +107,8 @@ class Ui_Purchasing_DB_Menu(object):
 
         self.retranslateUi(Purchasing_DB_Menu)
         self.Button_Cancel.clicked.connect(Purchasing_DB_Menu.close) # type: ignore
+        self.Button_Suppliers.clicked.connect(lambda: self.suppliers(Purchasing_DB_Menu))
+        self.Button_Clients.clicked.connect(lambda: self.clients(Purchasing_DB_Menu))
         QtCore.QMetaObject.connectSlotsByName(Purchasing_DB_Menu)
 
 
@@ -114,6 +118,24 @@ class Ui_Purchasing_DB_Menu(object):
         self.Button_Clients.setText(_translate("Purchasing_DB_Menu", "Clientes"))
         self.Button_Suppliers.setText(_translate("Purchasing_DB_Menu", "Proveedores"))
         self.Button_Cancel.setText(_translate("Purchasing_DB_Menu", "Cancelar"))
+
+
+    def suppliers(self,Purchasing_DB_Menu):
+        self.suppliers_window=QtWidgets.QMainWindow()
+        self.ui=Ui_Suppliers_Window()
+        self.ui.setupUi(self.suppliers_window)
+        self.suppliers_window.showMaximized()
+        Purchasing_DB_Menu.close()
+        # self.ui.Button_Cancel.clicked.connect(Purchasing_DB_Menu.show)
+
+
+    def clients(self,Purchasing_DB_Menu):
+        self.clients_window=QtWidgets.QMainWindow()
+        self.ui=Ui_Clients_Window()
+        self.ui.setupUi(self.clients_window)
+        self.clients_window.showMaximized()
+        Purchasing_DB_Menu.close()
+        # self.ui.Button_Cancel.clicked.connect(Purchasing_DB_Menu.show)
 
 
 if __name__ == "__main__":

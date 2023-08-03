@@ -173,7 +173,7 @@ class Ui_AddReg_Window(object):
 
         query_tablechanges = """SELECT table_name
                                 FROM information_schema.tables
-                                WHERE table_schema = 'public' AND table_type = 'BASE TABLE' AND table_name LIKE 'vd%';"""
+                                WHERE table_schema = 'validation_data' AND table_type = 'BASE TABLE';"""
 
         conn = None
         try:
@@ -216,7 +216,7 @@ class Ui_AddReg_Window(object):
 
 
     def addreg(self):
-        table_name = self.comboBox.currentText()
+        table_name = "validation_data." + self.comboBox.currentText()
         value_reg=self.lineEdit.text()
 
         if table_name == "" or value_reg == "":
@@ -232,7 +232,7 @@ class Ui_AddReg_Window(object):
 
         else:
             commands_addreg = f"INSERT INTO {table_name} VALUES (default, '{value_reg}')"
-            commands_loadtableaddreg = f"SELECT * FROM public.{table_name} ORDER BY 1"
+            commands_loadtableaddreg = f"SELECT * FROM validation_data.{table_name} ORDER BY 1"
             conn = None
             try:
             # read the connection parameters
@@ -275,7 +275,7 @@ class Ui_AddReg_Window(object):
         table_name = self.comboBox.currentText()
 
         if table_name != "":
-            commands_loadtableaddreg = f"SELECT * FROM public.{table_name} ORDER BY 1"
+            commands_loadtableaddreg = f"SELECT * FROM validation_data.{table_name} ORDER BY 1"
             conn = None
             try:
             # read the connection parameters

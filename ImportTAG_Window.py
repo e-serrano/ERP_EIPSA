@@ -139,15 +139,6 @@ class Ui_ImportTAG_Window(object):
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.hLayout2.addWidget(self.Button_Cancel)
         self.verticalLayout.addLayout(self.hLayout2)
-        # self.label_error = QtWidgets.QLabel(parent=self.frame)
-        # font = QtGui.QFont()
-        # font.setPointSize(12)
-        # font.setBold(True)
-        # self.label_error.setFont(font)
-        # self.label_error.setStyleSheet("color: rgb(255, 0, 0);")
-        # self.label_error.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        # self.label_error.setObjectName("label_error")
-        # self.verticalLayout.addWidget(self.label_error)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         ImportTAG_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=ImportTAG_Window)
@@ -208,12 +199,12 @@ class Ui_ImportTAG_Window(object):
             cursor = conn.cursor()
 
         #Importing excel file into dataframe
-            df_table = pd.read_excel(excel_file, na_values=['NaN'])
+            df_table = pd.read_excel(excel_file, na_values=['N/A'], keep_default_na=False)
             df_table = df_table.astype(str)
-            df_table.replace('nan', '', inplace=True)
+            df_table.replace('nan', 'N/A', inplace=True)
 
             if self.radioFlow.isChecked()==True:
-                table_name='tags_flow'
+                table_name='tags_flow_prueba'
                 try:
                     for index, row in df_table.iterrows():
                     # Create a list of pairs (column_name, column_value) for each column with value
@@ -265,7 +256,6 @@ class Ui_ImportTAG_Window(object):
                     # Creating insertion query and executing it
                         sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
                         cursor.execute(sql_insertion)
-
 
                 # Closing cursor and database connection
                     conn.commit()

@@ -285,7 +285,7 @@ class Ui_EditReg_Window(object):
 
         query_tablechanges = """SELECT table_name
                                 FROM information_schema.tables
-                                WHERE table_schema = 'public' AND table_type = 'BASE TABLE' AND table_name LIKE 'vd%';"""
+                                WHERE table_schema = 'validation_data' AND table_type = 'BASE TABLE';"""
 
         conn = None
         try:
@@ -367,7 +367,7 @@ class Ui_EditReg_Window(object):
 
 
     def loadtable(self):
-        table_name = self.comboBox.currentText()
+        table_name = "validation_data." + self.comboBox.currentText()
 
         self.model.setTable(table_name)
         self.model.select()

@@ -184,10 +184,10 @@ class Ui_Purchasing_Menu(object):
 
 
     def databases(self,Purchasing_Menu):
-        self.pruchase_DB_window=QtWidgets.QMainWindow()
+        self.purchase_DB_window=QtWidgets.QMainWindow()
         self.ui=Ui_Purchasing_DB_Menu()
-        self.ui.setupUi(self.pruchase_DB_window)
-        self.pruchase_DB_window.show()
+        self.ui.setupUi(self.purchase_DB_window)
+        self.purchase_DB_window.show()
         Purchasing_Menu.hide()
         self.ui.Button_Cancel.clicked.connect(Purchasing_Menu.show)
 

@@ -275,21 +275,28 @@ class Ui_SetupWindow(object):
             cur = conn.cursor()
 
             command_create_user = f"CREATE USER \"{username}\" WITH PASSWORD '{password}'"
+
             commands_privileges = """
-                GRANT INSERT, SELECT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO "{}";
-                GRANT TRUNCATE ON ALL TABLES IN SCHEMA public TO "{}";
-                GRANT REFERENCES ON ALL TABLES IN SCHEMA public TO "{}";
-                GRANT TRIGGER ON ALL TABLES IN SCHEMA public TO "{}";
-                GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO "{}";
-                GRANT INSERT, SELECT, UPDATE, DELETE ON ALL TABLES IN SCHEMA logging TO "{}";
-                GRANT TRUNCATE ON ALL TABLES IN SCHEMA logging TO "{}";
-                GRANT REFERENCES ON ALL TABLES IN SCHEMA logging TO "{}";
-                GRANT TRIGGER ON ALL TABLES IN SCHEMA logging TO "{}";
-                GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA logging TO "{}";
-            """.format(username, username, username, username, username, username, username, username, username, username)
+                                DO
+                                $$
+                                DECLARE
+                                    schema_name TEXT;
+                                BEGIN
+                                    FOR schema_name IN (SELECT nspname FROM pg_catalog.pg_namespace)
+                                    LOOP
+                                        EXECUTE format('GRANT INSERT, SELECT, UPDATE, DELETE ON ALL TABLES IN SCHEMA %I TO "{}";', schema_name);
+                                        EXECUTE format('GRANT TRUNCATE ON ALL TABLES IN SCHEMA %I TO "{}";', schema_name);
+                                        EXECUTE format('GRANT REFERENCES ON ALL TABLES IN SCHEMA %I TO "{}";', schema_name);
+                                        EXECUTE format('GRANT TRIGGER ON ALL TABLES IN SCHEMA %I TO "{}";', schema_name);
+                                        EXECUTE format('GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA %I TO "{}";', schema_name);
+                                    END LOOP;
+                                END;
+                                $$;
+                                """.format(username, username, username, username, username, username, username, username, username, username)
+
             commands_superuser=f"ALTER ROLE \"{username}\" WITH SUPERUSER"
 
-            command_database_update =("""INSERT INTO database_passwords ("username","password")
+            command_database_update =("""INSERT INTO users_data.database_passwords ("username","password")
                             VALUES (%s,%s)""") 
 
             # Create user

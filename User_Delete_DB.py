@@ -13,7 +13,7 @@ def delete_user_database(email):
     cur = conn.cursor()
 
     command_check_user = ("""
-                        SELECT * FROM registration
+                        SELECT * FROM users_data.registration
                         WHERE "email" = %s
                         """)
 

@@ -22,9 +22,12 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
 
 class Ui_App_Purchasing(object):
-    def __init__(self, name, username):
-        self.name=name
-        self.username=username
+    # def __init__(self, name, username):
+    #     self.name=name
+    #     self.username=username
+    def __init__(self):
+        self.name='Enrique Serrano'
+        self.username='e.serrano'
 
 
     def setupUi(self, App_Purchasing):

@@ -226,7 +226,7 @@ class Ui_ExportOffer_Window(object):
 
             # Saving the dataframe in an excel file
                 # template_file = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Excel Ofertas\prueba.xlsx"
-                wb = load_workbook(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Excel Ofertas\Template.xlsx")    # Loading Excel Template
+                wb = load_workbook(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Template.xlsx")    # Loading Excel Template
                 sheet_name = "Hoja1"    # Selecting template sheet
                 ws = wb[sheet_name]
                 last_row = ws.max_row    # Obtaining last row used

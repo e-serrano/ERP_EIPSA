@@ -724,8 +724,6 @@ class Ui_App_Master(object):
 
 
     def get_tasks_for_date(self, date):
-        # Función de ejemplo para obtener las tareas asociadas a una fecha
-        # Aquí puedes implementar tu propia lógica para recuperar las tareas de una fuente de datos
         commands_loaddatestasks = ("""
                     SELECT "task_date","task"
                     FROM tasks
@@ -752,7 +750,7 @@ class Ui_App_Master(object):
 
             dict={}
             for i in range(len(results)):
-                key=results[i][0]
+                key=QtCore.QDate(results[i][0].year, results[i][0].month, results[i][0].day)
                 value=results[i][1]
                 if key not in dict:
                     dict[key] = [value]

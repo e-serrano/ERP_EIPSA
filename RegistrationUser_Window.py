@@ -359,7 +359,7 @@ class Ui_RegistrationWindow(object):
             #SQL Query for loading existing data in database
                 commands_loadregdatabase = ("""
                             SELECT *
-                            FROM registration
+                            FROM users_data.registration
                             """)
                 conn = None
                 try:
@@ -409,7 +409,7 @@ class Ui_RegistrationWindow(object):
 
                 else:
                     commands_reguser = ("""
-                                INSERT INTO registration(
+                                INSERT INTO users_data.registration(
                                 "id","name","surname","username","email","password","profile")
                                 VALUES (DEFAULT,%s,%s,%s,%s,%s,%s)
                                 """)

@@ -221,7 +221,7 @@ class Ui_DeleteUser_Window(object):
         email=self.email_deleteuser.text()
         commands_checkemail = ("""
                     SELECT *
-                    FROM registration
+                    FROM users_data.registration
                     WHERE "email" = %s
                     """)
         conn = None
@@ -258,7 +258,7 @@ class Ui_DeleteUser_Window(object):
 
         else:
             commands_deleteuser = ("""
-                        DELETE FROM registration
+                        DELETE FROM users_data.registration
                         WHERE "email" = %s
                         """)
             conn = None
