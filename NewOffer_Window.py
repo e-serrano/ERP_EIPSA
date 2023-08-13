@@ -441,7 +441,7 @@ class Ui_New_Offer_Window(object):
         else:
             responsible=self.name[0] + self.name[self.name.find(' ')+1]
         actual_date=date.today()
-        actual_date= actual_date.strftime("%d/%m/%Y")
+        actual_date=actual_date.strftime("%d/%m/%Y")
 
         if numoffer=="" or (client=="" or (numref=="" or (limitdate=="" or ratetype==""))):
             self.label_error_newoffer.setText('Rellene todos los campos con *')

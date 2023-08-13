@@ -296,25 +296,24 @@ class Ui_Clients_Window(object):
         self.Iva_Clients.setFont(font)
         self.Iva_Clients.setObjectName("Iva_Clients")
         self.gridLayout_2.addWidget(self.Iva_Clients, 5, 2, 1, 4)
-        self.label_PayForm = QtWidgets.QLabel(parent=self.frame)
-        self.label_PayForm.setMinimumSize(QtCore.QSize(0, 25))
-        self.label_PayForm.setMaximumSize(QtCore.QSize(16777215, 25))
+        self.label_PayWay = QtWidgets.QLabel(parent=self.frame)
+        self.label_PayWay.setMinimumSize(QtCore.QSize(0, 25))
+        self.label_PayWay.setMaximumSize(QtCore.QSize(16777215, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
-        self.label_PayForm.setFont(font)
-        self.label_PayForm.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
-        self.label_PayForm.setObjectName("label_PayForm")
-        self.gridLayout_2.addWidget(self.label_PayForm, 5, 6, 1, 2)
-        self.Payform_Clients = QtWidgets.QComboBox(parent=self.frame)
-        self.Payform_Clients.setMinimumSize(QtCore.QSize(0, 25))
-        self.Payform_Clients.setMaximumSize(QtCore.QSize(16777215, 25))
+        self.label_PayWay.setFont(font)
+        self.label_PayWay.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
+        self.label_PayWay.setObjectName("label_PayWay")
+        self.gridLayout_2.addWidget(self.label_PayWay, 5, 6, 1, 2)
+        self.Payway_Clients = QtWidgets.QComboBox(parent=self.frame)
+        self.Payway_Clients.setMinimumSize(QtCore.QSize(0, 25))
+        self.Payway_Clients.setMaximumSize(QtCore.QSize(16777215, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.Payform_Clients.setFont(font)
-        self.Payform_Clients.setObjectName("Payform_Clients")
-        self.Payform_Clients.addItem("")
-        self.gridLayout_2.addWidget(self.Payform_Clients, 5, 8, 1, 2)
+        self.Payway_Clients.setFont(font)
+        self.Payway_Clients.setObjectName("Payway_Clients")
+        self.gridLayout_2.addWidget(self.Payway_Clients, 5, 8, 1, 2)
         self.label_Vto1 = QtWidgets.QLabel(parent=self.frame)
         self.label_Vto1.setMinimumSize(QtCore.QSize(80, 25))
         self.label_Vto1.setMaximumSize(QtCore.QSize(16777215, 25))
@@ -606,9 +605,9 @@ class Ui_Clients_Window(object):
                         SELECT * 
                         FROM purch_fact.iva
                         """)
-        commands_payform = ("""
+        commands_payway = ("""
                         SELECT * 
-                        FROM purch_fact.pay_form
+                        FROM purch_fact.pay_way
                         """)
         conn = None
         try:
@@ -620,8 +619,8 @@ class Ui_Clients_Window(object):
         # execution of commands one by one
             cur.execute(commands_iva)
             results_iva=cur.fetchall()
-            cur.execute(commands_payform)
-            results_payform=cur.fetchall()
+            cur.execute(commands_payway)
+            results_payway=cur.fetchall()
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
@@ -635,8 +634,8 @@ class Ui_Clients_Window(object):
         list_iva=[''] + [x[1] for x in results_iva]
         self.Iva_Clients.addItems(list_iva)
 
-        list_payform=[x[1] for x in results_payform]
-        self.Payform_Clients.addItems(list_payform)
+        list_payway=[x[1] for x in results_payway]
+        self.Payway_Clients.addItems(list_payway)
 
         self.tableClients.itemClicked.connect(self.loadformclients)
         self.tableClients.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
@@ -688,11 +687,11 @@ class Ui_Clients_Window(object):
         self.label_Name.setText(_translate("Clients_Window", "Nombre:"))
         self.label_City.setText(_translate("Clients_Window", "Ciudad:"))
         self.label_Address.setText(_translate("Clients_Window", "Dirección:"))
-        self.label_PayForm.setText(_translate("Clients_Window", "Forma de Pago:"))
+        self.label_PayWay.setText(_translate("Clients_Window", "Forma de Pago:"))
         self.label_Notes.setText(_translate("Clients_Window", "Observaciones y/o comentarios:"))
         self.label_days2.setText(_translate("Clients_Window", "días"))
         self.label_ZipCode.setText(_translate("Clients_Window", "Código Postal:"))
-        self.Payform_Clients.setItemText(0, _translate("Clients_Window", "180 DFF - TALON/CONFIRM."))
+        self.Payway_Clients.setItemText(0, _translate("Clients_Window", "180 DFF - TALON/CONFIRM."))
         self.label_PhoneNumber.setText(_translate("Clients_Window", "Teléfonos:"))
         self.label_CIF.setText(_translate("Clients_Window", "CIF:"))
         self.label_Vto1.setText(_translate("Clients_Window", "Vto Prog1:"))
@@ -715,7 +714,7 @@ class Ui_Clients_Window(object):
         country=self.Country_Clients.text()
         phones=self.Phones_Clients.toPlainText()
         iva=self.Iva_Clients.currentText()
-        payform=self.Payform_Clients.currentText()
+        payway=self.Payway_Clients.currentText()
         vto1=self.Vto1_Clients.text()
         vto2=self.Vto2_Clients.text()
         notes=self.Notes_Clients.toPlainText()
@@ -779,7 +778,7 @@ class Ui_Clients_Window(object):
                 commands_newclient = ("""
                             INSERT INTO purch_fact.clients_test (
                             code,name,cif,address,phone_number,fax,city,province,country,
-                            zip_code,pay_form_id,vto_prog1,vto_prog2,iva_id,notes
+                            zip_code,pay_way_id,vto_prog1,vto_prog2,iva_id,notes
                             )
                             VALUES (%s,%s,%s,%s,%s,'',%s,%s,%s,%s,%s,%s,%s,%s,%s)
                             """)
@@ -795,14 +794,14 @@ class Ui_Clients_Window(object):
                     cur.execute(query_ivatype, (iva,))
                     result_iva = cur.fetchone()
 
-                    query_payformtype = "SELECT id FROM purch_fact.pay_form WHERE pay_form_type = %s"
-                    cur.execute(query_payformtype, (payform,))
-                    result_payform = cur.fetchone()
+                    query_paywaytype = "SELECT id FROM purch_fact.pay_way WHERE pay_way_type = %s"
+                    cur.execute(query_paywaytype, (payway,))
+                    result_payway = cur.fetchone()
                 # get id from table
                     id_iva = result_iva[0] if result_iva is not None else None
-                    id_payform = result_payform[0]
+                    id_payway = result_payway[0]
                 # execution of principal command
-                    data=(code,name,cif,address,phones,city,province,country,zipcode,id_payform,vto1,vto2,id_iva,notes,)
+                    data=(code,name,cif,address,phones,city,province,country,zipcode,id_payway,vto1,vto2,id_iva,notes,)
                     cur.execute(commands_newclient, data)
                 # close communication with the PostgreSQL database server
                     cur.close()
@@ -842,7 +841,7 @@ class Ui_Clients_Window(object):
         country=self.Country_Clients.text()
         phones=self.Phones_Clients.toPlainText()
         iva=self.Iva_Clients.currentText()
-        payform=self.Payform_Clients.currentText()
+        payway=self.Payway_Clients.currentText()
         vto1=self.Vto1_Clients.text()
         vto2=self.Vto2_Clients.text()
         notes=self.Notes_Clients.toPlainText()
@@ -861,7 +860,7 @@ class Ui_Clients_Window(object):
             commands_modifyclient = ("""
                             UPDATE purch_fact.clients_test
                             SET "code" = %s, "name" = %s, "cif" = %s, "address" = %s, "phone_number" = %s, "city" = %s, "province" = %s,
-                            "country" = %s, "zip_code" = %s, "pay_form_id" = %s, "vto_prog1" = %s, "vto_prog2" = %s, "iva_id" = %s, "notes" = %s
+                            "country" = %s, "zip_code" = %s, "pay_way_id" = %s, "vto_prog1" = %s, "vto_prog2" = %s, "iva_id" = %s, "notes" = %s
                             WHERE "id" = %s
                             """)
             conn = None
@@ -876,14 +875,14 @@ class Ui_Clients_Window(object):
                 cur.execute(query_ivatype, (iva,))
                 result_iva = cur.fetchone()
 
-                query_payformtype = "SELECT id FROM purch_fact.pay_form WHERE pay_form_type = %s"
-                cur.execute(query_payformtype, (payform,))
-                result_payform = cur.fetchone()
+                query_paywaytype = "SELECT id FROM purch_fact.pay_way WHERE pay_way_type = %s"
+                cur.execute(query_paywaytype, (payway,))
+                result_payway = cur.fetchone()
             # get id from table
                 id_iva = result_iva[0] if result_iva is not None else None
-                id_payform = result_payform[0]
+                id_payway = result_payway[0]
             # execution of commands one by one
-                data=(code,name,cif,address,phones,city,province,country,zipcode,id_payform,vto1,vto2,id_iva,notes,id,)
+                data=(code,name,cif,address,phones,city,province,country,zipcode,id_payway,vto1,vto2,id_iva,notes,id,)
                 cur.execute(commands_modifyclient,data)
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -980,7 +979,7 @@ class Ui_Clients_Window(object):
         self.Province_Clients.setText(data_client[8])
         self.Country_Clients.setText(data_client[9])
         self.Zipcode_Clients.setText(data_client[10])
-        self.Payform_Clients.setCurrentText(data_client[11])
+        self.Payway_Clients.setCurrentText(data_client[11])
         self.Vto1_Clients.setText(data_client[12])
         self.Vto2_Clients.setText(data_client[13])
         self.Iva_Clients.setCurrentText(data_client[14])
@@ -995,12 +994,12 @@ class Ui_Clients_Window(object):
                         purch_fact.clients_test.phone_number,purch_fact.clients_test.fax,
                         purch_fact.clients_test.city,purch_fact.clients_test.province,
                         purch_fact.clients_test.country,purch_fact.clients_test.zip_code,
-                        purch_fact.pay_form."pay_form_type",
+                        purch_fact.pay_way."pay_way_type",
                         purch_fact.clients_test.vto_prog1,purch_fact.clients_test.vto_prog2,
                         purch_fact.iva."iva_type",
                         purch_fact.clients_test.notes
                         FROM purch_fact.clients_test
-                        LEFT JOIN purch_fact.pay_form ON (purch_fact.pay_form."id" = purch_fact.clients_test."pay_form_id")
+                        LEFT JOIN purch_fact.pay_way ON (purch_fact.pay_way."id" = purch_fact.clients_test."pay_way_id")
                         LEFT JOIN purch_fact.iva ON (purch_fact.iva."id" = purch_fact.clients_test."iva_id")
                         ORDER BY purch_fact.clients_test.id
                         """)

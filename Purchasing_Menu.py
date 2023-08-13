@@ -9,9 +9,9 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 
-
-
-
+from ClientOrder_Window import Ui_ClientOrder_Window
+from Quotation_Window import Ui_Quotation_Window
+from Supplies_Window import Ui_Supplies_Window
 from Purchasing_DB_Menu import Ui_Purchasing_DB_Menu
 
 class Ui_Purchasing_Menu(object):
@@ -168,11 +168,19 @@ class Ui_Purchasing_Menu(object):
 
 
     def supplies(self,Purchasing_Menu):
-        print('supplies')
+        self.supplies_window=QtWidgets.QMainWindow()
+        self.ui=Ui_Supplies_Window()
+        self.ui.setupUi(self.supplies_window)
+        self.supplies_window.showMaximized()
+        Purchasing_Menu.close()
 
 
     def clientorder(self,Purchasing_Menu):
-        print('clientorder')
+        self.clientorder_window=QtWidgets.QMainWindow()
+        self.ui=Ui_ClientOrder_Window()
+        self.ui.setupUi(self.clientorder_window)
+        self.clientorder_window.showMaximized()
+        Purchasing_Menu.close()
 
 
     def supplierorder(self,Purchasing_Menu):
@@ -180,7 +188,11 @@ class Ui_Purchasing_Menu(object):
 
 
     def quotation(self,Purchasing_Menu):
-        print('quotation')
+        self.quotation_window=QtWidgets.QMainWindow()
+        self.ui=Ui_Quotation_Window()
+        self.ui.setupUi(self.quotation_window)
+        self.quotation_window.showMaximized()
+        Purchasing_Menu.close()
 
 
     def databases(self,Purchasing_Menu):

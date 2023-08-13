@@ -278,24 +278,24 @@ class Ui_Suppliers_Window(object):
         self.Iva_Suppliers.setFont(font)
         self.Iva_Suppliers.setObjectName("Iva_Suppliers")
         self.gridLayout_2.addWidget(self.Iva_Suppliers, 5, 2, 1, 4)
-        self.label_PayForm = QtWidgets.QLabel(parent=self.frame)
-        self.label_PayForm.setMinimumSize(QtCore.QSize(0, 25))
-        self.label_PayForm.setMaximumSize(QtCore.QSize(16777215, 25))
+        self.label_PayWay = QtWidgets.QLabel(parent=self.frame)
+        self.label_PayWay.setMinimumSize(QtCore.QSize(0, 25))
+        self.label_PayWay.setMaximumSize(QtCore.QSize(16777215, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
-        self.label_PayForm.setFont(font)
-        self.label_PayForm.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
-        self.label_PayForm.setObjectName("label_PayForm")
-        self.gridLayout_2.addWidget(self.label_PayForm, 5, 6, 1, 2)
-        self.Payform_Suppliers = QtWidgets.QComboBox(parent=self.frame)
-        self.Payform_Suppliers.setMinimumSize(QtCore.QSize(0, 25))
-        self.Payform_Suppliers.setMaximumSize(QtCore.QSize(16777215, 25))
+        self.label_PayWay.setFont(font)
+        self.label_PayWay.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
+        self.label_PayWay.setObjectName("label_PayWay")
+        self.gridLayout_2.addWidget(self.label_PayWay, 5, 6, 1, 2)
+        self.Payway_Suppliers = QtWidgets.QComboBox(parent=self.frame)
+        self.Payway_Suppliers.setMinimumSize(QtCore.QSize(0, 25))
+        self.Payway_Suppliers.setMaximumSize(QtCore.QSize(16777215, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.Payform_Suppliers.setFont(font)
-        self.Payform_Suppliers.setObjectName("Payform_Suppliers")
-        self.gridLayout_2.addWidget(self.Payform_Suppliers, 5, 8, 1, 2)
+        self.Payway_Suppliers.setFont(font)
+        self.Payway_Suppliers.setObjectName("Payway_Suppliers")
+        self.gridLayout_2.addWidget(self.Payway_Suppliers, 5, 8, 1, 2)
         self.label_Vto1 = QtWidgets.QLabel(parent=self.frame)
         self.label_Vto1.setMinimumSize(QtCore.QSize(80, 25))
         self.label_Vto1.setMaximumSize(QtCore.QSize(16777215, 25))
@@ -580,9 +580,9 @@ class Ui_Suppliers_Window(object):
                         SELECT * 
                         FROM purch_fact.iva
                         """)
-        commands_payform = ("""
+        commands_payway = ("""
                         SELECT * 
-                        FROM purch_fact.pay_form
+                        FROM purch_fact.pay_way
                         """)
         
         conn = None
@@ -595,8 +595,8 @@ class Ui_Suppliers_Window(object):
         # execution of commands one by one
             cur.execute(commands_iva)
             results_iva=cur.fetchall()
-            cur.execute(commands_payform)
-            results_payform=cur.fetchall()
+            cur.execute(commands_payway)
+            results_payway=cur.fetchall()
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
@@ -610,8 +610,8 @@ class Ui_Suppliers_Window(object):
         list_iva=['']+[x[1] for x in results_iva]
         self.Iva_Suppliers.addItems(list_iva)
 
-        list_payform=[x[1] for x in results_payform]
-        self.Payform_Suppliers.addItems(list_payform)
+        list_payway=[x[1] for x in results_payway]
+        self.Payway_Suppliers.addItems(list_payway)
 
         self.tableSuppliers.itemClicked.connect(self.loadformsuppliers)
         self.tableSuppliers.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
@@ -661,7 +661,7 @@ class Ui_Suppliers_Window(object):
         self.label_Name.setText(_translate("Suppliers_Window", "Nombre:"))
         self.label_City.setText(_translate("Suppliers_Window", "Ciudad:"))
         self.label_Address.setText(_translate("Suppliers_Window", "Dirección:"))
-        self.label_PayForm.setText(_translate("Suppliers_Window", "Forma de Pago:"))
+        self.label_PayWay.setText(_translate("Suppliers_Window", "Forma de Pago:"))
         self.label_Notes.setText(_translate("Suppliers_Window", "Observaciones y/o comentarios:"))
         self.label_days2.setText(_translate("Suppliers_Window", "días"))
         self.label_ZipCode.setText(_translate("Suppliers_Window", "Código Postal:"))
@@ -686,7 +686,7 @@ class Ui_Suppliers_Window(object):
         country=self.Country_Suppliers.text()
         phones=self.Phones_Suppliers.toPlainText()
         iva=self.Iva_Suppliers.currentText()
-        payform=self.Payform_Suppliers.currentText()
+        payway=self.Payway_Suppliers.currentText()
         vto1=self.Vto1_Suppliers.text()
         vto2=self.Vto2_Suppliers.text()
         notes=self.Notes_Suppliers.toPlainText()
@@ -749,7 +749,7 @@ class Ui_Suppliers_Window(object):
                 commands_newsupplier = ("""
                             INSERT INTO purch_fact.suppliers_test (
                             name,cif,address,phone_number,fax,city,province,country,zip_code,
-                            pay_form_id,vto_prog1,vto_prog2,iva_id,notes
+                            pay_way_id,vto_prog1,vto_prog2,iva_id,notes
                             )
                             VALUES (%s,%s,%s,%s,'',%s,%s,%s,%s,%s,%s,%s,%s,%s)
                             """)
@@ -765,14 +765,14 @@ class Ui_Suppliers_Window(object):
                     cur.execute(query_ivatype, (iva,))
                     result_iva = cur.fetchone()
 
-                    query_payformtype = "SELECT id FROM purch_fact.pay_form WHERE pay_form_type = %s"
-                    cur.execute(query_payformtype, (payform,))
-                    result_payform = cur.fetchone()
+                    query_paywaytype = "SELECT id FROM purch_fact.pay_way WHERE pay_way_type = %s"
+                    cur.execute(query_paywaytype, (payway,))
+                    result_payway = cur.fetchone()
                 # get id from table
                     id_iva = result_iva[0] if result_iva is not None else None
-                    id_payform = result_payform[0]
+                    id_payway = result_payway[0]
                 # execution of principal command
-                    data=(name,cif,address,phones,city,province,country,zipcode,id_payform,vto1,vto2,id_iva,notes,)
+                    data=(name,cif,address,phones,city,province,country,zipcode,id_payway,vto1,vto2,id_iva,notes,)
                     cur.execute(commands_newsupplier, data)
                 # close communication with the PostgreSQL database server
                     cur.close()
@@ -811,7 +811,7 @@ class Ui_Suppliers_Window(object):
         country=self.Country_Suppliers.text()
         phones=self.Phones_Suppliers.toPlainText()
         iva=self.Iva_Suppliers.currentText()
-        payform=self.Payform_Suppliers.currentText()
+        payway=self.Payway_Suppliers.currentText()
         vto1=self.Vto1_Suppliers.text()
         vto2=self.Vto2_Suppliers.text()
         notes=self.Notes_Suppliers.toPlainText()
@@ -830,7 +830,7 @@ class Ui_Suppliers_Window(object):
             commands_modifysupplier = ("""
                             UPDATE purch_fact.suppliers_test
                             SET "name" = %s, "cif" = %s, "address" = %s, "phone_number" = %s, "city" = %s, "province" = %s, "country" = %s,
-                            "zip_code" = %s, "pay_form_id" = %s, "vto_prog1" = %s, "vto_prog2" = %s, "iva_id" = %s, "notes" = %s
+                            "zip_code" = %s, "pay_way_id" = %s, "vto_prog1" = %s, "vto_prog2" = %s, "iva_id" = %s, "notes" = %s
                             WHERE "id" = %s
                             """)
             conn = None
@@ -845,14 +845,14 @@ class Ui_Suppliers_Window(object):
                 cur.execute(query_ivatype, (iva,))
                 result_iva = cur.fetchone()
 
-                query_payformtype = "SELECT id FROM purch_fact.pay_form WHERE pay_form_type = %s"
-                cur.execute(query_payformtype, (payform,))
-                result_payform = cur.fetchone()
+                query_paywaytype = "SELECT id FROM purch_fact.pay_way WHERE pay_way_type = %s"
+                cur.execute(query_paywaytype, (payway,))
+                result_payway = cur.fetchone()
             # get id from table
                 id_iva = result_iva[0] if result_iva is not None else None
-                id_payform = result_payform[0]
+                id_payway = result_payway[0]
             # execution of commands one by one
-                data=(name,cif,address,phones,city,province,country,zipcode,id_payform,vto1,vto2,id_iva,notes,id,)
+                data=(name,cif,address,phones,city,province,country,zipcode,id_payway,vto1,vto2,id_iva,notes,id,)
                 cur.execute(commands_modifysupplier,data)
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -948,7 +948,7 @@ class Ui_Suppliers_Window(object):
         self.Province_Suppliers.setText(data_supplier[7])
         self.Country_Suppliers.setText(data_supplier[8])
         self.Zipcode_Suppliers.setText(data_supplier[9])
-        self.Payform_Suppliers.setCurrentText(data_supplier[10])
+        self.Payway_Suppliers.setCurrentText(data_supplier[10])
         self.Vto1_Suppliers.setText(data_supplier[11])
         self.Vto2_Suppliers.setText(data_supplier[12])
         self.Iva_Suppliers.setCurrentText(data_supplier[13])
@@ -963,12 +963,12 @@ class Ui_Suppliers_Window(object):
                         purch_fact.suppliers_test.phone_number,purch_fact.suppliers_test.fax,
                         purch_fact.suppliers_test.city,purch_fact.suppliers_test.province,
                         purch_fact.suppliers_test.country,purch_fact.suppliers_test.zip_code,
-                        purch_fact.pay_form."pay_form_type",
+                        purch_fact.pay_way."pay_way_type",
                         purch_fact.suppliers_test.vto_prog1,purch_fact.suppliers_test.vto_prog2,
                         purch_fact.iva."iva_type",
                         purch_fact.suppliers_test.notes
                         FROM purch_fact.suppliers_test
-                        LEFT JOIN purch_fact.pay_form ON (purch_fact.pay_form."id" = purch_fact.suppliers_test."pay_form_id")
+                        LEFT JOIN purch_fact.pay_way ON (purch_fact.pay_way."id" = purch_fact.suppliers_test."pay_way_id")
                         LEFT JOIN purch_fact.iva ON (purch_fact.iva."id" = purch_fact.suppliers_test."iva_id")
                         ORDER BY purch_fact.suppliers_test.id
                         """)

@@ -307,7 +307,7 @@ QPushButton:pressed {
         </widget>
        </item>
        <item row="5" column="8" colspan="2">
-        <widget class="QComboBox" name="Payform_Clients">
+        <widget class="QComboBox" name="Payway_Clients">
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -336,7 +336,7 @@ QPushButton:pressed {
         <widget class="QTableWidget" name="tableClients"/>
        </item>
        <item row="5" column="6" colspan="2">
-        <widget class="QLabel" name="label_PayForm">
+        <widget class="QLabel" name="label_PayWay">
          <property name="minimumSize">
           <size>
            <width>0</width>

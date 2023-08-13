@@ -544,32 +544,32 @@ class Ui_Edit_Offer_Window(object):
                 cur.close()
             # commit the changes
                 conn.commit()
+
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Editar Oferta")
+                dlg.setText("Oferta editada con exito")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+                del dlg, new_icon
+
+                self.NumOffer_EditOffer.setText('')
+                self.Client_EditOffer.setText('')
+                self.FinalClient_EditOffer.setText('')
+                self.NumRef_EditOffer.setText('')
+                self.Buyer_EditOffer.setText('')
+                self.Notes_EditOffer.setText('')
+                self.Amount_EditOffer.setText('')
+                self.LimitDate_EditOffer.setText('')
+                self.RateType_EditOffer.setText('')
+
             except (Exception, psycopg2.DatabaseError) as error:
                 print(error)
             finally:
                 if conn is not None:
                     conn.close()
-
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Editar Oferta")
-            dlg.setText("Oferta editada con exito")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-
-            self.NumOffer_EditOffer.setText('')
-            self.Client_EditOffer.setText('')
-            self.FinalClient_EditOffer.setText('')
-            self.NumRef_EditOffer.setText('')
-            self.Buyer_EditOffer.setText('')
-            self.Notes_EditOffer.setText('')
-            self.Amount_EditOffer.setText('')
-            self.LimitDate_EditOffer.setText('')
-            self.RateType_EditOffer.setText('')
-
-            del dlg, new_icon
 
 
     def queryofferdata(self):
