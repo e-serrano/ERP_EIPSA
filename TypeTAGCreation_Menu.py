@@ -21,7 +21,7 @@ class Ui_TypeTagCreation_Menu(object):
         TypeTag_Menu.setMinimumSize(QtCore.QSize(300, 400))
         TypeTag_Menu.setMaximumSize(QtCore.QSize(300, 400))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         TypeTag_Menu.setWindowIcon(icon)
         TypeTag_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

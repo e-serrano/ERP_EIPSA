@@ -9,6 +9,8 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from config import config
 import psycopg2
+import tkinter as tk
+import datetime
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -38,7 +40,7 @@ class Ui_ClientOrder_Window(object):
         ClientOrder_Window.setObjectName("ClientOrder_Window")
         ClientOrder_Window.resize(1664, 604)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ClientOrder_Window.setWindowIcon(icon)
         ClientOrder_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -376,7 +378,7 @@ class Ui_ClientOrder_Window(object):
         self.DelivNote3_ClientOrder.setObjectName("DelivNote3_ClientOrder")
         self.gridLayout_2.addWidget(self.DelivNote3_ClientOrder, 7, 12, 1, 2)
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Check.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon1.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Check.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Deliv1 = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Deliv1.setMinimumSize(QtCore.QSize(25, 25))
         self.Button_Deliv1.setMaximumSize(QtCore.QSize(25, 25))
@@ -784,7 +786,7 @@ class Ui_ClientOrder_Window(object):
             if conn is not None:
                 conn.close()
 
-        list_clients=[x[2] for x in results_clients]
+        list_clients=[''] + [x[2] for x in results_clients]
         self.Client_ClientOrder.addItems(list_clients)
 
         list_supplies=[x[3] + ' | ' + x[4] for x in results_supplies]
@@ -875,7 +877,7 @@ class Ui_ClientOrder_Window(object):
         if date=="" or (date==" " or (num_client_order==" " or num_client_order=="")):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Crear Pedido")
             dlg.setText("Rellena la fecha y el número de pédido")
@@ -883,10 +885,21 @@ class Ui_ClientOrder_Window(object):
             dlg.exec()
             del dlg, new_icon
 
+        elif not self.is_valid_date(date):
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Crear Pedido")
+            dlg.setText("La fecha no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
+
         else:
             commands_neworder=("""
                             INSERT INTO purch_fact.client_ord_header_test (
-                            client_id, order_date, delivery_term, client_order_num, notes
+                            client_id, order_date, delivery_date, client_order_num, notes
                             )
                             VALUES(%s,%s,%s,%s,%s)
                             """)
@@ -903,7 +916,7 @@ class Ui_ClientOrder_Window(object):
                 result_client = cur.fetchone()
 
             # get id from table
-                client_id = result_client[0]
+                client_id = result_client[0] if result_client is not None else None
             # execution of principal command
                 data=(client_id,date,deliv_term,num_client_order,notes,)
                 cur.execute(commands_neworder, data)
@@ -914,7 +927,7 @@ class Ui_ClientOrder_Window(object):
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Crear Pedido Cliente")
                 dlg.setText("Pedido creado con éxito")
@@ -970,10 +983,21 @@ class Ui_ClientOrder_Window(object):
         if id_order=="" or (date==" " or date==""):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Modificar Pedido")
             dlg.setText("Selecciona un pedido existente e introduce una fecha válida")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
+
+        elif not self.is_valid_date(date):
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Modificar Pedido")
+            dlg.setText("La fecha no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
             del dlg, new_icon
@@ -982,7 +1006,7 @@ class Ui_ClientOrder_Window(object):
             #SQL Query for updating values in database
             commands_updateorder = ("""
                         UPDATE purch_fact.client_ord_header_test
-                        SET "client_id" = %s, "order_date" = %s, "delivery_term" = %s,
+                        SET "client_id" = %s, "order_date" = %s, "delivery_date" = %s,
                         "client_order_num" = %s, "notes" = %s
                         WHERE "id" = %s
                         """)
@@ -999,7 +1023,7 @@ class Ui_ClientOrder_Window(object):
                 result_client = cur.fetchone()
 
             # get id from table
-                client_id = result_client[0]
+                client_id = result_client[0] if result_client is not None else None
             # execution of principal command
                 data=(client_id,date,deliv_term,num_client_order,notes,id_order,)
                 cur.execute(commands_updateorder, data)
@@ -1010,7 +1034,7 @@ class Ui_ClientOrder_Window(object):
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Modificar Pedido")
                 dlg.setText("Pedido modificado con éxito")
@@ -1040,7 +1064,7 @@ class Ui_ClientOrder_Window(object):
         if order_id == "":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Agregar Registros")
             dlg.setText("Por favor, para añadir registros elige un pedido existente o crea uno nuevo")
@@ -1051,21 +1075,10 @@ class Ui_ClientOrder_Window(object):
         elif quantity == "" or (quantity == "" or quantity == 0):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Agregar Registros")
             dlg.setText("Añade una cantidad válida de elementos")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
-
-        elif float(quantity) != (float(deliv_quant_1) + float(deliv_quant_2) + float(deliv_quant_3)):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Agregar Registros")
-            dlg.setText("La cantidad total debe ser igual a la suma de las entregas")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
             del dlg,new_icon
@@ -1129,25 +1142,12 @@ class Ui_ClientOrder_Window(object):
         if record_id == "":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Modificar Registros")
             dlg.setText("Selecciona un registro existente")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
-
-            del dlg,new_icon
-
-        elif float(quantity) != (float(deliv_quant_1) + float(deliv_quant_2) + float(deliv_quant_3)):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Modificar Registros")
-            dlg.setText("La cantidad total debe ser igual a la suma de las entregas")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-
             del dlg,new_icon
 
         else:
@@ -1215,6 +1215,16 @@ class Ui_ClientOrder_Window(object):
         self.Date_ClientOrder.setText(data_order[3])
         self.DelivTerm_ClientOrder.setText(data_order[4])
         self.Notes_ClientOrder.setText(data_order[5])
+
+        self.label_IDRecord.setText("")
+        self.Supply_ClientOrder.setCurrentText("- - - - - | - - - - -")
+        self.Stock_ClientOrder.setText("")
+        self.StockDsp_ClientOrder.setText("")
+        self.StockVrt_ClientOrder.setText("")
+        self.Quantity_ClientOrder.setText("")
+        self.Deliv1_ClientOrder.setText("")
+        self.Deliv2_ClientOrder.setText("")
+        self.Deliv3_ClientOrder.setText("")
 
         self.loadtablerecords()
 
@@ -1311,7 +1321,7 @@ class Ui_ClientOrder_Window(object):
                         purch_fact.client_ord_header_test.client_order_num,
                         purch_fact.clients_test."name",
                         TO_CHAR(purch_fact.client_ord_header_test."order_date",'DD-MM-YYYY'),
-                        purch_fact.client_ord_header_test.delivery_term,
+                        purch_fact.client_ord_header_test.delivery_date,
                         purch_fact.client_ord_header_test.notes
                         FROM purch_fact.client_ord_header_test
                         LEFT JOIN purch_fact.clients_test ON (purch_fact.clients_test."id" = purch_fact.client_ord_header_test."client_id")
@@ -1410,42 +1420,16 @@ class Ui_ClientOrder_Window(object):
 
 # Function to add delivery 1 data
     def adddeliv1(self):
+        self.root = tk.Tk()
+        self.root.withdraw() 
         date=self.DelivDate1_ClientOrder.text()
         note=self.DelivNote1_ClientOrder.text()
         order_id=self.label_IDOrder.text()
 
-        commands_deliv1_check = ("""
-                        SELECT deliv_date_1, deliv_note_1
-                        FROM purch_fact.client_ord_header_test
-                        WHERE id = %s
-                        """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of principal command
-            data=(order_id,)
-            cur.execute(commands_deliv1_check, data)
-            results_check=cur.fetchone()
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-        finally:
-            if conn is not None:
-                conn.close()
-
         if order_id=="":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Añadir 1ª entrega")
             dlg.setText("Selecciona un pedido existente")
@@ -1456,7 +1440,7 @@ class Ui_ClientOrder_Window(object):
         elif date == "" or note == "":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Añadir 1ª entrega")
             dlg.setText("Rellena la fecha y albarán de la 1ª entrega")
@@ -1464,27 +1448,22 @@ class Ui_ClientOrder_Window(object):
             dlg.exec()
             del dlg,new_icon
 
-        elif all(element is not None for element in results_check):
+        elif not self.is_valid_date(date):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Añadir 1ª entrega")
-            dlg.setText("Ya existe una 1ª entrega para el pedido seleccionado")
+            dlg.setText("La fecha de 1ª entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
-            del dlg,new_icon
+            del dlg, new_icon
 
         else:
-            commands_deliv1_header = ("""
-                        UPDATE purch_fact.client_ord_header_test
-                        SET "deliv_date_1" = %s, "deliv_note_1" = %s
-                        WHERE "id" = %s
-                        """)
-            commands_deliv1_detail = ("""
-                        UPDATE purch_fact.client_ord_detail_test
-                        SET "deliv_date_1" = %s, "deliv_note_1" = %s
-                        WHERE "client_ord_header_test_id" = %s
+            commands_deliv1_check = ("""
+                        SELECT deliv_date_1, deliv_note_1
+                        FROM purch_fact.client_ord_header_test
+                        WHERE id = %s
                         """)
             conn = None
             try:
@@ -1494,43 +1473,14 @@ class Ui_ClientOrder_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of principal command
-                data=(date,note,order_id,)
-                cur.execute(commands_deliv1_header, data)
-                cur.execute(commands_deliv1_detail, data)
+                data=(order_id,)
+                cur.execute(commands_deliv1_check, data)
+                results_check=cur.fetchone()
 
-                for row in range(self.tableRecord.rowCount()):
-                    supply_name = self.tableRecord.item(row, 1).text()
-                    quant_1 = self.tableRecord.item(row, 7).text()
-
-                    query_stock = ("""
-                                    SELECT physical_stock FROM purch_fact.supplies_test
-                                    WHERE "reference" = %s
-                                    """)
-                    query_updatestock = ("""
-                                        UPDATE purch_fact.supplies_test 
-                                        SET "physical_stock" = %s
-                                        WHERE "reference" = %s
-                                        """)
-                    cur.execute(query_stock, (supply_name,))
-                    results=cur.fetchone()
-
-                    stock = results[0]
-                    new_stock = str(float(stock) - float(quant_1))
-                    cur.execute(query_updatestock, (new_stock, supply_name,))
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes
                 conn.commit()
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Añadir 1ª entrega")
-                dlg.setText("1ª entrega añadida con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg,new_icon
 
             except (Exception, psycopg2.DatabaseError) as error:
                 print(error)
@@ -1538,48 +1488,113 @@ class Ui_ClientOrder_Window(object):
                 if conn is not None:
                     conn.close()
 
-            self.loadtablerecords()
-            self.loadstocks()
+            if all(element is not None for element in results_check):
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Añadir 1ª entrega")
+                dlg.setText("Ya existe una 1ª entrega para el pedido seleccionado")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg,new_icon
+
+            else:
+                commands_deliv1_header = ("""
+                            UPDATE purch_fact.client_ord_header_test
+                            SET "deliv_date_1" = %s, "deliv_note_1" = %s
+                            WHERE "id" = %s
+                            """)
+                commands_deliv1_detail = ("""
+                            UPDATE purch_fact.client_ord_detail_test
+                            SET "deliv_date_1" = %s, "deliv_note_1" = %s
+                            WHERE "client_ord_header_test_id" = %s
+                            """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of principal command
+                    data=(date,note,order_id,)
+                    cur.execute(commands_deliv1_header, data)
+                    cur.execute(commands_deliv1_detail, data)
+
+                    for row in range(self.tableRecord.rowCount()):
+                        record_id = self.tableRecord.item(row, 0).text()
+                        supply_name = self.tableRecord.item(row, 1).text()
+                        supply_description = self.tableRecord.item(row, 2).text()
+                        # pending = self.tableRecord.item(row, 6).text()
+                        quant_1 = self.show_popup(supply_name, supply_description)
+
+                        # while True:
+                        #     quant_1 = self.show_popup(supply_name, supply_description)
+                        #     if quant_1 < pending:
+                        #         break
+
+                        commands_add_deliv_quant_1 = ("""
+                            UPDATE purch_fact.client_ord_detail_test
+                            SET "deliv_quant_1" = %s
+                            WHERE "id" = %s
+                            """)
+                        query_stock = ("""
+                                        SELECT physical_stock FROM purch_fact.supplies_test
+                                        WHERE "reference" = %s
+                                        """)
+                        query_updatestock = ("""
+                                            UPDATE purch_fact.supplies_test 
+                                            SET "physical_stock" = %s
+                                            WHERE "reference" = %s
+                                            """)
+                        cur.execute(commands_add_deliv_quant_1,(quant_1,record_id))
+                        cur.execute(query_stock, (supply_name,))
+                        results=cur.fetchone()
+
+                        stock = results[0]
+                        new_stock = str(float(stock) - float(quant_1))
+                        cur.execute(query_updatestock, (new_stock, supply_name,))
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    self.root.deiconify()
+                    self.root.destroy()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Añadir 1ª entrega")
+                    dlg.setText("1ª entrega añadida con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg,new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+                self.loadtablerecords()
+                self.loadstocks()
 
 
 # Function to add delivery 2 data
     def adddeliv2(self):
+        self.root = tk.Tk()
+        self.root.withdraw()
         date=self.DelivDate2_ClientOrder.text()
         note=self.DelivNote2_ClientOrder.text()
         order_id=self.label_IDOrder.text()
 
-        commands_deliv2_check = ("""
-                        SELECT deliv_date_2, deliv_note_2
-                        FROM purch_fact.client_ord_header_test
-                        WHERE id = %s
-                        """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of principal command
-            data=(order_id,)
-            cur.execute(commands_deliv2_check, data)
-            results_check=cur.fetchone()
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-        finally:
-            if conn is not None:
-                conn.close()
-
         if order_id=="":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Añadir 2ª entrega")
             dlg.setText("Selecciona un pedido existente")
@@ -1590,7 +1605,7 @@ class Ui_ClientOrder_Window(object):
         elif date == "" or note == "":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Añadir 2ª entrega")
             dlg.setText("Rellena la fecha y albarán de la 2ª entrega")
@@ -1598,28 +1613,23 @@ class Ui_ClientOrder_Window(object):
             dlg.exec()
             del dlg,new_icon
 
-        elif all(element is not None for element in results_check):
+        elif not self.is_valid_date(date):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Añadir 2ª entrega")
-            dlg.setText("Ya existe una 2ª entrega para el pedido seleccionado")
+            dlg.setText("La fecha de 2ª entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
-            del dlg,new_icon
+            del dlg, new_icon
 
         else:
-            commands_deliv2_header = ("""
-                        UPDATE purch_fact.client_ord_header_test
-                        SET "deliv_date_2" = %s, "deliv_note_2" = %s
-                        WHERE "id" = %s
-                        """)
-            commands_deliv2_detail = ("""
-                        UPDATE purch_fact.client_ord_detail_test
-                        SET "deliv_date_2" = %s, "deliv_note_2" = %s
-                        WHERE "client_ord_header_test_id" = %s
-                        """)
+            commands_deliv2_check = ("""
+                SELECT deliv_date_2, deliv_note_2
+                FROM purch_fact.client_ord_header_test
+                WHERE id = %s
+                """)
             conn = None
             try:
             # read the connection parameters
@@ -1628,43 +1638,14 @@ class Ui_ClientOrder_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of principal command
-                data=(date,note,order_id,)
-                cur.execute(commands_deliv2_header, data)
-                cur.execute(commands_deliv2_detail, data)
+                data=(order_id,)
+                cur.execute(commands_deliv2_check, data)
+                results_check=cur.fetchone()
 
-                for row in range(self.tableRecord.rowCount()):
-                    supply_name = self.tableRecord.item(row, 1).text()
-                    quant_2 = self.tableRecord.item(row, 8).text()
-
-                    query_stock = ("""
-                                    SELECT physical_stock FROM purch_fact.supplies_test
-                                    WHERE "reference" = %s
-                                    """)
-                    query_updatestock = ("""
-                                        UPDATE purch_fact.supplies_test 
-                                        SET "physical_stock" = %s
-                                        WHERE "reference" = %s
-                                        """)
-                    cur.execute(query_stock, (supply_name,))
-                    results=cur.fetchone()
-
-                    stock = results[0]
-                    new_stock = str(float(stock) - float(quant_2))
-                    cur.execute(query_updatestock, (new_stock, supply_name,))
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes
                 conn.commit()
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Añadir 2ª entrega")
-                dlg.setText("2ª entrega añadida con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg,new_icon
 
             except (Exception, psycopg2.DatabaseError) as error:
                 print(error)
@@ -1672,48 +1653,113 @@ class Ui_ClientOrder_Window(object):
                 if conn is not None:
                     conn.close()
 
-            self.loadtablerecords()
-            self.loadstocks()
+            if all(element is not None for element in results_check):
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Añadir 2ª entrega")
+                dlg.setText("Ya existe una 2ª entrega para el pedido seleccionado")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg,new_icon
+
+            else:
+                commands_deliv2_header = ("""
+                            UPDATE purch_fact.client_ord_header_test
+                            SET "deliv_date_2" = %s, "deliv_note_2" = %s
+                            WHERE "id" = %s
+                            """)
+                commands_deliv2_detail = ("""
+                            UPDATE purch_fact.client_ord_detail_test
+                            SET "deliv_date_2" = %s, "deliv_note_2" = %s
+                            WHERE "client_ord_header_test_id" = %s
+                            """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of principal command
+                    data=(date,note,order_id,)
+                    cur.execute(commands_deliv2_header, data)
+                    cur.execute(commands_deliv2_detail, data)
+
+                    for row in range(self.tableRecord.rowCount()):
+                        record_id = self.tableRecord.item(row, 0).text()
+                        supply_name = self.tableRecord.item(row, 1).text()
+                        supply_description = self.tableRecord.item(row, 2).text()
+                        # pending = self.tableRecord.item(row, 6).text()
+                        quant_2 = self.show_popup(supply_name, supply_description)
+
+                        # while True:
+                        #     quant_2 = self.show_popup(supply_name, supply_description)
+                        #     if quant_2 < pending:
+                        #         break
+
+                        commands_add_deliv_quant_2 = ("""
+                            UPDATE purch_fact.client_ord_detail_test
+                            SET "deliv_quant_2" = %s
+                            WHERE "id" = %s
+                            """)
+                        query_stock = ("""
+                                        SELECT physical_stock FROM purch_fact.supplies_test
+                                        WHERE "reference" = %s
+                                        """)
+                        query_updatestock = ("""
+                                            UPDATE purch_fact.supplies_test 
+                                            SET "physical_stock" = %s
+                                            WHERE "reference" = %s
+                                            """)
+                        cur.execute(commands_add_deliv_quant_2,(quant_2,record_id))
+                        cur.execute(query_stock, (supply_name,))
+                        results=cur.fetchone()
+
+                        stock = results[0]
+                        new_stock = str(float(stock) - float(quant_2))
+                        cur.execute(query_updatestock, (new_stock, supply_name,))
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    self.root.deiconify()
+                    self.root.destroy()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Añadir 2ª entrega")
+                    dlg.setText("2ª entrega añadida con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg,new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+                self.loadtablerecords()
+                self.loadstocks()
 
 
 # Function to add delivery 3 data
     def adddeliv3(self):
+        self.root = tk.Tk()
+        self.root.withdraw()
         date=self.DelivDate3_ClientOrder.text()
         note=self.DelivNote3_ClientOrder.text()
         order_id=self.label_IDOrder.text()
 
-        commands_deliv3_check = ("""
-                        SELECT deliv_date_3, deliv_note_3
-                        FROM purch_fact.client_ord_header_test
-                        WHERE id = %s
-                        """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of principal command
-            data=(order_id,)
-            cur.execute(commands_deliv3_check, data)
-            results_check=cur.fetchone()
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-        finally:
-            if conn is not None:
-                conn.close()
-
         if order_id=="":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Añadir 3ª entrega")
             dlg.setText("Selecciona un pedido existente")
@@ -1724,7 +1770,7 @@ class Ui_ClientOrder_Window(object):
         elif date == "" or note == "":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Añadir 3ª entrega")
             dlg.setText("Rellena la fecha y albarán de la 3ª entrega")
@@ -1732,28 +1778,23 @@ class Ui_ClientOrder_Window(object):
             dlg.exec()
             del dlg,new_icon
 
-        elif all(element is not None for element in results_check):
+        elif not self.is_valid_date(date):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Añadir 3ª entrega")
-            dlg.setText("Ya existe una 3ª entrega para el pedido seleccionado")
+            dlg.setText("La fecha de 3ª entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
-            del dlg,new_icon
+            del dlg, new_icon
 
         else:
-            commands_deliv3_header = ("""
-                        UPDATE purch_fact.client_ord_header_test
-                        SET "deliv_date_3" = %s, "deliv_note_3" = %s
-                        WHERE "id" = %s
-                        """)
-            commands_deliv3_detail = ("""
-                        UPDATE purch_fact.client_ord_detail_test
-                        SET "deliv_date_3" = %s, "deliv_note_3" = %s
-                        WHERE "client_ord_header_test_id" = %s
-                        """)
+            commands_deliv3_check = ("""
+                            SELECT deliv_date_3, deliv_note_3
+                            FROM purch_fact.client_ord_header_test
+                            WHERE id = %s
+                            """)
             conn = None
             try:
             # read the connection parameters
@@ -1762,43 +1803,14 @@ class Ui_ClientOrder_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of principal command
-                data=(date,note,order_id,)
-                cur.execute(commands_deliv3_header, data)
-                cur.execute(commands_deliv3_detail, data)
+                data=(order_id,)
+                cur.execute(commands_deliv3_check, data)
+                results_check=cur.fetchone()
 
-                for row in range(self.tableRecord.rowCount()):
-                    supply_name = self.tableRecord.item(row, 1).text()
-                    quant_3 = self.tableRecord.item(row, 9).text()
-
-                    query_stock = ("""
-                                    SELECT physical_stock FROM purch_fact.supplies_test
-                                    WHERE "reference" = %s
-                                    """)
-                    query_updatestock = ("""
-                                        UPDATE purch_fact.supplies_test 
-                                        SET "physical_stock" = %s
-                                        WHERE "reference" = %s
-                                        """)
-                    cur.execute(query_stock, (supply_name,))
-                    results=cur.fetchone()
-
-                    stock = results[0]
-                    new_stock = str(float(stock) - float(quant_3))
-                    cur.execute(query_updatestock, (new_stock, supply_name,))
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes
                 conn.commit()
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Añadir 3ª entrega")
-                dlg.setText("3ª entrega añadida con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg,new_icon
 
             except (Exception, psycopg2.DatabaseError) as error:
                 print(error)
@@ -1806,8 +1818,99 @@ class Ui_ClientOrder_Window(object):
                 if conn is not None:
                     conn.close()
 
-            self.loadtablerecords()
-            self.loadstocks()
+            if all(element is not None for element in results_check):
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Añadir 3ª entrega")
+                dlg.setText("Ya existe una 3ª entrega para el pedido seleccionado")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg,new_icon
+
+            else:
+                commands_deliv3_header = ("""
+                            UPDATE purch_fact.client_ord_header_test
+                            SET "deliv_date_3" = %s, "deliv_note_3" = %s
+                            WHERE "id" = %s
+                            """)
+                commands_deliv3_detail = ("""
+                            UPDATE purch_fact.client_ord_detail_test
+                            SET "deliv_date_3" = %s, "deliv_note_3" = %s
+                            WHERE "client_ord_header_test_id" = %s
+                            """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of principal command
+                    data=(date,note,order_id,)
+                    cur.execute(commands_deliv3_header, data)
+                    cur.execute(commands_deliv3_detail, data)
+
+                    for row in range(self.tableRecord.rowCount()):
+                        record_id = self.tableRecord.item(row, 0).text()
+                        supply_name = self.tableRecord.item(row, 1).text()
+                        supply_description = self.tableRecord.item(row, 2).text()
+                        # pending = self.tableRecord.item(row, 6).text()
+                        quant_3 = self.show_popup(supply_name, supply_description)
+
+                        # while True:
+                        #     quant_3 = self.show_popup(supply_name, supply_description)
+                        #     if quant_3 < pending:
+                        #         break
+
+                        commands_add_deliv_quant_3 = ("""
+                            UPDATE purch_fact.client_ord_detail_test
+                            SET "deliv_quant_3" = %s
+                            WHERE "id" = %s
+                            """)
+                        query_stock = ("""
+                                        SELECT physical_stock FROM purch_fact.supplies_test
+                                        WHERE "reference" = %s
+                                        """)
+                        query_updatestock = ("""
+                                            UPDATE purch_fact.supplies_test 
+                                            SET "physical_stock" = %s
+                                            WHERE "reference" = %s
+                                            """)
+                        cur.execute(commands_add_deliv_quant_3,(quant_3,record_id))
+                        cur.execute(query_stock, (supply_name,))
+                        results=cur.fetchone()
+
+                        stock = results[0]
+                        new_stock = str(float(stock) - float(quant_3))
+                        cur.execute(query_updatestock, (new_stock, supply_name,))
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    self.root.deiconify()
+                    self.root.destroy()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Añadir 3ª entrega")
+                    dlg.setText("3ª entrega añadida con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg,new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+                self.loadtablerecords()
+                self.loadstocks()
 
 
 # Function to load stock values
@@ -1847,6 +1950,59 @@ class Ui_ClientOrder_Window(object):
             if conn is not None:
                 conn.close()
 
+
+# Function of popup window to enter quantities of deliveries
+    def show_popup(self, supply_name, supply_description):
+        popup = tk.Toplevel()
+        popup.title("Cantidades entregas")
+
+        popup.iconbitmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico")
+
+        x = (popup.winfo_screenwidth() - popup.winfo_reqwidth()) // 2
+        y = (popup.winfo_screenheight() - popup.winfo_reqheight()) // 2
+        popup.geometry("+{}+{}".format(x, y))
+
+        popup.grab_set()
+        
+        label = tk.Label(popup, text=f"Cantidad recibida de:\n"
+                        f"{supply_name} | {supply_description}")
+        label.pack(padx=10, pady=10)
+        
+        entry = tk.Entry(popup)
+        entry.pack(padx=10, pady=5)
+        
+        quantity = None  # Saving entered value
+        
+        def accept():
+            nonlocal quantity
+            quantity = entry.get()
+            try:
+                quantity = float(quantity)
+                popup.destroy()
+                self.root.quit()
+            except ValueError:
+                print("¡Valor no válido!")
+        
+        button = tk.Button(popup, text="Aceptar", command=accept)
+        button.pack(padx=10, pady=10)
+        
+        popup.protocol("WM_DELETE_WINDOW", accept)
+        popup.mainloop()
+        return quantity  # Returning entered value
+
+
+# Function to check date format
+    def is_valid_date(self, date_str):
+        formats = ['%d/%m/%Y', '%d-%m-%Y']
+        
+        for fmt in formats:
+            try:
+                datetime.datetime.strptime(date_str, fmt)
+                return True
+            except ValueError:
+                pass
+            
+        return False
 
 
 if __name__ == "__main__":

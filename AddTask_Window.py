@@ -21,7 +21,7 @@ class Ui_AddTask_Window(object):
         AddTask_Window.setMinimumSize(QtCore.QSize(400, 375))
         AddTask_Window.setMaximumSize(QtCore.QSize(400, 375))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         AddTask_Window.setWindowIcon(icon)
         AddTask_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -122,10 +122,10 @@ class Ui_AddTask_Window(object):
 "}\n"
 "\n"
 "#qt_calendar_prevmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/back_arrow.png);\n"
+"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/back_arrow.png);\n"
 "}\n"
 "#qt_calendar_nextmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/forward_arrow.png);\n"
+"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/forward_arrow.png);\n"
 "}")
         self.hLayout1.addWidget(self.comboBox)
         self.gridLayout_2.addLayout(self.hLayout1, 1, 0, 1, 1)
@@ -204,7 +204,7 @@ class Ui_AddTask_Window(object):
         if date_task == "" or task_value == "":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Los campos deben estar rellenos")
@@ -230,7 +230,7 @@ class Ui_AddTask_Window(object):
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Tarea creada con éxito")

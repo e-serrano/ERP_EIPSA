@@ -9,6 +9,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from config import config
 import psycopg2
+import datetime
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -22,7 +23,7 @@ class Ui_Quotation_Window(object):
         Quotation_Window.setObjectName("Quotation_Window")
         Quotation_Window.resize(1174, 604)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Quotation_Window.setWindowIcon(icon)
         Quotation_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -552,14 +553,24 @@ class Ui_Quotation_Window(object):
         if quotation_date == "" or supplier_name== "":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Crear Cotización")
             dlg.setText("Rellena la fecha y el nombre del proveedor como mínimo")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
-
             del dlg,new_icon
+
+        elif not self.is_valid_date(quotation_date):
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Crear Cotización")
+            dlg.setText("La fecha no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
 
         else:
             commands_newquotation = ("""
@@ -592,7 +603,7 @@ class Ui_Quotation_Window(object):
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Crear Cotización")
                 dlg.setText("Cotización creada con éxito")
@@ -649,13 +660,12 @@ class Ui_Quotation_Window(object):
         if quotation_id == "":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Agregar Registros")
             dlg.setText("Por favor, para añadir registros elige una cotización existente o crea una nueva")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
-
             del dlg,new_icon
 
         else:
@@ -718,6 +728,13 @@ class Ui_Quotation_Window(object):
         self.Date_Quotation.setText(data_quotation[2])
         self.Notes_Quotation.setPlainText(data_quotation[5])
 
+        self.label_IDRecord.setText("")
+        self.Supply_Quotation.setCurrentText("- - - - - | - - - - -")
+        self.Quantity_Quotation.setText("")
+        self.Value_Quotation.setText("")
+        self.Currency_Quotation.setCurrentText("€")
+        self.ObsRecord_Quotation.setText("")
+
         self.loadtablerecords()
 
 
@@ -734,6 +751,7 @@ class Ui_Quotation_Window(object):
         self.Quantity_Quotation.setText(data_supply[3])
         self.Value_Quotation.setText(data_supply[4])
         self.Currency_Quotation.setCurrentText(data_supply[5])
+        self.ObsRecord_Quotation.setText(data_supply[7])
 
 
 # Function to modify quotation data
@@ -746,10 +764,21 @@ class Ui_Quotation_Window(object):
         if id_quotation=="" or (date==" " or date==""):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Modificar Cotización")
             dlg.setText("Selecciona una cotización existente e introduce una fecha válida")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
+
+        elif not self.is_valid_date(date):
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Crear Cotización")
+            dlg.setText("La fecha no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
             del dlg, new_icon
@@ -784,7 +813,7 @@ class Ui_Quotation_Window(object):
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Modificar Cotización")
                 dlg.setText("Cotización modificada con éxito")
@@ -814,7 +843,7 @@ class Ui_Quotation_Window(object):
         if id_record=="":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Modificar Registro")
             dlg.setText("Selecciona un registro existente para modificar")
@@ -975,6 +1004,19 @@ class Ui_Quotation_Window(object):
         self.tableRecords.setSortingEnabled(False)
         self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
+
+# Function to check date format
+    def is_valid_date(self, date_str):
+        formats = ['%d/%m/%Y', '%d-%m-%Y']
+        
+        for fmt in formats:
+            try:
+                datetime.datetime.strptime(date_str, fmt)
+                return True
+            except ValueError:
+                pass
+            
+        return False
 
 if __name__ == "__main__":
     import sys

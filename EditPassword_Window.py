@@ -23,7 +23,7 @@ class Ui_EditPasswordWindow(object):
         EditPasswordWindow.setMinimumSize(QtCore.QSize(270, 475))
         EditPasswordWindow.setMaximumSize(QtCore.QSize(270, 511))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditPasswordWindow.setWindowIcon(icon)
         EditPasswordWindow.setStyleSheet("QWidget {\n"
     "background-color: rgb(255, 255, 255);\n"
@@ -256,7 +256,7 @@ class Ui_EditPasswordWindow(object):
         elif not re.fullmatch(r'[A-Za-z0-9¡!¿?%&]{8,}', new_password):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Contraseña no válida")
             dlg.setText("·La contraseña debe tener al menos 8 caracteres\n"
@@ -292,7 +292,7 @@ class Ui_EditPasswordWindow(object):
             # showing success window
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Editar Contraseña")
                 dlg.setText("Contraseña editada con éxito")

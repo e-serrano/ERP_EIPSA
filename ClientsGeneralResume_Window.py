@@ -28,7 +28,7 @@ class Ui_ClientsGeneralResume_Window(object):
         ClientsGeneralResume_Window.resize(790, 595)
         ClientsGeneralResume_Window.setMinimumSize(QtCore.QSize(1200, 900))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ClientsGeneralResume_Window.setWindowIcon(icon)
         ClientsGeneralResume_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

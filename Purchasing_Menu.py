@@ -7,12 +7,12 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-
-
+from SupplierOrder_Window import Ui_SupplierOrder_Window
 from ClientOrder_Window import Ui_ClientOrder_Window
 from Quotation_Window import Ui_Quotation_Window
 from Supplies_Window import Ui_Supplies_Window
 from Purchasing_DB_Menu import Ui_Purchasing_DB_Menu
+
 
 class Ui_Purchasing_Menu(object):
     def setupUi(self, Purchasing_Menu):
@@ -22,7 +22,7 @@ class Ui_Purchasing_Menu(object):
         Purchasing_Menu.setMinimumSize(QtCore.QSize(615, 400))
         Purchasing_Menu.setMaximumSize(QtCore.QSize(615, 400))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Purchasing_Menu.setWindowIcon(icon)
         Purchasing_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -184,7 +184,11 @@ class Ui_Purchasing_Menu(object):
 
 
     def supplierorder(self,Purchasing_Menu):
-        print('supplierorder')
+        self.supplierorder_window=QtWidgets.QMainWindow()
+        self.ui=Ui_SupplierOrder_Window()
+        self.ui.setupUi(self.supplierorder_window)
+        self.supplierorder_window.showMaximized()
+        Purchasing_Menu.close()
 
 
     def quotation(self,Purchasing_Menu):

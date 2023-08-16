@@ -23,7 +23,7 @@ class Ui_QueryTableChanges_Window(object):
         QueryTableChanges_Window.resize(1000, 590)
         QueryTableChanges_Window.setMinimumSize(QtCore.QSize(845, 590))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         QueryTableChanges_Window.setWindowIcon(icon)
         QueryTableChanges_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

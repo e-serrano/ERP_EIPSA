@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>Y:/Comunes/EIPSA-ERP/Iconos/icon.ico</normaloff>Y:/Comunes/EIPSA-ERP/Iconos/icon.ico</iconset>
+    <normaloff>Y:/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico</normaloff>Y:/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(255, 255, 255);</string>

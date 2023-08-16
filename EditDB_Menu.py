@@ -20,7 +20,7 @@ class Ui_EditDB_Menu(object):
         EditDB_Menu.setMinimumSize(QtCore.QSize(300, 300))
         EditDB_Menu.setMaximumSize(QtCore.QSize(300, 340))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditDB_Menu.setWindowIcon(icon)
         EditDB_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

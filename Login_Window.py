@@ -29,7 +29,7 @@ class Ui_Login_Window(object):
         Login_Window.setSizePolicy(sizePolicy)
         Login_Window.setMaximumSize(QtCore.QSize(670, 392))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Login_Window.setWindowIcon(icon)
         Login_Window.setAutoFillBackground(False)
         Login_Window.setStyleSheet("QWidget {\n"
@@ -72,7 +72,7 @@ class Ui_Login_Window(object):
         self.logo.setSizePolicy(sizePolicy)
         self.logo.setMaximumSize(QtCore.QSize(255, 235))
         self.logo.setText("")
-        self.logo.setPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/Logo.ico"))
+        self.logo.setPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Logo.ico"))
         self.logo.setScaledContents(False)
         self.logo.setObjectName("logo")
         self.horizontalLayout.addWidget(self.logo)
@@ -372,7 +372,7 @@ class Ui_Login_Window(object):
                 else:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("La aplicación no está disponible para este usuario. Disculpe las molestias")
@@ -389,7 +389,7 @@ class Ui_Login_Window(object):
 
         dlg = QtWidgets.QMessageBox()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle("ERP EIPSA")
         dlg.setText("Este módulo aún no está disponible. Póngase en contacto con el administrador del sistema.\nDisculpe las molestias")

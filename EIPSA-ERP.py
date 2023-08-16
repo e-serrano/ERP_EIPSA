@@ -21,7 +21,7 @@ if __name__ == "__main__":
     else:
         dlg = QtWidgets.QMessageBox()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle("ERP EIPSA")
         dlg.setText("Archivo de configuraión no encontrado.\nPonte en contacto con el administrador")
