@@ -113,8 +113,8 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.originalData = {}
-        self.modifiedCells = []
+        # self.originalData = {}
+        # self.modifiedCells = []
 
     def setAllColumnHeaders(self, headers):
         for column, header in enumerate(headers):
@@ -133,11 +133,23 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
     def flags(self, index):
         flags = super().flags(index)
-        if index.column() == 0:
+        if index.column() in range (0,8):
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable 
+
+    # def setOriginalData(self, index, value, role=Qt.ItemDataRole.EditRole):
+    #     if index.isValid() and role == Qt.ItemDataRole.EditRole:
+    #         row = index.row()
+    #         column = index.column()
+    #         self.originalData[(row, column)] = self.data(index)  # Saving the original data before edition
+    #     return super().setData(index, value, role)
+
+    # def getOriginalValue(self, index):
+    #     row = index.row()
+    #     column = index.column()
+    #     return self.originalData.get(column)
 
     # def update_record(self, record, index):
     #     query = QSqlQuery(self.database())
@@ -211,7 +223,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.setupUi(self)
         self.model.dataChanged.connect(self.saveChanges)
 
-
     def setupUi(self, EditTags_Window):
         EditTags_Window.setObjectName("EditTags_Window")
         EditTags_Window.resize(790, 595)
@@ -246,8 +257,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         # self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         # self.hcab.addItem(self.hcabspacer1)
         self.toolDeleteFilter = QtWidgets.QToolButton(self.frame)
-        self.toolDeleteFilter.setObjectName("DeleteFilter_Button")
-        self.toolDeleteFilter.setToolTip("Borrar filtros")
+        self.toolDeleteFilter.setObjectName("Save_Button")
         self.hcab.addWidget(self.toolDeleteFilter)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Filter_Delete.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -326,27 +336,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 "    border-color: rgb(255, 255, 255);\n"
 "}")
         self.Button_Clean.setObjectName("Button_Clean")
-        self.hLayout1.addWidget(self.Button_Clean)
         self.gridLayout_2.addLayout(self.hLayout1, 1, 0, 1, 1)
-        self.hLayout2 = QtWidgets.QHBoxLayout()
-        self.hLayout2.setObjectName("hLayout2")
-        self.label_NumOffer = QtWidgets.QLabel(parent=self.frame)
-        self.label_NumOffer.setMinimumSize(QtCore.QSize(80, 25))
-        self.label_NumOffer.setMaximumSize(QtCore.QSize(80, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_NumOffer.setFont(font)
-        self.label_NumOffer.setObjectName("label_NumOffer")
-        self.hLayout2.addWidget(self.label_NumOffer)
-        self.Numoffer_EditTags = QtWidgets.QLineEdit(parent=self.frame)
-        self.Numoffer_EditTags.setMinimumSize(QtCore.QSize(250, 25))
-        self.Numoffer_EditTags.setMaximumSize(QtCore.QSize(250, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Numoffer_EditTags.setFont(font)
-        self.Numoffer_EditTags.setObjectName("Numoffer_EditTags")
-        self.hLayout2.addWidget(self.Numoffer_EditTags)
         self.Button_Query = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Query.setMinimumSize(QtCore.QSize(150, 35))
         self.Button_Query.setMaximumSize(QtCore.QSize(150, 35))
@@ -389,8 +379,8 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 "    border-color: rgb(255, 255, 255);\n"
 "}")
         self.Button_Query.setObjectName("Button_Query")
-        self.hLayout2.addWidget(self.Button_Query)
-        self.gridLayout_2.addLayout(self.hLayout2, 2, 0, 1, 1)
+        self.hLayout1.addWidget(self.Button_Query)
+        self.hLayout1.addWidget(self.Button_Clean)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 3, 0, 1, 1)
         self.tableEditTags=QtWidgets.QTableView(parent=self.frame)
@@ -420,7 +410,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         # self.toolSave.clicked.connect(self.submit_all)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolShow.clicked.connect(self.show_columns)
-        self.Numoffer_EditTags.returnPressed.connect(self.query_tags)
         self.Numorder_EditTags.returnPressed.connect(self.query_tags)
         self.model.dataChanged.connect(self.saveChanges)
 
@@ -490,10 +479,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 cur.execute(query)
                 results_temp=cur.fetchall()
                 self.all_results_temp.append(results_temp)
-            # for query in commands_comboboxes_level:
-            #     cur.execute(query)
-            #     results_level=cur.fetchall()
-            #     self.all_results_level.append(results_level)
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
@@ -508,7 +493,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         EditTags_Window.setWindowTitle(_translate("EditTags_Window", "Editar Tags"))
         self.tableEditTags.setSortingEnabled(True)
-        self.label_NumOffer.setText(_translate("EditTags_Window", "Nº Oferta:"))
         self.Button_Query.setText(_translate("EditTags_Window", "Buscar"))
         self.label_NumOrder.setText(_translate("EditTags_Window", "Nº Pedido:"))
         self.Button_Clean.setText(_translate("EditTags_Window", "Vaciar Cuadros"))
@@ -516,7 +500,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 # Function to clear the text boxes
     def clean_boxes(self):
         self.Numorder_EditTags.setText("")
-        self.Numoffer_EditTags.setText("")
 
 # Function when delete all filters button is clicked
     def delete_allFilters(self):
@@ -610,10 +593,9 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
     def query_tags(self):
         self.model.dataChanged.disconnect(self.saveChanges)
         numorder = self.Numorder_EditTags.text()
-        numoffer = self.Numoffer_EditTags.text()
         variable = ''
 
-        if numoffer=="" and numorder=="":
+        if numorder=="":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -625,7 +607,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             del dlg, new_icon
             self.model.dataChanged.connect(self.saveChanges)
 
-        elif numoffer=="":
+        else:
             if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', numorder):
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
@@ -687,134 +669,9 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                         self.model.setTable("tags_data.tags_temp_prueba")
                     # elif variable == 'Level':
                     #     self.model.setTable("tags_data.tags_level_prueba")
+                    # else:
+                        # self.model.setTable("tags_data.tags_temp_prueba")
                     self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{numorder.upper()}%'")
-
-        elif numorder=="":
-            if not re.match(r'^O-\d{2}/\d{3}.*$', numoffer):
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("El número de oferta debe tener formato O-XX/YYY")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
-                self.model.dataChanged.connect(self.saveChanges)
-
-            else:
-                query = ('''
-                        SELECT num_offer, product_type."variable"
-                        FROM offers
-                        INNER JOIN product_type ON (product_type."material" = offers."material")
-                        WHERE
-                        UPPER (offers."num_offer") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query,(numoffer,))
-                    results_variable=cur.fetchone()
-                    variable = results_variable[1] if results_variable != None else ''
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-                except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-                if results_variable == None:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("El número de oferta no existe")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                    del dlg, new_icon
-                    self.model.dataChanged.connect(self.saveChanges)
-
-                else:
-                    if variable == 'Caudal':
-                        self.model.setTable("tags_data.tags_flow_prueba")
-                    elif variable == 'Temperatura':
-                        self.model.setTable("tags_data.tags_temp_prueba")
-                    # elif variable == 'Level':
-                    #     self.model.setTable("tags_data.tags_level_prueba")
-                    self.model.setFilter(f"num_offer <>'' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
-
-        else:
-            if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', numorder) or not re.match(r'^O-\d{2}/\d{3}.*$', numoffer):
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY \n"
-                            "El número de oferta debe tener formato O-XX/YYY")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
-                self.model.dataChanged.connect(self.saveChanges)
-
-            else:
-                query = ('''
-                        SELECT num_offer, product_type."variable"
-                        FROM offers
-                        INNER JOIN product_type ON (product_type."material" = offers."material")
-                        WHERE
-                        UPPER (offers."num_offer") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query,(numorder,))
-                    results_variable=cur.fetchone()
-                    variable = results_variable[1] if results_variable != None else ''
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-                except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-                if results_variable == None:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("EL número de oferta no existe")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                    del dlg, new_icon
-                    self.model.dataChanged.connect(self.saveChanges)
-
-                else:
-                    if variable == 'Caudal':
-                        self.model.setTable("tags_data.tags_flow_prueba")
-                    elif variable == 'Temperatura':
-                        self.model.setTable("tags_data.tags_temp_prueba")
-                    # elif variable == 'Level':
-                    #     self.model.setTable("tags_data.tags_level_prueba")
-                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{numorder.upper()}%' AND num_offer <>'' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
 
         if variable != '':
             self.model.select()
@@ -824,22 +681,17 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             self.tableEditTags.setModel(self.proxy)
 
             columns_number=self.model.columnCount()
-
+            # for i in range(30,columns_number):
+            #     self.tableEditTags.hideColumn(i)
             if variable == 'Caudal':
-                self.tableEditTags.hideColumn(32)
-                self.tableEditTags.hideColumn(33)
-                for i in range(36,columns_number):
-                    self.tableEditTags.hideColumn(i)
+                self.tableEditTags.hideColumn(28)
             elif variable == 'Temperatura':
-                for i in range(39,45):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(47,columns_number):
-                    self.tableEditTags.hideColumn(i)
+                self.tableEditTags.hideColumn(35)
 
             self.tableEditTags.verticalHeader().hide()
             self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
-            self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
             self.tableEditTags.setObjectName("tableEditTags")
             self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
@@ -852,7 +704,14 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                         "Material Tubo", "Tamaño Tomas (Nº)", "Material Elemento", "Tipo Placa", "Espesor Placa",
                         "Estándar Placa", "Material Junta", "Material Tornillería", "NACE", "Nº Saltos",
                         "Pipe Spec.", "Peso Aprox. (kg)", "Long. Aprox. (mm)", "Precio (€)", "Notas Oferta",
-                        "Cambio Comercial", "Fecha Contractual", "","", "Cambios Técnicos", "Notas Técnicas"]
+                        "Cambios Comercial", "Fecha Contractual", "Ø Orif. (mm)", "Ø D/V (mm)", "Cambios Técnicos",
+                        "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo", "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano",
+                        "Estado Plano", "Fecha Estado Plano", "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra",
+                        "Fecha OF Placa", "Plano OF Placa", "Colada Placa", "Fecha OF Brida", "Plano OF Brida",
+                        "Colada Brida", "Nº Tapones", "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material",
+                        "RTJ Espesor", "RTJ Dim", "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos",
+                        "Cantidad Espárragos", "Tamaño Extractor", "Cantidad Extractor", "Estado Fabricación", "Inspección",
+                        "Envío RN"]
             
             headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
                         "Tipo", "Tipo TW", "Tamaño Brida", "Rating Brida", "Facing Brida", "Standard TW",
@@ -861,8 +720,14 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                         "Temp Sup ºC", "Material Nipple Ext.", "Long. Nipple Ext. (mm)", "Material Head/Case", "Con. Elec./Diam. Case",
                         "TT/Terminal Insulation", "Material Brida LapJoint", "Material Junta", "Puntal", "Tubo",
                         "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
-                        "", "", "", "", "", "", "Cambios Técnicos", "Notas Técnicas"]
-            
+                        "Stress", "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Ø Picaje (mm)",
+                        "Notas Cálculo", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo",
+                        "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Planos",
+                        "Fecha OF Sensor", "Plano OF Sensor", "Notas Sensor", "Estado Fabricación Sensor", "Fecha OF TW",
+                        "Plano OF TW", "Notas TW", "Estado Fabricación TW", "Orden de Compra", "Fecha Orden Compra",
+                        "Notas Orden Compra", "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)",
+                        "Tapón", "Estado Fabricación", "Inspección", "Envío RN"]
+
             headers_level = []
 
             if variable == 'Caudal':
@@ -887,11 +752,13 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                             self.checkbox_states[column][value] = True
                     self.dict_valuesuniques[column] = list_valuesUnique
 
-            # Setting cells with comboboxes
+        # Setting cells with comboboxes
             if variable == 'Caudal':
                 for i in range(16):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_flow[i]]))
                     self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, ['','PTE.APROBACIÓN','EN FABRICACIÓN','INSPECCIÓN','ENVIADO'])
+                self.tableEditTags.setItemDelegateForColumn(63, self.combo_itemtype)
             elif variable == 'Temperatura':
                 for i in range(5):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
@@ -901,6 +768,14 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 for i in range(6,25):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
                     self.tableEditTags.setItemDelegateForColumn(i+11, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, ['','PTE.APROBACIÓN','EN FABRICACIÓN','INSPECCIÓN','ENVIADO'])
+                self.tableEditTags.setItemDelegateForColumn(56, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, ['','PTE.APROBACIÓN','EN FABRICACIÓN','INSPECCIÓN','ENVIADO'])
+                self.tableEditTags.setItemDelegateForColumn(60, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[24]]))
+                self.tableEditTags.setItemDelegateForColumn(68, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, ['','PTE.APROBACIÓN','EN FABRICACIÓN','INSPECCIÓN','ENVIADO'])
+                self.tableEditTags.setItemDelegateForColumn(69, self.combo_itemtype)
             # elif variable == 'Nivel':
             #     for i in range(16):
             #         self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_level[i]]))
@@ -977,7 +852,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.menuValues.setStyleSheet("QMenu { color: black; }"
                                         "QMenu::item:selected { background-color: #33bdef; }"
                                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
-        # self.signalMapper.mappedInt.connect(self.on_signalMapper_mapped)
 
         headerPos = self.tableEditTags.mapToGlobal(self.tableEditTags.horizontalHeader().pos())        
 
@@ -985,7 +859,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         scrollX = self.tableEditTags.horizontalScrollBar().value()
         xInView = self.tableEditTags.horizontalHeader().sectionViewportPosition(logicalIndex)
         posX = headerPos.x() + xInView - scrollX
-        # posX = headerPos.x() + self.tableEditTags.horizontalHeader().sectionPosition(self.logicalIndex)
 
         self.menuValues.exec(QtCore.QPoint(posX, posY))
 

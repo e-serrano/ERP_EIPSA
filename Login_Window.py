@@ -12,9 +12,10 @@ import psycopg2
 from config import config
 from App_Comercial import Ui_App_Comercial
 from App_Purchasing import Ui_App_Purchasing
-from App_Documentation import Ui_App_Documentation
+from App_Technical import Ui_App_Technical
 from App_Master import Ui_App_Master
 from ForgetPass_Window import Ui_ForgetPass_Window
+from App_Warehouse import Ui_Warehouse_Menu
 
 
 class Ui_Login_Window(object):
@@ -345,26 +346,33 @@ class Ui_Login_Window(object):
                     self.app_window=QtWidgets.QMainWindow()
                     self.ui_comercial=Ui_App_Comercial(match[0][1]+' '+match[0][2], login_username)
                     self.ui_comercial.setupUi(self.app_window)
-                    self.app_window.show()
+                    self.app_window.showMaximized()
                     self.Login_Window.close()
 
                 elif rol_app == "Compras":
                     self.app_window=QtWidgets.QMainWindow()
                     self.ui_purchase=Ui_App_Purchasing(match[0][1]+' '+match[0][2], login_username)
                     self.ui_purchase.setupUi(self.app_window)
-                    self.app_window.show()
+                    self.app_window.showMaximized()
                     self.Login_Window.close()
 
-                elif rol_app == "Documentación":
+                elif rol_app == "Técnico":
                     self.app_window=QtWidgets.QMainWindow()
-                    self.ui_documentation=Ui_App_Documentation(match[0][1]+' '+match[0][2], login_username)
+                    self.ui_documentation=Ui_App_Technical(match[0][1]+' '+match[0][2], login_username)
                     self.ui_documentation.setupUi(self.app_window)
-                    self.app_window.show()
+                    self.app_window.showMaximized()
                     self.Login_Window.close()
 
                 elif rol_app == "Master":
                     self.app_window=QtWidgets.QMainWindow()
                     self.ui_master=Ui_App_Master(match[0][1]+' '+match[0][2], login_username)
+                    self.ui_master.setupUi(self.app_window)
+                    self.app_window.showMaximized()
+                    self.Login_Window.close()
+
+                elif rol_app == "Almacén":
+                    self.app_window=QtWidgets.QMainWindow()
+                    self.ui_master=Ui_Warehouse_Menu()
                     self.ui_master.setupUi(self.app_window)
                     self.app_window.show()
                     self.Login_Window.close()

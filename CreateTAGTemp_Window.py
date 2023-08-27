@@ -14,8 +14,8 @@ class Ui_CreateTAGTemp_Window(object):
     def setupUi(self, CreateTAGTemp_Window):
         CreateTAGTemp_Window.setObjectName("CreateTAGTemp_Window")
         CreateTAGTemp_Window.resize(1168, 610)
-        CreateTAGTemp_Window.setMinimumSize(QtCore.QSize(1150, 610))
-        CreateTAGTemp_Window.setMaximumSize(QtCore.QSize(1168, 610))
+        CreateTAGTemp_Window.setMinimumSize(QtCore.QSize(1200, 665))
+        CreateTAGTemp_Window.setMaximumSize(QtCore.QSize(1200, 665))
         CreateTAGTemp_Window.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -60,8 +60,8 @@ class Ui_CreateTAGTemp_Window(object):
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame.setMinimumSize(QtCore.QSize(1150, 545))
-        self.frame.setMaximumSize(QtCore.QSize(1150, 545))
+        self.frame.setMinimumSize(QtCore.QSize(1180, 600))
+        self.frame.setMaximumSize(QtCore.QSize(1180, 600))
         self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame.setObjectName("frame")
@@ -100,6 +100,15 @@ class Ui_CreateTAGTemp_Window(object):
         self.label_NumOrder.setFont(font)
         self.label_NumOrder.setObjectName("label_NumOrder")
         self.vLayout1.addWidget(self.label_NumOrder)
+        self.label_NumPO = QtWidgets.QLabel(parent=self.frame)
+        self.label_NumPO.setMinimumSize(QtCore.QSize(100, 25))
+        self.label_NumPO.setMaximumSize(QtCore.QSize(100, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_NumPO.setFont(font)
+        self.label_NumPO.setObjectName("label_NumPO")
+        self.vLayout1.addWidget(self.label_NumPO)
         self.label_Pos = QtWidgets.QLabel(parent=self.frame)
         self.label_Pos.setMinimumSize(QtCore.QSize(100, 25))
         self.label_Pos.setMaximumSize(QtCore.QSize(100, 25))
@@ -172,15 +181,6 @@ class Ui_CreateTAGTemp_Window(object):
         self.label_Stdtw.setFont(font)
         self.label_Stdtw.setObjectName("label_Stdtw")
         self.vLayout1.addWidget(self.label_Stdtw)
-        self.label_Mattw = QtWidgets.QLabel(parent=self.frame)
-        self.label_Mattw.setMinimumSize(QtCore.QSize(100, 25))
-        self.label_Mattw.setMaximumSize(QtCore.QSize(100, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_Mattw.setFont(font)
-        self.label_Mattw.setObjectName("label_Mattw")
-        self.vLayout1.addWidget(self.label_Mattw)
         self.hLayout1.addLayout(self.vLayout1)
         self.vLayout2 = QtWidgets.QVBoxLayout()
         self.vLayout2.setSpacing(15)
@@ -209,6 +209,14 @@ class Ui_CreateTAGTemp_Window(object):
         self.NumOrder_CreatetagT.setFont(font)
         self.NumOrder_CreatetagT.setObjectName("NumOrder_CreatetagT")
         self.vLayout2.addWidget(self.NumOrder_CreatetagT)
+        self.NumPO_CreatetagT = QtWidgets.QLineEdit(parent=self.frame)
+        self.NumPO_CreatetagT.setMinimumSize(QtCore.QSize(175, 25))
+        self.NumPO_CreatetagT.setMaximumSize(QtCore.QSize(175, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.NumPO_CreatetagT.setFont(font)
+        self.NumPO_CreatetagT.setObjectName("NumPO_CreatetagT")
+        self.vLayout2.addWidget(self.NumPO_CreatetagT)
         self.Pos_CreatetagT = QtWidgets.QLineEdit(parent=self.frame)
         self.Pos_CreatetagT.setMinimumSize(QtCore.QSize(175, 25))
         self.Pos_CreatetagT.setMaximumSize(QtCore.QSize(175, 25))
@@ -273,17 +281,21 @@ class Ui_CreateTAGTemp_Window(object):
         self.Stdtw_CreatetagT.setFont(font)
         self.Stdtw_CreatetagT.setObjectName("Stdtw_CreatetagT")
         self.vLayout2.addWidget(self.Stdtw_CreatetagT)
-        self.Mattw_CreatetagT = QtWidgets.QComboBox(parent=self.frame)
-        self.Mattw_CreatetagT.setMinimumSize(QtCore.QSize(175, 25))
-        self.Mattw_CreatetagT.setMaximumSize(QtCore.QSize(175, 25))
-        self.Mattw_CreatetagT.setObjectName("Mattw_CreatetagT")
-        self.vLayout2.addWidget(self.Mattw_CreatetagT)
         self.hLayout1.addLayout(self.vLayout2)
         spacerItem = QtWidgets.QSpacerItem(30, 30, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hLayout1.addItem(spacerItem)
         self.vLayout3 = QtWidgets.QVBoxLayout()
         self.vLayout3.setSpacing(15)
         self.vLayout3.setObjectName("vLayout3")
+        self.label_Mattw = QtWidgets.QLabel(parent=self.frame)
+        self.label_Mattw.setMinimumSize(QtCore.QSize(150, 25))
+        self.label_Mattw.setMaximumSize(QtCore.QSize(150, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Mattw.setFont(font)
+        self.label_Mattw.setObjectName("label_Mattw")
+        self.vLayout3.addWidget(self.label_Mattw)
         self.label_Stdlength = QtWidgets.QLabel(parent=self.frame)
         self.label_Stdlength.setMinimumSize(QtCore.QSize(150, 25))
         self.label_Stdlength.setMaximumSize(QtCore.QSize(150, 25))
@@ -387,6 +399,14 @@ class Ui_CreateTAGTemp_Window(object):
         self.vLayout4 = QtWidgets.QVBoxLayout()
         self.vLayout4.setSpacing(15)
         self.vLayout4.setObjectName("vLayout4")
+        self.Mattw_CreatetagT = QtWidgets.QComboBox(parent=self.frame)
+        self.Mattw_CreatetagT.setMinimumSize(QtCore.QSize(175, 25))
+        self.Mattw_CreatetagT.setMaximumSize(QtCore.QSize(175, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Mattw_CreatetagT.setFont(font)
+        self.Mattw_CreatetagT.setObjectName("Mattw_CreatetagT")
+        self.vLayout4.addWidget(self.Mattw_CreatetagT)
         self.Stdlength_CreatetagT = QtWidgets.QLineEdit(parent=self.frame)
         self.Stdlength_CreatetagT.setMinimumSize(QtCore.QSize(175, 25))
         self.Stdlength_CreatetagT.setMaximumSize(QtCore.QSize(175, 25))
@@ -547,20 +567,30 @@ class Ui_CreateTAGTemp_Window(object):
         self.label_Tube.setFont(font)
         self.label_Tube.setObjectName("label_Tube")
         self.vLayout5.addWidget(self.label_Tube)
-        self.label_Notes = QtWidgets.QLabel(parent=self.frame)
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_Notes.setFont(font)
-        self.label_Notes.setObjectName("label_Notes")
-        self.vLayout5.addWidget(self.label_Notes)
         self.label_Amount = QtWidgets.QLabel(parent=self.frame)
+        self.label_Amount.setMinimumSize(QtCore.QSize(160, 25))
+        self.label_Amount.setMaximumSize(QtCore.QSize(160, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
         self.label_Amount.setFont(font)
         self.label_Amount.setObjectName("label_Amount")
         self.vLayout5.addWidget(self.label_Amount)
+        self.label_Notes = QtWidgets.QLabel(parent=self.frame)
+        self.label_Notes.setMinimumSize(QtCore.QSize(160, 25))
+        self.label_Notes.setMaximumSize(QtCore.QSize(160, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Notes.setFont(font)
+        self.label_Notes.setObjectName("label_Notes")
+        self.vLayout5.addWidget(self.label_Notes)
+        self.label = QtWidgets.QLabel(parent=self.frame)
+        self.label.setMinimumSize(QtCore.QSize(160, 25))
+        self.label.setMaximumSize(QtCore.QSize(160, 25))
+        self.label.setText("")
+        self.label.setObjectName("label")
+        self.vLayout5.addWidget(self.label)
         self.hLayout1.addLayout(self.vLayout5)
         self.vLayout6 = QtWidgets.QVBoxLayout()
         self.vLayout6.setSpacing(15)
@@ -637,16 +667,22 @@ class Ui_CreateTAGTemp_Window(object):
         self.Tube_CreatetagT.setFont(font)
         self.Tube_CreatetagT.setObjectName("Tube_CreatetagT")
         self.vLayout6.addWidget(self.Tube_CreatetagT)
-        self.Notes_CreatetagT = QtWidgets.QTextEdit(parent=self.frame)
-        self.Notes_CreatetagT.setMinimumSize(QtCore.QSize(275, 25))
-        self.Notes_CreatetagT.setMaximumSize(QtCore.QSize(275, 25))
-        self.Notes_CreatetagT.setObjectName("Notes_CreatetagT")
-        self.vLayout6.addWidget(self.Notes_CreatetagT)
         self.Amount_CreatetagT = QtWidgets.QLineEdit(parent=self.frame)
         self.Amount_CreatetagT.setMinimumSize(QtCore.QSize(275, 25))
         self.Amount_CreatetagT.setMaximumSize(QtCore.QSize(275, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Amount_CreatetagT.setFont(font)
         self.Amount_CreatetagT.setObjectName("Amount_CreatetagT")
         self.vLayout6.addWidget(self.Amount_CreatetagT)
+        self.Notes_CreatetagT = QtWidgets.QTextEdit(parent=self.frame)
+        self.Notes_CreatetagT.setMinimumSize(QtCore.QSize(275, 65))
+        self.Notes_CreatetagT.setMaximumSize(QtCore.QSize(275, 65))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Notes_CreatetagT.setFont(font)
+        self.Notes_CreatetagT.setObjectName("Notes_CreatetagT")
+        self.vLayout6.addWidget(self.Notes_CreatetagT)
         self.hLayout1.addLayout(self.vLayout6)
         self.verticalLayout_5.addLayout(self.hLayout1)
         spacerItem2 = QtWidgets.QSpacerItem(20, 30, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -704,8 +740,83 @@ class Ui_CreateTAGTemp_Window(object):
         self.statusbar.setObjectName("statusbar")
         CreateTAGTemp_Window.setStatusBar(self.statusbar)
 
-        list_nace=['Hold','No','Yes']
-        self.Nace_CreatetagT.addItems(list_nace)
+        commands_comboboxes = [
+        "SELECT item_type FROM validation_data.temp_item_type",
+        "SELECT tw_type FROM validation_data.temp_tw_type",
+        "SELECT flange_size FROM validation_data.temp_flange_size",
+        "SELECT flange_rating FROM validation_data.temp_flange_rating",
+        "SELECT flange_facing FROM validation_data.temp_flange_facing",
+        "SELECT tw_material FROM validation_data.temp_tw_material",
+        "SELECT root_diam FROM validation_data.temp_root_diam",
+        "SELECT tip_diam FROM validation_data.temp_tip_diam",
+        "SELECT sensor_element FROM validation_data.temp_sensor_element",
+        "SELECT sheath_stem_material FROM validation_data.temp_sheath_stem_material",
+        "SELECT sheath_stem_diam FROM validation_data.temp_sheath_stem_diam",
+        "SELECT insulation FROM validation_data.temp_insulation",
+        "SELECT temp_inf FROM validation_data.temp_temp_inf",
+        "SELECT temp_sup FROM validation_data.temp_temp_sup",
+        "SELECT nipple_ext_material FROM validation_data.temp_nipple_ext_material",
+        "SELECT nipple_ext_length FROM validation_data.temp_nipple_ext_length",
+        "SELECT head_case_material FROM validation_data.temp_head_case_material",
+        "SELECT head_conn_case_diam FROM validation_data.temp_head_conn_case_diam",
+        "SELECT tttb FROM validation_data.temp_tttb",
+        "SELECT flange_material_lapjoint FROM validation_data.temp_flange_material_lapjoint",
+        "SELECT gasket_material FROM validation_data.temp_gasket_material",
+        "SELECT puntal FROM validation_data.temp_puntal",
+        "SELECT tube_t FROM validation_data.temp_tube_t",
+        "SELECT nace FROM validation_data.temp_nace"
+        ]
+
+        all_results = []
+
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            for query in commands_comboboxes:
+                cur.execute(query)
+                results=cur.fetchall()
+                all_results.append(results)
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        print(len(all_results))
+
+        self.Type_CreatetagT.addItems(sorted([x[0] for x in all_results[0]]))
+        self.Typetw_CreatetagT.addItems(sorted([x[0] for x in all_results[1]]))
+        self.Size_CreatetagT.addItems(sorted([x[0] for x in all_results[2]]))
+        self.Rating_CreatetagT.addItems(sorted([x[0] for x in all_results[3]]))
+        self.Facing_CreatetagT.addItems(sorted([x[0] for x in all_results[4]]))
+        self.Mattw_CreatetagT.addItems(sorted([x[0] for x in all_results[5]]))
+        self.Rootdiam_CreatetagT.addItems(sorted([x[0] for x in all_results[6]]))
+        self.Tipdiam_CreatetagT.addItems(sorted([x[0] for x in all_results[7]]))
+        self.Sensor_CreatetagT.addItems(sorted([x[0] for x in all_results[8]]))
+        self.SheathMat_CreatetagT.addItems(sorted([x[0] for x in all_results[9]]))
+        self.Sheathdiam_CreatetagT.addItems(sorted([x[0] for x in all_results[10]]))
+        self.Insulation_CreatetagT.addItems(sorted([x[0] for x in all_results[11]]))
+        self.Tempinf_CreatetagT.addItems(sorted([x[0] for x in all_results[12]]))
+        self.Tempsup_CreatetagT.addItems(sorted([x[0] for x in all_results[13]]))
+        self.Nipextmat_CreatetagT.addItems(sorted([x[0] for x in all_results[14]]))
+        self.Nipextlength_CreatetagT.addItems(sorted([x[0] for x in all_results[15]]))
+        self.Headmat_CreatetagT.addItems(sorted([x[0] for x in all_results[16]]))
+        self.Elecconn_CreatetagT.addItems(sorted([x[0] for x in all_results[17]]))
+        self.TTcerblock_CreatetagT.addItems(sorted([x[0] for x in all_results[18]]))
+        self.Flangelapjointmat_CreatetagT.addItems(sorted([x[0] for x in all_results[19]]))
+        self.Gasketmat_CreatetagT.addItems(sorted([x[0] for x in all_results[20]]))
+        self.Puntal_CreatetagT.addItems(sorted([x[0] for x in all_results[21]]))
+        self.Tube_CreatetagT.addItems(sorted([x[0] for x in all_results[22]]))
+        self.Nace_CreatetagT.addItems(sorted([x[0] for x in all_results[23]]))
 
         self.retranslateUi(CreateTAGTemp_Window)
         self.Button_Cancel.clicked.connect(CreateTAGTemp_Window.close) # type: ignore
@@ -720,6 +831,7 @@ class Ui_CreateTAGTemp_Window(object):
         self.label_TAG.setText(_translate("CreateTAGTemp_Window", "*TAG:"))
         self.label_NumOffer.setText(_translate("CreateTAGTemp_Window", "*Nº Oferta:"))
         self.label_NumOrder.setText(_translate("CreateTAGTemp_Window", "Nº Pedido:"))
+        self.label_NumPO.setText(_translate("CreateTAGTemp_Window", "Nº PO:"))
         self.label_Pos.setText(_translate("CreateTAGTemp_Window", "Posición:"))
         self.label_SubPos.setText(_translate("CreateTAGTemp_Window", "Sub-Pos:"))
         self.label_Type.setText(_translate("CreateTAGTemp_Window", "*Tipo:"))
@@ -742,8 +854,8 @@ class Ui_CreateTAGTemp_Window(object):
         self.label_Tempsup.setText(_translate("CreateTAGTemp_Window", "Temp. Sup (°C):"))
         self.label_Nipextmat.setText(_translate("CreateTAGTemp_Window", "Mat. Niple Ext.:"))
         self.label_Nipextlength.setText(_translate("CreateTAGTemp_Window", "Long. Niple Ext. (mm):"))
-        self.label_Headmat.setText(_translate("CreateTAGTemp_Window", "Material Cabeza:"))
-        self.label_Elecconn.setText(_translate("CreateTAGTemp_Window", "Conex. Elec.:"))
+        self.label_Headmat.setText(_translate("CreateTAGTemp_Window", "Material Cabeza/Case:"))
+        self.label_Elecconn.setText(_translate("CreateTAGTemp_Window", "Con. Elec./Case Diam.:"))
         self.label_Ttcerblock.setText(_translate("CreateTAGTemp_Window", "TT / Ceramic Block:"))
         self.label_Flangelapjointmat.setText(_translate("CreateTAGTemp_Window", "Mat. Brida Lap Joint:"))
         self.label_Gasketmat.setText(_translate("CreateTAGTemp_Window", "Material Junta:"))
@@ -757,8 +869,10 @@ class Ui_CreateTAGTemp_Window(object):
 
     def createtagT(self):
         tag=self.TAG_CreatetagT.text()
+        tag_state='Ofertado'
         numoffer=self.NumOffer_CreatetagT.text()
         numorder=self.NumOrder_CreatetagT.text()
+        num_po=self.NumPO_CreatetagT.text()
         pos=self.Pos_CreatetagT.text()
         subpos=self.Subpos_CreatetagT.text()
         typeT=self.Type_CreatetagT.currentText()
@@ -774,20 +888,20 @@ class Ui_CreateTAGTemp_Window(object):
         tipdiam=self.Tipdiam_CreatetagT.currentText()
         nace=self.Nace_CreatetagT.currentText()
         sensor=self.Sensor_CreatetagT.currentText()
-        sheathmat=self.SheathMat_CreatetagT.currentText()
-        sheatdiam=self.Sheathdiam_CreatetagT.currentText()
+        sheathstemmat=self.SheathMat_CreatetagT.currentText()
+        sheatstemdiam=self.Sheathdiam_CreatetagT.currentText()
         insulation=self.Insulation_CreatetagT.currentText()
         tempinf=self.Tempinf_CreatetagT.currentText()
         tempsup=self.Tempsup_CreatetagT.currentText()
         nipextmat=self.Nipextmat_CreatetagT.currentText()
         nipextlength=self.Nipextlength_CreatetagT.currentText()
-        headmat=self.Headmat_CreatetagT.currentText()
-        elecconn=self.Elecconn_CreatetagT.currentText()
+        headcasemat=self.Headmat_CreatetagT.currentText()
+        elecconn_casedial=self.Elecconn_CreatetagT.currentText()
         ttcerblock=self.TTcerblock_CreatetagT.currentText()
         flangelapjointmat=self.Flangelapjointmat_CreatetagT.currentText()
         gasketmat=self.Gasketmat_CreatetagT.currentText()
         puntal=self.Puntal_CreatetagT.currentText()
-        tube=self.Tube_CreatetagT.currentText()
+        tube_t=self.Tube_CreatetagT.currentText()
         amount=self.Amount_CreatetagT.text()
         notes=self.Notes_CreatetagT.toPlainText()
 
@@ -796,7 +910,53 @@ class Ui_CreateTAGTemp_Window(object):
             self.label_error.setText('Rellene los campos con * mínimo')
         
         else:
-            print('a')
+            commands_inserttagtemp = ("""
+                            INSERT INTO tags_data.tags_temp_prueba (
+                            "tag","tag_state","num_offer","num_order","num_po",
+                            "position","subposition","item_type","tw_type","flange_size",
+                            "flange_rating","flange_facing","std_tw","material_tw","std_length",
+                            "ins_length","root_diam","tip_diam","sensor_element","sheath_stem_material",
+                            "sheath_stem_diam","insulation","temp_inf","temp_sup","nipple_ext_material",
+                            "nipple_ext_length","head_case_material","elec_conn_case_diam","tt_cerblock","material_flange_lj",
+                            "gasket_material","puntal","tube_t","nace","offer_notes","amount"
+                            )
+                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                            """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands one by one
+                data = (tag,tag_state,numoffer,numorder,num_po,
+                        pos,subpos,typeT,typetw,size,
+                        rating,facing,stdtw,mattw,stdlength,
+                        insertionlength,rootdiam,tipdiam,sensor,sheathstemmat,
+                        sheatstemdiam,insulation,tempinf,tempsup,nipextmat,
+                        nipextlength,headcasemat,elecconn_casedial,ttcerblock,flangelapjointmat,
+                        gasketmat,puntal,tube_t,nace,notes,amount,)
+                cur.execute(commands_inserttagtemp,data)
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Crear Tag")
+                dlg.setText("Tag creado con éxito")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
 
 
     def queryoffernumber(self):

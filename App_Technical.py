@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'App_Documentation.ui'
+# Form implementation generated from reading ui file 'App_Technical.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -16,6 +16,9 @@ import configparser
 from Database_Connection import createConnection
 from tkinter.filedialog import askopenfilename
 import pandas as pd
+from EditDB_Menu import Ui_EditDB_Menu
+from EditTags_Technical_Window import Ui_EditTags_Window
+from QueryTags_Window import Ui_QueryTags_Window
 from NewDoc_Window import Ui_New_Doc_Window
 from EditDoc_Window import Ui_EditDoc_Window
 from QueryDoc_Window import Ui_QueryDoc_Window
@@ -28,24 +31,29 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
-class Ui_App_Documentation(object):
+class Ui_App_Technical(QtWidgets.QMainWindow):
     def __init__(self, name, username):
+        super().__init__() 
         self.name=name
         self.username=username
+        self.setupUi(self)
 
     # def __init__(self):
+    #     super().__init__()  # Call the superclass constructor
     #     self.name='Enrique Serrano'
     #     self.username='e.serrano'
+    #     self.setupUi(self)
 
-    def setupUi(self, App_Documentation):
-        App_Documentation.setObjectName("App_Documentation")
-        App_Documentation.resize(945, 860)
-        App_Documentation.setMinimumSize(QtCore.QSize(945, 860))
+
+    def setupUi(self, App_Technical):
+        App_Technical.setObjectName("App_Technical")
+        App_Technical.resize(945, 860)
+        App_Technical.setMinimumSize(QtCore.QSize(945, 860))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        App_Documentation.setWindowIcon(icon)
-        App_Documentation.setStyleSheet("background-color: rgb(255, 255, 255);")
-        self.centralwidget = QtWidgets.QWidget(parent=App_Documentation)
+        App_Technical.setWindowIcon(icon)
+        App_Technical.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.centralwidget = QtWidgets.QWidget(parent=App_Technical)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_2.setObjectName("gridLayout_2")
@@ -70,8 +78,44 @@ class Ui_App_Documentation(object):
         self.Header.addWidget(self.LogoIcon)
         spacerItem = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem)
+        if self.name in ["Ernesto Carrillo","Enrique Serrano"]:
+            self.Button_DBEdit = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_DBEdit.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_DBEdit.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_DBEdit.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_DBEdit.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_DBEdit.setText("")
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Database_Admin.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_DBEdit.setIcon(icon2)
+            self.Button_DBEdit.setIconSize(QtCore.QSize(40, 40))
+            self.Button_DBEdit.setObjectName("Button_DBEdit")
+            self.Header.addWidget(self.Button_DBEdit)
+            self.Button_DBEdit.clicked.connect(self.editdb)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
+        spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
         font = QtGui.QFont()
         font.setPointSize(12)
@@ -159,6 +203,34 @@ class Ui_App_Documentation(object):
         self.verticalLayout_3.setContentsMargins(9, 0, -1, 0)
         self.verticalLayout_3.setSpacing(25)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.Button_EditTag = QtWidgets.QPushButton(parent=self.ButtonFrame)
+        self.Button_EditTag.setMinimumSize(QtCore.QSize(200, 50))
+        self.Button_EditTag.setMaximumSize(QtCore.QSize(200, 50))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.Button_EditTag.setFont(font)
+        self.Button_EditTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        icon10 = QtGui.QIcon()
+        icon10.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/TAG_Edit.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_EditTag.setIcon(icon10)
+        self.Button_EditTag.setIconSize(QtCore.QSize(40, 40))
+        self.Button_EditTag.setObjectName("Button_EditTag")
+        self.verticalLayout_3.addWidget(self.Button_EditTag)
+        self.Button_QueryTag = QtWidgets.QPushButton(parent=self.ButtonFrame)
+        self.Button_QueryTag.setMinimumSize(QtCore.QSize(200, 50))
+        self.Button_QueryTag.setMaximumSize(QtCore.QSize(200, 50))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.Button_QueryTag.setFont(font)
+        self.Button_QueryTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        icon11 = QtGui.QIcon()
+        icon11.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/TAG_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_QueryTag.setIcon(icon11)
+        self.Button_QueryTag.setIconSize(QtCore.QSize(40, 40))
+        self.Button_QueryTag.setObjectName("Button_QueryTag")
+        self.verticalLayout_3.addWidget(self.Button_QueryTag)
         self.Button_NewDoc = QtWidgets.QPushButton(parent=self.ButtonFrame)
         self.Button_NewDoc.setMinimumSize(QtCore.QSize(200, 50))
         self.Button_NewDoc.setMaximumSize(QtCore.QSize(200, 50))
@@ -331,14 +403,14 @@ class Ui_App_Documentation(object):
         self.FrameApp.addLayout(self.PrincipalScreen)
         self.gridLayout.addLayout(self.FrameApp, 3, 0, 1, 1)
         self.gridLayout_2.addWidget(self.frame, 0, 0, 1, 1)
-        App_Documentation.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=App_Documentation)
+        App_Technical.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=App_Technical)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 945, 22))
         self.menubar.setObjectName("menubar")
-        App_Documentation.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=App_Documentation)
+        App_Technical.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=App_Technical)
         self.statusbar.setObjectName("statusbar")
-        App_Documentation.setStatusBar(self.statusbar)
+        App_Technical.setStatusBar(self.statusbar)
         self.tableDocs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
 
@@ -390,36 +462,69 @@ class Ui_App_Documentation(object):
                 conn.close()
 
 
-        self.retranslateUi(App_Documentation)
+        self.retranslateUi(App_Technical)
+        self.Button_EditTag.clicked.connect(self.edit_tag)
+        self.Button_QueryTag.clicked.connect(self.query_tag)
         self.Button_NewDoc.clicked.connect(self.CreateDoc)
         self.Button_ImportDoc.clicked.connect(self.ImportDoc)
         self.Button_EditDoc.clicked.connect(self.EditDoc)
         self.Button_QueryDoc.clicked.connect(self.query_documents)
         self.Button_Profile.clicked.connect(self.showMenu)
-        QtCore.QMetaObject.connectSlotsByName(App_Documentation)
+        QtCore.QMetaObject.connectSlotsByName(App_Technical)
 
 
-    def retranslateUi(self, App_Documentation):
+    def retranslateUi(self, App_Technical):
         _translate = QtCore.QCoreApplication.translate
-        App_Documentation.setWindowTitle(_translate("App_Documentation", "ERP EIPSA"))
-        self.HeaderName.setText(_translate("App_Documentation", self.name))
-        self.Button_NewDoc.setText(_translate("App_Documentation", "    Crear Documento"))
-        self.Button_ImportDoc.setText(_translate("App_Documentation", "    Importar Docum."))
-        self.Button_EditDoc.setText(_translate("App_Documentation", "    Editar Docum."))
-        self.Button_QueryDoc.setText(_translate("App_Documentation", "    Consultar Docum."))
+        App_Technical.setWindowTitle(_translate("App_Technical", "ERP EIPSA"))
+        self.HeaderName.setText(_translate("App_Technical", self.name))
+        self.Button_EditTag.setText(_translate("App_Comercial", "    Editar TAG(s)"))
+        self.Button_QueryTag.setText(_translate("App_Comercial", "    Consultar TAG(s)"))
+        self.Button_NewDoc.setText(_translate("App_Technical", "    Crear Documento"))
+        self.Button_ImportDoc.setText(_translate("App_Technical", "    Importar Docum."))
+        self.Button_EditDoc.setText(_translate("App_Technical", "    Editar Docum."))
+        self.Button_QueryDoc.setText(_translate("App_Technical", "    Consultar Docum."))
         self.tableDocs.setSortingEnabled(True)
         item = self.tableDocs.horizontalHeaderItem(0)
-        item.setText(_translate("App_Documentation", "Nº Doc Eipsa"))
+        item.setText(_translate("App_Technical", "Nº Doc Eipsa"))
         item = self.tableDocs.horizontalHeaderItem(1)
-        item.setText(_translate("App_Documentation", "Nº Pedido"))
+        item.setText(_translate("App_Technical", "Nº Pedido"))
         item = self.tableDocs.horizontalHeaderItem(2)
-        item.setText(_translate("App_Documentation", "Título"))
+        item.setText(_translate("App_Technical", "Título"))
         item = self.tableDocs.horizontalHeaderItem(3)
-        item.setText(_translate("App_Documentation", "Estado"))
+        item.setText(_translate("App_Technical", "Estado"))
         item = self.tableDocs.horizontalHeaderItem(4)
-        item.setText(_translate("App_Documentation", "Revisión"))
+        item.setText(_translate("App_Technical", "Revisión"))
         item = self.tableDocs.horizontalHeaderItem(5)
-        item.setText(_translate("App_Documentation", "Fecha"))
+        item.setText(_translate("App_Technical", "Fecha"))
+
+
+    def editdb(self):
+        self.dbedit_menu=QtWidgets.QMainWindow()
+        self.ui=Ui_EditDB_Menu()
+        self.ui.setupUi(self.dbedit_menu)
+        self.dbedit_menu.show()
+
+
+    def edit_tag(self):
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        if not createConnection(user_database, password_database):
+            sys.exit()
+
+        self.edit_tags_app = Ui_EditTags_Window()
+        self.edit_tags_app.show()
+
+
+    def query_tag(self):
+        self.querytag_window=QtWidgets.QMainWindow()
+        self.ui=Ui_QueryTags_Window('Técnico')
+        self.ui.setupUi(self.querytag_window)
+        self.querytag_window.show()
 
 
     def CreateDoc(self):
@@ -595,8 +700,8 @@ class Ui_App_Documentation(object):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    App_Documentation = QtWidgets.QMainWindow()
-    ui = Ui_App_Documentation()
-    ui.setupUi(App_Documentation)
-    App_Documentation.show()
+    # App_Technical = QtWidgets.QMainWindow()
+    ui = Ui_App_Technical()
+    # ui.setupUi(App_Technical)
+    ui.show()
     sys.exit(app.exec())

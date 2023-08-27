@@ -23,7 +23,7 @@ from NewOrder_Window import Ui_New_Order_Window
 from EditOrder_Window import Ui_Edit_Order_Window
 from QueryOrder_Window import Ui_QueryOrder_Window
 from CreateTAG_Menu import Ui_CreateTag_Menu
-from EditTags_Commercial_Window import Ui_EditTags_Window
+from EditTag_Menu import Ui_EditTags_Menu
 from QueryTags_Window import Ui_QueryTags_Window
 from ExportOffer_Window import Ui_ExportOffer_Window
 from QueryDoc_Window import Ui_QueryDoc_Window
@@ -941,52 +941,22 @@ class Ui_App_Comercial(object):
 
 
     def new_tag(self):
-        # self.new_tag_window=QtWidgets.QMainWindow()
-        # self.ui=Ui_CreateTag_Menu()
-        # self.ui.setupUi(self.new_tag_window)
-        # self.new_tag_window.show()
-
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Este módulo aún no está disponible.\nDisculpe las molestias")
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-        dlg.exec()
-        del dlg, new_icon
+        self.new_tag_window=QtWidgets.QMainWindow()
+        self.ui=Ui_CreateTag_Menu()
+        self.ui.setupUi(self.new_tag_window)
+        self.new_tag_window.show()
 
 
     def edit_tag(self):
-        # config_obj = configparser.ConfigParser()
-        # config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        # dbparam = config_obj["postgresql"]
-        # # set your parameters for the database connection URI using the keys from the configfile.ini
-        # user = dbparam["user"]
-        # password = dbparam["password"]
-
-        # if not createConnection(user, password):
-        #     sys.exit()
-
-        # self.edittag_window=QtWidgets.QMainWindow()
-        # self.ui=Ui_EditTags_Window()
-        # self.ui.setupUi(self.edittag_window)
-        # self.edittag_window.show()
-
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Este módulo aún no está disponible.\nDisculpe las molestias")
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-        dlg.exec()
-        del dlg, new_icon
+        self.edittags_menu=QtWidgets.QMainWindow()
+        self.ui=Ui_EditTags_Menu()
+        self.ui.setupUi(self.edittags_menu)
+        self.edittags_menu.show()
 
 
     def query_tag(self):
         self.querytag_window=QtWidgets.QMainWindow()
-        self.ui=Ui_QueryTags_Window()
+        self.ui=Ui_QueryTags_Window('Comercial')
         self.ui.setupUi(self.querytag_window)
         self.querytag_window.show()
 

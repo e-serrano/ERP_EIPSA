@@ -15,8 +15,8 @@ class Ui_CreateTAGFlow_Window(object):
     def setupUi(self, CreateTAGFlow_Window):
         CreateTAGFlow_Window.setObjectName("CreateTAGFlow_Window")
         CreateTAGFlow_Window.resize(1255, 511)
-        CreateTAGFlow_Window.setMinimumSize(QtCore.QSize(1255, 515))
-        CreateTAGFlow_Window.setMaximumSize(QtCore.QSize(1255, 515))
+        CreateTAGFlow_Window.setMinimumSize(QtCore.QSize(1255, 555))
+        CreateTAGFlow_Window.setMaximumSize(QtCore.QSize(1255, 555))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         CreateTAGFlow_Window.setWindowIcon(icon)
@@ -60,8 +60,8 @@ class Ui_CreateTAGFlow_Window(object):
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame.setMinimumSize(QtCore.QSize(1235, 450))
-        self.frame.setMaximumSize(QtCore.QSize(1235, 450))
+        self.frame.setMinimumSize(QtCore.QSize(1235, 475))
+        self.frame.setMaximumSize(QtCore.QSize(1235, 475))
         self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame.setObjectName("frame")
@@ -263,6 +263,24 @@ class Ui_CreateTAGFlow_Window(object):
         self.label_Flangemat.setFont(font)
         self.label_Flangemat.setObjectName("label_Flangemat")
         self.vLayout3.addWidget(self.label_Flangemat)
+        self.label_Flangetype = QtWidgets.QLabel(parent=self.frame)
+        self.label_Flangetype.setMinimumSize(QtCore.QSize(125, 25))
+        self.label_Flangetype.setMaximumSize(QtCore.QSize(125, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Flangetype.setFont(font)
+        self.label_Flangetype.setObjectName("label_Flangetype")
+        self.vLayout3.addWidget(self.label_Flangetype)
+        self.label_Tubemat = QtWidgets.QLabel(parent=self.frame)
+        self.label_Tubemat.setMinimumSize(QtCore.QSize(125, 25))
+        self.label_Tubemat.setMaximumSize(QtCore.QSize(125, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Tubemat.setFont(font)
+        self.label_Tubemat.setObjectName("label_Tubemat")
+        self.vLayout3.addWidget(self.label_Tubemat)
         self.label_Tapping = QtWidgets.QLabel(parent=self.frame)
         self.label_Tapping.setMinimumSize(QtCore.QSize(125, 25))
         self.label_Tapping.setMaximumSize(QtCore.QSize(125, 25))
@@ -336,29 +354,60 @@ class Ui_CreateTAGFlow_Window(object):
         self.Flangemat_CreatetagQ.setFont(font)
         self.Flangemat_CreatetagQ.setObjectName("Flangemat_CreatetagQ")
         self.vLayout4.addWidget(self.Flangemat_CreatetagQ)
+        self.Flangetype_CreatetagQ = QtWidgets.QComboBox(parent=self.frame)
+        self.Flangetype_CreatetagQ.setMinimumSize(QtCore.QSize(200, 25))
+        self.Flangetype_CreatetagQ.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Flangetype_CreatetagQ.setFont(font)
+        self.Flangetype_CreatetagQ.setObjectName("Flangetype_CreatetagQ")
+        self.vLayout4.addWidget(self.Flangetype_CreatetagQ)
+        self.Tubemat_CreatetagQ = QtWidgets.QComboBox(parent=self.frame)
+        self.Tubemat_CreatetagQ.setMinimumSize(QtCore.QSize(200, 25))
+        self.Tubemat_CreatetagQ.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Tubemat_CreatetagQ.setFont(font)
+        self.Tubemat_CreatetagQ.setObjectName("Tubemat_CreatetagQ")
+        self.vLayout4.addWidget(self.Tubemat_CreatetagQ)
         self.Tapping_CreatetagQ = QtWidgets.QComboBox(parent=self.frame)
         self.Tapping_CreatetagQ.setMinimumSize(QtCore.QSize(200, 25))
         self.Tapping_CreatetagQ.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Tapping_CreatetagQ.setFont(font)
         self.Tapping_CreatetagQ.setObjectName("Tapping_CreatetagQ")
         self.vLayout4.addWidget(self.Tapping_CreatetagQ)
         self.ElementMat_CreatetagQ = QtWidgets.QComboBox(parent=self.frame)
         self.ElementMat_CreatetagQ.setMinimumSize(QtCore.QSize(200, 25))
         self.ElementMat_CreatetagQ.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.ElementMat_CreatetagQ.setFont(font)
         self.ElementMat_CreatetagQ.setObjectName("ElementMat_CreatetagQ")
         self.vLayout4.addWidget(self.ElementMat_CreatetagQ)
         self.PlateType_CreatetagQ = QtWidgets.QComboBox(parent=self.frame)
         self.PlateType_CreatetagQ.setMinimumSize(QtCore.QSize(200, 25))
         self.PlateType_CreatetagQ.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.PlateType_CreatetagQ.setFont(font)
         self.PlateType_CreatetagQ.setObjectName("PlateType_CreatetagQ")
         self.vLayout4.addWidget(self.PlateType_CreatetagQ)
         self.PlateThk_CreatetagQ = QtWidgets.QComboBox(parent=self.frame)
         self.PlateThk_CreatetagQ.setMinimumSize(QtCore.QSize(200, 25))
         self.PlateThk_CreatetagQ.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.PlateThk_CreatetagQ.setFont(font)
         self.PlateThk_CreatetagQ.setObjectName("PlateThk_CreatetagQ")
         self.vLayout4.addWidget(self.PlateThk_CreatetagQ)
         self.PlateStd_CreatetagQ = QtWidgets.QComboBox(parent=self.frame)
         self.PlateStd_CreatetagQ.setMinimumSize(QtCore.QSize(200, 25))
         self.PlateStd_CreatetagQ.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.PlateStd_CreatetagQ.setFont(font)
         self.PlateStd_CreatetagQ.setObjectName("PlateStd_CreatetagQ")
         self.vLayout4.addWidget(self.PlateStd_CreatetagQ)
         self.hLayout1.addLayout(self.vLayout4)
@@ -413,6 +462,33 @@ class Ui_CreateTAGFlow_Window(object):
         self.label_Pipespec.setFont(font)
         self.label_Pipespec.setObjectName("label_Pipespec")
         self.vLayout5.addWidget(self.label_Pipespec)
+        self.label_Weight = QtWidgets.QLabel(parent=self.frame)
+        self.label_Weight.setMinimumSize(QtCore.QSize(115, 25))
+        self.label_Weight.setMaximumSize(QtCore.QSize(115, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Weight.setFont(font)
+        self.label_Weight.setObjectName("label_Weight")
+        self.vLayout5.addWidget(self.label_Weight)
+        self.label_Length = QtWidgets.QLabel(parent=self.frame)
+        self.label_Length.setMinimumSize(QtCore.QSize(115, 25))
+        self.label_Length.setMaximumSize(QtCore.QSize(115, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Length.setFont(font)
+        self.label_Length.setObjectName("label_Length")
+        self.vLayout5.addWidget(self.label_Length)
+        self.label_Amount = QtWidgets.QLabel(parent=self.frame)
+        self.label_Amount.setMinimumSize(QtCore.QSize(115, 25))
+        self.label_Amount.setMaximumSize(QtCore.QSize(115, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Amount.setFont(font)
+        self.label_Amount.setObjectName("label_Amount")
+        self.vLayout5.addWidget(self.label_Amount)
         self.label_Notes = QtWidgets.QLabel(parent=self.frame)
         self.label_Notes.setMinimumSize(QtCore.QSize(115, 25))
         self.label_Notes.setMaximumSize(QtCore.QSize(115, 25))
@@ -423,18 +499,11 @@ class Ui_CreateTAGFlow_Window(object):
         self.label_Notes.setObjectName("label_Notes")
         self.vLayout5.addWidget(self.label_Notes)
         self.label = QtWidgets.QLabel(parent=self.frame)
+        self.label.setMinimumSize(QtCore.QSize(115, 25))
+        self.label.setMaximumSize(QtCore.QSize(115, 25))
         self.label.setText("")
         self.label.setObjectName("label")
         self.vLayout5.addWidget(self.label)
-        self.label_Amount = QtWidgets.QLabel(parent=self.frame)
-        self.label_Amount.setMinimumSize(QtCore.QSize(115, 25))
-        self.label_Amount.setMaximumSize(QtCore.QSize(115, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_Amount.setFont(font)
-        self.label_Amount.setObjectName("label_Amount")
-        self.vLayout5.addWidget(self.label_Amount)
         self.hLayout1.addLayout(self.vLayout5)
         self.vLayout6 = QtWidgets.QVBoxLayout()
         self.vLayout6.setContentsMargins(-1, -1, 0, -1)
@@ -443,16 +512,25 @@ class Ui_CreateTAGFlow_Window(object):
         self.GasketMat_CreatetagQ = QtWidgets.QComboBox(parent=self.frame)
         self.GasketMat_CreatetagQ.setMinimumSize(QtCore.QSize(375, 25))
         self.GasketMat_CreatetagQ.setMaximumSize(QtCore.QSize(375, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.GasketMat_CreatetagQ.setFont(font)
         self.GasketMat_CreatetagQ.setObjectName("GasketMat_CreatetagQ")
         self.vLayout6.addWidget(self.GasketMat_CreatetagQ)
         self.BnMat_CreatetagQ = QtWidgets.QComboBox(parent=self.frame)
         self.BnMat_CreatetagQ.setMinimumSize(QtCore.QSize(375, 25))
         self.BnMat_CreatetagQ.setMaximumSize(QtCore.QSize(375, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.BnMat_CreatetagQ.setFont(font)
         self.BnMat_CreatetagQ.setObjectName("BnMat_CreatetagQ")
         self.vLayout6.addWidget(self.BnMat_CreatetagQ)
         self.Nace_CreatetagQ = QtWidgets.QComboBox(parent=self.frame)
         self.Nace_CreatetagQ.setMinimumSize(QtCore.QSize(375, 25))
         self.Nace_CreatetagQ.setMaximumSize(QtCore.QSize(375, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Nace_CreatetagQ.setFont(font)
         self.Nace_CreatetagQ.setObjectName("Nace_CreatetagQ")
         self.vLayout6.addWidget(self.Nace_CreatetagQ)
         self.StagesNum_CreatetagQ = QtWidgets.QLineEdit(parent=self.frame)
@@ -471,11 +549,22 @@ class Ui_CreateTAGFlow_Window(object):
         self.PipeSpec_CreatetagQ.setFont(font)
         self.PipeSpec_CreatetagQ.setObjectName("PipeSpec_CreatetagQ")
         self.vLayout6.addWidget(self.PipeSpec_CreatetagQ)
-        self.Notes_CreatetagQ = QtWidgets.QTextEdit(parent=self.frame)
-        self.Notes_CreatetagQ.setMinimumSize(QtCore.QSize(375, 65))
-        self.Notes_CreatetagQ.setMaximumSize(QtCore.QSize(375, 65))
-        self.Notes_CreatetagQ.setObjectName("Notes_CreatetagQ")
-        self.vLayout6.addWidget(self.Notes_CreatetagQ)
+        self.Weight_CreatetagQ = QtWidgets.QLineEdit(parent=self.frame)
+        self.Weight_CreatetagQ.setMinimumSize(QtCore.QSize(375, 25))
+        self.Weight_CreatetagQ.setMaximumSize(QtCore.QSize(375, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Weight_CreatetagQ.setFont(font)
+        self.Weight_CreatetagQ.setObjectName("Weight_CreatetagQ")
+        self.vLayout6.addWidget(self.Weight_CreatetagQ)
+        self.Length_CreatetagQ = QtWidgets.QLineEdit(parent=self.frame)
+        self.Length_CreatetagQ.setMinimumSize(QtCore.QSize(375, 25))
+        self.Length_CreatetagQ.setMaximumSize(QtCore.QSize(375, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Length_CreatetagQ.setFont(font)
+        self.Length_CreatetagQ.setObjectName("Length_CreatetagQ")
+        self.vLayout6.addWidget(self.Length_CreatetagQ)
         self.Amount_CreatetagQ = QtWidgets.QLineEdit(parent=self.frame)
         self.Amount_CreatetagQ.setMinimumSize(QtCore.QSize(375, 25))
         self.Amount_CreatetagQ.setMaximumSize(QtCore.QSize(375, 25))
@@ -484,6 +573,14 @@ class Ui_CreateTAGFlow_Window(object):
         self.Amount_CreatetagQ.setFont(font)
         self.Amount_CreatetagQ.setObjectName("Amount_CreatetagQ")
         self.vLayout6.addWidget(self.Amount_CreatetagQ)
+        self.Notes_CreatetagQ = QtWidgets.QTextEdit(parent=self.frame)
+        self.Notes_CreatetagQ.setMinimumSize(QtCore.QSize(375, 65))
+        self.Notes_CreatetagQ.setMaximumSize(QtCore.QSize(375, 65))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Notes_CreatetagQ.setFont(font)
+        self.Notes_CreatetagQ.setObjectName("Notes_CreatetagQ")
+        self.vLayout6.addWidget(self.Notes_CreatetagQ)
         self.hLayout1.addLayout(self.vLayout6)
         self.verticalLayout_5.addLayout(self.hLayout1)
         spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -516,8 +613,65 @@ class Ui_CreateTAGFlow_Window(object):
         self.statusbar.setObjectName("statusbar")
         CreateTAGFlow_Window.setStatusBar(self.statusbar)
 
-        list_nace=['Hold','No','Yes']
-        self.Nace_CreatetagQ.addItems(list_nace)
+        commands_comboboxes = [
+            "SELECT item_type FROM validation_data.flow_item_type",
+            "SELECT line_size FROM validation_data.flow_line_size",
+            "SELECT rating FROM validation_data.flow_rating",
+            "SELECT facing FROM validation_data.flow_facing",
+            "SELECT schedule FROM validation_data.flow_schedule",
+            "SELECT flange_material FROM validation_data.flow_flange_material",
+            "SELECT flange_type FROM validation_data.flow_flange_type",
+            "SELECT element_material FROM validation_data.flow_element_material",
+            "SELECT tapping FROM validation_data.flow_tapping",
+            "SELECT element_material FROM validation_data.flow_element_material",
+            "SELECT plate_type FROM validation_data.flow_plate_type",
+            "SELECT plate_thk FROM validation_data.flow_plate_thk",
+            "SELECT plate_std FROM validation_data.flow_plate_std",
+            "SELECT gasket_material FROM validation_data.flow_gasket_material",
+            "SELECT bolts_nuts_material FROM validation_data.flow_bolts_nuts_material",
+            "SELECT nace FROM validation_data.flow_nace"
+            ]
+
+        all_results = []
+
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            for query in commands_comboboxes:
+                cur.execute(query)
+                results=cur.fetchall()
+                all_results.append(results)
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        self.Type_CreatetagQ.addItems(sorted([x[0] for x in all_results[0]]))
+        self.Linesize_CreatetagQ.addItems(sorted([x[0] for x in all_results[1]]))
+        self.Rating_CreatetagQ.addItems(sorted([x[0] for x in all_results[2]]))
+        self.Facing_CreatetagQ.addItems(sorted([x[0] for x in all_results[3]]))
+        self.Sch_CreatetagQ.addItems(sorted([x[0] for x in all_results[4]]))
+        self.Flangemat_CreatetagQ.addItems(sorted([x[0] for x in all_results[5]]))
+        self.Flangetype_CreatetagQ.addItems(sorted([x[0] for x in all_results[6]]))
+        self.Tubemat_CreatetagQ.addItems(sorted([x[0] for x in all_results[7]]))
+        self.Tapping_CreatetagQ.addItems(sorted([x[0] for x in all_results[8]]))
+        self.ElementMat_CreatetagQ.addItems(sorted([x[0] for x in all_results[9]]))
+        self.PlateType_CreatetagQ.addItems(sorted([x[0] for x in all_results[10]]))
+        self.PlateThk_CreatetagQ.addItems(sorted([x[0] for x in all_results[11]]))
+        self.PlateStd_CreatetagQ.addItems(sorted([x[0] for x in all_results[12]]))
+        self.GasketMat_CreatetagQ.addItems(sorted([x[0] for x in all_results[13]]))
+        self.BnMat_CreatetagQ.addItems(sorted([x[0] for x in all_results[14]]))
+        self.Nace_CreatetagQ.addItems(sorted([x[0] for x in all_results[15]]))
 
         self.retranslateUi(CreateTAGFlow_Window)
         self.Button_Cancel.clicked.connect(CreateTAGFlow_Window.close) # type: ignore
@@ -541,6 +695,7 @@ class Ui_CreateTAGFlow_Window(object):
         self.label_Facing.setText(_translate("CreateTAGFlow_Window", "*Facing:"))
         self.label_Sch.setText(_translate("CreateTAGFlow_Window", "*SCH:"))
         self.label_Flangemat.setText(_translate("CreateTAGFlow_Window", "Mat. Brida:"))
+        self.label_Flangetype.setText(_translate("CreateTAGFlow_Window", "Tipo Brida:"))
         self.label_Amount.setText(_translate("CreateTAGFlow_Window", "Importe (€):"))
         self.label_Tapping.setText(_translate("CreateTAGFlow_Window", "Tomas Pres. (Nº):"))
         self.label_ElementMat.setText(_translate("CreateTAGFlow_Window", "Mat. Elemento:"))
@@ -553,13 +708,16 @@ class Ui_CreateTAGFlow_Window(object):
         self.label_Stagesnum.setText(_translate("CreateTAGFlow_Window", "Nº Saltos:"))
         self.label_Pipespec.setText(_translate("CreateTAGFlow_Window", "Espec. Línea:"))
         self.label_Notes.setText(_translate("CreateTAGFlow_Window", "Notas:"))
+        self.label_Tubemat.setText(_translate("CreateTAGFlow_Window", "Mat. Tubo:"))
+        self.label_Weight.setText(_translate("CreateTAGFlow_Window", "Peso Aprox. (kg):"))
+        self.label_Length.setText(_translate("CreateTAGFlow_Window", "L. Aprox. (mm):"))
         self.Button_Create.setText(_translate("CreateTAGFlow_Window", "Crear"))
         self.Button_Cancel.setText(_translate("CreateTAGFlow_Window","Cancelar"))
 
 
     def createtagF(self):
         tag=self.TAG_CreatetagQ.text()
-        state='Ofertado'
+        tag_state='Ofertado'
         numoffer=self.NumOffer_CreatetagQ.text()
         numorder=self.NumOrder_CreatetagQ.text()
         num_po=self.NumPO_CreatetagQ.text()
@@ -571,6 +729,8 @@ class Ui_CreateTAGFlow_Window(object):
         facing=self.Facing_CreatetagQ.currentText()
         schedule=self.Sch_CreatetagQ.currentText()
         flagemat=self.Flangemat_CreatetagQ.currentText()
+        flangetype=self.Flangetype_CreatetagQ.currentText()
+        tubemat=self.Tubemat_CreatetagQ.currentText()
         tapping=self.Tapping_CreatetagQ.currentText()
         elementmat=self.ElementMat_CreatetagQ.currentText()
         platetype=self.PlateType_CreatetagQ.currentText()
@@ -581,10 +741,11 @@ class Ui_CreateTAGFlow_Window(object):
         nace=self.Nace_CreatetagQ.currentText()
         numstages=self.StagesNum_CreatetagQ.text()
         pipespec=self.PipeSpec_CreatetagQ.text()
+        weight=self.Weight_CreatetagQ.text()
+        length=self.Length_CreatetagQ.text()
         notes=self.Notes_CreatetagQ.toPlainText()
         amount=self.Amount_CreatetagQ.text()
         amount=amount.replace(".",",")
-
 
         if ((tag=="" or tag==" ") or (typeF=="" or typeF==" ") or (numoffer=="" or numoffer==" ") or (linesize=="" or linesize==" ")
         or (rating=="" or rating==" ") or (facing=="" or facing==" ") or (schedule=="" or schedule==" ")):
@@ -597,21 +758,17 @@ class Ui_CreateTAGFlow_Window(object):
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
 
-        
         else:
-            print('a')
-
-            # commands_inserttagflow = ("""
-            #         SELECT "num_order","num_offer"
-            #         FROM orders
-            #         WHERE "num_order" = %s
-            #         """)
             commands_inserttagflow = ("""
-                            INSERT INTO tags_flow_prueba (
-                            "tag","state","num_offer","num_order","num_po","position","subposition","type","line_size","rating","facing","schedule","flange_material","tapping_num_size","element_material",
-                            "plate_type","plate_thk","gasket_material","bolts_nuts_material","plate_std","stages_number","pipe_spec","nace","amount","notes"
+                            INSERT INTO tags_data.tags_flow_prueba (
+                            "tag","tag_state","num_offer","num_order","num_po",
+                            "position","subposition","item_type","line_size","rating",
+                            "facing","schedule","flange_material","flange_type","tube_material",
+                            "tapping_num_size","element_material","plate_type","plate_thk","plate_std",
+                            "gasket_material","bolts_nuts_material","nace","stages_number","pipe_spec",
+                            "aprox_weight","aprox_length","offer_notes","amount"
                             )
-                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                             """)
             conn = None
             try:
@@ -621,7 +778,12 @@ class Ui_CreateTAGFlow_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands one by one
-                data=(tag,state,numoffer,numorder,num_po,pos,subpos,typeF,linesize,rating,facing,schedule,flagemat,tapping,elementmat,platetype,platethk,gasketmat,boltsnutsmat,platestd,numstages,pipespec,nace,amount,notes)
+                data = (tag,tag_state,numoffer,numorder,num_po,
+                        pos,subpos,typeF,linesize,rating,
+                        facing,schedule,flagemat,flangetype,tubemat,
+                        tapping,elementmat,platetype,platethk,platestd,
+                        gasketmat,boltsnutsmat,nace,numstages,pipespec,
+                        weight,length,notes,amount)
                 cur.execute(commands_inserttagflow,data)
             # close communication with the PostgreSQL database server
                 cur.close()

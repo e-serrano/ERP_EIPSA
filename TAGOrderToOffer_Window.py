@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'ImportTAG_Window.ui'
+# Form implementation generated from reading ui file 'TAGOrderToOffer_Window.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.1
 #
@@ -11,19 +11,18 @@ import pandas as pd
 from tkinter.filedialog import askopenfilename
 import psycopg2
 from config import config
-import math
 
 
-class Ui_ImportTAG_Window(object):
-    def setupUi(self, ImportTAG_Window):
-        ImportTAG_Window.setObjectName("ImportTAG_Window")
-        ImportTAG_Window.resize(640, 330)
-        ImportTAG_Window.setMinimumSize(QtCore.QSize(640, 330))
-        ImportTAG_Window.setMaximumSize(QtCore.QSize(640, 330))
+class Ui_TAGOrderToOffer_Window(object):
+    def setupUi(self, TAGOrderToOffer_Window):
+        TAGOrderToOffer_Window.setObjectName("TAGOrderToOffer_Window")
+        TAGOrderToOffer_Window.resize(640, 330)
+        TAGOrderToOffer_Window.setMinimumSize(QtCore.QSize(640, 330))
+        TAGOrderToOffer_Window.setMaximumSize(QtCore.QSize(640, 330))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        ImportTAG_Window.setWindowIcon(icon)
-        ImportTAG_Window.setStyleSheet("QWidget {\n"
+        TAGOrderToOffer_Window.setWindowIcon(icon)
+        TAGOrderToOffer_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
 "}\n"
 "\n"
@@ -58,7 +57,7 @@ class Ui_ImportTAG_Window(object):
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
 "}")
-        self.centralwidget = QtWidgets.QWidget(parent=ImportTAG_Window)
+        self.centralwidget = QtWidgets.QWidget(parent=TAGOrderToOffer_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -140,36 +139,36 @@ class Ui_ImportTAG_Window(object):
         self.hLayout2.addWidget(self.Button_Cancel)
         self.verticalLayout.addLayout(self.hLayout2)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
-        ImportTAG_Window.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=ImportTAG_Window)
+        TAGOrderToOffer_Window.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=TAGOrderToOffer_Window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 640, 22))
         self.menubar.setObjectName("menubar")
-        ImportTAG_Window.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=ImportTAG_Window)
+        TAGOrderToOffer_Window.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=TAGOrderToOffer_Window)
         self.statusbar.setObjectName("statusbar")
-        ImportTAG_Window.setStatusBar(self.statusbar)
+        TAGOrderToOffer_Window.setStatusBar(self.statusbar)
 
-        self.retranslateUi(ImportTAG_Window)
-        self.Button_Cancel.clicked.connect(ImportTAG_Window.close)
+        self.retranslateUi(TAGOrderToOffer_Window)
+        self.Button_Cancel.clicked.connect(TAGOrderToOffer_Window.close)
         self.Button_Select.clicked.connect(self.browsefiles) # type: ignore
         self.Button_Import.clicked.connect(self.importtag)
 
-        QtCore.QMetaObject.connectSlotsByName(ImportTAG_Window)
+        QtCore.QMetaObject.connectSlotsByName(TAGOrderToOffer_Window)
 
 
-    def retranslateUi(self, ImportTAG_Window):
+    def retranslateUi(self, TAGOrderToOffer_Window):
         _translate = QtCore.QCoreApplication.translate
-        ImportTAG_Window.setWindowTitle(_translate("ImportTAG_Window", "Importar TAG"))
-        self.label_SelectFile.setText(_translate("ImportTAG_Window", "Seleccionar archivo:"))
-        self.Button_Select.setText(_translate("ImportTAG_Window", "Seleccionar"))
-        self.label_name_file.setText(_translate("ImportTAG_Window", ""))
-        self.label_ItemType.setText(_translate("ImportTAG_Window", "Tipo de equipo:"))
-        self.radioFlow.setText(_translate("ImportTAG_Window", "Caudal"))
-        self.radioTemp.setText(_translate("ImportTAG_Window", "Temperatura"))
-        self.radioLevel.setText(_translate("ImportTAG_Window", "Nivel"))
-        self.radioOthers.setText(_translate("ImportTAG_Window", "Otros"))
-        self.Button_Import.setText(_translate("ImportTAG_Window", "Importar"))
-        self.Button_Cancel.setText(_translate("ImportTAG_Window", "Cancelar"))
+        TAGOrderToOffer_Window.setWindowTitle(_translate("TAGOrderToOffer_Window", "TAG Oferta a Pedido"))
+        self.label_SelectFile.setText(_translate("TAGOrderToOffer_Window", "Seleccionar archivo:"))
+        self.Button_Select.setText(_translate("TAGOrderToOffer_Window", "Seleccionar"))
+        self.label_name_file.setText(_translate("TAGOrderToOffer_Window", ""))
+        self.label_ItemType.setText(_translate("TAGOrderToOffer_Window", "Tipo de equipo:"))
+        self.radioFlow.setText(_translate("TAGOrderToOffer_Window", "Caudal"))
+        self.radioTemp.setText(_translate("TAGOrderToOffer_Window", "Temperatura"))
+        self.radioLevel.setText(_translate("TAGOrderToOffer_Window", "Nivel"))
+        self.radioOthers.setText(_translate("TAGOrderToOffer_Window", "Otros"))
+        self.Button_Import.setText(_translate("TAGOrderToOffer_Window", "Importar"))
+        self.Button_Cancel.setText(_translate("TAGOrderToOffer_Window", "Cancelar"))
 
 
     def browsefiles(self):
@@ -205,124 +204,14 @@ class Ui_ImportTAG_Window(object):
 
             if self.radioFlow.isChecked()==True:
                 table_name='tags_data.tags_flow_prueba'
-                try:
-                    for index, row in df_table.iterrows():
-                    # Create a list of pairs (column_name, column_value) for each column with value
-                        columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
-
-                    # Creating string for columns names
-                        columns = ', '.join([column for column, _ in columns_values])
-
-                    # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
-                        values = ', '.join([f"'{values.replace('.', ',')}'" if column in ['amount','plate_thk'] else f"'{values}'" for column, values in columns_values])
-
-                    # Creating insertion query and executing it
-                        sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
-                        cursor.execute(sql_insertion)
-
-                # Closing cursor and database connection
-                    conn.commit()
-                    cursor.close()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Datos importados con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
-                finally:
-                    if conn is not None:
-                        conn.close()
-
             elif self.radioTemp.isChecked()==True:
                 table_name='tags_data.tags_temp_prueba'
-                try:
-                    for index, row in df_table.iterrows():
-                    # Create a list of pairs (column_name, column_value) for each column with value
-                        columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
-
-                    # Creating string for columns names
-                        columns = ', '.join([column for column, _ in columns_values])
-
-                    # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
-                        values = ', '.join([
-                                    f"'{int(float(values))}'" if column in ['flange_rating', 'sheath_stem_diam', 'nipple_ext_length'] and values.endswith('.0')
-                                    else f"'{values.replace('.', ',')}'" if column in ['amount', 'root_diam', 'tip_diam', 'sheath_stem_diam']
-                                    else ('NULL' if values == 'N/A' and column in ['std_length', 'ins_length']
-                                    else f"'{values}'") for column, values in columns_values
-                                    ])
-
-                    # Creating insertion query and executing it
-                        sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
-                        cursor.execute(sql_insertion)
-
-                # Closing cursor and database connection
-                    conn.commit()
-                    cursor.close()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Datos importados con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
-                finally:
-                    if conn is not None:
-                        conn.close()
-
             elif self.radioLevel.isChecked()==True:
-                table_name='tags_data.tags_level_prueba'
-                try:
-                    for index, row in df_table.iterrows():
-                    # Create a list of pairs (column_name, column_value) for each column with value
-                        columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
-
-                    # Creating string for columns names
-                        columns = ', '.join([column for column, _ in columns_values])
-
-                    # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
-                        values = ', '.join([f"'{value.replace('.', ',')}'" if column in ['amount'] else ('NULL' if value == '' and column in [] else f"'{values}'") for column, value in columns_values])
-
-                    # Creating insertion query and executing it
-                        sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
-                        cursor.execute(sql_insertion)
-
-                # Closing cursor and database connection
-                    conn.commit()
-                    cursor.close()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Datos importados con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
-                finally:
-                    if conn is not None:
-                        conn.close()
-
+                table_name= '' #'tags_data.tags_level_prueba'
             elif self.radioOthers.isChecked()==True:
-                print(excel_file)
-
+                table_name= '' 
             else:
+                table_name= '' 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -333,13 +222,67 @@ class Ui_ImportTAG_Window(object):
                 dlg.exec()
                 del dlg, new_icon
 
+            if table_name != '':
+                try:
+                    for index, row in df_table.iterrows():
+                        if "id" in row and "tag" in row and "tag_state" in row:
+                            id_value = row["id"]
+                            tag_value = row["tag"]
+                            state_value = row["tag_state"]
+
+                        # Creating the SET clause with proper formatting
+                            set_clause = f'"tag_state" = \'{state_value}\''
+                            
+                        # Creating the WHERE clause with proper formatting
+                            where_clause = f'"id" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+                            
+                        # Creating the update query and executing it
+                            sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
+                            sql_check = f'SELECT * FROM {table_name} WHERE "id" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+                            cursor.execute(sql_check)
+                            result_check=cursor.fetchall()
+
+                            if len(result_check) == 0:
+                                dlg = QtWidgets.QMessageBox()
+                                new_icon = QtGui.QIcon()
+                                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                dlg.setWindowIcon(new_icon)
+                                dlg.setWindowTitle("ERP EIPSA")
+                                dlg.setText(f"El ID \'{id_value}\' no se corresponde con el TAG \'{tag_value}\' \n"
+                                            "Este TAG no se actualizará")
+                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                dlg.exec()
+                                del dlg, new_icon
+
+                            cursor.execute(sql_update)
+
+                # Closing cursor and database connection
+                    conn.commit()
+                    cursor.close()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Datos importados con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
+                finally:
+                    if conn is not None:
+                        conn.close()
+
             self.label_name_file.setText("")
 
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    ImportTAG_Window = QtWidgets.QMainWindow()
-    ui = Ui_ImportTAG_Window()
-    ui.setupUi(ImportTAG_Window)
-    ImportTAG_Window.show()
+    TAGOrderToOffer_Window = QtWidgets.QMainWindow()
+    ui = Ui_TAGOrderToOffer_Window()
+    ui.setupUi(TAGOrderToOffer_Window)
+    TAGOrderToOffer_Window.show()
     sys.exit(app.exec())

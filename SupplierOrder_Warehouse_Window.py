@@ -22,7 +22,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
-class Ui_SupplierOrder_Window(object):
+class Ui_SupplierOrder_Warehouse_Window(object):
     def setupUi(self, SupplierOrder_Window):
         SupplierOrder_Window.setObjectName("SupplierOrder_Window")
         SupplierOrder_Window.resize(1534, 722)
@@ -63,6 +63,7 @@ class Ui_SupplierOrder_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.NumOrder_SupplierOrder.setFont(font)
+        self.NumOrder_SupplierOrder.setReadOnly(True)
         self.NumOrder_SupplierOrder.setObjectName("NumOrder_SupplierOrder")
         self.gridLayout_2.addWidget(self.NumOrder_SupplierOrder, 1, 2, 1, 1)
         self.label_Supplier = QtWidgets.QLabel(parent=self.frame)
@@ -93,6 +94,7 @@ class Ui_SupplierOrder_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.DelivWay_SupplierOrder.setFont(font)
+        self.DelivWay_SupplierOrder.setReadOnly(True)
         self.DelivWay_SupplierOrder.setObjectName("DelivWay_SupplierOrder")
         self.gridLayout_2.addWidget(self.DelivWay_SupplierOrder, 1, 9, 1, 2)
         self.label_PayWay = QtWidgets.QLabel(parent=self.frame)
@@ -108,6 +110,7 @@ class Ui_SupplierOrder_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.PayWay_SupplierOrder.setFont(font)
+        self.PayWay_SupplierOrder.setReadOnly(True)
         self.PayWay_SupplierOrder.setObjectName("PayWay_SupplierOrder")
         self.gridLayout_2.addWidget(self.PayWay_SupplierOrder, 1, 13, 1, 4)
         self.label_Date = QtWidgets.QLabel(parent=self.frame)
@@ -125,6 +128,7 @@ class Ui_SupplierOrder_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Date_SupplierOrder.setFont(font)
+        self.Date_SupplierOrder.setReadOnly(True)
         self.Date_SupplierOrder.setObjectName("Date_SupplierOrder")
         self.gridLayout_2.addWidget(self.Date_SupplierOrder, 2, 2, 1, 1)
         self.label_TheirRef = QtWidgets.QLabel(parent=self.frame)
@@ -142,6 +146,7 @@ class Ui_SupplierOrder_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.TheirRef_SupplierOrder.setFont(font)
+        self.TheirRef_SupplierOrder.setReadOnly(True)
         self.TheirRef_SupplierOrder.setObjectName("TheirRef_SupplierOrder")
         self.gridLayout_2.addWidget(self.TheirRef_SupplierOrder, 2, 4, 1, 4)
         self.label_DelivDate = QtWidgets.QLabel(parent=self.frame)
@@ -158,6 +163,7 @@ class Ui_SupplierOrder_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.DelivDate_SupplierOrder.setFont(font)
+        self.DelivDate_SupplierOrder.setReadOnly(True)
         self.DelivDate_SupplierOrder.setObjectName("DelivDate_SupplierOrder")
         self.gridLayout_2.addWidget(self.DelivDate_SupplierOrder, 2, 9, 1, 2)
         self.label_DelivTerm = QtWidgets.QLabel(parent=self.frame)
@@ -173,6 +179,7 @@ class Ui_SupplierOrder_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.DelivTerm_SupplierOrder.setFont(font)
+        self.DelivTerm_SupplierOrder.setReadOnly(True)
         self.DelivTerm_SupplierOrder.setObjectName("DelivTerm_SupplierOrder")
         self.gridLayout_2.addWidget(self.DelivTerm_SupplierOrder, 2, 13, 1, 4)
         self.label_Obs = QtWidgets.QLabel(parent=self.frame)
@@ -188,6 +195,7 @@ class Ui_SupplierOrder_Window(object):
         self.OrderObs_SupplierOrder.setMinimumSize(QtCore.QSize(0, 25))
         self.OrderObs_SupplierOrder.setMaximumSize(QtCore.QSize(16777214, 25))
         self.OrderObs_SupplierOrder.setObjectName("OrderObs_SupplierOrder")
+        self.OrderObs_SupplierOrder.setReadOnly(True)
         self.gridLayout_2.addWidget(self.OrderObs_SupplierOrder, 3, 2, 1, 6)
         self.label_Supply = QtWidgets.QLabel(parent=self.frame)
         self.label_Supply.setMinimumSize(QtCore.QSize(75, 25))
@@ -275,6 +283,7 @@ class Ui_SupplierOrder_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.UnitValue_SupplierOrder.setFont(font)
+        self.UnitValue_SupplierOrder.setReadOnly(True)
         self.UnitValue_SupplierOrder.setObjectName("UnitValue_SupplierOrder")
         self.gridLayout_2.addWidget(self.UnitValue_SupplierOrder, 5, 8, 1, 1)
         self.label_Discount = QtWidgets.QLabel(parent=self.frame)
@@ -292,6 +301,7 @@ class Ui_SupplierOrder_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Discount_SupplierOrder.setFont(font)
+        self.Discount_SupplierOrder.setReadOnly(True)
         self.Discount_SupplierOrder.setObjectName("Discount_SupplierOrder")
         self.gridLayout_2.addWidget(self.Discount_SupplierOrder, 5, 9, 1, 1)
         self.label_IDOrd = QtWidgets.QLabel(parent=self.frame)
@@ -323,6 +333,7 @@ class Ui_SupplierOrder_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Position_SupplierOrder.setFont(font)
+        self.Position_SupplierOrder.setReadOnly(True)
         self.Position_SupplierOrder.setObjectName("Position_SupplierOrder")
         self.gridLayout_2.addWidget(self.Position_SupplierOrder, 7, 5, 1, 1)
         self.label_Quantity = QtWidgets.QLabel(parent=self.frame)
@@ -340,6 +351,7 @@ class Ui_SupplierOrder_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Quantity_SupplierOrder.setFont(font)
+        self.Quantity_SupplierOrder.setReadOnly(True)
         self.Quantity_SupplierOrder.setObjectName("Quantity_SupplierOrder")
         self.gridLayout_2.addWidget(self.Quantity_SupplierOrder, 7, 6, 1, 1)
         self.label_Deliv1 = QtWidgets.QLabel(parent=self.frame)
@@ -357,6 +369,7 @@ class Ui_SupplierOrder_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Deliv1_SupplierOrder.setFont(font)
+        self.Deliv1_SupplierOrder.setReadOnly(True)
         self.Deliv1_SupplierOrder.setObjectName("Deliv1_SupplierOrder")
         self.gridLayout_2.addWidget(self.Deliv1_SupplierOrder, 7, 7, 1, 1)
         self.label_Deliv2 = QtWidgets.QLabel(parent=self.frame)
@@ -374,6 +387,7 @@ class Ui_SupplierOrder_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Deliv2_SupplierOrder.setFont(font)
+        self.Deliv2_SupplierOrder.setReadOnly(True)
         self.Deliv2_SupplierOrder.setObjectName("Deliv2_SupplierOrder")
         self.gridLayout_2.addWidget(self.Deliv2_SupplierOrder, 7, 8, 1, 1)
         self.label_Deliv3 = QtWidgets.QLabel(parent=self.frame)
@@ -391,6 +405,7 @@ class Ui_SupplierOrder_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Deliv3_SupplierOrder.setFont(font)
+        self.Deliv3_SupplierOrder.setReadOnly(True)
         self.Deliv3_SupplierOrder.setObjectName("Deliv3_SupplierOrder")
         self.gridLayout_2.addWidget(self.Deliv3_SupplierOrder, 7, 9, 1, 1)
         self.label_DateDeliv = QtWidgets.QLabel(parent=self.frame)
@@ -804,6 +819,7 @@ class Ui_SupplierOrder_Window(object):
         self.Coms_SupplierOrder = QtWidgets.QTextEdit(parent=self.frame)
         self.Coms_SupplierOrder.setMinimumSize(QtCore.QSize(0, 80))
         self.Coms_SupplierOrder.setMaximumSize(QtCore.QSize(1300, 80))
+        self.Coms_SupplierOrder.setReadOnly(True)
         self.Coms_SupplierOrder.setObjectName("Coms_SupplierOrder")
         self.gridLayout_2.addWidget(self.Coms_SupplierOrder, 13, 1, 1, 16)
         self.label_FinalCom = QtWidgets.QLabel(parent=self.frame)
@@ -814,6 +830,7 @@ class Ui_SupplierOrder_Window(object):
         self.FinalComs_SupplierOrder = QtWidgets.QTextEdit(parent=self.frame)
         self.FinalComs_SupplierOrder.setMinimumSize(QtCore.QSize(0, 60))
         self.FinalComs_SupplierOrder.setMaximumSize(QtCore.QSize(1220, 60))
+        self.FinalComs_SupplierOrder.setReadOnly(True)
         self.FinalComs_SupplierOrder.setObjectName("FinalComs_SupplierOrder")
         self.gridLayout_2.addWidget(self.FinalComs_SupplierOrder, 14, 2, 2, 15)
         self.frame_2 = QtWidgets.QFrame(parent=self.frame)
@@ -1059,15 +1076,15 @@ class Ui_SupplierOrder_Window(object):
         self.tableSupplierOrders.itemClicked.connect(self.loadformorder)
         self.tableRecords.itemClicked.connect(self.loadformsupply)
         # # # self.tableClients.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
-        self.Button_CreateOrder.clicked.connect(self.createorder)
-        self.Button_ModifyOrder.clicked.connect(self.modifyorder)
-        self.Button_AddRecord.clicked.connect(self.addrecord)
-        self.Button_ModifyRecord.clicked.connect(self.modifyrecord)
+        # self.Button_CreateOrder.clicked.connect(self.createorder)
+        # self.Button_ModifyOrder.clicked.connect(self.modifyorder)
+        # self.Button_AddRecord.clicked.connect(self.addrecord)
+        # self.Button_ModifyRecord.clicked.connect(self.modifyrecord)
         self.Button_Deliv1.clicked.connect(self.adddeliv1)
         self.Button_Deliv2.clicked.connect(self.adddeliv2)
         self.Button_Deliv3.clicked.connect(self.adddeliv3)
         self.Supply_SupplierOrder.currentIndexChanged.connect(self.loadstocks)
-        self.Button_Print.clicked.connect(self.printsupplierorder)
+        # self.Button_Print.clicked.connect(self.printsupplierorder)
         self.loadtableorders()
 
 
@@ -1169,461 +1186,459 @@ class Ui_SupplierOrder_Window(object):
         self.label_Position.setText(_translate("SupplierOrder_Window", "Posición:"))
 
 
-# Function to create order
-    def createorder(self):
-        num_order=self.NumOrder_SupplierOrder.text()
-        supplier_name=self.Supplier_SupplierOrder.currentText()
-        delivway=self.DelivWay_SupplierOrder.text()
-        payway=self.PayWay_SupplierOrder.text()
-        order_date=self.Date_SupplierOrder.text()
-        their_ref=self.TheirRef_SupplierOrder.text()
-        delivdate=self.DelivDate_SupplierOrder.text()
-        delivterm=self.DelivTerm_SupplierOrder.text()
-        order_obs=self.OrderObs_SupplierOrder.toPlainText()
-        order_com=self.Coms_SupplierOrder.toPlainText()
-        order_finalcoms=self.FinalComs_SupplierOrder.toPlainText()
-        currency=self.Currency_SupplierOrder.currentText()[0]
-        total=self.Total_SupplierOrder.text()
+# # Function to create order
+#     def createorder(self):
+#         num_order=self.NumOrder_SupplierOrder.text()
+#         supplier_name=self.Supplier_SupplierOrder.currentText()
+#         delivway=self.DelivWay_SupplierOrder.text()
+#         payway=self.PayWay_SupplierOrder.text()
+#         order_date=self.Date_SupplierOrder.text()
+#         their_ref=self.TheirRef_SupplierOrder.text()
+#         delivdate=self.DelivDate_SupplierOrder.text()
+#         delivterm=self.DelivTerm_SupplierOrder.text()
+#         order_obs=self.OrderObs_SupplierOrder.toPlainText()
+#         order_com=self.Coms_SupplierOrder.toPlainText()
+#         order_finalcoms=self.FinalComs_SupplierOrder.toPlainText()
+#         currency=self.Currency_SupplierOrder.currentText()[0]
+#         total=self.Total_SupplierOrder.text()
 
-        if order_date=="" or (order_date==" " or (num_order==" " or num_order=="")):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Crear Pedido")
-            dlg.setText("Rellena la fecha y el número de pédido")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+#         if order_date=="" or (order_date==" " or (num_order==" " or num_order=="")):
+#             dlg = QtWidgets.QMessageBox()
+#             new_icon = QtGui.QIcon()
+#             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#             dlg.setWindowIcon(new_icon)
+#             dlg.setWindowTitle("Crear Pedido")
+#             dlg.setText("Rellena la fecha y el número de pédido")
+#             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+#             dlg.exec()
+#             del dlg, new_icon
 
-        elif not self.is_valid_date(order_date):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Crear Pedido")
-            dlg.setText("La fecha no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+#         elif not self.is_valid_date(order_date):
+#             dlg = QtWidgets.QMessageBox()
+#             new_icon = QtGui.QIcon()
+#             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#             dlg.setWindowIcon(new_icon)
+#             dlg.setWindowTitle("Crear Pedido")
+#             dlg.setText("La fecha no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
+#             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+#             dlg.exec()
+#             del dlg, new_icon
 
-        elif not self.is_valid_date(delivdate):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Crear Pedido")
-            dlg.setText("La fecha de entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+#         elif not self.is_valid_date(delivdate):
+#             dlg = QtWidgets.QMessageBox()
+#             new_icon = QtGui.QIcon()
+#             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#             dlg.setWindowIcon(new_icon)
+#             dlg.setWindowTitle("Crear Pedido")
+#             dlg.setText("La fecha de entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
+#             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+#             dlg.exec()
+#             del dlg, new_icon
 
-        else:
-            commands_neworder=("""
-                            INSERT INTO purch_fact.supplier_ord_header_test (
-                            supplier_id, order_date, delivery_date, notes, supplier_order_num, their_ref,
-                            delivery_way, pay_way, delivery_term, order_com, total_amount, final_comment, currency_id
-                            )
-                            VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-                            """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                query_supplier = "SELECT id FROM purch_fact.suppliers_test WHERE name = %s"
-                cur.execute(query_supplier, (supplier_name,))
-                result_supplier = cur.fetchone()
+#         else:
+#             commands_neworder=("""
+#                             INSERT INTO purch_fact.supplier_ord_header_test (
+#                             supplier_id, order_date, delivery_date, notes, supplier_order_num, their_ref,
+#                             delivery_way, pay_way, delivery_term, order_com, total_amount, final_comment, currency_id
+#                             )
+#                             VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+#                             """)
+#             conn = None
+#             try:
+#             # read the connection parameters
+#                 params = config()
+#             # connect to the PostgreSQL server
+#                 conn = psycopg2.connect(**params)
+#                 cur = conn.cursor()
+#             # execution of commands
+#                 query_supplier = "SELECT id FROM purch_fact.suppliers_test WHERE name = %s"
+#                 cur.execute(query_supplier, (supplier_name,))
+#                 result_supplier = cur.fetchone()
 
-                query_currency = "SELECT id FROM purch_fact.currency WHERE symbol_currency = %s"
-                cur.execute(query_currency, (currency,))
-                result_currency = cur.fetchone()
-            # get id from table
-                supplier_id = result_supplier[0]
-                currency_id = result_currency[0]
-            # execution of principal command
-                data=(supplier_id,order_date,delivdate,order_obs,num_order,their_ref,delivway,payway,delivterm,order_com,total,order_finalcoms,currency_id,)
-                cur.execute(commands_neworder, data)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+#                 query_currency = "SELECT id FROM purch_fact.currency WHERE symbol_currency = %s"
+#                 cur.execute(query_currency, (currency,))
+#                 result_currency = cur.fetchone()
+#             # get id from table
+#                 supplier_id = result_supplier[0]
+#                 currency_id = result_currency[0]
+#             # execution of principal command
+#                 data=(supplier_id,order_date,delivdate,order_obs,num_order,their_ref,delivway,payway,delivterm,order_com,total,order_finalcoms,currency_id,)
+#                 cur.execute(commands_neworder, data)
+#             # close communication with the PostgreSQL database server
+#                 cur.close()
+#             # commit the changes
+#                 conn.commit()
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Crear Pedido Proveedor")
-                dlg.setText("Pedido creado con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
+#                 dlg = QtWidgets.QMessageBox()
+#                 new_icon = QtGui.QIcon()
+#                 new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#                 dlg.setWindowIcon(new_icon)
+#                 dlg.setWindowTitle("Crear Pedido Proveedor")
+#                 dlg.setText("Pedido creado con éxito")
+#                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+#                 dlg.exec()
 
-                del dlg,new_icon
+#                 del dlg,new_icon
 
-            except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-            finally:
-                if conn is not None:
-                    conn.close()
+#             except (Exception, psycopg2.DatabaseError) as error:
+#                 print(error)
+#             finally:
+#                 if conn is not None:
+#                     conn.close()
 
-            self.loadtableorders()
+#             self.loadtableorders()
 
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                query_idorder = "SELECT id FROM purch_fact.supplier_ord_header_test ORDER BY id"
-                cur.execute(query_idorder)
-                result_idorder = cur.fetchall()
+#             conn = None
+#             try:
+#             # read the connection parameters
+#                 params = config()
+#             # connect to the PostgreSQL server
+#                 conn = psycopg2.connect(**params)
+#                 cur = conn.cursor()
+#             # execution of commands
+#                 query_idorder = "SELECT id FROM purch_fact.supplier_ord_header_test ORDER BY id"
+#                 cur.execute(query_idorder)
+#                 result_idorder = cur.fetchall()
 
-            # get id from table
-                idorder = result_idorder[-1][0]
-                self.label_IDOrd.setText(str(idorder))
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+#             # get id from table
+#                 idorder = result_idorder[-1][0]
+#                 self.label_IDOrd.setText(str(idorder))
+#             # close communication with the PostgreSQL database server
+#                 cur.close()
+#             # commit the changes
+#                 conn.commit()
 
-            except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-            finally:
-                if conn is not None:
-                    conn.close()
-
-            self.loadtableorders()
+#             except (Exception, psycopg2.DatabaseError) as error:
+#                 print(error)
+#             finally:
+#                 if conn is not None:
+#                     conn.close()
 
 
-# Function to modify order data
-    def modifyorder(self):
-        order_id=self.label_IDOrd.text()
-        num_order=self.NumOrder_SupplierOrder.text()
-        supplier_name=self.Supplier_SupplierOrder.currentText()
-        delivway=self.DelivWay_SupplierOrder.text()
-        payway=self.PayWay_SupplierOrder.text()
-        order_date=self.Date_SupplierOrder.text()
-        their_ref=self.TheirRef_SupplierOrder.text()
-        delivdate=self.DelivDate_SupplierOrder.text()
-        delivterm=self.DelivTerm_SupplierOrder.text()
-        order_obs=self.OrderObs_SupplierOrder.toPlainText()
-        order_com=self.Coms_SupplierOrder.toPlainText()
-        order_finalcoms=self.FinalComs_SupplierOrder.toPlainText()
-        currency=self.Currency_SupplierOrder.currentText()[0]
-        total=self.Total_SupplierOrder.text()
+# # Function to modify order data
+#     def modifyorder(self):
+#         order_id=self.label_IDOrd.text()
+#         num_order=self.NumOrder_SupplierOrder.text()
+#         supplier_name=self.Supplier_SupplierOrder.currentText()
+#         delivway=self.DelivWay_SupplierOrder.text()
+#         payway=self.PayWay_SupplierOrder.text()
+#         order_date=self.Date_SupplierOrder.text()
+#         their_ref=self.TheirRef_SupplierOrder.text()
+#         delivdate=self.DelivDate_SupplierOrder.text()
+#         delivterm=self.DelivTerm_SupplierOrder.text()
+#         order_obs=self.OrderObs_SupplierOrder.toPlainText()
+#         order_com=self.Coms_SupplierOrder.toPlainText()
+#         order_finalcoms=self.FinalComs_SupplierOrder.toPlainText()
+#         currency=self.Currency_SupplierOrder.currentText()[0]
+#         total=self.Total_SupplierOrder.text()
 
-        if order_id=="" or (order_date==" " or order_date==""):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Modificar Pedido")
-            dlg.setText("Selecciona un pedido existente e introduce una fecha válida")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+#         if order_id=="" or (order_date==" " or order_date==""):
+#             dlg = QtWidgets.QMessageBox()
+#             new_icon = QtGui.QIcon()
+#             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#             dlg.setWindowIcon(new_icon)
+#             dlg.setWindowTitle("Modificar Pedido")
+#             dlg.setText("Selecciona un pedido existente e introduce una fecha válida")
+#             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+#             dlg.exec()
+#             del dlg, new_icon
 
-        elif not self.is_valid_date(order_date):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Crear Pedido")
-            dlg.setText("La fecha no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+#         elif not self.is_valid_date(order_date):
+#             dlg = QtWidgets.QMessageBox()
+#             new_icon = QtGui.QIcon()
+#             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#             dlg.setWindowIcon(new_icon)
+#             dlg.setWindowTitle("Crear Pedido")
+#             dlg.setText("La fecha no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
+#             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+#             dlg.exec()
+#             del dlg, new_icon
 
-        elif not self.is_valid_date(delivdate):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Crear Pedido")
-            dlg.setText("La fecha de entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+#         elif not self.is_valid_date(delivdate):
+#             dlg = QtWidgets.QMessageBox()
+#             new_icon = QtGui.QIcon()
+#             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#             dlg.setWindowIcon(new_icon)
+#             dlg.setWindowTitle("Crear Pedido")
+#             dlg.setText("La fecha de entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
+#             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+#             dlg.exec()
+#             del dlg, new_icon
 
-        else:
-            commands_updateorder = ("""
-                        UPDATE purch_fact.supplier_ord_header_test
-                        SET "supplier_id" = %s, "order_date" = %s, "delivery_date" = %s, "notes" = %s, "supplier_order_num" = %s, "their_ref" = %s,
-                        "delivery_way" = %s, "pay_way" = %s, "delivery_term" = %s, "order_com" = %s, "total_amount" = %s, "final_comment" = %s, "currency_id" = %s
-                        WHERE "id" = %s
-                        """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                query_supplier = "SELECT id FROM purch_fact.suppliers_test WHERE name = %s"
-                cur.execute(query_supplier, (supplier_name,))
-                result_supplier = cur.fetchone()
+#         else:
+#             commands_updateorder = ("""
+#                         UPDATE purch_fact.supplier_ord_header_test
+#                         SET "supplier_id" = %s, "order_date" = %s, "delivery_date" = %s, "notes" = %s, "supplier_order_num" = %s, "their_ref" = %s,
+#                         "delivery_way" = %s, "pay_way" = %s, "delivery_term" = %s, "order_com" = %s, "total_amount" = %s, "final_comment" = %s, "currency_id" = %s
+#                         WHERE "id" = %s
+#                         """)
+#             conn = None
+#             try:
+#             # read the connection parameters
+#                 params = config()
+#             # connect to the PostgreSQL server
+#                 conn = psycopg2.connect(**params)
+#                 cur = conn.cursor()
+#             # execution of commands
+#                 query_supplier = "SELECT id FROM purch_fact.suppliers_test WHERE name = %s"
+#                 cur.execute(query_supplier, (supplier_name,))
+#                 result_supplier = cur.fetchone()
 
-                query_currency = "SELECT id FROM purch_fact.currency WHERE symbol_currency = %s"
-                cur.execute(query_currency, (currency,))
-                result_currency = cur.fetchone()
-            # get id from table
-                supplier_id = result_supplier[0]
-                currency_id = result_currency[0]
-            # execution of principal command
-                data=(supplier_id,order_date,delivdate,order_obs,num_order,their_ref,delivway,payway,delivterm,order_com,total,order_finalcoms,currency_id,order_id,)
-                cur.execute(commands_updateorder, data)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+#                 query_currency = "SELECT id FROM purch_fact.currency WHERE symbol_currency = %s"
+#                 cur.execute(query_currency, (currency,))
+#                 result_currency = cur.fetchone()
+#             # get id from table
+#                 supplier_id = result_supplier[0]
+#                 currency_id = result_currency[0]
+#             # execution of principal command
+#                 data=(supplier_id,order_date,delivdate,order_obs,num_order,their_ref,delivway,payway,delivterm,order_com,total,order_finalcoms,currency_id,order_id,)
+#                 cur.execute(commands_updateorder, data)
+#             # close communication with the PostgreSQL database server
+#                 cur.close()
+#             # commit the changes
+#                 conn.commit()
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Modificar Pedido Proveedor")
-                dlg.setText("Pedido modificado con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
+#                 dlg = QtWidgets.QMessageBox()
+#                 new_icon = QtGui.QIcon()
+#                 new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#                 dlg.setWindowIcon(new_icon)
+#                 dlg.setWindowTitle("Modificar Pedido Proveedor")
+#                 dlg.setText("Pedido modificado con éxito")
+#                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+#                 dlg.exec()
 
-                del dlg,new_icon
+#                 del dlg,new_icon
 
-            except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-            finally:
-                if conn is not None:
-                    conn.close()
+#             except (Exception, psycopg2.DatabaseError) as error:
+#                 print(error)
+#             finally:
+#                 if conn is not None:
+#                     conn.close()
 
-            self.loadtableorders()
-
-
-# Function to create record
-    def addrecord(self):
-        order_id=self.label_IDOrd.text()
-        supply_name=self.Supply_SupplierOrder.currentText()
-        supply_name=supply_name[:supply_name.find(" |")]
-        unit_value=self.UnitValue_SupplierOrder.text()
-        unit_value=unit_value.replace(".",",")
-        discount=self.Discount_SupplierOrder.text() if self.Discount_SupplierOrder.text() not in [""," "] else 0
-        position=self.Position_SupplierOrder.text()
-        quantity=self.Quantity_SupplierOrder.text()
-        deliv_quant_1=self.Deliv1_SupplierOrder.text() if self.Deliv1_SupplierOrder.text() not in [""," "] else 0
-        deliv_quant_2=self.Deliv2_SupplierOrder.text() if self.Deliv2_SupplierOrder.text() not in [""," "] else 0
-        deliv_quant_3=self.Deliv3_SupplierOrder.text() if self.Deliv3_SupplierOrder.text() not in [""," "] else 0
-
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            query_checkposition = "SELECT * FROM purch_fact.supplier_ord_detail_test WHERE (position_supply = %s AND supplier_ord_header_id= %s)"
-            cur.execute(query_checkposition, (position, order_id,))
-            result_position = cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-        finally:
-            if conn is not None:
-                conn.close()
-
-        if order_id == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Agregar Registros")
-            dlg.setText("Por favor, para añadir registros elige un pedido existente o crea uno nuevo")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
-
-        elif quantity == "" or (quantity == "" or (quantity == 0 or (position == "" or (position ==" " or position == 0)))):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Agregar Registros")
-            dlg.setText("Añade una cantidad válida de elementos y una posición válida y mayor que 0")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
-
-        elif len(result_position)>0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Agregar Registros")
-            dlg.setText("Esa posición ya existe. Elige otra")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
-
-        else:
-            commands_newrecord = ("""
-                                INSERT INTO purch_fact.supplier_ord_detail_test (
-                                supplier_ord_header_id,position_supply,supply_id,unit_value,
-                                discount,quantity,deliv_quant_1,deliv_quant_2,deliv_quant_3
-                                )
-                                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
-                                """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                query_supplyid = "SELECT id, pending_stock FROM purch_fact.supplies_test WHERE reference = %s"
-                cur.execute(query_supplyid, (supply_name,))
-                result_supplyid = cur.fetchone()
-
-            # get id from table
-                supply_id = result_supplyid[0]
-                pending_stock = result_supplyid[1]
-                new_pending_stock = str(float(pending_stock) + float(quantity))
-
-                query_pending_stock = ("""UPDATE purch_fact.supplies_test
-                                        SET "pending_stock" = %s 
-                                        WHERE "reference" = %s""")
-                cur.execute(query_pending_stock, (new_pending_stock,supply_name,))
-            # execution of principal command
-                data=(order_id,position,supply_id,unit_value,discount,quantity,deliv_quant_1,deliv_quant_2,deliv_quant_3,)
-                cur.execute(commands_newrecord, data)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
-            except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-            finally:
-                if conn is not None:
-                    conn.close()
-
-            self.loadtablerecords()
-            self.calculate_totalorder()
-            self.loadstocks()
+#             self.loadtableorders()
 
 
-# Function to modify record data
-    def modifyrecord(self):
-        record_id=self.label_IDRecord.text()
-        supply_name=self.Supply_SupplierOrder.currentText()
-        supply_name=supply_name[:supply_name.find(" |")]
-        unit_value=self.UnitValue_SupplierOrder.text()
-        unit_value=unit_value.replace(".",",")
-        discount=self.Discount_SupplierOrder.text().replace(" %", "") if " %" in self.Discount_SupplierOrder.text() else (self.Discount_SupplierOrder.text() if self.Discount_SupplierOrder.text() not in [""," "] else 0)
-        position=self.Position_SupplierOrder.text()
-        quantity=self.Quantity_SupplierOrder.text()
-        deliv_quant_1=self.Deliv1_SupplierOrder.text() if self.Deliv1_SupplierOrder.text() not in [""," "] else 0
-        deliv_quant_2=self.Deliv2_SupplierOrder.text() if self.Deliv2_SupplierOrder.text() not in [""," "] else 0
-        deliv_quant_3=self.Deliv3_SupplierOrder.text() if self.Deliv3_SupplierOrder.text() not in [""," "] else 0
+# # Function to create record
+#     def addrecord(self):
+#         order_id=self.label_IDOrd.text()
+#         supply_name=self.Supply_SupplierOrder.currentText()
+#         supply_name=supply_name[:supply_name.find(" |")]
+#         unit_value=self.UnitValue_SupplierOrder.text()
+#         unit_value=unit_value.replace(".",",")
+#         discount=self.Discount_SupplierOrder.text() if self.Discount_SupplierOrder.text() not in [""," "] else 0
+#         position=self.Position_SupplierOrder.text()
+#         quantity=self.Quantity_SupplierOrder.text()
+#         deliv_quant_1=self.Deliv1_SupplierOrder.text() if self.Deliv1_SupplierOrder.text() not in [""," "] else 0
+#         deliv_quant_2=self.Deliv2_SupplierOrder.text() if self.Deliv2_SupplierOrder.text() not in [""," "] else 0
+#         deliv_quant_3=self.Deliv3_SupplierOrder.text() if self.Deliv3_SupplierOrder.text() not in [""," "] else 0
 
-        if record_id == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Modificar Registros")
-            dlg.setText("Selecciona un registro existente")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+#         conn = None
+#         try:
+#         # read the connection parameters
+#             params = config()
+#         # connect to the PostgreSQL server
+#             conn = psycopg2.connect(**params)
+#             cur = conn.cursor()
+#         # execution of commands
+#             query_checkposition = "SELECT * FROM purch_fact.supplier_ord_detail_test WHERE (position_supply = %s AND supplier_ord_header_id= %s)"
+#             cur.execute(query_checkposition, (position, order_id,))
+#             result_position = cur.fetchall()
+#         # close communication with the PostgreSQL database server
+#             cur.close()
+#         # commit the changes
+#             conn.commit()
 
-        elif position == "" or (position ==" " or position == 0):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Modificar Registros")
-            dlg.setText("Elige una posición válida y mayor que 0")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+#         except (Exception, psycopg2.DatabaseError) as error:
+#             print(error)
+#         finally:
+#             if conn is not None:
+#                 conn.close()
 
-        else:
-            commands_modifyrecord = ("""
-                        UPDATE purch_fact.supplier_ord_detail_test
-                        SET "position_supply" = %s, "supply_id" = %s, "unit_value" = %s, "discount" = %s,
-                        "quantity" = %s, "deliv_quant_1" = %s, "deliv_quant_2" = %s, "deliv_quant_3" = %s
-                        WHERE "id" = %s
-                        """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                query_supplyid = ("""SELECT id, physical_stock, pending_stock, available_stock
-                                    FROM purch_fact.supplies_test
-                                    WHERE reference = %s""")
-                cur.execute(query_supplyid, (supply_name,))
-                result_supplyid = cur.fetchone()
+#         if order_id == "":
+#             dlg = QtWidgets.QMessageBox()
+#             new_icon = QtGui.QIcon()
+#             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#             dlg.setWindowIcon(new_icon)
+#             dlg.setWindowTitle("Agregar Registros")
+#             dlg.setText("Por favor, para añadir registros elige un pedido existente o crea uno nuevo")
+#             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+#             dlg.exec()
+#             del dlg,new_icon
 
-                query_quantitysupply = ("""SELECT pending, deliv_quant_1, deliv_quant_2, deliv_quant_3
-                                        FROM purch_fact.supplier_ord_detail_test
-                                        WHERE id = %s""")
-                cur.execute(query_quantitysupply, (record_id,))
-                result_quantity = cur.fetchone()
-            # get id from table
-                supply_id = result_supplyid[0]
-                stock = result_supplyid[1]
-                pending_stock = result_supplyid[2]
-                available_stock = result_supplyid[3]
+#         elif quantity == "" or (quantity == "" or (quantity == 0 or (position == "" or (position ==" " or position == 0)))):
+#             dlg = QtWidgets.QMessageBox()
+#             new_icon = QtGui.QIcon()
+#             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#             dlg.setWindowIcon(new_icon)
+#             dlg.setWindowTitle("Agregar Registros")
+#             dlg.setText("Añade una cantidad válida de elementos y una posición válida y mayor que 0")
+#             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+#             dlg.exec()
+#             del dlg,new_icon
 
-                old_pending = result_quantity[0]
-                old_quant_deliv_1 = result_quantity[1]
-                old_quant_deliv_2 = result_quantity[2]
-                old_quant_deliv_3 = result_quantity[3]
+#         elif len(result_position)>0:
+#             dlg = QtWidgets.QMessageBox()
+#             new_icon = QtGui.QIcon()
+#             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#             dlg.setWindowIcon(new_icon)
+#             dlg.setWindowTitle("Agregar Registros")
+#             dlg.setText("Esa posición ya existe. Elige otra")
+#             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+#             dlg.exec()
+#             del dlg,new_icon
 
-                new_quant_deliv = float(deliv_quant_1) + float(deliv_quant_2) + float(deliv_quant_3)
-                old_quant_deliv = float(old_quant_deliv_1) + float(old_quant_deliv_2) + float(old_quant_deliv_3)
+#         else:
+#             commands_newrecord = ("""
+#                                 INSERT INTO purch_fact.supplier_ord_detail_test (
+#                                 supplier_ord_header_id,position_supply,supply_id,unit_value,
+#                                 discount,quantity,deliv_quant_1,deliv_quant_2,deliv_quant_3
+#                                 )
+#                                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+#                                 """)
+#             conn = None
+#             try:
+#             # read the connection parameters
+#                 params = config()
+#             # connect to the PostgreSQL server
+#                 conn = psycopg2.connect(**params)
+#                 cur = conn.cursor()
+#             # execution of commands
+#                 query_supplyid = "SELECT id, pending_stock FROM purch_fact.supplies_test WHERE reference = %s"
+#                 cur.execute(query_supplyid, (supply_name,))
+#                 result_supplyid = cur.fetchone()
 
-                new_pending = float(quantity) - new_quant_deliv
+#             # get id from table
+#                 supply_id = result_supplyid[0]
+#                 pending_stock = result_supplyid[1]
+#                 new_pending_stock = str(float(pending_stock) + float(quantity))
 
-                new_stock= str(float(stock) - old_quant_deliv + new_quant_deliv)
-                new_pending_stock = str(float(pending_stock) - float(old_pending) + float(new_pending))
-                new_available_stock= str(float(available_stock) - old_quant_deliv + new_quant_deliv)
+#                 query_pending_stock = ("""UPDATE purch_fact.supplies_test
+#                                         SET "pending_stock" = %s 
+#                                         WHERE "reference" = %s""")
+#                 cur.execute(query_pending_stock, (new_pending_stock,supply_name,))
+#             # execution of principal command
+#                 data=(order_id,position,supply_id,unit_value,discount,quantity,deliv_quant_1,deliv_quant_2,deliv_quant_3,)
+#                 cur.execute(commands_newrecord, data)
+#             # close communication with the PostgreSQL database server
+#                 cur.close()
+#             # commit the changes
+#                 conn.commit()
 
-                query_pending_stock = ("""UPDATE purch_fact.supplies_test
-                                        SET "physical_stock" = %s, "pending_stock" = %s, "available_stock" = %s 
-                                        WHERE "reference" = %s""")
-                cur.execute(query_pending_stock, (new_stock,new_pending_stock,new_available_stock,supply_name,))
-            # execution of principal command
-                data=(position,supply_id,unit_value,discount,quantity,deliv_quant_1,deliv_quant_2,deliv_quant_3,record_id,)
-                cur.execute(commands_modifyrecord, data)
+#             except (Exception, psycopg2.DatabaseError) as error:
+#                 print(error)
+#             finally:
+#                 if conn is not None:
+#                     conn.close()
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+#             self.loadtablerecords()
+#             self.calculate_totalorder()
+#             self.loadstocks()
 
-            except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-            finally:
-                if conn is not None:
-                    conn.close()
 
-            self.loadtablerecords()
-            self.calculate_totalorder()
-            self.loadstocks()
+# # Function to modify record data
+    # def modifyrecord(self):
+    #     record_id=self.label_IDRecord.text()
+    #     supply_name=self.Supply_SupplierOrder.currentText()
+    #     supply_name=supply_name[:supply_name.find(" |")]
+    #     unit_value=self.UnitValue_SupplierOrder.text()
+    #     unit_value=unit_value.replace(".",",")
+    #     discount=self.Discount_SupplierOrder.text().replace(" %", "") if " %" in self.Discount_SupplierOrder.text() else (self.Discount_SupplierOrder.text() if self.Discount_SupplierOrder.text() not in [""," "] else 0)
+    #     position=self.Position_SupplierOrder.text()
+    #     quantity=self.Quantity_SupplierOrder.text()
+    #     deliv_quant_1=self.Deliv1_SupplierOrder.text() if self.Deliv1_SupplierOrder.text() not in [""," "] else 0
+    #     deliv_quant_2=self.Deliv2_SupplierOrder.text() if self.Deliv2_SupplierOrder.text() not in [""," "] else 0
+    #     deliv_quant_3=self.Deliv3_SupplierOrder.text() if self.Deliv3_SupplierOrder.text() not in [""," "] else 0
+
+    #     if record_id == "":
+    #         dlg = QtWidgets.QMessageBox()
+    #         new_icon = QtGui.QIcon()
+    #         new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+    #         dlg.setWindowIcon(new_icon)
+    #         dlg.setWindowTitle("Modificar Registros")
+    #         dlg.setText("Selecciona un registro existente")
+    #         dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+    #         dlg.exec()
+    #         del dlg,new_icon
+
+    #     elif position == "" or (position ==" " or position == 0):
+    #         dlg = QtWidgets.QMessageBox()
+    #         new_icon = QtGui.QIcon()
+    #         new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+    #         dlg.setWindowIcon(new_icon)
+    #         dlg.setWindowTitle("Modificar Registros")
+    #         dlg.setText("Elige una posición válida y mayor que 0")
+    #         dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+    #         dlg.exec()
+    #         del dlg,new_icon
+
+    #     else:
+    #         commands_modifyrecord = ("""
+    #                     UPDATE purch_fact.supplier_ord_detail_test
+    #                     SET "position_supply" = %s, "supply_id" = %s, "unit_value" = %s, "discount" = %s,
+    #                     "quantity" = %s, "deliv_quant_1" = %s, "deliv_quant_2" = %s, "deliv_quant_3" = %s
+    #                     WHERE "id" = %s
+    #                     """)
+    #         conn = None
+    #         try:
+    #         # read the connection parameters
+    #             params = config()
+    #         # connect to the PostgreSQL server
+    #             conn = psycopg2.connect(**params)
+    #             cur = conn.cursor()
+    #         # execution of commands
+    #             query_supplyid = ("""SELECT id, physical_stock, pending_stock, available_stock
+    #                                 FROM purch_fact.supplies_test
+    #                                 WHERE reference = %s""")
+    #             cur.execute(query_supplyid, (supply_name,))
+    #             result_supplyid = cur.fetchone()
+
+    #             query_quantitysupply = ("""SELECT pending, deliv_quant_1, deliv_quant_2, deliv_quant_3
+    #                                     FROM purch_fact.supplier_ord_detail_test
+    #                                     WHERE id = %s""")
+    #             cur.execute(query_quantitysupply, (record_id,))
+    #             result_quantity = cur.fetchone()
+    #         # get id from table
+    #             supply_id = result_supplyid[0]
+    #             stock = result_supplyid[1]
+    #             pending_stock = result_supplyid[2]
+    #             available_stock = result_supplyid[3]
+
+    #             old_pending = result_quantity[0]
+    #             old_quant_deliv_1 = result_quantity[1]
+    #             old_quant_deliv_2 = result_quantity[2]
+    #             old_quant_deliv_3 = result_quantity[3]
+
+    #             new_quant_deliv = float(deliv_quant_1) + float(deliv_quant_2) + float(deliv_quant_3)
+    #             old_quant_deliv = float(old_quant_deliv_1) + float(old_quant_deliv_2) + float(old_quant_deliv_3)
+
+    #             new_pending = float(quantity) - new_quant_deliv
+
+    #             new_stock= str(float(stock) - old_quant_deliv + new_quant_deliv)
+    #             new_pending_stock = str(float(pending_stock) - float(old_pending) + float(new_pending))
+    #             new_available_stock= str(float(available_stock) - old_quant_deliv + new_quant_deliv)
+
+    #             query_pending_stock = ("""UPDATE purch_fact.supplies_test
+    #                                     SET "physical_stock" = %s, "pending_stock" = %s, "available_stock" = %s 
+    #                                     WHERE "reference" = %s""")
+    #             cur.execute(query_pending_stock, (new_stock,new_pending_stock,new_available_stock,supply_name,))
+    #         # execution of principal command
+    #             data=(position,supply_id,unit_value,discount,quantity,deliv_quant_1,deliv_quant_2,deliv_quant_3,record_id,)
+    #             cur.execute(commands_modifyrecord, data)
+
+    #         # close communication with the PostgreSQL database server
+    #             cur.close()
+    #         # commit the changes
+    #             conn.commit()
+
+    #         except (Exception, psycopg2.DatabaseError) as error:
+    #             print(error)
+    #         finally:
+    #             if conn is not None:
+    #                 conn.close()
+
+    #         self.loadtablerecords()
+    #         self.calculate_totalorder()
+    #         self.loadstocks()
 
 
 # Function to load client order form
@@ -2410,123 +2425,123 @@ class Ui_SupplierOrder_Window(object):
         self.Total_SupplierOrder.setText(total)
 
 
-# Function to print in PDF the supplier order
-    def printsupplierorder(self):
-        order_id=self.label_IDOrd.text()
-        num_order=self.NumOrder_SupplierOrder.text()
-        date=self.Date_SupplierOrder.text()
-        their_ref=self.TheirRef_SupplierOrder.text()
-        payway=self.PayWay_SupplierOrder.text()
-        delivway=self.DelivWay_SupplierOrder.text()
-        delivterm=self.DelivTerm_SupplierOrder.text()
-        obs=self.OrderObs_SupplierOrder.toPlainText()
-        coments=self.Coms_SupplierOrder.toPlainText()
-        final_coments=self.FinalComs_SupplierOrder.toPlainText()
-        total_order=self.Total_SupplierOrder.text()
-        supplier_name=self.Supplier_SupplierOrder.currentText()
-        currency_symbol=self.Currency_SupplierOrder.currentText()[0]
-        currency_eurovalue=self.Currency_SupplierOrder.currentText().split('|')[1].strip()
-        currency_eurovalue=float(currency_eurovalue[:currency_eurovalue.find(" €")].replace(",","."))
+# # Function to print in PDF the supplier order
+#     def printsupplierorder(self):
+#         order_id=self.label_IDOrd.text()
+#         num_order=self.NumOrder_SupplierOrder.text()
+#         date=self.Date_SupplierOrder.text()
+#         their_ref=self.TheirRef_SupplierOrder.text()
+#         payway=self.PayWay_SupplierOrder.text()
+#         delivway=self.DelivWay_SupplierOrder.text()
+#         delivterm=self.DelivTerm_SupplierOrder.text()
+#         obs=self.OrderObs_SupplierOrder.toPlainText()
+#         coments=self.Coms_SupplierOrder.toPlainText()
+#         final_coments=self.FinalComs_SupplierOrder.toPlainText()
+#         total_order=self.Total_SupplierOrder.text()
+#         supplier_name=self.Supplier_SupplierOrder.currentText()
+#         currency_symbol=self.Currency_SupplierOrder.currentText()[0]
+#         currency_eurovalue=self.Currency_SupplierOrder.currentText().split('|')[1].strip()
+#         currency_eurovalue=float(currency_eurovalue[:currency_eurovalue.find(" €")].replace(",","."))
 
-        if order_id=="":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Imprimir pedido")
-            dlg.setText("Selecciona un pedido existente")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
+#         if order_id=="":
+#             dlg = QtWidgets.QMessageBox()
+#             new_icon = QtGui.QIcon()
+#             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#             dlg.setWindowIcon(new_icon)
+#             dlg.setWindowTitle("Imprimir pedido")
+#             dlg.setText("Selecciona un pedido existente")
+#             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+#             dlg.exec()
+#             del dlg,new_icon
 
-        else:
-            pdf = supplier_order(num_order,date,their_ref,payway,delivway,delivterm,obs,supplier_name)
+#         else:
+#             pdf = supplier_order(num_order,date,their_ref,payway,delivway,delivterm,obs,supplier_name)
 
-            pdf.add_font('DejaVuSansCondensed', '', '//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/DejaVuSansCondensed.ttf')
-            pdf.add_font('DejaVuSansCondensed-Bold', '', '//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/DejaVuSansCondensed-Bold.ttf')
+#             pdf.add_font('DejaVuSansCondensed', '', '//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/DejaVuSansCondensed.ttf')
+#             pdf.add_font('DejaVuSansCondensed-Bold', '', '//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/DejaVuSansCondensed-Bold.ttf')
 
-            pdf.set_auto_page_break(auto=True, margin=2)
+#             pdf.set_auto_page_break(auto=True, margin=2)
 
-            pdf.add_page()
+#             pdf.add_page()
 
-            for row in range(self.tableRecords.rowCount()):
-                position_text=self.tableRecords.item(row, 1).text()
-                quantity_text=self.tableRecords.item(row, 4).text()
-                code_text=self.tableRecords.item(row, 2).text()
-                description_text=self.tableRecords.item(row, 3).text()
-                unitvalue_text=self.tableRecords.item(row, 5).text()
-                discount_text=self.tableRecords.item(row, 6).text()
-                total_text=self.tableRecords.item(row, 7).text()
+#             for row in range(self.tableRecords.rowCount()):
+#                 position_text=self.tableRecords.item(row, 1).text()
+#                 quantity_text=self.tableRecords.item(row, 4).text()
+#                 code_text=self.tableRecords.item(row, 2).text()
+#                 description_text=self.tableRecords.item(row, 3).text()
+#                 unitvalue_text=self.tableRecords.item(row, 5).text()
+#                 discount_text=self.tableRecords.item(row, 6).text()
+#                 total_text=self.tableRecords.item(row, 7).text()
 
-                currency_unitvalue=unitvalue_text[:unitvalue_text.find(" €")]
-                currency_unitvalue=currency_unitvalue.replace(",",".")
-                currency_unitvalue=float(currency_unitvalue) * currency_eurovalue
-                currency_unitvalue=locale.format_string("%.2f", currency_unitvalue, grouping=True) + " " + currency_symbol
+#                 currency_unitvalue=unitvalue_text[:unitvalue_text.find(" €")]
+#                 currency_unitvalue=currency_unitvalue.replace(",",".")
+#                 currency_unitvalue=float(currency_unitvalue) * currency_eurovalue
+#                 currency_unitvalue=locale.format_string("%.2f", currency_unitvalue, grouping=True) + " " + currency_symbol
 
-                currency_total=total_text[:total_text.find(" €")]
-                currency_total=currency_total.replace(".","")
-                currency_total=currency_total.replace(",",".")
-                currency_total=float(currency_total) * currency_eurovalue
-                currency_total=locale.format_string("%.2f", currency_total, grouping=True) + " " + currency_symbol
+#                 currency_total=total_text[:total_text.find(" €")]
+#                 currency_total=currency_total.replace(".","")
+#                 currency_total=currency_total.replace(",",".")
+#                 currency_total=float(currency_total) * currency_eurovalue
+#                 currency_total=locale.format_string("%.2f", currency_total, grouping=True) + " " + currency_symbol
 
-                y_position = pdf.get_y()
-                pdf.set_font('Helvetica', '', 9)
-                pdf.cell(1, 0.53, position_text, align='C')
-                pdf.cell(0.2, 0.53, "")
-                pdf.cell(1.25, 0.53, quantity_text, align='C')
-                pdf.cell(0.2, 0.53, "")
-                pdf.cell(4.8, 0.53, code_text)
-                pdf.cell(0.2, 0.53, "")
-                x_position = pdf.get_x()
-                pdf.multi_cell(5.9, 0.53, description_text)
-                pdf.set_y(y_position)
-                pdf.set_x(x_position + 5.9)
-                pdf.cell(0.2, 0.53, "")
-                pdf.set_font('DejaVuSansCondensed', size=9)
-                pdf.cell(1.94, 0.53, currency_unitvalue, align='R')
-                pdf.cell(0.2, 0.53, "")
-                pdf.set_font('Helvetica', '', 9)
-                pdf.cell(1.23, 0.53, discount_text, align='C')
-                pdf.cell(0.2, 0.53, "")
-                pdf.set_font('DejaVuSansCondensed', size=9)
-                pdf.cell(2.05, 0.53, currency_total, align='R')
-                pdf.ln(1)
+#                 y_position = pdf.get_y()
+#                 pdf.set_font('Helvetica', '', 9)
+#                 pdf.cell(1, 0.53, position_text, align='C')
+#                 pdf.cell(0.2, 0.53, "")
+#                 pdf.cell(1.25, 0.53, quantity_text, align='C')
+#                 pdf.cell(0.2, 0.53, "")
+#                 pdf.cell(4.8, 0.53, code_text)
+#                 pdf.cell(0.2, 0.53, "")
+#                 x_position = pdf.get_x()
+#                 pdf.multi_cell(5.9, 0.53, description_text)
+#                 pdf.set_y(y_position)
+#                 pdf.set_x(x_position + 5.9)
+#                 pdf.cell(0.2, 0.53, "")
+#                 pdf.set_font('DejaVuSansCondensed', size=9)
+#                 pdf.cell(1.94, 0.53, currency_unitvalue, align='R')
+#                 pdf.cell(0.2, 0.53, "")
+#                 pdf.set_font('Helvetica', '', 9)
+#                 pdf.cell(1.23, 0.53, discount_text, align='C')
+#                 pdf.cell(0.2, 0.53, "")
+#                 pdf.set_font('DejaVuSansCondensed', size=9)
+#                 pdf.cell(2.05, 0.53, currency_total, align='R')
+#                 pdf.ln(1)
 
-            currency_totalorder=float(total_order[:total_order.find(" €")].replace(".","").replace(",","."))
-            currency_totalorder=currency_totalorder * currency_eurovalue
-            currency_totalorder=locale.format_string("%.2f", currency_totalorder, grouping=True) + " " + currency_symbol
+#             currency_totalorder=float(total_order[:total_order.find(" €")].replace(".","").replace(",","."))
+#             currency_totalorder=currency_totalorder * currency_eurovalue
+#             currency_totalorder=locale.format_string("%.2f", currency_totalorder, grouping=True) + " " + currency_symbol
             
-            y_position = pdf.get_y()
-            pdf.set_fill_color(231, 231, 226)
-            pdf.set_font('Helvetica', 'B', 8)
-            x_position = pdf.get_x()
-            pdf.multi_cell(13.795, 0.3, coments)
-            pdf.ln(1)
-            pdf.multi_cell(13.795, 0.3, final_coments)
-            pdf.set_y(y_position)
-            pdf.set_x(x_position + 13.795)
-            y_position = pdf.get_y()
-            pdf.cell(0.2, 0.50, "")
-            pdf.set_font('Helvetica', 'U', 8)
-            pdf.cell(2.3, 0.50, "Total del pedido:",fill=True)
-            pdf.set_font('DejaVuSansCondensed-Bold', size=10)
-            pdf.cell(2.29, 0.50, currency_totalorder, align='R', fill=True)
-            pdf.ln(1)
+#             y_position = pdf.get_y()
+#             pdf.set_fill_color(231, 231, 226)
+#             pdf.set_font('Helvetica', 'B', 8)
+#             x_position = pdf.get_x()
+#             pdf.multi_cell(13.795, 0.3, coments)
+#             pdf.ln(1)
+#             pdf.multi_cell(13.795, 0.3, final_coments)
+#             pdf.set_y(y_position)
+#             pdf.set_x(x_position + 13.795)
+#             y_position = pdf.get_y()
+#             pdf.cell(0.2, 0.50, "")
+#             pdf.set_font('Helvetica', 'U', 8)
+#             pdf.cell(2.3, 0.50, "Total del pedido:",fill=True)
+#             pdf.set_font('DejaVuSansCondensed-Bold', size=10)
+#             pdf.cell(2.29, 0.50, currency_totalorder, align='R', fill=True)
+#             pdf.ln(1)
 
-            output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar Pedido Proveedor")
+#             output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar Pedido Proveedor")
 
-            if output_path:
-                pdf.output(output_path)
+#             if output_path:
+#                 pdf.output(output_path)
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Imprimir pedido")
-                dlg.setText("PDF generado con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg,new_icon
+#                 dlg = QtWidgets.QMessageBox()
+#                 new_icon = QtGui.QIcon()
+#                 new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#                 dlg.setWindowIcon(new_icon)
+#                 dlg.setWindowTitle("Imprimir pedido")
+#                 dlg.setText("PDF generado con éxito")
+#                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+#                 dlg.exec()
+#                 del dlg,new_icon
 
 
 # Function of popup window to enter quantities of deliveries
@@ -2587,7 +2602,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     SupplierOrder_Window = QtWidgets.QMainWindow()
-    ui = Ui_SupplierOrder_Window()
+    ui = Ui_SupplierOrder_Warehouse_Window()
     ui.setupUi(SupplierOrder_Window)
     SupplierOrder_Window.showMaximized()
     sys.exit(app.exec())

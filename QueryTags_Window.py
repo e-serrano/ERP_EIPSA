@@ -9,6 +9,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from config import config
 import psycopg2
+import re
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -18,6 +19,9 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
 
 class Ui_QueryTags_Window(object):
+    def __init__(self, dpto):
+        self.dpto_value=dpto
+
     def setupUi(self, QueryTags_Window):
         QueryTags_Window.setObjectName("QueryTags_Window")
         QueryTags_Window.resize(790, 595)
@@ -181,6 +185,7 @@ class Ui_QueryTags_Window(object):
     def query_tags(self):
         numorder=self.Numorder_QueryTags.text()
         numoffer=self.Numoffer_QueryTags.text()
+        variable = ''
 
         if ((numorder=="" or numorder==" ") and (numoffer=="" or numoffer==" ")):
             dlg = QtWidgets.QMessageBox()
@@ -192,67 +197,26 @@ class Ui_QueryTags_Window(object):
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
 
-        else:
-            conn = None
-            # read the connection parameters
-            params = config()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            cur.execute(f"""SELECT * FROM orders WHERE UPPER("num_order") = UPPER('{numorder}')""")
-            results=cur.fetchall()
-            match=list(filter(lambda x:numorder.upper() in x, results))
-
-            cur.execute(f"""SELECT * FROM offers WHERE UPPER("num_offer") = UPPER('{numoffer}')""")
-            results2=cur.fetchall()
-            match2=list(filter(lambda x:numoffer.upper() in x, results2))
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-
-            if numorder !='' and len(match)==0:
+        elif numorder=="" or numorder==" ":
+            if  not re.match(r'^O-\d{2}/\d{3}.*$', numoffer):
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Consultar Tags")
-                dlg.setText("El número de pedido introducido no existe")
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("El número de oferta debe tener formato O-XX/YYY")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg.exec()
-
-            elif numoffer !='' and len(match2)==0:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Consultar Tags")
-                dlg.setText("El número de oferta introducido no existe")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
+                del dlg, new_icon
 
             else:
-                if numoffer!='' and numorder=='':
-                    commands_querytags = (f"""
-                                SELECT offers."num_offer",product_type."variable"
-                                FROM offers
-                                INNER JOIN product_type ON (offers."material"=product_type."material")
-                                WHERE UPPER(offers."num_offer") LIKE UPPER('%%{numoffer}%%')
-                                ORDER BY offers."num_offer"
-                                """)
-
-                else:
-                    commands_querytags = (f"""
-                                SELECT orders."num_offer",orders."num_order",product_type."variable"
-                                FROM offers
-                                INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
-                                INNER JOIN product_type ON (offers."material"=product_type."material")
-                                WHERE (UPPER(orders."num_offer") LIKE UPPER('%%{numoffer}%%')
-                                AND
-                                UPPER(orders."num_order") LIKE UPPER('%%{numorder}%%')
-                                )
-                                ORDER BY orders."num_order"
-                                """)
+                commands_querytags = (f"""
+                                    SELECT offers."num_offer",product_type."variable"
+                                    FROM offers
+                                    INNER JOIN product_type ON (offers."material"=product_type."material")
+                                    WHERE UPPER(offers."num_offer") LIKE UPPER('%%{numoffer}%%')
+                                    ORDER BY offers."num_offer"
+                                    """)
                 conn = None
                 try:
                 # read the connection parameters
@@ -264,9 +228,145 @@ class Ui_QueryTags_Window(object):
                     cur.execute(commands_querytags)
                     result_variable=cur.fetchall()
                     if len(result_variable[0])==3:
-                        variable=result_variable[0][2]
+                        variable=result_variable[0][2] if result_variable != None else ''
                     elif len(result_variable[0])==2:
-                        variable=result_variable[0][1]
+                        variable=result_variable[0][1] if result_variable != None else ''
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+                if result_variable == None:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("EL número de pedido no existe")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+                    del dlg, new_icon
+                else:
+                    if variable=='Caudal':
+                        table_name='tags_data.tags_flow_prueba'
+                    elif variable=='Temperatura':
+                        table_name='tags_data.tags_temp_prueba'
+                    elif variable=='Nivel':
+                        print('c')
+                    elif variable=='Otros':
+                        print('d')
+
+        elif numoffer=="" or numoffer==" ":
+            if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', numorder):
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg, new_icon
+
+            else:
+                commands_querytags = (f"""
+                                    SELECT num_order, product_type."variable"
+                                    FROM orders
+                                    INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
+                                    INNER JOIN product_type ON (product_type."material" = offers."material")
+                                    WHERE
+                                    UPPER (orders."num_order") LIKE UPPER('%%{numorder}%%')
+                                    """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(commands_querytags)
+                    result_variable=cur.fetchall()
+                    if len(result_variable[0])==3:
+                        variable=result_variable[0][2] if result_variable != None else ''
+                    elif len(result_variable[0])==2:
+                        variable=result_variable[0][1] if result_variable != None else ''
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+                if result_variable == None:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("EL número de pedido no existe")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+                    del dlg, new_icon
+                else:
+                    if variable=='Caudal':
+                        table_name='tags_data.tags_flow_prueba'
+                    elif variable=='Temperatura':
+                        table_name='tags_data.tags_temp_prueba'
+                    elif variable=='Nivel':
+                        print('c')
+                    elif variable=='Otros':
+                        print('d')
+            
+        else:
+            if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', numorder) or not re.match(r'^O-\d{2}/\d{3}.*$', numoffer):
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY \n"
+                            "El número de oferta debe tener formato O-XX/YYY")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg, new_icon
+
+            else:
+                commands_querytags = (f"""
+                            SELECT orders."num_offer",orders."num_order",product_type."variable"
+                            FROM offers
+                            INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
+                            INNER JOIN product_type ON (offers."material"=product_type."material")
+                            WHERE (UPPER(orders."num_offer") LIKE UPPER('%%{numoffer}%%')
+                            AND
+                            UPPER(orders."num_order") LIKE UPPER('%%{numorder}%%')
+                            )
+                            ORDER BY orders."num_order"
+                            """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(commands_querytags)
+                    result_variable=cur.fetchall()
+                    if len(result_variable[0])==3:
+                        variable=result_variable[0][2] if result_variable != None else ''
+                    elif len(result_variable[0])==2:
+                        variable=result_variable[0][1] if result_variable != None else ''
 
                 # close communication with the PostgreSQL database server
                     cur.close()
@@ -279,65 +379,115 @@ class Ui_QueryTags_Window(object):
                         conn.close()
 
                 if variable=='Caudal':
-                    table_name='tags_flow_prueba'
-
+                    table_name='tags_data.tags_flow_prueba'
                 elif variable=='Temperatura':
-                    print('b')
-
+                    table_name='tags_data.tags_temp_prueba'
                 elif variable=='Nivel':
                     print('c')
-
                 elif variable=='Otros':
                     print('d')
 
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                    commands_querytagsvariable = (f"""
-                            SELECT * FROM {table_name}
-                            WHERE (
-                            UPPER(num_offer) LIKE UPPER('%%{numoffer}%%')
-                            AND
-                            UPPER(num_order) LIKE UPPER('%%{numorder}%%')
-                            )
-                            ORDER BY tag
-                            """)
-                # execution of commands and savind results
-                    cur.execute(commands_querytagsvariable)
-                    results=cur.fetchall()
-                    field_names=[i[0] for i in cur.description]
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-                except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
-                finally:
-                    if conn is not None:
-                        conn.close()
+        if variable != '':
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+                commands_querytagsvariable = (f"""
+                        SELECT * FROM {table_name}
+                        WHERE (
+                        UPPER(num_offer) LIKE UPPER('%%{numoffer}%%')
+                        AND
+                        UPPER(num_order) LIKE UPPER('%%{numorder}%%')
+                        )
+                        ORDER BY tag
+                        """)
+            # execution of commands and savind results
+                cur.execute(commands_querytagsvariable)
+                results=cur.fetchall()
+                field_names=[i[0] for i in cur.description]
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
 
-                self.tableQueryTags.setRowCount(len(results))
-                self.tableQueryTags.setColumnCount(len(cur.description))
+            self.tableQueryTags.setRowCount(len(results))
+            self.tableQueryTags.setColumnCount(len(cur.description))
+            
+            tablerow=0
+
+        # fill the Qt Table with the query results
+            for row in results:
+                for column in range(len(field_names)):
+                    it = QtWidgets.QTableWidgetItem(str(row[column]))
+                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                    self.tableQueryTags.setItem(tablerow, column, it)
+
+                tablerow+=1
+
+            self.tableQueryTags.verticalHeader().hide()
+            self.tableQueryTags.setItemDelegate(AlignDelegate(self.tableQueryTags))
+            self.tableQueryTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableQueryTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font: 800 10pt;}")
+
+            # Change all column names
+            headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
+                        "Tipo", "Tamaño Línea", "Rating", "Facing", "Schedule", "Material Brida", "Tipo Brida",
+                        "Material Tubo", "Tamaño Tomas (Nº)", "Material Elemento", "Tipo Placa", "Espesor Placa",
+                        "Estándar Placa", "Material Junta", "Material Tornillería", "NACE", "Nº Saltos",
+                        "Pipe Spec.", "Peso Aprox. (kg)", "Long. Aprox. (mm)", "Precio (€)", "Notas Oferta",
+                        "Cambios Comercial", "Fecha Contractual", "Ø Orif. (mm)", "Ø D/V (mm)", "Cambios Técnicos",
+                        "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo", "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano",
+                        "Estado Plano", "Fecha Estado Plano", "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra",
+                        "Fecha OF Placa", "Plano OF Placa", "Colada Placa", "Fecha OF Brida", "Plano OF Brida",
+                        "Colada Brida", "Nº Tapones", "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material",
+                        "RTJ Espesor", "RTJ Dim", "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos",
+                        "Cantidad Espárragos", "Tamaño Extractor", "Cantidad Extractor", "Estado Fabricación", "Inspección",
+                        "Envío RN"]
+            
+            headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
+                        "Tipo", "Tipo TW", "Tamaño Brida", "Rating Brida", "Facing Brida", "Standard TW",
+                        "Material TW", "Long. STD (mm)", "Long. Ins. (mm)", "Ø Raíz (mm)", "Ø Punta (mm)",
+                        "Sensor", "Material Sheath/Stem", "Ø Sheath/Stem (mm)", "Insulation", "Temp Inf (ºC)",
+                        "Temp Sup ºC", "Material Nipple Ext.", "Long. Nipple Ext. (mm)", "Material Head/Case", "Con. Elec./Diam. Case",
+                        "TT/Terminal Insulation", "Material Brida LapJoint", "Material Junta", "Puntal", "Tubo",
+                        "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
+                        "Stress", "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Ø Picaje (mm)",
+                        "Notas Cálculo", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo",
+                        "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Planos",
+                        "Fecha OF Sensor", "Plano OF Sensor", "Notas Sensor", "Estado Fabricación Sensor", "Fecha OF TW",
+                        "Plano OF TW", "Notas TW", "Estado Fabricación TW", "Orden de Compra", "Fecha Orden Compra",
+                        "Notas Orden Compra", "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)",
+                        "Tapón", "Estado Fabricación", "Inspección", "Envío RN"]
+
+            headers_level = []
+
+            if variable == 'Caudal':
                 self.tableQueryTags.setHorizontalHeaderLabels(field_names)
-                tablerow=0
+                self.tableQueryTags.setHorizontalHeaderLabels(headers_flow)
+                for i in range (66,self.tableQueryTags.columnCount()):
+                    self.tableQueryTags.setColumnHidden(i,True)
+            elif variable == 'Temperatura':
+                self.tableQueryTags.setHorizontalHeaderLabels(field_names)
+                self.tableQueryTags.setHorizontalHeaderLabels(headers_temp)
+                for i in range (72,self.tableQueryTags.columnCount()):
+                    self.tableQueryTags.setColumnHidden(i,True)
+            elif variable == 'Nivel':
+                self.tableQueryTags.setHorizontalHeaderLabels(headers_level)
 
-            # fill the Qt Table with the query results
-                for row in results:
-                    for column in range(len(field_names)):
-                        it = QtWidgets.QTableWidgetItem(str(row[column]))
-                        it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                        self.tableQueryTags.setItem(tablerow, column, it)
+            if self.dpto_value == 'Técnico':
+                if variable == 'Caudal':
+                    self.tableQueryTags.setColumnHidden(28,True)
+                elif variable == 'Temperatura':
+                    self.tableQueryTags.setColumnHidden(35,True)
 
-                    tablerow+=1
-
-                self.tableQueryTags.verticalHeader().hide()
-                self.tableQueryTags.setItemDelegate(AlignDelegate(self.tableQueryTags))
-                self.tableQueryTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                self.tableQueryTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font: 800 10pt;}")
 
 
 if __name__ == "__main__":

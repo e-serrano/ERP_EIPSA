@@ -243,32 +243,36 @@ class Ui_ImportTableNew_Window(object):
 
         #Importing excel file into dataframes
             df_raw=pd.read_excel(excel_file)
-            df_table = pd.read_excel(excel_file, skiprows=1)
+            df_table = pd.read_excel(excel_file, na_values=['N/A'], keep_default_na=False, skiprows=1)
+            df_table = df_table.astype(str)
+            df_table.replace('nan', 'N/A', inplace=True)
 
         # Getting columns names and datatype for database table
             columns_datatypes = list(df_raw.columns)
             columns_names = list(df_table.columns)
+
+            columns_datatypes[0] = "character varying NOT NULL"
+            columns_datatypes[1] = "character varying"
+
+            table_name="validation_data." + table_name
             
         # Creating list of pairs (name, dataype) for each column
             columns_definition = [f"{name} {datatype}" for name, datatype in zip(columns_names, columns_datatypes)]
             
         # Creating query and executing it
-            sql_create_table = f"CREATE TABLE {table_name} ({', '.join(columns_definition)})"
+            sql_create_table = f"CREATE TABLE {table_name} ({', '.join(columns_definition)}, PRIMARY KEY ({columns_names[0]}))"
             cursor.execute(sql_create_table)
 
         # Loop through each row of the DataFrame and insert the data into the table
             for index, row in df_table.iterrows():
             # Create a list of pairs (column_name, column_value) for each column with value
-                columns_values = [(column, str(row[column])) for column in df_table.columns if not pd.isnull(row[column])]
-
-            # Wrap values with double quotes if they contain double quotes or spaces
-                columns_values = [(column, f"'{values}'") for column, values in columns_values]
+                columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
 
             # Creating string for columns names
                 columns = ', '.join([column for column, _ in columns_values])
 
             # Creating string for columns values
-                values = ', '.join([values for _, values in columns_values])
+                values = ', '.join([f"'{value.replace('.', ',')}'" if column in ['sheat_stem_diam','root_diam','tip_diam'] else ('NULL' if value == '' and column in ['amount'] else f"'{value}'") for column, value in columns_values])
 
             # Creating insertion query and executing it
                 sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"

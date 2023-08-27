@@ -238,26 +238,26 @@ class Ui_EditReg_Window(object):
         self.comboBox.setObjectName("comboBox")
         self.hLayout1.addWidget(self.comboBox)
         self.gridLayout_2.addLayout(self.hLayout1, 1, 0, 1, 1)
-        spacerItem1 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem1, 3, 0, 1, 1)
-        self.hLayout2 = QtWidgets.QHBoxLayout()
-        self.hLayout2.setObjectName("hLayout3")
-        self.Button_EditReg = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_EditReg.setMinimumSize(QtCore.QSize(100, 35))
-        self.Button_EditReg.setMaximumSize(QtCore.QSize(100, 35))
-        self.Button_EditReg.setObjectName("Button_EditReg")
-        self.hLayout2.addWidget(self.Button_EditReg)
-        spacerItem3 = QtWidgets.QSpacerItem(50, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.hLayout2.addItem(spacerItem3)
-        self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Cancel.setMinimumSize(QtCore.QSize(100, 35))
-        self.Button_Cancel.setMaximumSize(QtCore.QSize(100, 35))
-        self.Button_Cancel.setObjectName("Button_Cancel")
-        self.hLayout2.addWidget(self.Button_Cancel)
-        self.gridLayout_2.addLayout(self.hLayout2, 4, 0, 1, 1)
+        # spacerItem1 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        # self.gridLayout_2.addItem(spacerItem1, 3, 0, 1, 1)
+        # self.hLayout2 = QtWidgets.QHBoxLayout()
+        # self.hLayout2.setObjectName("hLayout3")
+        # self.Button_EditReg = QtWidgets.QPushButton(parent=self.frame)
+        # self.Button_EditReg.setMinimumSize(QtCore.QSize(100, 35))
+        # self.Button_EditReg.setMaximumSize(QtCore.QSize(100, 35))
+        # self.Button_EditReg.setObjectName("Button_EditReg")
+        # self.hLayout2.addWidget(self.Button_EditReg)
+        # spacerItem3 = QtWidgets.QSpacerItem(50, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        # self.hLayout2.addItem(spacerItem3)
+        # self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
+        # self.Button_Cancel.setMinimumSize(QtCore.QSize(100, 35))
+        # self.Button_Cancel.setMaximumSize(QtCore.QSize(100, 35))
+        # self.Button_Cancel.setObjectName("Button_Cancel")
+        # self.hLayout2.addWidget(self.Button_Cancel)
+        # self.gridLayout_2.addLayout(self.hLayout2, 4, 0, 1, 1)
 
         self.model = EditableTableModel()
-        self.model.setEditStrategy(QtSql.QSqlTableModel.EditStrategy.OnManualSubmit)
+        self.model.setEditStrategy(QtSql.QSqlTableModel.EditStrategy.OnFieldChange)
         self.model.select()
         self.proxy.setSourceModel(self.model)
 
@@ -277,8 +277,8 @@ class Ui_EditReg_Window(object):
         self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
         self.retranslateUi(EditReg_Window)
-        self.Button_Cancel.clicked.connect(EditReg_Window.close) # type: ignore
-        self.Button_EditReg.clicked.connect(self.EditReg) 
+        # self.Button_Cancel.clicked.connect(EditReg_Window.close) # type: ignore
+        # self.Button_EditReg.clicked.connect(self.EditReg) 
         self.comboBox.currentIndexChanged.connect(self.loadtable)
         QtCore.QMetaObject.connectSlotsByName(EditReg_Window)
 
@@ -313,57 +313,63 @@ class Ui_EditReg_Window(object):
         tables_names.insert(0,"")
         self.comboBox.addItems(tables_names)
 
+        self.model.dataChanged.connect(self.saveChanges)
+
 
     def retranslateUi(self, EditReg_Window):
         _translate = QtCore.QCoreApplication.translate
         EditReg_Window.setWindowTitle(_translate("EditReg_Window", "Editar Registros Base de Datos"))
         self.labelTable.setText(_translate("EditReg_Window", "Tabla:"))
-        self.Button_EditReg.setText(_translate("EditReg_Window", "Guardar"))
-        self.Button_Cancel.setText(_translate("EditReg_Window", "Cancelar"))
+        # self.Button_EditReg.setText(_translate("EditReg_Window", "Guardar"))
+        # self.Button_Cancel.setText(_translate("EditReg_Window", "Cancelar"))
 
 
-    def EditReg(self):
-        columns_number=self.model.columnCount()
-        if self.model.database().isOpen():
-            self.model.database().transaction()
-            success = True
+# Function to upload changes in database when field change
+    def saveChanges(self):
+        self.model.submitAll()
 
-            for index in range(columns_number):
-                self.proxy.setFilter("", index)
-                self.model.setIconColumnHeader(index, '')
+    # def EditReg(self):
+    #     columns_number=self.model.columnCount()
+    #     if self.model.database().isOpen():
+    #         self.model.database().transaction()
+    #         success = True
 
-            for row in range(self.model.rowCount()):
-                for column in range(self.model.columnCount()):
-                    index = self.model.index(row, column)
-                    current_value = index.data(Qt.ItemDataRole.DisplayRole)
-                    original_value = self.model.getOriginalValue(index)
-                    if current_value != original_value:
-                        record = self.model.record(row)
-                        query = self.model.update_record(record, index)
-                        if not query:
-                            success = False
-                            break
+    #         for index in range(columns_number):
+    #             self.proxy.setFilter("", index)
+    #             self.model.setIconColumnHeader(index, '')
 
-            if success:
-                self.model.database().commit()
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Editar Documentos")
-                dlg.setText("Datos guardados con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-            else:
-                self.model.database().rollback()
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Editar Documentos")
-                dlg.setText("Ha habido un problema al guardar los datos")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
+    #         for row in range(self.model.rowCount()):
+    #             for column in range(self.model.columnCount()):
+    #                 index = self.model.index(row, column)
+    #                 current_value = index.data(Qt.ItemDataRole.DisplayRole)
+    #                 original_value = self.model.getOriginalValue(index)
+    #                 if current_value != original_value:
+    #                     record = self.model.record(row)
+    #                     query = self.model.update_record(record, index)
+    #                     if not query:
+    #                         success = False
+    #                         break
+
+    #         if success:
+    #             self.model.database().commit()
+    #             dlg = QtWidgets.QMessageBox()
+    #             new_icon = QtGui.QIcon()
+    #             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+    #             dlg.setWindowIcon(new_icon)
+    #             dlg.setWindowTitle("Editar Documentos")
+    #             dlg.setText("Datos guardados con éxito")
+    #             dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+    #             dlg.exec()
+    #         else:
+    #             self.model.database().rollback()
+    #             dlg = QtWidgets.QMessageBox()
+    #             new_icon = QtGui.QIcon()
+    #             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+    #             dlg.setWindowIcon(new_icon)
+    #             dlg.setWindowTitle("Editar Documentos")
+    #             dlg.setText("Ha habido un problema al guardar los datos")
+    #             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+    #             dlg.exec()
 
 
     def loadtable(self):
@@ -371,7 +377,7 @@ class Ui_EditReg_Window(object):
 
         self.model.setTable(table_name)
         self.model.select()
-        self.model.setEditStrategy(QtSql.QSqlTableModel.EditStrategy.OnManualSubmit)
+        self.model.setEditStrategy(QtSql.QSqlTableModel.EditStrategy.OnFieldChange)
 
         self.proxy.setSourceModel(self.model)
         self.tableWidget.setModel(self.proxy)
@@ -379,7 +385,7 @@ class Ui_EditReg_Window(object):
         self.tableWidget.verticalHeader().hide()
         self.tableWidget.setItemDelegate(AlignDelegate(self.tableWidget))
         self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableWidget.horizontalHeader().setStyleSheet("::section{font: 800 10pt}")
+        self.tableWidget.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
         self.tableWidget.setObjectName("tableWidget")
         self.gridLayout_2.addWidget(self.tableWidget, 5, 0, 1, 1)
         self.tableWidget.setSortingEnabled(False)
@@ -388,6 +394,8 @@ class Ui_EditReg_Window(object):
             for column in range(self.model.columnCount()):
                 index = self.model.index(row, column)
                 self.model.setOriginalData(index, self.model.data(index))
+
+        self.model.dataChanged.connect(self.saveChanges)
 
 
 if __name__ == "__main__":

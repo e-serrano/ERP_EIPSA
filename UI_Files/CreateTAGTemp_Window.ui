@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1168</width>
-    <height>610</height>
+    <width>1200</width>
+    <height>665</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>1150</width>
-    <height>610</height>
+    <width>1200</width>
+    <height>665</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>1168</width>
-    <height>610</height>
+    <width>1200</width>
+    <height>665</height>
    </size>
   </property>
   <property name="cursor">
@@ -83,14 +83,14 @@ QPushButton:pressed {
      <widget class="QFrame" name="frame">
       <property name="minimumSize">
        <size>
-        <width>1150</width>
-        <height>545</height>
+        <width>1180</width>
+        <height>600</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>1150</width>
-        <height>545</height>
+        <width>1180</width>
+        <height>600</height>
        </size>
       </property>
       <property name="frameShape">
@@ -1434,7 +1434,44 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
+            <widget class="QLabel" name="label_Amount">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>11</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>Importe (€):</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QLabel" name="label_Notes">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>25</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>11</pointsize>
@@ -1444,18 +1481,27 @@ QPushButton:pressed {
              <property name="text">
               <string>Notas:</string>
              </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             </property>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_Amount">
-             <property name="font">
-              <font>
-               <pointsize>11</pointsize>
-               <bold>true</bold>
-              </font>
+            <widget class="QLabel" name="label">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>25</height>
+              </size>
              </property>
              <property name="text">
-              <string>Importe (€):</string>
+              <string>TextLabel</string>
              </property>
             </widget>
            </item>
@@ -1656,7 +1702,7 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QTextEdit" name="Notes_CreatetagT">
+            <widget class="QLineEdit" name="Amount_CreatetagT">
              <property name="minimumSize">
               <size>
                <width>275</width>
@@ -1672,17 +1718,17 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="Amount_CreatetagT">
+            <widget class="QTextEdit" name="Notes_CreatetagT">
              <property name="minimumSize">
               <size>
                <width>275</width>
-               <height>25</height>
+               <height>65</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
                <width>275</width>
-               <height>25</height>
+               <height>65</height>
               </size>
              </property>
             </widget>
@@ -1819,7 +1865,7 @@ QPushButton:pressed {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1168</width>
+     <width>1200</width>
      <height>22</height>
     </rect>
    </property>

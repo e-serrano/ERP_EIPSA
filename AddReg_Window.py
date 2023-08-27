@@ -108,34 +108,56 @@ class Ui_AddReg_Window(object):
         self.labelValue.setFont(font)
         self.labelValue.setObjectName("labelValue")
         self.hLayout2.addWidget(self.labelValue)
-        self.lineEdit = QtWidgets.QLineEdit(parent=self.frame)
-        self.lineEdit.setMinimumSize(QtCore.QSize(225, 25))
-        self.lineEdit.setMaximumSize(QtCore.QSize(225, 25))
+        self.lineEdit_value = QtWidgets.QLineEdit(parent=self.frame)
+        self.lineEdit_value.setMinimumSize(QtCore.QSize(225, 25))
+        self.lineEdit_value.setMaximumSize(QtCore.QSize(225, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.lineEdit.setFont(font)
-        self.lineEdit.setObjectName("lineEdit")
-        self.hLayout2.addWidget(self.lineEdit)
+        self.lineEdit_value.setFont(font)
+        self.lineEdit_value.setObjectName("lineEdit_value")
+        self.hLayout2.addWidget(self.lineEdit_value)
         self.gridLayout_2.addLayout(self.hLayout2, 3, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 4, 0, 1, 1)
         self.hLayout3 = QtWidgets.QHBoxLayout()
-        self.hLayout3.setObjectName("hLayout3")
+        self.hLayout3.setObjectName("hLayout2")
+        self.labelCode = QtWidgets.QLabel(parent=self.frame)
+        self.labelCode.setMinimumSize(QtCore.QSize(90, 25))
+        self.labelCode.setMaximumSize(QtCore.QSize(90, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.labelCode.setFont(font)
+        self.labelCode.setObjectName("labelCode")
+        self.hLayout3.addWidget(self.labelCode)
+        self.lineEdit_code = QtWidgets.QLineEdit(parent=self.frame)
+        self.lineEdit_code.setMinimumSize(QtCore.QSize(225, 25))
+        self.lineEdit_code.setMaximumSize(QtCore.QSize(225, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.lineEdit_code.setFont(font)
+        self.lineEdit_code.setObjectName("lineEdit_code")
+        self.hLayout3.addWidget(self.lineEdit_code)
+        self.gridLayout_2.addLayout(self.hLayout3, 5, 0, 1, 1)
+        spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.gridLayout_2.addItem(spacerItem, 6, 0, 1, 1)
+        self.hLayout4 = QtWidgets.QHBoxLayout()
+        self.hLayout4.setObjectName("hLayout3")
         self.Button_AddReg = QtWidgets.QPushButton(parent=self.frame)
         self.Button_AddReg.setMinimumSize(QtCore.QSize(100, 35))
         self.Button_AddReg.setMaximumSize(QtCore.QSize(100, 35))
         self.Button_AddReg.setObjectName("Button_AddReg")
-        self.hLayout3.addWidget(self.Button_AddReg)
+        self.hLayout4.addWidget(self.Button_AddReg)
         spacerItem3 = QtWidgets.QSpacerItem(50, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.hLayout3.addItem(spacerItem3)
+        self.hLayout4.addItem(spacerItem3)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(100, 35))
         self.Button_Cancel.setMaximumSize(QtCore.QSize(100, 35))
         self.Button_Cancel.setObjectName("Button_Cancel")
-        self.hLayout3.addWidget(self.Button_Cancel)
-        self.gridLayout_2.addLayout(self.hLayout3, 5, 0, 1, 1)
+        self.hLayout4.addWidget(self.Button_Cancel)
+        self.gridLayout_2.addLayout(self.hLayout4, 7, 0, 1, 1)
         spacerItem3 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem3, 6, 0, 1, 1)
+        self.gridLayout_2.addItem(spacerItem3, 8, 0, 1, 1)
         self.tableWidget = QtWidgets.QTableWidget(parent=self.frame)
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(2)
@@ -152,7 +174,7 @@ class Ui_AddReg_Window(object):
         font.setBold(True)
         item.setFont(font)
         self.tableWidget.setHorizontalHeaderItem(1, item)
-        self.gridLayout_2.addWidget(self.tableWidget, 7, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.tableWidget, 9, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         AddReg_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=AddReg_Window)
@@ -163,6 +185,7 @@ class Ui_AddReg_Window(object):
         self.statusbar.setObjectName("statusbar")
         AddReg_Window.setStatusBar(self.statusbar)
         self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
 
         self.retranslateUi(AddReg_Window)
         self.Button_Cancel.clicked.connect(AddReg_Window.close) # type: ignore
@@ -206,18 +229,20 @@ class Ui_AddReg_Window(object):
         _translate = QtCore.QCoreApplication.translate
         AddReg_Window.setWindowTitle(_translate("AddReg_Window", "Agregar Registro Base de Datos"))
         self.labelValue.setText(_translate("AddReg_Window", "Valor Nuevo:"))
+        self.labelCode.setText(_translate("AddReg_Window", "Cód. Nuevo:"))
         self.labelTable.setText(_translate("AddReg_Window", "Tabla:"))
         self.Button_AddReg.setText(_translate("AddReg_Window", "Agregar"))
         self.Button_Cancel.setText(_translate("AddReg_Window", "Cancelar"))
         item = self.tableWidget.horizontalHeaderItem(0)
-        item.setText(_translate("AddReg_Window", "ID"))
-        item = self.tableWidget.horizontalHeaderItem(1)
         item.setText(_translate("AddReg_Window", "Valor"))
+        item = self.tableWidget.horizontalHeaderItem(1)
+        item.setText(_translate("AddReg_Window", "Código"))
 
 
     def addreg(self):
         table_name = "validation_data." + self.comboBox.currentText()
-        value_reg=self.lineEdit.text()
+        value_reg=self.lineEdit_value.text()
+        code_reg=self.lineEdit_code.text()
 
         if table_name == "" or value_reg == "":
             dlg = QtWidgets.QMessageBox()
@@ -231,7 +256,7 @@ class Ui_AddReg_Window(object):
             del dlg, new_icon
 
         else:
-            commands_addreg = f"INSERT INTO {table_name} VALUES (default, '{value_reg}')"
+            commands_addreg = f"INSERT INTO {table_name} VALUES (default, '{value_reg}', '{code_reg})"
             commands_loadtableaddreg = f"SELECT * FROM validation_data.{table_name} ORDER BY 1"
             conn = None
             try:
@@ -254,7 +279,7 @@ class Ui_AddReg_Window(object):
 
             # fill the Qt Table with the query results
                 for row in results:
-                    for column in range(2):
+                    for column in range(3):
                         it=QtWidgets.QTableWidgetItem(str(row[column]))
                         it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                         self.tableWidget.setItem(tablerow, column, it)
