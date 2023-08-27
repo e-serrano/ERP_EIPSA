@@ -535,75 +535,78 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 
     def ImportDoc(self):
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
+        
 
         # File dialog to select Excel file
         # Tk().withdraw()  # Ocultar la ventana principal de tkinter
-            excel_file = askopenfilename(title="Seleccionar archivo Excel")
+            excel_file = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")],
+                            title="Seleccionar archivo Excel")
 
-        # Saving Excel in Pandas Dataframe
-            df = pd.read_excel(excel_file)
+            if excel_file:
+                try:
+        # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # Saving Excel in Pandas Dataframe
+                    df = pd.read_excel(excel_file)
 
-        # Reading each row and inserting data in table
-            for index, row in df.iterrows():
-            # Creating SQL sentence
-                values=[str(value) for value in row.values]
+                # Reading each row and inserting data in table
+                    for index, row in df.iterrows():
+                    # Creating SQL sentence
+                        values=[str(value) for value in row.values]
 
-                query = "SELECT * FROM documentation WHERE num_doc_eipsa = %s"
-                cur.execute(query, (values[0],))
-                results=cur.fetchall()
-                match=list(filter(lambda x:values[0] in x, results))
+                        query = "SELECT * FROM documentation WHERE num_doc_eipsa = %s"
+                        cur.execute(query, (values[0],))
+                        results=cur.fetchall()
+                        match=list(filter(lambda x:values[0] in x, results))
 
-                if len(match)>0:
+                        if len(match)>0:
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("Nuevo Documento")
+                            dlg.setText(f"El número de documento '{values[0]}' ya existe y no será importado. Por favor, edítalo y vuelve a importarlo")
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg.exec()
+                            del dlg, new_icon
+
+                        else:
+                            query = "SELECT id FROM document_type WHERE doc_type = %s"
+                            cur.execute(query, (values[4],))
+                        # get results from query
+                            resultado = cur.fetchone()
+                        # get id from table
+                            id_doctype = resultado[0]
+                        #inserting values to BBDD
+                            values[4]=str(id_doctype)
+                            values = "', '".join(values)
+                            sql_insertion = f"INSERT INTO documentation VALUES ('{values}')"
+                        # Executing SQL sentence
+                            cur.execute(sql_insertion)
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
                     new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Nuevo Documento")
-                    dlg.setText(f"El número de documento '{values[0]}' ya existe y no será importado. Por favor, edítalo y vuelve a importarlo")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.setWindowTitle("Importar Documentos")
+                    dlg.setText("Importación completada")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
                     del dlg, new_icon
 
-                else:
-                    query = "SELECT id FROM document_type WHERE doc_type = %s"
-                    cur.execute(query, (values[4],))
-                # get results from query
-                    resultado = cur.fetchone()
-                # get id from table
-                    id_doctype = resultado[0]
-                #inserting values to BBDD
-                    values[4]=str(id_doctype)
-                    values = "', '".join(values)
-                    sql_insertion = f"INSERT INTO documentation VALUES ('{values}')"
-                # Executing SQL sentence
-                    cur.execute(sql_insertion)
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Importar Documentos")
-            dlg.setText("Importación completada")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-            del dlg, new_icon
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-        finally:
-            if conn is not None:
-                conn.close()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
+                finally:
+                    if conn is not None:
+                        conn.close()
 
 
     def EditDoc(self):
