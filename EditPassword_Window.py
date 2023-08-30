@@ -263,7 +263,7 @@ class Ui_EditPasswordWindow(object):
                         "·Debe contener al menos una mayúscula\n"
                         "·Debe contener al menos una minúscula\n"
                         "·Debe contener al menos un número\n"
-                        "·Solo admite los siguientes caracteres speciales: ¡!¿?%&")
+                        "·Solo admite los siguientes caracteres especiales: ¡!¿?%&")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
 

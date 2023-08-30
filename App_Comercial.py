@@ -7,6 +7,7 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QMenu
+from PyQt6.QtCore import Qt, QTimer
 import psycopg2
 import sys
 import configparser
@@ -30,6 +31,7 @@ from QueryDoc_Window import Ui_QueryDoc_Window
 from GraphsOffer_Window import Ui_GraphsOffer_Window
 from ClientsGeneralResume_Window import Ui_ClientsGeneralResume_Window
 from AddTask_Window import Ui_AddTask_Window
+from QueryTask_Window import Ui_QueryTask_Window
 from EditUser_Menu import Ui_EditUser_Menu
 from EditPassword_Window import Ui_EditPasswordWindow
 from ClientResume_Window import Ui_ClientResume_Window
@@ -249,41 +251,42 @@ class Ui_App_Comercial(object):
         self.Header.addWidget(self.Button_ClientsResume)
         spacerItem13 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem13)
-        self.Button_NewTask = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_NewTask.setMinimumSize(QtCore.QSize(50, 50))
-        self.Button_NewTask.setMaximumSize(QtCore.QSize(50, 50))
-        self.Button_NewTask.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_NewTask.setStyleSheet("QPushButton{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border-radius: 10px;\n"
-"}\n"
-"\n"
-"QPushButton:hover{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"    color: rgb(0,0,0);\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border-radius: 10px;\n"
-"}\n"
-"\n"
-"QPushButton:pressed{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"    color: rgb(0,0,0);\n"
-"    background-color: rgb(200, 200, 200);\n"
-"    border-radius: 10px;\n"
-"}")
-        self.Button_NewTask.setText("")
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Task_New.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_NewTask.setIcon(icon5)
-        self.Button_NewTask.setIconSize(QtCore.QSize(40, 40))
-        self.Button_NewTask.setObjectName("Button_NewTask")
-        self.Header.addWidget(self.Button_NewTask)
-        spacerItem12 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem12)
+#         self.Button_QueryTask = QtWidgets.QPushButton(parent=self.frame)
+#         self.Button_QueryTask.setMinimumSize(QtCore.QSize(50, 50))
+#         self.Button_QueryTask.setMaximumSize(QtCore.QSize(50, 50))
+#         self.Button_QueryTask.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+#         self.Button_QueryTask.setStyleSheet("QPushButton{\n"
+# "    border: 1px solid transparent;\n"
+# "    border-color: rgb(3, 174, 236);\n"
+# "    background-color: rgb(255, 255, 255);\n"
+# "    border-radius: 10px;\n"
+# "}\n"
+# "\n"
+# "QPushButton:hover{\n"
+# "    border: 1px solid transparent;\n"
+# "    border-color: rgb(0, 0, 0);\n"
+# "    color: rgb(0,0,0);\n"
+# "    background-color: rgb(255, 255, 255);\n"
+# "    border-radius: 10px;\n"
+# "}\n"
+# "\n"
+# "QPushButton:pressed{\n"
+# "    border: 1px solid transparent;\n"
+# "    border-color: rgb(0, 0, 0);\n"
+# "    color: rgb(0,0,0);\n"
+# "    background-color: rgb(200, 200, 200);\n"
+# "    border-radius: 10px;\n"
+# "}")
+#         self.Button_QueryTask.setText("")
+#         icon5 = QtGui.QIcon()
+#         icon5.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Task.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#         self.Button_QueryTask.setIcon(icon5)
+#         self.Button_QueryTask.setIconSize(QtCore.QSize(40, 40))
+#         self.Button_QueryTask.setObjectName("Button_QueryTask")
+#         self.Button_QueryTask.setToolTip("Tareas")
+#         self.Header.addWidget(self.Button_QueryTask)
+#         spacerItem12 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+#         self.Header.addItem(spacerItem12)
 
         if self.name in ['Ana Calvo']:
             self.Button_Users = QtWidgets.QPushButton(parent=self.frame)
@@ -363,6 +366,13 @@ class Ui_App_Comercial(object):
 "}")
         self.Button_Profile.setText("")
         icon13 = QtGui.QIcon()
+        # if self.name == 'Luis Bravo':
+        #     icon13.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Mando.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        # elif self.name == 'Sandra Sanz':
+        #     icon13.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Bender.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        # elif self.name == 'Carlos Crespo':
+        #     icon13.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Pikachu.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        # else:
         icon13.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/User.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Profile.setIcon(icon13)
         self.Button_Profile.setIconSize(QtCore.QSize(40, 40))
@@ -719,7 +729,7 @@ class Ui_App_Comercial(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.Calendar.sizePolicy().hasHeightForWidth())
         self.Calendar.setSizePolicy(sizePolicy)
-        self.Calendar.setMinimumSize(QtCore.QSize(200, 400))
+        self.Calendar.setMinimumSize(QtCore.QSize(300, 400))
         self.Calendar.setMaximumSize(QtCore.QSize(583, 400))
         self.Calendar.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
         self.Calendar.setStyleSheet("QCalendarWidget QWidget{\n"
@@ -763,12 +773,14 @@ class Ui_App_Comercial(object):
 "}\n"
 "#qt_calendar_nextmonth {\n"
 "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/forward_arrow.png);\n"
+"\n"
 "}")
         self.Calendar.setSelectedDate(QtCore.QDate.currentDate())
         self.Calendar.setGridVisible(True)
         self.Calendar.setNavigationBarVisible(True)
         self.Calendar.setDateEditEnabled(True)
         self.Calendar.setObjectName("Calendar")
+        self.Calendar.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.BottomLayout.addWidget(self.Calendar)
         self.MainLayout.addLayout(self.BottomLayout)
         self.PrincipalScreen.addLayout(self.MainLayout)
@@ -801,10 +813,12 @@ class Ui_App_Comercial(object):
         self.Button_Doc.clicked.connect(self.query_documents)
         self.Button_Graphs.clicked.connect(self.graphs)
         self.Button_ClientsResume.clicked.connect(self.clients_generalresume)
-        self.Button_NewTask.clicked.connect(self.newtask)
+        # self.Button_QueryTask.clicked.connect(self.querytask)
         self.Button_Profile.clicked.connect(self.showMenu)
-        self.Calendar.selectionChanged.connect(self.show_selected_date_tasks)
-        self.tableOffer.itemDoubleClicked.connect(self.on_item_double_clicked) #Asign function when double click on cell
+        self.tableOffer.itemDoubleClicked.connect(self.on_item_double_clicked)
+        self.Calendar.activated.connect(self.show_selected_date_tasks)
+        self.Calendar.customContextMenuRequested.connect(self.show_context_menu)
+
         self.setup_task_dates()
 
         if self.name in ['Ana Calvo']:
@@ -860,6 +874,22 @@ class Ui_App_Comercial(object):
                 conn.close()
 
         self.alert_offers()
+
+
+    def show_context_menu(self, point):
+        selected_date = self.Calendar.selectedDate()
+        menu = QMenu(self.centralwidget)
+
+        menu.setStyleSheet("QMenu { border: 1px solid black; width: 150px; right: -1px; }"
+        "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
+
+        action1 = menu.addAction("Agregar tareas")
+        action1.triggered.connect(lambda: self.newtask(selected_date))
+        action2 = menu.addAction("Editar tareas")
+        action2.triggered.connect(lambda: self.querytask(selected_date))
+
+        menu.exec(self.Calendar.mapToGlobal(point))
+
 
     def retranslateUi(self, App_Comercial):
         _translate = QtCore.QCoreApplication.translate
@@ -924,6 +954,7 @@ class Ui_App_Comercial(object):
         self.ui=Ui_New_Order_Window()
         self.ui.setupUi(self.new_order_window)
         self.new_order_window.show()
+        self.ui.Button_Cancel.clicked.connect(self.update_table)
 
 
     def edit_order(self):
@@ -931,6 +962,7 @@ class Ui_App_Comercial(object):
         self.ui=Ui_Edit_Order_Window()
         self.ui.setupUi(self.edit_order_window)
         self.edit_order_window.show()
+        self.ui.Button_Cancel.clicked.connect(self.update_table)
 
 
     def query_order(self):
@@ -999,9 +1031,17 @@ class Ui_App_Comercial(object):
         self.clients_general_resume_window.show()
 
 
-    def newtask(self):
+    def querytask(self, date=None):
+        self.querytaskwindow=QtWidgets.QMainWindow()
+        self.ui=Ui_QueryTask_Window(self.name, date)
+        self.ui.setupUi(self.querytaskwindow)
+        self.querytaskwindow.show()
+        self.ui.Button_Cancel.clicked.connect(self.setup_task_dates)
+
+
+    def newtask(self, date):
         self.newtaskwindow=QtWidgets.QMainWindow()
-        self.ui=Ui_AddTask_Window(self.name)
+        self.ui=Ui_AddTask_Window(self.name, date)
         self.ui.setupUi(self.newtaskwindow)
         self.newtaskwindow.show()
         self.ui.Button_Cancel.clicked.connect(self.setup_task_dates)
@@ -1009,7 +1049,7 @@ class Ui_App_Comercial(object):
 
     def showMenu(self):
         menu = QMenu(self.centralwidget)
-        menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; }"
+        menu.setStyleSheet("QMenu { background-color: rgb(0, 0, 0); border: 1px solid black; width: 125px; right: -1px; }"
         "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
         option1 = menu.addAction("Editar contraseña")
         option1.triggered.connect(lambda: self.editpassword())
@@ -1089,7 +1129,7 @@ class Ui_App_Comercial(object):
         commands_loaddatestasks = ("""
                     SELECT "task_date","task"
                     FROM tasks
-                    WHERE ("responsible" = %s)
+                    WHERE ("creator" = %s)
                     ORDER BY "task_date"
                     """)
         conn = None
@@ -1124,30 +1164,41 @@ class Ui_App_Comercial(object):
 
 
     def show_selected_date_tasks(self):
+        self.click_count = 0
         selected_date = self.Calendar.selectedDate()
-        tasks = self.get_tasks_for_date(selected_date)
+        if self.name == 'Carlos Crespo':
+            creator=self.name[0] + self.name[self.name.find(' ')+1] + 'H'
+        else:
+            creator=self.name[0] + self.name[self.name.find(' ')+1]
+        returned = self.get_tasks_for_date(creator, selected_date)
 
-        if tasks:
-            task_text = "\n".join(tasks)
+        if returned:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Tareas para la fecha " + selected_date.toString("dd-MM-yyyy") +":\n"
-                        "\n"
-                        + task_text)
+            final_text=''
+
+            for item in returned:
+                responsible = item[0]
+                tasks = item [1]
+                task_text = "\n".join(tasks)
+                final_text += "\n" + "\n" + responsible + ":\n" + task_text
+
+            dlg.setText("Tareas para la fecha " + selected_date.toString("dd-MM-yyyy") +":"
+                        + final_text)
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
             dlg.exec()
             del dlg, new_icon
 
 
 #Function to obtain tasks associated to a date
-    def get_tasks_for_date(self, date):
+    def get_tasks_for_date(self, creator, date):
         commands_loaddatestasks = ("""
-                    SELECT "task_date","task"
+                    SELECT "responsible","task_date","task","state"
                     FROM tasks
-                    WHERE ("responsible" = %s)
+                    WHERE ("creator" = %s)
                     ORDER BY "task_date"
                     """)
         conn = None
@@ -1158,29 +1209,39 @@ class Ui_App_Comercial(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            if self.name == 'Carlos Crespo':
-                cur.execute(commands_loaddatestasks,(self.name[0] + self.name[self.name.find(' ')+1] + 'H',))
-            else:
-                cur.execute(commands_loaddatestasks,(self.name[0] + self.name[self.name.find(' ')+1],))
+            cur.execute(commands_loaddatestasks,(creator,))
             results=cur.fetchall()
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
             conn.commit()
 
-            dict={}
-            for i in range(len(results)):
-                key=QtCore.QDate(results[i][0].year, results[i][0].month, results[i][0].day)
-                value=results[i][1]
-                if key not in dict:
-                    dict[key] = [value]
-                    
-                else:
-                    partial_list = dict.get(key)
-                    partial_list.append(value)
-                    dict.update({key: partial_list})
+            dict_responsibles_tasks={}
 
-            return dict.get(date)
+            for i in range(len(results)):
+                responsible=results[i][0]
+                key=QtCore.QDate(results[i][1].year, results[i][1].month, results[i][1].day)
+                value=results[i][2] + " (" + results[i][3] + ")"
+
+                if responsible not in dict_responsibles_tasks:
+                    dict_responsibles_tasks[responsible] = [{key: [value]}]
+
+                else:
+                    for item in dict_responsibles_tasks[responsible]:
+                        if key not in item:
+                            dict_responsibles_tasks[responsible].append({key: [value]})
+                            break
+
+                        else:
+                            dict_responsibles_tasks[responsible][dict_responsibles_tasks[responsible].index(item)][key].append(value)
+
+            value_to_return = []
+            for item in dict_responsibles_tasks.keys():
+                for element in dict_responsibles_tasks[item]:
+                    if date in element:
+                        value_to_return.append([item,dict_responsibles_tasks[item][dict_responsibles_tasks[item].index(element)][date]])
+
+            return value_to_return
 
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)

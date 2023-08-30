@@ -21,7 +21,7 @@ class Ui_ClientResume_Window(object):
         self.clientname=clientname
 
     # def __init__(self):
-    #     self.clientname='ALMARAZ - TRILLO'
+    #     self.clientname='AXIOM'
 
 
     def setupUi(self, ClientResume_Window):
@@ -646,11 +646,11 @@ class Ui_ClientResume_Window(object):
                     cur = conn.cursor()
                 # execution of commands
                     cur.execute(commands_offered_year)
-                    results_offered_year=cur.fetchall()
+                    results_general_offered_year=cur.fetchall()
                     cur.execute(commands_sold_year)
-                    results_sold_year=cur.fetchall()
-                    results_offered_year=list(filter(lambda x:None not in x, results_offered_year))
-                    results_sold_year=list(filter(lambda x:None not in x, results_sold_year))
+                    results_general_sold_year=cur.fetchall()
+                    results_offered_year=list(filter(lambda x:None not in x, results_general_offered_year))
+                    results_sold_year=list(filter(lambda x:None not in x, results_general_sold_year))
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
@@ -676,7 +676,7 @@ class Ui_ClientResume_Window(object):
                 years_sold=[x[0] for x in results_sold_year]
                 amounts_sold_year=[float(x[1]) for x in results_sold_year]
                 dict_sold_year = dict(zip(years_sold, amounts_sold_year))
-                for i in range(min(years_sold), max(years_sold)+1):
+                for i in (range(min(years_sold), max(years_sold)+1) if len(years_sold) != 0 else range(year1, year2+1)):
                     if i not in years_sold:
                         dict_sold_year[i] = 0
 

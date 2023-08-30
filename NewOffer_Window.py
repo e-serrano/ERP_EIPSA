@@ -368,6 +368,7 @@ class Ui_New_Offer_Window(object):
         self.statusbar = QtWidgets.QStatusBar(parent=New_Offer)
         self.statusbar.setObjectName("statusbar")
         New_Offer.setStatusBar(self.statusbar)
+        New_Offer.setWindowFlags(QtCore.Qt.WindowType.WindowMinimizeButtonHint)
 
         self.retranslateUi(New_Offer)
         self.Button_Cancel.clicked.connect(New_Offer.close) # type: ignore

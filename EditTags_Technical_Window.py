@@ -71,22 +71,23 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
         return self._filters
 
     def setFilter(self, expresion, column, action_name=None):
-        if expresion:
+        if expresion or expresion == '':
             if column in self.filters:
-                if action_name:
+                if action_name or action_name == '':
                     self.filters[column].remove(expresion)
                 else:
                     self.filters[column].append(expresion)
             else:
                 self.filters[column] = [expresion]
         elif column in self.filters:
-            if action_name:
+            if action_name or action_name == '':
                 self.filters[column].remove(expresion)
                 if not self.filters[column]:
                     del self.filters[column]
             else:
                 del self.filters[column]
         self.invalidateFilter()
+
 
     def filterAcceptsRow(self, source_row, source_parent):
         for column, expresions in self.filters.items():
@@ -96,13 +97,21 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                 text = text.toString("yyyy-MM-dd")
 
             for expresion in expresions:
-                if re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
+                if expresion == '':  # Si la expresión es vacía, coincidir con celdas vacías
+                    if text == '':
+                        break
+
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
+                    regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    if regex.match(str(text)).hasMatch():
+                        break
 
-                regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
-                if regex.match(str(text)).hasMatch():
-                    break
+                else:
+                    regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    if regex.match(str(text)).hasMatch():
+                        break
             else:
                 return False
         return True
@@ -262,6 +271,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Filter_Delete.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolDeleteFilter.setIcon(icon)
+        self.toolDeleteFilter.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer1)
         self.toolShow = QtWidgets.QToolButton(self.frame)
@@ -271,9 +281,30 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Eye.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolShow.setIcon(icon)
-
-        self.hcabspacer2=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.toolShow.setIconSize(QtCore.QSize(25, 25))
+        self.hcabspacer2=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer2)
+        self.toolMatOrder = QtWidgets.QToolButton(self.frame)
+        self.toolMatOrder.setObjectName("MatOrder_Button")
+        self.toolMatOrder.setToolTip("Pedido Materiales")
+        self.hcab.addWidget(self.toolMatOrder)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Purchase_Order.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolMatOrder.setIcon(icon)
+        self.toolMatOrder.setIconSize(QtCore.QSize(25, 25))
+        self.hcabspacer3=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer3)
+        self.toolFabOrder = QtWidgets.QToolButton(self.frame)
+        self.toolFabOrder.setObjectName("FabOrder_Button")
+        self.toolFabOrder.setToolTip("Orden Fabricación")
+        self.hcab.addWidget(self.toolFabOrder)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Fab_Order.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolFabOrder.setIcon(icon)
+        self.toolFabOrder.setIconSize(QtCore.QSize(25, 25))
+
+        self.hcabspacer=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer)
         self.gridLayout_2.addLayout(self.hcab, 0, 0, 1, 1)
         self.hLayout1 = QtWidgets.QHBoxLayout()
         self.hLayout1.setObjectName("hLayout1")
@@ -410,6 +441,8 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         # self.toolSave.clicked.connect(self.submit_all)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolShow.clicked.connect(self.show_columns)
+        self.toolMatOrder.clicked.connect(self.materialorder)
+        self.toolFabOrder.clicked.connect(self.faborder)
         self.Numorder_EditTags.returnPressed.connect(self.query_tags)
         self.model.dataChanged.connect(self.saveChanges)
 
@@ -505,19 +538,31 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
     def delete_allFilters(self):
         columns_number=self.model.columnCount()
         for index in range(columns_number):
-            self.proxy.setFilter("", index)
+            if index in self.proxy.filters:
+                del self.proxy.filters[index]
             self.model.setIconColumnHeader(index, '')
 
-        self.checkbox_states.clear()
+        self.proxy.invalidateFilter()  # Reset the proxy model to clear filters
+        self.tableEditTags.reset()
+
+        self.checkbox_states = {}
+        self.dict_valuesuniques = {}
+        self.dict_ordersort = {}
+
+        # Getting the unique values for each column of the model
         for column in range(self.model.columnCount()):
+            list_valuesUnique = []
             if column not in self.checkbox_states:
                 self.checkbox_states[column] = {}
-            self.checkbox_states[column]['Seleccionar todo'] = True
-            for row in range(self.model.rowCount()):
-                value = self.model.record(row).value(column)
-                if isinstance(value, QtCore.QDate):
-                    value=value.toString("dd/MM/yyyy")
-                self.checkbox_states[column][value] = True
+                self.checkbox_states[column]['Seleccionar todo'] = True
+                for row in range(self.model.rowCount()):
+                    value = self.model.record(row).value(column)
+                    if value not in list_valuesUnique:
+                        if isinstance(value, QtCore.QDate):
+                            value=value.toString("dd/MM/yyyy")
+                        list_valuesUnique.append(str(value))
+                        self.checkbox_states[column][value] = True
+                self.dict_valuesuniques[column] = list_valuesUnique
 
 # Function to upload changes in database when field change
     def saveChanges(self):
@@ -591,6 +636,11 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 
 # Function to load table and setting in the window
     def query_tags(self):
+        self.checkbox_states = {}
+        self.dict_valuesuniques = {}
+        self.dict_ordersort = {}
+        self.hiddencolumns = []
+
         self.model.dataChanged.disconnect(self.saveChanges)
         numorder = self.Numorder_EditTags.text()
         variable = ''
@@ -753,11 +803,12 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                     self.dict_valuesuniques[column] = list_valuesUnique
 
         # Setting cells with comboboxes
+            list_fab_state = ['','PTE.APROBACIÓN','EN FABRICACIÓN','INSPECCIÓN','ENVIADO']
             if variable == 'Caudal':
                 for i in range(16):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_flow[i]]))
                     self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
-                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, ['','PTE.APROBACIÓN','EN FABRICACIÓN','INSPECCIÓN','ENVIADO'])
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
                 self.tableEditTags.setItemDelegateForColumn(63, self.combo_itemtype)
             elif variable == 'Temperatura':
                 for i in range(5):
@@ -768,13 +819,13 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 for i in range(6,25):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
                     self.tableEditTags.setItemDelegateForColumn(i+11, self.combo_itemtype)
-                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, ['','PTE.APROBACIÓN','EN FABRICACIÓN','INSPECCIÓN','ENVIADO'])
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
                 self.tableEditTags.setItemDelegateForColumn(56, self.combo_itemtype)
-                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, ['','PTE.APROBACIÓN','EN FABRICACIÓN','INSPECCIÓN','ENVIADO'])
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
                 self.tableEditTags.setItemDelegateForColumn(60, self.combo_itemtype)
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[24]]))
                 self.tableEditTags.setItemDelegateForColumn(68, self.combo_itemtype)
-                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, ['','PTE.APROBACIÓN','EN FABRICACIÓN','INSPECCIÓN','ENVIADO'])
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
                 self.tableEditTags.setItemDelegateForColumn(69, self.combo_itemtype)
             # elif variable == 'Nivel':
             #     for i in range(16):
@@ -909,8 +960,13 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 # Function when delete filter action in header is clicked
     def on_actionDeleteFilterColumn_triggered(self):
         filterColumn = self.logicalIndex
-        self.proxy.setFilter("", filterColumn)
+        if filterColumn in self.proxy.filters:
+                del self.proxy.filters[filterColumn]
         self.model.setIconColumnHeader(filterColumn, '')
+        self.proxy.invalidateFilter()
+
+        self.tableEditTags.setModel(None)  # Eliminar el modelo actual de la vista
+        self.tableEditTags.setModel(self.proxy)
 
         self.checkbox_states[self.logicalIndex].clear()
         self.checkbox_states[self.logicalIndex]['Seleccionar todo'] = True
@@ -982,7 +1038,23 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             self.tableEditTags.setColumnHidden(column, False)
             self.hiddencolumns.remove(column)
 
+# Function to create material order
+    def materialorder(self):
+        print('a')
+        listado=[]
 
+        for row in range(self.proxy.rowCount()):
+            first_column_value = self.proxy.data(self.proxy.index(row, 2))
+            listado.append(first_column_value)
+        print(listado)
+
+
+
+# Function to create fabrication order
+    def faborder(self):
+        print('b')
+
+# Function to enable copy and paste cells
     def keyPressEvent(self, event):
         if event.matches(QKeySequence.StandardKey.Copy):
             selected_indexes = self.tableEditTags.selectionModel().selectedIndexes()
@@ -1017,6 +1089,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 
         super().keyPressEvent(event)
 
+# Function to get the text of the selected cells
     def get_selected_text(self, indexes):
         if len(indexes) == 1:  # Si solo hay una celda seleccionada
             index = indexes[0]

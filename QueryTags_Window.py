@@ -21,6 +21,8 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 class Ui_QueryTags_Window(object):
     def __init__(self, dpto):
         self.dpto_value=dpto
+    # def __init__(self):
+    #     self.dpto_value='Comercial'
 
     def setupUi(self, QueryTags_Window):
         QueryTags_Window.setObjectName("QueryTags_Window")
@@ -227,11 +229,6 @@ class Ui_QueryTags_Window(object):
                 # execution of commands
                     cur.execute(commands_querytags)
                     result_variable=cur.fetchall()
-                    if len(result_variable[0])==3:
-                        variable=result_variable[0][2] if result_variable != None else ''
-                    elif len(result_variable[0])==2:
-                        variable=result_variable[0][1] if result_variable != None else ''
-
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
@@ -243,24 +240,21 @@ class Ui_QueryTags_Window(object):
                         conn.close()
 
                 if result_variable == None:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("EL número de pedido no existe")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                    del dlg, new_icon
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("EL número de pedido no existe")
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                        dlg.exec()
+                        del dlg, new_icon
+
                 else:
-                    if variable=='Caudal':
-                        table_name='tags_data.tags_flow_prueba'
-                    elif variable=='Temperatura':
-                        table_name='tags_data.tags_temp_prueba'
-                    elif variable=='Nivel':
-                        print('c')
-                    elif variable=='Otros':
-                        print('d')
+                    if len(result_variable[0])==3:
+                        variable=result_variable[0][2]
+                    elif len(result_variable[0])==2:
+                        variable=result_variable[0][1]
 
         elif numoffer=="" or numoffer==" ":
             if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', numorder):
@@ -293,11 +287,6 @@ class Ui_QueryTags_Window(object):
                 # execution of commands
                     cur.execute(commands_querytags)
                     result_variable=cur.fetchall()
-                    if len(result_variable[0])==3:
-                        variable=result_variable[0][2] if result_variable != None else ''
-                    elif len(result_variable[0])==2:
-                        variable=result_variable[0][1] if result_variable != None else ''
-
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
@@ -319,15 +308,11 @@ class Ui_QueryTags_Window(object):
                     dlg.exec()
                     del dlg, new_icon
                 else:
-                    if variable=='Caudal':
-                        table_name='tags_data.tags_flow_prueba'
-                    elif variable=='Temperatura':
-                        table_name='tags_data.tags_temp_prueba'
-                    elif variable=='Nivel':
-                        print('c')
-                    elif variable=='Otros':
-                        print('d')
-            
+                    if len(result_variable[0])==3:
+                        variable=result_variable[0][2]
+                    elif len(result_variable[0])==2:
+                        variable=result_variable[0][1]
+
         else:
             if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', numorder) or not re.match(r'^O-\d{2}/\d{3}.*$', numoffer):
                 dlg = QtWidgets.QMessageBox()
@@ -363,11 +348,6 @@ class Ui_QueryTags_Window(object):
                 # execution of commands
                     cur.execute(commands_querytags)
                     result_variable=cur.fetchall()
-                    if len(result_variable[0])==3:
-                        variable=result_variable[0][2] if result_variable != None else ''
-                    elif len(result_variable[0])==2:
-                        variable=result_variable[0][1] if result_variable != None else ''
-
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
@@ -378,16 +358,61 @@ class Ui_QueryTags_Window(object):
                     if conn is not None:
                         conn.close()
 
-                if variable=='Caudal':
-                    table_name='tags_data.tags_flow_prueba'
-                elif variable=='Temperatura':
-                    table_name='tags_data.tags_temp_prueba'
-                elif variable=='Nivel':
-                    print('c')
-                elif variable=='Otros':
-                    print('d')
+                if result_variable == None:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("EL número de pedido no existe")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+                    del dlg, new_icon
+                else:
+                    if len(result_variable[0])==3:
+                        variable=result_variable[0][2]
+                    elif len(result_variable[0])==2:
+                        variable=result_variable[0][1]
+
+        if variable == 'Caudal':
+            table_name = 'tags_data.tags_flow_prueba'
+            column_names = ['id','tag','tag_state','num_offer','num_order',
+                            'num_po','position','subposition','item_type','line_size',
+                            'rating','facing','schedule','flange_material','flange_type',
+                            'tube_material','tapping_num_size','element_material','plate_type','plate_thk',
+                            'plate_std','gasket_material','bolts_nuts_material','nace','stages_number',
+                            'pipe_spec','aprox_weight','aprox_length','amount','offer_notes',
+                            'commercial_changes','contractual_date','orif_diam','dv_diam','technical_changes',
+                            'technical_notes','calc_num_doc_eipsa','calc_state','calc_state_date','dwg_num_doc_eipsa',
+                            'dwg_state','dwg_state_date','purchase_order','purchase_order_date','purchase_order_notes',
+                            'of_plate_date','of_plate_drawing','colada_plate','of_flange_date','of_flange_drawing',
+                            'colada_flange','plug_number','tapping_size','tapping_number','rtj_porta_material',
+                            'rtj_thickness','rtj_dim','plate_ext_diam','handle','bolts_size',
+                            'bolts_quantity','extractor_size','extractor_quantity','fab_state','inspection','RN_delivery']
+        elif variable == 'Temperatura':
+            table_name = 'tags_data.tags_temp_prueba'
+            column_names = ['id','tag','tag_state','num_offer','num_order',
+                            'num_po','position','subposition','item_type','tw_type',
+                            'flange_size','flange_rating','flange_facing','std_tw','material_tw',
+                            'std_length','ins_length','root_diam','tip_diam','sensor_element',
+                            'sheath_stem_material','sheath_stem_diam','insulation','temp_inf','temp_sup',
+                            'nipple_ext_material','nipple_ext_length','head_case_material','elec_conn_case_diam','tt_cerblock',
+                            'material_flange_lj','gasket_material','puntal','tube_t','nace',
+                            'amount','offer_notes','commercial_changes','contractual_date','stress',
+                            'geometry','conical_length','straigth_length','nozzle_diam','calculation_notes',
+                            'technical_changes','technical_notes','calc_num_doc_eipsa','calc_state','calc_state_date',
+                            'dwg_num_doc_eipsa','dwg_state','dwg_state_date','dwg_notes','of_sensor_date',
+                            'of_sensor_drawing','notes_sensor','fab_sensor_state','of_tw_date','of_tw_drawing',
+                            'notes_tw','fab_tw_state','purchase_order','purchase_order_date','purchase_order_notes',
+                            'length_cut_tw','dim_a_sensor','dim_b_sensor','dim_l_sensor','plug',
+                            'fab_state','inspection','RN_delivery']
+        elif variable == 'Nivel':
+            print('c')
+        elif variable == 'Otros':
+            print('d')
 
         if variable != '':
+            # print(variable,table_name)
             conn = None
             try:
             # read the connection parameters
@@ -396,7 +421,7 @@ class Ui_QueryTags_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
                 commands_querytagsvariable = (f"""
-                        SELECT * FROM {table_name}
+                        SELECT {', '.join(column_names)} FROM {table_name}
                         WHERE (
                         UPPER(num_offer) LIKE UPPER('%%{numoffer}%%')
                         AND
@@ -418,12 +443,18 @@ class Ui_QueryTags_Window(object):
                 if conn is not None:
                     conn.close()
 
+            if variable == 'Caudal':
+                num_columns = 66
+            elif variable == 'Temperatura':
+                num_columns = 73
+
             self.tableQueryTags.setRowCount(len(results))
             self.tableQueryTags.setColumnCount(len(cur.description))
             
             tablerow=0
 
         # fill the Qt Table with the query results
+            
             for row in results:
                 for column in range(len(field_names)):
                     it = QtWidgets.QTableWidgetItem(str(row[column]))
@@ -470,15 +501,13 @@ class Ui_QueryTags_Window(object):
             headers_level = []
 
             if variable == 'Caudal':
-                self.tableQueryTags.setHorizontalHeaderLabels(field_names)
                 self.tableQueryTags.setHorizontalHeaderLabels(headers_flow)
-                for i in range (66,self.tableQueryTags.columnCount()):
-                    self.tableQueryTags.setColumnHidden(i,True)
+                # for i in range (66,self.tableQueryTags.columnCount()):
+                #     self.tableQueryTags.setColumnHidden(i,True)
             elif variable == 'Temperatura':
-                self.tableQueryTags.setHorizontalHeaderLabels(field_names)
                 self.tableQueryTags.setHorizontalHeaderLabels(headers_temp)
-                for i in range (72,self.tableQueryTags.columnCount()):
-                    self.tableQueryTags.setColumnHidden(i,True)
+                # for i in range (73,self.tableQueryTags.columnCount()):
+                #     self.tableQueryTags.setColumnHidden(i,True)
             elif variable == 'Nivel':
                 self.tableQueryTags.setHorizontalHeaderLabels(headers_level)
 
