@@ -21,7 +21,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 class Ui_Quotation_Window(object):
     def setupUi(self, Quotation_Window):
         Quotation_Window.setObjectName("Quotation_Window")
-        Quotation_Window.resize(1174, 604)
+        Quotation_Window.resize(int(1174//1.5), int(604//1.5))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Quotation_Window.setWindowIcon(icon)
@@ -45,42 +45,42 @@ class Ui_Quotation_Window(object):
         spacerItem = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 1, 1, 1)
         self.label_Date = QtWidgets.QLabel(parent=self.frame)
-        self.label_Date.setMinimumSize(QtCore.QSize(75, 25))
-        self.label_Date.setMaximumSize(QtCore.QSize(75, 25))
+        self.label_Date.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
+        self.label_Date.setMaximumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(int(11//1.5))
         font.setBold(True)
         self.label_Date.setFont(font)
         self.label_Date.setObjectName("label_Date")
         self.gridLayout_2.addWidget(self.label_Date, 1, 1, 1, 1)
         self.Date_Quotation = QtWidgets.QLineEdit(parent=self.frame)
-        self.Date_Quotation.setMinimumSize(QtCore.QSize(100, 25))
-        self.Date_Quotation.setMaximumSize(QtCore.QSize(16777215, 25))
+        self.Date_Quotation.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
+        self.Date_Quotation.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         self.Date_Quotation.setFont(font)
         self.Date_Quotation.setObjectName("Date_Quotation")
         self.gridLayout_2.addWidget(self.Date_Quotation, 1, 2, 1, 4)
         self.label_Supplier = QtWidgets.QLabel(parent=self.frame)
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(int(11//1.5))
         font.setBold(True)
         self.label_Supplier.setFont(font)
         self.label_Supplier.setObjectName("label_Supplier")
         self.gridLayout_2.addWidget(self.label_Supplier, 1, 6, 1, 1)
         self.Supplier_Quotation = QtWidgets.QComboBox(parent=self.frame)
-        self.Supplier_Quotation.setMinimumSize(QtCore.QSize(300, 25))
-        self.Supplier_Quotation.setMaximumSize(QtCore.QSize(300, 25))
+        self.Supplier_Quotation.setMinimumSize(QtCore.QSize(int(300//1.5), int(25//1.5)))
+        self.Supplier_Quotation.setMaximumSize(QtCore.QSize(int(300//1.5), int(25//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         self.Supplier_Quotation.setFont(font)
         self.Supplier_Quotation.setObjectName("Supplier_Quotation")
         self.gridLayout_2.addWidget(self.Supplier_Quotation, 1, 7, 1, 4)
         self.label_Obs = QtWidgets.QLabel(parent=self.frame)
-        self.label_Obs.setMinimumSize(QtCore.QSize(70, 25))
-        self.label_Obs.setMaximumSize(QtCore.QSize(70, 25))
+        self.label_Obs.setMinimumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
+        self.label_Obs.setMaximumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(int(11//1.5))
         font.setBold(True)
         self.label_Obs.setFont(font)
         self.label_Obs.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTop|QtCore.Qt.AlignmentFlag.AlignTrailing)
@@ -88,114 +88,114 @@ class Ui_Quotation_Window(object):
         self.gridLayout_2.addWidget(self.label_Obs, 1, 11, 1, 1)
         self.Notes_Quotation = QtWidgets.QTextEdit(parent=self.frame)
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         self.Notes_Quotation.setFont(font)
         self.Notes_Quotation.setObjectName("Notes_Quotation")
         self.gridLayout_2.addWidget(self.Notes_Quotation, 1, 12, 2, 1)
         self.label_IDCot = QtWidgets.QLabel(parent=self.frame)
-        self.label_IDCot.setMinimumSize(QtCore.QSize(0, 25))
-        self.label_IDCot.setMaximumSize(QtCore.QSize(16777215, 25))
+        self.label_IDCot.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
+        self.label_IDCot.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
         self.label_IDCot.setObjectName("label_IDCot")
         self.label_IDCot.setText("")
         self.label_IDCot.setStyleSheet("color: rgb(255, 255, 255);")
         self.gridLayout_2.addWidget(self.label_IDCot, 2, 1, 1, 1)
         self.label_Supply = QtWidgets.QLabel(parent=self.frame)
-        self.label_Supply.setMinimumSize(QtCore.QSize(75, 25))
-        self.label_Supply.setMaximumSize(QtCore.QSize(75, 25))
+        self.label_Supply.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
+        self.label_Supply.setMaximumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(int(11//1.5))
         font.setBold(True)
         self.label_Supply.setFont(font)
         self.label_Supply.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Supply.setObjectName("label_Supply")
         self.gridLayout_2.addWidget(self.label_Supply, 3, 1, 1, 1)
         self.Supply_Quotation = QtWidgets.QComboBox(parent=self.frame)
-        self.Supply_Quotation.setMinimumSize(QtCore.QSize(0, 25))
-        self.Supply_Quotation.setMaximumSize(QtCore.QSize(500, 25))
+        self.Supply_Quotation.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
+        self.Supply_Quotation.setMaximumSize(QtCore.QSize(int(500//1.5), int(25//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         self.Supply_Quotation.setFont(font)
         self.Supply_Quotation.setObjectName("Supply_Quotation")
         self.gridLayout_2.addWidget(self.Supply_Quotation, 4, 1, 1, 8)
         self.label_Quantity = QtWidgets.QLabel(parent=self.frame)
-        self.label_Quantity.setMinimumSize(QtCore.QSize(70, 25))
-        self.label_Quantity.setMaximumSize(QtCore.QSize(70, 25))
+        self.label_Quantity.setMinimumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
+        self.label_Quantity.setMaximumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(int(11//1.5))
         font.setBold(True)
         self.label_Quantity.setFont(font)
         self.label_Quantity.setObjectName("label_Quantity")
         self.gridLayout_2.addWidget(self.label_Quantity, 3, 9, 1, 1)
         self.Quantity_Quotation = QtWidgets.QLineEdit(parent=self.frame)
-        self.Quantity_Quotation.setMinimumSize(QtCore.QSize(70, 25))
-        self.Quantity_Quotation.setMaximumSize(QtCore.QSize(70, 25))
+        self.Quantity_Quotation.setMinimumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
+        self.Quantity_Quotation.setMaximumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         self.Quantity_Quotation.setFont(font)
         self.Quantity_Quotation.setObjectName("Quantity_Quotation")
         self.gridLayout_2.addWidget(self.Quantity_Quotation, 4, 9, 1, 1)
         self.label_Value = QtWidgets.QLabel(parent=self.frame)
-        self.label_Value.setMinimumSize(QtCore.QSize(70, 25))
-        self.label_Value.setMaximumSize(QtCore.QSize(70, 25))
+        self.label_Value.setMinimumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
+        self.label_Value.setMaximumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(int(11//1.5))
         font.setBold(True)
         self.label_Value.setFont(font)
         self.label_Value.setObjectName("label_Value")
         self.gridLayout_2.addWidget(self.label_Value, 3, 10, 1, 1)
         self.Value_Quotation = QtWidgets.QLineEdit(parent=self.frame)
-        self.Value_Quotation.setMinimumSize(QtCore.QSize(70, 25))
-        self.Value_Quotation.setMaximumSize(QtCore.QSize(70, 25))
+        self.Value_Quotation.setMinimumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
+        self.Value_Quotation.setMaximumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         self.Value_Quotation.setFont(font)
         self.Value_Quotation.setObjectName("Value_Quotation")
         self.gridLayout_2.addWidget(self.Value_Quotation, 4, 10, 1, 1)
         self.label_Currency = QtWidgets.QLabel(parent=self.frame)
-        self.label_Currency.setMinimumSize(QtCore.QSize(70, 25))
-        self.label_Currency.setMaximumSize(QtCore.QSize(70, 25))
+        self.label_Currency.setMinimumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
+        self.label_Currency.setMaximumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(int(11//1.5))
         font.setBold(True)
         self.label_Currency.setFont(font)
         self.label_Currency.setObjectName("label_Currency")
         self.gridLayout_2.addWidget(self.label_Currency, 3, 11, 1, 1)
         self.Currency_Quotation = QtWidgets.QComboBox(parent=self.frame)
-        self.Currency_Quotation.setMinimumSize(QtCore.QSize(70, 25))
-        self.Currency_Quotation.setMaximumSize(QtCore.QSize(70, 25))
+        self.Currency_Quotation.setMinimumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
+        self.Currency_Quotation.setMaximumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         self.Currency_Quotation.setFont(font)
         self.Currency_Quotation.setObjectName("Currency_Quotation")
         self.gridLayout_2.addWidget(self.Currency_Quotation, 4, 11, 1, 1)
         self.label_ObsRecord = QtWidgets.QLabel(parent=self.frame)
-        self.label_ObsRecord.setMinimumSize(QtCore.QSize(50, 25))
-        self.label_ObsRecord.setMaximumSize(QtCore.QSize(50, 25))
+        self.label_ObsRecord.setMinimumSize(QtCore.QSize(int(50//1.5), int(25//1.5)))
+        self.label_ObsRecord.setMaximumSize(QtCore.QSize(int(50//1.5), int(25//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(int(11//1.5))
         font.setBold(True)
         self.label_ObsRecord.setFont(font)
         self.label_ObsRecord.setObjectName("label_ObsRecord")
         self.gridLayout_2.addWidget(self.label_ObsRecord, 3, 12, 1, 1)
         self.ObsRecord_Quotation = QtWidgets.QTextEdit(parent=self.frame)
-        self.ObsRecord_Quotation.setMaximumSize(QtCore.QSize(16777215, 100))
+        self.ObsRecord_Quotation.setMaximumSize(QtCore.QSize(16777215, int(100//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         self.ObsRecord_Quotation.setFont(font)
         self.ObsRecord_Quotation.setObjectName("ObsRecord_Quotation")
         self.gridLayout_2.addWidget(self.ObsRecord_Quotation, 4, 12, 2, 1)
         self.label_IDRecord = QtWidgets.QLabel(parent=self.frame)
-        self.label_IDRecord.setMinimumSize(QtCore.QSize(0, 25))
-        self.label_IDRecord.setMaximumSize(QtCore.QSize(16777215, 25))
+        self.label_IDRecord.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
+        self.label_IDRecord.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
         self.label_IDRecord.setObjectName("label_IDRecord")
         self.label_IDRecord.setText("")
         self.label_IDRecord.setStyleSheet("color: rgb(255, 255, 255);")
         self.gridLayout_2.addWidget(self.label_IDRecord, 5, 1, 1, 1)
         self.label_Details = QtWidgets.QLabel(parent=self.frame)
-        self.label_Details.setMinimumSize(QtCore.QSize(0, 25))
-        self.label_Details.setMaximumSize(QtCore.QSize(16777215, 25))
+        self.label_Details.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
+        self.label_Details.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(int(11//1.5))
         font.setBold(True)
         self.label_Details.setFont(font)
         self.label_Details.setObjectName("label_Details")
@@ -206,49 +206,49 @@ class Ui_Quotation_Window(object):
         self.tableRecords.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         font.setBold(True)
         item.setFont(font)
         self.tableRecords.setHorizontalHeaderItem(0, item)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         font.setBold(True)
         item.setFont(font)
         self.tableRecords.setHorizontalHeaderItem(1, item)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         font.setBold(True)
         item.setFont(font)
         self.tableRecords.setHorizontalHeaderItem(2, item)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         font.setBold(True)
         item.setFont(font)
         self.tableRecords.setHorizontalHeaderItem(3, item)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         font.setBold(True)
         item.setFont(font)
         self.tableRecords.setHorizontalHeaderItem(4, item)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         font.setBold(True)
         item.setFont(font)
         self.tableRecords.setHorizontalHeaderItem(5, item)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         font.setBold(True)
         item.setFont(font)
         self.tableRecords.setHorizontalHeaderItem(6, item)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         font.setBold(True)
         item.setFont(font)
         self.tableRecords.setHorizontalHeaderItem(7, item)
@@ -259,56 +259,56 @@ class Ui_Quotation_Window(object):
         self.tableQuotations.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         font.setBold(True)
         item.setFont(font)
         self.tableQuotations.setHorizontalHeaderItem(0, item)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         font.setBold(True)
         item.setFont(font)
         self.tableQuotations.setHorizontalHeaderItem(1, item)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         font.setBold(True)
         item.setFont(font)
         self.tableQuotations.setHorizontalHeaderItem(2, item)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         font.setBold(True)
         item.setFont(font)
         self.tableQuotations.setHorizontalHeaderItem(3, item)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         font.setBold(True)
         item.setFont(font)
         self.tableQuotations.setHorizontalHeaderItem(4, item)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(int(10//1.5))
         font.setBold(True)
         item.setFont(font)
         self.tableQuotations.setHorizontalHeaderItem(5, item)
         self.gridLayout_2.addWidget(self.tableQuotations, 13, 1, 1, 17)
         self.Button_AddQuot = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_AddQuot.setMinimumSize(QtCore.QSize(0, 35))
-        self.Button_AddQuot.setMaximumSize(QtCore.QSize(130, 35))
+        self.Button_AddQuot.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.Button_AddQuot.setMaximumSize(QtCore.QSize(int(130//1.5), int(35//1.5)))
         self.Button_AddQuot.setStyleSheet("QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
 "  border-radius: 3px;\n"
 "  color: #fff;\n"
 "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
+"  font-size: 10px;\n"
 "  font-weight: 800;\n"
 "  line-height: 1.15385;\n"
 "  margin: 0;\n"
 "  outline: none;\n"
-"  padding: 8px .8em;\n"
+"  padding: 4px .8em;\n"
 "  text-align: center;\n"
 "  text-decoration: none;\n"
 "  vertical-align: baseline;\n"
@@ -327,20 +327,20 @@ class Ui_Quotation_Window(object):
         self.Button_AddQuot.setObjectName("Button_AddQuot")
         self.gridLayout_2.addWidget(self.Button_AddQuot, 1, 14, 1, 1)
         self.Button_ModifyQuot = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_ModifyQuot.setMinimumSize(QtCore.QSize(0, 35))
-        self.Button_ModifyQuot.setMaximumSize(QtCore.QSize(130, 35))
+        self.Button_ModifyQuot.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.Button_ModifyQuot.setMaximumSize(QtCore.QSize(int(130//1.5), int(35//1.5)))
         self.Button_ModifyQuot.setStyleSheet("QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
 "  border-radius: 3px;\n"
 "  color: #fff;\n"
 "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
+"  font-size: 10px;\n"
 "  font-weight: 800;\n"
 "  line-height: 1.15385;\n"
 "  margin: 0;\n"
 "  outline: none;\n"
-"  padding: 8px .8em;\n"
+"  padding: 4px .8em;\n"
 "  text-align: center;\n"
 "  text-decoration: none;\n"
 "  vertical-align: baseline;\n"
@@ -359,20 +359,20 @@ class Ui_Quotation_Window(object):
         self.Button_ModifyQuot.setObjectName("Button_ModifyQuot")
         self.gridLayout_2.addWidget(self.Button_ModifyQuot, 2, 14, 1, 1)
         self.Button_AddRecord = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_AddRecord.setMinimumSize(QtCore.QSize(0, 35))
-        self.Button_AddRecord.setMaximumSize(QtCore.QSize(130, 35))
+        self.Button_AddRecord.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.Button_AddRecord.setMaximumSize(QtCore.QSize(int(130//1.5), int(35//1.5)))
         self.Button_AddRecord.setStyleSheet("QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
 "  border-radius: 3px;\n"
 "  color: #fff;\n"
 "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
+"  font-size: 10px;\n"
 "  font-weight: 800;\n"
 "  line-height: 1.15385;\n"
 "  margin: 0;\n"
 "  outline: none;\n"
-"  padding: 8px .8em;\n"
+"  padding: 4px .8em;\n"
 "  text-align: center;\n"
 "  text-decoration: none;\n"
 "  vertical-align: baseline;\n"
@@ -391,20 +391,20 @@ class Ui_Quotation_Window(object):
         self.Button_AddRecord.setObjectName("Button_AddRecord")
         self.gridLayout_2.addWidget(self.Button_AddRecord, 4, 14, 1, 1)
         self.Button_ModifyRecord = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_ModifyRecord.setMinimumSize(QtCore.QSize(0, 35))
-        self.Button_ModifyRecord.setMaximumSize(QtCore.QSize(130, 35))
+        self.Button_ModifyRecord.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.Button_ModifyRecord.setMaximumSize(QtCore.QSize(int(130//1.5), int(35//1.5)))
         self.Button_ModifyRecord.setStyleSheet("QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
 "  border-radius: 3px;\n"
 "  color: #fff;\n"
 "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
+"  font-size: 10px;\n"
 "  font-weight: 800;\n"
 "  line-height: 1.15385;\n"
 "  margin: 0;\n"
 "  outline: none;\n"
-"  padding: 8px .8em;\n"
+"  padding: 4px .8em;\n"
 "  text-align: center;\n"
 "  text-decoration: none;\n"
 "  vertical-align: baseline;\n"
@@ -483,7 +483,7 @@ class Ui_Quotation_Window(object):
         self.Supplier_Quotation.addItems(list_suppliers)
 
         list_supplies=[x[3] + ' | ' + x[4] for x in results_supplies]
-        self.Supply_Quotation.addItems(list_supplies)
+        self.Supply_Quotation.addItems(sorted(list_supplies))
 
         list_currency=[x[2] for x in results_currency]
         self.Currency_Quotation.addItems(list_currency)
@@ -936,11 +936,15 @@ class Ui_Quotation_Window(object):
         self.tableQuotations.setRowCount(len(results_quotations))
         tablerow=0
 
+        font = QtGui.QFont()
+        font.setPointSize(int(10//1.5))
+
     # fill the Qt Table with the query results
         for row in results_quotations:
             for column in range(6):
                 it=QtWidgets.QTableWidgetItem(str(row[column]))
                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                it.setFont(font)
                 self.tableQuotations.setItem(tablerow, column, it)
 
             self.tableQuotations.setItemDelegateForRow(tablerow, AlignDelegate(self.tableQuotations))
@@ -990,11 +994,15 @@ class Ui_Quotation_Window(object):
         self.tableRecords.setRowCount(len(results_record))
         tablerow=0
 
+        font = QtGui.QFont()
+        font.setPointSize(int(10//1.5))
+
     # fill the Qt Table with the query results
         for row in results_record:
             for column in range(8):
                 it=QtWidgets.QTableWidgetItem(str(row[column]))
                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                it.setFont(font)
                 self.tableRecords.setItem(tablerow, column, it)
 
             self.tableRecords.setItemDelegateForRow(tablerow, AlignDelegate(self.tableRecords))

@@ -234,9 +234,8 @@ class Ui_AddTask_Window(object):
 
     def AddTask(self):
         task_value = self.lineEdit.toPlainText()
-        state_checkbox = "Checked" if self.checkbox.isChecked() else "Unchecked"
-
-        date_task = self.comboBox.date().toString(QtCore.Qt.DateFormat.ISODate) if state_checkbox == "Checked" else None
+        state_date_checkbox = "Checked" if self.checkbox.isChecked() else "Unchecked"
+        date_task = self.comboBox.date().toString(QtCore.Qt.DateFormat.ISODate) if state_date_checkbox == "Checked" else None
 
         if self.name=='Luis Bravo':
             responsible = self.Responsible_Task.currentText()
@@ -261,7 +260,10 @@ class Ui_AddTask_Window(object):
             del dlg, new_icon
 
         else:
-            commands_AddTask = f"INSERT INTO tasks VALUES (default, '{creator}', '{responsible}', '{date_task}', '{task_value}', 'Pendiente')"
+            if date_task == None:
+                commands_AddTask = f"INSERT INTO tasks VALUES (default, '{creator}', '{responsible}', NULL, '{task_value}', 'Pendiente')"
+            else:
+                commands_AddTask = f"INSERT INTO tasks VALUES (default, '{creator}', '{responsible}', '{date_task}', '{task_value}', 'Pendiente')"
             conn = None
             try:
             # read the connection parameters

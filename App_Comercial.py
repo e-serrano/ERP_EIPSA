@@ -251,42 +251,42 @@ class Ui_App_Comercial(object):
         self.Header.addWidget(self.Button_ClientsResume)
         spacerItem13 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem13)
-#         self.Button_QueryTask = QtWidgets.QPushButton(parent=self.frame)
-#         self.Button_QueryTask.setMinimumSize(QtCore.QSize(50, 50))
-#         self.Button_QueryTask.setMaximumSize(QtCore.QSize(50, 50))
-#         self.Button_QueryTask.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-#         self.Button_QueryTask.setStyleSheet("QPushButton{\n"
-# "    border: 1px solid transparent;\n"
-# "    border-color: rgb(3, 174, 236);\n"
-# "    background-color: rgb(255, 255, 255);\n"
-# "    border-radius: 10px;\n"
-# "}\n"
-# "\n"
-# "QPushButton:hover{\n"
-# "    border: 1px solid transparent;\n"
-# "    border-color: rgb(0, 0, 0);\n"
-# "    color: rgb(0,0,0);\n"
-# "    background-color: rgb(255, 255, 255);\n"
-# "    border-radius: 10px;\n"
-# "}\n"
-# "\n"
-# "QPushButton:pressed{\n"
-# "    border: 1px solid transparent;\n"
-# "    border-color: rgb(0, 0, 0);\n"
-# "    color: rgb(0,0,0);\n"
-# "    background-color: rgb(200, 200, 200);\n"
-# "    border-radius: 10px;\n"
-# "}")
-#         self.Button_QueryTask.setText("")
-#         icon5 = QtGui.QIcon()
-#         icon5.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Task.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-#         self.Button_QueryTask.setIcon(icon5)
-#         self.Button_QueryTask.setIconSize(QtCore.QSize(40, 40))
-#         self.Button_QueryTask.setObjectName("Button_QueryTask")
-#         self.Button_QueryTask.setToolTip("Tareas")
-#         self.Header.addWidget(self.Button_QueryTask)
-#         spacerItem12 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-#         self.Header.addItem(spacerItem12)
+        self.Button_QueryTask = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_QueryTask.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_QueryTask.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_QueryTask.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_QueryTask.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
+        self.Button_QueryTask.setText("")
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Task.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_QueryTask.setIcon(icon5)
+        self.Button_QueryTask.setIconSize(QtCore.QSize(40, 40))
+        self.Button_QueryTask.setObjectName("Button_QueryTask")
+        self.Button_QueryTask.setToolTip("Tareas")
+        self.Header.addWidget(self.Button_QueryTask)
+        spacerItem12 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem12)
 
         if self.name in ['Ana Calvo']:
             self.Button_Users = QtWidgets.QPushButton(parent=self.frame)
@@ -366,14 +366,14 @@ class Ui_App_Comercial(object):
 "}")
         self.Button_Profile.setText("")
         icon13 = QtGui.QIcon()
-        # if self.name == 'Luis Bravo':
-        #     icon13.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Mando.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        # elif self.name == 'Sandra Sanz':
-        #     icon13.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Bender.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        # elif self.name == 'Carlos Crespo':
-        #     icon13.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Pikachu.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        # else:
-        icon13.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/User.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        if self.name == 'Luis Bravo':
+            icon13.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Mando.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        elif self.name == 'Sandra Sanz':
+            icon13.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Bender.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        elif self.name == 'Carlos Crespo':
+            icon13.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Pikachu.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        else:
+            icon13.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/User.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Profile.setIcon(icon13)
         self.Button_Profile.setIconSize(QtCore.QSize(40, 40))
         self.Button_Profile.setObjectName("Button_Profile")
@@ -619,15 +619,15 @@ class Ui_App_Comercial(object):
 
         try:
             commands_graph1 = ("""
-                        SELECT "offer_month", CAST(SUM("offer_amount") AS numeric)
+                        SELECT orders."order_month", CAST(SUM(orders."order_amount") AS numeric)
                         FROM offers
-                        WHERE ("responsible"=%s
+                        INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
+                        WHERE (offers."responsible"=%s
                         AND
-                        "offer_year"=%s
-                        AND
-                        "state"='Adjudicada')
-                        GROUP BY "offer_month"
-                        ORDER BY "offer_month"
+                        orders."order_year"=%s
+                        )
+                        GROUP BY orders."order_month"
+                        ORDER BY orders."order_month"
                         """)
             conn = None
             try:
@@ -673,14 +673,14 @@ class Ui_App_Comercial(object):
             self.BottomLayout.addItem(spacerItem7)
 
             commands_graph2 = ("""
-                        SELECT COUNT(offers."num_offer"), product_type."variable"
+                        SELECT COUNT(orders."num_order"), product_type."variable"
                         FROM offers
+                        INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                         INNER JOIN product_type ON (offers."material"=product_type."material")
-                        WHERE ("responsible"=%s
+                        WHERE (offers."responsible"=%s
                         AND
-                        "offer_year"=%s
-                        AND
-                        "state"='Adjudicada')
+                        "order_year"=%s
+                        )
                         GROUP BY product_type."variable"
                         """)
             conn = None
@@ -813,7 +813,7 @@ class Ui_App_Comercial(object):
         self.Button_Doc.clicked.connect(self.query_documents)
         self.Button_Graphs.clicked.connect(self.graphs)
         self.Button_ClientsResume.clicked.connect(self.clients_generalresume)
-        # self.Button_QueryTask.clicked.connect(self.querytask)
+        self.Button_QueryTask.clicked.connect(self.querytask)
         self.Button_Profile.clicked.connect(self.showMenu)
         self.tableOffer.itemDoubleClicked.connect(self.on_item_double_clicked)
         self.Calendar.activated.connect(self.show_selected_date_tasks)
@@ -1198,7 +1198,9 @@ class Ui_App_Comercial(object):
         commands_loaddatestasks = ("""
                     SELECT "responsible","task_date","task","state"
                     FROM tasks
-                    WHERE ("creator" = %s)
+                    WHERE ("creator" = %s
+                    AND
+                    "task_date" IS NOT NULL)
                     ORDER BY "task_date"
                     """)
         conn = None

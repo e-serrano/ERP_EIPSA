@@ -19,8 +19,8 @@ class Ui_Purchasing_Menu(object):
         Purchasing_Menu.setObjectName("Purchasing_Menu")
         Purchasing_Menu.setWindowModality(QtCore.Qt.WindowModality.WindowModal)
         Purchasing_Menu.resize(615, 400)
-        Purchasing_Menu.setMinimumSize(QtCore.QSize(615, 400))
-        Purchasing_Menu.setMaximumSize(QtCore.QSize(615, 400))
+        Purchasing_Menu.setMinimumSize(QtCore.QSize(int(615//1.5), int(400//1.5)))
+        Purchasing_Menu.setMaximumSize(QtCore.QSize(int(615//1.5), int(400//1.5)))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Purchasing_Menu.setWindowIcon(icon)
@@ -38,12 +38,12 @@ class Ui_Purchasing_Menu(object):
 "  border-radius: 3px;\n"
 "  color: #fff;\n"
 "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
+"  font-size: 10px;\n"
 "  font-weight: 800;\n"
 "  line-height: 1.15385;\n"
 "  margin: 0;\n"
 "  outline: none;\n"
-"  padding: 8px .8em;\n"
+"  padding: 4px .8em;\n"
 "  text-align: center;\n"
 "  text-decoration: none;\n"
 "  vertical-align: baseline;\n"
@@ -60,13 +60,13 @@ class Ui_Purchasing_Menu(object):
 "    border-color: rgb(255, 255, 255);\n"
 "}")
         self.centralwidget = QtWidgets.QWidget(parent=Purchasing_Menu)
-        self.centralwidget.setMinimumSize(QtCore.QSize(615, 360))
-        self.centralwidget.setMaximumSize(QtCore.QSize(615, 360))
+        self.centralwidget.setMinimumSize(QtCore.QSize(int(615//1.5), int(360//1.5)))
+        self.centralwidget.setMaximumSize(QtCore.QSize(int(615//1.5), int(360//1.5)))
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame.setMinimumSize(QtCore.QSize(275, 325))
+        self.frame.setMinimumSize(QtCore.QSize(int(275//1.5), int(325//1.5)))
         self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame.setObjectName("frame")
@@ -77,30 +77,30 @@ class Ui_Purchasing_Menu(object):
         self.hLayout2 = QtWidgets.QHBoxLayout()
         self.hLayout2.setObjectName("hLayout2")
         self.Button_SupplierOrder = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_SupplierOrder.setMinimumSize(QtCore.QSize(250, 35))
-        self.Button_SupplierOrder.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_SupplierOrder.setMinimumSize(QtCore.QSize(int(250//1.5), int(35//1.5)))
+        self.Button_SupplierOrder.setMaximumSize(QtCore.QSize(int(250//1.5), int(35//1.5)))
         self.Button_SupplierOrder.setObjectName("Button_SupplierOrder")
         self.hLayout2.addWidget(self.Button_SupplierOrder)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hLayout2.addItem(spacerItem1)
         self.Button_Quotation = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Quotation.setMinimumSize(QtCore.QSize(250, 35))
-        self.Button_Quotation.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_Quotation.setMinimumSize(QtCore.QSize(int(250//1.5), int(35//1.5)))
+        self.Button_Quotation.setMaximumSize(QtCore.QSize(int(250//1.5), int(35//1.5)))
         self.Button_Quotation.setObjectName("Button_Quotation")
         self.hLayout2.addWidget(self.Button_Quotation)
         self.gridLayout_2.addLayout(self.hLayout2, 3, 0, 1, 1)
         self.hLayout1 = QtWidgets.QHBoxLayout()
         self.hLayout1.setObjectName("hLayout1")
         self.Button_Supplies = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Supplies.setMinimumSize(QtCore.QSize(250, 35))
-        self.Button_Supplies.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_Supplies.setMinimumSize(QtCore.QSize(int(250//1.5), int(35//1.5)))
+        self.Button_Supplies.setMaximumSize(QtCore.QSize(int(250//1.5), int(35//1.5)))
         self.Button_Supplies.setObjectName("Button_Supplies")
         self.hLayout1.addWidget(self.Button_Supplies)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hLayout1.addItem(spacerItem2)
         self.Button_ClientOrder = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_ClientOrder.setMinimumSize(QtCore.QSize(250, 35))
-        self.Button_ClientOrder.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_ClientOrder.setMinimumSize(QtCore.QSize(int(250//1.5), int(35//1.5)))
+        self.Button_ClientOrder.setMaximumSize(QtCore.QSize(int(250//1.5), int(35//1.5)))
         self.Button_ClientOrder.setObjectName("Button_ClientOrder")
         self.hLayout1.addWidget(self.Button_ClientOrder)
         self.gridLayout_2.addLayout(self.hLayout1, 0, 0, 1, 1)
@@ -111,8 +111,8 @@ class Ui_Purchasing_Menu(object):
         self.hLayout4.addItem(spacerItem3)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Cancel.setEnabled(True)
-        self.Button_Cancel.setMinimumSize(QtCore.QSize(100, 35))
-        self.Button_Cancel.setMaximumSize(QtCore.QSize(100, 35))
+        self.Button_Cancel.setMinimumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
+        self.Button_Cancel.setMaximumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.hLayout4.addWidget(self.Button_Cancel)
         self.gridLayout_2.addLayout(self.hLayout4, 11, 0, 1, 1)
@@ -120,15 +120,15 @@ class Ui_Purchasing_Menu(object):
         self.hLayout3.setContentsMargins(-1, 0, -1, -1)
         self.hLayout3.setObjectName("hLayout3")
         self.Button_Databases = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Databases.setMinimumSize(QtCore.QSize(250, 35))
-        self.Button_Databases.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_Databases.setMinimumSize(QtCore.QSize(int(250//1.5), int(35//1.5)))
+        self.Button_Databases.setMaximumSize(QtCore.QSize(int(250//1.5), int(35//1.5)))
         self.Button_Databases.setObjectName("Button_Databases")
         self.hLayout3.addWidget(self.Button_Databases)
         spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hLayout3.addItem(spacerItem4)
         self.Button_Reports = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Reports.setMinimumSize(QtCore.QSize(250, 35))
-        self.Button_Reports.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_Reports.setMinimumSize(QtCore.QSize(int(250//1.5), int(35//1.5)))
+        self.Button_Reports.setMaximumSize(QtCore.QSize(int(250//1.5), int(35//1.5)))
         self.Button_Reports.setObjectName("Button_Reports")
         self.hLayout3.addWidget(self.Button_Reports)
         self.gridLayout_2.addLayout(self.hLayout3, 10, 0, 1, 1)
@@ -172,7 +172,6 @@ class Ui_Purchasing_Menu(object):
         self.ui=Ui_Supplies_Window()
         self.ui.setupUi(self.supplies_window)
         self.supplies_window.showMaximized()
-        Purchasing_Menu.close()
 
 
     def clientorder(self,Purchasing_Menu):
@@ -180,7 +179,6 @@ class Ui_Purchasing_Menu(object):
         self.ui=Ui_ClientOrder_Window()
         self.ui.setupUi(self.clientorder_window)
         self.clientorder_window.showMaximized()
-        Purchasing_Menu.close()
 
 
     def supplierorder(self,Purchasing_Menu):
@@ -188,7 +186,6 @@ class Ui_Purchasing_Menu(object):
         self.ui=Ui_SupplierOrder_Window()
         self.ui.setupUi(self.supplierorder_window)
         self.supplierorder_window.showMaximized()
-        Purchasing_Menu.close()
 
 
     def quotation(self,Purchasing_Menu):
@@ -196,7 +193,6 @@ class Ui_Purchasing_Menu(object):
         self.ui=Ui_Quotation_Window()
         self.ui.setupUi(self.quotation_window)
         self.quotation_window.showMaximized()
-        Purchasing_Menu.close()
 
 
     def databases(self,Purchasing_Menu):

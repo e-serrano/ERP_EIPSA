@@ -30,7 +30,7 @@ class Ui_QueryTask_Window(object):
         QueryTask_Window.setObjectName("QueryTask_Window")
         QueryTask_Window.resize(400, 561)
         QueryTask_Window.setMinimumSize(QtCore.QSize(600, 575))
-        QueryTask_Window.setMaximumSize(QtCore.QSize(600, 575))
+        # QueryTask_Window.setMaximumSize(QtCore.QSize(600, 575))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         QueryTask_Window.setWindowIcon(icon)
@@ -75,7 +75,7 @@ class Ui_QueryTask_Window(object):
         self.gridLayout.setObjectName("gridLayout")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
         self.frame.setMinimumSize(QtCore.QSize(550, 500))
-        self.frame.setMaximumSize(QtCore.QSize(550, 500))
+        # self.frame.setMaximumSize(QtCore.QSize(550, 500))
         self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame.setObjectName("frame")
@@ -128,7 +128,7 @@ class Ui_QueryTask_Window(object):
         QueryTask_Window.setStatusBar(self.statusbar)
         self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
-        QueryTask_Window.setWindowFlags(QtCore.Qt.WindowType.WindowMinimizeButtonHint)
+        # QueryTask_Window.setWindowFlags(QtCore.Qt.WindowType.WindowMinimizeButtonHint)
 
         self.retranslateUi(QueryTask_Window)
         QtCore.QMetaObject.connectSlotsByName(QueryTask_Window)
@@ -221,11 +221,10 @@ class Ui_QueryTask_Window(object):
         state = item.tableWidget().item(item.row(), 3).text()
 
         self.edittaskwindow=QtWidgets.QMainWindow()
-        self.ui=Ui_EditTask_Window(self.name, id, task, date, state)
+        self.ui=Ui_EditTask_Window(id, task, date, state)
         self.ui.setupUi(self.edittaskwindow)
         self.edittaskwindow.show()
-        # QueryTask_Window.hide()
-        # self.ui.Button_Cancel.clicked.connect(QueryTask_Window.show)
+        self.ui.Button_Cancel.clicked.connect(self.QueryTask)
 
 
 if __name__ == "__main__":

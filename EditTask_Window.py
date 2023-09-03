@@ -12,8 +12,7 @@ import psycopg2
 
 
 class Ui_EditTask_Window(object):
-    def __init__(self, name, id, task, date, state):
-        self.name = name
+    def __init__(self, id, task, date, state):
         self.dateselected = QtCore.QDate.fromString(date, "dd-MM-yyyy")
         self.id = id
         self.task = task
@@ -80,16 +79,24 @@ class Ui_EditTask_Window(object):
         self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 1)
         self.hLayout2 = QtWidgets.QHBoxLayout()
         self.hLayout2.setObjectName("hLayout2")
-        self.labelTable = QtWidgets.QLabel(parent=self.frame)
-        self.labelTable.setMinimumSize(QtCore.QSize(90, 25))
-        self.labelTable.setMaximumSize(QtCore.QSize(90, 25))
+        self.labelDate = QtWidgets.QLabel(parent=self.frame)
+        self.labelDate.setMinimumSize(QtCore.QSize(90, 25))
+        self.labelDate.setMaximumSize(QtCore.QSize(90, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
-        self.labelTable.setFont(font)
-        self.labelTable.setObjectName("labelTable")
-        self.hLayout2.addWidget(self.labelTable)
+        self.labelDate.setFont(font)
+        self.labelDate.setObjectName("labelDate")
+        self.hLayout2.addWidget(self.labelDate)
+        self.checkbox_date = QtWidgets.QCheckBox(parent=self.frame)
+        self.checkbox_date.setMinimumSize(QtCore.QSize(20, 20))
+        self.checkbox_date.setMaximumSize(QtCore.QSize(20, 20))
+        self.hLayout2.addWidget(self.checkbox_date)
+        self.spacerItem = QtWidgets.QSpacerItem(1, 1, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hLayout2.addItem(self.spacerItem)
         self.comboBox = QtWidgets.QDateEdit(calendarPopup=True)
+        self.comboBox.setMinimumSize(QtCore.QSize(200, 25))
+        self.comboBox.setMaximumSize(QtCore.QSize(200, 25))
         self.comboBox.setDate(self.dateselected)#QtCore.QDate.currentDate())
         self.comboBox.setStyleSheet("QCalendarWidget QWidget{\n"
 "background-color: rgb(3, 174, 236);\n"
@@ -134,6 +141,12 @@ class Ui_EditTask_Window(object):
 "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/forward_arrow.png);\n"
 "}")
         self.hLayout2.addWidget(self.comboBox)
+        if self.dateselected.day() != 0:
+            self.checkbox_date.setChecked(True)
+            self.comboBox.setVisible(True)
+        else:
+            self.checkbox_date.setChecked(False)
+            self.comboBox.setVisible(False)
         self.gridLayout_2.addLayout(self.hLayout2, 3, 0, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem1, 4, 0, 1, 1)
@@ -158,15 +171,33 @@ class Ui_EditTask_Window(object):
         self.lineEdit.setText(self.task)
         self.hLayout3.addWidget(self.lineEdit)
         self.gridLayout_2.addLayout(self.hLayout3, 5, 0, 1, 1)
+        self.hLayout4 = QtWidgets.QHBoxLayout()
+        self.hLayout4.setObjectName("hLayout2")
+        self.labelState = QtWidgets.QLabel(parent=self.frame)
+        self.labelState.setMinimumSize(QtCore.QSize(90, 25))
+        self.labelState.setMaximumSize(QtCore.QSize(90, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.labelState.setFont(font)
+        self.labelState.setObjectName("labelState")
+        self.hLayout4.addWidget(self.labelState)
+        self.checkbox_state = QtWidgets.QCheckBox(parent=self.frame)
+        self.checkbox_state.setMinimumSize(QtCore.QSize(20, 20))
+        self.checkbox_state.setMaximumSize(QtCore.QSize(20, 20))
+        self.hLayout4.addWidget(self.checkbox_state)
+        self.spacerItem = QtWidgets.QSpacerItem(1, 1, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hLayout4.addItem(self.spacerItem)
+        self.gridLayout_2.addLayout(self.hLayout4, 6, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem, 6, 0, 1, 1)
+        self.gridLayout_2.addItem(spacerItem, 7, 0, 1, 1)
         self.hLayout3 = QtWidgets.QHBoxLayout()
         self.hLayout3.setObjectName("hLayout3")
-        self.Button_AddTask = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_AddTask.setMinimumSize(QtCore.QSize(100, 35))
-        self.Button_AddTask.setMaximumSize(QtCore.QSize(100, 35))
-        self.Button_AddTask.setObjectName("Button_AddTask")
-        self.hLayout3.addWidget(self.Button_AddTask)
+        self.Button_EditTask = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_EditTask.setMinimumSize(QtCore.QSize(100, 35))
+        self.Button_EditTask.setMaximumSize(QtCore.QSize(100, 35))
+        self.Button_EditTask.setObjectName("Button_EditTask")
+        self.hLayout3.addWidget(self.Button_EditTask)
         spacerItem3 = QtWidgets.QSpacerItem(50, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hLayout3.addItem(spacerItem3)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
@@ -188,7 +219,8 @@ class Ui_EditTask_Window(object):
 
         self.retranslateUi(EditTask_Window)
         self.Button_Cancel.clicked.connect(EditTask_Window.close) # type: ignore
-        self.Button_AddTask.clicked.connect(self.AddTask)
+        self.Button_EditTask.clicked.connect(self.EditTask)
+        self.checkbox_date.stateChanged.connect(self.toggle_combo_box)
         QtCore.QMetaObject.connectSlotsByName(EditTask_Window)
 
 
@@ -196,68 +228,59 @@ class Ui_EditTask_Window(object):
         _translate = QtCore.QCoreApplication.translate
         EditTask_Window.setWindowTitle(_translate("EditTask_Window", "Editar Tarea"))
         self.labelValue.setText(_translate("EditTask_Window", "Tarea:"))
-        self.labelTable.setText(_translate("EditTask_Window", "Fecha:"))
-        self.Button_AddTask.setText(_translate("EditTask_Window", "Agregar"))
+        self.labelDate.setText(_translate("EditTask_Window", "Fecha:"))
+        self.labelState.setText(_translate("EditTask_Window", "Completado:"))
+        self.Button_EditTask.setText(_translate("EditTask_Window", "Editar"))
         self.Button_Cancel.setText(_translate("EditTask_Window", "Cancelar"))
 
 
-    def AddTask(self):
-        date_task = self.comboBox.date().toString(QtCore.Qt.DateFormat.ISODate)
+    def EditTask(self):
         task_value = self.lineEdit.toPlainText()
+        state_date_checkbox = "Checked" if self.checkbox_date.isChecked() else "Unchecked"
+        date_task = self.comboBox.date().toString(QtCore.Qt.DateFormat.ISODate) if state_date_checkbox == "Checked" else None
+        state_state_checkbox = "Checked" if self.checkbox_state.isChecked() else "Unchecked"
+        state_value = "Completado" if state_state_checkbox == "Checked" else "Pendiente"
 
-        if self.name=='Luis Bravo':
-            responsible = self.Responsible_Task.currentText()
-
+        if date_task == None:
+            commands_EditTask = f"UPDATE tasks SET task_date = NULL, task = '{task_value}', state = '{state_value}' WHERE id='{self.id}'"
         else:
-            responsible = self.name
+            commands_EditTask = f"UPDATE tasks SET task_date = '{date_task}', task = '{task_value}', state = '{state_value}' WHERE id='{self.id}'"
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands_EditTask)
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
 
-        if self.name=='Carlos Crespo':
-            creator=self.name[0] + self.name[self.name.find(' ')+1]+'H'
-        else:
-            creator=self.name[0] + self.name[self.name.find(' ')+1]
-
-        if date_task == "" or task_value == "":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Los campos deben estar rellenos")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.setText("Tarea editada con éxito")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
             dlg.exec()
             del dlg, new_icon
 
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+
+    def toggle_combo_box(self, state):
+        if state == 2:
+            self.comboBox.setVisible(True)
         else:
-            commands_AddTask = f"INSERT INTO tasks VALUES (default, '{creator}', '{responsible}', '{date_task}', '{task_value}', 'Pendiente')"
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_AddTask)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Tarea creada con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
-
-            except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-            finally:
-                if conn is not None:
-                    conn.close()
+            self.comboBox.setVisible(False)
 
 
 if __name__ == "__main__":
