@@ -529,7 +529,6 @@ class Ui_QueryDoc_Window(object):
                 tablerow=0
 
             # fill the Qt Table with the query results
-                print(results)
                 for row in results:
                     for column in range(13):
                         value = row[column]
