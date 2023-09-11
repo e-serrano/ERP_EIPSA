@@ -164,7 +164,7 @@ class Ui_EditReg_Window(object):
     def setupUi(self, EditReg_Window):
         EditReg_Window.setObjectName("EditReg_Window")
         EditReg_Window.resize(400, 561)
-        EditReg_Window.setMinimumSize(QtCore.QSize(400, 525))
+        EditReg_Window.setMinimumSize(QtCore.QSize(700, 725))
         # EditReg_Window.setMaximumSize(QtCore.QSize(400, 561))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -209,7 +209,7 @@ class Ui_EditReg_Window(object):
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame.setMinimumSize(QtCore.QSize(350, 500))
+        self.frame.setMinimumSize(QtCore.QSize(650, 700))
         # self.frame.setMaximumSize(QtCore.QSize(350, 500))
         self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)

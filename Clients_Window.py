@@ -22,9 +22,21 @@ class CustomTableWidget(QtWidgets.QTableWidget):
                                         "QMenu::item:selected { background-color: #33bdef; }"
                                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
-        unique_values = set(self.item(row, column_index).text() for row in range(self.rowCount()))
-        action_all = menu.addAction("All")
+        unique_values = set()
+        for row in range(self.rowCount()):
+            if not self.isRowHidden(row):
+                item = self.item(row, column_index)
+                if item:
+                    unique_values.add(item.text())
+
+        action_all = menu.addAction("Seleccionar todo")
         action_all.triggered.connect(lambda: self.filter_column(column_index, None))
+        menu.addSeparator()
+
+        action_all = menu.addAction("Ordenar ascendente")
+        action_all.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.AscendingOrder))
+        action_all = menu.addAction("Ordenar descendente")
+        action_all.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.DescendingOrder))
         menu.addSeparator()
 
         scroll_menu = QtWidgets.QScrollArea()
@@ -58,17 +70,27 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 
     def filter_column(self, column_index, value):
-        if value in self.list_filters:
+        if value is None:
+            for row in range(self.rowCount()):
+                self.setRowHidden(row, False)
+                self.list_filters=[]
+        elif value in self.list_filters:
             self.list_filters.remove(value)
         else:
             self.list_filters.append(value)
         
         for row in range(self.rowCount()):
             item = self.item(row, column_index)
-            if value is None or item.text() not in self.list_filters:
+            if value is None:
+                pass
+            elif item.text() not in self.list_filters:
                 self.setRowHidden(row, False)
             else:
                 self.setRowHidden(row, True)
+
+
+    def sort_column(self, column_index, sortOrder):
+        self.sortByColumn(column_index, sortOrder)
 
 
     def contextMenuEvent(self, event):
@@ -1028,7 +1050,10 @@ class Ui_Clients_Window(object):
     # fill the Qt Table with the query results
         for row in results_client:
             for column in range(16):
-                it=QtWidgets.QTableWidgetItem(str(row[column]))
+                value = row[column]
+                if value is None:
+                    value = ''
+                it = QtWidgets.QTableWidgetItem(str(value))
                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                 it.setFont(font)
                 self.tableClients.setItem(tablerow, column, it)

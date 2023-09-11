@@ -14,6 +14,7 @@ import psycopg2
 class CustomTableWidget(QtWidgets.QTableWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.list_filters=[]
 
     def show_unique_values_menu(self, column_index, header_pos, header_height):
         menu = QtWidgets.QMenu(self)
@@ -21,44 +22,46 @@ class CustomTableWidget(QtWidgets.QTableWidget):
                                         "QMenu::item:selected { background-color: #33bdef; }"
                                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
-        unique_values = set(self.item(row, column_index).text() for row in range(self.rowCount()))
-        action_all = menu.addAction("All")
+        unique_values = set()
+        for row in range(self.rowCount()):
+            if not self.isRowHidden(row):
+                item = self.item(row, column_index)
+                if item:
+                    unique_values.add(item.text())
+
+        action_all = menu.addAction("Seleccionar todo")
         action_all.triggered.connect(lambda: self.filter_column(column_index, None))
+        menu.addSeparator()
+
+        action_all = menu.addAction("Ordenar ascendente")
+        action_all.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.AscendingOrder))
+        action_all = menu.addAction("Ordenar descendente")
+        action_all.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.DescendingOrder))
         menu.addSeparator()
 
         scroll_menu = QtWidgets.QScrollArea()
         scroll_menu.setWidgetResizable(True)
-        scroll_menu.setFixedHeight(200)
-        # scroll_menu.setFixedWidth(250)  # Ajustar el alto del menú desplegable
         scroll_widget = QtWidgets.QWidget(scroll_menu)
         scroll_menu.setWidget(scroll_widget)
         scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
 
-        buttons = []  # Lista para almacenar los botones creados
+        checkboxes = []  # List to stack checkboxes created
 
         for value in sorted(unique_values):
-            button = QtWidgets.QCheckBox(value)
-#             button.setStyleSheet("QPushButton {\n"
-# "  text-align: left;\n"
-# "}\n"
-# "\n"
-# "QPushButton:hover {\n"
-# "    background-color: #019ad2;\n"
-# "    border-color: rgb(0, 0, 0);\n"
-# "}\n"
-# "\n"
-# "QPushButton:pressed {\n"
-# "    background-color: rgb(1, 140, 190);\n"
-# "    border-color: rgb(255, 255, 255);\n"
-# "}") 
-            scroll_layout.addWidget(button)
-            buttons.append(button)  # Agregar el botón a la lista
+            checkbox = QtWidgets.QCheckBox(value)
+            if value in self.list_filters:
+                checkbox.setCheckState(QtCore.Qt.CheckState(0))
+            else:
+                checkbox.setCheckState(QtCore.Qt.CheckState(2))
 
-        # Conectar las señales de clic de los botones a la función self.filter_column
-        for value, button in zip(sorted(unique_values), buttons):
-            button.clicked.connect(lambda checked, value=value: self.filter_column(column_index, value))
+            scroll_layout.addWidget(checkbox)
+            checkboxes.append(checkbox)  # Adding checkbox to list
 
-        # Crear una nueva acción para el menú desplegable y agregar el QScrollArea como su widget
+        # Connecting checkboxes to function self.filter_column
+        for value, checkbox in zip(sorted(unique_values), checkboxes):
+            checkbox.clicked.connect(lambda checked, value=value: self.filter_column(column_index, value))
+
+        # Action for drop down menu and adding scroll area as widget
         action_scroll_menu = QtWidgets.QWidgetAction(menu)
         action_scroll_menu.setDefaultWidget(scroll_menu)
         menu.addAction(action_scroll_menu)
@@ -67,12 +70,27 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 
     def filter_column(self, column_index, value):
+        if value is None:
+            for row in range(self.rowCount()):
+                self.setRowHidden(row, False)
+                self.list_filters=[]
+        elif value in self.list_filters:
+            self.list_filters.remove(value)
+        else:
+            self.list_filters.append(value)
+        
         for row in range(self.rowCount()):
             item = self.item(row, column_index)
-            if value is None or item.text() == value:
+            if value is None:
+                pass
+            elif item.text() not in self.list_filters:
                 self.setRowHidden(row, False)
             else:
                 self.setRowHidden(row, True)
+
+
+    def sort_column(self, column_index, sortOrder):
+        self.sortByColumn(column_index, sortOrder)
 
 
     def contextMenuEvent(self, event):
@@ -614,7 +632,7 @@ class Ui_Suppliers_Window(object):
         self.Payway_Suppliers.addItems(list_payway)
 
         self.tableSuppliers.itemClicked.connect(self.loadformsuppliers)
-        # self.tableSuppliers.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
+        self.tableSuppliers.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
         self.Button_AddSupplier.clicked.connect(self.addsupplier)
         self.Button_ModifySupplier.clicked.connect(self.modifysupplier)
         self.Button_DeleteSupplier.clicked.connect(self.deletesupplier)
@@ -1002,7 +1020,10 @@ class Ui_Suppliers_Window(object):
     # fill the Qt Table with the query results
         for row in results_supplier:
             for column in range(15):
-                it=QtWidgets.QTableWidgetItem(str(row[column]))
+                value = row[column]
+                if value is None:
+                    value = ''
+                it = QtWidgets.QTableWidgetItem(str(value))
                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                 it.setFont(font)
                 self.tableSuppliers.setItem(tablerow, column, it)

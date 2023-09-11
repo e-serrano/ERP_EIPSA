@@ -557,7 +557,7 @@ class Ui_App_Comercial(object):
         self.tableOffer = QtWidgets.QTableWidget(parent=self.frame)
         self.tableOffer.setMinimumSize(QtCore.QSize(650, 280))
         self.tableOffer.setObjectName("tableOffer")
-        self.tableOffer.setColumnCount(8)
+        self.tableOffer.setColumnCount(10)
         self.tableOffer.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
@@ -607,6 +607,18 @@ class Ui_App_Comercial(object):
         font.setBold(True)
         item.setFont(font)
         self.tableOffer.setHorizontalHeaderItem(7, item)
+        item = QtWidgets.QTableWidgetItem()
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        item.setFont(font)
+        self.tableOffer.setHorizontalHeaderItem(8, item)
+        item = QtWidgets.QTableWidgetItem()
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        item.setFont(font)
+        self.tableOffer.setHorizontalHeaderItem(9, item)
         self.tableOffer.verticalHeader().setVisible(False)
         self.tableOffer.setSortingEnabled(False)
         self.tableOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
@@ -637,7 +649,10 @@ class Ui_App_Comercial(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                data=(self.name[0] + self.name[self.name.find(' ')+1], date.today().year,)
+                if self.name == 'Carlos Crespo':
+                    data=(self.name[0] + self.name[self.name.find(' ')+1] + 'H', date.today().year,)
+                else:
+                    data=(self.name[0] + self.name[self.name.find(' ')+1], date.today().year,)
                 cur.execute(commands_graph1, data)
                 results=cur.fetchall()
             # close communication with the PostgreSQL database server
@@ -691,7 +706,10 @@ class Ui_App_Comercial(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                data=(self.name[0] + self.name[self.name.find(' ')+1], date.today().year,)
+                if self.name == 'Carlos Crespo':
+                    data=(self.name[0] + self.name[self.name.find(' ')+1] + 'H', date.today().year,)
+                else:
+                    data=(self.name[0] + self.name[self.name.find(' ')+1], date.today().year,)
                 cur.execute(commands_graph2, data)
                 results2=cur.fetchall()
             # close communication with the PostgreSQL database server
@@ -825,7 +843,7 @@ class Ui_App_Comercial(object):
             self.Button_Users.clicked.connect(self.user_edition)
 
         commands_appcomercial = ("""
-                    SELECT "num_offer","state","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","notes"
+                    SELECT "num_offer","state","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","notes","important","tracking"
                     FROM offers
                     WHERE ("responsible" = %s
                     AND
@@ -853,8 +871,11 @@ class Ui_App_Comercial(object):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(8):
-                    it=QtWidgets.QTableWidgetItem(str(row[column]))
+                for column in range(10):
+                    value = row[column]
+                    if value is None:
+                        value = ''
+                    it = QtWidgets.QTableWidgetItem(str(value))
                     it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                     self.tableOffer.setItem(tablerow, column, it)
 
@@ -921,6 +942,10 @@ class Ui_App_Comercial(object):
         item.setText(_translate("App_Comercial", "Importe"))
         item = self.tableOffer.horizontalHeaderItem(7)
         item.setText(_translate("App_Comercial", "Notas"))
+        item = self.tableOffer.horizontalHeaderItem(8)
+        item.setText(_translate("App_Comercial", "Ptos. Importantes"))
+        item = self.tableOffer.horizontalHeaderItem(9)
+        item.setText(_translate("App_Comercial", "Seguimiento"))
         __sortingEnabled = self.tableOffer.isSortingEnabled()
         self.tableOffer.setSortingEnabled(False)
         self.tableOffer.setSortingEnabled(__sortingEnabled)
@@ -1032,11 +1057,9 @@ class Ui_App_Comercial(object):
 
 
     def querytask(self, date=None):
-        self.querytaskwindow=QtWidgets.QMainWindow()
-        self.ui=Ui_QueryTask_Window(self.name, date)
-        self.ui.setupUi(self.querytaskwindow)
+        self.querytaskwindow=Ui_QueryTask_Window(self.name, date)
         self.querytaskwindow.show()
-        self.ui.Button_Cancel.clicked.connect(self.setup_task_dates)
+        self.querytaskwindow.Button_Cancel.clicked.connect(self.setup_task_dates)
 
 
     def newtask(self, date):
@@ -1049,7 +1072,7 @@ class Ui_App_Comercial(object):
 
     def showMenu(self):
         menu = QMenu(self.centralwidget)
-        menu.setStyleSheet("QMenu { background-color: rgb(0, 0, 0); border: 1px solid black; width: 125px; right: -1px; }"
+        menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; }"
         "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
         option1 = menu.addAction("Editar contraseña")
         option1.triggered.connect(lambda: self.editpassword())
@@ -1074,8 +1097,9 @@ class Ui_App_Comercial(object):
 
 #Function to update the table
     def update_table(self):
+        self.tableOffer.setRowCount(0)
         commands_appcomercial = ("""
-                    SELECT "num_offer","state","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","notes"
+                    SELECT "num_offer","state","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","notes","important","tracking"
                     FROM offers
                     WHERE ("responsible" = %s
                     AND
@@ -1103,8 +1127,11 @@ class Ui_App_Comercial(object):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(8):
-                    it=QtWidgets.QTableWidgetItem(str(row[column]))
+                for column in range(10):
+                    value = row[column]
+                    if value is None:
+                        value = ''
+                    it = QtWidgets.QTableWidgetItem(str(value))
                     it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                     self.tableOffer.setItem(tablerow, column, it)
 
@@ -1123,13 +1150,25 @@ class Ui_App_Comercial(object):
             if conn is not None:
                 conn.close()
 
+        self.tableOffer.setSortingEnabled(False)
+
 
 # Function to stablish dates with task assigned to put icon on calendar
     def setup_task_dates(self):
+        commands_loaddatestasks_LB = ("""
+                    SELECT "task_date","task"
+                    FROM tasks
+                    WHERE ("creator" IN ('CCH', 'SS', 'LB')
+                    AND
+                    "state" = 'Pendiente')
+                    ORDER BY "task_date"
+                    """)
         commands_loaddatestasks = ("""
                     SELECT "task_date","task"
                     FROM tasks
-                    WHERE ("creator" = %s)
+                    WHERE ("responsible" = %s
+                    AND
+                    "state" = 'Pendiente')
                     ORDER BY "task_date"
                     """)
         conn = None
@@ -1140,10 +1179,10 @@ class Ui_App_Comercial(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            if self.name == 'Carlos Crespo':
-                cur.execute(commands_loaddatestasks,(self.name[0] + self.name[self.name.find(' ')+1] + 'H',))
+            if self.name == 'Luis Bravo':
+                cur.execute(commands_loaddatestasks_LB)
             else:
-                cur.execute(commands_loaddatestasks,(self.name[0] + self.name[self.name.find(' ')+1],))
+                cur.execute(commands_loaddatestasks,(self.name,))
             results=cur.fetchall()
         # close communication with the PostgreSQL database server
             cur.close()
@@ -1183,11 +1222,10 @@ class Ui_App_Comercial(object):
             for item in returned:
                 responsible = item[0]
                 tasks = item [1]
-                task_text = "\n".join(tasks)
-                final_text += "\n" + "\n" + responsible + ":\n" + task_text
+                task_text = "<br><br>-".join(tasks)
+                final_text += "<br><br>" + f"<b>{responsible}:</b><br>-" + task_text
 
-            dlg.setText("Tareas para la fecha " + selected_date.toString("dd-MM-yyyy") +":"
-                        + final_text)
+            dlg.setText(f"<html><body>Tareas para la fecha {selected_date.toString('dd-MM-yyyy')}:{final_text}</body></html>")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
             dlg.exec()
             del dlg, new_icon
@@ -1195,12 +1233,24 @@ class Ui_App_Comercial(object):
 
 #Function to obtain tasks associated to a date
     def get_tasks_for_date(self, creator, date):
-        commands_loaddatestasks = ("""
-                    SELECT "responsible","task_date","task","state"
+        commands_loaddatestasks_LB = ("""
+                    SELECT "responsible","task_date","task","state","creator"
                     FROM tasks
-                    WHERE ("creator" = %s
+                    WHERE ("creator" IN ('CCH', 'SS', 'LB')
                     AND
-                    "task_date" IS NOT NULL)
+                    "task_date" IS NOT NULL
+                    AND
+                    "state" = 'Pendiente')
+                    ORDER BY "task_date"
+                    """)
+        commands_loaddatestasks = ("""
+                    SELECT "responsible","task_date","task","state","creator"
+                    FROM tasks
+                    WHERE ("responsible" = %s
+                    AND
+                    "task_date" IS NOT NULL
+                    AND
+                    "state" = 'Pendiente')
                     ORDER BY "task_date"
                     """)
         conn = None
@@ -1211,7 +1261,10 @@ class Ui_App_Comercial(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            cur.execute(commands_loaddatestasks,(creator,))
+            if self.name == 'Luis Bravo':
+                cur.execute(commands_loaddatestasks_LB)
+            else:
+                cur.execute(commands_loaddatestasks,(self.name,))
             results=cur.fetchall()
         # close communication with the PostgreSQL database server
             cur.close()
@@ -1223,7 +1276,7 @@ class Ui_App_Comercial(object):
             for i in range(len(results)):
                 responsible=results[i][0]
                 key=QtCore.QDate(results[i][1].year, results[i][1].month, results[i][1].day)
-                value=results[i][2] + " (" + results[i][3] + ")"
+                value="(" + results[i][4]+") " + results[i][2] + " (" + results[i][3] + ")"
 
                 if responsible not in dict_responsibles_tasks:
                     dict_responsibles_tasks[responsible] = [{key: [value]}]
@@ -1231,11 +1284,10 @@ class Ui_App_Comercial(object):
                 else:
                     for item in dict_responsibles_tasks[responsible]:
                         if key not in item:
-                            dict_responsibles_tasks[responsible].append({key: [value]})
-                            break
+                            item[key] = [value]
 
                         else:
-                            dict_responsibles_tasks[responsible][dict_responsibles_tasks[responsible].index(item)][key].append(value)
+                            item[key].append(value)
 
             value_to_return = []
             for item in dict_responsibles_tasks.keys():

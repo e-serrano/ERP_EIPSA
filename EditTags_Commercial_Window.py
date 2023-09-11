@@ -14,9 +14,9 @@ import configparser
 from Database_Connection import createConnection
 from config import config
 import psycopg2
-from PyQt6.QtCore import Qt, QSortFilterProxyModel
-from PyQt6.QtSql import QSqlDatabase, QSqlQuery
-from PyQt6.QtGui import QKeySequence, QClipboard, QTextDocument, QTextCursor
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
+import locale
 
 
 def imagen_to_base64(imagen):
@@ -412,6 +412,35 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         # self.tableEditTags.setModel(self.proxy)
         self.tableEditTags.setObjectName("tableEditTags")
         self.gridLayout_2.addWidget(self.tableEditTags, 4, 0, 1, 1)
+        self.hLayout3 = QtWidgets.QHBoxLayout()
+        self.hLayout3.setObjectName("hLayout3")
+        spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hLayout3.addItem(spacerItem2)
+        self.label_SumItems = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumItems.setMinimumSize(QtCore.QSize(40, 10))
+        self.label_SumItems.setMaximumSize(QtCore.QSize(40, 10))
+        self.label_SumItems.setText("")
+        self.label_SumItems.setObjectName("label_SumItems")
+        self.hLayout3.addWidget(self.label_SumItems)
+        self.label_SumValue = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumValue.setMinimumSize(QtCore.QSize(80, 20))
+        self.label_SumValue.setMaximumSize(QtCore.QSize(80, 20))
+        self.label_SumValue.setText("")
+        self.label_SumValue.setObjectName("label_SumValue")
+        self.hLayout3.addWidget(self.label_SumValue)
+        self.label_CountItems = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountItems.setMinimumSize(QtCore.QSize(60, 10))
+        self.label_CountItems.setMaximumSize(QtCore.QSize(60, 10))
+        self.label_CountItems.setText("")
+        self.label_CountItems.setObjectName("label_CountItems")
+        self.hLayout3.addWidget(self.label_CountItems)
+        self.label_CountValue = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountValue.setMinimumSize(QtCore.QSize(80, 10))
+        self.label_CountValue.setMaximumSize(QtCore.QSize(80, 10))
+        self.label_CountValue.setText("")
+        self.label_CountValue.setObjectName("label_CountValue")
+        self.hLayout3.addWidget(self.label_CountValue)
+        self.gridLayout_2.addLayout(self.hLayout3, 5, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
@@ -434,6 +463,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.Numoffer_EditTags.returnPressed.connect(self.query_tags)
         self.Numorder_EditTags.returnPressed.connect(self.query_tags)
         self.model.dataChanged.connect(self.saveChanges)
+
 
         commands_comboboxes_flow = [
             "SELECT item_type FROM validation_data.flow_item_type",
@@ -932,6 +962,8 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             #         self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
 
             self.model.dataChanged.connect(self.saveChanges)
+            self.selection_model = self.tableEditTags.selectionModel()
+            self.selection_model.selectionChanged.connect(self.countSelectedCells)
 
 # Function when clicking on header
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
@@ -1142,35 +1174,32 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 
     def keyPressEvent(self, event):
         if event.matches(QKeySequence.StandardKey.Copy):
-            selected_indexes = self.tableEditTags.selectionModel().selectedIndexes()
-            if selected_indexes:
-                clipboard = QApplication.clipboard()
-                text = self.get_selected_text(selected_indexes)
-                clipboard.setText(text)
-        # if event.matches(QKeySequence.StandardKey.Copy):
-        #     selected = self.table_view.selectionModel().selectedIndexes()
-        #     if selected:
-        #         clipboard = QApplication.clipboard()
-        #         clipboard.setText(self.model.data(selected[0], Qt.ItemDataRole.DisplayRole))
+            if self.tableEditTags.selectionModel() != None:
+                selected_indexes = self.tableEditTags.selectionModel().selectedIndexes()
+                if selected_indexes:
+                    clipboard = QApplication.clipboard()
+                    text = self.get_selected_text(selected_indexes)
+                    clipboard.setText(text)
 
         elif event.matches(QKeySequence.StandardKey.Paste):
-            selected_indexes = self.tableEditTags.selectionModel().selectedIndexes()
-            if selected_indexes:
-                clipboard = QApplication.clipboard()
-                text = clipboard.text()
-                for index in selected_indexes:
-                    current_row = index.row()
-                    current_column = index.column()
-                    first_column_value = self.proxy.data(self.proxy.index(current_row, 0))
-                    target_row = None
-                    for row in range(self.model.rowCount()):
-                        if self.model.data(self.model.index(row, 0)) == first_column_value:
-                            target_row = row
-                            break
-                    if target_row is not None:
-                        target_index = self.model.index(target_row, current_column)
-                        self.model.setData(target_index, text, Qt.ItemDataRole.EditRole)  # Pegar el valor en todas las celdas seleccionadas
-                self.model.submitAll()
+            if self.tableEditTags.selectionModel() != None:
+                selected_indexes = self.tableEditTags.selectionModel().selectedIndexes()
+                if selected_indexes:
+                    clipboard = QApplication.clipboard()
+                    text = clipboard.text()
+                    for index in selected_indexes:
+                        current_row = index.row()
+                        current_column = index.column()
+                        first_column_value = self.proxy.data(self.proxy.index(current_row, 0))
+                        target_row = None
+                        for row in range(self.model.rowCount()):
+                            if self.model.data(self.model.index(row, 0)) == first_column_value:
+                                target_row = row
+                                break
+                        if target_row is not None:
+                            target_index = self.model.index(target_row, current_column)
+                            self.model.setData(target_index, text, Qt.ItemDataRole.EditRole)  # Pegar el valor en todas las celdas seleccionadas
+                    self.model.submitAll()
 
         super().keyPressEvent(event)
 
@@ -1198,6 +1227,37 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 cursor.insertText('\n')  # Salto de línea al final de la fila
 
             return text_doc.toPlainText()
+        
+    def countSelectedCells(self):
+        if len(self.tableEditTags.selectedIndexes()) > 1:
+            locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+            self.label_SumItems.setText("")
+            self.label_SumValue.setText("")
+            self.label_CountItems.setText("")
+            self.label_CountValue.setText("")
+
+            sum_value = sum([self.euro_string_to_float(ix.data()) if re.match(r'^[\d.,]+\s€$', ix.data()) else float(ix.data().replace(',', '.')) if ix.data().replace(',', '.').replace('.', '', 1).isdigit() else 0 for ix in self.tableEditTags.selectedIndexes()])
+            count_value = len([ix for ix in self.tableEditTags.selectedIndexes() if ix.data() != ""])
+            if sum_value > 0:
+                self.label_SumItems.setText("Suma:")
+                self.label_SumValue.setText(locale.format_string("%.2f", sum_value, grouping=True))
+            if count_value > 0:
+                self.label_CountItems.setText("Recuento:")
+                self.label_CountValue.setText(str(count_value))
+        else:
+            self.label_SumItems.setText("")
+            self.label_SumValue.setText("")
+            self.label_CountItems.setText("")
+            self.label_CountValue.setText("")
+    
+    def euro_string_to_float(self, euro_str):
+        match = re.match(r'^([\d.,]+)\s€$', euro_str)
+        if match:
+            number_str = match.group(1)
+            number_str = number_str.replace('.', '').replace(',', '.')
+            return float(number_str)
+        else:
+            return 0.0
 
 if __name__ == "__main__":
     import sys

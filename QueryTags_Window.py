@@ -10,6 +10,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from config import config
 import psycopg2
 import re
+import locale
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -151,6 +152,35 @@ class Ui_QueryTags_Window(object):
         self.tableQueryTags.setSortingEnabled(True)
         self.tableQueryTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         self.gridLayout_2.addWidget(self.tableQueryTags, 4, 0, 1, 1)
+        self.hLayout6 = QtWidgets.QHBoxLayout()
+        self.hLayout6.setObjectName("hLayout6")
+        spacerItem3 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hLayout6.addItem(spacerItem3)
+        self.label_SumItems = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumItems.setMinimumSize(QtCore.QSize(40, 10))
+        self.label_SumItems.setMaximumSize(QtCore.QSize(40, 10))
+        self.label_SumItems.setText("")
+        self.label_SumItems.setObjectName("label_SumItems")
+        self.hLayout6.addWidget(self.label_SumItems)
+        self.label_SumValue = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumValue.setMinimumSize(QtCore.QSize(80, 20))
+        self.label_SumValue.setMaximumSize(QtCore.QSize(80, 20))
+        self.label_SumValue.setText("")
+        self.label_SumValue.setObjectName("label_SumValue")
+        self.hLayout6.addWidget(self.label_SumValue)
+        self.label_CountItems = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountItems.setMinimumSize(QtCore.QSize(60, 10))
+        self.label_CountItems.setMaximumSize(QtCore.QSize(60, 10))
+        self.label_CountItems.setText("")
+        self.label_CountItems.setObjectName("label_CountItems")
+        self.hLayout6.addWidget(self.label_CountItems)
+        self.label_CountValue = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountValue.setMinimumSize(QtCore.QSize(80, 10))
+        self.label_CountValue.setMaximumSize(QtCore.QSize(80, 10))
+        self.label_CountValue.setText("")
+        self.label_CountValue.setObjectName("label_CountValue")
+        self.hLayout6.addWidget(self.label_CountValue)
+        self.gridLayout_2.addLayout(self.hLayout6, 5, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         QueryTags_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=QueryTags_Window)
@@ -167,6 +197,7 @@ class Ui_QueryTags_Window(object):
         self.Button_Query.clicked.connect(self.query_tags) # type: ignore
         self.Numoffer_QueryTags.returnPressed.connect(self.query_tags)
         self.Numorder_QueryTags.returnPressed.connect(self.query_tags)
+        self.tableQueryTags.itemSelectionChanged.connect(self.countSelectedCells)
 
 
     def retranslateUi(self, QueryTags_Window):
@@ -457,7 +488,10 @@ class Ui_QueryTags_Window(object):
             
             for row in results:
                 for column in range(len(field_names)):
-                    it = QtWidgets.QTableWidgetItem(str(row[column]))
+                    value = row[column]
+                    if value is None:
+                        value = ''
+                    it = QtWidgets.QTableWidgetItem(str(value))
                     it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                     self.tableQueryTags.setItem(tablerow, column, it)
 
@@ -517,6 +551,37 @@ class Ui_QueryTags_Window(object):
                 elif variable == 'Temperatura':
                     self.tableQueryTags.setColumnHidden(35,True)
 
+
+    def countSelectedCells(self):
+        if len(self.tableQueryTags.selectedIndexes()) > 1:
+            locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+            self.label_SumItems.setText("")
+            self.label_SumValue.setText("")
+            self.label_CountItems.setText("")
+            self.label_CountValue.setText("")
+
+            sum_value = sum([self.euro_string_to_float(ix.data()) if re.match(r'^[\d.,]+\s€$', ix.data()) else float(ix.data().replace(',', '.')) if ix.data().replace(',', '.').replace('.', '', 1).isdigit() else 0 for ix in self.tableQueryTags.selectedIndexes()])
+            count_value = len([ix for ix in self.tableQueryTags.selectedIndexes() if ix.data() != ""])
+            if sum_value > 0:
+                self.label_SumItems.setText("Suma:")
+                self.label_SumValue.setText(locale.format_string("%.2f", sum_value, grouping=True))
+            if count_value > 0:
+                self.label_CountItems.setText("Recuento:")
+                self.label_CountValue.setText(str(count_value))
+        else:
+            self.label_SumItems.setText("")
+            self.label_SumValue.setText("")
+            self.label_CountItems.setText("")
+            self.label_CountValue.setText("")
+
+    def euro_string_to_float(self, euro_str):
+        match = re.match(r'^([\d.,]+)\s€$', euro_str)
+        if match:
+            number_str = match.group(1)
+            number_str = number_str.replace('.', '').replace(',', '.')
+            return float(number_str)
+        else:
+            return 0.0
 
 
 if __name__ == "__main__":

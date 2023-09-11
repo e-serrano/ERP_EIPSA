@@ -190,7 +190,10 @@ class Ui_ClientsGeneralResume_Window(object):
         # fill the Qt Table with the query results
             for row in results:
                 for column in range(4):
-                    it=QtWidgets.QTableWidgetItem(str(row[column]))
+                    value = row[column]
+                    if value is None:
+                        value = ''
+                    it = QtWidgets.QTableWidgetItem(str(value))
                     if column == 0:
                         it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable | QtCore.Qt.ItemFlag.ItemIsUserCheckable | QtCore.Qt.ItemFlag.ItemIsEnabled)
                         it.setCheckState(QtCore.Qt.CheckState.Unchecked)

@@ -17,6 +17,8 @@ from Database_Connection import createConnection
 from tkinter.filedialog import askopenfilename
 import pandas as pd
 from EditDB_Menu import Ui_EditDB_Menu
+from QueryOrder_Window import Ui_QueryOrder_Window
+from QueryOrderTechnical_Window import Ui_QueryOrderTechnical_Window
 from EditTags_Technical_Window import Ui_EditTags_Window
 from QueryTags_Window import Ui_QueryTags_Window
 from NewDoc_Window import Ui_New_Doc_Window
@@ -29,6 +31,21 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+
+        if index.column() == 5:  # Verifica que estemos en la tercera columna
+            value = index.data()
+            fecha_str_split = value.split('-')
+            fecha_str_qdate = QtCore.QDate(int(fecha_str_split[2]), int(fecha_str_split[1]), int(fecha_str_split[0]))
+            delay_date=QtCore.QDate.currentDate().addDays(-10)
+
+            if fecha_str_qdate.addDays(15) < QtCore.QDate.currentDate():  
+                color = QtGui.QColor(255, 0, 0)  # Red
+            elif fecha_str_qdate.addDays(7) < QtCore.QDate.currentDate():
+                color = QtGui.QColor(255, 255, 168)  # Yellow
+            else:
+                color = QtGui.QColor(255, 255, 255)  # White for rest
+
+            option.backgroundBrush = color
 
 
 class Ui_App_Technical(QtWidgets.QMainWindow):
@@ -203,6 +220,22 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.verticalLayout_3.setContentsMargins(9, 0, -1, 0)
         self.verticalLayout_3.setSpacing(25)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.Button_QueryOrder = QtWidgets.QPushButton(parent=self.ButtonFrame)
+        self.Button_QueryOrder.setMinimumSize(QtCore.QSize(200, 50))
+        self.Button_QueryOrder.setMaximumSize(QtCore.QSize(200, 50))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.Button_QueryOrder.setFont(font)
+        self.Button_QueryOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Order_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_QueryOrder.setIcon(icon8)
+        self.Button_QueryOrder.setIconSize(QtCore.QSize(40, 40))
+        self.Button_QueryOrder.setObjectName("Button_QueryOrder")
+        self.Button_QueryOrder.setText("   Consultar Pedidos")
+        self.Button_QueryOrder.clicked.connect(self.query_order)
+        self.verticalLayout_3.addWidget(self.Button_QueryOrder)
         self.Button_EditTag = QtWidgets.QPushButton(parent=self.ButtonFrame)
         self.Button_EditTag.setMinimumSize(QtCore.QSize(200, 50))
         self.Button_EditTag.setMaximumSize(QtCore.QSize(200, 50))
@@ -418,12 +451,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         commands_documentation = ("""
                     SELECT "num_doc_eipsa","num_order","doc_title","state","revision",TO_CHAR("state_date", 'DD-MM-YYYY')
                     FROM documentation
-                    WHERE ("state_date" < %s::date
-                    AND
-                    ("state" = 'Enviado'
-                    OR
-                    "state" = 'Comentado'
-                    ))
+                    WHERE (
+                    "state" IS NULL OR "state" IN ('Enviado', 'Comentado')
+                    )
                     ORDER BY "num_doc_eipsa"
                     """)
         conn = None
@@ -434,7 +464,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            cur.execute(commands_documentation,(delay_date.toString(QtCore.Qt.DateFormat.ISODate),))
+            cur.execute(commands_documentation)
             results=cur.fetchall()
             self.tableDocs.setRowCount(len(results))
             tablerow=0
@@ -442,7 +472,10 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         # fill the Qt Table with the query results
             for row in results:
                 for column in range(6):
-                    it=QtWidgets.QTableWidgetItem(str(row[column]))
+                    value = row[column]
+                    if value is None:
+                        value = ''
+                    it = QtWidgets.QTableWidgetItem(str(value))
                     it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                     self.tableDocs.setItem(tablerow, column, it)
 
@@ -463,6 +496,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 
         self.retranslateUi(App_Technical)
+        self.Button_QueryOrder.clicked.connect(self.query_order)
         self.Button_EditTag.clicked.connect(self.edit_tag)
         self.Button_QueryTag.clicked.connect(self.query_tag)
         self.Button_NewDoc.clicked.connect(self.CreateDoc)
@@ -475,10 +509,10 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
     def retranslateUi(self, App_Technical):
         _translate = QtCore.QCoreApplication.translate
-        App_Technical.setWindowTitle(_translate("App_Technical", "ERP EIPSA"))
+        App_Technical.setWindowTitle(_translate("App_Technical", "ERP EIPSA - Técnico"))
         self.HeaderName.setText(_translate("App_Technical", self.name))
-        self.Button_EditTag.setText(_translate("App_Comercial", "    Editar TAG(s)"))
-        self.Button_QueryTag.setText(_translate("App_Comercial", "    Consultar TAG(s)"))
+        self.Button_EditTag.setText(_translate("App_Technical", "    Editar TAG(s)"))
+        self.Button_QueryTag.setText(_translate("App_Technical", "    Consultar TAG(s)"))
         self.Button_NewDoc.setText(_translate("App_Technical", "    Crear Documento"))
         self.Button_ImportDoc.setText(_translate("App_Technical", "    Importar Docum."))
         self.Button_EditDoc.setText(_translate("App_Technical", "    Editar Docum."))
@@ -505,6 +539,16 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.dbedit_menu.show()
 
 
+    def query_order(self):
+        self.query_order_window=QtWidgets.QMainWindow()
+        if self.name in ['Jesús Martínez']:
+            self.ui=Ui_QueryOrder_Window()
+        else:
+            self.ui=Ui_QueryOrderTechnical_Window()
+        self.ui.setupUi(self.query_order_window)
+        self.query_order_window.show()
+
+
     def edit_tag(self):
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -516,7 +560,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         if not createConnection(user_database, password_database):
             sys.exit()
 
-        self.edit_tags_app = Ui_EditTags_Window()
+        self.edit_tags_app = Ui_EditTags_Window(self.name)
         self.edit_tags_app.show()
 
 
@@ -535,8 +579,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 
     def ImportDoc(self):
-        
-
         # File dialog to select Excel file
         # Tk().withdraw()  # Ocultar la ventana principal de tkinter
             excel_file = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")],
@@ -652,16 +694,14 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 
     def update_table(self):
+        self.tableDocs.setRowCount(0)
         delay_date=QtCore.QDate.currentDate().addDays(-10)
         commands_documentation = ("""
                     SELECT "num_doc_eipsa","num_order","doc_title","state","revision",TO_CHAR("state_date", 'DD-MM-YYYY')
                     FROM documentation
-                    WHERE ("state_date" < %s::date
-                    AND
-                    ("state" = 'Enviado'
-                    OR
-                    "state" = 'Comentado'
-                    ))
+                    WHERE (
+                    "state" IS NULL OR "state" IN ('Enviado', 'Comentado')
+                    )
                     ORDER BY "num_doc_eipsa"
                     """)
         conn = None
@@ -672,7 +712,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            cur.execute(commands_documentation,(delay_date.toString(QtCore.Qt.DateFormat.ISODate),))
+            cur.execute(commands_documentation)
             results=cur.fetchall()
             self.tableDocs.setRowCount(len(results))
             tablerow=0
@@ -680,7 +720,10 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         # fill the Qt Table with the query results
             for row in results:
                 for column in range(6):
-                    it=QtWidgets.QTableWidgetItem(str(row[column]))
+                    value = row[column]
+                    if value is None:
+                        value = ''
+                    it = QtWidgets.QTableWidgetItem(str(value))
                     it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                     self.tableDocs.setItem(tablerow, column, it)
 

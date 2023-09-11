@@ -16,6 +16,98 @@ import tkinter as tk
 import datetime
 
 
+class CustomTableWidget(QtWidgets.QTableWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.list_filters=[]
+
+    def show_unique_values_menu(self, column_index, header_pos, header_height):
+        menu = QtWidgets.QMenu(self)
+        menu.setStyleSheet("QMenu { color: black; }"
+                                        "QMenu::item:selected { background-color: #33bdef; }"
+                                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+
+        unique_values = set()
+        for row in range(self.rowCount()):
+            if not self.isRowHidden(row):
+                item = self.item(row, column_index)
+                if item:
+                    unique_values.add(item.text())
+
+        action_all = menu.addAction("Seleccionar todo")
+        action_all.triggered.connect(lambda: self.filter_column(column_index, None))
+        menu.addSeparator()
+
+        action_all = menu.addAction("Ordenar ascendente")
+        action_all.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.AscendingOrder))
+        action_all = menu.addAction("Ordenar descendente")
+        action_all.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.DescendingOrder))
+        menu.addSeparator()
+
+        scroll_menu = QtWidgets.QScrollArea()
+        scroll_menu.setWidgetResizable(True)
+        scroll_widget = QtWidgets.QWidget(scroll_menu)
+        scroll_menu.setWidget(scroll_widget)
+        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+
+        checkboxes = []  # List to stack checkboxes created
+
+        for value in sorted(unique_values):
+            checkbox = QtWidgets.QCheckBox(value)
+            if value in self.list_filters:
+                checkbox.setCheckState(QtCore.Qt.CheckState(0))
+            else:
+                checkbox.setCheckState(QtCore.Qt.CheckState(2))
+
+            scroll_layout.addWidget(checkbox)
+            checkboxes.append(checkbox)  # Adding checkbox to list
+
+        # Connecting checkboxes to function self.filter_column
+        for value, checkbox in zip(sorted(unique_values), checkboxes):
+            checkbox.clicked.connect(lambda checked, value=value: self.filter_column(column_index, value))
+
+        # Action for drop down menu and adding scroll area as widget
+        action_scroll_menu = QtWidgets.QWidgetAction(menu)
+        action_scroll_menu.setDefaultWidget(scroll_menu)
+        menu.addAction(action_scroll_menu)
+
+        menu.exec(header_pos - QtCore.QPoint(0, header_height))
+
+
+    def filter_column(self, column_index, value):
+        if value is None:
+            for row in range(self.rowCount()):
+                self.setRowHidden(row, False)
+                self.list_filters=[]
+        elif value in self.list_filters:
+            self.list_filters.remove(value)
+        else:
+            self.list_filters.append(value)
+        
+        for row in range(self.rowCount()):
+            item = self.item(row, column_index)
+            if value is None:
+                pass
+            elif item.text() not in self.list_filters:
+                self.setRowHidden(row, False)
+            else:
+                self.setRowHidden(row, True)
+
+
+    def sort_column(self, column_index, sortOrder):
+        self.sortByColumn(column_index, sortOrder)
+
+
+    def contextMenuEvent(self, event):
+        if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
+            logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
+            header_pos = self.mapToGlobal(self.horizontalHeader().pos())
+            header_height = self.horizontalHeader().height()
+            self.show_unique_values_menu(logical_index, header_pos, header_height)
+        else:
+            super().contextMenuEvent(event)
+
+
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
@@ -739,7 +831,7 @@ class Ui_SupplierOrder_Warehouse_Window(object):
         self.label_Details.setFont(font)
         self.label_Details.setObjectName("label_Details")
         self.gridLayout_2.addWidget(self.label_Details, 7, 1, 1, 1)
-        self.tableRecords = QtWidgets.QTableWidget(parent=self.frame)
+        self.tableRecords = CustomTableWidget()
         self.tableRecords.setObjectName("tableRecords")
         self.tableRecords.setColumnCount(12)
         self.tableRecords.setRowCount(0)
@@ -906,7 +998,7 @@ class Ui_SupplierOrder_Warehouse_Window(object):
 "}")
         self.Button_Print.setObjectName("Button_Print")
         self.gridLayout_2.addWidget(self.Button_Print, 15, 17, 1, 1)
-        self.tableSupplierOrders = QtWidgets.QTableWidget(parent=self.frame)
+        self.tableSupplierOrders = CustomTableWidget()
         self.tableSupplierOrders.setObjectName("tableSupplierOrders")
         self.tableSupplierOrders.setColumnCount(18)
         self.tableSupplierOrders.setRowCount(0)
@@ -1085,6 +1177,8 @@ class Ui_SupplierOrder_Warehouse_Window(object):
         self.Button_Deliv3.clicked.connect(self.adddeliv3)
         self.Supply_SupplierOrder.currentIndexChanged.connect(self.loadstocks)
         # self.Button_Print.clicked.connect(self.printsupplierorder)
+        self.tableRecords.horizontalHeader().sectionClicked.connect(self.on_headerrecords_section_clicked)
+        self.tableSupplierOrders.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
         self.loadtableorders()
 
 
@@ -1781,7 +1875,10 @@ class Ui_SupplierOrder_Warehouse_Window(object):
     # fill the Qt Table with the query results
         for row in results_orders:
             for column in range(18):
-                it=QtWidgets.QTableWidgetItem(str(row[column]))
+                value = row[column]
+                if value is None:
+                    value = ''
+                it = QtWidgets.QTableWidgetItem(str(value))
                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                 self.tableSupplierOrders.setItem(tablerow, column, it)
 
@@ -1849,7 +1946,10 @@ class Ui_SupplierOrder_Warehouse_Window(object):
             row_list[7] = row_list[7] + " €"
 
             for column in range(12):
-                it=QtWidgets.QTableWidgetItem(str(row_list[column]))
+                value = row_list[column]
+                if value is None:
+                    value = ''
+                it = QtWidgets.QTableWidgetItem(str(value))
                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                 self.tableRecords.setItem(tablerow, column, it)
 
@@ -2596,6 +2696,22 @@ class Ui_SupplierOrder_Warehouse_Window(object):
                 pass
             
         return False
+
+
+#Function when clicking on table header
+    def on_header_section_clicked(self, logical_index):
+        header_pos = self.tableSupplierOrders.horizontalHeader().sectionViewportPosition(logical_index)
+        header_height = self.tableSupplierOrders.horizontalHeader().height()
+        popup_pos = self.tableSupplierOrders.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
+        self.tableSupplierOrders.show_unique_values_menu(logical_index, popup_pos, header_height)
+
+
+#Function when clicking on table header
+    def on_headerrecords_section_clicked(self, logical_index):
+        header_pos = self.tableRecords.horizontalHeader().sectionViewportPosition(logical_index)
+        header_height = self.tableRecords.horizontalHeader().height()
+        popup_pos = self.tableRecords.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
+        self.tableRecords.show_unique_values_menu(logical_index, popup_pos, header_height)
 
 
 if __name__ == "__main__":

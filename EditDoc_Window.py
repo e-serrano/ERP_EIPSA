@@ -39,6 +39,25 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
+class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
+    def __init__(self, parent=None, options=None):
+        super().__init__(parent)
+        self.options = options
+
+    def createEditor(self, parent, option, index):
+        editor = QtWidgets.QComboBox(parent)
+        editor.setEditable(True)
+        return editor
+
+    def setEditorData(self, editor, index):
+        text = index.data(Qt.ItemDataRole.DisplayRole)
+        editor.addItems(self.options)
+        editor.setEditText(text)
+
+    def setModelData(self, editor, model, index):
+        model.setData(index, editor.currentText(), Qt.ItemDataRole.EditRole)
+
+
 class CustomProxyModel(QtCore.QSortFilterProxyModel):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -348,6 +367,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
     def query_documents(self):
         self.model.dataChanged.disconnect(self.saveChanges)
         self.model.setTable("documentation")
+        self.model.setFilter(f"state IS NULL OR state IN ('Enviado', 'Comentado')")
         self.model.select()
 
         column_names = ["doc_type_id"] # Ocultar columna según nombre
@@ -369,13 +389,11 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.tableEditDocs.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked)
 
         # Change all column names
-        headers = ["Nº Doc. EIPSA", "Nº Doc. Cliente", "Nº Pedido", "Título", "Crítico", "Estado", "Nº Revisión", "Fecha"]
+        headers = ["Nº Doc. EIPSA", "Nº Doc. Cliente", "Nº Pedido", "Título", "Crítico", "Nº Revisión", "Fecha Estado", "Estado","Fecha Reclamación"]
         self.model.setAllColumnHeaders(headers)
 
-        # for row in range(self.model.rowCount()):
-        #     for column in range(self.model.columnCount()):
-        #         index = self.model.index(row, column)
-        #         self.model.setOriginalData(index, self.model.data(index))
+        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditDocs, sorted(['Aprobado','Comentado','Eliminado','Enviado','Rechazado']))
+        self.tableEditDocs.setItemDelegateForColumn(7, self.combo_itemtype)
 
     # Getting the unique values for each column of the model
         for column in range(self.model.columnCount()):
@@ -570,18 +588,12 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
 
 
     def keyPressEvent(self, event):
-        print('a')
         if event.matches(QKeySequence.StandardKey.Copy):
             selected_indexes = self.tableEditDocs.selectionModel().selectedIndexes()
             if selected_indexes:
                 clipboard = QApplication.clipboard()
                 text = self.get_selected_text(selected_indexes)
                 clipboard.setText(text)
-        # if event.matches(QKeySequence.StandardKey.Copy):
-        #     selected = self.table_view.selectionModel().selectedIndexes()
-        #     if selected:
-        #         clipboard = QApplication.clipboard()
-        #         clipboard.setText(self.model.data(selected[0], Qt.ItemDataRole.DisplayRole))
 
         elif event.matches(QKeySequence.StandardKey.Paste):
             selected_indexes = self.tableEditDocs.selectionModel().selectedIndexes()

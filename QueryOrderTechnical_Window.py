@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'QueryOrder_Window.ui'
+# Form implementation generated from reading ui file 'QueryOrderTechnical_Window.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.1
 #
@@ -18,15 +18,15 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
-class Ui_QueryOrder_Window(object):
-    def setupUi(self, QueryOrder_Window):
-        QueryOrder_Window.setObjectName("QueryOrder_Window")
-        QueryOrder_Window.resize(790, 595)
-        QueryOrder_Window.setMinimumSize(QtCore.QSize(790, 595))
+class Ui_QueryOrderTechnical_Window(object):
+    def setupUi(self, QueryOrderTechnical_Window):
+        QueryOrderTechnical_Window.setObjectName("QueryOrderTechnical_Window")
+        QueryOrderTechnical_Window.resize(790, 595)
+        QueryOrderTechnical_Window.setMinimumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        QueryOrder_Window.setWindowIcon(icon)
-        QueryOrder_Window.setStyleSheet("QWidget {\n"
+        QueryOrderTechnical_Window.setWindowIcon(icon)
+        QueryOrderTechnical_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
 "}\n"
 "\n"
@@ -71,7 +71,7 @@ class Ui_QueryOrder_Window(object):
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
 "}")
-        self.centralwidget = QtWidgets.QWidget(parent=QueryOrder_Window)
+        self.centralwidget = QtWidgets.QWidget(parent=QueryOrderTechnical_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -195,27 +195,6 @@ class Ui_QueryOrder_Window(object):
         self.EqType_QueryOrder.setObjectName("EqType_QueryOrder")
         self.hLayout3.addWidget(self.EqType_QueryOrder)
         self.gridLayout_2.addLayout(self.hLayout3, 3, 0, 1, 1)
-        self.hLayout4 = QtWidgets.QHBoxLayout()
-        self.hLayout4.setObjectName("hLayout4")
-        
-        self.label_Amount = QtWidgets.QLabel(parent=self.frame)
-        self.label_Amount.setMinimumSize(QtCore.QSize(90, 25))
-        self.label_Amount.setMaximumSize(QtCore.QSize(90, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_Amount.setFont(font)
-        self.label_Amount.setObjectName("label_Amount")
-        self.hLayout4.addWidget(self.label_Amount)
-        self.Amount_QueryOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.Amount_QueryOrder.setMinimumSize(QtCore.QSize(250, 25))
-        self.Amount_QueryOrder.setMaximumSize(QtCore.QSize(250, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Amount_QueryOrder.setFont(font)
-        self.Amount_QueryOrder.setObjectName("Amount_QueryOrder")
-        self.hLayout4.addWidget(self.Amount_QueryOrder)
-        self.gridLayout_2.addLayout(self.hLayout4, 4, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 5, 0, 1, 1)
         self.hLayout5 = QtWidgets.QHBoxLayout()
@@ -238,7 +217,7 @@ class Ui_QueryOrder_Window(object):
         self.tableQueryOrder = QtWidgets.QTableWidget(parent=self.frame)
         self.tableQueryOrder.setAlternatingRowColors(False)
         self.tableQueryOrder.setObjectName("tableQueryOrder")
-        self.tableQueryOrder.setColumnCount(11)
+        self.tableQueryOrder.setColumnCount(9)
         self.tableQueryOrder.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
@@ -294,18 +273,6 @@ class Ui_QueryOrder_Window(object):
         font.setBold(True)
         item.setFont(font)
         self.tableQueryOrder.setHorizontalHeaderItem(8, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        item.setFont(font)
-        self.tableQueryOrder.setHorizontalHeaderItem(9, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        item.setFont(font)
-        self.tableQueryOrder.setHorizontalHeaderItem(10, item)
         self.tableQueryOrder.setSortingEnabled(True)
         self.tableQueryOrder.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         self.gridLayout_2.addWidget(self.tableQueryOrder, 8, 0, 1, 1)
@@ -339,14 +306,14 @@ class Ui_QueryOrder_Window(object):
         self.hLayout6.addWidget(self.label_CountValue)
         self.gridLayout_2.addLayout(self.hLayout6, 9, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
-        QueryOrder_Window.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=QueryOrder_Window)
+        QueryOrderTechnical_Window.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=QueryOrderTechnical_Window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 790, 22))
         self.menubar.setObjectName("menubar")
-        QueryOrder_Window.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=QueryOrder_Window)
+        QueryOrderTechnical_Window.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=QueryOrderTechnical_Window)
         self.statusbar.setObjectName("statusbar")
-        QueryOrder_Window.setStatusBar(self.statusbar)
+        QueryOrderTechnical_Window.setStatusBar(self.statusbar)
         self.tableQueryOrder.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
         commands_comboboxes1queryoffer = ("""
@@ -376,8 +343,8 @@ class Ui_QueryOrder_Window(object):
         list_material=[''] + list(set([x[1] for x in results1]))
         self.EqType_QueryOrder.addItems(sorted(list_material))
 
-        self.retranslateUi(QueryOrder_Window)
-        QtCore.QMetaObject.connectSlotsByName(QueryOrder_Window)
+        self.retranslateUi(QueryOrderTechnical_Window)
+        QtCore.QMetaObject.connectSlotsByName(QueryOrderTechnical_Window)
         self.Button_Clean.clicked.connect(self.clean_boxes) # type: ignore
         self.Button_Query.clicked.connect(self.query_order) # type: ignore
         self.Numorder_QueryOrder.returnPressed.connect(self.query_order)
@@ -385,47 +352,41 @@ class Ui_QueryOrder_Window(object):
         self.Ref_QueryOrder.returnPressed.connect(self.query_order)
         self.Client_QueryOrder.returnPressed.connect(self.query_order)
         self.Finalclient_QueryOrder.returnPressed.connect(self.query_order)
-        self.Amount_QueryOrder.returnPressed.connect(self.query_order)
         self.EqType_QueryOrder.currentIndexChanged.connect(self.query_order)
         self.tableQueryOrder.itemSelectionChanged.connect(self.countSelectedCells)
-        self.tableQueryOrder.itemDoubleClicked.connect(self.expand_cell)
+        self.tableQueryOrder.itemDoubleClicked.connect(self.on_item_double_clicked)
 
 
-    def retranslateUi(self, QueryOrder_Window):
+    def retranslateUi(self, QueryOrderTechnical_Window):
         _translate = QtCore.QCoreApplication.translate
-        QueryOrder_Window.setWindowTitle(_translate("QueryOrder_Window", "Consultar Pedido"))
+        QueryOrderTechnical_Window.setWindowTitle(_translate("QueryOrderTechnical_Window", "Consultar Pedido"))
         self.tableQueryOrder.setSortingEnabled(True)
         item = self.tableQueryOrder.horizontalHeaderItem(0)
-        item.setText(_translate("QueryOrder_Window", "Nº Pedido"))
+        item.setText(_translate("QueryOrderTechnical_Window", "Nº Pedido"))
         item = self.tableQueryOrder.horizontalHeaderItem(1)
-        item.setText(_translate("QueryOrder_Window", "Nº Oferta"))
+        item.setText(_translate("QueryOrderTechnical_Window", "Nº Oferta"))
         item = self.tableQueryOrder.horizontalHeaderItem(2)
-        item.setText(_translate("QueryOrder_Window", "Responsable"))
+        item.setText(_translate("QueryOrderTechnical_Window", "Responsable"))
         item = self.tableQueryOrder.horizontalHeaderItem(3)
-        item.setText(_translate("QueryOrder_Window", "Nº Referencia"))
+        item.setText(_translate("QueryOrderTechnical_Window", "Nº Referencia"))
         item = self.tableQueryOrder.horizontalHeaderItem(4)
-        item.setText(_translate("QueryOrder_Window", "Cliente"))
+        item.setText(_translate("QueryOrderTechnical_Window", "Cliente"))
         item = self.tableQueryOrder.horizontalHeaderItem(5)
-        item.setText(_translate("QueryOrder_Window", "Cliente Final"))
+        item.setText(_translate("QueryOrderTechnical_Window", "Cliente Final"))
         item = self.tableQueryOrder.horizontalHeaderItem(6)
-        item.setText(_translate("QueryOrder_Window", "Tipo Equipo"))
+        item.setText(_translate("QueryOrderTechnical_Window", "Tipo Equipo"))
         item = self.tableQueryOrder.horizontalHeaderItem(7)
-        item.setText(_translate("QueryOrder_Window", "Notas Pedido"))
+        item.setText(_translate("QueryOrderTechnical_Window", "Notas Pedido"))
         item = self.tableQueryOrder.horizontalHeaderItem(8)
-        item.setText(_translate("QueryOrder_Window", "Importante Oferta"))
-        item = self.tableQueryOrder.horizontalHeaderItem(9)
-        item.setText(_translate("QueryOrder_Window", "Importe Pedido (€)"))
-        item = self.tableQueryOrder.horizontalHeaderItem(10)
-        item.setText(_translate("QueryOrder_Window", "Importe Oferta (€)"))
-        self.label_EqType.setText(_translate("QueryOrder_Window", "Tipo Equipo:"))
-        self.label_NumOffer.setText(_translate("QueryOrder_Window", "Nº Oferta:"))
-        self.label_FinalClient.setText(_translate("QueryOrder_Window", "Cliente Final:"))
-        self.label_NumOrder.setText(_translate("QueryOrder_Window", "Nº Pedido:"))
-        self.label_Client.setText(_translate("QueryOrder_Window", "Cliente:"))
-        self.Button_Clean.setText(_translate("QueryOrder_Window", "Limpiar Filtros"))
-        self.Button_Query.setText(_translate("QueryOrder_Window", "Buscar"))
-        self.label_RefNum.setText(_translate("QueryOrder_Window", "Referencia:"))
-        self.label_Amount.setText(_translate("QueryOrder_Window", "Importe (€):"))
+        item.setText(_translate("QueryOrderTechnical_Window", "Importante Oferta"))
+        self.label_EqType.setText(_translate("QueryOrderTechnical_Window", "Tipo Equipo:"))
+        self.label_NumOffer.setText(_translate("QueryOrderTechnical_Window", "Nº Oferta:"))
+        self.label_FinalClient.setText(_translate("QueryOrderTechnical_Window", "Cliente Final:"))
+        self.label_NumOrder.setText(_translate("QueryOrderTechnical_Window", "Nº Pedido:"))
+        self.label_Client.setText(_translate("QueryOrderTechnical_Window", "Cliente:"))
+        self.Button_Clean.setText(_translate("QueryOrderTechnical_Window", "Limpiar Filtros"))
+        self.Button_Query.setText(_translate("QueryOrderTechnical_Window", "Buscar"))
+        self.label_RefNum.setText(_translate("QueryOrderTechnical_Window", "Referencia:"))
 
 
     def clean_boxes(self):
@@ -434,7 +395,6 @@ class Ui_QueryOrder_Window(object):
         self.Client_QueryOrder.setText("")
         self.Finalclient_QueryOrder.setText("")
         self.Ref_QueryOrder.setText("")
-        self.Amount_QueryOrder.setText("")
         self.EqType_QueryOrder.setCurrentText("")
 
 
@@ -444,13 +404,11 @@ class Ui_QueryOrder_Window(object):
         client=self.Client_QueryOrder.text()
         finalclient=self.Finalclient_QueryOrder.text()
         ref=self.Ref_QueryOrder.text()
-        amount=self.Amount_QueryOrder.text()
-        amount=amount.replace(".",",")
         eqtype=self.EqType_QueryOrder.currentText()
 
         if ((numorder=="" or numorder==" ") and (numoffer=="" or numoffer==" ") and (client=="" or client==" ") 
         and (finalclient=="" or finalclient==" ") and (ref=="" or ref==" ")
-        and (amount=="" or amount==" ") and (eqtype=="" or eqtype==" ")):
+        and (eqtype=="" or eqtype==" ")):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -462,7 +420,7 @@ class Ui_QueryOrder_Window(object):
 
         else:
             commands_queryorder = ("""
-                        SELECT orders."num_order",orders."num_offer",offers."responsible",orders."num_ref_order",offers."client",offers."final_client",product_type."variable",orders."notes",offers."important",orders."order_amount",offers."offer_amount"
+                        SELECT orders."num_order",orders."num_offer",offers."responsible",orders."num_ref_order",offers."client",offers."final_client",product_type."variable",orders."notes",offers."important"
                         FROM offers
                         INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                         INNER JOIN product_type ON (offers."material"=product_type."material")
@@ -477,8 +435,6 @@ class Ui_QueryOrder_Window(object):
                         UPPER(offers."final_client") LIKE UPPER('%%'||%s||'%%')
                         AND
                         product_type."variable" LIKE '%%'||%s||'%%'
-                        AND
-                        orders."order_amount"::text LIKE '%%'||%s||'%%'
                         )
                         ORDER BY orders."num_order"
                         """)
@@ -490,7 +446,7 @@ class Ui_QueryOrder_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                data=(numorder,numoffer,ref,client,finalclient,eqtype,amount,)
+                data=(numorder,numoffer,ref,client,finalclient,eqtype,)
                 cur.execute(commands_queryorder, data)
                 results=cur.fetchall()
                 self.tableQueryOrder.setRowCount(len(results))
@@ -498,7 +454,7 @@ class Ui_QueryOrder_Window(object):
 
             # fill the Qt Table with the query results
                 for row in results:
-                    for column in range(11):
+                    for column in range(9):
                         value = row[column]
                         if value is None:
                             value = ''
@@ -520,7 +476,6 @@ class Ui_QueryOrder_Window(object):
             finally:
                 if conn is not None:
                     conn.close()
-
 
     def countSelectedCells(self):
         if len(self.tableQueryOrder.selectedIndexes()) > 1:
@@ -554,8 +509,8 @@ class Ui_QueryOrder_Window(object):
             return 0.0
 
 
-    def expand_cell(self, item):
-        if item.column() == 7:
+    def on_item_double_clicked(self, item):
+        if item.column() in [7,8]:
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
@@ -566,12 +521,11 @@ class Ui_QueryOrder_Window(object):
             dlg.exec()
 
 
-
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    QueryOrder_Window = QtWidgets.QMainWindow()
-    ui = Ui_QueryOrder_Window()
-    ui.setupUi(QueryOrder_Window)
-    QueryOrder_Window.show()
+    QueryOrderTechnical_Window = QtWidgets.QMainWindow()
+    ui = Ui_QueryOrderTechnical_Window()
+    ui.setupUi(QueryOrderTechnical_Window)
+    QueryOrderTechnical_Window.show()
     sys.exit(app.exec())

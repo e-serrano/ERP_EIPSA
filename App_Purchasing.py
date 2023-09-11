@@ -325,7 +325,7 @@ class Ui_App_Purchasing(object):
 
     def retranslateUi(self, App_Purchasing):
         _translate = QtCore.QCoreApplication.translate
-        App_Purchasing.setWindowTitle(_translate("App_Purchasing", "ERP EIPSA"))
+        App_Purchasing.setWindowTitle(_translate("App_Purchasing", "ERP EIPSA - Compras"))
         self.HeaderName.setText(_translate("App_Purchasing", self.name))
         self.Button_Purchasing.setText(_translate("App_Purchasing", "    Compras"))
         # self.Button_PurchaseOrder.setText(_translate("App_Purchasing", " Orden de Compra"))

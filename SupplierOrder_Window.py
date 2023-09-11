@@ -16,6 +16,98 @@ import tkinter as tk
 import datetime
 
 
+class CustomTableWidget(QtWidgets.QTableWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.list_filters=[]
+
+    def show_unique_values_menu(self, column_index, header_pos, header_height):
+        menu = QtWidgets.QMenu(self)
+        menu.setStyleSheet("QMenu { color: black; }"
+                                        "QMenu::item:selected { background-color: #33bdef; }"
+                                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+
+        unique_values = set()
+        for row in range(self.rowCount()):
+            if not self.isRowHidden(row):
+                item = self.item(row, column_index)
+                if item:
+                    unique_values.add(item.text())
+
+        action_all = menu.addAction("Seleccionar todo")
+        action_all.triggered.connect(lambda: self.filter_column(column_index, None))
+        menu.addSeparator()
+
+        action_all = menu.addAction("Ordenar ascendente")
+        action_all.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.AscendingOrder))
+        action_all = menu.addAction("Ordenar descendente")
+        action_all.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.DescendingOrder))
+        menu.addSeparator()
+
+        scroll_menu = QtWidgets.QScrollArea()
+        scroll_menu.setWidgetResizable(True)
+        scroll_widget = QtWidgets.QWidget(scroll_menu)
+        scroll_menu.setWidget(scroll_widget)
+        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+
+        checkboxes = []  # List to stack checkboxes created
+
+        for value in sorted(unique_values):
+            checkbox = QtWidgets.QCheckBox(value)
+            if value in self.list_filters:
+                checkbox.setCheckState(QtCore.Qt.CheckState(0))
+            else:
+                checkbox.setCheckState(QtCore.Qt.CheckState(2))
+
+            scroll_layout.addWidget(checkbox)
+            checkboxes.append(checkbox)  # Adding checkbox to list
+
+        # Connecting checkboxes to function self.filter_column
+        for value, checkbox in zip(sorted(unique_values), checkboxes):
+            checkbox.clicked.connect(lambda checked, value=value: self.filter_column(column_index, value))
+
+        # Action for drop down menu and adding scroll area as widget
+        action_scroll_menu = QtWidgets.QWidgetAction(menu)
+        action_scroll_menu.setDefaultWidget(scroll_menu)
+        menu.addAction(action_scroll_menu)
+
+        menu.exec(header_pos - QtCore.QPoint(0, header_height))
+
+
+    def filter_column(self, column_index, value):
+        if value is None:
+            for row in range(self.rowCount()):
+                self.setRowHidden(row, False)
+                self.list_filters=[]
+        elif value in self.list_filters:
+            self.list_filters.remove(value)
+        else:
+            self.list_filters.append(value)
+        
+        for row in range(self.rowCount()):
+            item = self.item(row, column_index)
+            if value is None:
+                pass
+            elif item.text() not in self.list_filters:
+                self.setRowHidden(row, False)
+            else:
+                self.setRowHidden(row, True)
+
+
+    def sort_column(self, column_index, sortOrder):
+        self.sortByColumn(column_index, sortOrder)
+
+
+    def contextMenuEvent(self, event):
+        if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
+            logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
+            header_pos = self.mapToGlobal(self.horizontalHeader().pos())
+            header_height = self.horizontalHeader().height()
+            self.show_unique_values_menu(logical_index, header_pos, header_height)
+        else:
+            super().contextMenuEvent(event)
+
+
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
@@ -194,6 +286,9 @@ class Ui_SupplierOrder_Window(object):
         self.OrderObs_SupplierOrder = QtWidgets.QTextEdit(parent=self.frame)
         self.OrderObs_SupplierOrder.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
         self.OrderObs_SupplierOrder.setMaximumSize(QtCore.QSize(16777214, int(25//1.5)))
+        font = QtGui.QFont()
+        font.setPointSize(int(10//1.5))
+        self.OrderObs_SupplierOrder.setFont(font)
         self.OrderObs_SupplierOrder.setObjectName("OrderObs_SupplierOrder")
         self.gridLayout_2.addWidget(self.OrderObs_SupplierOrder, 3, 2, 1, 6)
         self.label_Supply = QtWidgets.QLabel(parent=self.frame)
@@ -692,7 +787,7 @@ class Ui_SupplierOrder_Window(object):
 "    border-color: rgb(255, 255, 255);\n"
 "}")
         self.Button_AddRecord.setObjectName("Button_AddRecord")
-        self.gridLayout_2.addWidget(self.Button_AddRecord, 6, 17, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_AddRecord, 5, 17, 1, 1)
         self.Button_ModifyRecord = QtWidgets.QPushButton(parent=self.frame)
         self.Button_ModifyRecord.setMinimumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
         self.Button_ModifyRecord.setMaximumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
@@ -724,7 +819,39 @@ class Ui_SupplierOrder_Window(object):
 "    border-color: rgb(255, 255, 255);\n"
 "}")
         self.Button_ModifyRecord.setObjectName("Button_ModifyRecord")
-        self.gridLayout_2.addWidget(self.Button_ModifyRecord, 7, 17, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_ModifyRecord, 6, 17, 1, 1)
+        self.Button_DeleteRecord = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_DeleteRecord.setMinimumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
+        self.Button_DeleteRecord.setMaximumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
+        self.Button_DeleteRecord.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 10px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 4px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        self.Button_DeleteRecord.setObjectName("Button_DeleteRecord")
+        self.gridLayout_2.addWidget(self.Button_DeleteRecord, 7, 17, 1, 1)
         self.label_Details = QtWidgets.QLabel(parent=self.frame)
         self.label_Details.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
         self.label_Details.setMaximumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
@@ -734,7 +861,7 @@ class Ui_SupplierOrder_Window(object):
         self.label_Details.setFont(font)
         self.label_Details.setObjectName("label_Details")
         self.gridLayout_2.addWidget(self.label_Details, 7, 1, 1, 1)
-        self.tableRecords = QtWidgets.QTableWidget(parent=self.frame)
+        self.tableRecords = CustomTableWidget()
         self.tableRecords.setObjectName("tableRecords")
         self.tableRecords.setColumnCount(12)
         self.tableRecords.setRowCount(0)
@@ -814,6 +941,9 @@ class Ui_SupplierOrder_Window(object):
         self.Coms_SupplierOrder = QtWidgets.QTextEdit(parent=self.frame)
         self.Coms_SupplierOrder.setMinimumSize(QtCore.QSize(0, int(80//1.5)))
         self.Coms_SupplierOrder.setMaximumSize(QtCore.QSize(int(1300//1.5), int(80//1.5)))
+        font = QtGui.QFont()
+        font.setPointSize(int(10//1.5))
+        self.Coms_SupplierOrder.setFont(font)
         self.Coms_SupplierOrder.setObjectName("Coms_SupplierOrder")
         self.gridLayout_2.addWidget(self.Coms_SupplierOrder, 13, 1, 1, 16)
         self.label_FinalCom = QtWidgets.QLabel(parent=self.frame)
@@ -905,7 +1035,7 @@ class Ui_SupplierOrder_Window(object):
 "}")
         self.Button_Print.setObjectName("Button_Print")
         self.gridLayout_2.addWidget(self.Button_Print, 15, 17, 1, 1)
-        self.tableSupplierOrders = QtWidgets.QTableWidget(parent=self.frame)
+        self.tableSupplierOrders = CustomTableWidget()
         self.tableSupplierOrders.setObjectName("tableSupplierOrders")
         self.tableSupplierOrders.setColumnCount(18)
         self.tableSupplierOrders.setRowCount(0)
@@ -1084,13 +1214,16 @@ class Ui_SupplierOrder_Window(object):
         self.Button_Deliv3.clicked.connect(self.adddeliv3)
         self.Supply_SupplierOrder.currentIndexChanged.connect(self.loadstocks)
         self.Button_Print.clicked.connect(self.printsupplierorder)
+        self.tableRecords.horizontalHeader().sectionClicked.connect(self.on_headerrecords_section_clicked)
+        self.tableSupplierOrders.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
         self.loadtableorders()
 
 
     def retranslateUi(self, SupplierOrder_Window):
         _translate = QtCore.QCoreApplication.translate
         SupplierOrder_Window.setWindowTitle(_translate("SupplierOrder_Window", "Pedido Proveedor"))
-        self.Button_ModifyRecord.setText(_translate("SupplierOrder_Window", "Modificar Reg"))
+        self.Button_ModifyRecord.setText(_translate("SupplierOrder_Window", "Modificar Reg."))
+        self.Button_DeleteRecord.setText(_translate("SupplierOrder_Window", "Eliminar Reg."))
         item = self.tableRecords.horizontalHeaderItem(0)
         item.setText(_translate("SupplierOrder_Window", "ID"))
         item = self.tableRecords.horizontalHeaderItem(1)
@@ -1641,6 +1774,31 @@ class Ui_SupplierOrder_Window(object):
             self.calculate_totalorder()
             self.loadstocks()
 
+#Function to delete record data
+    def deleterecord(self):
+        record_id=self.label_IDRecord.text()
+        supply_name=self.Supply_SupplierOrder.currentText()
+        supply_name=supply_name[:supply_name.find(" |")]
+        unit_value=self.UnitValue_SupplierOrder.text()
+        unit_value=unit_value.replace(".",",")
+        discount=self.Discount_SupplierOrder.text().replace(" %", "") if " %" in self.Discount_SupplierOrder.text() else (self.Discount_SupplierOrder.text() if self.Discount_SupplierOrder.text() not in [""," "] else 0)
+        position=self.Position_SupplierOrder.text()
+        quantity=self.Quantity_SupplierOrder.text()
+        deliv_quant_1=self.Deliv1_SupplierOrder.text() if self.Deliv1_SupplierOrder.text() not in [""," "] else 0
+        deliv_quant_2=self.Deliv2_SupplierOrder.text() if self.Deliv2_SupplierOrder.text() not in [""," "] else 0
+        deliv_quant_3=self.Deliv3_SupplierOrder.text() if self.Deliv3_SupplierOrder.text() not in [""," "] else 0
+
+        if record_id == "":
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Modificar Registros")
+            dlg.setText("Selecciona un registro existente")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+
 
 # Function to load client order form
     def loadformorder(self,item):
@@ -1785,7 +1943,10 @@ class Ui_SupplierOrder_Window(object):
     # fill the Qt Table with the query results
         for row in results_orders:
             for column in range(18):
-                it=QtWidgets.QTableWidgetItem(str(row[column]))
+                value = row[column]
+                if value is None:
+                    value = ''
+                it = QtWidgets.QTableWidgetItem(str(value))
                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                 it.setFont(font)
                 self.tableSupplierOrders.setItem(tablerow, column, it)
@@ -1857,7 +2018,10 @@ class Ui_SupplierOrder_Window(object):
             row_list[7] = row_list[7] + " €"
 
             for column in range(12):
-                it=QtWidgets.QTableWidgetItem(str(row_list[column]))
+                value = row_list[column]
+                if value is None:
+                    value = ''
+                it = QtWidgets.QTableWidgetItem(str(value))
                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                 it.setFont(font)
                 self.tableRecords.setItem(tablerow, column, it)
@@ -2522,6 +2686,13 @@ class Ui_SupplierOrder_Window(object):
             
             y_position = pdf.get_y()
             pdf.set_fill_color(231, 231, 226)
+            y_position = pdf.get_y()
+            pdf.cell(13.995, 0.50, "")
+            pdf.set_font('Helvetica', 'U', 8)
+            pdf.cell(2.3, 0.50, "Total del pedido:",fill=True)
+            pdf.set_font('DejaVuSansCondensed-Bold', size=10)
+            pdf.cell(2.29, 0.50, currency_totalorder, align='R', fill=True)
+            pdf.ln(1)
             pdf.set_font('Helvetica', 'B', 8)
             x_position = pdf.get_x()
             pdf.multi_cell(13.795, 0.3, coments)
@@ -2529,12 +2700,6 @@ class Ui_SupplierOrder_Window(object):
             pdf.multi_cell(13.795, 0.3, final_coments)
             pdf.set_y(y_position)
             pdf.set_x(x_position + 13.795)
-            y_position = pdf.get_y()
-            pdf.cell(0.2, 0.50, "")
-            pdf.set_font('Helvetica', 'U', 8)
-            pdf.cell(2.3, 0.50, "Total del pedido:",fill=True)
-            pdf.set_font('DejaVuSansCondensed-Bold', size=10)
-            pdf.cell(2.29, 0.50, currency_totalorder, align='R', fill=True)
             pdf.ln(1)
 
             output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar Pedido Proveedor")
@@ -2606,6 +2771,21 @@ class Ui_SupplierOrder_Window(object):
             
         return False
 
+
+#Function when clicking on table header
+    def on_header_section_clicked(self, logical_index):
+        header_pos = self.tableSupplierOrders.horizontalHeader().sectionViewportPosition(logical_index)
+        header_height = self.tableSupplierOrders.horizontalHeader().height()
+        popup_pos = self.tableSupplierOrders.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
+        self.tableSupplierOrders.show_unique_values_menu(logical_index, popup_pos, header_height)
+
+
+#Function when clicking on table header
+    def on_headerrecords_section_clicked(self, logical_index):
+        header_pos = self.tableRecords.horizontalHeader().sectionViewportPosition(logical_index)
+        header_height = self.tableRecords.horizontalHeader().height()
+        popup_pos = self.tableRecords.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
+        self.tableRecords.show_unique_values_menu(logical_index, popup_pos, header_height)
 
 if __name__ == "__main__":
     import sys

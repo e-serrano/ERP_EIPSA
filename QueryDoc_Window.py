@@ -17,6 +17,18 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
+        if index.column() == 9:  # Verifica que estemos en la tercera columna
+            value = index.data()
+
+            if value == "Aprobado":  
+                color = QtGui.QColor(146, 208, 80)  # Green
+            elif value == "Eliminado":
+                color = QtGui.QColor(255, 0, 0)  # Red
+            else:
+                color = QtGui.QColor(255, 255, 255)  # White for rest
+
+            option.backgroundBrush = color
+
 
 class Ui_QueryDoc_Window(object):
     def setupUi(self, QueryDoc_Window):
@@ -480,10 +492,11 @@ class Ui_QueryDoc_Window(object):
                         INNER JOIN orders ON (orders."num_order" = documentation."num_order")
                         INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
                         INNER JOIN document_type ON (document_type."id" = documentation."doc_type_id")
-                        INNER JOIN hist_doc ON (hist_doc."num_doc_eipsa" = documentation."num_doc_eipsa")
+                        LEFT JOIN hist_doc ON (hist_doc."num_doc_eipsa" = documentation."num_doc_eipsa")
                         INNER JOIN product_type ON (product_type."material" = offers."material")
                         WHERE
-                        (UPPER(documentation."num_order") LIKE UPPER('%%'||%s||'%%')
+                        (
+                        UPPER(documentation."num_order") LIKE UPPER('%%'||%s||'%%')
                         AND
                         UPPER(offers."client") LIKE UPPER('%%'||%s||'%%')
                         AND
@@ -516,9 +529,13 @@ class Ui_QueryDoc_Window(object):
                 tablerow=0
 
             # fill the Qt Table with the query results
+                print(results)
                 for row in results:
                     for column in range(13):
-                        it=QtWidgets.QTableWidgetItem(str(row[column]))
+                        value = row[column]
+                        if value is None:
+                            value = ''
+                        it = QtWidgets.QTableWidgetItem(str(value))
                         it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                         self.tableQueryDoc.setItem(tablerow, column, it)
 
@@ -526,7 +543,7 @@ class Ui_QueryDoc_Window(object):
 
                 self.tableQueryDoc.verticalHeader().hide()
                 self.tableQueryDoc.setItemDelegate(AlignDelegate(self.tableQueryDoc))
-                self.tableQueryDoc.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+                self.tableQueryDoc.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
 
                 self.tableQueryDoc.itemDoubleClicked.connect(self.expand_cell)
 
@@ -542,21 +559,15 @@ class Ui_QueryDoc_Window(object):
 
 
     def expand_cell(self, item):
-        row = item.row()
-        column = item.column()
-        cell_content = item.text()
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("Documentación")
-        dlg.setText(cell_content)
-        dlg.exec()
-
-        expanded_widget = QtWidgets.QTableWidgetItem(cell_content)
-        expanded_widget.setFlags(QtCore.Qt.ItemFlag.ItemIsSelectable | QtCore.Qt.ItemFlag.ItemIsEnabled)
-
-        self.tableQueryDoc.setItem(row, column, expanded_widget)
+        if item.column() == 12:
+            cell_content = item.text()
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Documentación")
+            dlg.setText(cell_content)
+            dlg.exec()
 
 
 if __name__ == "__main__":

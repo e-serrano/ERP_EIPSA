@@ -264,7 +264,10 @@ class Ui_QueryTableChanges_Window(object):
         # fill the Qt Table with the query results
             for row in results:
                 for column in range(9):
-                    it=QtWidgets.QTableWidgetItem(str(row[column]))
+                    value = row[column]
+                    if value is None:
+                        value = ''
+                    it = QtWidgets.QTableWidgetItem(str(value))
                     it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                     self.tableQueryTableChanges.setItem(tablerow, column, it)
 

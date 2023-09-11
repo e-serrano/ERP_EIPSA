@@ -12,6 +12,98 @@ import psycopg2
 import datetime
 
 
+class CustomTableWidget(QtWidgets.QTableWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.list_filters=[]
+
+    def show_unique_values_menu(self, column_index, header_pos, header_height):
+        menu = QtWidgets.QMenu(self)
+        menu.setStyleSheet("QMenu { color: black; }"
+                                        "QMenu::item:selected { background-color: #33bdef; }"
+                                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+
+        unique_values = set()
+        for row in range(self.rowCount()):
+            if not self.isRowHidden(row):
+                item = self.item(row, column_index)
+                if item:
+                    unique_values.add(item.text())
+
+        action_all = menu.addAction("Seleccionar todo")
+        action_all.triggered.connect(lambda: self.filter_column(column_index, None))
+        menu.addSeparator()
+
+        action_all = menu.addAction("Ordenar ascendente")
+        action_all.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.AscendingOrder))
+        action_all = menu.addAction("Ordenar descendente")
+        action_all.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.DescendingOrder))
+        menu.addSeparator()
+
+        scroll_menu = QtWidgets.QScrollArea()
+        scroll_menu.setWidgetResizable(True)
+        scroll_widget = QtWidgets.QWidget(scroll_menu)
+        scroll_menu.setWidget(scroll_widget)
+        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+
+        checkboxes = []  # List to stack checkboxes created
+
+        for value in sorted(unique_values):
+            checkbox = QtWidgets.QCheckBox(value)
+            if value in self.list_filters:
+                checkbox.setCheckState(QtCore.Qt.CheckState(0))
+            else:
+                checkbox.setCheckState(QtCore.Qt.CheckState(2))
+
+            scroll_layout.addWidget(checkbox)
+            checkboxes.append(checkbox)  # Adding checkbox to list
+
+        # Connecting checkboxes to function self.filter_column
+        for value, checkbox in zip(sorted(unique_values), checkboxes):
+            checkbox.clicked.connect(lambda checked, value=value: self.filter_column(column_index, value))
+
+        # Action for drop down menu and adding scroll area as widget
+        action_scroll_menu = QtWidgets.QWidgetAction(menu)
+        action_scroll_menu.setDefaultWidget(scroll_menu)
+        menu.addAction(action_scroll_menu)
+
+        menu.exec(header_pos - QtCore.QPoint(0, header_height))
+
+
+    def filter_column(self, column_index, value):
+        if value is None:
+            for row in range(self.rowCount()):
+                self.setRowHidden(row, False)
+                self.list_filters=[]
+        elif value in self.list_filters:
+            self.list_filters.remove(value)
+        else:
+            self.list_filters.append(value)
+        
+        for row in range(self.rowCount()):
+            item = self.item(row, column_index)
+            if value is None:
+                pass
+            elif item.text() not in self.list_filters:
+                self.setRowHidden(row, False)
+            else:
+                self.setRowHidden(row, True)
+
+
+    def sort_column(self, column_index, sortOrder):
+        self.sortByColumn(column_index, sortOrder)
+
+
+    def contextMenuEvent(self, event):
+        if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
+            logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
+            header_pos = self.mapToGlobal(self.horizontalHeader().pos())
+            header_height = self.horizontalHeader().height()
+            self.show_unique_values_menu(logical_index, header_pos, header_height)
+        else:
+            super().contextMenuEvent(event)
+
+
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
@@ -200,7 +292,7 @@ class Ui_Quotation_Window(object):
         self.label_Details.setFont(font)
         self.label_Details.setObjectName("label_Details")
         self.gridLayout_2.addWidget(self.label_Details, 8, 1, 1, 1)
-        self.tableRecords = QtWidgets.QTableWidget(parent=self.frame)
+        self.tableRecords = CustomTableWidget()
         self.tableRecords.setObjectName("tableRecords")
         self.tableRecords.setColumnCount(8)
         self.tableRecords.setRowCount(0)
@@ -253,7 +345,7 @@ class Ui_Quotation_Window(object):
         item.setFont(font)
         self.tableRecords.setHorizontalHeaderItem(7, item)
         self.gridLayout_2.addWidget(self.tableRecords, 12, 1, 1, 17)
-        self.tableQuotations = QtWidgets.QTableWidget(parent=self.frame)
+        self.tableQuotations = CustomTableWidget()
         self.tableQuotations.setObjectName("tableQuotations")
         self.tableQuotations.setColumnCount(6)
         self.tableQuotations.setRowCount(0)
@@ -490,7 +582,8 @@ class Ui_Quotation_Window(object):
 
         self.tableQuotations.itemClicked.connect(self.loadformquotation)
         self.tableRecords.itemClicked.connect(self.loadformsupply)
-        # # self.tableClients.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
+        self.tableQuotations.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
+        self.tableRecords.horizontalHeader().sectionClicked.connect(self.on_header_sectionrecords_clicked)
         self.Button_AddQuot.clicked.connect(self.addquotation)
         self.Button_AddRecord.clicked.connect(self.addrecord)
         self.Button_ModifyQuot.clicked.connect(self.modifyquotation)
@@ -942,7 +1035,10 @@ class Ui_Quotation_Window(object):
     # fill the Qt Table with the query results
         for row in results_quotations:
             for column in range(6):
-                it=QtWidgets.QTableWidgetItem(str(row[column]))
+                value = row[column]
+                if value is None:
+                    value = ''
+                it = QtWidgets.QTableWidgetItem(str(value))
                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                 it.setFont(font)
                 self.tableQuotations.setItem(tablerow, column, it)
@@ -1000,7 +1096,10 @@ class Ui_Quotation_Window(object):
     # fill the Qt Table with the query results
         for row in results_record:
             for column in range(8):
-                it=QtWidgets.QTableWidgetItem(str(row[column]))
+                value = row[column]
+                if value is None:
+                    value = ''
+                it = QtWidgets.QTableWidgetItem(str(value))
                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                 it.setFont(font)
                 self.tableRecords.setItem(tablerow, column, it)
@@ -1025,6 +1124,21 @@ class Ui_Quotation_Window(object):
                 pass
             
         return False
+
+
+#Function when clicking on table header
+    def on_header_section_clicked(self, logical_index):
+        header_pos = self.tableQuotations.horizontalHeader().sectionViewportPosition(logical_index)
+        header_height = self.tableQuotations.horizontalHeader().height()
+        popup_pos = self.tableQuotations.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
+        self.tableQuotations.show_unique_values_menu(logical_index, popup_pos, header_height)
+
+    def on_header_sectionrecords_clicked(self, logical_index):
+        header_pos = self.tableRecords.horizontalHeader().sectionViewportPosition(logical_index)
+        header_height = self.tableRecords.horizontalHeader().height()
+        popup_pos = self.tableRecords.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
+        self.tableRecords.show_unique_values_menu(logical_index, popup_pos, header_height)
+
 
 if __name__ == "__main__":
     import sys

@@ -139,14 +139,19 @@ class Ui_EditDB_Menu(object):
         user = dbparam["user"]
         password = dbparam["password"]
 
-        if not createConnection(user, password):
+        self.db_connection = createConnection(user, password)
+        if not self.db_connection:
             sys.exit()
         self.editreg_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditReg_Window()
         self.ui.setupUi(self.editreg_window)
         self.editreg_window.show()
-        EditDB_Menu.hide()
-        self.ui.Button_Cancel.clicked.connect(EditDB_Menu.show)
+
+
+    def closeDatabaseConnection(self):
+        print('a')
+        if self.db_connection.isOpen():
+            self.db_connection.close()
 
 
 if __name__ == "__main__":

@@ -21,8 +21,8 @@ class Ui_AddReg_Window(object):
     def setupUi(self, AddReg_Window):
         AddReg_Window.setObjectName("AddReg_Window")
         AddReg_Window.resize(400, 561)
-        AddReg_Window.setMinimumSize(QtCore.QSize(400, 575))
-        AddReg_Window.setMaximumSize(QtCore.QSize(400, 575))
+        AddReg_Window.setMinimumSize(QtCore.QSize(600, 775))
+        # AddReg_Window.setMaximumSize(QtCore.QSize(400, 575))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         AddReg_Window.setWindowIcon(icon)
@@ -66,8 +66,8 @@ class Ui_AddReg_Window(object):
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame.setMinimumSize(QtCore.QSize(350, 500))
-        self.frame.setMaximumSize(QtCore.QSize(350, 500))
+        self.frame.setMinimumSize(QtCore.QSize(550, 700))
+        # self.frame.setMaximumSize(QtCore.QSize(350, 500))
         self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame.setObjectName("frame")
@@ -280,7 +280,10 @@ class Ui_AddReg_Window(object):
             # fill the Qt Table with the query results
                 for row in results:
                     for column in range(3):
-                        it=QtWidgets.QTableWidgetItem(str(row[column]))
+                        value = row[column]
+                        if value is None:
+                            value = ''
+                        it = QtWidgets.QTableWidgetItem(str(value))
                         it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                         self.tableWidget.setItem(tablerow, column, it)
 
@@ -321,7 +324,10 @@ class Ui_AddReg_Window(object):
             # fill the Qt Table with the query results
                 for row in results:
                     for column in range(2):
-                        it=QtWidgets.QTableWidgetItem(str(row[column]))
+                        value = row[column]
+                        if value is None:
+                            value = ''
+                        it = QtWidgets.QTableWidgetItem(str(value))
                         it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                         self.tableWidget.setItem(tablerow, column, it)
 

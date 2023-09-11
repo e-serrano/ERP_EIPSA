@@ -16,6 +16,7 @@ from App_Technical import Ui_App_Technical
 from App_Master import Ui_App_Master
 from ForgetPass_Window import Ui_ForgetPass_Window
 from App_Warehouse import Ui_Warehouse_Menu
+from App_Manager import Ui_App_Manager
 
 
 class Ui_Login_Window(object):
@@ -261,8 +262,8 @@ class Ui_Login_Window(object):
         self.forgetpass_login.setObjectName("forgetpass_login")
         self.verticalLayout.addWidget(self.forgetpass_login)
         self.label_error_login = QtWidgets.QLabel(parent=self.frame)
-        self.label_error_login.setMinimumSize(QtCore.QSize(200, 25))
-        self.label_error_login.setMaximumSize(QtCore.QSize(200, 25))
+        self.label_error_login.setMinimumSize(QtCore.QSize(200, 30))
+        self.label_error_login.setMaximumSize(QtCore.QSize(200, 30))
         self.label_error_login.setStyleSheet("color: rgb(255, 0, 0);")
         self.label_error_login.setWordWrap(True)
         self.label_error_login.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
@@ -332,7 +333,7 @@ class Ui_Login_Window(object):
                     conn.close()
 
         # checking if username is correct
-            if len(match)==0:
+            if login_username!=match[0][3]:
                 self.label_error_login.setText('Usuario incorrecto. Inténtalo de nuevo')
 
         # checking if password is correct
@@ -375,6 +376,13 @@ class Ui_Login_Window(object):
                     self.ui_master=Ui_Warehouse_Menu()
                     self.ui_master.setupUi(self.app_window)
                     self.app_window.show()
+                    self.Login_Window.close()
+
+                elif rol_app == "Dirección":
+                    self.app_window=QtWidgets.QMainWindow()
+                    self.ui_purchase=Ui_App_Manager(match[0][1]+' '+match[0][2], login_username)
+                    self.ui_purchase.setupUi(self.app_window)
+                    self.app_window.showMaximized()
                     self.Login_Window.close()
 
                 else:

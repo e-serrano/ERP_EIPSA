@@ -291,6 +291,7 @@ class Ui_Edit_Order_Window(object):
         expectdate=self.ExpectDate_EditOrder.text()
         notes=self.Notes_EditOrder.toPlainText()
         amount=self.Amount_EditOrder.text()
+        amount=amount.replace(".",",")
 
         #SQL Query for checking if order number exists in database
         commands_checkorder = ("""
@@ -391,7 +392,7 @@ class Ui_Edit_Order_Window(object):
         numorder=self.NumOrder_EditOrder.text()
     #SQL Query for loading existing data in database
         commands_loaddataorder = ("""
-                    SELECT "num_order","num_offer","num_ref_order",TO_CHAR("expected_date", 'DD-MM-YYYY'),"notes","order_amount"
+                    SELECT "num_order","num_offer","num_ref_order",TO_CHAR("expected_date", 'DD-MM-YYYY'),"notes",CAST("order_amount" AS numeric) AS "amount"
                     FROM orders
                     WHERE "num_order" = %s
                     """)
