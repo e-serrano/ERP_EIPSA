@@ -15,8 +15,8 @@ class Ui_Edit_Offer_Window(object):
     def setupUi(self, Edit_Offer_Window):
         Edit_Offer_Window.setObjectName("Edit_Offer_Window")
         Edit_Offer_Window.resize(670, 425)
-        Edit_Offer_Window.setMinimumSize(QtCore.QSize(1100, 450))
-        Edit_Offer_Window.setMaximumSize(QtCore.QSize(1100, 450))
+        Edit_Offer_Window.setMinimumSize(QtCore.QSize(1100, 475))
+        Edit_Offer_Window.setMaximumSize(QtCore.QSize(1100, 475))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Edit_Offer_Window.setWindowIcon(icon)
@@ -151,7 +151,7 @@ class Ui_Edit_Offer_Window(object):
         self.label_NacExt.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_NacExt.setObjectName("label_NacExt")
         self.vLayout1.addWidget(self.label_NacExt)
-        spacerItem27 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        spacerItem27 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout1.addItem(spacerItem27)
         self.hLayout.addLayout(self.vLayout1)
         self.vLayout2 = QtWidgets.QVBoxLayout()
@@ -216,7 +216,7 @@ class Ui_Edit_Offer_Window(object):
         self.NacExt_EditOffer.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         self.NacExt_EditOffer.setObjectName("NacExt_EditOffer")
         self.vLayout2.addWidget(self.NacExt_EditOffer)
-        spacerItem10 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        spacerItem10 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout2.addItem(spacerItem10)
         self.hLayout.addLayout(self.vLayout2)
         spacerItem11 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -291,7 +291,7 @@ class Ui_Edit_Offer_Window(object):
         self.label_RateType.setFont(font)
         self.label_RateType.setObjectName("label_RateType")
         self.vLayout3.addWidget(self.label_RateType)
-        spacerItem16 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        spacerItem16 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout3.addItem(spacerItem16)
         self.hLayout.addLayout(self.vLayout3)
         self.vLayout4 = QtWidgets.QVBoxLayout()
@@ -355,7 +355,7 @@ class Ui_Edit_Offer_Window(object):
         self.RateType_EditOffer.setFont(font)
         self.RateType_EditOffer.setObjectName("RateType_EditOffer")
         self.vLayout4.addWidget(self.RateType_EditOffer)
-        spacerItem21 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        spacerItem21 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout4.addItem(spacerItem21)
         self.hLayout.addLayout(self.vLayout4)
         self.vLayout5 = QtWidgets.QVBoxLayout()
@@ -392,7 +392,7 @@ class Ui_Edit_Offer_Window(object):
         self.label_Tracking.setFont(font)
         self.label_Tracking.setObjectName("label_Tracking")
         self.vLayout5.addWidget(self.label_Tracking)
-        spacerItem33 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        spacerItem33 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout5.addItem(spacerItem33)
         self.hLayout.addLayout(self.vLayout5)
         self.vLayout6 = QtWidgets.QVBoxLayout()
@@ -425,7 +425,7 @@ class Ui_Edit_Offer_Window(object):
         self.Tracking_EditOffer.setFont(font)
         self.Tracking_EditOffer.setObjectName("Tracking_EditOffer")
         self.vLayout6.addWidget(self.Tracking_EditOffer)
-        spacerItem35 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        spacerItem35 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout6.addItem(spacerItem35)
         self.hLayout.addLayout(self.vLayout6)
         self.verticalLayout.addLayout(self.hLayout)
@@ -433,6 +433,49 @@ class Ui_Edit_Offer_Window(object):
         self.verticalLayout.addItem(spacerItem22)
         self.hLayout1 = QtWidgets.QHBoxLayout()
         self.hLayout1.setObjectName("hLayout1")
+        spacerItem36 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hLayout1.addItem(spacerItem36)
+        self.label_Mails = QtWidgets.QLabel(parent=self.frame)
+        self.label_Mails.setMinimumSize(QtCore.QSize(150, 25))
+        self.label_Mails.setMaximumSize(QtCore.QSize(150, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Mails.setFont(font)
+        self.label_Mails.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_Mails.setObjectName("label_Mails")
+        self.hLayout1.addWidget(self.label_Mails)
+        self.Mails_EditOffer = QtWidgets.QTextEdit(parent=self.frame)
+        self.Mails_EditOffer.setMinimumSize(QtCore.QSize(525, 25))
+        self.Mails_EditOffer.setMaximumSize(QtCore.QSize(525, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Mails_EditOffer.setFont(font)
+        self.Mails_EditOffer.setObjectName("Mails_EditOffer")
+        self.hLayout1.addWidget(self.Mails_EditOffer)
+        spacerItem31 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.hLayout1.addItem(spacerItem31)
+        self.label_RecAuto = QtWidgets.QLabel(parent=self.frame)
+        self.label_RecAuto.setMinimumSize(QtCore.QSize(130, 25))
+        self.label_RecAuto.setMaximumSize(QtCore.QSize(130, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_RecAuto.setFont(font)
+        self.label_RecAuto.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_RecAuto.setObjectName("label_RecAuto")
+        self.hLayout1.addWidget(self.label_RecAuto)
+        self.RecAuto_EditOffer = QtWidgets.QCheckBox(parent=self.frame)
+        self.RecAuto_EditOffer.setMinimumSize(QtCore.QSize(20, 20))
+        self.RecAuto_EditOffer.setMaximumSize(QtCore.QSize(20, 20))
+        self.hLayout1.addWidget(self.RecAuto_EditOffer)
+        spacerItem30 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hLayout1.addItem(spacerItem30)
+        self.verticalLayout.addLayout(self.hLayout1)
+        spacerItem29 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        self.verticalLayout.addItem(spacerItem29)
+        self.hLayout2 = QtWidgets.QHBoxLayout()
+        self.hLayout2.setObjectName("hLayout2")
         self.Button_EditOffer = QtWidgets.QPushButton(parent=self.frame)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
         sizePolicy.setHorizontalStretch(0)
@@ -444,7 +487,7 @@ class Ui_Edit_Offer_Window(object):
         self.Button_EditOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_EditOffer.setAutoDefault(True)
         self.Button_EditOffer.setObjectName("Button_EditOffer")
-        self.hLayout1.addWidget(self.Button_EditOffer)
+        self.hLayout2.addWidget(self.Button_EditOffer)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
         sizePolicy.setHorizontalStretch(0)
@@ -456,8 +499,8 @@ class Ui_Edit_Offer_Window(object):
         self.Button_Cancel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Cancel.setAutoDefault(True)
         self.Button_Cancel.setObjectName("Button_Cancel")
-        self.hLayout1.addWidget(self.Button_Cancel)
-        self.verticalLayout.addLayout(self.hLayout1)
+        self.hLayout2.addWidget(self.Button_Cancel)
+        self.verticalLayout.addLayout(self.hLayout2)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         Edit_Offer_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=Edit_Offer_Window)
@@ -529,6 +572,8 @@ class Ui_Edit_Offer_Window(object):
         self.label_Amount.setText(_translate("Edit_Offer_Window", "Importe (€):"))
         self.label_ImportantIssues.setText(_translate("Edit_Offer_Window", "Importante:"))
         self.label_Tracking.setText(_translate("Edit_Offer_Window", "Seguimiento:"))
+        self.label_Mails.setText(_translate("Edit_Offer_Window", "Mails Contacto:"))
+        self.label_RecAuto.setText(_translate("Edit_Offer_Window", "Reclamación:"))
         self.Button_EditOffer.setText(_translate("Edit_Offer_Window", "Editar Oferta"))
         self.Button_Cancel.setText(_translate("Edit_Offer_Window", "Cancelar"))
 
@@ -546,10 +591,12 @@ class Ui_Edit_Offer_Window(object):
         amount=self.Amount_EditOffer.text()
         amount=amount.replace(".",",")
         limit_date=self.LimitDate_EditOffer.text()
-        recep_date=self.RecepDate_EditOffer.text()
+        recep_date=self.RecepDate_EditOffer.text() if self.RecepDate_EditOffer.text() != '' else None
         rate_type=self.RateType_EditOffer.text()
         important_issues=self.ImportantIssues_EditOffer.toPlainText()
         tracking=self.Tracking_EditOffer.toPlainText()
+        mails=self.Mails_EditOffer.toPlainText()
+        recauto_checkbox = "Reclamar" if self.RecAuto_EditOffer.isChecked() else "No Reclamar"
 
         #SQL Query for checking if offer number exists in database
         commands_checkoffer = ("""
@@ -589,7 +636,7 @@ class Ui_Edit_Offer_Window(object):
             dlg.exec()
             del dlg, new_icon
 
-        elif numoffer=="" or (client=="" or (finalclient=="" or (numref=="" or (state=="" or (nacext=="" or (buyer=="" or (material=="" or (amount=="" or (limit_date=="" or rate_type==""))))))))):
+        elif numoffer=="" or (client=="" or (finalclient=="" or (numref=="" or (state=="" or (nacext=="" or (buyer=="" or (material=="" or (amount=="" or (limit_date=="" or (mails=="" or rate_type=="")))))))))):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -605,7 +652,8 @@ class Ui_Edit_Offer_Window(object):
             commands_updateoffer = ("""
                         UPDATE offers
                         SET "client" = %s, "final_client" = %s, "num_ref_offer" = %s, "state" = %s, "nac_ext" = %s, "buyer" = %s,
-                        "material" = %s, "notes" = %s, "offer_amount" = %s, "limit_date" = %s, "rate_type" = %s, "important" = %s, "tracking" = %s, "recep_date" = %s
+                        "material" = %s, "notes" = %s, "offer_amount" = %s, "limit_date" = %s, "rate_type" = %s,
+                        "important" = %s, "tracking" = %s, "recep_date" = %s, "mails" = %s, "rec_auto" = %s
                         WHERE "num_offer" = %s
                         """)
             conn = None
@@ -616,7 +664,7 @@ class Ui_Edit_Offer_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands one by one
-                data=(client,finalclient,numref,state,nacext,buyer,material,notes,amount,limit_date,rate_type,important_issues,tracking,recep_date,numoffer,)
+                data=(client,finalclient,numref,state,nacext,buyer,material,notes,amount,limit_date,rate_type,important_issues,tracking,recep_date,mails,recauto_checkbox,numoffer,)
                 cur.execute(commands_updateoffer,data)
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -645,6 +693,8 @@ class Ui_Edit_Offer_Window(object):
                 self.RateType_EditOffer.setText('')
                 self.ImportantIssues_EditOffer.setText('')
                 self.Tracking_EditOffer.setText('')
+                self.Mails_EditOffer.setText('')
+                self.RecAuto_EditOffer.setChecked(False)
 
             except (Exception, psycopg2.DatabaseError) as error:
                 print(error)
@@ -658,7 +708,8 @@ class Ui_Edit_Offer_Window(object):
     #SQL Query for loading existing data in database
         commands_loaddataoffer = ("""
                     SELECT "num_offer","client","final_client","num_ref_offer","state","nac_ext","buyer","material","notes",
-                    CAST("offer_amount" AS numeric) AS "amount",TO_CHAR("limit_date", 'DD-MM-YYYY'),"rate_type","important","tracking",TO_CHAR("recep_date", 'DD-MM-YYYY')
+                    CAST("offer_amount" AS numeric) AS "amount",TO_CHAR("limit_date", 'DD-MM-YYYY'),"rate_type","important",
+                    "tracking",TO_CHAR("recep_date", 'DD-MM-YYYY'),"mails","rec_auto"
                     FROM offers
                     WHERE "num_offer" = %s
                     """)
@@ -699,15 +750,21 @@ class Ui_Edit_Offer_Window(object):
             self.NumRef_EditOffer.setText(str(results[0][3]))
             self.State_EditOffer.setCurrentText(str(results[0][4]))
             self.NacExt_EditOffer.setCurrentText(str(results[0][5]))
-            self.Buyer_EditOffer.setText(str(results[0][6]))
+            self.Buyer_EditOffer.setText(str(results[0][6]) if str(results[0][6]) != 'None' else '')
             self.Material_EditOffer.setCurrentText(str(results[0][7]))
-            self.Notes_EditOffer.setText(str(results[0][8]))
+            self.Notes_EditOffer.setText(str(results[0][8]) if str(results[0][8]) != 'None' else '')
             self.Amount_EditOffer.setText(str(results[0][9]))
             self.LimitDate_EditOffer.setText(str(results[0][10]))
             self.RateType_EditOffer.setText(str(results[0][11]))
-            self.ImportantIssues_EditOffer.setText(str(results[0][12]))
-            self.Tracking_EditOffer.setText(str(results[0][13]))
-            self.RecepDate_EditOffer.setText(str(results[0][14]))
+            self.ImportantIssues_EditOffer.setText(str(results[0][12]) if str(results[0][12]) != 'None' else '')
+            self.Tracking_EditOffer.setText(str(results[0][13]) if str(results[0][13]) != 'None' else '')
+            self.RecepDate_EditOffer.setText(str(results[0][14]) if str(results[0][14]) != 'None' else '')
+            self.Mails_EditOffer.setText(str(results[0][15]) if str(results[0][15]) != 'None' else '')
+            state_reclamation = str(results[0][16])
+            if state_reclamation == "Reclamar":
+                self.RecAuto_EditOffer.setChecked(True)
+            else:
+                self.RecAuto_EditOffer.setChecked(False)
 
 
 if __name__ == "__main__":

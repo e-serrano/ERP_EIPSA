@@ -16,29 +16,25 @@ class CustomTableWidget(QtWidgets.QTableWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.list_filters=[]
+        self.column_filters = {}
+        self.column_actions = {}
+        self.checkbox_states = {}
+        self.rows_hidden = {}
+        self.general_rows_to_hide = set()
 
+# Function to show the menu
     def show_unique_values_menu(self, column_index, header_pos, header_height):
         menu = QtWidgets.QMenu(self)
+        actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro")
+        actionDeleteFilterColumn.triggered.connect(lambda: self.delete_filter(column_index))
+        menu.addAction(actionDeleteFilterColumn)
+        menu.addSeparator()
         menu.setStyleSheet("QMenu { color: black; }"
-                                        "QMenu::item:selected { background-color: #33bdef; }"
-                                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+                        "QMenu::item:selected { background-color: #33bdef; }"
+                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
-        unique_values = set()
-        for row in range(self.rowCount()):
-            if not self.isRowHidden(row):
-                item = self.item(row, column_index)
-                if item:
-                    unique_values.add(item.text())
-
-        action_all = menu.addAction("Seleccionar todo")
-        action_all.triggered.connect(lambda: self.filter_column(column_index, None))
-        menu.addSeparator()
-
-        action_all = menu.addAction("Ordenar ascendente")
-        action_all.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.AscendingOrder))
-        action_all = menu.addAction("Ordenar descendente")
-        action_all.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.DescendingOrder))
-        menu.addSeparator()
+        if column_index not in self.column_filters:
+            self.column_filters[column_index] = set()
 
         scroll_menu = QtWidgets.QScrollArea()
         scroll_menu.setWidgetResizable(True)
@@ -46,54 +42,141 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         scroll_menu.setWidget(scroll_widget)
         scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
 
-        checkboxes = []  # List to stack checkboxes created
+        checkboxes = []
+
+        select_all_checkbox = QtWidgets.QCheckBox("Seleccionar todo")
+        if column_index in self.checkbox_states:
+            select_all_checkbox.setCheckState(QtCore.Qt.CheckState(self.checkbox_states[column_index].get("Seleccionar todo", QtCore.Qt.CheckState(2))))
+        else:
+            select_all_checkbox.setCheckState(QtCore.Qt.CheckState(2))
+        scroll_layout.addWidget(select_all_checkbox)
+        checkboxes.append(select_all_checkbox)
+
+        unique_values = self.get_unique_values(column_index)
+        filtered_values = self.get_filtered_values()
 
         for value in sorted(unique_values):
             checkbox = QtWidgets.QCheckBox(value)
-            if value in self.list_filters:
-                checkbox.setCheckState(QtCore.Qt.CheckState(0))
-            else:
+            if select_all_checkbox.isChecked(): 
                 checkbox.setCheckState(QtCore.Qt.CheckState(2))
-
+            else:
+                if column_index in self.checkbox_states and value in self.checkbox_states[column_index]:
+                    checkbox.setCheckState(QtCore.Qt.CheckState(self.checkbox_states[column_index][value]))
+                elif filtered_values is None or value in filtered_values[column_index]:
+                    checkbox.setCheckState(QtCore.Qt.CheckState(2))
+                else:
+                    checkbox.setCheckState(QtCore.Qt.CheckState(0))
             scroll_layout.addWidget(checkbox)
-            checkboxes.append(checkbox)  # Adding checkbox to list
+            checkboxes.append(checkbox)
 
-        # Connecting checkboxes to function self.filter_column
-        for value, checkbox in zip(sorted(unique_values), checkboxes):
-            checkbox.clicked.connect(lambda checked, value=value: self.filter_column(column_index, value))
+        select_all_checkbox.stateChanged.connect(lambda state: self.set_all_checkboxes_state(checkboxes, state, column_index))
 
-        # Action for drop down menu and adding scroll area as widget
+        for value, checkbox in zip(sorted(unique_values), checkboxes[1:]):
+            checkbox.stateChanged.connect(lambda checked, value=value, checkbox=checkbox: self.apply_filter(column_index, value, checked))
+
+    # Action for drop down menu and adding scroll area as widget
         action_scroll_menu = QtWidgets.QWidgetAction(menu)
         action_scroll_menu.setDefaultWidget(scroll_menu)
         menu.addAction(action_scroll_menu)
 
         menu.exec(header_pos - QtCore.QPoint(0, header_height))
 
+# Function to delete filter on selected column
+    def delete_filter(self,column_index):
+        if column_index in self.column_filters:
+            del self.column_filters[column_index]
+        if column_index in self.checkbox_states:
+            del self.checkbox_states[column_index]
+        if column_index in self.rows_hidden:
+            for item in self.rows_hidden[column_index]:
+                self.setRowHidden(item, False)
+                if item in self.general_rows_to_hide:
+                    self.general_rows_to_hide.remove(item)
+            del self.rows_hidden[column_index]
 
-    def filter_column(self, column_index, value):
+# Function to set all checkboxes state
+    def set_all_checkboxes_state(self, checkboxes, state, column_index):
+        if column_index not in self.checkbox_states:
+            self.checkbox_states[column_index] = {}
+
+        for checkbox in checkboxes:
+            checkbox.setCheckState(QtCore.Qt.CheckState(state))
+
+        self.checkbox_states[column_index]["Seleccionar todo"] = state
+
+# Function to apply filters to table
+    def apply_filter(self, column_index, value, checked):
+        if column_index not in self.column_filters:
+            self.column_filters[column_index] = set()
+
         if value is None:
-            for row in range(self.rowCount()):
-                self.setRowHidden(row, False)
-                self.list_filters=[]
-        elif value in self.list_filters:
-            self.list_filters.remove(value)
-        else:
-            self.list_filters.append(value)
-        
+            self.column_filters[column_index] = set()
+        elif checked:
+            self.column_filters[column_index].add(value)
+        elif value in self.column_filters[column_index]:
+            self.column_filters[column_index].remove(value)
+
+        rows_to_hide = set()
         for row in range(self.rowCount()):
-            item = self.item(row, column_index)
-            if value is None:
-                pass
-            elif item.text() not in self.list_filters:
-                self.setRowHidden(row, False)
+            show_row = True
+            for col, filters in self.column_filters.items():
+                item = self.item(row, col)
+                if item:
+                    item_value = item.text()
+                    if filters and item_value not in filters:
+                        show_row = False
+                        break
+
+            if not show_row:
+                if row not in self.general_rows_to_hide:
+                    self.general_rows_to_hide.add(row)
+                    rows_to_hide.add(row)
             else:
-                self.setRowHidden(row, True)
+                if row in self.general_rows_to_hide:
+                    self.general_rows_to_hide.remove(row)
 
+    # Update hidden rows for this column
+        if checked:
+            if column_index not in self.rows_hidden:
+                self.rows_hidden[column_index] = set(rows_to_hide)
+            else:
+                self.rows_hidden[column_index].update(rows_to_hide)
 
+    # Iterate over all rows to hide them as necessary
+        for row in range(self.rowCount()):
+            self.setRowHidden(row, row in self.general_rows_to_hide)
+
+# Function to obtain the unique matching applied filters 
+    def get_unique_values(self, column_index):
+        unique_values = set()
+        for row in range(self.rowCount()):
+            show_row = True
+            for col, filters in self.column_filters.items():
+                if col != column_index:
+                    item = self.item(row, col)
+                    if item:
+                        item_value = item.text()
+                        if filters and item_value not in filters:
+                            show_row = False
+                            break
+            if show_row:
+                item = self.item(row, column_index)
+                if item:
+                    unique_values.add(item.text())
+        return unique_values
+
+# Function to get values filtered by all columns
+    def get_filtered_values(self):
+        filtered_values = {}
+        for col, filters in self.column_filters.items():
+            filtered_values[col] = filters
+        return filtered_values
+
+# Function to sort column
     def sort_column(self, column_index, sortOrder):
         self.sortByColumn(column_index, sortOrder)
 
-
+# Function with the menu configuration
     def contextMenuEvent(self, event):
         if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
             logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())

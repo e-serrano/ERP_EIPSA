@@ -1,6 +1,8 @@
 __pycache__/
 
-pdf_styles.py
+PDF_Styles.py
+
+Email_Styles.py
 
 Database_Connection.py
 
@@ -10,14 +12,14 @@ setup.ico
 
 exportar_df_a_excel.py
 
-pruebas_generales.py
-
 tableExcel_to_database.py
-
-test.py
 
 import_tables.py
 
 exp_to_excel_template.py
 
-new_test.py
+zz test1.py
+
+zz test2.py
+
+zz test3.py

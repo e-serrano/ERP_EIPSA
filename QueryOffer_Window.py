@@ -13,6 +13,9 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from PyQt6.QtWidgets import QApplication
 import locale
+import pandas as pd
+import tkinter as tk
+from tkinter import filedialog
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -252,6 +255,12 @@ class Ui_QueryOffer_Window(object):
         self.Button_Query.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.Button_Query.setObjectName("Button_Query")
         self.hLayout4.addWidget(self.Button_Query)
+        self.Button_Export = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Export.setMinimumSize(QtCore.QSize(150, 35))
+        self.Button_Export.setMaximumSize(QtCore.QSize(150, 35))
+        self.Button_Export.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.Button_Export.setObjectName("Button_Export")
+        self.hLayout4.addWidget(self.Button_Export)
         self.gridLayout_2.addLayout(self.hLayout4, 6, 0, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem1, 7, 0, 1, 1)
@@ -410,7 +419,8 @@ class Ui_QueryOffer_Window(object):
         self.retranslateUi(QueryOffer_Window)
         QtCore.QMetaObject.connectSlotsByName(QueryOffer_Window)
         self.Button_Clean.clicked.connect(self.clean_boxes) # type: ignore
-        self.Button_Query.clicked.connect(self.query_offer) # type: ignore
+        self.Button_Query.clicked.connect(self.query_offer)
+        self.Button_Export.clicked.connect(self.export_data)  # type: ignore
         self.Numoffer_QueryOffer.returnPressed.connect(self.query_offer)
         self.Client_QueryOffer.returnPressed.connect(self.query_offer)
         self.FinalClient_QueryOffer.returnPressed.connect(self.query_offer)
@@ -449,6 +459,7 @@ class Ui_QueryOffer_Window(object):
         item.setText(_translate("QueryOffer_Window", "Ptos. Importantes"))
         self.Button_Clean.setText(_translate("QueryOffer_Window", "Limpiar Filtros"))
         self.Button_Query.setText(_translate("QueryOffer_Window", "Buscar"))
+        self.Button_Export.setText(_translate("QueryOffer_Window", "Exportar Excel"))
         self.label_NumOffer.setText(_translate("QueryOffer_Window", "Nº Oferta:"))
         self.label_Client.setText(_translate("QueryOffer_Window", "Cliente:"))
         self.label_Responsible.setText(_translate("QueryOffer_Window", "Responsable:"))
@@ -483,10 +494,11 @@ class Ui_QueryOffer_Window(object):
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Consultar Pedido")
+            dlg.setWindowTitle("Consultar Oferta")
             dlg.setText("Introduce un filtro en alguno de los campos")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
+            del dlg,new_icon
 
         else:
             commands_queryoffer = ("""
@@ -520,6 +532,7 @@ class Ui_QueryOffer_Window(object):
                 data=(numoffer,reference,client,finalclient,responsible,state,material,)
                 cur.execute(commands_queryoffer,data)
                 results=cur.fetchall()
+                self.tableQueryOffer.setRowCount(0)
                 self.tableQueryOffer.setRowCount(len(results))
                 tablerow=0
 
@@ -592,7 +605,46 @@ class Ui_QueryOffer_Window(object):
             dlg.setWindowTitle("Ofertas")
             dlg.setText(cell_content)
             dlg.exec()
+            del dlg, new_icon
 
+
+    def export_data(self):
+        num_rows = self.tableQueryOffer.rowCount()
+        if num_rows > 0:
+            num_columns = 8
+
+            column_names = [self.tableQueryOffer.horizontalHeaderItem(col).text() for col in range(num_columns)]
+
+            df = pd.DataFrame(columns=column_names)
+
+            for row in range(num_rows):
+                row_data = []
+                for col in range(num_columns):
+                    item = self.tableQueryOffer.item(row,col)
+                    if item is not None:
+                        row_data.append(item.text())
+                    else:
+                        row_data.append('')
+                df.loc[row] = row_data
+
+            root = tk.Tk()
+            root.withdraw()
+
+            file_path = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("Excel Files", "*.xlsx")])
+
+            if file_path:
+                df.to_excel(file_path, index=False)
+
+        else:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Consultar Oferta")
+            dlg.setText("No hay datos para exportar")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
 
 
 if __name__ == "__main__":

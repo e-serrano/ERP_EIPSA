@@ -288,7 +288,7 @@ class Ui_Edit_Order_Window(object):
         numorder=self.NumOrder_EditOrder.text()
         numoffer=self.NumOffer_EditOrder.text()
         numref=self.NumRef_EditOrder.text()
-        expectdate=self.ExpectDate_EditOrder.text()
+        expectdate=self.ExpectDate_EditOrder.text() if self.ExpectDate_EditOrder.text() != '' else None
         notes=self.Notes_EditOrder.toPlainText()
         amount=self.Amount_EditOrder.text()
         amount=amount.replace(".",",")
@@ -430,7 +430,7 @@ class Ui_Edit_Order_Window(object):
         else:
             self.NumOffer_EditOrder.setText(str(results[0][1]))
             self.NumRef_EditOrder.setText(str(results[0][2]))
-            self.ExpectDate_EditOrder.setText(str(results[0][3]))
+            self.ExpectDate_EditOrder.setText(str(results[0][3]) if str(results[0][3]) != 'None' else '')
             self.Notes_EditOrder.setText(str(results[0][4]))
             self.Amount_EditOrder.setText(str(results[0][5]))
 

@@ -204,7 +204,7 @@ class Ui_ImportTAG_Window(object):
             df_table.replace('nan', 'N/A', inplace=True)
 
             if self.radioFlow.isChecked()==True:
-                table_name='tags_data.tags_flow_prueba'
+                table_name='tags_data.tags_flow'
                 try:
                     for index, row in df_table.iterrows():
                     # Create a list of pairs (column_name, column_value) for each column with value
@@ -241,7 +241,7 @@ class Ui_ImportTAG_Window(object):
                         conn.close()
 
             elif self.radioTemp.isChecked()==True:
-                table_name='tags_data.tags_temp_prueba'
+                table_name='tags_data.tags_temp'
                 try:
                     for index, row in df_table.iterrows():
                     # Create a list of pairs (column_name, column_value) for each column with value
@@ -283,7 +283,7 @@ class Ui_ImportTAG_Window(object):
                         conn.close()
 
             elif self.radioLevel.isChecked()==True:
-                table_name='tags_data.tags_level_prueba'
+                table_name='tags_data.tags_level'
                 try:
                     for index, row in df_table.iterrows():
                     # Create a list of pairs (column_name, column_value) for each column with value
@@ -293,7 +293,12 @@ class Ui_ImportTAG_Window(object):
                         columns = ', '.join([column for column, _ in columns_values])
 
                     # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
-                        values = ', '.join([f"'{value.replace('.', ',')}'" if column in ['amount'] else ('NULL' if value == '' and column in [] else f"'{values}'") for column, value in columns_values])
+                        values = ', '.join([
+                                    f"'{int(float(values))}'" if column in ['proc_conn_rating', 'dv_rating'] and values.endswith('.0')
+                                    else f"'{values.replace('.', ',')}'" if column in ['amount']
+                                    else ('NULL' if values == 'N/A' and column in ['visibility', 'cc_length']
+                                    else f"'{values}'") for column, values in columns_values
+                                    ])
 
                     # Creating insertion query and executing it
                         sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"

@@ -33,19 +33,217 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
         if index.column() == 5:  # Verifica que estemos en la tercera columna
-            value = index.data()
-            fecha_str_split = value.split('-')
-            fecha_str_qdate = QtCore.QDate(int(fecha_str_split[2]), int(fecha_str_split[1]), int(fecha_str_split[0]))
-            delay_date=QtCore.QDate.currentDate().addDays(-10)
+            value = str(index.data())
+            if value != '':
+                fecha_str_split = value.split('-')
+                fecha_str_qdate = QtCore.QDate(int(fecha_str_split[2]), int(fecha_str_split[1]), int(fecha_str_split[0]))
+                delay_date=QtCore.QDate.currentDate().addDays(-10)
 
-            if fecha_str_qdate.addDays(15) < QtCore.QDate.currentDate():  
-                color = QtGui.QColor(255, 0, 0)  # Red
-            elif fecha_str_qdate.addDays(7) < QtCore.QDate.currentDate():
-                color = QtGui.QColor(255, 255, 168)  # Yellow
+                if fecha_str_qdate.addDays(15) < QtCore.QDate.currentDate():  
+                    color = QtGui.QColor(255, 0, 0)  # Red
+                elif fecha_str_qdate.addDays(7) < QtCore.QDate.currentDate():
+                    color = QtGui.QColor(255, 255, 168)  # Yellow
+                else:
+                    color = QtGui.QColor(255, 255, 255)  # White for rest
+
+                option.backgroundBrush = color
+
+
+class CustomTableWidget(QtWidgets.QTableWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.list_filters=[]
+        self.column_filters = {}
+        self.column_actions = {}
+        self.checkbox_states = {}
+        self.rows_hidden = {}
+        self.general_rows_to_hide = set()
+
+# Function to show the menu
+    def show_unique_values_menu(self, column_index, header_pos, header_height):
+        menu = QtWidgets.QMenu(self)
+        actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro")
+        actionDeleteFilterColumn.triggered.connect(lambda: self.delete_filter(column_index))
+        menu.addAction(actionDeleteFilterColumn)
+        menu.addSeparator()
+        actionOrderAsc = menu.addAction("Ordenar Ascendente")
+        actionOrderAsc.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.AscendingOrder))
+        actionOrderDesc = menu.addAction("Ordenar Descendente")
+        actionOrderDesc.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.DescendingOrder))
+        menu.addSeparator()
+
+        menu.setStyleSheet("QMenu { color: black; }"
+                        "QMenu::item:selected { background-color: #33bdef; }"
+                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+
+        if column_index not in self.column_filters:
+            self.column_filters[column_index] = set()
+
+        scroll_menu = QtWidgets.QScrollArea()
+        scroll_menu.setWidgetResizable(True)
+        scroll_widget = QtWidgets.QWidget(scroll_menu)
+        scroll_menu.setWidget(scroll_widget)
+        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+
+        checkboxes = []
+
+        select_all_checkbox = QtWidgets.QCheckBox("Seleccionar todo")
+        if column_index in self.checkbox_states:
+            select_all_checkbox.setCheckState(QtCore.Qt.CheckState(self.checkbox_states[column_index].get("Seleccionar todo", QtCore.Qt.CheckState(2))))
+        else:
+            select_all_checkbox.setCheckState(QtCore.Qt.CheckState(2))
+        scroll_layout.addWidget(select_all_checkbox)
+        checkboxes.append(select_all_checkbox)
+
+        unique_values = self.get_unique_values(column_index)
+        filtered_values = self.get_filtered_values()
+
+        for value in sorted(unique_values):
+            checkbox = QtWidgets.QCheckBox(value)
+            if select_all_checkbox.isChecked(): 
+                checkbox.setCheckState(QtCore.Qt.CheckState(2))
             else:
-                color = QtGui.QColor(255, 255, 255)  # White for rest
+                if column_index in self.checkbox_states and value in self.checkbox_states[column_index]:
+                    checkbox.setCheckState(QtCore.Qt.CheckState(self.checkbox_states[column_index][value]))
+                elif filtered_values is None or value in filtered_values[column_index]:
+                    checkbox.setCheckState(QtCore.Qt.CheckState(2))
+                else:
+                    checkbox.setCheckState(QtCore.Qt.CheckState(0))
+            scroll_layout.addWidget(checkbox)
+            checkboxes.append(checkbox)
 
-            option.backgroundBrush = color
+        select_all_checkbox.stateChanged.connect(lambda state: self.set_all_checkboxes_state(checkboxes, state, column_index))
+
+        for value, checkbox in zip(sorted(unique_values), checkboxes[1:]):
+            checkbox.stateChanged.connect(lambda checked, value=value, checkbox=checkbox: self.apply_filter(column_index, value, checked))
+
+    # Action for drop down menu and adding scroll area as widget
+        action_scroll_menu = QtWidgets.QWidgetAction(menu)
+        action_scroll_menu.setDefaultWidget(scroll_menu)
+        menu.addAction(action_scroll_menu)
+
+        menu.exec(header_pos - QtCore.QPoint(0, header_height))
+
+# Function to delete filter on selected column
+    def delete_filter(self,column_index):
+        if column_index in self.column_filters:
+            del self.column_filters[column_index]
+        if column_index in self.checkbox_states:
+            del self.checkbox_states[column_index]
+        if column_index in self.rows_hidden:
+            for item in self.rows_hidden[column_index]:
+                self.setRowHidden(item, False)
+                if item in self.general_rows_to_hide:
+                    self.general_rows_to_hide.remove(item)
+            del self.rows_hidden[column_index]
+        header_item = self.horizontalHeaderItem(column_index)
+        header_item.setIcon(QtGui.QIcon())
+
+# Function to set all checkboxes state
+    def set_all_checkboxes_state(self, checkboxes, state, column_index):
+        if column_index not in self.checkbox_states:
+            self.checkbox_states[column_index] = {}
+
+        for checkbox in checkboxes:
+            checkbox.setCheckState(QtCore.Qt.CheckState(state))
+
+        self.checkbox_states[column_index]["Seleccionar todo"] = state
+
+# Function to apply filters to table
+    def apply_filter(self, column_index, value, checked):
+        if column_index not in self.column_filters:
+            self.column_filters[column_index] = set()
+
+        if value is None:
+            self.column_filters[column_index] = set()
+        elif checked:
+            self.column_filters[column_index].add(value)
+        elif value in self.column_filters[column_index]:
+            self.column_filters[column_index].remove(value)
+
+        rows_to_hide = set()
+        for row in range(self.rowCount()):
+            show_row = True
+            for col, filters in self.column_filters.items():
+                item = self.item(row, col)
+                if item:
+                    item_value = item.text()
+                    if filters and item_value not in filters:
+                        show_row = False
+                        break
+
+            if not show_row:
+                if row not in self.general_rows_to_hide:
+                    self.general_rows_to_hide.add(row)
+                    rows_to_hide.add(row)
+            else:
+                if row in self.general_rows_to_hide:
+                    self.general_rows_to_hide.remove(row)
+
+    # Update hidden rows for this column
+        if checked:
+            if column_index not in self.rows_hidden:
+                self.rows_hidden[column_index] = set(rows_to_hide)
+            else:
+                self.rows_hidden[column_index].update(rows_to_hide)
+
+    # Iterate over all rows to hide them as necessary
+        for row in range(self.rowCount()):
+            self.setRowHidden(row, row in self.general_rows_to_hide)
+
+        header_item = self.horizontalHeaderItem(column_index)
+        if len(self.general_rows_to_hide) > 0:
+            header_item.setIcon(QtGui.QIcon("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Filter_Active.png"))
+
+# Function to obtain the unique matching applied filters 
+    def get_unique_values(self, column_index):
+        unique_values = set()
+        for row in range(self.rowCount()):
+            show_row = True
+            for col, filters in self.column_filters.items():
+                if col != column_index:
+                    item = self.item(row, col)
+                    if item:
+                        item_value = item.text()
+                        if filters and item_value not in filters:
+                            show_row = False
+                            break
+            if show_row:
+                item = self.item(row, column_index)
+                if item:
+                    unique_values.add(item.text())
+        return unique_values
+
+# Function to get values filtered by all columns
+    def get_filtered_values(self):
+        filtered_values = {}
+        for col, filters in self.column_filters.items():
+            filtered_values[col] = filters
+        return filtered_values
+
+# Function to sort column
+    def sort_column(self, column_index, sortOrder):
+        self.sortByColumn(column_index, sortOrder)
+
+# Function with the menu configuration
+    def contextMenuEvent(self, event):
+        if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
+            logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
+            header_pos = self.mapToGlobal(self.horizontalHeader().pos())
+            header_height = self.horizontalHeader().height()
+            self.show_unique_values_menu(logical_index, header_pos, header_height)
+        else:
+            super().contextMenuEvent(event)
+
+
+    def contextMenuEvent(self, event):
+        if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
+            logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
+            header_pos = self.mapToGlobal(self.horizontalHeader().pos())
+            header_height = self.horizontalHeader().height()
+            self.show_unique_values_menu(logical_index, header_pos, header_height)
+        else:
+            super().contextMenuEvent(event)
 
 
 class Ui_App_Technical(QtWidgets.QMainWindow):
@@ -325,7 +523,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.PrincipalScreen.addItem(spacerItem4)
         self.MainLayout = QtWidgets.QVBoxLayout()
         self.MainLayout.setObjectName("MainLayout")
-        self.tableDocs = QtWidgets.QTableWidget(parent=self.frame)
+        self.tableDocs = CustomTableWidget()
         self.tableDocs.setMinimumSize(QtCore.QSize(650, 280))
         self.tableDocs.setObjectName("tableDocs")
         self.tableDocs.setColumnCount(6)
@@ -367,6 +565,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         item.setFont(font)
         self.tableDocs.setHorizontalHeaderItem(5, item)
         self.tableDocs.verticalHeader().setVisible(False)
+        self.tableDocs.setSortingEnabled(False)
         self.tableDocs.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         self.MainLayout.addWidget(self.tableDocs)
         spacerItem5 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -452,7 +651,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                     SELECT "num_doc_eipsa","num_order","doc_title","state","revision",TO_CHAR("state_date", 'DD-MM-YYYY')
                     FROM documentation
                     WHERE (
-                    "state" IS NULL OR "state" IN ('Enviado', 'Comentado')
+                    "state" IS NULL OR "state" IN ('','Enviado','Comentado')
                     )
                     ORDER BY "num_doc_eipsa"
                     """)
@@ -483,6 +682,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
             self.tableDocs.verticalHeader().hide()
             self.tableDocs.setItemDelegate(AlignDelegate(self.tableDocs))
+            self.tableDocs.setSortingEnabled(False)
 
         # close communication with the PostgreSQL database server
             cur.close()
@@ -504,6 +704,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_EditDoc.clicked.connect(self.EditDoc)
         self.Button_QueryDoc.clicked.connect(self.query_documents)
         self.Button_Profile.clicked.connect(self.showMenu)
+        self.tableDocs.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
         QtCore.QMetaObject.connectSlotsByName(App_Technical)
 
 
@@ -517,7 +718,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_ImportDoc.setText(_translate("App_Technical", "    Importar Docum."))
         self.Button_EditDoc.setText(_translate("App_Technical", "    Editar Docum."))
         self.Button_QueryDoc.setText(_translate("App_Technical", "    Consultar Docum."))
-        self.tableDocs.setSortingEnabled(True)
         item = self.tableDocs.horizontalHeaderItem(0)
         item.setText(_translate("App_Technical", "Nº Doc Eipsa"))
         item = self.tableDocs.horizontalHeaderItem(1)
@@ -598,6 +798,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                     for index, row in df.iterrows():
                     # Creating SQL sentence
                         values=[str(value) for value in row.values]
+                        values.append('')
 
                         query = "SELECT * FROM documentation WHERE num_doc_eipsa = %s"
                         cur.execute(query, (values[0],))
@@ -624,8 +825,8 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                             id_doctype = resultado[0]
                         #inserting values to BBDD
                             values[4]=str(id_doctype)
-                            values = "', '".join(values)
-                            sql_insertion = f"INSERT INTO documentation VALUES ('{values}')"
+                            values = "', '".join(['' if value=='nan' else value for value in values])
+                            sql_insertion = f"INSERT INTO documentation (num_doc_eipsa,num_doc_client,num_order,doc_title,doc_type_id,critical,state) VALUES ('{values}')"
                         # Executing SQL sentence
                             cur.execute(sql_insertion)
 
@@ -731,6 +932,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
             self.tableDocs.verticalHeader().hide()
             self.tableDocs.setItemDelegate(AlignDelegate(self.tableDocs))
+            self.tableDocs.setSortingEnabled(False)
 
         # close communication with the PostgreSQL database server
             cur.close()
@@ -742,6 +944,13 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
+
+#Function when clicking on table header
+    def on_header_section_clicked(self, logical_index):
+        header_pos = self.tableDocs.horizontalHeader().sectionViewportPosition(logical_index)
+        header_height = self.tableDocs.horizontalHeader().height()
+        popup_pos = self.tableDocs.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
+        self.tableDocs.show_unique_values_menu(logical_index, popup_pos, header_height)
 
 if __name__ == "__main__":
     import sys

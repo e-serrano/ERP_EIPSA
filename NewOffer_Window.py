@@ -19,8 +19,8 @@ class Ui_New_Offer_Window(object):
     def setupUi(self, New_Offer):
         New_Offer.setObjectName("New_Offer")
         New_Offer.resize(670, 425)
-        New_Offer.setMinimumSize(QtCore.QSize(670, 425))
-        New_Offer.setMaximumSize(QtCore.QSize(670, 425))
+        New_Offer.setMinimumSize(QtCore.QSize(690, 500))
+        New_Offer.setMaximumSize(QtCore.QSize(690, 500))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         New_Offer.setWindowIcon(icon)
@@ -365,10 +365,33 @@ class Ui_New_Offer_Window(object):
         self.vLayout4.addItem(spacerItem19)
         self.hLayout.addLayout(self.vLayout4)
         self.verticalLayout.addLayout(self.hLayout)
-        spacerItem21 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.verticalLayout.addItem(spacerItem21)
+        spacerItem26 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.verticalLayout.addItem(spacerItem26)
         self.hLayout1 = QtWidgets.QHBoxLayout()
         self.hLayout1.setObjectName("hLayout1")
+        self.label_Mails = QtWidgets.QLabel(parent=self.frame)
+        self.label_Mails.setMinimumSize(QtCore.QSize(130, 25))
+        self.label_Mails.setMaximumSize(QtCore.QSize(130, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Mails.setFont(font)
+        self.label_Mails.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
+        self.label_Mails.setObjectName("label_Mails")
+        self.hLayout1.addWidget(self.label_Mails)
+        self.Mails_NewOffer = QtWidgets.QTextEdit(parent=self.frame)
+        self.Mails_NewOffer.setMinimumSize(QtCore.QSize(175, 50))
+        self.Mails_NewOffer.setMaximumSize(QtCore.QSize(16777215, 50))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Mails_NewOffer.setFont(font)
+        self.Mails_NewOffer.setObjectName("Mails_NewOffer")
+        self.hLayout1.addWidget(self.Mails_NewOffer)
+        self.verticalLayout.addLayout(self.hLayout1)
+        spacerItem21 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.verticalLayout.addItem(spacerItem21)
+        self.hLayout2 = QtWidgets.QHBoxLayout()
+        self.hLayout2.setObjectName("hLayout2")
         self.Button_NewOffer = QtWidgets.QPushButton(parent=self.frame)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
         sizePolicy.setHorizontalStretch(0)
@@ -380,7 +403,7 @@ class Ui_New_Offer_Window(object):
         self.Button_NewOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_NewOffer.setAutoDefault(True)
         self.Button_NewOffer.setObjectName("Button_NewOffer")
-        self.hLayout1.addWidget(self.Button_NewOffer)
+        self.hLayout2.addWidget(self.Button_NewOffer)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
         sizePolicy.setHorizontalStretch(0)
@@ -392,8 +415,8 @@ class Ui_New_Offer_Window(object):
         self.Button_Cancel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Cancel.setAutoDefault(True)
         self.Button_Cancel.setObjectName("Button_Cancel")
-        self.hLayout1.addWidget(self.Button_Cancel)
-        self.verticalLayout.addLayout(self.hLayout1)
+        self.hLayout2.addWidget(self.Button_Cancel)
+        self.verticalLayout.addLayout(self.hLayout2)
         self.label_error_newoffer = QtWidgets.QLabel(parent=self.frame)
         self.label_error_newoffer.setStyleSheet("color: rgb(255, 0, 0);")
         font = QtGui.QFont()
@@ -466,6 +489,7 @@ class Ui_New_Offer_Window(object):
         self.label_Notes.setText(_translate("New_Offer", "Notas:"))
         self.label_Important.setText(_translate("New_Offer", "Importante:"))
         self.label_RateType.setText(_translate("New_Offer", "*Tipo Tarifa:"))
+        self.label_Mails.setText(_translate("New_Offer", "*Mails Contacto:"))
         self.Button_NewOffer.setText(_translate("New_Offer", "Crear Oferta"))
         self.Button_Cancel.setText(_translate("New_Offer", "Cancelar"))
         self.label_error_newoffer.setText(_translate("New_Offer", ""))
@@ -491,8 +515,9 @@ class Ui_New_Offer_Window(object):
             responsible=self.name[0] + self.name[self.name.find(' ')+1]
         actual_date=date.today()
         actual_date=actual_date.strftime("%d/%m/%Y")
+        mails=self.Mails_NewOffer.toPlainText()
 
-        if numoffer=="" or (client=="" or (numref=="" or (recepdate=="" or (limitdate=="" or ratetype=="")))):
+        if numoffer=="" or (client=="" or (numref=="" or (recepdate=="" or (limitdate=="" or (mails=="" or ratetype==""))))):
             self.label_error_newoffer.setText('Rellene todos los campos con *')
 
         else:
@@ -538,9 +563,11 @@ class Ui_New_Offer_Window(object):
             else:
                 commands_newoffer = ("""
                             INSERT INTO offers (
-                            "num_offer","state","responsible","client","final_client","num_ref_offer","register_date","nac_ext","buyer","material","notes","limit_date","rate_type","important","recep_date"
+                            "num_offer","state","responsible","client","final_client",
+                            "num_ref_offer","register_date","nac_ext","buyer","material",
+                            "notes","limit_date","rate_type","important","recep_date","mails"
                             )
-                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                             """)
                 conn = None
                 try:
@@ -550,7 +577,7 @@ class Ui_New_Offer_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    data=(numoffer, state, responsible, client, finalclient, numref, actual_date, nacext, buyer, material, notes, limitdate, ratetype, important, recepdate)
+                    data=(numoffer, state, responsible, client, finalclient, numref, actual_date, nacext, buyer, material, notes, limitdate, ratetype, important, recepdate, mails)
                     cur.execute(commands_newoffer, data)
                 # close communication with the PostgreSQL database server
                     cur.close()
@@ -574,6 +601,8 @@ class Ui_New_Offer_Window(object):
                     self.Notes_NewOffer.setText('')
                     self.LimitDate_NewOffer.setText('')
                     self.RateType_NewOffer.setText('')
+                    self.Important_NewOffer.setText('')
+                    self.Mails_NewOffer.setText('')
 
                     del dlg,new_icon
 

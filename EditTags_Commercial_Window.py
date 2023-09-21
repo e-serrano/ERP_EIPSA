@@ -463,7 +463,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.Numoffer_EditTags.returnPressed.connect(self.query_tags)
         self.Numorder_EditTags.returnPressed.connect(self.query_tags)
         self.model.dataChanged.connect(self.saveChanges)
-
+        self.createContextMenu()
 
         commands_comboboxes_flow = [
             "SELECT item_type FROM validation_data.flow_item_type",
@@ -564,12 +564,16 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         columns_number=self.model.columnCount()
         for index in range(columns_number):
             if index in self.proxy.filters:
-                self.proxy.setFilter("", index)
+                del self.proxy.filters[index]
             self.model.setIconColumnHeader(index, '')
 
         self.checkbox_states = {}
         self.dict_valuesuniques = {}
         self.dict_ordersort = {}
+
+        self.proxy.invalidateFilter()
+        self.tableEditTags.setModel(None)
+        self.tableEditTags.setModel(self.proxy)
 
         # Getting the unique values for each column of the model
         for column in range(self.model.columnCount()):
@@ -891,7 +895,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 for i in range(47,columns_number):
                     self.tableEditTags.hideColumn(i)
 
-            self.tableEditTags.verticalHeader().hide()
+            # self.tableEditTags.verticalHeader().hide()
             self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
             self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -899,7 +903,9 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             self.tableEditTags.setObjectName("tableEditTags")
             self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
             self.tableEditTags.setSortingEnabled(False)
-            self.tableEditTags.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked)
+            self.tableEditTags.horizontalHeader().sectionDoubleClicked.connect(self.on_view_horizontalHeader_sectionClicked)
+            self.tableEditTags.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+            self.tableEditTags.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
         # Change all column names
             headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
@@ -986,10 +992,10 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                         self.proxy.filters[self.logicalIndex] = []
                     self.proxy.filters[self.logicalIndex].append(str(value))
 
-        actionHideColumn = QtGui.QAction("Ocultar Columna", self.tableEditTags)
-        actionHideColumn.triggered.connect(self.hide_column)
-        self.menuValues.addAction(actionHideColumn)
-        self.menuValues.addSeparator()
+        # actionHideColumn = QtGui.QAction("Ocultar Columna", self.tableEditTags)
+        # actionHideColumn.triggered.connect(self.hide_column)
+        # self.menuValues.addAction(actionHideColumn)
+        # self.menuValues.addSeparator()
 
         actionSortAscending = QtGui.QAction("Ordenar Ascendente", self.tableEditTags)
         actionSortAscending.triggered.connect(self.on_actionSortAscending_triggered)
@@ -1156,22 +1162,14 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex  # Supongo que esta variable contiene el índice de la columna a ocultar
         self.tableEditTags.setColumnHidden(filterColumn, True)
         self.hiddencolumns.append(filterColumn)
-        # header_view = self.tableEditTags.horizontalHeader()
-        # model = header_view.model()
-        # header_item = model.headerData(filterColumn, Qt.Orientation.Horizontal)
-        # if header_item is not None:
-        #     header_text = header_item
-        #     print(f"Texto del encabezado de la columna {filterColumn}: {header_text}")
-        # else:
-        #     print(f"No se encontró encabezado para la columna {filterColumn}")
 
 # Function to show all hidden columns
     def show_columns(self):
         for column in self.hiddencolumns:
             self.tableEditTags.setColumnHidden(column, False)
-            self.hiddencolumns.remove(column)
+        self.hiddencolumns.clear()
 
-
+# Function to enable copy and paste cells
     def keyPressEvent(self, event):
         if event.matches(QKeySequence.StandardKey.Copy):
             if self.tableEditTags.selectionModel() != None:
@@ -1203,6 +1201,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 
         super().keyPressEvent(event)
 
+# Function to get the text of the selected cells
     def get_selected_text(self, indexes):
         if len(indexes) == 1:  # Si solo hay una celda seleccionada
             index = indexes[0]
@@ -1227,7 +1226,8 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 cursor.insertText('\n')  # Salto de línea al final de la fila
 
             return text_doc.toPlainText()
-        
+
+# Function to count selected cells and sum its values
     def countSelectedCells(self):
         if len(self.tableEditTags.selectedIndexes()) > 1:
             locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
@@ -1236,7 +1236,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             self.label_CountItems.setText("")
             self.label_CountValue.setText("")
 
-            sum_value = sum([self.euro_string_to_float(ix.data()) if re.match(r'^[\d.,]+\s€$', ix.data()) else float(ix.data().replace(',', '.')) if ix.data().replace(',', '.').replace('.', '', 1).isdigit() else 0 for ix in self.tableEditTags.selectedIndexes()])
+            sum_value = sum([self.euro_string_to_float(str(ix.data())) if re.match(r'^[\d.,]+\sÇ$', str(ix.data())) else float(str(ix.data()).replace(',', '.')) if str(ix.data()).replace(',', '.').replace('.', '', 1).isdigit() else 0 for ix in self.tableEditTags.selectedIndexes()])
             count_value = len([ix for ix in self.tableEditTags.selectedIndexes() if ix.data() != ""])
             if sum_value > 0:
                 self.label_SumItems.setText("Suma:")
@@ -1249,7 +1249,8 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             self.label_SumValue.setText("")
             self.label_CountItems.setText("")
             self.label_CountValue.setText("")
-    
+
+# Function to format money string values
     def euro_string_to_float(self, euro_str):
         match = re.match(r'^([\d.,]+)\s€$', euro_str)
         if match:
@@ -1258,6 +1259,31 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             return float(number_str)
         else:
             return 0.0
+
+
+
+    def createContextMenu(self):
+        self.context_menu = QtWidgets.QMenu(self)
+        hide_columns_action = self.context_menu.addAction("Ocultar Columnas")
+        hide_columns_action.triggered.connect(self.hideSelectedColumns)
+
+    def showColumnContextMenu(self, pos):
+        header = self.tableEditTags.horizontalHeader()
+        column = header.logicalIndexAt(pos)
+        self.context_menu.exec(self.tableEditTags.mapToGlobal(pos))
+
+    def hideSelectedColumns(self):
+        selected_columns = set()
+        header = self.tableEditTags.horizontalHeader()
+        for index in header.selectionModel().selectedColumns():
+            selected_columns.add(index.column())
+
+        for column in selected_columns:
+            self.tableEditTags.setColumnHidden(column, True)
+            self.hiddencolumns.append(column)
+
+        self.context_menu.close()
+
 
 if __name__ == "__main__":
     import sys

@@ -251,10 +251,11 @@ class Ui_ImportTableNew_Window(object):
             columns_datatypes = list(df_raw.columns)
             columns_names = list(df_table.columns)
 
-            columns_datatypes[0] = "character varying NOT NULL"
+            columns_datatypes[0] = "integer NOT NULL"
             columns_datatypes[1] = "character varying"
+            columns_datatypes[2] = "character varying"
 
-            table_name="validation_data." + table_name
+            table_name="fabrication." + table_name
             
         # Creating list of pairs (name, dataype) for each column
             columns_definition = [f"{name} {datatype}" for name, datatype in zip(columns_names, columns_datatypes)]
@@ -272,7 +273,7 @@ class Ui_ImportTableNew_Window(object):
                 columns = ', '.join([column for column, _ in columns_values])
 
             # Creating string for columns values
-                values = ', '.join([f"'{value.replace('.', ',')}'" if column in ['sheat_stem_diam','root_diam','tip_diam'] else ('NULL' if value == '' and column in ['amount'] else f"'{value}'") for column, value in columns_values])
+                values = ', '.join(['NULL' if value == '' and column in ['gmin_3_4'] else f"'{value}'" for column, value in columns_values])
 
             # Creating insertion query and executing it
                 sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"

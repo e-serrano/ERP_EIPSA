@@ -35,6 +35,7 @@ from QueryTask_Window import Ui_QueryTask_Window
 from EditUser_Menu import Ui_EditUser_Menu
 from EditPassword_Window import Ui_EditPasswordWindow
 from ClientResume_Window import Ui_ClientResume_Window
+from Email_Styles import email_offer
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -285,6 +286,42 @@ class Ui_App_Comercial(object):
         self.Button_QueryTask.setObjectName("Button_QueryTask")
         self.Button_QueryTask.setToolTip("Tareas")
         self.Header.addWidget(self.Button_QueryTask)
+        spacerItem14 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem14)
+        self.Button_RecOffer = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_RecOffer.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_RecOffer.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_RecOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_RecOffer.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
+        self.Button_RecOffer.setText("")
+        icon16 = QtGui.QIcon()
+        icon16.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Reclamation.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_RecOffer.setIcon(icon16)
+        self.Button_RecOffer.setIconSize(QtCore.QSize(40, 40))
+        self.Button_RecOffer.setObjectName("Button_RecOffer")
+        self.Button_RecOffer.setToolTip("Reclamar Ofertas")
+        self.Header.addWidget(self.Button_RecOffer)
         spacerItem12 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem12)
 
@@ -832,6 +869,7 @@ class Ui_App_Comercial(object):
         self.Button_Graphs.clicked.connect(self.graphs)
         self.Button_ClientsResume.clicked.connect(self.clients_generalresume)
         self.Button_QueryTask.clicked.connect(self.querytask)
+        self.Button_RecOffer.clicked.connect(self.reclamation_offer)
         self.Button_Profile.clicked.connect(self.showMenu)
         self.tableOffer.itemDoubleClicked.connect(self.on_item_double_clicked)
         self.Calendar.activated.connect(self.show_selected_date_tasks)
@@ -1381,6 +1419,138 @@ class Ui_App_Comercial(object):
         self.ui=Ui_ClientResume_Window(clientname)
         self.ui.setupUi(self.client_resume_window)
         self.client_resume_window.show()
+
+
+    def reclamation_offer(self):
+        dlg = QtWidgets.QMessageBox()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle("Reclamación oferta")
+        dlg.setText("Función no disponible")
+        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        dlg.exec()
+        del dlg, new_icon
+
+        # commands_queryoffer = ("""
+        #                 SELECT offers."num_offer",offers."responsible",offers."state",offers."num_ref_offer",
+        #                 offers."presentation_date",offers."rec_auto",offers."last_rec",offers."mails"
+        #                 FROM offers
+        #                 WHERE (offers."responsible" = %s
+        #                 AND
+        #                 offers."state" = 'Presentada'
+        #                 )
+        #                 ORDER BY offers."num_offer"
+        #                 """)
+        # conn = None
+        # if self.name == 'Carlos Crespo':
+        #     responsible=self.name[0] + self.name[self.name.find(' ')+1] + 'H'
+        # else:
+        #     responsible=self.name[0] + self.name[self.name.find(' ')+1]
+        # try:
+        # # read the connection parameters
+        #     params = config()
+        # # connect to the PostgreSQL server
+        #     conn = psycopg2.connect(**params)
+        #     cur = conn.cursor()
+        # # execution of commands
+        #     data=(responsible,)
+        #     cur.execute(commands_queryoffer,data)
+        #     results=cur.fetchall()
+        # # close communication with the PostgreSQL database server
+        #     cur.close()
+        # # commit the changes
+        #     conn.commit()
+        # except (Exception, psycopg2.DatabaseError) as error:
+        #     print(error)
+        # finally:
+        #     if conn is not None:
+        #         conn.close()
+
+        # for item in results:
+        #     print(item)
+        #     if item[2] == 'Presentada' and item[5] == 'Reclamar':
+        #         if item[6] is None and (item[4] + timedelta(6)) < date.today():
+        #             mail=email_offer(item[7],item[0])
+        #             mail.send_email()
+
+        #             commands_updateoffer = ("""
+        #                         UPDATE offers
+        #                         SET "last_rec" = %s
+        #                         WHERE "num_offer" = %s
+        #                         """)
+        #             conn = None
+        #             try:
+        #             # read the connection parameters
+        #                 params = config()
+        #             # connect to the PostgreSQL server
+        #                 conn = psycopg2.connect(**params)
+        #                 cur = conn.cursor()
+        #             # execution of commands
+        #                 data=(date.today().strftime("%d/%m/%Y"),item[0],)
+        #                 cur.execute(commands_updateoffer,data)
+        #             # close communication with the PostgreSQL database server
+        #                 cur.close()
+        #             # commit the changes
+        #                 conn.commit()
+
+        #                 dlg = QtWidgets.QMessageBox()
+        #                 new_icon = QtGui.QIcon()
+        #                 new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        #                 dlg.setWindowIcon(new_icon)
+        #                 dlg.setWindowTitle("Reclamación oferta")
+        #                 dlg.setText("Correos enviados con éxito")
+        #                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+        #                 dlg.exec()
+        #                 del dlg, new_icon
+
+        #             except (Exception, psycopg2.DatabaseError) as error:
+        #                 print(error)
+        #             finally:
+        #                 if conn is not None:
+        #                     conn.close()
+        #         else:
+        #             if item[6] is not None and (item[6] + timedelta(2)) < date.today():
+        #                 mail=email_offer(item[7],item[0])
+        #                 mail.send_email()
+
+        #                 commands_updateoffer = ("""
+        #                         UPDATE offers
+        #                         SET "last_rec" = %s
+        #                         WHERE "num_offer" = %s
+        #                         """)
+        #                 conn = None
+        #                 try:
+        #                 # read the connection parameters
+        #                     params = config()
+        #                 # connect to the PostgreSQL server
+        #                     conn = psycopg2.connect(**params)
+        #                     cur = conn.cursor()
+        #                 # execution of commands
+        #                     data=(date.today().strftime("%d/%m/%Y"),item[0],)
+        #                     cur.execute(commands_updateoffer,data)
+        #                 # close communication with the PostgreSQL database server
+        #                     cur.close()
+        #                 # commit the changes
+        #                     conn.commit()
+
+        #                     dlg = QtWidgets.QMessageBox()
+        #                     new_icon = QtGui.QIcon()
+        #                     new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        #                     dlg.setWindowIcon(new_icon)
+        #                     dlg.setWindowTitle("Reclamación oferta")
+        #                     dlg.setText("Correos enviados con éxito")
+        #                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+        #                     dlg.exec()
+        #                     del dlg, new_icon
+
+        #                 except (Exception, psycopg2.DatabaseError) as error:
+        #                     print(error)
+        #                 finally:
+        #                     if conn is not None:
+        #                         conn.close()
+        #             else:
+        #                 pass
 
 
 if __name__ == "__main__":

@@ -493,6 +493,7 @@ class Ui_QueryOrder_Window(object):
                 data=(numorder,numoffer,ref,client,finalclient,eqtype,amount,)
                 cur.execute(commands_queryorder, data)
                 results=cur.fetchall()
+                self.tableQueryOrder.setRowCount(0)
                 self.tableQueryOrder.setRowCount(len(results))
                 tablerow=0
 

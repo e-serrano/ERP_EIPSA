@@ -57,6 +57,20 @@ class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
     def setModelData(self, editor, model, index):
         model.setData(index, editor.currentText(), Qt.ItemDataRole.EditRole)
 
+    def paint(self, painter, option, index):
+        text = index.data(Qt.ItemDataRole.DisplayRole)
+
+        if text in ["Eliminado", "Rechazado"]:
+            background_color = QtGui.QColor(255, 0, 0)  # Red
+        elif text == "Aprobado":
+            background_color = QtGui.QColor(0, 176, 80)  # Green
+        else:
+            background_color = QtGui.QColor(255, 255, 255)  # White
+
+        painter.fillRect(option.rect, background_color)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+        super().paint(painter, option, index)
+
 
 class CustomProxyModel(QtCore.QSortFilterProxyModel):
     def __init__(self, parent=None):
@@ -69,22 +83,23 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
         return self._filters
 
     def setFilter(self, expresion, column, action_name=None):
-        if expresion:
+        if expresion or expresion == '':
             if column in self.filters:
-                if action_name:
+                if action_name or action_name == '':
                     self.filters[column].remove(expresion)
                 else:
                     self.filters[column].append(expresion)
             else:
                 self.filters[column] = [expresion]
         elif column in self.filters:
-            if action_name:
+            if action_name or action_name == '':
                 self.filters[column].remove(expresion)
                 if not self.filters[column]:
                     del self.filters[column]
             else:
                 del self.filters[column]
         self.invalidateFilter()
+
 
     def filterAcceptsRow(self, source_row, source_parent):
         for column, expresions in self.filters.items():
@@ -94,13 +109,21 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                 text = text.toString("yyyy-MM-dd")
 
             for expresion in expresions:
-                if re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
+                if expresion == '':  # Si la expresión es vacía, coincidir con celdas vacías
+                    if text == '':
+                        break
+
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
+                    regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    if regex.match(str(text)).hasMatch():
+                        break
 
-                regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
-                if regex.match(str(text)).hasMatch():
-                    break
+                else:
+                    regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    if regex.match(str(text)).hasMatch():
+                        break
             else:
                 return False
         return True
@@ -120,7 +143,6 @@ class EditableTableModel(QtSql.QSqlTableModel):
     def setIndividualColumnHeader(self, column, header):
         self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
 
-    
     def setIconColumnHeader(self, column, icon):
         self.setHeaderData(column, QtCore.Qt.Orientation.Horizontal, icon, Qt.ItemDataRole.DecorationRole)
 
@@ -282,19 +304,32 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
     def delete_allFilters(self):
         columns_number=self.model.columnCount()
         for index in range(columns_number):
-            self.proxy.setFilter("", index)
+            if index in self.proxy.filters:
+                del self.proxy.filters[index]
             self.model.setIconColumnHeader(index, '')
 
-        self.checkbox_states.clear()
+        self.checkbox_states = {}
+        self.dict_valuesuniques = {}
+        self.dict_ordersort = {}
+
+        self.proxy.invalidateFilter()
+        self.tableEditDocs.setModel(None)
+        self.tableEditDocs.setModel(self.proxy)
+
+        # Getting the unique values for each column of the model
         for column in range(self.model.columnCount()):
+            list_valuesUnique = []
             if column not in self.checkbox_states:
                 self.checkbox_states[column] = {}
-            self.checkbox_states[column]['Seleccionar todo'] = True
-            for row in range(self.model.rowCount()):
-                value = self.model.record(row).value(column)
-                if isinstance(value, QtCore.QDate):
-                    value=value.toString("dd/MM/yyyy")
-                self.checkbox_states[column][value] = True
+                self.checkbox_states[column]['Seleccionar todo'] = True
+                for row in range(self.model.rowCount()):
+                    value = self.model.record(row).value(column)
+                    if value not in list_valuesUnique:
+                        if isinstance(value, QtCore.QDate):
+                            value=value.toString("dd/MM/yyyy")
+                        list_valuesUnique.append(str(value))
+                        self.checkbox_states[column][value] = True
+                self.dict_valuesuniques[column] = list_valuesUnique
 
 
     def saveChanges(self):
@@ -367,7 +402,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
     def query_documents(self):
         self.model.dataChanged.disconnect(self.saveChanges)
         self.model.setTable("documentation")
-        self.model.setFilter(f"state IS NULL OR state IN ('Enviado', 'Comentado')")
+        # self.model.setFilter(f"state IS NULL OR state IN ('Enviado', 'Comentado')")
         self.model.select()
 
         column_names = ["doc_type_id"] # Ocultar columna según nombre
@@ -379,9 +414,11 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.proxy.setSourceModel(self.model)
         self.tableEditDocs.setModel(self.proxy)
 
-        self.tableEditDocs.verticalHeader().hide()
+        # self.tableEditDocs.verticalHeader().hide()
         self.tableEditDocs.setItemDelegate(AlignDelegate(self.tableEditDocs))
-        self.tableEditDocs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableEditDocs.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
         self.tableEditDocs.setObjectName("tableEditDocs")
         self.gridLayout_2.addWidget(self.tableEditDocs, 3, 0, 1, 1)
@@ -533,12 +570,17 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
 
     def on_actionDeleteFilterColumn_triggered(self):
         filterColumn = self.logicalIndex
-        self.proxy.setFilter("", filterColumn)
+        if filterColumn in self.proxy.filters:
+                del self.proxy.filters[filterColumn]
         self.model.setIconColumnHeader(filterColumn, '')
+        self.proxy.invalidateFilter()
+
+        self.tableEditDocs.setModel(None)  # Eliminar el modelo actual de la vista
+        self.tableEditDocs.setModel(self.proxy)
 
         self.checkbox_states[self.logicalIndex].clear()
         self.checkbox_states[self.logicalIndex]['Seleccionar todo'] = True
-        for row in range(self.tableEditTags.model().rowCount()):
+        for row in range(self.tableEditDocs.model().rowCount()):
             value = self.model.record(row).value(filterColumn)
             if isinstance(value, QtCore.QDate):
                     value=value.toString("dd/MM/yyyy")
@@ -583,8 +625,12 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
                 stringAction=stringAction.toString("yyyy-MM-dd")
 
             filterString = QtCore.QRegularExpression(stringAction, QtCore.QRegularExpression.PatternOption(0))
+            del self.proxy.filters[filterColumn]
+            self.proxy.setFilter(stringAction, filterColumn)
 
-            self.proxy.setFilter(filterString, filterColumn)
+            imagen_path = "//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Filter_Active.png"
+            icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
+            self.model.setIconColumnHeader(filterColumn, icono)
 
 
     def keyPressEvent(self, event):

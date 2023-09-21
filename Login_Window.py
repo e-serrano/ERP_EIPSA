@@ -333,7 +333,7 @@ class Ui_Login_Window(object):
                     conn.close()
 
         # checking if username is correct
-            if login_username!=match[0][3]:
+            if len(match) == 0:
                 self.label_error_login.setText('Usuario incorrecto. Inténtalo de nuevo')
 
         # checking if password is correct
