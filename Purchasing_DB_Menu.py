@@ -9,6 +9,9 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from Suppliers_Window import Ui_Suppliers_Window
 from Clients_Window import Ui_Clients_Window
+import os
+
+basedir = os.path.dirname(__file__)
 
 
 class Ui_Purchasing_DB_Menu(object):
@@ -18,7 +21,7 @@ class Ui_Purchasing_DB_Menu(object):
         Purchasing_DB_Menu.setMinimumSize(QtCore.QSize(int(300//1.5), int(340//1.5)))
         Purchasing_DB_Menu.setMaximumSize(QtCore.QSize(int(300//1.5), int(340//1.5)))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Purchasing_DB_Menu.setWindowIcon(icon)
         Purchasing_DB_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico</iconset>
+    <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/icon.ico</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/icon.ico</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget {
@@ -929,7 +929,7 @@ QPushButton:pressed {
          </property>
          <property name="icon">
           <iconset>
-           <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Check.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Check.png</iconset>
+           <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Check.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Check.png</iconset>
          </property>
         </widget>
        </item>
@@ -1463,7 +1463,7 @@ QPushButton:pressed {
          </property>
          <property name="icon">
           <iconset>
-           <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Check.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Check.png</iconset>
+           <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Check.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Check.png</iconset>
          </property>
         </widget>
        </item>
@@ -1654,7 +1654,7 @@ QPushButton:pressed {
          </property>
          <property name="icon">
           <iconset>
-           <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Check.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Check.png</iconset>
+           <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Check.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Check.png</iconset>
          </property>
         </widget>
        </item>

@@ -10,6 +10,9 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
 import datetime
+import os
+
+basedir = os.path.dirname(__file__)
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -36,7 +39,7 @@ class Ui_QueryDoc_Window(object):
         QueryDoc_Window.resize(845, 654)
         QueryDoc_Window.setMinimumSize(QtCore.QSize(1500, 790))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         QueryDoc_Window.setWindowIcon(icon)
         QueryDoc_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -501,7 +504,7 @@ class Ui_QueryDoc_Window(object):
         and (state=="" or state==" ") and (critical=="" or critical==" ")):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Consultar Documentación")
             dlg.setText("Introduce un filtro en alguno de los campos")
@@ -590,7 +593,7 @@ class Ui_QueryDoc_Window(object):
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Documentación")
             dlg.setText(cell_content)

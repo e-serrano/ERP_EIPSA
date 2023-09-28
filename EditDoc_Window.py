@@ -15,6 +15,9 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtSql import QSqlQuery
 from PyQt6.QtGui import QKeySequence, QClipboard, QTextDocument, QTextCursor
 from PyQt6.QtWidgets import QApplication
+import os
+
+basedir = os.path.dirname(__file__)
 
 
 def imagen_to_base64(imagen):
@@ -155,64 +158,6 @@ class EditableTableModel(QtSql.QSqlTableModel):
         flags = super().flags(index)
         return flags | QtCore.Qt.ItemFlag.ItemIsEditable
 
-    # def setOriginalData(self, index, value, role=Qt.ItemDataRole.EditRole):
-    #     if index.isValid() and role == Qt.ItemDataRole.EditRole:
-    #         column = index.column()
-    #         if column not in self.originalData:
-    #             self.originalData[column] = self.data(index) # Saving the original data before edition
-    #     return super().setData(index, value, role)
-
-    # def getOriginalValue(self, index):
-    #     row = index.row()
-    #     column = index.column()
-    #     return self.originalData.get(column)
-
-    # def setChanges(self, index, value, role=Qt.ItemDataRole.EditRole):
-    #     if role == Qt.ItemDataRole.EditRole:
-    #         column = index.column()
-    #         self.modifiedCells.append((index.row(), column, value))  # Saving changes in list
-    #     return super().setChanges(index, value, role)
-
-    # def update_record(self, record, index):
-    #     query = QSqlQuery(self.database())
-    #     primary_key = self.primaryKey()
-    #     id_column = primary_key.fieldName(0)
-
-    #     column_index = index.column() # Obtaining modified column index from modified cell index
-    #     column_name = self.record().fieldName(column_index) # Obtaining modified column name
-    #     new_value = index.data(Qt.ItemDataRole.EditRole) #Obtaining new value
-    #     old_value = self.originalData.get(column_index, "") # Obtaining old value
-
-    #     # Verify if values are NULL
-    #     if new_value is None:
-    #         new_value = ""
-    #     if old_value is None:
-    #         old_value = ""
-
-    #     query.prepare(f"UPDATE {self.tableName()} SET {column_name} = :newValue WHERE {id_column} = :id")
-    #     query.bindValue(":newValue", new_value)
-    #     query.bindValue(":id", record.value(id_column))
-
-    #     query.exec()
-    #     query_text = query.executedQuery()
-    #     # print("SQL Query:", query_text)
-
-    #     if query.lastError().isValid():
-    #         dlg = QtWidgets.QMessageBox()
-    #         new_icon = QtGui.QIcon()
-    #         new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-    #         dlg.setWindowIcon(new_icon)
-    #         dlg.setWindowTitle("Editar Documentos")
-    #         dlg.setText("Ha habido un error al actualizar los datos. No serán guardados")
-    #         dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-    #         dlg.exec()
-
-    #         print("Error en la consulta:", query.lastError().nativeErrorCode())
-    #         print("Mensaje de error:", query.lastError().text())
-    #         return None
-    #     else:
-    #         return query_text
-
 
 class Ui_EditDoc_Window(QtWidgets.QMainWindow):
     def __init__(self):
@@ -230,7 +175,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         EditDocs_Window.resize(790, 595)
         EditDocs_Window.setMinimumSize(QtCore.QSize(900, 595))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditDocs_Window.setWindowIcon(icon)
         EditDocs_Window.setStyleSheet(
 ".QFrame {\n"
@@ -250,29 +195,17 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.hcab=QtWidgets.QHBoxLayout()
         self.hcab.setObjectName("hcab")
-        # self.toolSave = QtWidgets.QToolButton(self.frame)
-        # self.toolSave.setObjectName("Save_Button")
-        # self.hcab.addWidget(self.toolSave)
-        # icon = QtGui.QIcon()
-        # icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Save.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        # self.toolSave.setIcon(icon)
-        # self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        # self.hcab.addItem(self.hcabspacer1)
         self.toolDeleteFilter = QtWidgets.QToolButton(self.frame)
         self.toolDeleteFilter.setObjectName("Save_Button")
         self.hcab.addWidget(self.toolDeleteFilter)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Filter_Delete.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolDeleteFilter.setIcon(icon)
         self.hcabspacer2=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer2)
         self.gridLayout_2.addLayout(self.hcab, 0, 0, 1, 1)
         self.tableEditDocs=QtWidgets.QTableView(parent=self.frame)
         self.model = EditableTableModel()
-        # self.model.setEditStrategy(QtSql.QSqlTableModel.EditStrategy.OnManualSubmit)
-        # self.model.select()
-        # self.proxy.setSourceModel(self.model)
-        # self.tableEditDocs.setModel(self.proxy)
         self.tableEditDocs.setObjectName("tableEditDocs")
         self.gridLayout_2.addWidget(self.tableEditDocs, 3, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -291,7 +224,6 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(EditDocs_Window)
         self.model.dataChanged.connect(self.saveChanges)
         self.query_documents()
-        # self.toolSave.clicked.connect(self.savechanges)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
 
 
@@ -346,57 +278,6 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
                     if value not in self.checkbox_states[column]:
                         self.checkbox_states[column][value] = True
             self.dict_valuesuniques[column] = list_valuesUnique
-        # columns_number=self.model.columnCount()
-        # if self.model.database().isOpen():
-        #     self.model.database().transaction()
-        #     success = True
-
-        #     for index in range(columns_number):
-        #         self.proxy.setFilter("", index)
-        #         self.model.setIconColumnHeader(index, '')
-
-        #     for row in range(self.model.rowCount()):
-        #         for column in range(self.model.columnCount()):
-        #             index = self.model.index(row, column)
-        #             current_value = index.data(Qt.ItemDataRole.DisplayRole)
-        #             original_value = self.model.getOriginalValue(index)
-        #             if current_value != original_value:
-        #                 record = self.model.record(row)
-        #                 query = self.model.update_record(record, index)
-        #                 if not query:
-        #                     success = False
-        #                     break
-
-        #     if success:
-        #         self.model.database().commit()
-        #         dlg = QtWidgets.QMessageBox()
-        #         new_icon = QtGui.QIcon()
-        #         new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        #         dlg.setWindowIcon(new_icon)
-        #         dlg.setWindowTitle("Editar Documentos")
-        #         dlg.setText("Datos guardados con éxito")
-        #         dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-        #         dlg.exec()
-        #     else:
-        #         self.model.database().rollback()
-        #         dlg = QtWidgets.QMessageBox()
-        #         new_icon = QtGui.QIcon()
-        #         new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        #         dlg.setWindowIcon(new_icon)
-        #         dlg.setWindowTitle("Editar Documentos")
-        #         dlg.setText("Ha habido un problema al guardar los datos")
-        #         dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-        #         dlg.exec()
-
-        # else:
-        #     dlg = QtWidgets.QMessageBox()
-        #     new_icon = QtGui.QIcon()
-        #     new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        #     dlg.setWindowIcon(new_icon)
-        #     dlg.setWindowTitle("Editar Documentos")
-        #     dlg.setText("No ha sido posible conectar con la base de datos. Contacte con su administrador")
-        #     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        #     dlg.exec()
 
 
     def query_documents(self):
@@ -405,7 +286,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         # self.model.setFilter(f"state IS NULL OR state IN ('Enviado', 'Comentado')")
         self.model.select()
 
-        column_names = ["doc_type_id"] # Ocultar columna según nombre
+        column_names = ["doc_type_id"] # Hidding column by name
         for column_index in range(self.model.columnCount(),-1,-1):
             column_name = self.model.record().fieldName(column_index)
             if column_name in column_names:
@@ -526,7 +407,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
 # Function when checkbox of header menu is clicked
     def on_checkbox_toggled(self, checked, action_name):
         filterColumn = self.logicalIndex
-        imagen_path = "//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Filter_Active.png"
+        imagen_path = os.path.join(basedir, "Resources/Iconos/Filter_Active.png")
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if len(self.dict_ordersort) == 0:
@@ -551,18 +432,11 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
                 self.checkbox_states[self.logicalIndex][action_name] = True
                 self.model.setIconColumnHeader(filterColumn, icono)
 
-                # select_all_checkbox = self.moreMenu.actions()[0].defaultWidget().checkbox
-                # if all(action.defaultWidget().checkbox.isChecked() for action in self.moreMenu.actions()[1:]):
-                #     select_all_checkbox.setChecked(True)
-
             else:
                 if action_name in self.checkbox_states[self.logicalIndex]:
                     self.checkbox_states[self.logicalIndex][action_name] = False
                     self.proxy.setFilter(str(action_name), filterColumn, str(action_name))
                     self.model.setIconColumnHeader(filterColumn, icono)
-
-                    # select_all_checkbox = self.moreMenu.actions()[0].defaultWidget().checkbox
-                    # select_all_checkbox.setCheckState(QtCore.Qt.CheckState.PartiallyChecked)
 
             if all(action.defaultWidget().checkbox.isChecked() for action in self.moreMenu.actions()[1:]):
                 self.model.setIconColumnHeader(filterColumn, '')
@@ -575,7 +449,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.model.setIconColumnHeader(filterColumn, '')
         self.proxy.invalidateFilter()
 
-        self.tableEditDocs.setModel(None)  # Eliminar el modelo actual de la vista
+        self.tableEditDocs.setModel(None)
         self.tableEditDocs.setModel(self.proxy)
 
         self.checkbox_states[self.logicalIndex].clear()
@@ -592,7 +466,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         self.proxy.setFilter(stringAction, filterColumn)
 
-        imagen_path = "//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Filter_Active.png"
+        imagen_path = os.path.join(basedir, "Resources/Iconos/Filter_Active.png")
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
         self.model.setIconColumnHeader(filterColumn, icono)
 
@@ -613,7 +487,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Buscar')
         clickedButton=dlg.exec()
@@ -628,7 +502,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
             del self.proxy.filters[filterColumn]
             self.proxy.setFilter(stringAction, filterColumn)
 
-            imagen_path = "//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Filter_Active.png"
+            imagen_path = os.path.join(basedir, "Resources/Iconos/Filter_Active.png")
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             self.model.setIconColumnHeader(filterColumn, icono)
 
@@ -657,13 +531,13 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
                             break
                     if target_row is not None:
                         target_index = self.model.index(target_row, current_column)
-                        self.model.setData(target_index, text, Qt.ItemDataRole.EditRole)  # Pegar el valor en todas las celdas seleccionadas
+                        self.model.setData(target_index, text, Qt.ItemDataRole.EditRole)
                 self.model.submitAll()
 
         super().keyPressEvent(event)
 
     def get_selected_text(self, indexes):
-        if len(indexes) == 1:  # Si solo hay una celda seleccionada
+        if len(indexes) == 1:
             index = indexes[0]
             cell_data = index.data(Qt.ItemDataRole.DisplayRole)
             return cell_data
@@ -679,11 +553,11 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
 
             for row in sorted(rows):
                 for col in sorted(cols):
-                    index = self.model.index(row, col)  # Obtener el índice correspondiente
+                    index = self.model.index(row, col)
                     cell_data = index.data(Qt.ItemDataRole.DisplayRole)
                     cursor.insertText(str(cell_data))
-                    cursor.insertText('\t')  # Tab separador de columnas
-                cursor.insertText('\n')  # Salto de línea al final de la fila
+                    cursor.insertText('\t')
+                cursor.insertText('\n')
 
             return text_doc.toPlainText()
 

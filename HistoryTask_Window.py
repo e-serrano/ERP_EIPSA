@@ -14,6 +14,9 @@ import pandas as pd
 from PyQt6.QtWidgets import QApplication, QFileDialog, QAbstractItemView
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from PyQt6.QtCore import Qt
+import os
+
+basedir = os.path.dirname(__file__)
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -46,7 +49,7 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
         HistoryTask_Window.setMinimumSize(QtCore.QSize(600, 575))
         # HistoryTask_Window.setMaximumSize(QtCore.QSize(600, 575))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         HistoryTask_Window.setWindowIcon(icon)
         HistoryTask_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -315,12 +318,10 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
     
     def expand_cell(self, item):
         if item.column() == 2:
-            row = item.row()
-            column = item.column()
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Tareas")
             dlg.setText(cell_content)

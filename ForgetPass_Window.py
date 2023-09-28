@@ -13,6 +13,10 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import psycopg2
 from config import config
+from Email_Styles import email_password
+import os
+
+basedir = os.path.dirname(__file__)
 
 
 class Ui_ForgetPass_Window(object):
@@ -26,7 +30,7 @@ class Ui_ForgetPass_Window(object):
         ForgetPass_Window.setSizePolicy(sizePolicy)
         ForgetPass_Window.setMaximumSize(QtCore.QSize(275, 340))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ForgetPass_Window.setWindowIcon(icon)
         ForgetPass_Window.setAutoFillBackground(False)
         ForgetPass_Window.setStyleSheet("QWidget {\n"
@@ -192,7 +196,7 @@ class Ui_ForgetPass_Window(object):
         if len(match)==0:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Recordar contraseña")
             dlg.setText("El correo introducido no se encuentra registrado en la base de datos")
@@ -202,65 +206,8 @@ class Ui_ForgetPass_Window(object):
         else:
             user=match[0][3]
             password=match[0][5]
-            # sender_email = "erp.eipsa@gmail.com"
-            # sender_password = "Eips@123"
-            # subject = "Recordar contraseña ERP"
-            # body = """
-            # <html>
-            # <body>
-            #     <p>Este correo electrónico ha sido generado de manera automática desde la aplicación.</p>
-            #     <p>La contraseña para el usuario <strong>{user}</strong> es: <strong>{password}</strong></p>
-            # </body>
-            # </html>
-            # """.format(user=user,password=password)
-
-            # html_message = MIMEText(body, 'html')
-            # html_message['Subject'] = subject
-            # html_message['From'] = sender_email
-            # html_message['To'] = recipient_email
-
-            # server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-            # server.login(sender_email, sender_password)
-            # server.sendmail(sender_email, recipient_email, html_message.as_string())
-            # server.quit()
-
-            msg = MIMEMultipart()
-            msg['From'] = 'enrique-serrano@eipsa.es'
-            msg['To'] = recipient_email
-            msg['Subject'] = 'Recordar contraseña ERP'
-            message="""
-            # <html>
-            # <body>
-            #     <p>Este correo electrónico ha sido generado de manera automática desde la aplicación.</p>
-            #     <p>La contraseña para el usuario <strong>{user}</strong> es: <strong>{password}</strong></p>
-            # </body>
-            # </html>
-            # """.format(user=user,password=password)
-
-            # Agregar el mensaje al objeto
-            msg.attach(MIMEText(message, 'html'))
-
-            # Configurar conexión SMTP
-            smtp = smtplib.SMTP('smtp.office365.com', 587)
-            smtp.starttls()
-
-            # Iniciar sesión en la cuenta de Outlook
-            smtp.login('enrique-serrano@eipsa.es', 'Enri2023$$')
-
-            # Enviar el correo
-            smtp.send_message(msg)
-            smtp.quit()
-
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Recordar contraseña")
-            dlg.setText("Correo enviado con éxito")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-
-            del dlg,new_icon
+            mail=email_password(user,password)
+            mail.send_email()
 
 
 if __name__ == "__main__":

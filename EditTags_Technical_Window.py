@@ -19,11 +19,11 @@ from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import locale
 from Excel_Export_Templates import material_order
 import pandas as pd
-from openpyxl import load_workbook
-from copy import deepcopy
-from tkinter.filedialog import asksaveasfilename
-from tkinter import Tk
 from datetime import *
+from Create_MatOrder import flow_matorder, temp_matorder, level_matorder
+import os
+
+basedir = os.path.dirname(__file__)
 
 
 def imagen_to_base64(imagen):
@@ -95,7 +95,6 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                 del self.filters[column]
         self.invalidateFilter()
 
-
     def filterAcceptsRow(self, source_row, source_parent):
         for column, expresions in self.filters.items():
             text = self.sourceModel().index(source_row, column, source_parent).data()
@@ -104,7 +103,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                 text = text.toString("yyyy-MM-dd")
 
             for expresion in expresions:
-                if expresion == '':  # Si la expresión es vacía, coincidir con celdas vacías
+                if expresion == '':  # If expression is empty, match empty cells
                     if text == '':
                         break
 
@@ -129,8 +128,6 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        # self.originalData = {}
-        # self.modifiedCells = []
 
     def setAllColumnHeaders(self, headers):
         for column, header in enumerate(headers):
@@ -154,58 +151,6 @@ class EditableTableModel(QtSql.QSqlTableModel):
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable 
-
-    # def setOriginalData(self, index, value, role=Qt.ItemDataRole.EditRole):
-    #     if index.isValid() and role == Qt.ItemDataRole.EditRole:
-    #         row = index.row()
-    #         column = index.column()
-    #         self.originalData[(row, column)] = self.data(index)  # Saving the original data before edition
-    #     return super().setData(index, value, role)
-
-    # def getOriginalValue(self, index):
-    #     row = index.row()
-    #     column = index.column()
-    #     return self.originalData.get(column)
-
-    # def update_record(self, record, index):
-    #     query = QSqlQuery(self.database())
-    #     primary_key = self.primaryKey()
-    #     id_column = primary_key.fieldName(0)
-
-    #     column_index = index.column() # Obtaining modified column index from modified cell index
-    #     column_name = self.record().fieldName(column_index) # Obtaining modified column name
-    #     new_value = index.data(Qt.ItemDataRole.EditRole) #Obtaining new value
-    #     old_value = self.originalData.get(column_index, "") # Obtaining old value
-
-    #     # Verify if values are NULL
-    #     if new_value is None:
-    #         new_value = ""
-    #     if old_value is None:
-    #         old_value = ""
-
-    #     query.prepare(f"UPDATE {self.tableName()} SET {column_name} = :newValue WHERE {id_column} = :id")
-    #     query.bindValue(":newValue", new_value)
-    #     query.bindValue(":id", record.value(id_column))
-
-    #     query.exec()
-    #     query_text = query.executedQuery()
-    #     # print("SQL Query:", query_text)
-
-    #     if query.lastError().isValid():
-    #         dlg = QtWidgets.QMessageBox()
-    #         new_icon = QtGui.QIcon()
-    #         new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-    #         dlg.setWindowIcon(new_icon)
-    #         dlg.setWindowTitle("Editar Tags")
-    #         dlg.setText("Ha habido un error al actualizar los datos. No serán guardados")
-    #         dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-    #         dlg.exec()
-
-    #         print("Error en la consulta:", query.lastError().nativeErrorCode())
-    #         print("Mensaje de error:", query.lastError().text())
-    #         return None
-    #     else:
-    #         return query_text
 
 
 class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
@@ -246,7 +191,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         EditTags_Window.resize(790, 595)
         EditTags_Window.setMinimumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditTags_Window.setWindowIcon(icon)
         EditTags_Window.setStyleSheet(
 ".QFrame {\n"
@@ -266,19 +211,11 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.hcab=QtWidgets.QHBoxLayout()
         self.hcab.setObjectName("hcab")
-        # self.toolSave = QtWidgets.QToolButton(self.frame)
-        # self.toolSave.setObjectName("Save_Button")
-        # self.hcab.addWidget(self.toolSave)
-        # icon = QtGui.QIcon()
-        # icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Save.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        # self.toolSave.setIcon(icon)
-        # self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        # self.hcab.addItem(self.hcabspacer1)
         self.toolDeleteFilter = QtWidgets.QToolButton(self.frame)
         self.toolDeleteFilter.setObjectName("Save_Button")
         self.hcab.addWidget(self.toolDeleteFilter)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Filter_Delete.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolDeleteFilter.setIcon(icon)
         self.toolDeleteFilter.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -288,7 +225,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.toolShow.setToolTip("Mostrar columnas")
         self.hcab.addWidget(self.toolShow)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Eye.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Eye.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolShow.setIcon(icon)
         self.toolShow.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer2=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -298,7 +235,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.toolMatOrder.setToolTip("Pedido Materiales")
         self.hcab.addWidget(self.toolMatOrder)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Purchase_Order.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Purchase_Order.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolMatOrder.setIcon(icon)
         self.toolMatOrder.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer3=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -308,7 +245,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.toolFabOrder.setToolTip("Orden Fabricación")
         self.hcab.addWidget(self.toolFabOrder)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Fab_Order.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Fab_Order.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolFabOrder.setIcon(icon)
         self.toolFabOrder.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer4=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -318,7 +255,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.toolInspection.setToolTip("Inspeccion")
         self.hcab.addWidget(self.toolInspection)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Inspection.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Inspection.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolInspection.setIcon(icon)
         self.toolInspection.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer5=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -328,7 +265,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.toolExpExcel.setToolTip("Exportar a Excel")
         self.hcab.addWidget(self.toolExpExcel)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Excel.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Excel.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolExpExcel.setIcon(icon)
         self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
 
@@ -492,7 +429,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(EditTags_Window)
         self.Button_Clean.clicked.connect(self.clean_boxes)
         self.Button_Query.clicked.connect(self.query_tags)
-        # self.toolSave.clicked.connect(self.submit_all)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolShow.clicked.connect(self.show_columns)
         self.toolMatOrder.clicked.connect(lambda: self.materialorder(self.variable))
@@ -519,7 +455,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             "SELECT bolts_nuts_material FROM validation_data.flow_bolts_nuts_material",
             "SELECT nace FROM validation_data.flow_nace"
             ]
-        
+
         commands_comboboxes_temp = [
             "SELECT item_type FROM validation_data.temp_item_type",
             "SELECT tw_type FROM validation_data.temp_tw_type",
@@ -548,8 +484,38 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             "SELECT plug FROM validation_data.temp_plug"
             ]
 
+        commands_comboboxes_level = [
+            "SELECT item_type FROM validation_data.level_item_type",
+            "SELECT model_num FROM validation_data.level_model_num",
+            "SELECT body_mat FROM validation_data.level_body_mat",
+            "SELECT proc_conn_type FROM validation_data.level_proc_conn_type",
+            "SELECT proc_conn_size FROM validation_data.level_proc_conn_size",
+            "SELECT proc_conn_rating FROM validation_data.level_proc_conn_rating",
+            "SELECT proc_conn_facing FROM validation_data.level_proc_conn_facing",
+            "SELECT conn_type FROM validation_data.level_conn_type",
+            "SELECT valve_type FROM validation_data.level_valve_type",
+            "SELECT dv_conn FROM validation_data.level_dv_conn",
+            "SELECT dv_size FROM validation_data.level_dv_size",
+            "SELECT dv_rating FROM validation_data.level_dv_rating",
+            "SELECT dv_facing FROM validation_data.level_dv_facing",
+            "SELECT gasket FROM validation_data.level_gasket",
+            "SELECT stud_nuts FROM validation_data.level_stud_nuts",
+            "SELECT illuminator FROM validation_data.level_illuminator",
+            "SELECT float_mat FROM validation_data.level_float_mat",
+            "SELECT case_cover_mat FROM validation_data.level_case_cover_mat",
+            "SELECT scale_type FROM validation_data.level_scale",
+            "SELECT flags_color_mat FROM validation_data.level_flags_color_mat",
+            "SELECT ip_code FROM validation_data.level_ip_code",
+            "SELECT flange_type FROM validation_data.level_flange_type",
+            "SELECT nipple FROM validation_data.level_nipple",
+            "SELECT nipple FROM validation_data.level_nipple",
+            "SELECT antifrost FROM validation_data.level_antifrost",
+            "SELECT nace FROM validation_data.level_nace",
+            ]
+
         self.all_results_flow = []
         self.all_results_temp = []
+        self.all_results_level = []
 
         conn = None
         try:
@@ -567,6 +533,10 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 cur.execute(query)
                 results_temp=cur.fetchall()
                 self.all_results_temp.append(results_temp)
+            for query in commands_comboboxes_level:
+                cur.execute(query)
+                results_level=cur.fetchall()
+                self.all_results_level.append(results_level)
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
@@ -636,60 +606,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                         self.checkbox_states[column][value] = True
             self.dict_valuesuniques[column] = list_valuesUnique
 
-# Function to upload changes when save button is pressed
-    # def submit_all(self):
-    #     columns_number=self.model.columnCount()
-    #     if self.model.database().isOpen():
-    #         self.model.database().transaction()
-    #         success = True
-
-    #         for index in range(columns_number):
-    #             self.proxy.setFilter("", index)
-    #             self.model.setIconColumnHeader(index, '')
-
-    #         for row in range(self.model.rowCount()):
-    #             for column in range(self.model.columnCount()):
-    #                 index = self.model.index(row, column)
-    #                 current_value = index.data(Qt.ItemDataRole.DisplayRole)
-    #                 original_value = self.model.getOriginalValue(index)
-    #                 if current_value != original_value:
-    #                     record = self.model.record(row)
-    #                     query = self.model.update_record(record, index)
-    #                     if not query:
-    #                         success = False
-    #                         break
-
-    #         if success:
-    #             self.model.database().commit()
-    #             dlg = QtWidgets.QMessageBox()
-    #             new_icon = QtGui.QIcon()
-    #             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-    #             dlg.setWindowIcon(new_icon)
-    #             dlg.setWindowTitle("Editar Tags")
-    #             dlg.setText("Datos guardados con éxito")
-    #             dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-    #             dlg.exec()
-    #         else:
-    #             self.model.database().rollback()
-    #             dlg = QtWidgets.QMessageBox()
-    #             new_icon = QtGui.QIcon()
-    #             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-    #             dlg.setWindowIcon(new_icon)
-    #             dlg.setWindowTitle("Editar Tags")
-    #             dlg.setText("Ha habido un problema al guardar los datos")
-    #             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-    #             dlg.exec()
-
-    #     else:
-    #         dlg = QtWidgets.QMessageBox()
-    #         new_icon = QtGui.QIcon()
-    #         new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-    #         dlg.setWindowIcon(new_icon)
-    #         dlg.setWindowTitle("Editar Tags")
-    #         dlg.setText("No ha sido posible conectar con la base de datos. Contacte con su administrador")
-    #         dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-    #         dlg.exec()
-
 # Function to load table and setting in the window
     def query_tags(self):
         self.checkbox_states = {}
@@ -703,7 +619,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         if self.numorder=="":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Rellena alguno de los campos")
@@ -716,7 +632,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', self.numorder):
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY")
@@ -758,7 +674,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 if results_variable == None:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("EL número de pedido no existe")
@@ -769,32 +685,29 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 
                 else:
                     if self.variable == 'Caudal':
-                        self.model.setTable("tags_data.tags_flow_prueba")
+                        self.model.setTable("tags_data.tags_flow")
                     elif self.variable == 'Temperatura':
-                        self.model.setTable("tags_data.tags_temp_prueba")
+                        self.model.setTable("tags_data.tags_temp")
                     elif self.variable == 'Nivel':
                         self.model.setTable("tags_data.tags_level")
-                    # else:
-                        # self.model.setTable("tags_data.tags_temp_prueba")
                     self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
 
         if self.variable != '':
             self.model.select()
-            # self.model.setEditStrategy(QtSql.QSqlTableModel.EditStrategy.OnManualSubmit)
 
             self.proxy.setSourceModel(self.model)
             self.tableEditTags.setModel(self.proxy)
 
             columns_number=self.model.columnCount()
-            # if self.variable == 'Caudal':
-            #     for i in range(66,columns_number):
-            #         self.tableEditTags.hideColumn(i)
-            # elif self.variable == 'Temperatura':
-            #     for i in range(73,columns_number):
-            #         self.tableEditTags.hideColumn(i)
-            # elif self.variable == 'Nivel':
-            #     for i in range(54,columns_number):
-            #         self.tableEditTags.hideColumn(i)
+            if self.variable == 'Caudal':
+                for i in range(66,columns_number):
+                    self.tableEditTags.hideColumn(i)
+            elif self.variable == 'Temperatura':
+                for i in range(73,columns_number):
+                    self.tableEditTags.hideColumn(i)
+            elif self.variable == 'Nivel':
+                for i in range(54,columns_number):
+                    self.tableEditTags.hideColumn(i)
 
             if self.name != 'Jesús Martínez':
                 if self.variable == 'Caudal':
@@ -849,9 +762,9 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
                             "Tipo", "Modelo", "Material Cuerpo", "Tipo Conex. Proc.", "Tamaño Conex. Proc.", "Rating Conex. Proc.", "Facing Conex. Proc.",
                             "Tipo Conex.", "Visibilidad (mm)", "Long. C-C (mm)", "Tipo Válv.", "Tipo Conex. Ext.", "Tamaño Conex. Ext.", "Rating Conex. Ext.", "Facing Conex. Ext.",
-                            "Junta", "Tornillería", "Iluminador", "Mat. Flotador", "Mat. Cubierta", "Escala", "Cod. IP", "Tipo Brida", "Niplo Hex.", "Niplo Tubo", "Antifrost",
+                            "Junta", "Tornillería", "Iluminador", "Mat. Flotador", "Mat. Cubierta", "Escala", "Banderas", "Cod. IP", "Tipo Brida", "Niplo Hex.", "Niplo Tubo", "Antifrost",
                             "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual", "Dim. Flotador", "Junta Bridas", "Cambios Técnicos", "Notas Técnicas",
-                            "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Estado Fabricación", "Inspección", "Envío RN"]
+                            "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Estado Fabricación", "Inspección", "Envío RN"]
 
             if self.variable == 'Caudal':
                 self.model.setAllColumnHeaders(headers_flow)
@@ -889,21 +802,26 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[5]]))
                 self.tableEditTags.setItemDelegateForColumn(14, self.combo_itemtype)
-                for i in range(6,25):
+                for i in range(6,24):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
                     self.tableEditTags.setItemDelegateForColumn(i+11, self.combo_itemtype)
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
-                self.tableEditTags.setItemDelegateForColumn(56, self.combo_itemtype)
+                self.tableEditTags.setItemDelegateForColumn(57, self.combo_itemtype)
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
-                self.tableEditTags.setItemDelegateForColumn(60, self.combo_itemtype)
+                self.tableEditTags.setItemDelegateForColumn(61, self.combo_itemtype)
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[24]]))
-                self.tableEditTags.setItemDelegateForColumn(68, self.combo_itemtype)
-                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
                 self.tableEditTags.setItemDelegateForColumn(69, self.combo_itemtype)
-            # elif self.variable == 'Nivel':
-            #     for i in range(16):
-            #         self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_level[i]]))
-            #         self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
+                self.tableEditTags.setItemDelegateForColumn(70, self.combo_itemtype)
+            elif self.variable == 'Nivel':
+                for i in range(8):
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_level[i]]))
+                    self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
+                for i in range(18):
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_level[i+8]]))
+                    self.tableEditTags.setItemDelegateForColumn(i+18, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
+                self.tableEditTags.setItemDelegateForColumn(51, self.combo_itemtype)
 
             self.model.dataChanged.connect(self.saveChanges)
             self.selection_model = self.tableEditTags.selectionModel()
@@ -929,11 +847,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                     if self.logicalIndex not in self.proxy.filters:
                         self.proxy.filters[self.logicalIndex] = []
                     self.proxy.filters[self.logicalIndex].append(str(value))
-
-        # actionHideColumn = QtGui.QAction("Ocultar Columna", self.tableEditTags)
-        # actionHideColumn.triggered.connect(self.hide_column)
-        # self.menuValues.addAction(actionHideColumn)
-        # self.menuValues.addSeparator()
 
         actionSortAscending = QtGui.QAction("Ordenar Ascendente", self.tableEditTags)
         actionSortAscending.triggered.connect(self.on_actionSortAscending_triggered)
@@ -991,7 +904,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 # Function when checkbox of header menu is clicked
     def on_checkbox_toggled(self, checked, action_name):
         filterColumn = self.logicalIndex
-        imagen_path = "//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Filter_Active.png"
+        imagen_path = os.path.join(basedir, "Resources/Iconos/Filter_Active.png")
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if len(self.dict_ordersort) == 0:
@@ -1016,18 +929,11 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 self.checkbox_states[self.logicalIndex][action_name] = True
                 self.model.setIconColumnHeader(filterColumn, icono)
 
-                # select_all_checkbox = self.moreMenu.actions()[0].defaultWidget().checkbox
-                # if all(action.defaultWidget().checkbox.isChecked() for action in self.moreMenu.actions()[1:]):
-                #     select_all_checkbox.setChecked(True)
-
             else:
                 if action_name in self.checkbox_states[self.logicalIndex]:
                     self.checkbox_states[self.logicalIndex][action_name] = False
                     self.proxy.setFilter(str(action_name), filterColumn, str(action_name))
                     self.model.setIconColumnHeader(filterColumn, icono)
-
-                    # select_all_checkbox = self.moreMenu.actions()[0].defaultWidget().checkbox
-                    # select_all_checkbox.setCheckState(QtCore.Qt.CheckState.PartiallyChecked)
 
             if all(action.defaultWidget().checkbox.isChecked() for action in self.moreMenu.actions()[1:]):
                 self.model.setIconColumnHeader(filterColumn, '')
@@ -1068,7 +974,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Buscar')
         clickedButton=dlg.exec()
@@ -1089,7 +995,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         self.proxy.setFilter(stringAction, filterColumn)
 
-        imagen_path = "//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Filter_Active.png"
+        imagen_path = os.path.join(basedir, "Resources/Iconos/Filter_Active.png")
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
         self.model.setIconColumnHeader(filterColumn, icono)
 
@@ -1107,292 +1013,9 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 
 # Function to create material order for flow elements
     def materialorder_flow(self):
-        id_list=[]
-        orifice_flange_list = []
-        line_flange_list = []
-        gasket_list = []
-        bolts_list = []
-        plugs_list = []
-        extractor_list = []
-        plate_list = []
-        nipple_list = []
-        handle_list = []
-        chring_list = []
-        tube_list = []
-        piece2_list = []
-
-        for row in range(self.proxy.rowCount()):
-            first_column_value = self.proxy.data(self.proxy.index(row, 0))
-            id_list.append(first_column_value)
-
-        for element in id_list:
-            for row in range(self.model.rowCount()):
-                if self.model.data(self.model.index(row, 0)) == element:
-                    target_row = row
-                    break
-            if target_row is not None:
-                code_orifice_flange = self.model.data(self.model.index(target_row, 69))
-                code_line_flange = self.model.data(self.model.index(target_row, 72))
-                code_gasket = self.model.data(self.model.index(target_row, 75))
-                code_bolts = self.model.data(self.model.index(target_row, 78))
-                code_plugs = self.model.data(self.model.index(target_row, 81))
-                code_extractor = self.model.data(self.model.index(target_row, 84))
-                code_plate = self.model.data(self.model.index(target_row, 87))
-                code_nipple = self.model.data(self.model.index(target_row, 90))
-                code_handle = self.model.data(self.model.index(target_row, 93))
-                code_chring = self.model.data(self.model.index(target_row, 96))
-                code_tube = self.model.data(self.model.index(target_row, 99))
-                code_piece2 = self.model.data(self.model.index(target_row, 102))
-
-                if code_orifice_flange != '':
-                    tradcodbror = ("BRIDA DE ORIFICIO " + 
-                                    ("WN" if self.model.data(self.model.index(target_row, 14)) == "SW/WN" else self.model.data(self.model.index(target_row, 14))) + " " + 
-                                    self.model.data(self.model.index(target_row, 9)) + " " + 
-                                    (self.model.data(self.model.index(target_row, 10)) if self.model.data(self.model.index(target_row, 10)) != "150/300" else self.model.data(self.model.index(target_row, 10))[4:4+4]) + " " + 
-                                    self.model.data(self.model.index(target_row, 11)))
-                    schbror = self.model.data(self.model.index(target_row, 12))
-                    designbror = self.model.data(self.model.index(target_row, 105)).replace('.',',')
-                    processbror = self.model.data(self.model.index(target_row, 35))
-                    materialbror = self.model.data(self.model.index(target_row, 13))
-                    qtybror = 2
-                    orifice_flange_list.append([tradcodbror,schbror,designbror,processbror,materialbror,qtybror])
-
-                if code_line_flange != '':
-                    tradcodbrline = ("BRIDA DE LÍNEA " + 
-                                    ("SW" if self.model.data(self.model.index(target_row, 14)) == "SW/WN" else self.model.data(self.model.index(target_row, 14))) + " " + 
-                                    self.model.data(self.model.index(target_row, 9)) + " " + 
-                                    (self.model.data(self.model.index(target_row, 10)) if self.model.data(self.model.index(target_row, 10)) != "150/300" else self.model.data(self.model.index(target_row, 10))[0:3]) + " " + 
-                                    self.model.data(self.model.index(target_row, 11)))
-                    schbrline = self.model.data(self.model.index(target_row, 12))
-                    designbrline = self.model.data(self.model.index(target_row, 105)).replace('.',',')
-                    processbrline = self.model.data(self.model.index(target_row, 35))
-                    materialbrline = self.model.data(self.model.index(target_row, 13))
-                    qtybrline = 2
-                    line_flange_list.append([tradcodbrline,schbrline,designbrline,processbrline,materialbrline,qtybrline])
-
-                if code_gasket != '':
-                    tradcodgasket = self.model.data(self.model.index(target_row, 21))
-                    schgasket = (self.model.data(self.model.index(target_row, 9)) + " " + 
-                                    self.model.data(self.model.index(target_row, 10)) + " " + 
-                                    self.model.data(self.model.index(target_row, 11)))
-                    designgasket = ''
-                    processgasket = ''
-                    materialgasket = ''
-                    qtygasket = 2
-                    gasket_list.append([tradcodgasket,schgasket,designgasket,processgasket,materialgasket,qtygasket])
-
-                if code_bolts != '':
-                    tradcodbolts = ('ESPÁRRAGO '+ self.model.data(self.model.index(target_row, 59)))
-                    modelbolts = (self.model.data(self.model.index(target_row, 9)) + " " + 
-                                    self.model.data(self.model.index(target_row, 10)) + " " + 
-                                    self.model.data(self.model.index(target_row, 11)))
-                    designbolts = ('esp. placa ' + self.model.data(self.model.index(target_row, 19)))
-                    processbolts = ''
-                    materialbolts = self.model.data(self.model.index(target_row, 22))
-                    qtybolts = self.model.data(self.model.index(target_row, 60))
-                    bolts_list.append([tradcodbolts,modelbolts,designbolts,processbolts,materialbolts,qtybolts])
-
-                if code_extractor != '':
-                    tradcodextractor = ('Extractor ' + self.model.data(self.model.index(target_row, 61)))
-                    sizebrida = (self.model.data(self.model.index(target_row, 9)) + " " + 
-                                    self.model.data(self.model.index(target_row, 10)) + " " + 
-                                    self.model.data(self.model.index(target_row, 11)))
-                    designextractor = ('esp. placa ' + self.model.data(self.model.index(target_row, 19)))
-                    processextractor = ''
-                    materialextractor = self.model.data(self.model.index(target_row, 22))
-                    qtyextractor = self.model.data(self.model.index(target_row, 62))
-                    extractor_list.append([tradcodextractor,sizebrida,designextractor,processextractor,materialextractor,qtyextractor])
-
-                if code_plate != '':
-                    tradcodplate = (('ORIFICIO DE RESTRICCIÓN ' + self.model.data(self.model.index(target_row, 9)) + " " + 
-                                    self.model.data(self.model.index(target_row, 10)) + " " + 
-                                    self.model.data(self.model.index(target_row, 11))) if self.model.data(self.model.index(target_row, 18)) =='RO' else 
-                                    ('PLACA DE ORIFICIO ' + self.model.data(self.model.index(target_row, 9)) + " " + 
-                                    self.model.data(self.model.index(target_row, 10)) + " " + 
-                                    self.model.data(self.model.index(target_row, 11))))
-                    modelplate = ('ESP ' + self.model.data(self.model.index(target_row, 19)) + 'mm')
-                    diamextplate = self.model.data(self.model.index(target_row, 57))
-                    processplate = 'ARAMCO' if self.model.data(self.model.index(target_row, 20)) =='ARA' else ''
-                    materialplate = self.model.data(self.model.index(target_row, 17))
-                    qtyplate = self.model.data(self.model.index(target_row, 24)) if self.model.data(self.model.index(target_row, 8)) == "MULTISTAGE RO" else 1
-                    plate_list.append([tradcodplate,modelplate,diamextplate,processplate,materialplate,qtyplate])
-
-                if code_nipple != '':
-                    tradcodnipple = ('NIPLO ' + self.model.data(self.model.index(target_row, 52)))
-                    modelnipple = ''
-                    designnipple = ''
-                    processnipple = ''
-                    materialnipple = self.model.data(self.model.index(target_row, 13))
-                    qtynipple = self.model.data(self.model.index(target_row, 53))
-                    nipple_list.append([tradcodnipple,modelnipple,designnipple,processnipple,materialnipple,qtynipple])
-
-                if code_handle != '':
-                    tradcodhandle = ('MANGO ' + self.model.data(self.model.index(target_row, 58)))
-                    modelhandle = (self.model.data(self.model.index(target_row, 58)) + 'mm')
-                    designhandle = self.model.data(self.model.index(target_row, 20))
-                    processhandle = ''
-                    materialhandle = '316SS'
-                    qtyhandle = 1
-                    handle_list.append([tradcodhandle,modelhandle,designhandle,processhandle,materialhandle,qtyhandle])
-
-                if code_chring != '':
-                    tradcodchring = ('CÁMARA ANULAR ' + self.model.data(self.model.index(target_row, 9)) + " " + 
-                                    (self.model.data(self.model.index(target_row, 10)) if self.model.data(self.model.index(target_row, 10)) != "150/300" else self.model.data(self.model.index(target_row, 10))[0:3]) + " " + 
-                                    self.model.data(self.model.index(target_row, 11)))
-                    schchring = 'ESP ' if self.model.data(self.model.index(target_row, 11)) != "RTJ" else 'ESP 38,1MM'
-                    designchring = self.model.data(self.model.index(target_row, 57))
-                    processchring = self.model.data(self.model.index(target_row, 35))
-                    materialchring = self.model.data(self.model.index(target_row, 13))
-                    qtychring = 1
-                    chring_list.append([tradcodchring,schchring,designchring,processchring,materialchring,qtychring])
-
-                if code_plugs != '':
-                    tradcodplug = ('TAPÓN ' + self.model.data(self.model.index(target_row, 81))[2:2 + self.model.data(self.model.index(target_row, 81)).find('-') - 4] + 'M')
-                    modelplug = ''
-                    designplug = ''
-                    processplug = ''
-                    materialplug = 'ASTM A105' if self.model.data(self.model.index(target_row, 81))[-2:] == 'C1' else self.model.data(self.model.index(target_row, 13))
-                    qtyplug = self.model.data(self.model.index(target_row, 51))
-                    plugs_list.append([tradcodplug,modelplug,designplug,processplug,materialplug,qtyplug])
-
-                if code_tube != '':
-                    tradcodtube = ('TUBO ' + self.model.data(self.model.index(target_row, 9)) + " sch " + self.model.data(self.model.index(target_row, 12)))
-                    schtube = self.model.data(self.model.index(target_row, 12))
-                    designtube = self.model.data(self.model.index(target_row, 105)).replace('.',',')
-                    processtube = ''
-                    commands_flangecode = ("""
-                        SELECT code
-                        FROM validation_data.flow_flange_material
-                        WHERE flange_material = %s
-                        """)
-                    commands_tubematerial = ("""
-                        SELECT tube_material
-                        FROM validation_data.flow_tube_material
-                        WHERE code = %s
-                        """)
-                    conn = None
-                    try:
-                    # read the connection parameters
-                        params = config()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands one by one
-                        cur.execute(commands_flangecode,(self.model.data(self.model.index(target_row, 13)),))
-                        results=cur.fetchone()
-                        code=results[0]
-                        cur.execute(commands_tubematerial,(code,))
-                        results=cur.fetchall()
-                        materialtube = results[0]
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        print(error)
-                    finally:
-                        if conn is not None:
-                            conn.close()
-                    qtytube = self.model.data(self.model.index(target_row, 101))
-                    tube_list.append([tradcodtube,schtube,designtube,processtube,materialtube,qtytube])
-
-                if code_piece2 != '':
-                    tradcodpiece2 = ('CUÑA PARA WEDGE DE ' + self.model.data(self.model.index(target_row, 9)))
-                    commands_thk = ("""
-                        SELECT wall_thk
-                        FROM validation_data.pipe_diam
-                        WHERE (line_size = %s
-                        AND
-                        sch = %s)
-                        """)
-                    conn = None
-                    try:
-                    # read the connection parameters
-                        params = config()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands one by one
-                        cur.execute(commands_thk,(self.model.data(self.model.index(target_row, 9)),self.model.data(self.model.index(target_row, 12)),))
-                        results=cur.fetchone()
-                        thkmin=results[0]
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        print(error)
-                    finally:
-                        if conn is not None:
-                            conn.close()
-                    modelpiece2 = ('Th mín ' + thkmin + 'mm')
-                    designpiece2 = ''
-                    processpiece2 = ''
-                    commands_flangecode = ("""
-                        SELECT code
-                        FROM validation_data.flow_flange_material
-                        WHERE flange_material = %s
-                        """)
-                    commands_sheetmaterial = ("""
-                        SELECT sheet_material
-                        FROM validation_data.flow_sheet_material
-                        WHERE code = %s
-                        """)
-                    conn = None
-                    try:
-                    # read the connection parameters
-                        params = config()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands one by one
-                        cur.execute(commands_flangecode,(self.model.data(self.model.index(target_row, 13)),))
-                        results=cur.fetchone()
-                        code=results[0]
-                        cur.execute(commands_sheetmaterial,(code,))
-                        results=cur.fetchall()
-                        materialpiece2 = results[0]
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        print(error)
-                    finally:
-                        if conn is not None:
-                            conn.close()
-                    qtypiece2 = 1
-                    piece2_list.append([tradcodpiece2,modelpiece2,designpiece2,processpiece2,materialpiece2,qtypiece2])
-
-    # Turn all lists in dataframe and grouped in order to sum same items
-        data_lists = [
-        (orifice_flange_list, "df_orifice_flange"),
-        (line_flange_list, "df_line_flange"),
-        (gasket_list, "df_gasket"),
-        (bolts_list, "df_bolts"),
-        (plugs_list, "df_plugs"),
-        (extractor_list, "df_extractor"),
-        (plate_list, "df_plate"),
-        (nipple_list, "df_nipple"),
-        (handle_list, "df_handle"),
-        (chring_list, "df_chring"),
-        (tube_list, "df_tube"),
-        (piece2_list, "df_piece2")]
-
-        data_frames_with_data = []
-
-        for data_list, df_name in data_lists:
-            if data_list:
-                df = pd.DataFrame(data_list)
-                df = df.groupby([0, 1, 2, 3, 4])[5].sum().reset_index()
-                data_frames_with_data.append(df)
-
-        if data_frames_with_data:
-            df_combined = pd.concat(data_frames_with_data, ignore_index=True)
-
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Pedido Materiales')
         dlg.setLabelText('Introduce el pedido:')
@@ -1400,228 +1023,13 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 
         if clickedButton == 1:
             numorder_pedmat = dlg.textValue()
-            commands_client = ("""
-                        SELECT orders."num_order",orders."num_offer",offers."client"
-                        FROM offers
-                        INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
-                        WHERE UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
-                        """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_client,(self.numorder,))
-                results=cur.fetchone()
-                client=results[2]
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-            except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-            finally:
-                if conn is not None:
-                    conn.close()
-            excel_mat_order = material_order(df_combined,numorder_pedmat,client,self.variable)
-            excel_mat_order.save_excel()
+            flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable)
 
 # Function to create material order for temperature elements
     def materialorder_temp(self):
-        id_list=[]
-        bar_list = []
-        tube_list = []
-        flange_list = []
-        sensor_list = []
-        head_list = []
-        btb_list = []
-        nipple_list = []
-        spring_list = []
-        plug_list = []
-        puntal_list = []
-        tw_list = []
-        extcable_list = []
-
-        for row in range(self.proxy.rowCount()):
-            first_column_value = self.proxy.data(self.proxy.index(row, 0))
-            id_list.append(first_column_value)
-
-        for element in id_list:
-            for row in range(self.model.rowCount()):
-                if self.model.data(self.model.index(row, 0)) == element:
-                    target_row = row
-                    break
-            if target_row is not None:
-                code_bar = self.model.data(self.model.index(target_row, 76))
-                code_tube = self.model.data(self.model.index(target_row, 79))
-                code_flange = self.model.data(self.model.index(target_row, 82))
-                code_sensor = self.model.data(self.model.index(target_row, 85))
-                code_head = self.model.data(self.model.index(target_row, 88))
-                code_btb = self.model.data(self.model.index(target_row, 91))
-                code_nipple = self.model.data(self.model.index(target_row, 94))
-                code_spring = self.model.data(self.model.index(target_row, 97))
-                code_puntal = self.model.data(self.model.index(target_row, 100))
-                code_plug = self.model.data(self.model.index(target_row, 103))
-                code_tw = self.model.data(self.model.index(target_row, 106))
-                code_extcable = self.model.data(self.model.index(target_row, 109))
-
-                if code_bar != '':
-                    tradcodbar =('VAN STONE ' + self.model.data(self.model.index(target_row, 10)) + " " + self.model.data(self.model.index(target_row, 11)) + " " + 
-                                self.model.data(self.model.index(target_row, 12)) + ' ø=' if self.model.data(self.model.index(target_row, 9)) == 'Van-Stone TW'
-                                else 'BARRA VAINA PARA RAIZ ø=' + self.model.data(self.model.index(target_row, 17)))
-                    modelbar = ('U=' + self.model.data(self.model.index(target_row, 16)) + ' /L=' + self.model.data(self.model.index(target_row, 15)) if self.model.data(self.model.index(target_row, 9)) == 'Van-Stone TW'
-                                else 'Barra ø=' + '35' if float(self.model.data(self.model.index(target_row, 17)))<=33.5 else self.model.data(self.model.index(target_row, 17)))
-                    notesbar = ('RAÍZ ø=' + self.model.data(self.model.index(target_row, 17)) if self.model.data(self.model.index(target_row, 9)) == 'Van-Stone TW'
-                                else '')
-                    processbar = ''
-                    materialbar = self.model.data(self.model.index(target_row, 14))
-                    qtybar = self.model.data(self.model.index(target_row, 78))
-                    bar_list.append([tradcodbar,modelbar,notesbar,processbar,materialbar,qtybar])
-
-                if code_tube != '':
-                    tradcodtube = 'TUBO VAINA'
-                    schtube = self.model.data(self.model.index(target_row, 33))
-                    notestube = ''
-                    processtube = ''
-                    materialtube = self.model.data(self.model.index(target_row, 14))
-                    qtytube = self.model.data(self.model.index(target_row, 81))
-                    tube_list.append([tradcodtube,schtube,notestube,processtube,materialtube,qtytube])
-
-                if code_flange != '':
-                    tradcodflange = ('BRIDA VAINA ' + self.model.data(self.model.index(target_row, 10)) + self.model.data(self.model.index(target_row, 11)) + " " + 
-                                    self.model.data(self.model.index(target_row, 12)))
-                    modelflange = ''
-                    notesflange = ''
-                    processflange = ''
-                    materialflange = (self.model.data(self.model.index(target_row, 30)) if self.model.data(self.model.index(target_row, 9)) == 'Van-Stone TW'
-                                        else self.model.data(self.model.index(target_row, 14)))
-                    qtyflange = 1
-                    flange_list.append([tradcodflange,modelflange,notesflange,processflange,materialflange,qtyflange])
-
-                if code_sensor != '':
-                    tradcodsensor = (self.model.data(self.model.index(target_row, 19)) + ' Sheat/Stem ø=' + self.model.data(self.model.index(target_row, 21)) + 'mm')
-                    modelsensor = (self.model.data(self.model.index(target_row, 28)) + '-' + self.model.data(self.model.index(target_row, 27)) if code_sensor[:4] == 'BIME'
-                                    else '')
-                    notesensor = (self.model.data(self.model.index(target_row, 23)) + '-' + self.model.data(self.model.index(target_row, 24)) if code_sensor[:4] == 'BIME'
-                                    else '')
-                    processsensor = ''
-                    materialsensor = ('PT100' if tradcodsensor[:5] == 'PT100'
-                                    else self.model.data(self.model.index(target_row, 20)))
-                    qtysensor = (1 if tradcodsensor[:5] == 'PT100' or code_sensor[:4] == 'BIME'
-                                    else (float(self.model.data(self.model.index(target_row, 68)))/1000) if self.model.data(self.model.index(target_row, 68)) != '' else '')
-                    sensor_list.append([tradcodsensor,modelsensor,notesensor,processsensor,materialsensor,qtysensor])
-
-                if code_head != '':
-                    tradcodhead = ('CABEZA DE CONEXIONES ' + self.model.data(self.model.index(target_row, 27)))
-                    modelhead = self.model.data(self.model.index(target_row, 27))
-                    noteshead = ''
-                    processhead = self.model.data(self.model.index(target_row, 28))
-                    materialhead = ('ALUMINIO' if modelhead[-2:] == 'Al' 
-                                    else ('AC.CARBONO' if modelhead[-2:] == 'CS' 
-                                    else ('AC.INOXIDABLE' if modelhead[-2:] == 'SS' 
-                                    else 'MATERIAL CABEZA NO DEFINIDO')))
-                    qtyhead = 1
-                    head_list.append([tradcodhead,modelhead,noteshead,processhead,materialhead,qtyhead])
-
-                if code_btb != '':
-                    tradcodbtb = ('BIMETÁLICO-' + self.model.data(self.model.index(target_row, 28)) + '-' + self.model.data(self.model.index(target_row, 27)) if code_btb[:2] == 'BI' 
-                                else ('TRANSMISOR-' + self.model.data(self.model.index(target_row, 29)) if code_btb[:2] == 'TR' 
-                                else ('BLOQUE CERÁMICO-' + self.model.data(self.model.index(target_row, 29)) if code_btb[-7] == 'CE' 
-                                else 'NO PREPARADO')))
-                    modelbtb = (self.model.data(self.model.index(target_row, 23)) + '-' + self.model.data(self.model.index(target_row, 24)) if code_btb[:2] == 'BI' 
-                                else '')
-                    notesbtb = ''
-                    processbtb = ''
-                    materialbtb = (self.model.data(self.model.index(target_row, 20)) + '-' + self.model.data(self.model.index(target_row, 21)) if code_btb[:2] == 'BI' 
-                                else ('CERÁMICO' if code_btb[:2] == 'CE' else ''))
-                    qtybtb = self.model.data(self.model.index(target_row, 93))
-                    btb_list.append([tradcodbtb,modelbtb,notesbtb,processbtb,materialbtb,qtybtb])
-
-                if code_nipple != '':
-                    tradcodnipple = self.model.data(self.model.index(target_row, 25))
-                    modelnipple = ('' if self.model.data(self.model.index(target_row, 26)) == 'N/A' or self.model.data(self.model.index(target_row, 26))=='' else self.model.data(self.model.index(target_row, 26)))
-                    notesnipple = ''
-                    processnipple = ''
-                    materialnipple = tradcodnipple[tradcodnipple.find('('):tradcodnipple.find('(')+9]
-                    qtynipple = 1
-                    nipple_list.append([tradcodnipple,modelnipple,notesnipple,processnipple,materialnipple,qtynipple])
-
-                if code_spring != '':
-                    tradcodspring = 'MUELLE SPRING LOADER'
-                    modelspring = ''
-                    notesspring = ''
-                    processspring = ''
-                    materialspring = 'AC.INOX'
-                    qtyspring = 1
-                    spring_list.append([tradcodspring,modelspring,notesspring,processspring,materialspring,qtyspring])
-
-                if code_plug != '':
-                    tradcodplug = ('TAPÓN Y CADENA-' + self.model.data(self.model.index(target_row, 69)))
-                    modelplug = ''
-                    notesplug = ''
-                    processplug = ''
-                    materialplug = tradcodplug[tradcodplug.find('('):tradcodplug.find('(')+9]
-                    qtyplug = 1
-                    plug_list.append([tradcodplug,modelplug,notesplug,processplug,materialplug,qtyplug])
-
-                if code_puntal != '':
-                    tradcodpuntal = ('PUNTAL SOLDADO ' + self.model.data(self.model.index(target_row, 32)))
-                    modelpuntal = ''
-                    notespuntal = ''
-                    processpuntal = ''
-                    materialpuntal = self.model.data(self.model.index(target_row, 14))
-                    qtypuntal = float(code_puntal[1:8])/1000
-                    puntal_list.append([tradcodpuntal,modelpuntal,notespuntal,processpuntal,materialpuntal,qtypuntal])
-
-                if code_tw != '':
-                    tradcodtw = 'VAINA ' + self.model.data(self.model.index(target_row, 77)) + tradcodflange
-                    modelexttw = ''
-                    notesexttw = ''
-                    processexttw = ''
-                    materialexttw = ''
-                    qtyexttw = self.model.data(self.model.index(target_row, 108))
-                    tw_list.append([tradcodtw,modelexttw,notesexttw,processexttw,materialexttw,qtyexttw])
-
-                if code_extcable != '':
-                    tradcodextcable = 'CABLE DE PROLONGACIÓN ' + tradcodsensor
-                    modelextcable = ''
-                    notesextcable = ''
-                    processextcable = ''
-                    materialextcable = self.model.data(self.model.index(target_row, 20))
-                    qtyextcable = float(self.model.data(self.model.index(target_row, 68)))/1000 if self.model.data(self.model.index(target_row, 68)) != '' else ''
-                    extcable_list.append([tradcodextcable,modelextcable,notesextcable,processextcable,materialextcable,qtyextcable])
-
-    # Turn all lists in dataframe and grouped in order to sum same items
-        data_lists = [
-        (bar_list, "df_bar"),
-        (tube_list, "df_tube"),
-        (flange_list, "df_flange"),
-        (sensor_list, "df_sensor"),
-        (head_list, "df_head"),
-        (btb_list, "df_btb"),
-        (nipple_list, "df_nipple"),
-        (spring_list, "df_spring"),
-        (plug_list, "df_plug"),
-        (puntal_list, "df_puntal"),
-        (extcable_list, "df_extcable")]
-
-        data_frames_with_data = []
-
-        for data_list, df_name in data_lists:
-            if data_list:
-                df = pd.DataFrame(data_list)
-                df = df.groupby([0, 1, 2, 3, 4])[5].sum().reset_index()
-                data_frames_with_data.append(df)
-
-        if data_frames_with_data:
-            df_combined = pd.concat(data_frames_with_data, ignore_index=True)
-
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Pedido Materiales')
         dlg.setLabelText('Introduce el pedido:')
@@ -1629,312 +1037,13 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 
         if clickedButton == 1:
             numorder_pedmat = dlg.textValue()
-            commands_client = ("""
-                        SELECT orders."num_order",orders."num_offer",offers."client"
-                        FROM offers
-                        INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
-                        WHERE UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
-                        """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_client,(self.numorder,))
-                results=cur.fetchone()
-                client=results[2]
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-            except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-            finally:
-                if conn is not None:
-                    conn.close()
-            excel_mat_order = material_order(df_combined,numorder_pedmat,client,self.variable)
-            excel_mat_order.save_excel()
-
+            temp_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable)
 
 # Function to create material order for level elements
     def materialorder_level(self):
-        id_list = []
-        body_list = []
-        cover_list = []
-        glass_list = []
-        gasket_list = []
-        mica_list = []
-        bolts_list = []
-        nipplehex_list = []
-        valve_list = []
-        flangevalve_list = []
-        nippletube_list = []
-        dv_list = []
-        plug_list = []
-        antifrost_list = []
-        illuminator_list = []
-
-        for row in range(self.proxy.rowCount()):
-            first_column_value = self.proxy.data(self.proxy.index(row, 0))
-            id_list.append(first_column_value)
-
-        for element in id_list:
-            for row in range(self.model.rowCount()):
-                if self.model.data(self.model.index(row, 0)) == element:
-                    target_row = row
-                    break
-            if target_row is not None:
-                code_body = self.model.data(self.model.index(target_row, 57))
-                code_cover = self.model.data(self.model.index(target_row, 60))
-                code_glass = self.model.data(self.model.index(target_row, 87))
-                code_gasket = self.model.data(self.model.index(target_row, 84))
-                code_mica = self.model.data(self.model.index(target_row, 93))
-                code_bolts = self.model.data(self.model.index(target_row, 63))
-                code_nipplehex = self.model.data(self.model.index(target_row, 66))
-                code_valve = self.model.data(self.model.index(target_row, 69))
-                code_flangevalve = self.model.data(self.model.index(target_row, 72))
-                code_nippletube = self.model.data(self.model.index(target_row, 102))
-                code_dv = self.model.data(self.model.index(target_row, 75))
-                code_antifrost = self.model.data(self.model.index(target_row, 105))
-                code_illuminator = self.model.data(self.model.index(target_row, 81))
-
-                model_num = self.model.data(self.model.index(target_row, 9))[5:]
-                conn_type = self.model.data(self.model.index(target_row, 15))
-                nipplehexdim = self.model.data(self.model.index(target_row, 32))[8:]
-                nippletubedim = self.model.data(self.model.index(target_row, 33))[8:]
-                cc_length = int(self.model.data(self.model.index(target_row, 17)))
-
-                commands_topbottom = ("""
-                        SELECT *
-                        FROM validation_data.level_topbottom_dim
-                        WHERE model_num = %s
-                        """)
-                commands_sideside = ("""
-                        SELECT *
-                        FROM validation_data.level_sideside_dim
-                        WHERE model_num = %s
-                        """)
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands one by one
-                    if conn_type == 'Top-Bottom':
-                        cur.execute(commands_topbottom,(model_num,))
-                        results=cur.fetchone()
-                        if nipplehexdim == '1/2" NPT':
-                            body_length=results[1]
-                        else:
-                            body_length=results[2]
-                    elif conn_type == 'Side-Side':
-                        cur.execute(commands_sideside,(model_num,))
-                        results=cur.fetchone()
-                        h_dim=int(results[1])
-                        if cc_length < h_dim + 32:
-                            body_length = cc_length + 32 + 100
-                        else:
-                            body_length = cc_length - 32 + 100
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-                except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-                if code_body != '':
-                    tradcodbody = ('CUERPO DE NIVEL 1S-' + code_body + 'LONGITUD ' + body_length + 'MM')
-                    modelbody = nipplehexdim
-                    designbody = '40x40'
-                    processbody = (nipplehexdim + '-M')
-                    materialbody = self.model.data(self.model.index(target_row, 10))
-                    qtybody = self.model.data(self.model.index(target_row, 59))
-                    body_list.append([tradcodbody,modelbody,designbody,processbody,materialbody,qtybody])
-
-                if code_cover != '':
-                    commands_coverdim = ("""
-                        SELECT *
-                        FROM validation_data.level_cover_dim
-                        WHERE cover = %s
-                        """)
-                    conn = None
-                    try:
-                    # read the connection parameters
-                        params = config()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands one by one
-                        cur.execute(commands_coverdim,(model_num[2:6],))
-                        results=cur.fetchone()
-                        length=results[1]
-                        bores=results[2]
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        print(error)
-                    finally:
-                        if conn is not None:
-                            conn.close()
-
-                    tradcodcover = ('CUBIERTA DE NIVEL MODELO 1S-' + model_num[5:6])
-                    modelcover = ('L=' + length)
-                    designcover = '80x30'
-                    processcover = (bores + 'taladros')
-                    materialcover = self.model.data(self.model.index(target_row, 10))
-                    qtycover = self.model.data(self.model.index(target_row, 62))
-                    cover_list.append([tradcodcover,modelcover,designcover,processcover,materialcover,qtycover])
-
-                if code_glass != '':
-                    tradcodglass = ('VIDRIO DE NIVEL MODELO 1S-' + model_num[5:6])
-                    modelglass = 'TRANSPARENCIA' if model_num[6:7] == 'T' else 'REFLEXIÓN'
-                    designglass = ''
-                    processglass = ''
-                    materialglass ='BOROSILICATO'
-                    qtyglass = self.model.data(self.model.index(target_row, 89))
-                    glass_list.append([tradcodglass,modelglass,designglass,processglass,materialglass,qtyglass])
-
-                if code_gasket != '':
-                    tradcodgasket = ('JUNTAS NORMALES MODELO 1S-' + model_num[5:6])
-                    modelgasket = 'TRANSPARENCIA' if model_num[6:7] == 'T' else 'REFLEXIÓN'
-                    designgasket = ''
-                    processgasket = ''
-                    materialgasket ='GRAFOIL'
-                    qtygasket = self.model.data(self.model.index(target_row, 86))
-                    gasket_list.append([tradcodgasket,modelgasket,designgasket,processgasket,materialgasket,qtygasket])
-
-                if code_mica != '':
-                    tradcodmica = ('JUNTAS NORMALES MODELO 1S-' + model_num[5:6])
-                    modelmica = 'TRANSPARENCIA'
-                    designmica = ''
-                    processmica = ''
-                    materialmica ='MICA'
-                    qtymica = self.model.data(self.model.index(target_row, 95))
-                    mica_list.append([tradcodmica,modelmica,designmica,processmica,materialmica,qtymica])
-
-                if code_bolts != '':
-                    tradcodbolts = 'TIRANTE RECTO M10 (CON UNA TUERCA M10)' if model_num[6:7] == 'T' else 'ESPÁRRAGO EN "U" M10 (CON DOS TUERCAS M10)'
-                    modelbolts = 'TRANSPARENCIA' if model_num[6:7] == 'T' else 'REFLEXIÓN'
-                    designbolts = 'M10x132 mm' if model_num[6:7] == 'T' else ''
-                    processbolts = 'cabeza exag 17 e/c' if model_num[6:7] == 'T' else ''
-                    materialbolts = 'B7/2H' if model_num[6:7] in ['T','R'] else self.model.data(self.model.index(target_row, 24))
-                    qtybolts = self.model.data(self.model.index(target_row, 65))
-                    bolts_list.append([tradcodbolts,modelbolts,designbolts,processbolts,materialbolts,qtybolts])
-
-                if code_nipplehex != '':
-                    tradcodnipplehex = 'NIPLO HEXAGONAL ' + nipplehexdim + 'LONG ' + (cc_length-length-72+20) + ' mm'
-                    modelnipplehex = (cc_length-length-72+20) + ' mm'
-                    designnipplehex = ''
-                    processnipplehex = ''
-                    materialnipplehex = self.model.data(self.model.index(target_row, 10))
-                    qtynipplehex = self.model.data(self.model.index(target_row, 68))
-                    nipplehex_list.append([tradcodnipplehex,modelnipplehex,designnipplehex,processnipplehex,materialnipplehex,qtynipplehex])
-
-                if code_valve != '':
-                    tradcodvalve = 'VÁLVULA DE NIVEL DESPLAZADO ' + self.model.data(self.model.index(target_row, 18))
-                    modelvalve = nipplehexdim[:4] + ' x ' + nipplehexdim[:4]
-                    designvalve = nipplehexdim[-3:] + '-H'
-                    processvalve = ''
-                    materialvalve = 'A-105' if self.model.data(self.model.index(target_row, 18))[-2:] == 'NB' else '316 SS'
-                    qtyvalve = self.model.data(self.model.index(target_row, 71))
-                    valve_list.append([tradcodvalve,modelvalve,designvalve,processvalve,materialvalve,qtyvalve])
-
-                if code_flangevalve != '':
-                    tradcodflangevalve = 'BRIDA VÁLVULA ' + self.model.data(self.model.index(target_row, 12)) + self.model.data(self.model.index(target_row, 13)) + self.model.data(self.model.index(target_row, 14))
-                    modelflangevalve = ''
-                    designflangevalve = ''
-                    processflangevalve = ''
-                    materialflangevalve = self.model.data(self.model.index(target_row, 10))
-                    qtyflangevalve = self.model.data(self.model.index(target_row, 74))
-                    flangevalve_list.append([tradcodflangevalve,modelflangevalve,designflangevalve,processflangevalve,materialflangevalve,qtyflangevalve])
-
-                if code_dv != '':
-                    tradcoddv = ('TAPÓN PURGADOR ' + self.model.data(self.model.index(target_row, 20)) + self.model.data(self.model.index(target_row, 21)) + '-M' if code_dv[:2] == 'PL' 
-                                else ('VÁLVULA TMGV ' + nipplehexdim + ' x ' + self.model.data(self.model.index(target_row, 20)) + self.model.data(self.model.index(target_row, 21)) if code_dv[:2] == 'VL'
-                                else ('BRIDA ' + self.model.data(self.model.index(target_row, 20)) + self.model.data(self.model.index(target_row, 21)) + self.model.data(self.model.index(target_row, 22)) if code_dv[:2] == 'FL' else '')))
-                    modeldv = ''
-                    designdv = ''
-                    processdv = ''
-                    materialdv = self.model.data(self.model.index(target_row, 10))
-                    qtydv = self.model.data(self.model.index(target_row, 77))
-                    dv_list.append([tradcoddv,modeldv,designdv,processdv,materialdv,qtydv])
-
-                if tradcoddv[:3] == 'VÁL':
-                    tradcodplug = 'TAPÓN NORMAL ' + self.model.data(self.model.index(target_row, 20)) + self.model.data(self.model.index(target_row, 21))
-                    modelplug = ''
-                    designplug = ''
-                    processplug = ''
-                    materialplug = self.model.data(self.model.index(target_row, 10))
-                    qtyplug = 2
-                    plug_list.append([tradcodplug,modelplug,designplug,processplug,materialplug,qtyplug])
-
-                if code_nippletube != '':
-                    tradcodnippletube = 'NIPLO TUBO ' + nippletubedim
-                    modelnippletube = '80 mm'
-                    designnippletube = ''
-                    processnippletube = ''
-                    materialnippletube = 'A-106' if self.model.data(self.model.index(target_row, 10)) in ['Carbon Steel','ASTM A350 LF2 CL2'] else self.model.data(self.model.index(target_row, 10))
-                    qtynippletube = self.model.data(self.model.index(target_row, 104))
-                    nippletube_list.append([tradcodnippletube,modelnippletube,designnippletube,processnippletube,materialnippletube,qtynippletube])
-
-                if code_illuminator != '':
-                    tradcodilluminator = 'ILUMINADOR ' + model_num[3:7]
-                    modelilluminator = model_num[:6].replace('S','I')
-                    designilluminator = ''
-                    processilluminator = ''
-                    materialilluminator = 'HIERRO'
-                    qtyilluminator = self.model.data(self.model.index(target_row, 74))
-                    illuminator_list.append([tradcodilluminator,modelilluminator,designilluminator,processilluminator,materialilluminator,qtyilluminator])
-
-                if code_antifrost != '':
-                    tradcodantifrost = 'ANTIHIELO TAMAÑO ' + model_num[3:7]
-                    modelantifrost = ''
-                    designantifrost = ''
-                    processantifrost = ''
-                    materialantifrost = 'METACRILATO'
-                    qtyantifrost = self.model.data(self.model.index(target_row, 107))
-                    antifrost_list.append([tradcodantifrost,modelantifrost,designantifrost,processantifrost,materialantifrost,qtyantifrost])
-
-    # Turn all lists in dataframe and grouped in order to sum same items
-        data_lists = [
-        (body_list, "df_body"),
-        (cover_list, "df_cover"),
-        (glass_list, "df_glass"),
-        (gasket_list, "df_gasket"),
-        (mica_list, "df_mica"),
-        (bolts_list, "df_bolts"),
-        (nipplehex_list, "df_nipplehex"),
-        (valve_list, "df_valve"),
-        (flangevalve_list, "df_flangevalve"),
-        (nippletube_list, "df_nippletube"),
-        (dv_list, "df_list"),
-        (antifrost_list, "df_antifrost"),
-        (illuminator_list, "df_illuminator")]
-
-        data_frames_with_data = []
-
-        for data_list, df_name in data_lists:
-            if data_list:
-                df = pd.DataFrame(data_list)
-                df = df.groupby([0, 1, 2, 3, 4])[5].sum().reset_index()
-                data_frames_with_data.append(df)
-
-        if data_frames_with_data:
-            df_combined = pd.concat(data_frames_with_data, ignore_index=True)
-
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Pedido Materiales')
         dlg.setLabelText('Introduce el pedido:')
@@ -1942,35 +1051,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 
         if clickedButton == 1:
             numorder_pedmat = dlg.textValue()
-            commands_client = ("""
-                        SELECT orders."num_order",orders."num_offer",offers."client"
-                        FROM offers
-                        INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
-                        WHERE UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
-                        """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_client,(self.numorder,))
-                results=cur.fetchone()
-                client=results[2]
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-            except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-            finally:
-                if conn is not None:
-                    conn.close()
-            excel_mat_order = material_order(df_combined,numorder_pedmat,client,self.variable)
-            excel_mat_order.save_excel()
-
+            level_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable)
 
 # Function to create fabrication order
     def faborder(self):

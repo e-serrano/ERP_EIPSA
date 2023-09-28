@@ -10,6 +10,9 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from datetime import *
 import psycopg2
 from config import config
+import os
+
+basedir = os.path.dirname(__file__)
 
 
 class Ui_New_Order_Window(object):
@@ -19,7 +22,7 @@ class Ui_New_Order_Window(object):
         New_Order.setMinimumSize(QtCore.QSize(680, 425))
         New_Order.setMaximumSize(QtCore.QSize(680, 425))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         New_Order.setWindowIcon(icon)
         New_Order.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -343,7 +346,7 @@ class Ui_New_Order_Window(object):
             if len(match_offer)==0:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Nuevo Pedido")
                 dlg.setText("El número de oferta introducido no existe")
@@ -353,7 +356,7 @@ class Ui_New_Order_Window(object):
             elif len(match_order)>0:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Nuevo Pedido")
                 dlg.setText("El número de pedido introducido ya existe")
@@ -387,7 +390,7 @@ class Ui_New_Order_Window(object):
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Crear Pedido")
                     dlg.setText("Pedido creado con éxito")

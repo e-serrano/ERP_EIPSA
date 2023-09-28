@@ -14,6 +14,9 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib import ticker
 from ClientResume_Window import Ui_ClientResume_Window
+import os
+
+basedir = os.path.dirname(__file__)
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -28,7 +31,7 @@ class Ui_ClientsGeneralResume_Window(object):
         ClientsGeneralResume_Window.resize(790, 595)
         ClientsGeneralResume_Window.setMinimumSize(QtCore.QSize(1200, 900))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ClientsGeneralResume_Window.setWindowIcon(icon)
         ClientsGeneralResume_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

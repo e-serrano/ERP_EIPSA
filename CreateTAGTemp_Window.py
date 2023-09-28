@@ -9,6 +9,10 @@ import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 from config import config
 import psycopg2
+import os
+
+basedir = os.path.dirname(__file__)
+
 
 class Ui_CreateTAGTemp_Window(object):
     def setupUi(self, CreateTAGTemp_Window):
@@ -18,7 +22,7 @@ class Ui_CreateTAGTemp_Window(object):
         CreateTAGTemp_Window.setMaximumSize(QtCore.QSize(1200, 665))
         CreateTAGTemp_Window.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         CreateTAGTemp_Window.setWindowIcon(icon)
         CreateTAGTemp_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -911,7 +915,7 @@ class Ui_CreateTAGTemp_Window(object):
         
         else:
             commands_inserttagtemp = ("""
-                            INSERT INTO tags_data.tags_temp_prueba (
+                            INSERT INTO tags_data.tags_temp (
                             "tag","tag_state","num_offer","num_order","num_po",
                             "position","subposition","item_type","tw_type","flange_size",
                             "flange_rating","flange_facing","std_tw","material_tw","std_length",
@@ -945,7 +949,7 @@ class Ui_CreateTAGTemp_Window(object):
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Crear Tag")
                 dlg.setText("Tag creado con éxito")
@@ -991,7 +995,7 @@ class Ui_CreateTAGTemp_Window(object):
         if len(match)==0:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Crear Tag")
             dlg.setText("El número de oferta introducido no existe")

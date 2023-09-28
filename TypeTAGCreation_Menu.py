@@ -11,7 +11,9 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from CreateTAGFlow_Window import Ui_CreateTAGFlow_Window
 from CreateTAGTemp_Window import Ui_CreateTAGTemp_Window
 from CreateTAGNiv_Window import Ui_CreateTAGNiv_Window
+import os
 
+basedir = os.path.dirname(__file__)
 
 class Ui_TypeTagCreation_Menu(object):
     def setupUi(self, TypeTag_Menu):
@@ -21,7 +23,7 @@ class Ui_TypeTagCreation_Menu(object):
         TypeTag_Menu.setMinimumSize(QtCore.QSize(300, 400))
         TypeTag_Menu.setMaximumSize(QtCore.QSize(300, 400))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         TypeTag_Menu.setWindowIcon(icon)
         TypeTag_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

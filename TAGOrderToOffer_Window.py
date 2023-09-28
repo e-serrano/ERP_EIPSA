@@ -11,6 +11,9 @@ import pandas as pd
 from tkinter.filedialog import askopenfilename
 import psycopg2
 from config import config
+import os
+
+basedir = os.path.dirname(__file__)
 
 
 class Ui_TAGOrderToOffer_Window(object):
@@ -20,7 +23,7 @@ class Ui_TAGOrderToOffer_Window(object):
         TAGOrderToOffer_Window.setMinimumSize(QtCore.QSize(640, 330))
         TAGOrderToOffer_Window.setMaximumSize(QtCore.QSize(640, 330))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         TAGOrderToOffer_Window.setWindowIcon(icon)
         TAGOrderToOffer_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -182,7 +185,7 @@ class Ui_TAGOrderToOffer_Window(object):
         if self.label_name_file.text()=='':
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Selecciona un archivo para importar")
@@ -203,18 +206,18 @@ class Ui_TAGOrderToOffer_Window(object):
             df_table.replace('nan', 'N/A', inplace=True)
 
             if self.radioFlow.isChecked()==True:
-                table_name='tags_data.tags_flow_prueba'
+                table_name='tags_data.tags_flow'
             elif self.radioTemp.isChecked()==True:
-                table_name='tags_data.tags_temp_prueba'
+                table_name='tags_data.tags_temp'
             elif self.radioLevel.isChecked()==True:
-                table_name= '' #'tags_data.tags_level_prueba'
+                table_name= 'tags_data.tags_level'
             elif self.radioOthers.isChecked()==True:
                 table_name= '' 
             else:
                 table_name= '' 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Selecciona un tipo de equipo")
@@ -245,7 +248,7 @@ class Ui_TAGOrderToOffer_Window(object):
                             if len(result_check) == 0:
                                 dlg = QtWidgets.QMessageBox()
                                 new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                 dlg.setWindowIcon(new_icon)
                                 dlg.setWindowTitle("ERP EIPSA")
                                 dlg.setText(f"El ID \'{id_value}\' no se corresponde con el TAG \'{tag_value}\' \n"
@@ -262,7 +265,7 @@ class Ui_TAGOrderToOffer_Window(object):
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("Datos importados con éxito")

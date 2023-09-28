@@ -10,6 +10,9 @@ from PDFViewer_ZoomSelector import ZoomSelector
 from PDFViewer_ui import Ui_MainWindow
 from tkinter.filedialog import asksaveasfilename
 from PDF_Styles import pruebas
+import os
+
+basedir = os.path.dirname(__file__)
 
 ZOOM_MULTIPLIER = math.sqrt(2.0)
 
@@ -25,7 +28,7 @@ class PDF_Viewer(QMainWindow):
         self.temp_file_path = None
 
         icon = QIcon()
-        icon.addPixmap(QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QIcon.Mode.Normal, QIcon.State.Off)
+        icon.addPixmap(QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QIcon.Mode.Normal, QIcon.State.Off)
         self.setWindowIcon(icon)
 
         self.ui.setupUi(self)
@@ -190,7 +193,7 @@ class PDF_Viewer(QMainWindow):
 
             dlg = QMessageBox()
             new_icon = QIcon()
-            new_icon.addPixmap(QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QIcon.Mode.Normal, QIcon.State.Off)
+            new_icon.addPixmap(QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QIcon.Mode.Normal, QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Imprimir pedido")
             dlg.setText("PDF generado con éxito")
@@ -202,7 +205,7 @@ class PDF_Viewer(QMainWindow):
     def on_actionPrint_triggered(self):
         print('imprimir')
         # try:
-        #     os.startfile(r'\\nas01\DATOS\Comunes\EIPSA-ERP\Recursos\pdfviewer\temp\temp.pdf','print')
+        #     os.startfile(r'\\nas01\DATOS\Comunes\EIPSA-ERP\Resources\pdfviewer\temp\temp.pdf','print')
         #     PRINTER_DEFAULTS = {"DesiredAccess":win32print.PRINTER_ALL_ACCESS}  
         #     pHandle = win32print.OpenPrinter('300LN1', PRINTER_DEFAULTS)  
         #     properties = win32print.GetPrinter(pHandle, 2)
@@ -245,7 +248,7 @@ if __name__ == "__main__":
 
     pdf_buffer = pdf.output()
 
-    temp_file_path = os.path.join("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/pdfviewer/temp", "temp.pdf")
+    temp_file_path = os.path.join(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))
 
     with open(temp_file_path, "wb") as temp_file:
         temp_file.write(pdf_buffer)

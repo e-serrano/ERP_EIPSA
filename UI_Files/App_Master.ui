@@ -21,7 +21,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico</iconset>
+    <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/icon.ico</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/icon.ico</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(255, 255, 255);</string>
@@ -62,7 +62,7 @@
               <string/>
              </property>
              <property name="pixmap">
-              <pixmap>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Logo.ico</pixmap>
+              <pixmap>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Logo.ico</pixmap>
              </property>
              <property name="scaledContents">
               <bool>true</bool>
@@ -137,7 +137,7 @@ QPushButton:pressed{
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/User_Edit.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/User_Edit.png</iconset>
+               <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/User_Edit.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/User_Edit.png</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -215,7 +215,7 @@ QPushButton:pressed{
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Database_Admin.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Database_Admin.png</iconset>
+               <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Database_Admin.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Database_Admin.png</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -287,7 +287,7 @@ QPushButton:pressed{
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Database_Import.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Database_Import.png</iconset>
+               <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Database_Import.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Database_Import.png</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -365,7 +365,7 @@ QPushButton:pressed{
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Database_Changes.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Database_Changes.png</iconset>
+               <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Database_Changes.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Database_Changes.png</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -443,7 +443,7 @@ QPushButton:pressed{
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Task_New.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Task_New.png</iconset>
+               <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Task_New.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Task_New.png</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -547,7 +547,7 @@ QPushButton:pressed{
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/User.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/User.png</iconset>
+               <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/User.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/User.png</iconset>
              </property>
              <property name="iconSize">
               <size>
@@ -672,7 +672,7 @@ QPushButton:pressed{
                 </property>
                 <property name="icon">
                  <iconset>
-                  <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Offer_Search.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Offer_Search.png</iconset>
+                  <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Offer_Search.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Offer_Search.png</iconset>
                 </property>
                 <property name="iconSize">
                  <size>
@@ -710,7 +710,7 @@ QPushButton:pressed{
                 </property>
                 <property name="icon">
                  <iconset>
-                  <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Order_Search.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Order_Search.png</iconset>
+                  <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Order_Search.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Order_Search.png</iconset>
                 </property>
                 <property name="iconSize">
                  <size>
@@ -748,7 +748,7 @@ QPushButton:pressed{
                 </property>
                 <property name="icon">
                  <iconset>
-                  <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Documents_Search.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Documents_Search.png</iconset>
+                  <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Documents_Search.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/Documents_Search.png</iconset>
                 </property>
                 <property name="iconSize">
                  <size>
@@ -786,7 +786,7 @@ QPushButton:pressed{
                 </property>
                 <property name="icon">
                  <iconset>
-                  <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/TAG_Search.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/TAG_Search.png</iconset>
+                  <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/TAG_Search.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/TAG_Search.png</iconset>
                 </property>
                 <property name="iconSize">
                  <size>
@@ -824,7 +824,7 @@ QPushButton:pressed{
                 </property>
                 <property name="icon">
                  <iconset>
-                  <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/TAG_Edit.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/TAG_Edit.png</iconset>
+                  <normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/TAG_Edit.png</normaloff>//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/TAG_Edit.png</iconset>
                 </property>
                 <property name="iconSize">
                  <size>
@@ -957,10 +957,10 @@ QCalendarWidget QAbstractItemView:enabled{
 }
 
 #qt_calendar_prevmonth {
-    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/back_arrow.png);
+    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);
 }
 #qt_calendar_nextmonth {
-    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/forward_arrow.png);
+    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);
 }</string>
                  </property>
                  <property name="selectedDate">

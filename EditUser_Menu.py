@@ -9,6 +9,9 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from RegistrationUser_Window import Ui_RegistrationWindow
 from DeleteUser_Window import Ui_DeleteUser_Window
+import os
+
+basedir = os.path.dirname(__file__)
 
 
 class Ui_EditUser_Menu(object):
@@ -18,7 +21,7 @@ class Ui_EditUser_Menu(object):
         EditUser_Menu.setMinimumSize(QtCore.QSize(300, 340))
         EditUser_Menu.setMaximumSize(QtCore.QSize(300, 340))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditUser_Menu.setWindowIcon(icon)
         EditUser_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

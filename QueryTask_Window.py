@@ -15,6 +15,9 @@ import pandas as pd
 from PyQt6.QtWidgets import QApplication, QFileDialog, QAbstractItemView
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from PyQt6.QtCore import Qt
+import os
+
+basedir = os.path.dirname(__file__)
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -39,7 +42,7 @@ class Ui_QueryTask_Window(QtWidgets.QMainWindow):
         QueryTask_Window.setMinimumSize(QtCore.QSize(600, 575))
         # QueryTask_Window.setMaximumSize(QtCore.QSize(600, 575))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         QueryTask_Window.setWindowIcon(icon)
         QueryTask_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

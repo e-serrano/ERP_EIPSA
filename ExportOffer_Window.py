@@ -14,6 +14,9 @@ import pandas as pd
 import os
 from tkinter import Tk
 from tkinter.filedialog import asksaveasfilename
+import os
+
+basedir = os.path.dirname(__file__)
 
 
 class Ui_ExportOffer_Window(object):
@@ -27,7 +30,7 @@ class Ui_ExportOffer_Window(object):
         ExportOffer_Window.setSizePolicy(sizePolicy)
         ExportOffer_Window.setMaximumSize(QtCore.QSize(275, 340))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ExportOffer_Window.setWindowIcon(icon)
         ExportOffer_Window.setAutoFillBackground(False)
         ExportOffer_Window.setStyleSheet("QWidget {\n"
@@ -194,7 +197,7 @@ class Ui_ExportOffer_Window(object):
         if numoffer=="" or (numoffer==" " or len(match)==0):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Exportar Oferta")
             dlg.setText("El número de oferta no se encuentra registrado")
@@ -225,7 +228,6 @@ class Ui_ExportOffer_Window(object):
                 df = pd.DataFrame(data=data,columns=columns)
 
             # Saving the dataframe in an excel file
-                # template_file = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Excel Ofertas\prueba.xlsx"
                 wb = load_workbook(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Template.xlsx")    # Loading Excel Template
                 sheet_name = "Hoja1"    # Selecting template sheet
                 ws = wb[sheet_name]
@@ -252,7 +254,7 @@ class Ui_ExportOffer_Window(object):
 
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Exportar Oferta")
             dlg.setText("Oferta exportada con éxito")

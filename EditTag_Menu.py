@@ -13,6 +13,9 @@ from Database_Connection import createConnection
 from datetime import *
 from EditTags_Commercial_Window import Ui_EditTags_Window
 from TAGOrderToOffer_Window import Ui_TAGOrderToOffer_Window
+import os
+
+basedir = os.path.dirname(__file__)
 
 
 class Ui_EditTags_Menu(object):
@@ -23,7 +26,7 @@ class Ui_EditTags_Menu(object):
         EditTags_Menu.setMinimumSize(QtCore.QSize(315, 325))
         EditTags_Menu.setMaximumSize(QtCore.QSize(315, 325))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditTags_Menu.setWindowIcon(icon)
         EditTags_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

@@ -13,6 +13,9 @@ from PyQt6.QtGui import (QAction, QIcon)
 from PyQt6.QtPdfWidgets import QPdfView
 from PyQt6.QtWidgets import (QMenu, QMenuBar, QSizePolicy, QSplitter, QStatusBar,
     QToolBar, QVBoxLayout, QWidget)
+import os
+
+basedir = os.path.dirname(__file__)
 
 
 class Ui_MainWindow(object):
@@ -33,7 +36,7 @@ class Ui_MainWindow(object):
         if QIcon.hasThemeIcon(iconThemeName):
             icon3 = QIcon.fromTheme(iconThemeName)
         else:
-            icon3.addFile("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/pdfviewer/images/zoom-in.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+            icon3.addFile(os.path.join(basedir, "Resources/pdfviewer/images/zoom-in.svg"), QSize(), QIcon.Mode.Normal, QIcon.State.Off)
 
         self.actionZoom_In.setIcon(icon3)
         self.actionZoom_Out = QAction(MainWindow)
@@ -43,7 +46,7 @@ class Ui_MainWindow(object):
         if QIcon.hasThemeIcon(iconThemeName):
             icon4 = QIcon.fromTheme(iconThemeName)
         else:
-            icon4.addFile("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/pdfviewer/images/zoom-out.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+            icon4.addFile(os.path.join(basedir, "Resources/pdfviewer/images/zoom-out.svg"), QSize(), QIcon.Mode.Normal, QIcon.State.Off)
 
         self.actionZoom_Out.setIcon(icon4)
         self.actionPrevious_Page = QAction(MainWindow)
@@ -53,7 +56,7 @@ class Ui_MainWindow(object):
         if QIcon.hasThemeIcon(iconThemeName):
             icon5 = QIcon.fromTheme(iconThemeName)
         else:
-            icon5.addFile("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/pdfviewer/images/go-previous-view-page.svgz", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+            icon5.addFile(os.path.join(basedir, "Resources/pdfviewer/images/go-previous-view-page.svgz"), QSize(), QIcon.Mode.Normal, QIcon.State.Off)
 
         self.actionPrevious_Page.setIcon(icon5)
         self.actionNext_Page = QAction(MainWindow)
@@ -63,7 +66,7 @@ class Ui_MainWindow(object):
         if QIcon.hasThemeIcon(iconThemeName):
             icon6 = QIcon.fromTheme(iconThemeName)
         else:
-            icon6.addFile("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/pdfviewer/images/go-next-view-page.svgz", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+            icon6.addFile(os.path.join(basedir, "Resources/pdfviewer/images/go-next-view-page.svgz"), QSize(), QIcon.Mode.Normal, QIcon.State.Off)
 
         self.actionNext_Page.setIcon(icon6)
         self.actionContinuous = QAction(MainWindow)
@@ -73,25 +76,25 @@ class Ui_MainWindow(object):
         self.actionBack.setObjectName(u"actionBack")
         self.actionBack.setEnabled(False)
         icon7 = QIcon()
-        icon7.addFile("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/pdfviewer/images/go-previous-view.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon7.addFile(os.path.join(basedir, "Resources/pdfviewer/images/go-previous-view.svg"), QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.actionBack.setIcon(icon7)
         self.actionForward = QAction(MainWindow)
         self.actionForward.setObjectName(u"actionForward")
         self.actionForward.setEnabled(False)
         icon8 = QIcon()
-        icon8.addFile("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/pdfviewer/images/go-next-view.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon8.addFile(os.path.join(basedir, "Resources/pdfviewer/images/go-next-view.svg"), QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.actionForward.setIcon(icon8)
         self.actionPrint = QAction(MainWindow)
         self.actionPrint.setObjectName(u"actionPrint")
         self.actionPrint.setEnabled(False)
         icon9 = QIcon()
-        icon9.addFile("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/pdfviewer/images/print.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon9.addFile(os.path.join(basedir, "Resources/pdfviewer/images/print.svg"), QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.actionPrint.setIcon(icon9)
         self.actionSave = QAction(MainWindow)
         self.actionSave.setObjectName(u"actionSave")
         self.actionSave.setEnabled(False)
         icon10 = QIcon()
-        icon10.addFile("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/pdfviewer/images/save.svg", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon10.addFile(os.path.join(basedir, "Resources/pdfviewer/images/save.svg"), QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.actionSave.setIcon(icon10)
         self.centralWidget = QWidget(MainWindow)
         self.centralWidget.setObjectName(u"centralWidget")

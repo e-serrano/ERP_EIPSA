@@ -17,6 +17,9 @@ import psycopg2
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import locale
+import os
+
+basedir = os.path.dirname(__file__)
 
 
 def imagen_to_base64(imagen):
@@ -88,7 +91,6 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                 del self.filters[column]
         self.invalidateFilter()
 
-
     def filterAcceptsRow(self, source_row, source_parent):
         for column, expresions in self.filters.items():
             text = self.sourceModel().index(source_row, column, source_parent).data()
@@ -97,7 +99,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                 text = text.toString("yyyy-MM-dd")
 
             for expresion in expresions:
-                if expresion == '':  # Si la expresión es vacía, coincidir con celdas vacías
+                if expresion == '':  # If expression is empty, match empty cells
                     if text == '':
                         break
 
@@ -120,10 +122,9 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
 class EditableTableModel(QtSql.QSqlTableModel):
     updateFailed = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, column_range=None):
         super().__init__(parent)
-        # self.originalData = {}
-        # self.modifiedCells = []
+        self.column_range = column_range
 
     def setAllColumnHeaders(self, headers):
         for column, header in enumerate(headers):
@@ -142,51 +143,11 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
     def flags(self, index):
         flags = super().flags(index)
-        if index.column() == 0:
+        if index.column() in self.column_range:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable 
-
-    # def update_record(self, record, index):
-    #     query = QSqlQuery(self.database())
-    #     primary_key = self.primaryKey()
-    #     id_column = primary_key.fieldName(0)
-
-    #     column_index = index.column() # Obtaining modified column index from modified cell index
-    #     column_name = self.record().fieldName(column_index) # Obtaining modified column name
-    #     new_value = index.data(Qt.ItemDataRole.EditRole) #Obtaining new value
-    #     old_value = self.originalData.get(column_index, "") # Obtaining old value
-
-    #     # Verify if values are NULL
-    #     if new_value is None:
-    #         new_value = ""
-    #     if old_value is None:
-    #         old_value = ""
-
-    #     query.prepare(f"UPDATE {self.tableName()} SET {column_name} = :newValue WHERE {id_column} = :id")
-    #     query.bindValue(":newValue", new_value)
-    #     query.bindValue(":id", record.value(id_column))
-
-    #     query.exec()
-    #     query_text = query.executedQuery()
-    #     # print("SQL Query:", query_text)
-
-    #     if query.lastError().isValid():
-    #         dlg = QtWidgets.QMessageBox()
-    #         new_icon = QtGui.QIcon()
-    #         new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-    #         dlg.setWindowIcon(new_icon)
-    #         dlg.setWindowTitle("Editar Tags")
-    #         dlg.setText("Ha habido un error al actualizar los datos. No serán guardados")
-    #         dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-    #         dlg.exec()
-
-    #         print("Error en la consulta:", query.lastError().nativeErrorCode())
-    #         print("Mensaje de error:", query.lastError().text())
-    #         return None
-    #     else:
-    #         return query_text
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
 
 class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
@@ -217,16 +178,16 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.dict_valuesuniques = {}
         self.dict_ordersort = {}
         self.hiddencolumns = []
+        self.variable = ''
         self.setupUi(self)
         self.model.dataChanged.connect(self.saveChanges)
-
 
     def setupUi(self, EditTags_Window):
         EditTags_Window.setObjectName("EditTags_Window")
         EditTags_Window.resize(790, 595)
         EditTags_Window.setMinimumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditTags_Window.setWindowIcon(icon)
         EditTags_Window.setStyleSheet(
 ".QFrame {\n"
@@ -246,21 +207,13 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.hcab=QtWidgets.QHBoxLayout()
         self.hcab.setObjectName("hcab")
-        # self.toolSave = QtWidgets.QToolButton(self.frame)
-        # self.toolSave.setObjectName("Save_Button")
-        # self.hcab.addWidget(self.toolSave)
-        # icon = QtGui.QIcon()
-        # icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Save.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        # self.toolSave.setIcon(icon)
-        # self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        # self.hcab.addItem(self.hcabspacer1)
         self.toolDeleteFilter = QtWidgets.QToolButton(self.frame)
         self.toolDeleteFilter.setObjectName("DeleteFilter_Button")
         self.toolDeleteFilter.setToolTip("Borrar filtros")
         self.toolDeleteFilter.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolDeleteFilter)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Filter_Delete.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolDeleteFilter.setIcon(icon)
         self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer1)
@@ -269,7 +222,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.toolShow.setToolTip("Mostrar columnas")
         self.hcab.addWidget(self.toolShow)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Eye.png"),QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Eye.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolShow.setIcon(icon)
         self.toolShow.setIconSize(QtCore.QSize(25, 25))
 
@@ -406,10 +359,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addItem(spacerItem, 3, 0, 1, 1)
         self.tableEditTags=QtWidgets.QTableView(parent=self.frame)
         self.model = EditableTableModel()
-        # self.model.select()
-        # # self.model.setEditStrategy(QtSql.QSqlTableModel.EditStrategy.OnManualSubmit)
-        # self.proxy.setSourceModel(self.model)
-        # self.tableEditTags.setModel(self.proxy)
         self.tableEditTags.setObjectName("tableEditTags")
         self.gridLayout_2.addWidget(self.tableEditTags, 4, 0, 1, 1)
         self.hLayout3 = QtWidgets.QHBoxLayout()
@@ -457,7 +406,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(EditTags_Window)
         self.Button_Clean.clicked.connect(self.clean_boxes)
         self.Button_Query.clicked.connect(self.query_tags)
-        # self.toolSave.clicked.connect(self.submit_all)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolShow.clicked.connect(self.show_columns)
         self.Numoffer_EditTags.returnPressed.connect(self.query_tags)
@@ -483,7 +431,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             "SELECT bolts_nuts_material FROM validation_data.flow_bolts_nuts_material",
             "SELECT nace FROM validation_data.flow_nace"
             ]
-        
+
         commands_comboboxes_temp = [
             "SELECT item_type FROM validation_data.temp_item_type",
             "SELECT tw_type FROM validation_data.temp_tw_type",
@@ -512,8 +460,38 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             "SELECT plug FROM validation_data.temp_plug"
             ]
 
+        commands_comboboxes_level = [
+            "SELECT item_type FROM validation_data.level_item_type",
+            "SELECT model_num FROM validation_data.level_model_num",
+            "SELECT body_mat FROM validation_data.level_body_mat",
+            "SELECT proc_conn_type FROM validation_data.level_proc_conn_type",
+            "SELECT proc_conn_size FROM validation_data.level_proc_conn_size",
+            "SELECT proc_conn_rating FROM validation_data.level_proc_conn_rating",
+            "SELECT proc_conn_facing FROM validation_data.level_proc_conn_facing",
+            "SELECT conn_type FROM validation_data.level_conn_type",
+            "SELECT valve_type FROM validation_data.level_valve_type",
+            "SELECT dv_conn FROM validation_data.level_dv_conn",
+            "SELECT dv_size FROM validation_data.level_dv_size",
+            "SELECT dv_rating FROM validation_data.level_dv_rating",
+            "SELECT dv_facing FROM validation_data.level_dv_facing",
+            "SELECT gasket FROM validation_data.level_gasket",
+            "SELECT stud_nuts FROM validation_data.level_stud_nuts",
+            "SELECT illuminator FROM validation_data.level_illuminator",
+            "SELECT float_mat FROM validation_data.level_float_mat",
+            "SELECT case_cover_mat FROM validation_data.level_case_cover_mat",
+            "SELECT scale_type FROM validation_data.level_scale",
+            "SELECT flags_color_mat FROM validation_data.level_flags_color_mat",
+            "SELECT ip_code FROM validation_data.level_ip_code",
+            "SELECT flange_type FROM validation_data.level_flange_type",
+            "SELECT nipple FROM validation_data.level_nipple",
+            "SELECT nipple FROM validation_data.level_nipple",
+            "SELECT antifrost FROM validation_data.level_antifrost",
+            "SELECT nace FROM validation_data.level_nace",
+            ]
+
         self.all_results_flow = []
         self.all_results_temp = []
+        self.all_results_level = []
 
         conn = None
         try:
@@ -531,10 +509,10 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 cur.execute(query)
                 results_temp=cur.fetchall()
                 self.all_results_temp.append(results_temp)
-            # for query in commands_comboboxes_level:
-            #     cur.execute(query)
-            #     results_level=cur.fetchall()
-            #     self.all_results_level.append(results_level)
+            for query in commands_comboboxes_level:
+                cur.execute(query)
+                results_level=cur.fetchall()
+                self.all_results_level.append(results_level)
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
@@ -606,60 +584,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                         self.checkbox_states[column][value] = True
             self.dict_valuesuniques[column] = list_valuesUnique
 
-# Function to upload changes when save button is pressed
-    # def submit_all(self):
-    #     columns_number=self.model.columnCount()
-    #     if self.model.database().isOpen():
-    #         self.model.database().transaction()
-    #         success = True
-
-    #         for index in range(columns_number):
-    #             self.proxy.setFilter("", index)
-    #             self.model.setIconColumnHeader(index, '')
-
-    #         for row in range(self.model.rowCount()):
-    #             for column in range(self.model.columnCount()):
-    #                 index = self.model.index(row, column)
-    #                 current_value = index.data(Qt.ItemDataRole.DisplayRole)
-    #                 original_value = self.model.getOriginalValue(index)
-    #                 if current_value != original_value:
-    #                     record = self.model.record(row)
-    #                     query = self.model.update_record(record, index)
-    #                     if not query:
-    #                         success = False
-    #                         break
-
-    #         if success:
-    #             self.model.database().commit()
-    #             dlg = QtWidgets.QMessageBox()
-    #             new_icon = QtGui.QIcon()
-    #             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-    #             dlg.setWindowIcon(new_icon)
-    #             dlg.setWindowTitle("Editar Tags")
-    #             dlg.setText("Datos guardados con éxito")
-    #             dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-    #             dlg.exec()
-    #         else:
-    #             self.model.database().rollback()
-    #             dlg = QtWidgets.QMessageBox()
-    #             new_icon = QtGui.QIcon()
-    #             new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-    #             dlg.setWindowIcon(new_icon)
-    #             dlg.setWindowTitle("Editar Tags")
-    #             dlg.setText("Ha habido un problema al guardar los datos")
-    #             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-    #             dlg.exec()
-
-    #     else:
-    #         dlg = QtWidgets.QMessageBox()
-    #         new_icon = QtGui.QIcon()
-    #         new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-    #         dlg.setWindowIcon(new_icon)
-    #         dlg.setWindowTitle("Editar Tags")
-    #         dlg.setText("No ha sido posible conectar con la base de datos. Contacte con su administrador")
-    #         dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-    #         dlg.exec()
-
 # Function to load table and setting in the window
     def query_tags(self):
         self.checkbox_states = {}
@@ -670,12 +594,11 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.model.dataChanged.disconnect(self.saveChanges)
         numorder = self.Numorder_EditTags.text()
         numoffer = self.Numoffer_EditTags.text()
-        variable = ''
 
         if numoffer=="" and numorder=="":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Rellena alguno de los campos")
@@ -688,7 +611,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', numorder):
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY")
@@ -716,7 +639,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 # execution of commands
                     cur.execute(query,(numorder,))
                     results_variable=cur.fetchone()
-                    variable = results_variable[1] if results_variable != None else ''
+                    self.variable = results_variable[1] if results_variable != None else ''
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
@@ -730,7 +653,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 if results_variable == None:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("EL número de pedido no existe")
@@ -740,19 +663,22 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                     self.model.dataChanged.connect(self.saveChanges)
 
                 else:
-                    if variable == 'Caudal':
-                        self.model.setTable("tags_data.tags_flow_prueba")
-                    elif variable == 'Temperatura':
-                        self.model.setTable("tags_data.tags_temp_prueba")
-                    # elif variable == 'Level':
-                    #     self.model.setTable("tags_data.tags_level_prueba")
+                    if self.variable == 'Caudal':
+                        self.model.setTable("tags_data.tags_flow")
+                        self.initial_column = 32
+                    elif self.variable == 'Temperatura':
+                        self.model.setTable("tags_data.tags_temp")
+                        self.initial_column = 39
+                    elif self.variable == 'Nivel':
+                        self.model.setTable("tags_data.tags_level")
+                        self.initial_column = 40
                     self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{numorder.upper()}%'")
 
         elif numorder=="":
             if not re.match(r'^O-\d{2}/\d{3}.*$', numoffer):
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("El número de oferta debe tener formato O-XX/YYY")
@@ -779,7 +705,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 # execution of commands
                     cur.execute(query,(numoffer,))
                     results_variable=cur.fetchone()
-                    variable = results_variable[1] if results_variable != None else ''
+                    self.variable = results_variable[1] if results_variable != None else ''
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
@@ -793,7 +719,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 if results_variable == None:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("El número de oferta no existe")
@@ -803,19 +729,22 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                     self.model.dataChanged.connect(self.saveChanges)
 
                 else:
-                    if variable == 'Caudal':
-                        self.model.setTable("tags_data.tags_flow_prueba")
-                    elif variable == 'Temperatura':
-                        self.model.setTable("tags_data.tags_temp_prueba")
-                    # elif variable == 'Level':
-                    #     self.model.setTable("tags_data.tags_level_prueba")
-                    self.model.setFilter(f"num_offer <>'' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
+                    if self.variable == 'Caudal':
+                        self.model.setTable("tags_data.tags_flow")
+                        self.initial_column = 32
+                    elif self.variable == 'Temperatura':
+                        self.model.setTable("tags_data.tags_temp")
+                        self.initial_column = 39
+                    elif self.variable == 'Nivel':
+                        self.model.setTable("tags_data.tags_level")
+                        self.initial_column = 40
+                    self.model.setFilter(f"num_offer <> '' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
 
         else:
             if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', numorder) or not re.match(r'^O-\d{2}/\d{3}.*$', numoffer):
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY \n"
@@ -843,7 +772,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 # execution of commands
                     cur.execute(query,(numorder,))
                     results_variable=cur.fetchone()
-                    variable = results_variable[1] if results_variable != None else ''
+                    self.variable = results_variable[1] if results_variable != None else ''
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
@@ -857,7 +786,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 if results_variable == None:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("EL número de oferta no existe")
@@ -867,35 +796,42 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                     self.model.dataChanged.connect(self.saveChanges)
 
                 else:
-                    if variable == 'Caudal':
-                        self.model.setTable("tags_data.tags_flow_prueba")
-                    elif variable == 'Temperatura':
-                        self.model.setTable("tags_data.tags_temp_prueba")
-                    # elif variable == 'Level':
-                    #     self.model.setTable("tags_data.tags_level_prueba")
+                    if self.variable == 'Caudal':
+                        self.model.setTable("tags_data.tags_flow")
+                        self.initial_column = 32
+                    elif self.variable == 'Temperatura':
+                        self.model.setTable("tags_data.tags_temp")
+                        self.initial_column = 39
+                    elif self.variable == 'Nivel':
+                        self.model.setTable("tags_data.tags_level")
+                        self.initial_column = 40
                     self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{numorder.upper()}%' AND num_offer <>'' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
 
-        if variable != '':
+        if self.variable != '':
             self.model.select()
-            # self.model.setEditStrategy(QtSql.QSqlTableModel.EditStrategy.OnManualSubmit)
 
             self.proxy.setSourceModel(self.model)
             self.tableEditTags.setModel(self.proxy)
 
             columns_number=self.model.columnCount()
+            self.model.column_range = range(self.initial_column,columns_number)
 
-            if variable == 'Caudal':
-                self.tableEditTags.hideColumn(32)
-                self.tableEditTags.hideColumn(33)
-                for i in range(36,columns_number):
+            if self.variable == 'Caudal':
+                for i in range(42,63):
                     self.tableEditTags.hideColumn(i)
-            elif variable == 'Temperatura':
-                for i in range(39,45):
+                for i in range(66,columns_number):
                     self.tableEditTags.hideColumn(i)
-                for i in range(47,columns_number):
+            elif self.variable == 'Temperatura':
+                for i in range(53,70):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(73,columns_number):
+                    self.tableEditTags.hideColumn(i)
+            elif self.variable == 'Nivel':
+                for i in range(48,51):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(54,columns_number):
                     self.tableEditTags.hideColumn(i)
 
-            # self.tableEditTags.verticalHeader().hide()
             self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
             self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -913,8 +849,15 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                         "Material Tubo", "Tamaño Tomas (Nº)", "Material Elemento", "Tipo Placa", "Espesor Placa",
                         "Estándar Placa", "Material Junta", "Material Tornillería", "NACE", "Nº Saltos",
                         "Pipe Spec.", "Peso Aprox. (kg)", "Long. Aprox. (mm)", "Precio (€)", "Notas Oferta",
-                        "Cambio Comercial", "Fecha Contractual", "","", "Cambios Técnicos", "Notas Técnicas"]
-            
+                        "Cambios Comercial", "Fecha Contractual", "Ø Orif. (mm)", "Ø D/V (mm)", "Cambios Técnicos",
+                        "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo", "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano",
+                        "Estado Plano", "Fecha Estado Plano", "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra",
+                        "Fecha OF Placa", "Plano OF Placa", "Colada Placa", "Fecha OF Brida", "Plano OF Brida",
+                        "Colada Brida", "Nº Tapones", "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material",
+                        "RTJ Espesor", "RTJ Dim", "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos",
+                        "Cantidad Espárragos", "Tamaño Extractor", "Cantidad Extractor", "Estado Fabricación", "Inspección",
+                        "Envío RN"]
+
             headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
                         "Tipo", "Tipo TW", "Tamaño Brida", "Rating Brida", "Facing Brida", "Standard TW",
                         "Material TW", "Long. STD (mm)", "Long. Ins. (mm)", "Ø Raíz (mm)", "Ø Punta (mm)",
@@ -922,15 +865,26 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                         "Temp Sup ºC", "Material Nipple Ext.", "Long. Nipple Ext. (mm)", "Material Head/Case", "Con. Elec./Diam. Case",
                         "TT/Terminal Insulation", "Material Brida LapJoint", "Material Junta", "Puntal", "Tubo",
                         "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
-                        "", "", "", "", "", "", "Cambios Técnicos", "Notas Técnicas"]
-            
-            headers_level = []
+                        "Stress", "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Ø Picaje (mm)",
+                        "Notas Cálculo", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo",
+                        "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Planos",
+                        "Fecha OF Sensor", "Plano OF Sensor", "Notas Sensor", "Estado Fabricación Sensor", "Fecha OF TW",
+                        "Plano OF TW", "Notas TW", "Estado Fabricación TW", "Orden de Compra", "Fecha Orden Compra",
+                        "Notas Orden Compra", "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)",
+                        "Tapón", "Estado Fabricación", "Inspección", "Envío RN"]
 
-            if variable == 'Caudal':
+            headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
+                            "Tipo", "Modelo", "Material Cuerpo", "Tipo Conex. Proc.", "Tamaño Conex. Proc.", "Rating Conex. Proc.", "Facing Conex. Proc.",
+                            "Tipo Conex.", "Visibilidad (mm)", "Long. C-C (mm)", "Tipo Válv.", "Tipo Conex. Ext.", "Tamaño Conex. Ext.", "Rating Conex. Ext.", "Facing Conex. Ext.",
+                            "Junta", "Tornillería", "Iluminador", "Mat. Flotador", "Mat. Cubierta", "Escala", "Banderas", "Cod. IP", "Tipo Brida", "Niplo Hex.", "Niplo Tubo", "Antifrost",
+                            "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual", "Dim. Flotador", "Junta Bridas", "Cambios Técnicos", "Notas Técnicas",
+                            "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Estado Fabricación", "Inspección", "Envío RN"]
+
+            if self.variable == 'Caudal':
                 self.model.setAllColumnHeaders(headers_flow)
-            elif variable == 'Temperatura':
+            elif self.variable == 'Temperatura':
                 self.model.setAllColumnHeaders(headers_temp)
-            elif variable == 'Nivel':
+            elif self.variable == 'Nivel':
                 self.model.setAllColumnHeaders(headers_level)
 
         # Getting the unique values for each column of the model
@@ -949,11 +903,11 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                     self.dict_valuesuniques[column] = list_valuesUnique
 
             # Setting cells with comboboxes
-            if variable == 'Caudal':
+            if self.variable == 'Caudal':
                 for i in range(16):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_flow[i]]))
                     self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
-            elif variable == 'Temperatura':
+            elif self.variable == 'Temperatura':
                 for i in range(5):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
                     self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
@@ -962,10 +916,13 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 for i in range(6,25):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
                     self.tableEditTags.setItemDelegateForColumn(i+11, self.combo_itemtype)
-            # elif variable == 'Nivel':
-            #     for i in range(16):
-            #         self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_level[i]]))
-            #         self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
+            elif self.variable == 'Nivel':
+                for i in range(8):
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_level[i]]))
+                    self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
+                for i in range(18):
+                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_level[i+8]]))
+                    self.tableEditTags.setItemDelegateForColumn(i+18, self.combo_itemtype)
 
             self.model.dataChanged.connect(self.saveChanges)
             self.selection_model = self.tableEditTags.selectionModel()
@@ -991,11 +948,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                     if self.logicalIndex not in self.proxy.filters:
                         self.proxy.filters[self.logicalIndex] = []
                     self.proxy.filters[self.logicalIndex].append(str(value))
-
-        # actionHideColumn = QtGui.QAction("Ocultar Columna", self.tableEditTags)
-        # actionHideColumn.triggered.connect(self.hide_column)
-        # self.menuValues.addAction(actionHideColumn)
-        # self.menuValues.addSeparator()
 
         actionSortAscending = QtGui.QAction("Ordenar Ascendente", self.tableEditTags)
         actionSortAscending.triggered.connect(self.on_actionSortAscending_triggered)
@@ -1055,7 +1007,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 # Function when checkbox of header menu is clicked
     def on_checkbox_toggled(self, checked, action_name):
         filterColumn = self.logicalIndex
-        imagen_path = "//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Filter_Active.png"
+        imagen_path = os.path.join(basedir, "Resources/Iconos/Filter_Active.png")
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if len(self.dict_ordersort) == 0:
@@ -1080,18 +1032,11 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 self.checkbox_states[self.logicalIndex][action_name] = True
                 self.model.setIconColumnHeader(filterColumn, icono)
 
-                # select_all_checkbox = self.moreMenu.actions()[0].defaultWidget().checkbox
-                # if all(action.defaultWidget().checkbox.isChecked() for action in self.moreMenu.actions()[1:]):
-                #     select_all_checkbox.setChecked(True)
-
             else:
                 if action_name in self.checkbox_states[self.logicalIndex]:
                     self.checkbox_states[self.logicalIndex][action_name] = False
                     self.proxy.setFilter(str(action_name), filterColumn, str(action_name))
                     self.model.setIconColumnHeader(filterColumn, icono)
-
-                    # select_all_checkbox = self.moreMenu.actions()[0].defaultWidget().checkbox
-                    # select_all_checkbox.setCheckState(QtCore.Qt.CheckState.PartiallyChecked)
 
             if all(action.defaultWidget().checkbox.isChecked() for action in self.moreMenu.actions()[1:]):
                 self.model.setIconColumnHeader(filterColumn, '')
@@ -1104,7 +1049,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.model.setIconColumnHeader(filterColumn, '')
         self.proxy.invalidateFilter()
 
-        self.tableEditTags.setModel(None)  # Eliminar el modelo actual de la vista
+        self.tableEditTags.setModel(None)  # Delecte actual model of view
         self.tableEditTags.setModel(self.proxy)
 
         self.checkbox_states[self.logicalIndex].clear()
@@ -1132,7 +1077,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Buscar')
         clickedButton=dlg.exec()
@@ -1153,13 +1098,13 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         self.proxy.setFilter(stringAction, filterColumn)
 
-        imagen_path = "//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Filter_Active.png"
+        imagen_path = os.path.join(basedir, "Resources/Iconos/Filter_Active.png")
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
         self.model.setIconColumnHeader(filterColumn, icono)
 
 # Function to hide column when action clicked
     def hide_column(self):
-        filterColumn = self.logicalIndex  # Supongo que esta variable contiene el índice de la columna a ocultar
+        filterColumn = self.logicalIndex
         self.tableEditTags.setColumnHidden(filterColumn, True)
         self.hiddencolumns.append(filterColumn)
 
@@ -1196,14 +1141,14 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                                 break
                         if target_row is not None:
                             target_index = self.model.index(target_row, current_column)
-                            self.model.setData(target_index, text, Qt.ItemDataRole.EditRole)  # Pegar el valor en todas las celdas seleccionadas
+                            self.model.setData(target_index, text, Qt.ItemDataRole.EditRole)
                     self.model.submitAll()
 
         super().keyPressEvent(event)
 
 # Function to get the text of the selected cells
     def get_selected_text(self, indexes):
-        if len(indexes) == 1:  # Si solo hay una celda seleccionada
+        if len(indexes) == 1:  # For only one cell selected
             index = indexes[0]
             cell_data = index.data(Qt.ItemDataRole.DisplayRole)
             return cell_data
@@ -1219,11 +1164,11 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 
             for row in sorted(rows):
                 for col in sorted(cols):
-                    index = self.model.index(row, col)  # Obtener el índice correspondiente
+                    index = self.model.index(row, col)  
                     cell_data = index.data(Qt.ItemDataRole.DisplayRole)
                     cursor.insertText(str(cell_data))
-                    cursor.insertText('\t')  # Tab separador de columnas
-                cursor.insertText('\n')  # Salto de línea al final de la fila
+                    cursor.insertText('\t')
+                cursor.insertText('\n')
 
             return text_doc.toPlainText()
 
@@ -1260,18 +1205,19 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         else:
             return 0.0
 
-
-
+# Function for creating context menu
     def createContextMenu(self):
         self.context_menu = QtWidgets.QMenu(self)
         hide_columns_action = self.context_menu.addAction("Ocultar Columnas")
         hide_columns_action.triggered.connect(self.hideSelectedColumns)
 
+# Function to show context menu when right-click
     def showColumnContextMenu(self, pos):
         header = self.tableEditTags.horizontalHeader()
         column = header.logicalIndexAt(pos)
         self.context_menu.exec(self.tableEditTags.mapToGlobal(pos))
 
+# Function to hide selected columns
     def hideSelectedColumns(self):
         selected_columns = set()
         header = self.tableEditTags.horizontalHeader()

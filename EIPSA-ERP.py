@@ -3,6 +3,9 @@ from PyQt6 import QtWidgets
 from Login_Window import Ui_Login_Window
 import os
 from PyQt6 import QtGui
+import os
+
+basedir = os.path.dirname(__file__)
 
 if __name__ == "__main__":
     base_dir = r"C:\Program Files\ERP EIPSA"
@@ -21,7 +24,7 @@ if __name__ == "__main__":
     else:
         dlg = QtWidgets.QMessageBox()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle("ERP EIPSA")
         dlg.setText("Archivo de configuraión no encontrado.\nPonte en contacto con el administrador")

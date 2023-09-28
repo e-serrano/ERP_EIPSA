@@ -14,6 +14,9 @@ from matplotlib.figure import Figure
 from matplotlib import ticker
 from datetime import *
 import numpy as np
+import os
+
+basedir = os.path.dirname(__file__)
 
 
 class Ui_ClientResume_Window(object):
@@ -30,7 +33,7 @@ class Ui_ClientResume_Window(object):
         ClientResume_Window.setMinimumSize(QtCore.QSize(1165, 945))
         # ClientResume_Window.setMaximumSize(QtCore.QSize(1165, 945))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ClientResume_Window.setWindowIcon(icon)
         ClientResume_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -203,7 +206,7 @@ class Ui_ClientResume_Window(object):
             if year2 < year1:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("El segundo año no puede ser menor que el primero")

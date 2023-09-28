@@ -25,6 +25,9 @@ from NewDoc_Window import Ui_New_Doc_Window
 from EditDoc_Window import Ui_EditDoc_Window
 from QueryDoc_Window import Ui_QueryDoc_Window
 from EditPassword_Window import Ui_EditPasswordWindow
+import os
+
+basedir = os.path.dirname(__file__)
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -193,7 +196,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
-            header_item.setIcon(QtGui.QIcon("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Filter_Active.png"))
+            header_item.setIcon(QtGui.QIcon(os.path.join(basedir, "Resources/Iconos/Filter_Active.png")))
 
 # Function to obtain the unique matching applied filters 
     def get_unique_values(self, column_index):
@@ -265,7 +268,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         App_Technical.resize(945, 860)
         App_Technical.setMinimumSize(QtCore.QSize(945, 860))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Technical.setWindowIcon(icon)
         App_Technical.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget = QtWidgets.QWidget(parent=App_Technical)
@@ -287,7 +290,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.LogoIcon.setMinimumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setMaximumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setText("")
-        self.LogoIcon.setPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Logo.ico"))
+        self.LogoIcon.setPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Logo.ico")))
         self.LogoIcon.setScaledContents(True)
         self.LogoIcon.setObjectName("LogoIcon")
         self.Header.addWidget(self.LogoIcon)
@@ -322,7 +325,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_DBEdit.setText("")
             icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Database_Admin.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon2.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Database_Admin.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_DBEdit.setIcon(icon2)
             self.Button_DBEdit.setIconSize(QtCore.QSize(40, 40))
             self.Button_DBEdit.setObjectName("Button_DBEdit")
@@ -371,7 +374,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 "}")
         self.Button_Profile.setText("")
         icon13 = QtGui.QIcon()
-        icon13.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/User.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon13.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/User.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Profile.setIcon(icon13)
         self.Button_Profile.setIconSize(QtCore.QSize(40, 40))
         self.Button_Profile.setObjectName("Button_Profile")
@@ -427,7 +430,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_QueryOrder.setFont(font)
         self.Button_QueryOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon8 = QtGui.QIcon()
-        icon8.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Order_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon8.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Order_Search.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryOrder.setIcon(icon8)
         self.Button_QueryOrder.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryOrder.setObjectName("Button_QueryOrder")
@@ -443,7 +446,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_EditTag.setFont(font)
         self.Button_EditTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon10 = QtGui.QIcon()
-        icon10.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/TAG_Edit.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon10.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/TAG_Edit.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_EditTag.setIcon(icon10)
         self.Button_EditTag.setIconSize(QtCore.QSize(40, 40))
         self.Button_EditTag.setObjectName("Button_EditTag")
@@ -457,7 +460,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_QueryTag.setFont(font)
         self.Button_QueryTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon11 = QtGui.QIcon()
-        icon11.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/TAG_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon11.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/TAG_Search.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryTag.setIcon(icon11)
         self.Button_QueryTag.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryTag.setObjectName("Button_QueryTag")
@@ -471,7 +474,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_NewDoc.setFont(font)
         self.Button_NewDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Documents_New.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon1.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Documents_New.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_NewDoc.setIcon(icon1)
         self.Button_NewDoc.setIconSize(QtCore.QSize(40, 40))
         self.Button_NewDoc.setObjectName("Button_NewDoc")
@@ -485,7 +488,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_ImportDoc.setFont(font)
         self.Button_ImportDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Documents_Import.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon2.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Documents_Import.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_ImportDoc.setIcon(icon2)
         self.Button_ImportDoc.setIconSize(QtCore.QSize(40, 40))
         self.Button_ImportDoc.setObjectName("Button_ImportDoc")
@@ -499,7 +502,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_EditDoc.setFont(font)
         self.Button_EditDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Documents_Edit.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon3.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Documents_Edit.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_EditDoc.setIcon(icon3)
         self.Button_EditDoc.setIconSize(QtCore.QSize(40, 40))
         self.Button_EditDoc.setObjectName("Button_EditDoc")
@@ -513,7 +516,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_QueryDoc.setFont(font)
         self.Button_QueryDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/Documents_Search.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon4.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Documents_Search.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryDoc.setIcon(icon4)
         self.Button_QueryDoc.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryDoc.setObjectName("Button_QueryDoc")
@@ -573,63 +576,63 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.BottomLayout = QtWidgets.QHBoxLayout()
         self.BottomLayout.setContentsMargins(-1, 0, -1, -1)
         self.BottomLayout.setObjectName("BottomLayout")
-        self.Calendar = QtWidgets.QCalendarWidget(parent=self.frame)
-        self.Calendar.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Calendar.sizePolicy().hasHeightForWidth())
-        self.Calendar.setSizePolicy(sizePolicy)
-        self.Calendar.setMinimumSize(QtCore.QSize(200, 400))
-        self.Calendar.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
-        self.Calendar.setStyleSheet("QCalendarWidget QWidget{\n"
-"background-color: rgb(3, 174, 236);\n"
-"}\n"
-"\n"
-"QCalendarWidget QTableView{\n"
-"    background-color: white;\n"
-"}\n"
-"\n"
-"QCalendarWidget QToolButton {\n"
-"    color: white;\n"
-"    font-size:20px;\n"
-"    icon-size:30px 30px;\n"
-"    background-color:rgb(3, 174, 236);\n"
-"}\n"
-"\n"
-"QCalendarWidget QToolButton::hover {\n"
-"    background-color : #019ad2;\n"
-"}\n"
-"\n"
-"QCalendarWidget QToolButton::pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border: 3px solid;\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-"QCalendarWidget QSpinBox{\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border: 2px solid;\n"
-"    border-color: rgb(3,174, 236);\n"
-"}\n"
-"\n"
-"QCalendarWidget QAbstractItemView:enabled{\n"
-"    selection-background-color: rgb(3, 174, 236);\n"
-"    selection-color: white;\n"
-"}\n"
-"\n"
-"#qt_calendar_prevmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/back_arrow.png);\n"
-"}\n"
-"#qt_calendar_nextmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/forward_arrow.png);\n"
-"}")
-        self.Calendar.setSelectedDate(QtCore.QDate.currentDate())
-        self.Calendar.setGridVisible(True)
-        self.Calendar.setNavigationBarVisible(True)
-        self.Calendar.setDateEditEnabled(True)
-        self.Calendar.setObjectName("Calendar")
-        self.BottomLayout.addWidget(self.Calendar)
+#         self.Calendar = QtWidgets.QCalendarWidget(parent=self.frame)
+#         self.Calendar.setEnabled(True)
+#         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
+#         sizePolicy.setHorizontalStretch(0)
+#         sizePolicy.setVerticalStretch(0)
+#         sizePolicy.setHeightForWidth(self.Calendar.sizePolicy().hasHeightForWidth())
+#         self.Calendar.setSizePolicy(sizePolicy)
+#         self.Calendar.setMinimumSize(QtCore.QSize(200, 400))
+#         self.Calendar.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
+#         self.Calendar.setStyleSheet("QCalendarWidget QWidget{\n"
+# "background-color: rgb(3, 174, 236);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QTableView{\n"
+# "    background-color: white;\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QToolButton {\n"
+# "    color: white;\n"
+# "    font-size:20px;\n"
+# "    icon-size:30px 30px;\n"
+# "    background-color:rgb(3, 174, 236);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QToolButton::hover {\n"
+# "    background-color : #019ad2;\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QToolButton::pressed {\n"
+# "    background-color: rgb(1, 140, 190);\n"
+# "    border: 3px solid;\n"
+# "    border-color: rgb(255, 255, 255);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QSpinBox{\n"
+# "    background-color: rgb(255, 255, 255);\n"
+# "    border: 2px solid;\n"
+# "    border-color: rgb(3,174, 236);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QAbstractItemView:enabled{\n"
+# "    selection-background-color: rgb(3, 174, 236);\n"
+# "    selection-color: white;\n"
+# "}\n"
+# "\n"
+# "#qt_calendar_prevmonth {\n"
+# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
+# "}\n"
+# "#qt_calendar_nextmonth {\n"
+# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
+# "}")
+#         self.Calendar.setSelectedDate(QtCore.QDate.currentDate())
+#         self.Calendar.setGridVisible(True)
+#         self.Calendar.setNavigationBarVisible(True)
+#         self.Calendar.setDateEditEnabled(True)
+#         self.Calendar.setObjectName("Calendar")
+#         self.BottomLayout.addWidget(self.Calendar)
         self.MainLayout.addLayout(self.BottomLayout)
         self.PrincipalScreen.addLayout(self.MainLayout)
         self.FrameApp.addLayout(self.PrincipalScreen)
@@ -808,7 +811,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                         if len(match)>0:
                             dlg = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg.setWindowIcon(new_icon)
                             dlg.setWindowTitle("Nuevo Documento")
                             dlg.setText(f"El número de documento '{values[0]}' ya existe y no será importado. Por favor, edítalo y vuelve a importarlo")
@@ -837,7 +840,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Recursos/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Importar Documentos")
                     dlg.setText("Importación completada")
