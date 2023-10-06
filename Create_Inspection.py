@@ -1,0 +1,82 @@
+from config import config
+import os
+from PyQt6 import QtGui, QtWidgets
+import psycopg2
+from datetime import *
+
+basedir = os.path.dirname(__file__)
+
+def inspection(proxy, model, variable):
+    id_list = []
+
+    for row in range(proxy.rowCount()):
+        first_column_value = proxy.data(proxy.index(row, 0))
+        id_list.append(first_column_value)
+
+    for element in id_list:
+        for row in range(model.rowCount()):
+            if model.data(model.index(row, 0)) == element:
+                target_row = row
+                break
+        if target_row is not None:
+            if variable == 'Caudal':
+                ped_type_tag = model.data(model.index(target_row, 106))
+                inspection = model.data(model.index(target_row, 64))
+            elif variable == 'Temperatura':
+                ped_type_tag = model.data(model.index(target_row, 112))
+                inspection = model.data(model.index(target_row, 71))
+            elif variable == 'Nivel':
+                ped_type_tag = model.data(model.index(target_row, 110))
+                inspection = model.data(model.index(target_row, 54))
+
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+                check_tags = f"SELECT * FROM fabrication.tags WHERE code = '{ped_type_tag}'"
+                cur.execute(check_tags)
+                results=cur.fetchall()
+                if len(results) != 0:
+                    update_tags = f"UPDATE fabrication.tags SET inspection = '{inspection}' WHERE code = '{ped_type_tag}'"
+                    cur.execute(update_tags)
+                else:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Inspección")
+                    dlg.setText(f"El tag '{ped_type_tag}' no se encuentra resgistrado en la base de fabricación")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                check_tags = f"SELECT * FROM fabrication.tags WHERE code = '{ped_type_tag}'"
+                cur.execute(check_tags)
+                results=cur.fetchall()
+                if len(results) != 0:
+                    update_faborder = ("UPDATE fabrication.fab_order SET end_date = %s WHERE tag = %s")
+                    data = (date.today().strftime("%d/%m/%Y"), ped_type_tag)
+                    cur.execute(update_faborder,data)
+                else:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Inspección")
+                    dlg.setText(f"El tag '{ped_type_tag}' no se encuentra resgistrado en la base de fabricación")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+                    del dlg, new_icon
+
+        # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()

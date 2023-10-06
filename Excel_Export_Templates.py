@@ -32,10 +32,6 @@ class material_order():
         ws['H1'] = int(num_ot)
         ws['H9'] = date.today().strftime("%d/%m/%Y")
 
-        # cell_P1 = ws['P1']
-        # style_P1 = deepcopy(cell_P1._style)
-        # ws['H1']._style = style_P1
-
         root = Tk()
         root.withdraw()  # Hiding main window Tkinter
 

@@ -868,17 +868,22 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                         "Stress", "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Ø Picaje (mm)",
                         "Notas Cálculo", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo",
                         "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Planos",
-                        "Fecha OF Sensor", "Plano OF Sensor", "Notas Sensor", "Estado Fabricación Sensor", "Fecha OF TW",
-                        "Plano OF TW", "Notas TW", "Estado Fabricación TW", "Orden de Compra", "Fecha Orden Compra",
-                        "Notas Orden Compra", "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)",
+                        "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Fecha OF Sensor", "Plano OF Sensor", 
+                        "Notas Sensor", "Estado Fabricación Sensor", "Fecha OF TW", "Plano OF TW", "Notas TW",
+                        "Estado Fabricación TW", "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)",
                         "Tapón", "Estado Fabricación", "Inspección", "Envío RN"]
 
-            headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
-                            "Tipo", "Modelo", "Material Cuerpo", "Tipo Conex. Proc.", "Tamaño Conex. Proc.", "Rating Conex. Proc.", "Facing Conex. Proc.",
-                            "Tipo Conex.", "Visibilidad (mm)", "Long. C-C (mm)", "Tipo Válv.", "Tipo Conex. Ext.", "Tamaño Conex. Ext.", "Rating Conex. Ext.", "Facing Conex. Ext.",
-                            "Junta", "Tornillería", "Iluminador", "Mat. Flotador", "Mat. Cubierta", "Escala", "Banderas", "Cod. IP", "Tipo Brida", "Niplo Hex.", "Niplo Tubo", "Antifrost",
-                            "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual", "Dim. Flotador", "Junta Bridas", "Cambios Técnicos", "Notas Técnicas",
-                            "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Estado Fabricación", "Inspección", "Envío RN"]
+            headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
+                            "PO", "Posición", "Subposición", "Tipo", "Modelo",
+                            "Material Cuerpo", "Tipo Conex. Proc.", "Tamaño Conex. Proc.", "Rating Conex. Proc.", "Facing Conex. Proc.",
+                            "Tipo Conex.", "Visibilidad (mm)", "Long. C-C (mm)", "Tipo Válv.", "Tipo Conex. Ext.",
+                            "Tamaño Conex. Ext.", "Rating Conex. Ext.", "Facing Conex. Ext.", "Junta", "Tornillería",
+                            "Iluminador", "Mat. Flotador", "Mat. Cubierta", "Escala", "Banderas",
+                            "Cod. IP", "Tipo Brida", "Niplo Hex.", "Niplo Tubo", "Antifrost",
+                            "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
+                            "Dim. Flotador", "Junta Bridas", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Plano",
+                            "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Fecha OF", "Plano OF",
+                            "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Estado Fabricación", "Inspección", "Envío RN"]
 
             if self.variable == 'Caudal':
                 self.model.setAllColumnHeaders(headers_flow)

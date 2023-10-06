@@ -35,7 +35,7 @@ from QueryTask_Window import Ui_QueryTask_Window
 from EditUser_Menu import Ui_EditUser_Menu
 from EditPassword_Window import Ui_EditPasswordWindow
 from ClientResume_Window import Ui_ClientResume_Window
-from Email_Styles import email_offer
+from Email_Styles import email_offer1, email_offer2
 import os
 
 basedir = os.path.dirname(__file__)
@@ -1425,135 +1425,138 @@ class Ui_App_Comercial(object):
 
 
     def reclamation_offer(self):
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("Reclamación oferta")
-        dlg.setText("Función no disponible")
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-        dlg.exec()
-        del dlg, new_icon
+        commands_queryoffer = ("""
+                        SELECT offers."num_offer",offers."responsible",offers."state",offers."num_ref_offer",
+                        offers."presentation_date",offers."rec_auto",offers."last_rec",offers."mails"
+                        FROM offers
+                        WHERE (offers."responsible" = %s
+                        AND
+                        offers."state" = 'Presentada'
+                        )
+                        ORDER BY offers."num_offer"
+                        """)
+        commands_responsiblemail = ("""
+                                    SELECT email
+                                    FROM users_data.registration
+                                    WHERE username = %s
+                                    """)
+        conn = None
 
-        # commands_queryoffer = ("""
-        #                 SELECT offers."num_offer",offers."responsible",offers."state",offers."num_ref_offer",
-        #                 offers."presentation_date",offers."rec_auto",offers."last_rec",offers."mails"
-        #                 FROM offers
-        #                 WHERE (offers."responsible" = %s
-        #                 AND
-        #                 offers."state" = 'Presentada'
-        #                 )
-        #                 ORDER BY offers."num_offer"
-        #                 """)
-        # conn = None
-        # if self.name == 'Carlos Crespo':
-        #     responsible=self.name[0] + self.name[self.name.find(' ')+1] + 'H'
-        # else:
-        #     responsible=self.name[0] + self.name[self.name.find(' ')+1]
-        # try:
-        # # read the connection parameters
-        #     params = config()
-        # # connect to the PostgreSQL server
-        #     conn = psycopg2.connect(**params)
-        #     cur = conn.cursor()
-        # # execution of commands
-        #     data=(responsible,)
-        #     cur.execute(commands_queryoffer,data)
-        #     results=cur.fetchall()
-        # # close communication with the PostgreSQL database server
-        #     cur.close()
-        # # commit the changes
-        #     conn.commit()
-        # except (Exception, psycopg2.DatabaseError) as error:
-        #     print(error)
-        # finally:
-        #     if conn is not None:
-        #         conn.close()
+        nombre, apellido = [word.lower() for word in self.name.split()]
+        username = nombre[0] + "." + apellido
 
-        # for item in results:
-        #     print(item)
-        #     if item[2] == 'Presentada' and item[5] == 'Reclamar':
-        #         if item[6] is None and (item[4] + timedelta(6)) < date.today():
-        #             mail=email_offer(item[7],item[0])
-        #             mail.send_email()
+        if self.name == 'Carlos Crespo':
+            responsible=self.name[0] + self.name[self.name.find(' ')+1] + 'H'
+        else:
+            responsible=self.name[0] + self.name[self.name.find(' ')+1]
+        try:
+            responsible='MASTER'
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            data=(username,)
+            cur.execute(commands_responsiblemail,data)
+            results_email=cur.fetchall()
+            email=results_email[0][0]
+            data=(responsible,)
+            cur.execute(commands_queryoffer,data)
+            results_offers=cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
 
-        #             commands_updateoffer = ("""
-        #                         UPDATE offers
-        #                         SET "last_rec" = %s
-        #                         WHERE "num_offer" = %s
-        #                         """)
-        #             conn = None
-        #             try:
-        #             # read the connection parameters
-        #                 params = config()
-        #             # connect to the PostgreSQL server
-        #                 conn = psycopg2.connect(**params)
-        #                 cur = conn.cursor()
-        #             # execution of commands
-        #                 data=(date.today().strftime("%d/%m/%Y"),item[0],)
-        #                 cur.execute(commands_updateoffer,data)
-        #             # close communication with the PostgreSQL database server
-        #                 cur.close()
-        #             # commit the changes
-        #                 conn.commit()
+        for item in results_offers:
+            if item[2] == 'Presentada' and item[5] == 'Reclamar':
+                if item[6] is None and (item[4] + timedelta(9)) < date.today():
+                    mail=email_offer1(item[7], item[3], email, item[4])
+                    mail.send_email()
 
-        #                 dlg = QtWidgets.QMessageBox()
-        #                 new_icon = QtGui.QIcon()
-        #                 new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        #                 dlg.setWindowIcon(new_icon)
-        #                 dlg.setWindowTitle("Reclamación oferta")
-        #                 dlg.setText("Correos enviados con éxito")
-        #                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-        #                 dlg.exec()
-        #                 del dlg, new_icon
+                    commands_updateoffer = ("""
+                                UPDATE offers
+                                SET "last_rec" = %s
+                                WHERE "num_offer" = %s
+                                """)
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        data=(date.today().strftime("%d/%m/%Y"),item[0],)
+                        cur.execute(commands_updateoffer,data)
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
 
-        #             except (Exception, psycopg2.DatabaseError) as error:
-        #                 print(error)
-        #             finally:
-        #                 if conn is not None:
-        #                     conn.close()
-        #         else:
-        #             if item[6] is not None and (item[6] + timedelta(2)) < date.today():
-        #                 mail=email_offer(item[7],item[0])
-        #                 mail.send_email()
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Reclamación oferta")
+                        dlg.setText("Correos enviados con éxito")
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                        dlg.exec()
+                        del dlg, new_icon
 
-        #                 commands_updateoffer = ("""
-        #                         UPDATE offers
-        #                         SET "last_rec" = %s
-        #                         WHERE "num_offer" = %s
-        #                         """)
-        #                 conn = None
-        #                 try:
-        #                 # read the connection parameters
-        #                     params = config()
-        #                 # connect to the PostgreSQL server
-        #                     conn = psycopg2.connect(**params)
-        #                     cur = conn.cursor()
-        #                 # execution of commands
-        #                     data=(date.today().strftime("%d/%m/%Y"),item[0],)
-        #                     cur.execute(commands_updateoffer,data)
-        #                 # close communication with the PostgreSQL database server
-        #                     cur.close()
-        #                 # commit the changes
-        #                     conn.commit()
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        print(error)
+                    finally:
+                        if conn is not None:
+                            conn.close()
+                else:
+                    if item[6] is not None and (item[6] + timedelta(6)) < date.today():
+                        mail=email_offer2(item[7], item[3], email)
+                        mail.send_email()
 
-        #                     dlg = QtWidgets.QMessageBox()
-        #                     new_icon = QtGui.QIcon()
-        #                     new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        #                     dlg.setWindowIcon(new_icon)
-        #                     dlg.setWindowTitle("Reclamación oferta")
-        #                     dlg.setText("Correos enviados con éxito")
-        #                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-        #                     dlg.exec()
-        #                     del dlg, new_icon
+                        commands_updateoffer = ("""
+                                UPDATE offers
+                                SET "last_rec" = %s
+                                WHERE "num_offer" = %s
+                                """)
+                        conn = None
+                        try:
+                        # read the connection parameters
+                            params = config()
+                        # connect to the PostgreSQL server
+                            conn = psycopg2.connect(**params)
+                            cur = conn.cursor()
+                        # execution of commands
+                            data=(date.today().strftime("%d/%m/%Y"),item[0],)
+                            cur.execute(commands_updateoffer,data)
+                        # close communication with the PostgreSQL database server
+                            cur.close()
+                        # commit the changes
+                            conn.commit()
 
-        #                 except (Exception, psycopg2.DatabaseError) as error:
-        #                     print(error)
-        #                 finally:
-        #                     if conn is not None:
-        #                         conn.close()
-        #             else:
-        #                 pass
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("Reclamación oferta")
+                            dlg.setText("Correos enviados con éxito")
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                            dlg.exec()
+                            del dlg, new_icon
+
+                        except (Exception, psycopg2.DatabaseError) as error:
+                            print(error)
+                        finally:
+                            if conn is not None:
+                                conn.close()
+                    else:
+                        pass
 
 
 if __name__ == "__main__":

@@ -170,7 +170,7 @@ class Ui_ForgetPass_Window(object):
     #SQL Query for loading existing data in database
         commands = ("""
                     SELECT *
-                    FROM datos_registro
+                    FROM users_data.registration
                     """)
         conn = None
         try:
@@ -204,10 +204,32 @@ class Ui_ForgetPass_Window(object):
             dlg.exec()
 
         else:
-            user=match[0][3]
-            password=match[0][5]
-            mail=email_password(user,password)
-            mail.send_email()
+            try:
+                user=match[0][3]
+                password=match[0][5]
+                mail=email_password(recipient_email,user,password)
+                mail.send_email()
+
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Recordatorio contraseña")
+                dlg.setText("Correo enviado con éxito")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+                del dlg, new_icon
+
+            except:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Recordatorio contraseña")
+                dlg.setText("No ha sido posible enviar el correo. Contacte con el administrador")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg, new_icon
 
 
 if __name__ == "__main__":

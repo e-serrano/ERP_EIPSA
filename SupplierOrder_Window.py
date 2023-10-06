@@ -2716,8 +2716,8 @@ class Ui_SupplierOrder_Window(object):
         else:
             pdf = supplier_order(num_order,date,their_ref,payway,delivway,delivterm,obs,supplier_name)
 
-            pdf.add_font('DejaVuSansCondensed', '', '//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/DejaVuSansCondensed.ttf')
-            pdf.add_font('DejaVuSansCondensed-Bold', '', '//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/DejaVuSansCondensed-Bold.ttf')
+            pdf.add_font('DejaVuSansCondensed', '', os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf"))
+            pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf"))
 
             pdf.set_auto_page_break(auto=True, margin=2)
 

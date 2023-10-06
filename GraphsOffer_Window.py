@@ -21,7 +21,6 @@ basedir = os.path.dirname(__file__)
 
 class Ui_GraphsOffer_Window(object):
     def setupUi(self, GraphsOffer_Window):
-        self.user='Enrique Serrano'
         GraphsOffer_Window.setObjectName("GraphsOffer_Window")
         GraphsOffer_Window.resize(1500, 800)
         icon = QtGui.QIcon()

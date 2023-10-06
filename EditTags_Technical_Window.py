@@ -9,19 +9,22 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import QtSql
 from PyQt6.QtWidgets import QApplication
-import re
-import configparser
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
+from Create_FabOrder_Window import Ui_CreateFabOrder_Window
+from Create_MatOrder import flow_matorder, temp_matorder, level_matorder
+from Create_Inspection import inspection
 from Database_Connection import createConnection
 from config import config
 import psycopg2
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
+import re
+import configparser
 import locale
-from Excel_Export_Templates import material_order
-import pandas as pd
 from datetime import *
-from Create_MatOrder import flow_matorder, temp_matorder, level_matorder
 import os
+import pandas as pd
+from tkinter.filedialog import asksaveasfilename
+from PyQt6.QtCore import QDate
 
 basedir = os.path.dirname(__file__)
 
@@ -126,8 +129,9 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
 class EditableTableModel(QtSql.QSqlTableModel):
     updateFailed = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, column_range=None):
         super().__init__(parent)
+        self.column_range = column_range
 
     def setAllColumnHeaders(self, headers):
         for column, header in enumerate(headers):
@@ -146,11 +150,15 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
     def flags(self, index):
         flags = super().flags(index)
-        if index.column() in range (0,8):
+        if index.column() in range (0,8) or index.column() in self.column_range:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable 
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+
+    def getColumnHeaders(self, visible_columns):
+        column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
+        return column_headers
 
 
 class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
@@ -433,6 +441,8 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.toolShow.clicked.connect(self.show_columns)
         self.toolMatOrder.clicked.connect(lambda: self.materialorder(self.variable))
         self.toolFabOrder.clicked.connect(self.faborder)
+        self.toolInspection.clicked.connect(self.setinspection)
+        self.toolExpExcel.clicked.connect(self.exporttoexcel)
         self.Numorder_EditTags.returnPressed.connect(self.query_tags)
         self.model.dataChanged.connect(self.saveChanges)
         self.createContextMenu()
@@ -686,10 +696,13 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 else:
                     if self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
+                        self.initial_column = 28
                     elif self.variable == 'Temperatura':
                         self.model.setTable("tags_data.tags_temp")
+                        self.initial_column = 35
                     elif self.variable == 'Nivel':
                         self.model.setTable("tags_data.tags_level")
+                        self.initial_column = 36
                     self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
 
         if self.variable != '':
@@ -699,6 +712,8 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             self.tableEditTags.setModel(self.proxy)
 
             columns_number=self.model.columnCount()
+            self.model.column_range = range(self.initial_column,self.initial_column + 4)
+
             if self.variable == 'Caudal':
                 for i in range(66,columns_number):
                     self.tableEditTags.hideColumn(i)
@@ -706,7 +721,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 for i in range(73,columns_number):
                     self.tableEditTags.hideColumn(i)
             elif self.variable == 'Nivel':
-                for i in range(54,columns_number):
+                for i in range(56,columns_number):
                     self.tableEditTags.hideColumn(i)
 
             if self.name != 'Jesús Martínez':
@@ -754,17 +769,22 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                         "Stress", "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Ø Picaje (mm)",
                         "Notas Cálculo", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo",
                         "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Planos",
-                        "Fecha OF Sensor", "Plano OF Sensor", "Notas Sensor", "Estado Fabricación Sensor", "Fecha OF TW",
-                        "Plano OF TW", "Notas TW", "Estado Fabricación TW", "Orden de Compra", "Fecha Orden Compra",
-                        "Notas Orden Compra", "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)",
+                        "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Fecha OF Sensor", "Plano OF Sensor", 
+                        "Notas Sensor", "Estado Fabricación Sensor", "Fecha OF TW", "Plano OF TW", "Notas TW",
+                        "Estado Fabricación TW", "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)",
                         "Tapón", "Estado Fabricación", "Inspección", "Envío RN"]
 
-            headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
-                            "Tipo", "Modelo", "Material Cuerpo", "Tipo Conex. Proc.", "Tamaño Conex. Proc.", "Rating Conex. Proc.", "Facing Conex. Proc.",
-                            "Tipo Conex.", "Visibilidad (mm)", "Long. C-C (mm)", "Tipo Válv.", "Tipo Conex. Ext.", "Tamaño Conex. Ext.", "Rating Conex. Ext.", "Facing Conex. Ext.",
-                            "Junta", "Tornillería", "Iluminador", "Mat. Flotador", "Mat. Cubierta", "Escala", "Banderas", "Cod. IP", "Tipo Brida", "Niplo Hex.", "Niplo Tubo", "Antifrost",
-                            "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual", "Dim. Flotador", "Junta Bridas", "Cambios Técnicos", "Notas Técnicas",
-                            "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Estado Fabricación", "Inspección", "Envío RN"]
+            headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
+                            "PO", "Posición", "Subposición", "Tipo", "Modelo",
+                            "Material Cuerpo", "Tipo Conex. Proc.", "Tamaño Conex. Proc.", "Rating Conex. Proc.", "Facing Conex. Proc.",
+                            "Tipo Conex.", "Visibilidad (mm)", "Long. C-C (mm)", "Tipo Válv.", "Tipo Conex. Ext.",
+                            "Tamaño Conex. Ext.", "Rating Conex. Ext.", "Facing Conex. Ext.", "Junta", "Tornillería",
+                            "Iluminador", "Mat. Flotador", "Mat. Cubierta", "Escala", "Banderas",
+                            "Cod. IP", "Tipo Brida", "Niplo Hex.", "Niplo Tubo", "Antifrost",
+                            "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
+                            "Dim. Flotador", "Junta Bridas", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Plano",
+                            "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Fecha OF", "Plano OF",
+                            "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Estado Fabricación", "Inspección", "Envío RN"]
 
             if self.variable == 'Caudal':
                 self.model.setAllColumnHeaders(headers_flow)
@@ -806,9 +826,9 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
                     self.tableEditTags.setItemDelegateForColumn(i+11, self.combo_itemtype)
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
-                self.tableEditTags.setItemDelegateForColumn(57, self.combo_itemtype)
+                self.tableEditTags.setItemDelegateForColumn(60, self.combo_itemtype)
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
-                self.tableEditTags.setItemDelegateForColumn(61, self.combo_itemtype)
+                self.tableEditTags.setItemDelegateForColumn(64, self.combo_itemtype)
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[24]]))
                 self.tableEditTags.setItemDelegateForColumn(69, self.combo_itemtype)
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
@@ -821,7 +841,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_level[i+8]]))
                     self.tableEditTags.setItemDelegateForColumn(i+18, self.combo_itemtype)
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
-                self.tableEditTags.setItemDelegateForColumn(51, self.combo_itemtype)
+                self.tableEditTags.setItemDelegateForColumn(53, self.combo_itemtype)
 
             self.model.dataChanged.connect(self.saveChanges)
             self.selection_model = self.tableEditTags.selectionModel()
@@ -1055,7 +1075,71 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 
 # Function to create fabrication order
     def faborder(self):
-        print('b')
+        if self.proxy.rowCount() == 0:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Orden Fabricación")
+            dlg.setText("No hay datos cargados")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+        else:
+            self.createfaborder_window=QtWidgets.QMainWindow()
+            self.ui=Ui_CreateFabOrder_Window(self.variable, self.proxy, self.model)
+            self.ui.setupUi(self.createfaborder_window)
+            self.createfaborder_window.showMaximized()
+
+# Function to set inspection number
+    def setinspection(self):
+        if self.proxy.rowCount() == 0:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Inspección")
+            dlg.setText("No hay datos cargados")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+        else:
+            inspection(self.proxy, self.model, self.variable)
+
+# Function to set inspection number
+    def exporttoexcel(self):
+        if self.proxy.rowCount() == 0:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Exportar")
+            dlg.setText("No hay datos cargados")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+        else:
+            final_data = []
+
+            visible_columns = [col for col in range(self.model.columnCount()) if not self.tableEditTags.isColumnHidden(col)]
+            visible_headers = self.model.getColumnHeaders(visible_columns)
+            for row in range(self.proxy.rowCount()):
+                tag_data = []
+                for column in visible_columns:
+                    value = self.proxy.data(self.proxy.index(row, column))
+                    if isinstance(value, QDate):
+                        value = value.toString("dd/MM/yyyy")
+                    tag_data.append(value)
+                final_data.append(tag_data)
+
+            final_data.insert(0, visible_headers)
+            df = pd.DataFrame(final_data)
+            df.columns = df.iloc[0]
+            df = df[1:]
+
+            output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
+            if output_path:
+                df.to_excel(output_path, index=False, header=True)
 
 # Function to enable copy and paste cells
     def keyPressEvent(self, event):
@@ -1149,12 +1233,23 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 
 # Function to select which material order has to be created
     def materialorder(self, variable):
-        if self.variable == 'Caudal':
-            self.materialorder_flow()
-        elif self.variable == 'Temperatura':
-            self.materialorder_temp()
-        elif self.variable == 'Nivel':
-            self.materialorder_level()
+        if self.proxy.rowCount() == 0:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Pedido Materiales")
+            dlg.setText("No hay datos cargados")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+        else:
+            if self.variable == 'Caudal':
+                self.materialorder_flow()
+            elif self.variable == 'Temperatura':
+                self.materialorder_temp()
+            elif self.variable == 'Nivel':
+                self.materialorder_level()
 
     def createContextMenu(self):
         self.context_menu = QtWidgets.QMenu(self)

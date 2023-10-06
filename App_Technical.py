@@ -17,6 +17,7 @@ from Database_Connection import createConnection
 from tkinter.filedialog import askopenfilename
 import pandas as pd
 from EditDB_Menu import Ui_EditDB_Menu
+from Deliveries_Window import Ui_Deliveries_Window
 from QueryOrder_Window import Ui_QueryOrder_Window
 from QueryOrderTechnical_Window import Ui_QueryOrderTechnical_Window
 from EditTags_Technical_Window import Ui_EditTags_Window
@@ -331,6 +332,42 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_DBEdit.setObjectName("Button_DBEdit")
             self.Header.addWidget(self.Button_DBEdit)
             self.Button_DBEdit.clicked.connect(self.editdb)
+        elif self.name in ["Jorge Valtierra"]:
+            self.Button_Deliveries = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Deliveries.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Deliveries.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_Deliveries.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Deliveries.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_Deliveries.setText("")
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Database_Admin.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Deliveries.setIcon(icon2)
+            self.Button_Deliveries.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Deliveries.setObjectName("Button_Deliveries")
+            self.Button_Deliveries.setToolTip("Envíos")
+            self.Header.addWidget(self.Button_Deliveries)
+            self.Button_Deliveries.clicked.connect(self.deliveries)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -740,6 +777,20 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ui=Ui_EditDB_Menu()
         self.ui.setupUi(self.dbedit_menu)
         self.dbedit_menu.show()
+
+    def deliveries(self):
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        if not createConnection(user_database, password_database):
+            sys.exit()
+
+        self.deliveries_window = Ui_Deliveries_Window()
+        self.deliveries_window.show()
 
 
     def query_order(self):
