@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'App_Manager.ui'
+# Form implementation generated from reading ui file 'App_ManagerF.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.1
 #
@@ -7,25 +7,21 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QMenu
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import Qt
 import psycopg2
 import sys
-import configparser
-from Database_Connection import createConnection
 from config import config
 from datetime import *
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-from matplotlib import ticker
 from QueryOffer_Window import Ui_QueryOffer_Window
 from QueryOrder_Window import Ui_QueryOrder_Window
 from QueryTags_Window import Ui_QueryTags_Window
 from QueryDoc_Window import Ui_QueryDoc_Window
 from GraphsOffer_Window import Ui_GraphsOffer_Window
 from ClientsGeneralResume_Window import Ui_ClientsGeneralResume_Window
-from EditUser_Menu import Ui_EditUser_Menu
 from EditPassword_Window import Ui_EditPasswordWindow
 from ClientResume_Window import Ui_ClientResume_Window
+from QueryTask_Window import Ui_QueryTask_Window
+from AddTask_Window import Ui_AddTask_Window
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -37,7 +33,29 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
-class Ui_App_Manager(object):
+class ImageCalendarWidget(QtWidgets.QCalendarWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.task_dates = []
+
+    def set_task_dates(self, dates):
+        self.task_dates = dates
+        self.updateCells()
+
+    def paintCell(self, painter, rect, date):
+        QtWidgets.QCalendarWidget.paintCell(self, painter, rect, date)
+
+        if date in self.task_dates:
+            image_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Flag.png"))
+            image = QtGui.QImage(image_path)
+            if not image.isNull():
+                image_scaled = image.scaled(rect.width() // 4, rect.height() // 4, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.SmoothTransformation)
+                image_rect = image_scaled.rect()
+                image_rect.moveTopRight(rect.topRight() - QtCore.QPoint(2, -5))
+                painter.drawImage(image_rect, image_scaled)
+
+
+class Ui_App_ManagerF(object):
     def __init__(self, name, username):
         self.name=name
         self.username=username
@@ -46,15 +64,15 @@ class Ui_App_Manager(object):
     #     self.username='e.serranog'
 
 
-    def setupUi(self, App_Manager):
-        App_Manager.setObjectName("App_Manager")
-        App_Manager.resize(945, 860)
-        App_Manager.setMinimumSize(QtCore.QSize(945, 860))
+    def setupUi(self, App_ManagerF):
+        App_ManagerF.setObjectName("App_ManagerF")
+        App_ManagerF.resize(945, 860)
+        App_ManagerF.setMinimumSize(QtCore.QSize(945, 860))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        App_Manager.setWindowIcon(icon)
-        App_Manager.setStyleSheet("background-color: rgb(255, 255, 255);")
-        self.centralwidget = QtWidgets.QWidget(parent=App_Manager)
+        App_ManagerF.setWindowIcon(icon)
+        App_ManagerF.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.centralwidget = QtWidgets.QWidget(parent=App_ManagerF)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_2.setObjectName("gridLayout_2")
@@ -149,6 +167,42 @@ class Ui_App_Manager(object):
         self.Button_ClientsResume.setIconSize(QtCore.QSize(40, 40))
         self.Button_ClientsResume.setObjectName("Button_ClientsResume")
         self.Header.addWidget(self.Button_ClientsResume)
+        spacerItem13 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem13)
+        self.Button_QueryTask = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_QueryTask.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_QueryTask.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_QueryTask.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_QueryTask.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
+        self.Button_QueryTask.setText("")
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Task.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_QueryTask.setIcon(icon5)
+        self.Button_QueryTask.setIconSize(QtCore.QSize(40, 40))
+        self.Button_QueryTask.setObjectName("Button_QueryTask")
+        self.Button_QueryTask.setToolTip("Tareas")
+        self.Header.addWidget(self.Button_QueryTask)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem2)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -379,7 +433,7 @@ class Ui_App_Manager(object):
         self.BottomLayout = QtWidgets.QHBoxLayout()
         self.BottomLayout.setContentsMargins(-1, 0, -1, -1)
         self.BottomLayout.setObjectName("BottomLayout")
-        self.Calendar = QtWidgets.QCalendarWidget(parent=self.frame)
+        self.Calendar = ImageCalendarWidget(parent=self.frame)
         self.Calendar.setEnabled(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -444,18 +498,18 @@ class Ui_App_Manager(object):
         self.FrameApp.addLayout(self.PrincipalScreen)
         self.gridLayout.addLayout(self.FrameApp, 3, 0, 1, 1)
         self.gridLayout_2.addWidget(self.frame, 0, 0, 1, 1)
-        App_Manager.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=App_Manager)
+        App_ManagerF.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=App_ManagerF)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 945, 22))
         self.menubar.setObjectName("menubar")
-        App_Manager.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=App_Manager)
+        App_ManagerF.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=App_ManagerF)
         self.statusbar.setObjectName("statusbar")
-        App_Manager.setStatusBar(self.statusbar)
+        App_ManagerF.setStatusBar(self.statusbar)
         self.tableOffer.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
-        self.retranslateUi(App_Manager)
-        QtCore.QMetaObject.connectSlotsByName(App_Manager)
+        self.retranslateUi(App_ManagerF)
+        QtCore.QMetaObject.connectSlotsByName(App_ManagerF)
 
         self.Button_QueryOffer.clicked.connect(self.query_offer)
         self.Button_QueryOrder.clicked.connect(self.query_order)
@@ -465,6 +519,11 @@ class Ui_App_Manager(object):
         self.Button_ClientsResume.clicked.connect(self.clients_generalresume)
         self.Button_Profile.clicked.connect(self.showMenu)
         self.tableOffer.itemDoubleClicked.connect(self.on_item_double_clicked)
+        self.Button_QueryTask.clicked.connect(self.querytask)
+        self.Calendar.activated.connect(self.show_selected_date_tasks)
+        self.Calendar.customContextMenuRequested.connect(self.show_context_menu)
+
+        self.setup_task_dates()
 
 
         commands_appcomercial = ("""
@@ -515,37 +574,51 @@ class Ui_App_Manager(object):
                 conn.close()
 
 
-    def retranslateUi(self, App_Manager):
+    def show_context_menu(self, point):
+        selected_date = self.Calendar.selectedDate()
+        menu = QMenu(self.centralwidget)
+
+        menu.setStyleSheet("QMenu { border: 1px solid black; width: 150px; right: -1px; }"
+        "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
+
+        action1 = menu.addAction("Agregar tareas")
+        action1.triggered.connect(lambda: self.newtask(selected_date))
+        action2 = menu.addAction("Editar tareas")
+        action2.triggered.connect(lambda: self.querytask(selected_date))
+
+        menu.exec(self.Calendar.mapToGlobal(point))
+
+    def retranslateUi(self, App_ManagerF):
         _translate = QtCore.QCoreApplication.translate
-        App_Manager.setWindowTitle(_translate("App_Manager", "ERP EIPSA - Dirección"))
-        self.HeaderName.setText(_translate("App_Manager", self.name))
-        self.Button_QueryOffer.setText(_translate("App_Manager", "    Consultar Ofertas"))
-        self.Button_QueryOrder.setText(_translate("App_Manager", "   Consultar Pedidos"))
-        self.Button_QueryTag.setText(_translate("App_Manager", "    Consultar TAG(s)"))
-        self.Button_QueryDoc.setText(_translate("App_Manager", "    Consultar Docs."))
+        App_ManagerF.setWindowTitle(_translate("App_ManagerF", "ERP EIPSA - Dirección"))
+        self.HeaderName.setText(_translate("App_ManagerF", self.name))
+        self.Button_QueryOffer.setText(_translate("App_ManagerF", "    Consultar Ofertas"))
+        self.Button_QueryOrder.setText(_translate("App_ManagerF", "   Consultar Pedidos"))
+        self.Button_QueryTag.setText(_translate("App_ManagerF", "    Consultar TAG(s)"))
+        self.Button_QueryDoc.setText(_translate("App_ManagerF", "    Consultar Docs."))
         self.tableOffer.setSortingEnabled(True)
         item = self.tableOffer.horizontalHeaderItem(0)
-        item.setText(_translate("App_Manager", "Nº Oferta"))
+        item.setText(_translate("App_ManagerF", "Nº Oferta"))
         item = self.tableOffer.horizontalHeaderItem(1)
-        item.setText(_translate("App_Manager", "Estado"))
+        item.setText(_translate("App_ManagerF", "Estado"))
         item = self.tableOffer.horizontalHeaderItem(2)
-        item.setText(_translate("App_Manager", "Responsable"))
+        item.setText(_translate("App_ManagerF", "Responsable"))
         item = self.tableOffer.horizontalHeaderItem(3)
-        item.setText(_translate("App_Manager", "Cliente"))
+        item.setText(_translate("App_ManagerF", "Cliente"))
         item = self.tableOffer.horizontalHeaderItem(4)
-        item.setText(_translate("App_Manager", "Cliente Final"))
+        item.setText(_translate("App_ManagerF", "Cliente Final"))
         item = self.tableOffer.horizontalHeaderItem(5)
-        item.setText(_translate("App_Manager", "Fecha Pres."))
+        item.setText(_translate("App_ManagerF", "Fecha Pres."))
         item = self.tableOffer.horizontalHeaderItem(6)
-        item.setText(_translate("App_Manager", "Material"))
+        item.setText(_translate("App_ManagerF", "Material"))
         item = self.tableOffer.horizontalHeaderItem(7)
-        item.setText(_translate("App_Manager", "Importe"))
+        item.setText(_translate("App_ManagerF", "Importe"))
         item = self.tableOffer.horizontalHeaderItem(8)
-        item.setText(_translate("App_Manager", "Notas"))
+        item.setText(_translate("App_ManagerF", "Notas"))
         item = self.tableOffer.horizontalHeaderItem(9)
-        item.setText(_translate("App_Manager", "Ptos. Importantes"))
+        item.setText(_translate("App_ManagerF", "Ptos. Importantes"))
         item = self.tableOffer.horizontalHeaderItem(10)
-        item.setText(_translate("App_Manager", "Seguimiento"))
+        item.setText(_translate("App_ManagerF", "Seguimiento"))
         __sortingEnabled = self.tableOffer.isSortingEnabled()
         self.tableOffer.setSortingEnabled(False)
         self.tableOffer.setSortingEnabled(__sortingEnabled)
@@ -592,6 +665,19 @@ class Ui_App_Manager(object):
         self.ui.setupUi(self.clients_general_resume_window)
         self.clients_general_resume_window.show()
 
+
+    def querytask(self, date=None):
+        self.querytaskwindow=Ui_QueryTask_Window(self.name, date)
+        self.querytaskwindow.show()
+        self.querytaskwindow.Button_Cancel.clicked.connect(self.setup_task_dates)
+
+
+    def newtask(self, date):
+        self.newtaskwindow=QtWidgets.QMainWindow()
+        self.ui=Ui_AddTask_Window(self.name, date)
+        self.ui.setupUi(self.newtaskwindow)
+        self.newtaskwindow.show()
+        self.ui.Button_Cancel.clicked.connect(self.setup_task_dates)
 
 
     def showMenu(self):
@@ -693,13 +779,140 @@ class Ui_App_Manager(object):
         self.client_resume_window.show()
 
 
+# Function to stablish dates with task assigned to put icon on calendar
+    def setup_task_dates(self):
+        commands_loaddatestasks_LB = ("""
+                    SELECT "task_date","task"
+                    FROM tasks
+                    WHERE ("creator" IN ('CCH', 'SS', 'LB')
+                    AND
+                    "state" = 'Pendiente')
+                    ORDER BY "task_date"
+                    """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(commands_loaddatestasks_LB)
+            results=cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+            dates_with_tasks_raw=[x[0] for x in results]
+            dates_with_tasks=list(set(dates_with_tasks_raw))
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+        # task_dates = [QtCore.QDate.currentDate().addDays(0), QtCore.QDate.currentDate().addDays(3)]
+        task_dates = dates_with_tasks
+        self.Calendar.set_task_dates(task_dates)
+
+
+    def show_selected_date_tasks(self):
+        self.click_count = 0
+        selected_date = self.Calendar.selectedDate()
+        if self.name == 'Carlos Crespo':
+            creator=self.name[0] + self.name[self.name.find(' ')+1] + 'H'
+        else:
+            creator=self.name[0] + self.name[self.name.find(' ')+1]
+        returned = self.get_tasks_for_date(creator, selected_date)
+
+        if returned:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            final_text=''
+
+            for item in returned:
+                responsible = item[0]
+                tasks = item [1]
+                task_text = "<br><br>-".join(tasks)
+                final_text += "<br><br>" + f"<b>{responsible}:</b><br>-" + task_text
+
+            dlg.setText(f"<html><body>Tareas para la fecha {selected_date.toString('dd-MM-yyyy')}:{final_text}</body></html>")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+            dlg.exec()
+            del dlg, new_icon
+
+
+#Function to obtain tasks associated to a date
+    def get_tasks_for_date(self, creator, date):
+        commands_loaddatestasks_LB = ("""
+                    SELECT "responsible","task_date","task","state","creator"
+                    FROM tasks
+                    WHERE ("creator" IN ('CCH', 'SS', 'LB')
+                    AND
+                    "task_date" IS NOT NULL
+                    AND
+                    "state" = 'Pendiente')
+                    ORDER BY "task_date"
+                    """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(commands_loaddatestasks_LB)
+            results=cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+            dict_responsibles_tasks={}
+
+            for i in range(len(results)):
+                responsible=results[i][0]
+                key=QtCore.QDate(results[i][1].year, results[i][1].month, results[i][1].day)
+                value="(" + results[i][4]+") " + results[i][2] + " (" + results[i][3] + ")"
+
+                if responsible not in dict_responsibles_tasks:
+                    dict_responsibles_tasks[responsible] = [{key: [value]}]
+
+                else:
+                    for item in dict_responsibles_tasks[responsible]:
+                        if key not in item:
+                            item[key] = [value]
+
+                        else:
+                            item[key].append(value)
+
+            value_to_return = []
+            for item in dict_responsibles_tasks.keys():
+                for element in dict_responsibles_tasks[item]:
+                    if date in element:
+                        value_to_return.append([item,dict_responsibles_tasks[item][dict_responsibles_tasks[item].index(element)][date]])
+
+            return value_to_return
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+
 
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    App_Manager = QtWidgets.QMainWindow()
-    ui = Ui_App_Manager()
-    ui.setupUi(App_Manager)
-    App_Manager.showMaximized()
+    App_ManagerF = QtWidgets.QMainWindow()
+    ui = Ui_App_ManagerF()
+    ui.setupUi(App_ManagerF)
+    App_ManagerF.showMaximized()
     sys.exit(app.exec())

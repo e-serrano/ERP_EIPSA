@@ -4,7 +4,7 @@ from PyQt6 import QtGui, QtWidgets
 import psycopg2
 from datetime import *
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 def inspection(proxy, model, variable):
     id_list = []
@@ -45,7 +45,7 @@ def inspection(proxy, model, variable):
                 else:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Inspección")
                     dlg.setText(f"El tag '{ped_type_tag}' no se encuentra resgistrado en la base de fabricación")
@@ -63,7 +63,7 @@ def inspection(proxy, model, variable):
                 else:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Inspección")
                     dlg.setText(f"El tag '{ped_type_tag}' no se encuentra resgistrado en la base de fabricación")

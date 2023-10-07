@@ -13,7 +13,7 @@ import sys
 import psycopg2
 import os
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_SetupWindow(object):
@@ -23,7 +23,7 @@ class Ui_SetupWindow(object):
         SetupWindow.setMinimumSize(QtCore.QSize(270, 490))
         SetupWindow.setMaximumSize(QtCore.QSize(270, 490))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         SetupWindow.setWindowIcon(icon)
         SetupWindow.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -236,7 +236,7 @@ class Ui_SetupWindow(object):
         base_dir = r"C:\Program Files\ERP EIPSA"
 
         # Full path of .ini file
-        ini_file_path = os.path.join(base_dir, "database.ini")
+        ini_file_path = os.path.abspath(os.path.join(base_dir, "database.ini")
 
         # Check if path exists. If not, create it
         if not os.path.exists(base_dir):
@@ -320,7 +320,7 @@ class Ui_SetupWindow(object):
 
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Instalación completada con éxito")

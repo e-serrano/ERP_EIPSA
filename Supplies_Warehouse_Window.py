@@ -11,7 +11,7 @@ from config import config
 import psycopg2
 import os
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 class CustomTableWidget(QtWidgets.QTableWidget):
     def __init__(self, parent=None):
@@ -199,7 +199,7 @@ class Ui_Supplies_Warehouse_Window(object):
         Supplies_Window.setObjectName("Supplies_Window")
         Supplies_Window.resize(1174, 600)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Supplies_Window.setWindowIcon(icon)
         Supplies_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -739,7 +739,7 @@ class Ui_Supplies_Warehouse_Window(object):
 #         if name=="" or (description=="" or unit_value==""):
 #             dlg = QtWidgets.QMessageBox()
 #             new_icon = QtGui.QIcon()
-#             new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
 #             dlg.setWindowIcon(new_icon)
 #             dlg.setWindowTitle("Agregar Suministro")
 #             dlg.setText("Rellena como mínimo los siguientes campos:\n"
@@ -780,7 +780,7 @@ class Ui_Supplies_Warehouse_Window(object):
 #             if len(match)>0:
 #                 dlg = QtWidgets.QMessageBox()
 #                 new_icon = QtGui.QIcon()
-#                 new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
 #                 dlg.setWindowIcon(new_icon)
 #                 dlg.setWindowTitle("Agregar Suministro")
 #                 dlg.setText("El nombre de suministro introducido ya está registrado\n"
@@ -831,7 +831,7 @@ class Ui_Supplies_Warehouse_Window(object):
 
 #                     dlg = QtWidgets.QMessageBox()
 #                     new_icon = QtGui.QIcon()
-#                     new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#                     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
 #                     dlg.setWindowIcon(new_icon)
 #                     dlg.setWindowTitle("Agregar Suministro")
 #                     dlg.setText("Suministro agregado con éxito")
@@ -865,7 +865,7 @@ class Ui_Supplies_Warehouse_Window(object):
 #         if id=="":
 #             dlg = QtWidgets.QMessageBox()
 #             new_icon = QtGui.QIcon()
-#             new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
 #             dlg.setWindowIcon(new_icon)
 #             dlg.setWindowTitle("Modificar Proveedor")
 #             dlg.setText("Pulsa en un proveedor de la tabla para cargar los datos en el formulario")
@@ -912,7 +912,7 @@ class Ui_Supplies_Warehouse_Window(object):
 
 #                 dlg = QtWidgets.QMessageBox()
 #                 new_icon = QtGui.QIcon()
-#                 new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+#                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
 #                 dlg.setWindowIcon(new_icon)
 #                 dlg.setWindowTitle("Modificar Suministro")
 #                 dlg.setText("Suministro modificado con exito")

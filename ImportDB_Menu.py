@@ -11,7 +11,7 @@ from ImportTableNew_Window import Ui_ImportTableNew_Window
 from ImportTableExist_Window import Ui_ImportTableExist_Window
 import os
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_ImportDB_Menu(object):
@@ -21,7 +21,7 @@ class Ui_ImportDB_Menu(object):
         ImportDB_Menu.setMinimumSize(QtCore.QSize(300, 300))
         ImportDB_Menu.setMaximumSize(QtCore.QSize(300, 340))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ImportDB_Menu.setWindowIcon(icon)
         ImportDB_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

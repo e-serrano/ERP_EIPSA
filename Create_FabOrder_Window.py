@@ -11,7 +11,7 @@ import pandas as pd
 from OTFabOrder_Window import Ui_OTFabOrder_Window
 import os
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -33,7 +33,7 @@ class Ui_CreateFabOrder_Window(object):
         ElementsFabOrder_Window.resize(400, 561)
         ElementsFabOrder_Window.setMinimumSize(QtCore.QSize(600, 575))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ElementsFabOrder_Window.setWindowIcon(icon)
         ElementsFabOrder_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -342,7 +342,7 @@ class Ui_CreateFabOrder_Window(object):
         if len(column_list) == 0:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Orden de Fabricación")
             dlg.setText("Debe seleccionar al menos una columna para generar OT")

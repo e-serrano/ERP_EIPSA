@@ -49,23 +49,23 @@ class EditableTableModel(QtSql.QSqlTableModel):
         return column_headers
 
 
-class Ui_Deliveries_Window(QtWidgets.QMainWindow):
+class Ui_TechOffice_Window(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.model = EditableTableModel()
         self.setupUi(self)
 
 
-    def setupUi(self, Deliveries_Window):
+    def setupUi(self, TechOffice_Window):
         self.id_list = []
         data_list = []
-        Deliveries_Window.setObjectName("Deliveries_Window")
-        Deliveries_Window.resize(400, 561)
-        Deliveries_Window.setMinimumSize(QtCore.QSize(600, 575))
+        TechOffice_Window.setObjectName("TechOffice_Window")
+        TechOffice_Window.resize(400, 561)
+        TechOffice_Window.setMinimumSize(QtCore.QSize(600, 575))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        Deliveries_Window.setWindowIcon(icon)
-        Deliveries_Window.setStyleSheet("QWidget {\n"
+        TechOffice_Window.setWindowIcon(icon)
+        TechOffice_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
 "}\n"
 "\n"
@@ -100,7 +100,7 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
 "}")
-        self.centralwidget = QtWidgets.QWidget(parent=Deliveries_Window)
+        self.centralwidget = QtWidgets.QWidget(parent=TechOffice_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -112,48 +112,51 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.setObjectName("gridLayout_2")
         spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 1)
-        self.tableDeliveries=QtWidgets.QTableView(parent=self.frame)
+        self.tableWorkshop=QtWidgets.QTableView(parent=self.frame)
         self.model = EditableTableModel()
-        self.tableDeliveries.setObjectName("tableDeliveries")
-        self.gridLayout_2.addWidget(self.tableDeliveries, 1, 0, 1, 1)
+        self.tableWorkshop.setObjectName("tableWorkshop")
+        self.gridLayout_2.addWidget(self.tableWorkshop, 1, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
-        Deliveries_Window.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=Deliveries_Window)
+        TechOffice_Window.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=TechOffice_Window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 400, 22))
         self.menubar.setObjectName("menubar")
-        Deliveries_Window.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=Deliveries_Window)
+        TechOffice_Window.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=TechOffice_Window)
         self.statusbar.setObjectName("statusbar")
-        Deliveries_Window.setStatusBar(self.statusbar)
-        self.tableDeliveries.setSortingEnabled(True)
-        self.tableDeliveries.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
-        # Deliveries_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
+        TechOffice_Window.setStatusBar(self.statusbar)
+        self.tableWorkshop.setSortingEnabled(True)
+        self.tableWorkshop.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        # TechOffice_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
-        self.retranslateUi(Deliveries_Window)
-        QtCore.QMetaObject.connectSlotsByName(Deliveries_Window)
+        self.retranslateUi(TechOffice_Window)
+        QtCore.QMetaObject.connectSlotsByName(TechOffice_Window)
 
         self.model.setTable("public.orders")
-        self.model.setFilter("porc_deliveries <> 100 OR porc_deliveries IS NULL")
+        self.model.setFilter("porc_workshop <> 100 OR porc_workshop IS NULL")
         self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.model.select()
-        self.tableDeliveries.setModel(self.model)
+        self.tableWorkshop.setModel(self.model)
 
-        for i in range(1,19):
-            self.tableDeliveries.hideColumn(i)
+        for i in range(1,9):
+            self.tableWorkshop.hideColumn(i)
+        for i in range(11,23):
+            self.tableWorkshop.hideColumn(i)
 
-        headers=['Nº Pedido', '','','','','','','','','','','','','','','','','','',
-                '% Real Envío', 'Fecha Último Envío', 'Fecha Entregas Parciales', 'Observaciones']
+        headers=['Nº Pedido', '','','','','','','','',
+                'Fecha Recepción','Observaciones',
+                '','','','', '','','','', '', '', '', '']
 
-        self.tableDeliveries.setItemDelegate(AlignDelegate(self.tableDeliveries))
-        self.tableDeliveries.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableDeliveries.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
-        self.gridLayout_2.addWidget(self.tableDeliveries, 3, 0, 1, 1)
+        self.tableWorkshop.setItemDelegate(AlignDelegate(self.tableWorkshop))
+        self.tableWorkshop.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableWorkshop.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.gridLayout_2.addWidget(self.tableWorkshop, 3, 0, 1, 1)
 
         self.model.setAllColumnHeaders(headers)
 
-    def retranslateUi(self, Deliveries_Window):
+    def retranslateUi(self, TechOffice_Window):
         _translate = QtCore.QCoreApplication.translate
-        Deliveries_Window.setWindowTitle(_translate("EditTags_Window", "Envíos"))
+        TechOffice_Window.setWindowTitle(_translate("EditTags_Window", "Envíos"))
 
 
 if __name__ == "__main__":
@@ -169,6 +172,6 @@ if __name__ == "__main__":
     if not createConnection(user_database, password_database):
         sys.exit()
 
-    Deliveries_Window = Ui_Deliveries_Window()
-    Deliveries_Window.show()
+    TechOffice_Window = Ui_TechOffice_Window()
+    TechOffice_Window.show()
     sys.exit(app.exec())

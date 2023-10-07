@@ -19,13 +19,13 @@ from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import locale
 import os
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
     buffer = QtCore.QBuffer()
     buffer.open(QtCore.QIODevice.OpenModeFlag.WriteOnly)
-    imagen.save(buffer, "PNG")
+    imagen.save(buffer, ".png")
     base64_data = buffer.data().toBase64().data().decode()
     return base64_data
 
@@ -187,7 +187,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         EditTags_Window.resize(790, 595)
         EditTags_Window.setMinimumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditTags_Window.setWindowIcon(icon)
         EditTags_Window.setStyleSheet(
 ".QFrame {\n"
@@ -213,7 +213,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolDeleteFilter)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolDeleteFilter.setIcon(icon)
         self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer1)
@@ -222,7 +222,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.toolShow.setToolTip("Mostrar columnas")
         self.hcab.addWidget(self.toolShow)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Eye.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolShow.setIcon(icon)
         self.toolShow.setIconSize(QtCore.QSize(25, 25))
 
@@ -598,7 +598,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         if numoffer=="" and numorder=="":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Rellena alguno de los campos")
@@ -611,7 +611,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', numorder):
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY")
@@ -653,7 +653,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 if results_variable == None:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("EL número de pedido no existe")
@@ -678,7 +678,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             if not re.match(r'^O-\d{2}/\d{3}.*$', numoffer):
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("El número de oferta debe tener formato O-XX/YYY")
@@ -719,7 +719,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 if results_variable == None:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("El número de oferta no existe")
@@ -744,7 +744,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', numorder) or not re.match(r'^O-\d{2}/\d{3}.*$', numoffer):
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY \n"
@@ -786,7 +786,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 if results_variable == None:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("EL número de oferta no existe")
@@ -1012,7 +1012,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 # Function when checkbox of header menu is clicked
     def on_checkbox_toggled(self, checked, action_name):
         filterColumn = self.logicalIndex
-        imagen_path = os.path.join(basedir, "Resources/Iconos/Filter_Active.png")
+        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if len(self.dict_ordersort) == 0:
@@ -1082,7 +1082,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Buscar')
         clickedButton=dlg.exec()
@@ -1103,7 +1103,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         self.proxy.setFilter(stringAction, filterColumn)
 
-        imagen_path = os.path.join(basedir, "Resources/Iconos/Filter_Active.png")
+        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
         self.model.setIconColumnHeader(filterColumn, icono)
 

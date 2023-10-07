@@ -11,17 +11,17 @@ import psycopg2
 from config import config
 import os
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Edit_Offer_Window(object):
     def setupUi(self, Edit_Offer_Window):
         Edit_Offer_Window.setObjectName("Edit_Offer_Window")
         Edit_Offer_Window.resize(670, 425)
-        Edit_Offer_Window.setMinimumSize(QtCore.QSize(1100, 475))
-        Edit_Offer_Window.setMaximumSize(QtCore.QSize(1100, 475))
+        Edit_Offer_Window.setMinimumSize(QtCore.QSize(1100, 500))
+        Edit_Offer_Window.setMaximumSize(QtCore.QSize(1100, 500))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Edit_Offer_Window.setWindowIcon(icon)
         Edit_Offer_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -458,23 +458,69 @@ class Ui_Edit_Offer_Window(object):
         self.hLayout1.addWidget(self.Mails_EditOffer)
         spacerItem31 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         self.hLayout1.addItem(spacerItem31)
-        self.label_RecAuto = QtWidgets.QLabel(parent=self.frame)
-        self.label_RecAuto.setMinimumSize(QtCore.QSize(130, 25))
-        self.label_RecAuto.setMaximumSize(QtCore.QSize(130, 25))
+        self.label_LastUpdate = QtWidgets.QLabel(parent=self.frame)
+        self.label_LastUpdate.setMinimumSize(QtCore.QSize(115, 25))
+        self.label_LastUpdate.setMaximumSize(QtCore.QSize(115, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
-        self.label_RecAuto.setFont(font)
-        self.label_RecAuto.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_RecAuto.setObjectName("label_RecAuto")
-        self.hLayout1.addWidget(self.label_RecAuto)
-        self.RecAuto_EditOffer = QtWidgets.QCheckBox(parent=self.frame)
-        self.RecAuto_EditOffer.setMinimumSize(QtCore.QSize(20, 20))
-        self.RecAuto_EditOffer.setMaximumSize(QtCore.QSize(20, 20))
-        self.hLayout1.addWidget(self.RecAuto_EditOffer)
+        self.label_LastUpdate.setFont(font)
+        self.label_LastUpdate.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_LastUpdate.setObjectName("label_LastUpdate")
+        self.hLayout1.addWidget(self.label_LastUpdate)
+        self.LastUpdate_EditOffer = QtWidgets.QLineEdit(parent=self.frame)
+        self.LastUpdate_EditOffer.setMinimumSize(QtCore.QSize(175, 25))
+        self.LastUpdate_EditOffer.setMaximumSize(QtCore.QSize(175, 25))
+        self.hLayout1.addWidget(self.LastUpdate_EditOffer)
         spacerItem30 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hLayout1.addItem(spacerItem30)
         self.verticalLayout.addLayout(self.hLayout1)
+        self.hLayout3 = QtWidgets.QHBoxLayout()
+        self.hLayout3.setObjectName("hLayout3")
+        spacerItem37 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hLayout3.addItem(spacerItem37)
+        self.label_empty = QtWidgets.QLabel(parent=self.frame)
+        self.label_empty.setMinimumSize(QtCore.QSize(150, 25))
+        self.label_empty.setMaximumSize(QtCore.QSize(150, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_empty.setFont(font)
+        self.label_empty.setText("")
+        self.label_empty.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_empty.setObjectName("label_empty")
+        self.hLayout3.addWidget(self.label_empty)
+        self.MailsHint_EditOffer = QtWidgets.QLabel(parent=self.frame)
+        self.MailsHint_EditOffer.setMinimumSize(QtCore.QSize(525, 25))
+        self.MailsHint_EditOffer.setMaximumSize(QtCore.QSize(525, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.MailsHint_EditOffer.setFont(font)
+        self.MailsHint_EditOffer.setText('mail1,mail2 copia:mailc1,mailc2')
+        self.MailsHint_EditOffer.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.MailsHint_EditOffer.setObjectName("MailsHint_EditOffer")
+        self.hLayout3.addWidget(self.MailsHint_EditOffer)
+        spacerItem38 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.hLayout3.addItem(spacerItem38)
+        self.label_empty2 = QtWidgets.QLabel(parent=self.frame)
+        self.label_empty2.setMinimumSize(QtCore.QSize(115, 25))
+        self.label_empty2.setMaximumSize(QtCore.QSize(115, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_empty2.setFont(font)
+        self.label_empty.setText("")
+        self.label_empty2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_empty2.setObjectName("label_empty2")
+        self.hLayout3.addWidget(self.label_empty2)
+        self.label_empty3 = QtWidgets.QLabel(parent=self.frame)
+        self.label_empty3.setMinimumSize(QtCore.QSize(175, 25))
+        self.label_empty3.setMaximumSize(QtCore.QSize(175, 25))
+        self.label_empty.setText("")
+        self.hLayout3.addWidget(self.label_empty3)
+        spacerItem39 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hLayout3.addItem(spacerItem39)
+        self.verticalLayout.addLayout(self.hLayout3)
         spacerItem29 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
         self.verticalLayout.addItem(spacerItem29)
         self.hLayout2 = QtWidgets.QHBoxLayout()
@@ -576,7 +622,7 @@ class Ui_Edit_Offer_Window(object):
         self.label_ImportantIssues.setText(_translate("Edit_Offer_Window", "Importante:"))
         self.label_Tracking.setText(_translate("Edit_Offer_Window", "Seguimiento:"))
         self.label_Mails.setText(_translate("Edit_Offer_Window", "Mails Contacto:"))
-        self.label_RecAuto.setText(_translate("Edit_Offer_Window", "Reclamación:"))
+        self.label_LastUpdate.setText(_translate("Edit_Offer_Window", "Última Fecha:"))
         self.Button_EditOffer.setText(_translate("Edit_Offer_Window", "Editar Oferta"))
         self.Button_Cancel.setText(_translate("Edit_Offer_Window", "Cancelar"))
 
@@ -599,7 +645,7 @@ class Ui_Edit_Offer_Window(object):
         important_issues=self.ImportantIssues_EditOffer.toPlainText()
         tracking=self.Tracking_EditOffer.toPlainText()
         mails=self.Mails_EditOffer.toPlainText()
-        recauto_checkbox = "Reclamar" if self.RecAuto_EditOffer.isChecked() else "No Reclamar"
+        last_update = self.LastUpdate_EditOffer.text() if self.LastUpdate_EditOffer.text() != '' else None
 
         #SQL Query for checking if offer number exists in database
         commands_checkoffer = ("""
@@ -631,7 +677,7 @@ class Ui_Edit_Offer_Window(object):
         if numoffer=="" or (numoffer==" " or len(match)==0):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Editar Oferta")
             dlg.setText("Introduce un número de oferta válido")
@@ -642,7 +688,7 @@ class Ui_Edit_Offer_Window(object):
         elif numoffer=="" or (client=="" or (finalclient=="" or (numref=="" or (state=="" or (nacext=="" or (buyer=="" or (material=="" or (amount=="" or (limit_date=="" or (mails=="" or rate_type=="")))))))))):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Editar Oferta")
             dlg.setText("Los campos no pueden estar vacíos")
@@ -656,7 +702,7 @@ class Ui_Edit_Offer_Window(object):
                         UPDATE offers
                         SET "client" = %s, "final_client" = %s, "num_ref_offer" = %s, "state" = %s, "nac_ext" = %s, "buyer" = %s,
                         "material" = %s, "notes" = %s, "offer_amount" = %s, "limit_date" = %s, "rate_type" = %s,
-                        "important" = %s, "tracking" = %s, "recep_date" = %s, "mails" = %s, "rec_auto" = %s
+                        "important" = %s, "tracking" = %s, "recep_date" = %s, "mails" = %s, "last_update" = %s
                         WHERE "num_offer" = %s
                         """)
             conn = None
@@ -667,7 +713,7 @@ class Ui_Edit_Offer_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands one by one
-                data=(client,finalclient,numref,state,nacext,buyer,material,notes,amount,limit_date,rate_type,important_issues,tracking,recep_date,mails,recauto_checkbox,numoffer,)
+                data=(client,finalclient,numref,state,nacext,buyer,material,notes,amount,limit_date,rate_type,important_issues,tracking,recep_date,mails,last_update,numoffer,)
                 cur.execute(commands_updateoffer,data)
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -676,7 +722,7 @@ class Ui_Edit_Offer_Window(object):
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Editar Oferta")
                 dlg.setText("Oferta editada con exito")
@@ -697,7 +743,7 @@ class Ui_Edit_Offer_Window(object):
                 self.ImportantIssues_EditOffer.setText('')
                 self.Tracking_EditOffer.setText('')
                 self.Mails_EditOffer.setText('')
-                self.RecAuto_EditOffer.setChecked(False)
+                self.LastUpdate_EditOffer.setText('')
 
             except (Exception, psycopg2.DatabaseError) as error:
                 print(error)
@@ -712,7 +758,7 @@ class Ui_Edit_Offer_Window(object):
         commands_loaddataoffer = ("""
                     SELECT "num_offer","client","final_client","num_ref_offer","state","nac_ext","buyer","material","notes",
                     CAST("offer_amount" AS numeric) AS "amount",TO_CHAR("limit_date", 'DD-MM-YYYY'),"rate_type","important",
-                    "tracking",TO_CHAR("recep_date", 'DD-MM-YYYY'),"mails","rec_auto"
+                    "tracking",TO_CHAR("recep_date", 'DD-MM-YYYY'),"mails",TO_CHAR("last_update", 'DD-MM-YYYY')
                     FROM offers
                     WHERE "num_offer" = %s
                     """)
@@ -740,7 +786,7 @@ class Ui_Edit_Offer_Window(object):
         if len(match)==0:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Editar Oferta")
             dlg.setText("El número de oferta introducido no existe")
@@ -763,11 +809,7 @@ class Ui_Edit_Offer_Window(object):
             self.Tracking_EditOffer.setText(str(results[0][13]) if str(results[0][13]) != 'None' else '')
             self.RecepDate_EditOffer.setText(str(results[0][14]) if str(results[0][14]) != 'None' else '')
             self.Mails_EditOffer.setText(str(results[0][15]) if str(results[0][15]) != 'None' else '')
-            state_reclamation = str(results[0][16])
-            if state_reclamation == "Reclamar":
-                self.RecAuto_EditOffer.setChecked(True)
-            else:
-                self.RecAuto_EditOffer.setChecked(False)
+            self.LastUpdate_EditOffer.setText(str(results[0][16]))
 
 
 if __name__ == "__main__":

@@ -14,12 +14,14 @@ from config import config
 from App_Comercial import Ui_App_Comercial
 from App_Purchasing import Ui_App_Purchasing
 from App_Technical import Ui_App_Technical
+from App_Workshop import Ui_App_Workshop
 from App_Master import Ui_App_Master
 from ForgetPass_Window import Ui_ForgetPass_Window
 from App_Warehouse import Ui_Warehouse_Menu
 from App_Manager import Ui_App_Manager
+from App_ManagerF import Ui_App_ManagerF
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 class Ui_Login_Window(object):
     def setupUi(self, Login_Window):
@@ -33,7 +35,7 @@ class Ui_Login_Window(object):
         Login_Window.setSizePolicy(sizePolicy)
         Login_Window.setMaximumSize(QtCore.QSize(670, 392))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico")))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Login_Window.setWindowIcon(icon)
         Login_Window.setAutoFillBackground(False)
         Login_Window.setStyleSheet("QWidget {\n"
@@ -76,7 +78,7 @@ class Ui_Login_Window(object):
         self.logo.setSizePolicy(sizePolicy)
         self.logo.setMaximumSize(QtCore.QSize(255, 235))
         self.logo.setText("")
-        self.logo.setPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Logo.ico")))
+        self.logo.setPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Logo.ico"))))
         self.logo.setScaledContents(False)
         self.logo.setObjectName("logo")
         self.horizontalLayout.addWidget(self.logo)
@@ -380,6 +382,13 @@ class Ui_Login_Window(object):
                     self.app_window.show()
                     self.Login_Window.close()
 
+                elif rol_app == "Taller":
+                    self.app_window=QtWidgets.QMainWindow()
+                    self.ui_purchase=Ui_App_Workshop(match[0][1]+' '+match[0][2], login_username)
+                    self.ui_purchase.setupUi(self.app_window)
+                    self.app_window.showMaximized()
+                    self.Login_Window.close()
+
                 elif rol_app == "Dirección":
                     self.app_window=QtWidgets.QMainWindow()
                     self.ui_purchase=Ui_App_Manager(match[0][1]+' '+match[0][2], login_username)
@@ -387,10 +396,17 @@ class Ui_Login_Window(object):
                     self.app_window.showMaximized()
                     self.Login_Window.close()
 
+                elif rol_app == "DirecciónF":
+                    self.app_window=QtWidgets.QMainWindow()
+                    self.ui_purchase=Ui_App_ManagerF(match[0][1]+' '+match[0][2], login_username)
+                    self.ui_purchase.setupUi(self.app_window)
+                    self.app_window.showMaximized()
+                    self.Login_Window.close()
+
                 else:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("La aplicación no está disponible para este usuario. Disculpe las molestias")
@@ -407,7 +423,7 @@ class Ui_Login_Window(object):
 
         dlg = QtWidgets.QMessageBox()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle("ERP EIPSA")
         dlg.setText("Este módulo aún no está disponible. Póngase en contacto con el administrador del sistema.\nDisculpe las molestias")

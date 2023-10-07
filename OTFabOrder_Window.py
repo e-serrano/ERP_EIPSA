@@ -15,7 +15,7 @@ import pandas as pd
 from PDF_Styles import fab_order
 from tkinter.filedialog import asksaveasfilename
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -36,7 +36,7 @@ class Ui_OTFabOrder_Window(object):
         OTFabOrder_Window.resize(400, 561)
         OTFabOrder_Window.setMinimumSize(QtCore.QSize(600, 575))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         OTFabOrder_Window.setWindowIcon(icon)
         OTFabOrder_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -433,8 +433,8 @@ class Ui_OTFabOrder_Window(object):
 
         pdf = fab_order()
 
-        pdf.add_font('DejaVuSansCondensed', '', os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf"))
-        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf"))
+        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
 
         pdf.set_auto_page_break(auto=True, margin=2)
 
@@ -459,7 +459,7 @@ class Ui_OTFabOrder_Window(object):
 
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Imprimir Orden Fabricación")
             dlg.setText("PDF generado con éxito")

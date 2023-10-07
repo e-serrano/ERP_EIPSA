@@ -17,13 +17,13 @@ from PyQt6.QtGui import QKeySequence, QClipboard, QTextDocument, QTextCursor
 from PyQt6.QtWidgets import QApplication
 import os
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
     buffer = QtCore.QBuffer()
     buffer.open(QtCore.QIODevice.OpenModeFlag.WriteOnly)
-    imagen.save(buffer, "PNG")
+    imagen.save(buffer, ".png")
     base64_data = buffer.data().toBase64().data().decode()
     return base64_data
 
@@ -175,7 +175,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         EditDocs_Window.resize(790, 595)
         EditDocs_Window.setMinimumSize(QtCore.QSize(900, 595))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditDocs_Window.setWindowIcon(icon)
         EditDocs_Window.setStyleSheet(
 ".QFrame {\n"
@@ -199,7 +199,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.setObjectName("Save_Button")
         self.hcab.addWidget(self.toolDeleteFilter)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolDeleteFilter.setIcon(icon)
         self.hcabspacer2=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer2)
@@ -407,7 +407,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
 # Function when checkbox of header menu is clicked
     def on_checkbox_toggled(self, checked, action_name):
         filterColumn = self.logicalIndex
-        imagen_path = os.path.join(basedir, "Resources/Iconos/Filter_Active.png")
+        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if len(self.dict_ordersort) == 0:
@@ -466,7 +466,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         self.proxy.setFilter(stringAction, filterColumn)
 
-        imagen_path = os.path.join(basedir, "Resources/Iconos/Filter_Active.png")
+        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
         self.model.setIconColumnHeader(filterColumn, icono)
 
@@ -487,7 +487,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Buscar')
         clickedButton=dlg.exec()
@@ -502,7 +502,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
             del self.proxy.filters[filterColumn]
             self.proxy.setFilter(stringAction, filterColumn)
 
-            imagen_path = os.path.join(basedir, "Resources/Iconos/Filter_Active.png")
+            imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             self.model.setIconColumnHeader(filterColumn, icono)
 

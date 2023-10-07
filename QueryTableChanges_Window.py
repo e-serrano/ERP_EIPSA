@@ -11,7 +11,7 @@ from config import config
 import psycopg2
 import os
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -26,7 +26,7 @@ class Ui_QueryTableChanges_Window(object):
         QueryTableChanges_Window.resize(1000, 590)
         QueryTableChanges_Window.setMinimumSize(QtCore.QSize(845, 590))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         QueryTableChanges_Window.setWindowIcon(icon)
         QueryTableChanges_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

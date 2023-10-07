@@ -26,13 +26,13 @@ import pandas as pd
 from tkinter.filedialog import asksaveasfilename
 from PyQt6.QtCore import QDate
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
     buffer = QtCore.QBuffer()
     buffer.open(QtCore.QIODevice.OpenModeFlag.WriteOnly)
-    imagen.save(buffer, "PNG")
+    imagen.save(buffer, ".png")
     base64_data = buffer.data().toBase64().data().decode()
     return base64_data
 
@@ -199,7 +199,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         EditTags_Window.resize(790, 595)
         EditTags_Window.setMinimumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditTags_Window.setWindowIcon(icon)
         EditTags_Window.setStyleSheet(
 ".QFrame {\n"
@@ -223,7 +223,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.setObjectName("Save_Button")
         self.hcab.addWidget(self.toolDeleteFilter)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolDeleteFilter.setIcon(icon)
         self.toolDeleteFilter.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -233,7 +233,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.toolShow.setToolTip("Mostrar columnas")
         self.hcab.addWidget(self.toolShow)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Eye.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolShow.setIcon(icon)
         self.toolShow.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer2=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -243,7 +243,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.toolMatOrder.setToolTip("Pedido Materiales")
         self.hcab.addWidget(self.toolMatOrder)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Purchase_Order.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Purchase_Order.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolMatOrder.setIcon(icon)
         self.toolMatOrder.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer3=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -253,7 +253,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.toolFabOrder.setToolTip("Orden Fabricación")
         self.hcab.addWidget(self.toolFabOrder)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Fab_Order.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Fab_Order.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolFabOrder.setIcon(icon)
         self.toolFabOrder.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer4=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -263,7 +263,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.toolInspection.setToolTip("Inspeccion")
         self.hcab.addWidget(self.toolInspection)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Inspection.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Inspection.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolInspection.setIcon(icon)
         self.toolInspection.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer5=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -273,7 +273,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.toolExpExcel.setToolTip("Exportar a Excel")
         self.hcab.addWidget(self.toolExpExcel)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Excel.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolExpExcel.setIcon(icon)
         self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
 
@@ -629,7 +629,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         if self.numorder=="":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Rellena alguno de los campos")
@@ -642,7 +642,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', self.numorder):
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY")
@@ -684,7 +684,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 if results_variable == None:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("EL número de pedido no existe")
@@ -924,7 +924,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 # Function when checkbox of header menu is clicked
     def on_checkbox_toggled(self, checked, action_name):
         filterColumn = self.logicalIndex
-        imagen_path = os.path.join(basedir, "Resources/Iconos/Filter_Active.png")
+        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if len(self.dict_ordersort) == 0:
@@ -994,7 +994,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Buscar')
         clickedButton=dlg.exec()
@@ -1015,7 +1015,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         filterColumn = self.logicalIndex
         self.proxy.setFilter(stringAction, filterColumn)
 
-        imagen_path = os.path.join(basedir, "Resources/Iconos/Filter_Active.png")
+        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
         self.model.setIconColumnHeader(filterColumn, icono)
 
@@ -1035,7 +1035,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
     def materialorder_flow(self):
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Pedido Materiales')
         dlg.setLabelText('Introduce el pedido:')
@@ -1049,7 +1049,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
     def materialorder_temp(self):
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Pedido Materiales')
         dlg.setLabelText('Introduce el pedido:')
@@ -1063,7 +1063,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
     def materialorder_level(self):
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Pedido Materiales')
         dlg.setLabelText('Introduce el pedido:')
@@ -1078,7 +1078,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         if self.proxy.rowCount() == 0:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Orden Fabricación")
             dlg.setText("No hay datos cargados")
@@ -1096,7 +1096,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         if self.proxy.rowCount() == 0:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Inspección")
             dlg.setText("No hay datos cargados")
@@ -1111,7 +1111,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         if self.proxy.rowCount() == 0:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Exportar")
             dlg.setText("No hay datos cargados")
@@ -1236,7 +1236,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         if self.proxy.rowCount() == 0:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Pedido Materiales")
             dlg.setText("No hay datos cargados")

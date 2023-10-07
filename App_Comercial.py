@@ -35,10 +35,10 @@ from QueryTask_Window import Ui_QueryTask_Window
 from EditUser_Menu import Ui_EditUser_Menu
 from EditPassword_Window import Ui_EditPasswordWindow
 from ClientResume_Window import Ui_ClientResume_Window
-from Email_Styles import email_offer1, email_offer2
+from ReclamationOffer_Window import Ui_ReclamationOffer_Window
 import os
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -60,7 +60,7 @@ class ImageCalendarWidget(QtWidgets.QCalendarWidget):
         QtWidgets.QCalendarWidget.paintCell(self, painter, rect, date)
 
         if date in self.task_dates:
-            image_path = os.path.join(basedir, "Resources/Iconos/Flag.png")
+            image_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Flag.png"))
             image = QtGui.QImage(image_path)
             if not image.isNull():
                 image_scaled = image.scaled(rect.width() // 4, rect.height() // 4, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.SmoothTransformation)
@@ -83,7 +83,7 @@ class Ui_App_Comercial(object):
         App_Comercial.resize(945, 860)
         App_Comercial.setMinimumSize(QtCore.QSize(945, 860))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Comercial.setWindowIcon(icon)
         App_Comercial.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget = QtWidgets.QWidget(parent=App_Comercial)
@@ -105,7 +105,7 @@ class Ui_App_Comercial(object):
         self.LogoIcon.setMinimumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setMaximumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setText("")
-        self.LogoIcon.setPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Logo.ico")))
+        self.LogoIcon.setPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Logo.ico"))))
         self.LogoIcon.setScaledContents(True)
         self.LogoIcon.setObjectName("LogoIcon")
         self.Header.addWidget(self.LogoIcon)
@@ -140,7 +140,7 @@ class Ui_App_Comercial(object):
 "}")
         self.Button_ExpOffer.setText("")
         icon12 = QtGui.QIcon()
-        icon12.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Offer_Export.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon12.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Offer_Export.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_ExpOffer.setIcon(icon12)
         self.Button_ExpOffer.setIconSize(QtCore.QSize(40, 40))
         self.Button_ExpOffer.setObjectName("Button_ExpOffer")
@@ -176,7 +176,7 @@ class Ui_App_Comercial(object):
 "}")
         self.Button_Doc.setText("")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Documents_Search.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Documents_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Doc.setIcon(icon1)
         self.Button_Doc.setIconSize(QtCore.QSize(40, 40))
         self.Button_Doc.setObjectName("Button_Doc")
@@ -212,7 +212,7 @@ class Ui_App_Comercial(object):
 "}")
         self.Button_Graphs.setText("")
         icon14 = QtGui.QIcon()
-        icon14.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Chart.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon14.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Chart.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Graphs.setIcon(icon14)
         self.Button_Graphs.setIconSize(QtCore.QSize(40, 40))
         self.Button_Graphs.setObjectName("Button_Graphs")
@@ -248,7 +248,7 @@ class Ui_App_Comercial(object):
 "}")
         self.Button_ClientsResume.setText("")
         icon15 = QtGui.QIcon()
-        icon15.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Customers.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon15.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Customers.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_ClientsResume.setIcon(icon15)
         self.Button_ClientsResume.setIconSize(QtCore.QSize(40, 40))
         self.Button_ClientsResume.setObjectName("Button_ClientsResume")
@@ -283,7 +283,7 @@ class Ui_App_Comercial(object):
 "}")
         self.Button_QueryTask.setText("")
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Task.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon5.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Task.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryTask.setIcon(icon5)
         self.Button_QueryTask.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryTask.setObjectName("Button_QueryTask")
@@ -319,7 +319,7 @@ class Ui_App_Comercial(object):
 "}")
         self.Button_RecOffer.setText("")
         icon16 = QtGui.QIcon()
-        icon16.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Reclamation.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon16.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Reclamation.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_RecOffer.setIcon(icon16)
         self.Button_RecOffer.setIconSize(QtCore.QSize(40, 40))
         self.Button_RecOffer.setObjectName("Button_RecOffer")
@@ -358,7 +358,7 @@ class Ui_App_Comercial(object):
     "}")
             self.Button_Users.setText("")
             icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/User_Edit.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/User_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Users.setIcon(icon2)
             self.Button_Users.setIconSize(QtCore.QSize(40, 40))
             self.Button_Users.setObjectName("Button_Users")
@@ -407,13 +407,13 @@ class Ui_App_Comercial(object):
         self.Button_Profile.setText("")
         icon13 = QtGui.QIcon()
         if self.name == 'Luis Bravo':
-            icon13.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Mando.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Mando.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         elif self.name == 'Sandra Sanz':
-            icon13.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Bender.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Bender.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         elif self.name == 'Carlos Crespo':
-            icon13.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Pikachu.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Pikachu.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         else:
-            icon13.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/User.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Profile.setIcon(icon13)
         self.Button_Profile.setIconSize(QtCore.QSize(40, 40))
         self.Button_Profile.setObjectName("Button_Profile")
@@ -469,7 +469,7 @@ class Ui_App_Comercial(object):
         self.Button_NewOffer.setFont(font)
         self.Button_NewOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Offer_New.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Offer_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_NewOffer.setIcon(icon3)
         self.Button_NewOffer.setIconSize(QtCore.QSize(40, 40))
         self.Button_NewOffer.setCheckable(False)
@@ -486,7 +486,7 @@ class Ui_App_Comercial(object):
         self.Button_EditOffer.setFont(font)
         self.Button_EditOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Offer_Edit.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Offer_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_EditOffer.setIcon(icon4)
         self.Button_EditOffer.setIconSize(QtCore.QSize(40, 40))
         self.Button_EditOffer.setObjectName("Button_EditOffer")
@@ -500,7 +500,7 @@ class Ui_App_Comercial(object):
         self.Button_QueryOffer.setFont(font)
         self.Button_QueryOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Offer_Search.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon5.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Offer_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryOffer.setIcon(icon5)
         self.Button_QueryOffer.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryOffer.setObjectName("Button_QueryOffer")
@@ -514,7 +514,7 @@ class Ui_App_Comercial(object):
         self.Button_NewOrder.setFont(font)
         self.Button_NewOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Order_New.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Order_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_NewOrder.setIcon(icon6)
         self.Button_NewOrder.setIconSize(QtCore.QSize(40, 40))
         self.Button_NewOrder.setObjectName("Button_NewOrder")
@@ -528,7 +528,7 @@ class Ui_App_Comercial(object):
         self.Button_EditOrder.setFont(font)
         self.Button_EditOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon7 = QtGui.QIcon()
-        icon7.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Order_Edit.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon7.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Order_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_EditOrder.setIcon(icon7)
         self.Button_EditOrder.setIconSize(QtCore.QSize(40, 40))
         self.Button_EditOrder.setObjectName("Button_EditOrder")
@@ -542,7 +542,7 @@ class Ui_App_Comercial(object):
         self.Button_QueryOrder.setFont(font)
         self.Button_QueryOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon8 = QtGui.QIcon()
-        icon8.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/Order_Search.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon8.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Order_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryOrder.setIcon(icon8)
         self.Button_QueryOrder.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryOrder.setObjectName("Button_QueryOrder")
@@ -556,7 +556,7 @@ class Ui_App_Comercial(object):
         self.Button_NewTag.setFont(font)
         self.Button_NewTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon9 = QtGui.QIcon()
-        icon9.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/TAG_New.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon9.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/TAG_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_NewTag.setIcon(icon9)
         self.Button_NewTag.setIconSize(QtCore.QSize(40, 40))
         self.Button_NewTag.setObjectName("Button_NewTag")
@@ -570,7 +570,7 @@ class Ui_App_Comercial(object):
         self.Button_EditTag.setFont(font)
         self.Button_EditTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon10 = QtGui.QIcon()
-        icon10.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/TAG_Edit.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon10.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/TAG_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_EditTag.setIcon(icon10)
         self.Button_EditTag.setIconSize(QtCore.QSize(40, 40))
         self.Button_EditTag.setObjectName("Button_EditTag")
@@ -584,7 +584,7 @@ class Ui_App_Comercial(object):
         self.Button_QueryTag.setFont(font)
         self.Button_QueryTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon11 = QtGui.QIcon()
-        icon11.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/TAG_Search.png")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon11.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/TAG_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryTag.setIcon(icon11)
         self.Button_QueryTag.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryTag.setObjectName("Button_QueryTag")
@@ -936,6 +936,7 @@ class Ui_App_Comercial(object):
                 conn.close()
 
         self.alert_offers()
+        self.alert_reclamation_offers()
 
 
     def show_context_menu(self, point):
@@ -1067,7 +1068,7 @@ class Ui_App_Comercial(object):
 
         dlg = QtWidgets.QMessageBox()
         new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle("ERP EIPSA")
         dlg.setText("Este módulo aún no está disponible.\nDisculpe las molestias")
@@ -1255,7 +1256,7 @@ class Ui_App_Comercial(object):
         if returned:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             final_text=''
@@ -1388,7 +1389,7 @@ class Ui_App_Comercial(object):
             offers_delay_text = "\n".join(offers_delay)
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Las siguientes ofertas llevan presentadas más de 10 días:\n"
@@ -1424,139 +1425,70 @@ class Ui_App_Comercial(object):
         self.client_resume_window.show()
 
 
+# Function to open reclamation window
     def reclamation_offer(self):
-        commands_queryoffer = ("""
-                        SELECT offers."num_offer",offers."responsible",offers."state",offers."num_ref_offer",
-                        offers."presentation_date",offers."rec_auto",offers."last_rec",offers."mails"
+        self.reclamationoffer_window=QtWidgets.QMainWindow()
+        self.ui=Ui_ReclamationOffer_Window(self.name)
+        self.ui.setupUi(self.reclamationoffer_window)
+        self.reclamationoffer_window.show()
+
+
+# Function to show pop-up with offers to reclaim
+    def alert_reclamation_offers(self):
+        conn = None
+        commands_queryrecoffer = ("""
+                        SELECT offers."num_offer",TO_CHAR(offers."presentation_date", 'DD-MM-YYYY'),TO_CHAR(offers."last_update", 'DD-MM-YYYY'),
+                        (offers."last_update" - offers."presentation_date") AS "difference_in_days"
                         FROM offers
                         WHERE (offers."responsible" = %s
                         AND
                         offers."state" = 'Presentada'
+                        AND
+                        offers."last_update" < (current_date - interval '10 days')
                         )
                         ORDER BY offers."num_offer"
                         """)
-        commands_responsiblemail = ("""
-                                    SELECT email
-                                    FROM users_data.registration
-                                    WHERE username = %s
-                                    """)
-        conn = None
 
-        nombre, apellido = [word.lower() for word in self.name.split()]
-        username = nombre[0] + "." + apellido
-
-        if self.name == 'Carlos Crespo':
-            responsible=self.name[0] + self.name[self.name.find(' ')+1] + 'H'
-        else:
-            responsible=self.name[0] + self.name[self.name.find(' ')+1]
         try:
-            responsible='MASTER'
+            if self.name == 'Carlos Crespo':
+                responsible=self.name[0] + self.name[self.name.find(' ')+1] + 'H'
+            else:
+                responsible=self.name[0] + self.name[self.name.find(' ')+1]
         # read the connection parameters
             params = config()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
-        # execution of commands
-            data=(username,)
-            cur.execute(commands_responsiblemail,data)
-            results_email=cur.fetchall()
-            email=results_email[0][0]
-            data=(responsible,)
-            cur.execute(commands_queryoffer,data)
-            results_offers=cur.fetchall()
+        # execution of commands one by one
+            cur.execute(commands_queryrecoffer, (responsible,))
+            results=cur.fetchall()
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
             conn.commit()
+
+            offers_rec_delay=[x[0] for x in results]
+
+            if len(offers_rec_delay) != 0:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Hay " + str(len(offers_rec_delay)) + " ofertas para reclamar\n"
+                            "¿Quieres reclamarlas ahora?\n")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                result = dlg.exec()
+                if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                    self.reclamation_offer()
+                del dlg, new_icon
+
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
         finally:
             if conn is not None:
                 conn.close()
-
-        for item in results_offers:
-            if item[2] == 'Presentada' and item[5] == 'Reclamar':
-                if item[6] is None and (item[4] + timedelta(9)) < date.today():
-                    mail=email_offer1(item[7], item[3], email, item[4])
-                    mail.send_email()
-
-                    commands_updateoffer = ("""
-                                UPDATE offers
-                                SET "last_rec" = %s
-                                WHERE "num_offer" = %s
-                                """)
-                    conn = None
-                    try:
-                    # read the connection parameters
-                        params = config()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands
-                        data=(date.today().strftime("%d/%m/%Y"),item[0],)
-                        cur.execute(commands_updateoffer,data)
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
-
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Reclamación oferta")
-                        dlg.setText("Correos enviados con éxito")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg, new_icon
-
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        print(error)
-                    finally:
-                        if conn is not None:
-                            conn.close()
-                else:
-                    if item[6] is not None and (item[6] + timedelta(6)) < date.today():
-                        mail=email_offer2(item[7], item[3], email)
-                        mail.send_email()
-
-                        commands_updateoffer = ("""
-                                UPDATE offers
-                                SET "last_rec" = %s
-                                WHERE "num_offer" = %s
-                                """)
-                        conn = None
-                        try:
-                        # read the connection parameters
-                            params = config()
-                        # connect to the PostgreSQL server
-                            conn = psycopg2.connect(**params)
-                            cur = conn.cursor()
-                        # execution of commands
-                            data=(date.today().strftime("%d/%m/%Y"),item[0],)
-                            cur.execute(commands_updateoffer,data)
-                        # close communication with the PostgreSQL database server
-                            cur.close()
-                        # commit the changes
-                            conn.commit()
-
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("Reclamación oferta")
-                            dlg.setText("Correos enviados con éxito")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                            dlg.exec()
-                            del dlg, new_icon
-
-                        except (Exception, psycopg2.DatabaseError) as error:
-                            print(error)
-                        finally:
-                            if conn is not None:
-                                conn.close()
-                    else:
-                        pass
 
 
 if __name__ == "__main__":

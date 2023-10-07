@@ -11,7 +11,7 @@ from SubmitOffer_Window import Ui_SubmitOffer_Window
 from EditOffer_Window import Ui_Edit_Offer_Window
 import os
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_EditOffer_Menu(object):
@@ -21,7 +21,7 @@ class Ui_EditOffer_Menu(object):
         EditOffer_Menu.setMinimumSize(QtCore.QSize(300, 300))
         EditOffer_Menu.setMaximumSize(QtCore.QSize(300, 340))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditOffer_Menu.setWindowIcon(icon)
         EditOffer_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

@@ -16,7 +16,7 @@ from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from PyQt6.QtCore import Qt
 import os
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -49,7 +49,7 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
         HistoryTask_Window.setMinimumSize(QtCore.QSize(600, 575))
         # HistoryTask_Window.setMaximumSize(QtCore.QSize(600, 575))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         HistoryTask_Window.setWindowIcon(icon)
         HistoryTask_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -114,7 +114,7 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addItem(spacerItem3, 1, 2, 1, 1)
         self.tableTasks = QtWidgets.QTableWidget(parent=self.frame)
         self.tableTasks.setObjectName("tableWidget")
-        if self.name == 'Luis Bravo':
+        if self.name in ['Luis Bravo', 'Fernando Gallego']:
             self.tableTasks.setColumnCount(6)
         else:
             self.tableTasks.setColumnCount(5)
@@ -149,7 +149,7 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
         font.setBold(True)
         item.setFont(font)
         self.tableTasks.setHorizontalHeaderItem(4, item)
-        if self.name == 'Luis Bravo':
+        if self.name in ['Luis Bravo', 'Fernando Gallego']:
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -194,7 +194,7 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
         item.setText(_translate("HistoryTask_Window", "Fecha Fin"))
         item = self.tableTasks.horizontalHeaderItem(4)
         item.setText(_translate("HistoryTask_Window", "Estado"))
-        if self.name == 'Luis Bravo':
+        if self.name in ['Luis Bravo', 'Fernando Gallego']:
             item = self.tableTasks.horizontalHeaderItem(5)
             item.setText(_translate("QueryTask_Window", "Responsable"))
         self.Button_Cancel.setText(_translate("HistoryTask_Window", "Salir"))
@@ -223,7 +223,7 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands one by one
-            if self.name == 'Luis Bravo':
+            if self.name in ['Luis Bravo', 'Fernando Gallego']:
                 cur.execute(commands_QueryTask_All_LB)
             else:
                 cur.execute(commands_QueryTask_All, (self.name,))
@@ -238,7 +238,7 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                if self.name == 'Luis Bravo':
+                if self.name in ['Luis Bravo', 'Fernando Gallego']:
                     for column in range(6):
                         value = row[column]
                         if value is None:
@@ -321,7 +321,7 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Tareas")
             dlg.setText(cell_content)

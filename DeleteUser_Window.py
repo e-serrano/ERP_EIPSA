@@ -12,7 +12,7 @@ from config import config
 from User_Delete_DB import delete_user_database
 import os
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_DeleteUser_Window(object):
@@ -26,7 +26,7 @@ class Ui_DeleteUser_Window(object):
         ForgetPass_Window.setSizePolicy(sizePolicy)
         ForgetPass_Window.setMaximumSize(QtCore.QSize(275, 340))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ForgetPass_Window.setWindowIcon(icon)
         ForgetPass_Window.setAutoFillBackground(False)
         ForgetPass_Window.setStyleSheet("QWidget {\n"
@@ -251,7 +251,7 @@ class Ui_DeleteUser_Window(object):
         if len(match)==0:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Eliminar usuario")
             dlg.setText("El correo introducido no está registrado")
@@ -286,7 +286,7 @@ class Ui_DeleteUser_Window(object):
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Eliminar usuario")
                 dlg.setText("Usuario eliminado con éxito")

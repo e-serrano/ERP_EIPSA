@@ -11,7 +11,7 @@ from ImportTAG_Window import Ui_ImportTAG_Window
 from TypeTAGCreation_Menu import Ui_TypeTagCreation_Menu
 import os
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_CreateTag_Menu(object):
@@ -21,7 +21,7 @@ class Ui_CreateTag_Menu(object):
         Create_Tag_Menu.setMinimumSize(QtCore.QSize(300, 340))
         Create_Tag_Menu.setMaximumSize(QtCore.QSize(300, 340))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Create_Tag_Menu.setWindowIcon(icon)
         Create_Tag_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

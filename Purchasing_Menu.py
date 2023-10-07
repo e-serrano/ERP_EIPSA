@@ -14,7 +14,7 @@ from Supplies_Window import Ui_Supplies_Window
 from Purchasing_DB_Menu import Ui_Purchasing_DB_Menu
 import os
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Purchasing_Menu(object):
@@ -25,7 +25,7 @@ class Ui_Purchasing_Menu(object):
         Purchasing_Menu.setMinimumSize(QtCore.QSize(int(615//1.5), int(400//1.5)))
         Purchasing_Menu.setMaximumSize(QtCore.QSize(int(615//1.5), int(400//1.5)))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Purchasing_Menu.setWindowIcon(icon)
         Purchasing_Menu.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"

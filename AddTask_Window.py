@@ -11,7 +11,7 @@ from config import config
 import psycopg2
 import os
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_AddTask_Window(object):
@@ -27,7 +27,7 @@ class Ui_AddTask_Window(object):
         AddTask_Window.setMinimumSize(QtCore.QSize(400, 375))
         AddTask_Window.setMaximumSize(QtCore.QSize(400, 375))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         AddTask_Window.setWindowIcon(icon)
         AddTask_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -78,7 +78,7 @@ class Ui_AddTask_Window(object):
         self.gridLayout_2.setObjectName("gridLayout_2")
         spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 1)
-        if self.name == 'Luis Bravo':
+        if self.name in ['Luis Bravo', 'Fernando Gallego']:
             self.hLayout1 = QtWidgets.QHBoxLayout()
             self.hLayout1.setObjectName("hLayout2")
             self.labelResponsible = QtWidgets.QLabel(parent=self.frame)
@@ -240,7 +240,7 @@ class Ui_AddTask_Window(object):
         state_date_checkbox = "Checked" if self.checkbox.isChecked() else "Unchecked"
         date_task = self.comboBox.date().toString(QtCore.Qt.DateFormat.ISODate) if state_date_checkbox == "Checked" else None
 
-        if self.name=='Luis Bravo':
+        if self.name in ['Luis Bravo', 'Fernando Gallego']:
             responsible = self.Responsible_Task.currentText()
 
         else:
@@ -254,7 +254,7 @@ class Ui_AddTask_Window(object):
         if date_task == "" or task_value == "":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Los campos deben estar rellenos")
@@ -283,7 +283,7 @@ class Ui_AddTask_Window(object):
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Tarea creada con éxito")

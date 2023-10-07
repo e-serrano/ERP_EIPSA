@@ -17,7 +17,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtSql import QSqlQuery
 import os
 
-basedir = os.path.dirname(__file__)
+basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -145,7 +145,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
         if query.lastError().isValid():
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Editar Documentos")
             dlg.setText("Ha habido un error al actualizar los datos. No serán guardados")
@@ -170,7 +170,7 @@ class Ui_EditReg_Window(object):
         EditReg_Window.setMinimumSize(QtCore.QSize(700, 725))
         # EditReg_Window.setMaximumSize(QtCore.QSize(400, 561))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditReg_Window.setWindowIcon(icon)
         EditReg_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -357,7 +357,7 @@ class Ui_EditReg_Window(object):
     #             self.model.database().commit()
     #             dlg = QtWidgets.QMessageBox()
     #             new_icon = QtGui.QIcon()
-    #             new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+    #             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
     #             dlg.setWindowIcon(new_icon)
     #             dlg.setWindowTitle("Editar Documentos")
     #             dlg.setText("Datos guardados con éxito")
@@ -367,7 +367,7 @@ class Ui_EditReg_Window(object):
     #             self.model.database().rollback()
     #             dlg = QtWidgets.QMessageBox()
     #             new_icon = QtGui.QIcon()
-    #             new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+    #             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
     #             dlg.setWindowIcon(new_icon)
     #             dlg.setWindowTitle("Editar Documentos")
     #             dlg.setText("Ha habido un problema al guardar los datos")
