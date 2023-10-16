@@ -21,8 +21,8 @@ from QueryDoc_Window import Ui_QueryDoc_Window
 from QueryTags_Window import Ui_QueryTags_Window
 from EditTags_Commercial_Window import Ui_EditTags_Window
 from EditUser_Menu import Ui_EditUser_Menu
-from EditDB_Menu import Ui_EditDB_Menu
-from ImportDB_Menu import Ui_ImportDB_Menu
+from DBEdit_Menu import Ui_DBEdit_Menu
+from DBImport_Menu import Ui_DBImport_Menu
 from QueryTableChanges_Window import Ui_QueryTableChanges_Window
 from AddTask_Window import Ui_AddTask_Window
 from EditPassword_Window import Ui_EditPasswordWindow
@@ -57,9 +57,6 @@ class Ui_App_Master(object):
     def __init__(self, name, username):
         self.name=name
         self.username=username
-    # def __init__(self):
-    #     self.name='Enrique Serrano'
-    #     self.username='e.serranog'
 
 
     def setupUi(self, App_Master):
@@ -623,14 +620,14 @@ class Ui_App_Master(object):
 
     def editdb(self):
         self.dbedit_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_EditDB_Menu()
+        self.ui=Ui_DBEdit_Menu()
         self.ui.setupUi(self.dbedit_menu)
         self.dbedit_menu.show()
 
 
     def importdb(self):
         self.dbimport_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_ImportDB_Menu()
+        self.ui=Ui_DBImport_Menu()
         self.ui.setupUi(self.dbimport_menu)
         self.dbimport_menu.show()
 

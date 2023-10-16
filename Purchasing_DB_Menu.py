@@ -15,6 +15,9 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Purchasing_DB_Menu(object):
+    def __init__(self, name):
+        self.name=name
+
     def setupUi(self, Purchasing_DB_Menu):
         Purchasing_DB_Menu.setObjectName("Purchasing_DB_Menu")
         Purchasing_DB_Menu.resize(300, 340)
@@ -134,7 +137,7 @@ class Ui_Purchasing_DB_Menu(object):
 
     def clients(self,Purchasing_DB_Menu):
         self.clients_window=QtWidgets.QMainWindow()
-        self.ui=Ui_Clients_Window()
+        self.ui=Ui_Clients_Window(self.name)
         self.ui.setupUi(self.clients_window)
         self.clients_window.showMaximized()
         Purchasing_DB_Menu.close()

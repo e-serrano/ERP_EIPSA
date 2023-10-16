@@ -16,8 +16,9 @@ import configparser
 from Database_Connection import createConnection
 from tkinter.filedialog import askopenfilename
 import pandas as pd
-from EditDB_Menu import Ui_EditDB_Menu
+from DBEditReg_Window import Ui_DBEditReg_Window
 from Deliveries_Window import Ui_Deliveries_Window
+from OTGeneralCreate_Window import Ui_OTGeneralCreate_Window
 from QueryOrder_Window import Ui_QueryOrder_Window
 from QueryOrderTechnical_Window import Ui_QueryOrderTechnical_Window
 from EditTags_Technical_Window import Ui_EditTags_Window
@@ -257,12 +258,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.username=username
         self.setupUi(self)
 
-    # def __init__(self):
-    #     super().__init__()  # Call the superclass constructor
-    #     self.name='Enrique Serrano'
-    #     self.username='e.serrano'
-    #     self.setupUi(self)
-
 
     def setupUi(self, App_Technical):
         App_Technical.setObjectName("App_Technical")
@@ -367,7 +362,117 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_Deliveries.setObjectName("Button_Deliveries")
             self.Button_Deliveries.setToolTip("Envíos")
             self.Header.addWidget(self.Button_Deliveries)
+            spacerItem14 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem14)
+            self.Button_OT = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_OT.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_OT.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_OT.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_OT.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_OT.setText("")
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Barcode.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_OT.setIcon(icon2)
+            self.Button_OT.setIconSize(QtCore.QSize(40, 40))
+            self.Button_OT.setObjectName("Button_OT")
+            self.Button_OT.setToolTip("Envíos")
+            self.Header.addWidget(self.Button_OT)
             self.Button_Deliveries.clicked.connect(self.deliveries)
+            self.Button_OT.clicked.connect(self.otorder)
+        elif self.name in ["Jesús Martínez"]:
+            self.Button_Times = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Times.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Times.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_Times.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Times.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_Times.setText("")
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Clock.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Times.setIcon(icon2)
+            self.Button_Times.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Times.setObjectName("Button_Times")
+            self.Button_Times.setToolTip("Tiempos")
+            self.Header.addWidget(self.Button_Times)
+            spacerItem14 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem14)
+            self.Button_OT = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_OT.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_OT.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_OT.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_OT.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_OT.setText("")
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Barcode.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_OT.setIcon(icon2)
+            self.Button_OT.setIconSize(QtCore.QSize(40, 40))
+            self.Button_OT.setObjectName("Button_OT")
+            self.Button_OT.setToolTip("Envíos")
+            self.Header.addWidget(self.Button_OT)
+            self.Button_Times.clicked.connect(self.times)
+            self.Button_OT.clicked.connect(self.otorder)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -568,42 +673,13 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.tableDocs.setObjectName("tableDocs")
         self.tableDocs.setColumnCount(6)
         self.tableDocs.setRowCount(0)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        item.setFont(font)
-        self.tableDocs.setHorizontalHeaderItem(0, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        item.setFont(font)
-        self.tableDocs.setHorizontalHeaderItem(1, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        item.setFont(font)
-        self.tableDocs.setHorizontalHeaderItem(2, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        item.setFont(font)
-        self.tableDocs.setHorizontalHeaderItem(3, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        item.setFont(font)
-        self.tableDocs.setHorizontalHeaderItem(4, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        item.setFont(font)
-        self.tableDocs.setHorizontalHeaderItem(5, item)
+        for i in range(6):
+            item = QtWidgets.QTableWidgetItem()
+            font = QtGui.QFont()
+            font.setPointSize(10)
+            font.setBold(True)
+            item.setFont(font)
+            self.tableDocs.setHorizontalHeaderItem(i, item)
         self.tableDocs.verticalHeader().setVisible(False)
         self.tableDocs.setSortingEnabled(False)
         self.tableDocs.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
@@ -773,10 +849,18 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 
     def editdb(self):
-        self.dbedit_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_EditDB_Menu()
-        self.ui.setupUi(self.dbedit_menu)
-        self.dbedit_menu.show()
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        if not createConnection(user_database, password_database):
+            sys.exit()
+
+        self.dbedit_window=Ui_DBEditReg_Window()
+        self.dbedit_window.show()
 
     def deliveries(self):
         config_obj = configparser.ConfigParser()
@@ -792,6 +876,14 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.deliveries_window = Ui_Deliveries_Window()
         self.deliveries_window.show()
 
+    def times(self):
+        print('tiempos')
+
+    def otorder(self):
+        self.otgeneralcreate_window=QtWidgets.QMainWindow()
+        self.ui=Ui_OTGeneralCreate_Window()
+        self.ui.setupUi(self.otgeneralcreate_window)
+        self.otgeneralcreate_window.show()
 
     def query_order(self):
         self.query_order_window=QtWidgets.QMainWindow()
@@ -1005,6 +1097,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         header_height = self.tableDocs.horizontalHeader().height()
         popup_pos = self.tableDocs.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableDocs.show_unique_values_menu(logical_index, popup_pos, header_height)
+
 
 if __name__ == "__main__":
     import sys

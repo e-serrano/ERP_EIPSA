@@ -9,7 +9,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import QtSql
 from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from Create_FabOrder_Window import Ui_CreateFabOrder_Window
 from Create_MatOrder import flow_matorder, temp_matorder, level_matorder
@@ -24,7 +24,7 @@ from datetime import *
 import os
 import pandas as pd
 from tkinter.filedialog import asksaveasfilename
-from PyQt6.QtCore import QDate
+
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -1106,7 +1106,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         else:
             inspection(self.proxy, self.model, self.variable)
 
-# Function to set inspection number
+# Function to export data to excel
     def exporttoexcel(self):
         if self.proxy.rowCount() == 0:
             dlg = QtWidgets.QMessageBox()

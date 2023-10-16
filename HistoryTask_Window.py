@@ -14,6 +14,7 @@ import pandas as pd
 from PyQt6.QtWidgets import QApplication, QFileDialog, QAbstractItemView
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from PyQt6.QtCore import Qt
+from EditTask_Window import Ui_EditTask_Window
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -177,7 +178,7 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
 
         self.Button_Cancel.clicked.connect(HistoryTask_Window.close)
         self.Button_Export.clicked.connect(self.export_to_excel)
-        self.tableTasks.itemDoubleClicked.connect(self.expand_cell)
+        self.tableTasks.itemDoubleClicked.connect(self.on_item_double_clicked)
         self.QueryTask()
 
 
@@ -315,7 +316,13 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
             cursor.insertText('\n')  # Salto de línea al final de la fila
 
         return text_doc.toPlainText()
-    
+
+    def on_item_double_clicked(self, item):
+        if item.column() == 2:
+            self.expand_cell(item)
+        elif item.column() == 4:
+            self.edittask(item)
+
     def expand_cell(self, item):
         if item.column() == 2:
             cell_content = item.text()
@@ -327,6 +334,17 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
             dlg.setText(cell_content)
             dlg.exec()
 
+    def edittask(self, item):
+        task = item.tableWidget().item(item.row(), 2).text()
+        id = item.tableWidget().item(item.row(), 0).text()
+        date = item.tableWidget().item(item.row(), 3).text()
+        state = item.tableWidget().item(item.row(), 4).text()
+
+        self.edittaskwindow=QtWidgets.QMainWindow()
+        self.ui=Ui_EditTask_Window(id, task, date, state)
+        self.ui.setupUi(self.edittaskwindow)
+        self.edittaskwindow.show()
+        self.ui.Button_Cancel.clicked.connect(self.QueryTask)
 
 if __name__ == "__main__":
     import sys

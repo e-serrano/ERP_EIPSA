@@ -17,9 +17,9 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 class Ui_CreateTAGNiv_Window(object):
     def setupUi(self, CreateTAGNiv_Window):
         CreateTAGNiv_Window.setObjectName("CreateTAGNiv_Window")
-        CreateTAGNiv_Window.resize(1275, 605)
-        CreateTAGNiv_Window.setMinimumSize(QtCore.QSize(1275, 605))
-        CreateTAGNiv_Window.setMaximumSize(QtCore.QSize(1275, 644))
+        CreateTAGNiv_Window.resize(1400, 650)
+        CreateTAGNiv_Window.setMinimumSize(QtCore.QSize(1400, 650))
+        CreateTAGNiv_Window.setMaximumSize(QtCore.QSize(1400, 650))
         CreateTAGNiv_Window.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -102,6 +102,15 @@ class Ui_CreateTAGNiv_Window(object):
         self.label_NumOrder.setFont(font)
         self.label_NumOrder.setObjectName("label_NumOrder")
         self.vLayout1.addWidget(self.label_NumOrder)
+        self.label_NumPO = QtWidgets.QLabel(parent=self.frame)
+        self.label_NumPO.setMinimumSize(QtCore.QSize(140, 25))
+        self.label_NumPO.setMaximumSize(QtCore.QSize(140, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_NumPO.setFont(font)
+        self.label_NumPO.setObjectName("label_NumPO")
+        self.vLayout1.addWidget(self.label_NumPO)
         self.label_Pos = QtWidgets.QLabel(parent=self.frame)
         self.label_Pos.setMinimumSize(QtCore.QSize(140, 25))
         self.label_Pos.setMaximumSize(QtCore.QSize(140, 25))
@@ -211,6 +220,14 @@ class Ui_CreateTAGNiv_Window(object):
         self.NumOrder_CreatetagN.setFont(font)
         self.NumOrder_CreatetagN.setObjectName("NumOrder_CreatetagN")
         self.vLayout2.addWidget(self.NumOrder_CreatetagN)
+        self.NumPO_CreatetagN = QtWidgets.QLineEdit(parent=self.frame)
+        self.NumPO_CreatetagN.setMinimumSize(QtCore.QSize(175, 25))
+        self.NumPO_CreatetagN.setMaximumSize(QtCore.QSize(175, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.NumPO_CreatetagN.setFont(font)
+        self.NumPO_CreatetagN.setObjectName("NumPO_CreatetagN")
+        self.vLayout2.addWidget(self.NumPO_CreatetagN)
         self.Pos_CreatetagN = QtWidgets.QLineEdit(parent=self.frame)
         self.Pos_CreatetagN.setMinimumSize(QtCore.QSize(175, 25))
         self.Pos_CreatetagN.setMaximumSize(QtCore.QSize(175, 25))
@@ -382,6 +399,15 @@ class Ui_CreateTAGNiv_Window(object):
         self.label_Iluminator.setFont(font)
         self.label_Iluminator.setObjectName("label_Iluminator")
         self.vLayout3.addWidget(self.label_Iluminator)
+        self.label_NipHex = QtWidgets.QLabel(parent=self.frame)
+        self.label_NipHex.setMinimumSize(QtCore.QSize(100, 25))
+        self.label_NipHex.setMaximumSize(QtCore.QSize(100, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_NipHex.setFont(font)
+        self.label_NipHex.setObjectName("label_NipHex")
+        self.vLayout3.addWidget(self.label_NipHex)
         self.hLayout1.addLayout(self.vLayout3)
         self.vLayout4 = QtWidgets.QVBoxLayout()
         self.vLayout4.setSpacing(15)
@@ -462,21 +488,20 @@ class Ui_CreateTAGNiv_Window(object):
         self.Iluminator_CreatetagN.setFont(font)
         self.Iluminator_CreatetagN.setObjectName("Iluminator_CreatetagN")
         self.vLayout4.addWidget(self.Iluminator_CreatetagN)
+        self.Niphex_CreatetagN = QtWidgets.QComboBox(parent=self.frame)
+        self.Niphex_CreatetagN.setMinimumSize(QtCore.QSize(400, 25))
+        self.Niphex_CreatetagN.setMaximumSize(QtCore.QSize(400, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Niphex_CreatetagN.setFont(font)
+        self.Niphex_CreatetagN.setObjectName("Niphex_CreatetagN")
+        self.vLayout4.addWidget(self.Niphex_CreatetagN)
         self.hLayout1.addLayout(self.vLayout4)
         spacerItem1 = QtWidgets.QSpacerItem(30, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hLayout1.addItem(spacerItem1)
         self.vLayout5 = QtWidgets.QVBoxLayout()
         self.vLayout5.setSpacing(15)
         self.vLayout5.setObjectName("vLayout5")
-        self.label_NipHex = QtWidgets.QLabel(parent=self.frame)
-        self.label_NipHex.setMinimumSize(QtCore.QSize(100, 25))
-        self.label_NipHex.setMaximumSize(QtCore.QSize(100, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_NipHex.setFont(font)
-        self.label_NipHex.setObjectName("label_NipHex")
-        self.vLayout5.addWidget(self.label_NipHex)
         self.label_Antifrost = QtWidgets.QLabel(parent=self.frame)
         self.label_Antifrost.setMinimumSize(QtCore.QSize(100, 25))
         self.label_Antifrost.setMaximumSize(QtCore.QSize(100, 25))
@@ -558,15 +583,6 @@ class Ui_CreateTAGNiv_Window(object):
         self.label_Nace.setFont(font)
         self.label_Nace.setObjectName("label_Nace")
         self.vLayout5.addWidget(self.label_Nace)
-        self.label_Notes = QtWidgets.QLabel(parent=self.frame)
-        self.label_Notes.setMinimumSize(QtCore.QSize(100, 25))
-        self.label_Notes.setMaximumSize(QtCore.QSize(100, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_Notes.setFont(font)
-        self.label_Notes.setObjectName("label_Notes")
-        self.vLayout5.addWidget(self.label_Notes)
         self.label_Amount = QtWidgets.QLabel(parent=self.frame)
         self.label_Amount.setMinimumSize(QtCore.QSize(100, 25))
         self.label_Amount.setMaximumSize(QtCore.QSize(100, 25))
@@ -576,91 +592,110 @@ class Ui_CreateTAGNiv_Window(object):
         self.label_Amount.setFont(font)
         self.label_Amount.setObjectName("label_Amount")
         self.vLayout5.addWidget(self.label_Amount)
+        self.label_Notes = QtWidgets.QLabel(parent=self.frame)
+        self.label_Notes.setMinimumSize(QtCore.QSize(100, 25))
+        self.label_Notes.setMaximumSize(QtCore.QSize(100, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Notes.setFont(font)
+        self.label_Notes.setObjectName("label_Notes")
+        self.vLayout5.addWidget(self.label_Notes)
+        self.label = QtWidgets.QLabel(parent=self.frame)
+        self.label.setMinimumSize(QtCore.QSize(100, 25))
+        self.label.setMaximumSize(QtCore.QSize(100, 25))
+        self.label.setText("")
+        self.label.setObjectName("label")
+        self.vLayout5.addWidget(self.label)
         self.hLayout1.addLayout(self.vLayout5)
         self.vLayout6 = QtWidgets.QVBoxLayout()
         self.vLayout6.setSpacing(15)
         self.vLayout6.setObjectName("vLayout6")
-        self.Niphex_CreatetagN = QtWidgets.QComboBox(parent=self.frame)
-        self.Niphex_CreatetagN.setMinimumSize(QtCore.QSize(175, 25))
-        self.Niphex_CreatetagN.setMaximumSize(QtCore.QSize(175, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Niphex_CreatetagN.setFont(font)
-        self.Niphex_CreatetagN.setObjectName("Niphex_CreatetagN")
-        self.vLayout6.addWidget(self.Niphex_CreatetagN)
         self.Antifrost_CreatetagN = QtWidgets.QComboBox(parent=self.frame)
-        self.Antifrost_CreatetagN.setMinimumSize(QtCore.QSize(175, 25))
-        self.Antifrost_CreatetagN.setMaximumSize(QtCore.QSize(175, 25))
+        self.Antifrost_CreatetagN.setMinimumSize(QtCore.QSize(300, 25))
+        self.Antifrost_CreatetagN.setMaximumSize(QtCore.QSize(300, 25))
         self.Antifrost_CreatetagN.setObjectName("Antifrost_CreatetagN")
         self.vLayout6.addWidget(self.Antifrost_CreatetagN)
         self.Scale_CreatetagN = QtWidgets.QComboBox(parent=self.frame)
-        self.Scale_CreatetagN.setMinimumSize(QtCore.QSize(175, 25))
-        self.Scale_CreatetagN.setMaximumSize(QtCore.QSize(175, 25))
+        self.Scale_CreatetagN.setMinimumSize(QtCore.QSize(300, 25))
+        self.Scale_CreatetagN.setMaximumSize(QtCore.QSize(300, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Scale_CreatetagN.setFont(font)
         self.Scale_CreatetagN.setObjectName("Scale_CreatetagN")
         self.vLayout6.addWidget(self.Scale_CreatetagN)
         self.Matflot_CreatetagN = QtWidgets.QComboBox(parent=self.frame)
-        self.Matflot_CreatetagN.setMinimumSize(QtCore.QSize(175, 25))
-        self.Matflot_CreatetagN.setMaximumSize(QtCore.QSize(175, 25))
+        self.Matflot_CreatetagN.setMinimumSize(QtCore.QSize(300, 25))
+        self.Matflot_CreatetagN.setMaximumSize(QtCore.QSize(300, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Matflot_CreatetagN.setFont(font)
         self.Matflot_CreatetagN.setObjectName("Matflot_CreatetagN")
         self.vLayout6.addWidget(self.Matflot_CreatetagN)
         self.Matcover_CreatetagN = QtWidgets.QComboBox(parent=self.frame)
-        self.Matcover_CreatetagN.setMinimumSize(QtCore.QSize(175, 25))
-        self.Matcover_CreatetagN.setMaximumSize(QtCore.QSize(175, 25))
+        self.Matcover_CreatetagN.setMinimumSize(QtCore.QSize(300, 25))
+        self.Matcover_CreatetagN.setMaximumSize(QtCore.QSize(300, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Matcover_CreatetagN.setFont(font)
         self.Matcover_CreatetagN.setObjectName("Matcover_CreatetagN")
         self.vLayout6.addWidget(self.Matcover_CreatetagN)
         self.Flags_CreatetagN = QtWidgets.QComboBox(parent=self.frame)
-        self.Flags_CreatetagN.setMinimumSize(QtCore.QSize(175, 25))
-        self.Flags_CreatetagN.setMaximumSize(QtCore.QSize(175, 25))
+        self.Flags_CreatetagN.setMinimumSize(QtCore.QSize(300, 25))
+        self.Flags_CreatetagN.setMaximumSize(QtCore.QSize(300, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Flags_CreatetagN.setFont(font)
         self.Flags_CreatetagN.setObjectName("Flags_CreatetagN")
         self.vLayout6.addWidget(self.Flags_CreatetagN)
         self.IP_CreatetagN = QtWidgets.QComboBox(parent=self.frame)
-        self.IP_CreatetagN.setMinimumSize(QtCore.QSize(175, 25))
-        self.IP_CreatetagN.setMaximumSize(QtCore.QSize(175, 25))
+        self.IP_CreatetagN.setMinimumSize(QtCore.QSize(300, 25))
+        self.IP_CreatetagN.setMaximumSize(QtCore.QSize(300, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.IP_CreatetagN.setFont(font)
         self.IP_CreatetagN.setObjectName("IP_CreatetagN")
         self.vLayout6.addWidget(self.IP_CreatetagN)
         self.FlangeType_CreatetagN = QtWidgets.QComboBox(parent=self.frame)
-        self.FlangeType_CreatetagN.setMinimumSize(QtCore.QSize(175, 25))
-        self.FlangeType_CreatetagN.setMaximumSize(QtCore.QSize(175, 25))
+        self.FlangeType_CreatetagN.setMinimumSize(QtCore.QSize(300, 25))
+        self.FlangeType_CreatetagN.setMaximumSize(QtCore.QSize(300, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.FlangeType_CreatetagN.setFont(font)
         self.FlangeType_CreatetagN.setObjectName("FlangeType_CreatetagN")
         self.vLayout6.addWidget(self.FlangeType_CreatetagN)
         self.Niptub_CreatetagN = QtWidgets.QComboBox(parent=self.frame)
-        self.Niptub_CreatetagN.setMinimumSize(QtCore.QSize(175, 25))
-        self.Niptub_CreatetagN.setMaximumSize(QtCore.QSize(175, 25))
+        self.Niptub_CreatetagN.setMinimumSize(QtCore.QSize(300, 25))
+        self.Niptub_CreatetagN.setMaximumSize(QtCore.QSize(300, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Niptub_CreatetagN.setFont(font)
         self.Niptub_CreatetagN.setObjectName("Niptub_CreatetagN")
         self.vLayout6.addWidget(self.Niptub_CreatetagN)
         self.Nace_CreatetagN = QtWidgets.QComboBox(parent=self.frame)
-        self.Nace_CreatetagN.setMinimumSize(QtCore.QSize(175, 25))
-        self.Nace_CreatetagN.setMaximumSize(QtCore.QSize(175, 25))
+        self.Nace_CreatetagN.setMinimumSize(QtCore.QSize(300, 25))
+        self.Nace_CreatetagN.setMaximumSize(QtCore.QSize(300, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Nace_CreatetagN.setFont(font)
         self.Nace_CreatetagN.setObjectName("Nace_CreatetagN")
         self.vLayout6.addWidget(self.Nace_CreatetagN)
-        self.Notes_CreatetagN = QtWidgets.QTextEdit(parent=self.frame)
-        self.Notes_CreatetagN.setMinimumSize(QtCore.QSize(175, 25))
-        self.Notes_CreatetagN.setMaximumSize(QtCore.QSize(175, 25))
-        self.Notes_CreatetagN.setObjectName("Notes_CreatetagN")
-        self.vLayout6.addWidget(self.Notes_CreatetagN)
         self.Amount_CreatetagN = QtWidgets.QLineEdit(parent=self.frame)
-        self.Amount_CreatetagN.setMinimumSize(QtCore.QSize(175, 25))
-        self.Amount_CreatetagN.setMaximumSize(QtCore.QSize(175, 25))
+        self.Amount_CreatetagN.setMinimumSize(QtCore.QSize(300, 25))
+        self.Amount_CreatetagN.setMaximumSize(QtCore.QSize(300, 25))
         self.Amount_CreatetagN.setObjectName("Amount_CreatetagN")
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Amount_CreatetagN.setFont(font)
         self.vLayout6.addWidget(self.Amount_CreatetagN)
+        self.Notes_CreatetagN = QtWidgets.QTextEdit(parent=self.frame)
+        self.Notes_CreatetagN.setMinimumSize(QtCore.QSize(300, 65))
+        self.Notes_CreatetagN.setMaximumSize(QtCore.QSize(300, 65))
+        self.Notes_CreatetagN.setObjectName("Notes_CreatetagN")
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Notes_CreatetagN.setFont(font)
+        self.vLayout6.addWidget(self.Notes_CreatetagN)
         self.hLayout1.addLayout(self.vLayout6)
         self.verticalLayout_5.addLayout(self.hLayout1)
         spacerItem2 = QtWidgets.QSpacerItem(20, 30, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -718,8 +753,85 @@ class Ui_CreateTAGNiv_Window(object):
         self.statusbar.setObjectName("statusbar")
         CreateTAGNiv_Window.setStatusBar(self.statusbar)
 
-        list_nace=['Hold','No','Yes']
-        self.Nace_CreatetagN.addItems(list_nace)
+        commands_comboboxes = [
+            "SELECT item_type FROM validation_data.level_item_type",
+            "SELECT model_num FROM validation_data.level_model_num",
+            "SELECT body_mat FROM validation_data.level_body_mat",
+            "SELECT proc_conn_type FROM validation_data.level_proc_conn_type",
+            "SELECT proc_conn_size FROM validation_data.level_proc_conn_size",
+            "SELECT proc_conn_rating FROM validation_data.level_proc_conn_rating",
+            "SELECT proc_conn_facing FROM validation_data.level_proc_conn_facing",
+            "SELECT conn_type FROM validation_data.level_conn_type",
+            "SELECT valve_type FROM validation_data.level_valve_type",
+            "SELECT dv_conn FROM validation_data.level_dv_conn",
+            "SELECT dv_size FROM validation_data.level_dv_size",
+            "SELECT dv_rating FROM validation_data.level_dv_rating",
+            "SELECT dv_facing FROM validation_data.level_dv_facing",
+            "SELECT gasket FROM validation_data.level_gasket",
+            "SELECT stud_nuts FROM validation_data.level_stud_nuts",
+            "SELECT illuminator FROM validation_data.level_illuminator",
+            "SELECT nipple FROM validation_data.level_nipple",
+            "SELECT antifrost FROM validation_data.level_antifrost",
+            "SELECT scale_type FROM validation_data.level_scale",
+            "SELECT float_mat FROM validation_data.level_float_mat",
+            "SELECT case_cover_mat FROM validation_data.level_case_cover_mat",
+            "SELECT flags_color_mat FROM validation_data.level_flags_color_mat",
+            "SELECT ip_code FROM validation_data.level_ip_code",
+            "SELECT flange_type FROM validation_data.level_flange_type",
+            "SELECT nipple FROM validation_data.level_nipple",
+            "SELECT nace FROM validation_data.level_nace"
+            ]
+
+        all_results = []
+
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            for query in commands_comboboxes:
+                cur.execute(query)
+                results=cur.fetchall()
+                all_results.append(results)
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        self.Type_CreatetagN.addItems(sorted([x[0] for x in all_results[0]]))
+        self.ModelNum_CreatetagN.addItems(sorted([x[0] for x in all_results[1]]))
+        self.BodyMat_CreatetagN.addItems(sorted([x[0] for x in all_results[2]]))
+        self.ProcConnType_CreatetagN.addItems(sorted([x[0] for x in all_results[3]]))
+        self.ProcConnSize_CreatetagN.addItems(sorted([x[0] for x in all_results[4]]))
+        self.ProcConnRating_CreatetagN.addItems(sorted([x[0] for x in all_results[5]]))
+        self.ProcConnFacing_CreatetagN.addItems(sorted([x[0] for x in all_results[6]]))
+        self.ConnType_CreatetagN.addItems(sorted([x[0] for x in all_results[7]]))
+        self.Valvetype_CreatetagN.addItems(sorted([x[0] for x in all_results[8]]))
+        self.DVConn_CreatetagN.addItems(sorted([x[0] for x in all_results[9]]))
+        self.DVSize_CreatetagN.addItems(sorted([x[0] for x in all_results[10]]))
+        self.DVRating_CreatetagN.addItems(sorted([x[0] for x in all_results[11]]))
+        self.DVFacing_CreatetagN.addItems(sorted([x[0] for x in all_results[12]]))
+        self.GasketMica_CreatetagN.addItems(sorted([x[0] for x in all_results[13]]))
+        self.MatTorn_CreatetagN.addItems(sorted([x[0] for x in all_results[14]]))
+        self.Iluminator_CreatetagN.addItems(sorted([x[0] for x in all_results[15]]))
+        self.Niphex_CreatetagN.addItems(sorted([x[0] for x in all_results[16]]))
+        self.Antifrost_CreatetagN.addItems(sorted([x[0] for x in all_results[17]]))
+        self.Scale_CreatetagN.addItems(sorted([x[0] for x in all_results[18]]))
+        self.Matflot_CreatetagN.addItems(sorted([x[0] for x in all_results[19]]))
+        self.Matcover_CreatetagN.addItems(sorted([x[0] for x in all_results[20]]))
+        self.Flags_CreatetagN.addItems(sorted([x[0] for x in all_results[21]]))
+        self.IP_CreatetagN.addItems(sorted([x[0] for x in all_results[22]]))
+        self.FlangeType_CreatetagN.addItems(sorted([x[0] for x in all_results[23]]))
+        self.Niptub_CreatetagN.addItems(sorted([x[0] for x in all_results[24]]))
+        self.Nace_CreatetagN.addItems(sorted([x[0] for x in all_results[25]]))
 
         self.retranslateUi(CreateTAGNiv_Window)
         self.Button_Cancel.clicked.connect(CreateTAGNiv_Window.close) # type: ignore
@@ -734,6 +846,7 @@ class Ui_CreateTAGNiv_Window(object):
         self.label_TAG.setText(_translate("CreateTAGNiv_Window", "*TAG:"))
         self.label_NumOffer.setText(_translate("CreateTAGNiv_Window", "*Nº Oferta:"))
         self.label_NumOrder.setText(_translate("CreateTAGNiv_Window", "Nº Pedido:"))
+        self.label_NumPO.setText(_translate("CreateTAGNiv_Window", "Nº PO:"))
         self.label_Pos.setText(_translate("CreateTAGNiv_Window", "Posición:"))
         self.label_SubPos.setText(_translate("CreateTAGNiv_Window", "Sub-Pos:"))
         self.label_Type.setText(_translate("CreateTAGNiv_Window", "*Tipo:"))
@@ -773,6 +886,7 @@ class Ui_CreateTAGNiv_Window(object):
 
     def createtagN(self):
         tag=self.TAG_CreatetagN.text()
+        tag_state='Ofertado'
         numoffer=self.NumOffer_CreatetagN.text()
         numorder=self.NumOrder_CreatetagN.text()
         position=self.Pos_CreatetagN.text()
@@ -786,7 +900,7 @@ class Ui_CreateTAGNiv_Window(object):
         procconnfacing=self.ProcConnFacing_CreatetagN.currentText()
         conntype=self.ConnType_CreatetagN.currentText()
         visibility=self.Visibility_CreatetagN.text()
-        LCC=self.LCC_CreatetagN.text()
+        cc_length=self.LCC_CreatetagN.text()
         valvetype=self.Valvetype_CreatetagN.currentText()
         dvconn=self.DVConn_CreatetagN.currentText()
         dvsize=self.DVSize_CreatetagN.currentText()
@@ -804,8 +918,9 @@ class Ui_CreateTAGNiv_Window(object):
         ip_code=self.IP_CreatetagN.currentText()
         flangetype=self.FlangeType_CreatetagN.currentText()
         niptub=self.Niptub_CreatetagN.currentText()
-        NACE=self.Nace_CreatetagN.currentText()
+        nace=self.Nace_CreatetagN.currentText()
         amount=self.Amount_CreatetagN.text()
+        amount=amount.replace(".",",")
         notes=self.Notes_CreatetagN.toPlainText()
 
 
@@ -817,10 +932,10 @@ class Ui_CreateTAGNiv_Window(object):
 
 
     def queryoffernumber(self):
-        numorder=self.NumOrder_CreatetagN.text()
+        numorder=self.NumOrder_CreatetagQ.text()
     #SQL Query for loading existing data in database
         commands_loadofferorder = ("""
-                    SELECT "num_order","num_offer"
+                    SELECT "num_order","num_offer","num_ref_order"
                     FROM orders
                     WHERE "num_order" = %s
                     """)
@@ -857,6 +972,7 @@ class Ui_CreateTAGNiv_Window(object):
 
         else:
             self.NumOffer_CreatetagN.setText(str(results[0][1]))
+            self.NumPO_CreatetagN.setText(str(results[0][2]))
 
 
 if __name__ == "__main__":

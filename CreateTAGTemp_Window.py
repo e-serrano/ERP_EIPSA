@@ -907,6 +907,7 @@ class Ui_CreateTAGTemp_Window(object):
         puntal=self.Puntal_CreatetagT.currentText()
         tube_t=self.Tube_CreatetagT.currentText()
         amount=self.Amount_CreatetagT.text()
+        amount=amount.replace(".",",")
         notes=self.Notes_CreatetagT.toPlainText()
 
 

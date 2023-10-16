@@ -188,6 +188,7 @@ class Ui_EditTask_Window(object):
         self.checkbox_state = QtWidgets.QCheckBox(parent=self.frame)
         self.checkbox_state.setMinimumSize(QtCore.QSize(20, 20))
         self.checkbox_state.setMaximumSize(QtCore.QSize(20, 20))
+        self.checkbox_state.setChecked(True) if self.state == 'Completado' else self.checkbox_state.setChecked(False)
         self.hLayout4.addWidget(self.checkbox_state)
         self.spacerItem = QtWidgets.QSpacerItem(1, 1, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hLayout4.addItem(self.spacerItem)

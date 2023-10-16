@@ -502,22 +502,24 @@ class Ui_Edit_Offer_Window(object):
         self.hLayout3.addWidget(self.MailsHint_EditOffer)
         spacerItem38 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         self.hLayout3.addItem(spacerItem38)
-        self.label_empty2 = QtWidgets.QLabel(parent=self.frame)
-        self.label_empty2.setMinimumSize(QtCore.QSize(115, 25))
-        self.label_empty2.setMaximumSize(QtCore.QSize(115, 25))
+        self.label_PresDate = QtWidgets.QLabel(parent=self.frame)
+        self.label_PresDate.setMinimumSize(QtCore.QSize(115, 25))
+        self.label_PresDate.setMaximumSize(QtCore.QSize(115, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
-        self.label_empty2.setFont(font)
-        self.label_empty.setText("")
-        self.label_empty2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_empty2.setObjectName("label_empty2")
-        self.hLayout3.addWidget(self.label_empty2)
-        self.label_empty3 = QtWidgets.QLabel(parent=self.frame)
-        self.label_empty3.setMinimumSize(QtCore.QSize(175, 25))
-        self.label_empty3.setMaximumSize(QtCore.QSize(175, 25))
-        self.label_empty.setText("")
-        self.hLayout3.addWidget(self.label_empty3)
+        self.label_PresDate.setFont(font)
+        self.label_PresDate.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_PresDate.setObjectName("label_PresDate")
+        self.hLayout3.addWidget(self.label_PresDate)
+        self.PresDate_EditOffer = QtWidgets.QLineEdit(parent=self.frame)
+        self.PresDate_EditOffer.setMinimumSize(QtCore.QSize(175, 25))
+        self.PresDate_EditOffer.setMaximumSize(QtCore.QSize(175, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.PresDate_EditOffer.setFont(font)
+        self.PresDate_EditOffer.setObjectName("PresDate_EditOffer")
+        self.hLayout3.addWidget(self.PresDate_EditOffer)
         spacerItem39 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hLayout3.addItem(spacerItem39)
         self.verticalLayout.addLayout(self.hLayout3)
@@ -623,6 +625,7 @@ class Ui_Edit_Offer_Window(object):
         self.label_Tracking.setText(_translate("Edit_Offer_Window", "Seguimiento:"))
         self.label_Mails.setText(_translate("Edit_Offer_Window", "Mails Contacto:"))
         self.label_LastUpdate.setText(_translate("Edit_Offer_Window", "Última Fecha:"))
+        self.label_PresDate.setText(_translate("Edit_Offer_Window", "Fecha Pres.:"))
         self.Button_EditOffer.setText(_translate("Edit_Offer_Window", "Editar Oferta"))
         self.Button_Cancel.setText(_translate("Edit_Offer_Window", "Cancelar"))
 
@@ -637,72 +640,33 @@ class Ui_Edit_Offer_Window(object):
         buyer=self.Buyer_EditOffer.text()
         material=self.Material_EditOffer.currentText()
         notes=self.Notes_EditOffer.toPlainText()
-        amount=self.Amount_EditOffer.text()
+        amount=self.Amount_EditOffer.text() if self.Amount_EditOffer.text() not in ['None',''] else str(0)
         amount=amount.replace(".",",")
-        limit_date=self.LimitDate_EditOffer.text()
-        recep_date=self.RecepDate_EditOffer.text() if self.RecepDate_EditOffer.text() != '' else None
+        limit_date=self.LimitDate_EditOffer.text() if self.LimitDate_EditOffer.text() != '' else (None if self.LimitDate_EditOffer.text() == 'None' else None)
+        recep_date=self.RecepDate_EditOffer.text() if self.RecepDate_EditOffer.text() != '' else (None if self.RecepDate_EditOffer.text() == 'None' else None)
         rate_type=self.RateType_EditOffer.text()
         important_issues=self.ImportantIssues_EditOffer.toPlainText()
         tracking=self.Tracking_EditOffer.toPlainText()
         mails=self.Mails_EditOffer.toPlainText()
-        last_update = self.LastUpdate_EditOffer.text() if self.LastUpdate_EditOffer.text() != '' else None
+        last_update = self.LastUpdate_EditOffer.text()
+        presentation_date = self.PresDate_EditOffer.text()
+
+        if last_update in ['None',''] or presentation_date in ['None','']:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Editar Oferta")
+            dlg.setText('Los campos "Fecha Pres." y "Última Fecha" no puede ser "None" ni estar vacíos')
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
+        else:
 
         #SQL Query for checking if offer number exists in database
-        commands_checkoffer = ("""
-                    SELECT * 
-                    FROM offers
-                    WHERE "num_offer" = %s
-                    """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_checkoffer,(numoffer,))
-            results=cur.fetchall()
-            match=list(filter(lambda x:numoffer in x, results))
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-        finally:
-            if conn is not None:
-                conn.close()
-
-        if numoffer=="" or (numoffer==" " or len(match)==0):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Editar Oferta")
-            dlg.setText("Introduce un número de oferta válido")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
-
-        elif numoffer=="" or (client=="" or (finalclient=="" or (numref=="" or (state=="" or (nacext=="" or (buyer=="" or (material=="" or (amount=="" or (limit_date=="" or (mails=="" or rate_type=="")))))))))):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Editar Oferta")
-            dlg.setText("Los campos no pueden estar vacíos")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
-
-        else:
-            #SQL Query for updating values in database
-            commands_updateoffer = ("""
-                        UPDATE offers
-                        SET "client" = %s, "final_client" = %s, "num_ref_offer" = %s, "state" = %s, "nac_ext" = %s, "buyer" = %s,
-                        "material" = %s, "notes" = %s, "offer_amount" = %s, "limit_date" = %s, "rate_type" = %s,
-                        "important" = %s, "tracking" = %s, "recep_date" = %s, "mails" = %s, "last_update" = %s
+            commands_checkoffer = ("""
+                        SELECT * 
+                        FROM offers
                         WHERE "num_offer" = %s
                         """)
             conn = None
@@ -713,43 +677,96 @@ class Ui_Edit_Offer_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands one by one
-                data=(client,finalclient,numref,state,nacext,buyer,material,notes,amount,limit_date,rate_type,important_issues,tracking,recep_date,mails,last_update,numoffer,)
-                cur.execute(commands_updateoffer,data)
+                cur.execute(commands_checkoffer,(numoffer,))
+                results=cur.fetchall()
+                match=list(filter(lambda x:numoffer in x, results))
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes
                 conn.commit()
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Editar Oferta")
-                dlg.setText("Oferta editada con exito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
-
-                self.NumOffer_EditOffer.setText('')
-                self.Client_EditOffer.setText('')
-                self.FinalClient_EditOffer.setText('')
-                self.NumRef_EditOffer.setText('')
-                self.Buyer_EditOffer.setText('')
-                self.Notes_EditOffer.setText('')
-                self.Amount_EditOffer.setText('')
-                self.LimitDate_EditOffer.setText('')
-                self.RecepDate_EditOffer.setText('')
-                self.RateType_EditOffer.setText('')
-                self.ImportantIssues_EditOffer.setText('')
-                self.Tracking_EditOffer.setText('')
-                self.Mails_EditOffer.setText('')
-                self.LastUpdate_EditOffer.setText('')
-
             except (Exception, psycopg2.DatabaseError) as error:
                 print(error)
             finally:
                 if conn is not None:
                     conn.close()
+
+            if numoffer=="" or (numoffer==" " or len(match)==0):
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Editar Oferta")
+                dlg.setText("Introduce un número de oferta válido")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg, new_icon
+
+            elif numoffer=="" or (client=="" or (finalclient=="" or (numref=="" or (state=="" or (nacext=="" or (buyer=="" or (material=="" or (amount=="" or (limit_date=="" or (mails=="" or rate_type=="")))))))))):
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Editar Oferta")
+                dlg.setText("Los campos no pueden estar vacíos")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg, new_icon
+
+            else:
+                #SQL Query for updating values in database
+                commands_updateoffer = ("""
+                            UPDATE offers
+                            SET "client" = %s, "final_client" = %s, "num_ref_offer" = %s, "state" = %s, "nac_ext" = %s, "buyer" = %s,
+                            "material" = %s, "notes" = %s, "offer_amount" = %s, "limit_date" = %s, "rate_type" = %s,
+                            "important" = %s, "tracking" = %s, "recep_date" = %s, "mails" = %s, "last_update" = %s, "presentation_date" = %s
+                            WHERE "num_offer" = %s
+                            """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands one by one
+                    data=(client,finalclient,numref,state,nacext,buyer,material,notes,amount,limit_date,rate_type,important_issues,tracking,recep_date,mails,last_update,presentation_date,numoffer,)
+                    cur.execute(commands_updateoffer,data)
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Editar Oferta")
+                    dlg.setText("Oferta editada con exito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                    self.NumOffer_EditOffer.setText('')
+                    self.Client_EditOffer.setText('')
+                    self.FinalClient_EditOffer.setText('')
+                    self.NumRef_EditOffer.setText('')
+                    self.Buyer_EditOffer.setText('')
+                    self.Notes_EditOffer.setText('')
+                    self.Amount_EditOffer.setText('')
+                    self.LimitDate_EditOffer.setText('')
+                    self.RecepDate_EditOffer.setText('')
+                    self.RateType_EditOffer.setText('')
+                    self.ImportantIssues_EditOffer.setText('')
+                    self.Tracking_EditOffer.setText('')
+                    self.Mails_EditOffer.setText('')
+                    self.LastUpdate_EditOffer.setText('')
+                    self.PresDate_EditOffer.setText('')
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
+                finally:
+                    if conn is not None:
+                        conn.close()
 
 
     def queryofferdata(self):
@@ -758,7 +775,7 @@ class Ui_Edit_Offer_Window(object):
         commands_loaddataoffer = ("""
                     SELECT "num_offer","client","final_client","num_ref_offer","state","nac_ext","buyer","material","notes",
                     CAST("offer_amount" AS numeric) AS "amount",TO_CHAR("limit_date", 'DD-MM-YYYY'),"rate_type","important",
-                    "tracking",TO_CHAR("recep_date", 'DD-MM-YYYY'),"mails",TO_CHAR("last_update", 'DD-MM-YYYY')
+                    "tracking",TO_CHAR("recep_date", 'DD-MM-YYYY'),"mails",TO_CHAR("last_update", 'DD-MM-YYYY'),TO_CHAR("presentation_date", 'DD-MM-YYYY')
                     FROM offers
                     WHERE "num_offer" = %s
                     """)
@@ -810,6 +827,8 @@ class Ui_Edit_Offer_Window(object):
             self.RecepDate_EditOffer.setText(str(results[0][14]) if str(results[0][14]) != 'None' else '')
             self.Mails_EditOffer.setText(str(results[0][15]) if str(results[0][15]) != 'None' else '')
             self.LastUpdate_EditOffer.setText(str(results[0][16]))
+            self.PresDate_EditOffer.setText(str(results[0][17]))
+
 
 
 if __name__ == "__main__":

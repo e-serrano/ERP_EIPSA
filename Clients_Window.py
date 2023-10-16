@@ -208,9 +208,16 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
 
 class Ui_Clients_Window(object):
+    def __init__(self,name):
+        self.name=name
+
     def setupUi(self, Clients_Window):
+        if self.name in ['Daniel Márquez']:
+            self.scale = 1.5
+        else:
+            self.scale=1
         Clients_Window.setObjectName("Clients_Window")
-        Clients_Window.resize(int(1174//1.5), int(600//1.5))
+        Clients_Window.resize(int(1174//self.scale), int(600//self.scale))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Clients_Window.setWindowIcon(icon)
@@ -234,217 +241,217 @@ class Ui_Clients_Window(object):
         spacerItem = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 1, 1, 1)
         self.label_Code = QtWidgets.QLabel(parent=self.frame)
-        self.label_Code.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
-        self.label_Code.setMaximumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
+        self.label_Code.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
+        self.label_Code.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(11//self.scale))
         font.setBold(True)
         self.label_Code.setFont(font)
         self.label_Code.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Code.setObjectName("label_Code")
         self.gridLayout_2.addWidget(self.label_Code, 1, 1, 1, 1)
         self.Code_Clients = QtWidgets.QLineEdit(parent=self.frame)
-        self.Code_Clients.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        self.Code_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.Code_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
+        self.Code_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(10//self.scale))
         self.Code_Clients.setFont(font)
         self.Code_Clients.setObjectName("Code_Clients")
         self.gridLayout_2.addWidget(self.Code_Clients, 1, 2, 1, 1)
         self.label_Name = QtWidgets.QLabel(parent=self.frame)
-        self.label_Name.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
-        self.label_Name.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.label_Name.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
+        self.label_Name.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(11//self.scale))
         font.setBold(True)
         self.label_Name.setFont(font)
         self.label_Name.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Name.setObjectName("label_Name")
         self.gridLayout_2.addWidget(self.label_Name, 1, 4, 1, 1)
         self.Name_Clients = QtWidgets.QLineEdit(parent=self.frame)
-        self.Name_Clients.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        self.Name_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.Name_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
+        self.Name_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(10//self.scale))
         self.Name_Clients.setFont(font)
         self.Name_Clients.setObjectName("Name_Clients")
         self.gridLayout_2.addWidget(self.Name_Clients, 1, 5, 1, 7)
         self.label_CIF = QtWidgets.QLabel(parent=self.frame)
-        self.label_CIF.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
-        self.label_CIF.setMaximumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
+        self.label_CIF.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
+        self.label_CIF.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(11//self.scale))
         font.setBold(True)
         self.label_CIF.setFont(font)
         self.label_CIF.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_CIF.setObjectName("label_CIF")
         self.gridLayout_2.addWidget(self.label_CIF, 1, 12, 1, 1)
         self.Cif_Clients = QtWidgets.QLineEdit(parent=self.frame)
-        self.Cif_Clients.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.Cif_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.Cif_Clients.setMinimumSize(QtCore.QSize(0, int(25//self.scale)))
+        self.Cif_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(10//self.scale))
         self.Cif_Clients.setFont(font)
         self.Cif_Clients.setObjectName("Cif_Clients")
         self.gridLayout_2.addWidget(self.Cif_Clients, 1, 13, 1, 4)
         self.label_Address = QtWidgets.QLabel(parent=self.frame)
-        self.label_Address.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
-        self.label_Address.setMaximumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
+        self.label_Address.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
+        self.label_Address.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(11//self.scale))
         font.setBold(True)
         self.label_Address.setFont(font)
         self.label_Address.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Address.setObjectName("label_Address")
         self.gridLayout_2.addWidget(self.label_Address, 2, 1, 1, 1)
         self.Address_Clients = QtWidgets.QLineEdit(parent=self.frame)
-        self.Address_Clients.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        self.Address_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.Address_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
+        self.Address_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(10//self.scale))
         self.Address_Clients.setFont(font)
         self.Address_Clients.setObjectName("Address_Clients")
         self.gridLayout_2.addWidget(self.Address_Clients, 2, 2, 1, 6)
         self.label_ZipCode = QtWidgets.QLabel(parent=self.frame)
-        self.label_ZipCode.setMinimumSize(QtCore.QSize(int(110//1.5), int(25//1.5)))
-        self.label_ZipCode.setMaximumSize(QtCore.QSize(int(110//1.5), int(25//1.5)))
+        self.label_ZipCode.setMinimumSize(QtCore.QSize(int(110//self.scale), int(25//self.scale)))
+        self.label_ZipCode.setMaximumSize(QtCore.QSize(int(110//self.scale), int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(11//self.scale))
         font.setBold(True)
         self.label_ZipCode.setFont(font)
         self.label_ZipCode.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_ZipCode.setObjectName("label_ZipCode")
         self.gridLayout_2.addWidget(self.label_ZipCode, 2, 8, 1, 1)
         self.Zipcode_Clients = QtWidgets.QLineEdit(parent=self.frame)
-        self.Zipcode_Clients.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        self.Zipcode_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.Zipcode_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
+        self.Zipcode_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(10//self.scale))
         self.Zipcode_Clients.setFont(font)
         self.Zipcode_Clients.setObjectName("Zipcode_Clients")
         self.gridLayout_2.addWidget(self.Zipcode_Clients, 2, 9, 1, 3)
         self.label_City = QtWidgets.QLabel(parent=self.frame)
-        self.label_City.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
-        self.label_City.setMaximumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
+        self.label_City.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
+        self.label_City.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(11//self.scale))
         font.setBold(True)
         self.label_City.setFont(font)
         self.label_City.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_City.setObjectName("label_City")
         self.gridLayout_2.addWidget(self.label_City, 2, 12, 1, 1)
         self.City_Clients = QtWidgets.QLineEdit(parent=self.frame)
-        self.City_Clients.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.City_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.City_Clients.setMinimumSize(QtCore.QSize(0, int(25//self.scale)))
+        self.City_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(10//self.scale))
         self.City_Clients.setFont(font)
         self.City_Clients.setObjectName("City_Clients")
         self.gridLayout_2.addWidget(self.City_Clients, 2, 13, 1, 4)
         self.label_Province = QtWidgets.QLabel(parent=self.frame)
-        self.label_Province.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
-        self.label_Province.setMaximumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
+        self.label_Province.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
+        self.label_Province.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(11//self.scale))
         font.setBold(True)
         self.label_Province.setFont(font)
         self.label_Province.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Province.setObjectName("label_Province")
         self.gridLayout_2.addWidget(self.label_Province, 3, 1, 1, 1)    
         self.Province_Clients = QtWidgets.QLineEdit(parent=self.frame)
-        self.Province_Clients.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        self.Province_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.Province_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
+        self.Province_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(10//self.scale))
         self.Province_Clients.setFont(font)
         self.Province_Clients.setObjectName("Province_Clients")
         self.gridLayout_2.addWidget(self.Province_Clients, 3, 2, 1, 6)
         self.label_Country = QtWidgets.QLabel(parent=self.frame)
-        self.label_Country.setMinimumSize(QtCore.QSize(int(110//1.5), int(25//1.5)))
-        self.label_Country.setMaximumSize(QtCore.QSize(int(110//1.5), int(25//1.5)))
+        self.label_Country.setMinimumSize(QtCore.QSize(int(110//self.scale), int(25//self.scale)))
+        self.label_Country.setMaximumSize(QtCore.QSize(int(110//self.scale), int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(11//self.scale))
         font.setBold(True)
         self.label_Country.setFont(font)
         self.label_Country.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Country.setObjectName("label_Country")
         self.gridLayout_2.addWidget(self.label_Country, 3, 8, 1, 1)
         self.Country_Clients = QtWidgets.QLineEdit(parent=self.frame)
-        self.Country_Clients.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        self.Country_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.Country_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
+        self.Country_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(10//self.scale))
         self.Country_Clients.setFont(font)
         self.Country_Clients.setObjectName("Country_Clients")
         self.gridLayout_2.addWidget(self.Country_Clients, 3, 9, 1, 3)
         self.label_PhoneNumber = QtWidgets.QLabel(parent=self.frame)
-        self.label_PhoneNumber.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
-        self.label_PhoneNumber.setMaximumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
+        self.label_PhoneNumber.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
+        self.label_PhoneNumber.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(11//self.scale))
         font.setBold(True)
         self.label_PhoneNumber.setFont(font)
         self.label_PhoneNumber.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_PhoneNumber.setObjectName("label_PhoneNumber")
         self.gridLayout_2.addWidget(self.label_PhoneNumber, 3, 12, 1, 1)
         self.Phones_Clients = QtWidgets.QTextEdit(parent=self.frame)
-        self.Phones_Clients.setMinimumSize(QtCore.QSize(0, int(100//1.5)))
+        self.Phones_Clients.setMinimumSize(QtCore.QSize(0, int(100//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(10//self.scale))
         self.Phones_Clients.setFont(font)
         self.Phones_Clients.setObjectName("Phones_Clients")
         self.gridLayout_2.addWidget(self.Phones_Clients, 3, 13, 3, 4)
         self.label_IVA = QtWidgets.QLabel(parent=self.frame)
-        self.label_IVA.setMinimumSize(QtCore.QSize(int(35//1.5), int(25//1.5)))
-        self.label_IVA.setMaximumSize(QtCore.QSize(int(35//1.5), int(25//1.5)))
+        self.label_IVA.setMinimumSize(QtCore.QSize(int(35//self.scale), int(25//self.scale)))
+        self.label_IVA.setMaximumSize(QtCore.QSize(int(35//self.scale), int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(11//self.scale))
         font.setBold(True)
         self.label_IVA.setFont(font)
         self.label_IVA.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_IVA.setObjectName("label_IVA")
         self.gridLayout_2.addWidget(self.label_IVA, 5, 1, 1, 1)
         self.Iva_Clients = QtWidgets.QComboBox(parent=self.frame)
-        self.Iva_Clients.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        self.Iva_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.Iva_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
+        self.Iva_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(10//self.scale))
         self.Iva_Clients.setFont(font)
         self.Iva_Clients.setObjectName("Iva_Clients")
         self.gridLayout_2.addWidget(self.Iva_Clients, 5, 2, 1, 4)
         self.label_PayWay = QtWidgets.QLabel(parent=self.frame)
-        self.label_PayWay.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.label_PayWay.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.label_PayWay.setMinimumSize(QtCore.QSize(0, int(25//self.scale)))
+        self.label_PayWay.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(11//self.scale))
         font.setBold(True)
         self.label_PayWay.setFont(font)
         self.label_PayWay.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_PayWay.setObjectName("label_PayWay")
         self.gridLayout_2.addWidget(self.label_PayWay, 5, 6, 1, 2)
         self.Payway_Clients = QtWidgets.QComboBox(parent=self.frame)
-        self.Payway_Clients.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.Payway_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.Payway_Clients.setMinimumSize(QtCore.QSize(0, int(25//self.scale)))
+        self.Payway_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(10//self.scale))
         self.Payway_Clients.setFont(font)
         self.Payway_Clients.setObjectName("Payway_Clients")
         self.gridLayout_2.addWidget(self.Payway_Clients, 5, 8, 1, 2)
         self.label_Vto1 = QtWidgets.QLabel(parent=self.frame)
-        self.label_Vto1.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.label_Vto1.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.label_Vto1.setMinimumSize(QtCore.QSize(int(80//self.scale), int(25//self.scale)))
+        self.label_Vto1.setMaximumSize(QtCore.QSize(int(80//self.scale), int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(11//self.scale))
         font.setBold(True)
         self.label_Vto1.setFont(font)
         self.label_Vto1.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTop|QtCore.Qt.AlignmentFlag.AlignTrailing)
         self.label_Vto1.setObjectName("label_Vto1")
         self.gridLayout_2.addWidget(self.label_Vto1, 4, 11, 1, 1)
         self.label_Vto2 = QtWidgets.QLabel(parent=self.frame)
-        self.label_Vto2.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.label_Vto2.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.label_Vto2.setMinimumSize(QtCore.QSize(int(80//self.scale), int(25//self.scale)))
+        self.label_Vto2.setMaximumSize(QtCore.QSize(int(80//self.scale), int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(11//self.scale))
         font.setBold(True)
         self.label_Vto2.setFont(font)
         self.label_Vto2.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTop|QtCore.Qt.AlignmentFlag.AlignTrailing)
@@ -453,18 +460,18 @@ class Ui_Clients_Window(object):
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.Vto1_Clients = QtWidgets.QLineEdit(parent=self.frame)
-        self.Vto1_Clients.setMinimumSize(QtCore.QSize(int(50//1.5), 0))
-        self.Vto1_Clients.setMaximumSize(QtCore.QSize(int(50//1.5), int(25//1.5)))
+        self.Vto1_Clients.setMinimumSize(QtCore.QSize(int(50//self.scale), 0))
+        self.Vto1_Clients.setMaximumSize(QtCore.QSize(int(50//self.scale), int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(10//self.scale))
         self.Vto1_Clients.setFont(font)
         self.Vto1_Clients.setObjectName("Vto1_Clients")
         self.horizontalLayout.addWidget(self.Vto1_Clients)
         self.label_days1 = QtWidgets.QLabel(parent=self.frame)
-        self.label_days1.setMinimumSize(QtCore.QSize(int(30//1.5), 0))
-        self.label_days1.setMaximumSize(QtCore.QSize(int(30//1.5), int(30//1.5)))
+        self.label_days1.setMinimumSize(QtCore.QSize(int(30//self.scale), 0))
+        self.label_days1.setMaximumSize(QtCore.QSize(int(30//self.scale), int(30//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(10//self.scale))
         self.label_days1.setFont(font)
         self.label_days1.setObjectName("label_days1")
         self.horizontalLayout.addWidget(self.label_days1)
@@ -472,234 +479,232 @@ class Ui_Clients_Window(object):
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.Vto2_Clients = QtWidgets.QLineEdit(parent=self.frame)
-        self.Vto2_Clients.setMinimumSize(QtCore.QSize(int(50//1.5), 0))
-        self.Vto2_Clients.setMaximumSize(QtCore.QSize(int(50//1.5), int(25//1.5)))
+        self.Vto2_Clients.setMinimumSize(QtCore.QSize(int(50//self.scale), 0))
+        self.Vto2_Clients.setMaximumSize(QtCore.QSize(int(50//self.scale), int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(10//self.scale))
         self.Vto2_Clients.setFont(font)
         self.Vto2_Clients.setObjectName("Vto2_Clients")
         self.horizontalLayout_2.addWidget(self.Vto2_Clients)
         self.label_days2 = QtWidgets.QLabel(parent=self.frame)
-        self.label_days2.setMinimumSize(QtCore.QSize(int(30//1.5), 0))
-        self.label_days2.setMaximumSize(QtCore.QSize(int(30//1.5), int(25//1.5)))
+        self.label_days2.setMinimumSize(QtCore.QSize(int(30//self.scale), 0))
+        self.label_days2.setMaximumSize(QtCore.QSize(int(30//self.scale), int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(10//self.scale))
         self.label_days2.setFont(font)
         self.label_days2.setObjectName("label_days2")
         self.horizontalLayout_2.addWidget(self.label_days2)
         self.gridLayout_2.addLayout(self.horizontalLayout_2, 5, 12, 1, 1)
         self.label_Notes = QtWidgets.QLabel(parent=self.frame)
-        self.label_Notes.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.label_Notes.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.label_Notes.setMinimumSize(QtCore.QSize(0, int(25//self.scale)))
+        self.label_Notes.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(11//self.scale))
         font.setBold(True)
         self.label_Notes.setFont(font)
         self.label_Notes.setObjectName("label_Notes")
         self.gridLayout_2.addWidget(self.label_Notes, 7, 1, 1, 3)
         self.Notes_Clients = QtWidgets.QTextEdit(parent=self.frame)
-        self.Notes_Clients.setMinimumSize(QtCore.QSize(0, int(100//1.5)))
-        self.Notes_Clients.setMaximumSize(QtCore.QSize(16777215, int(100//1.5)))
+        self.Notes_Clients.setMinimumSize(QtCore.QSize(0, int(100//self.scale)))
+        self.Notes_Clients.setMaximumSize(QtCore.QSize(16777215, int(100//self.scale)))
         self.Notes_Clients.setObjectName("Notes_Clients")
         self.gridLayout_2.addWidget(self.Notes_Clients, 8, 1, 1, 20)
         self.tableClients = CustomTableWidget()
         self.tableClients.setObjectName("tableClients")
         self.tableClients.setColumnCount(16)
         self.tableClients.setRowCount(0)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        font.setBold(True)
-        item.setFont(font)
-        self.tableClients.setHorizontalHeaderItem(0, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        font.setBold(True)
-        item.setFont(font)
-        self.tableClients.setHorizontalHeaderItem(1, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        font.setBold(True)
-        item.setFont(font)
-        self.tableClients.setHorizontalHeaderItem(2, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        font.setBold(True)
-        item.setFont(font)
-        self.tableClients.setHorizontalHeaderItem(3, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        font.setBold(True)
-        item.setFont(font)
-        self.tableClients.setHorizontalHeaderItem(4, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        font.setBold(True)
-        item.setFont(font)
-        self.tableClients.setHorizontalHeaderItem(5, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        font.setBold(True)
-        item.setFont(font)
-        self.tableClients.setHorizontalHeaderItem(6, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        font.setBold(True)
-        item.setFont(font)
-        self.tableClients.setHorizontalHeaderItem(7, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        font.setBold(True)
-        item.setFont(font)
-        self.tableClients.setHorizontalHeaderItem(8, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        font.setBold(True)
-        item.setFont(font)
-        self.tableClients.setHorizontalHeaderItem(9, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        font.setBold(True)
-        item.setFont(font)
-        self.tableClients.setHorizontalHeaderItem(10, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        font.setBold(True)
-        item.setFont(font)
-        self.tableClients.setHorizontalHeaderItem(11, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        font.setBold(True)
-        item.setFont(font)
-        self.tableClients.setHorizontalHeaderItem(12, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        font.setBold(True)
-        item.setFont(font)
-        self.tableClients.setHorizontalHeaderItem(13, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        font.setBold(True)
-        item.setFont(font)
-        self.tableClients.setHorizontalHeaderItem(14, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        font.setBold(True)
-        item.setFont(font)
-        self.tableClients.setHorizontalHeaderItem(15, item)
+        for i in range(16):
+            item = QtWidgets.QTableWidgetItem()
+            font = QtGui.QFont()
+            font.setPointSize(int(10//self.scale))
+            font.setBold(True)
+            item.setFont(font)
+            self.tableClients.setHorizontalHeaderItem(i, item)
         self.tableClients.setSortingEnabled(False)
         self.gridLayout_2.addWidget(self.tableClients, 9, 1, 1, 20)
         self.label = QtWidgets.QLabel(parent=self.frame)
-        self.label.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        self.label.setMaximumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
+        self.label.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
+        self.label.setMaximumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
         self.label.setText("")
         self.label.setStyleSheet("color: rgb(255, 255, 255);")
         self.label.setObjectName("label")
         self.gridLayout_2.addWidget(self.label, 4, 4, 1, 1)
         self.Button_AddClient = QtWidgets.QPushButton(parent=self.frame)
         self.Button_AddClient.setObjectName("Button_AddClient")
-        self.Button_AddClient.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        if self.name in ['Daniel Márquez']:
+            self.Button_AddClient.setStyleSheet("QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 10px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 4px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
+        else:
+            self.Button_AddClient.setStyleSheet("QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 4px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
         self.gridLayout_2.addWidget(self.Button_AddClient, 1, 19, 1, 1)
         self.Button_ModifyClient = QtWidgets.QPushButton(parent=self.frame)
         self.Button_ModifyClient.setObjectName("Button_ModifyClient")
-        self.Button_ModifyClient.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        if self.name in ['Daniel Márquez']:
+            self.Button_ModifyClient.setStyleSheet("QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 10px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 4px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
+        else:
+            self.Button_ModifyClient.setStyleSheet("QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 4px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
         self.gridLayout_2.addWidget(self.Button_ModifyClient, 3, 19, 1, 1)
         self.Button_DeleteClient = QtWidgets.QPushButton(parent=self.frame)
         self.Button_DeleteClient.setObjectName("Button_DeleteClient")
-        self.Button_DeleteClient.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        if self.name in ['Daniel Márquez']:
+            self.Button_DeleteClient.setStyleSheet("QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 10px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 4px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
+        else:
+            self.Button_DeleteClient.setStyleSheet("QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 4px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
         self.gridLayout_2.addWidget(self.Button_DeleteClient, 5, 19, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 1, 1, 1)
         Clients_Window.setCentralWidget(self.centralwidget)
@@ -713,6 +718,8 @@ class Ui_Clients_Window(object):
         self.tableClients.setSortingEnabled(False)
         self.tableClients.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         self.tableClients.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        for i in range(2,13):
+            self.tableClients.horizontalHeader().setSectionResizeMode(i,QtWidgets.QHeaderView.ResizeMode.Interactive)
 
         self.retranslateUi(Clients_Window)
         QtCore.QMetaObject.connectSlotsByName(Clients_Window)
@@ -1143,7 +1150,7 @@ class Ui_Clients_Window(object):
         tablerow=0
 
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(10//self.scale))
 
     # fill the Qt Table with the query results
         for row in results_client:

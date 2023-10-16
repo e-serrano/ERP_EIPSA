@@ -9,15 +9,18 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import QtSql
 from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import Qt, QDate
+from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
 import configparser
 from Database_Connection import createConnection
 from config import config
 import psycopg2
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import locale
 import os
+from datetime import *
+import pandas as pd
+from tkinter.filedialog import asksaveasfilename
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -149,6 +152,10 @@ class EditableTableModel(QtSql.QSqlTableModel):
         else:
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
+    def getColumnHeaders(self, visible_columns):
+        column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
+        return column_headers
+
 
 class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, parent=None, options=None):
@@ -225,6 +232,16 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolShow.setIcon(icon)
         self.toolShow.setIconSize(QtCore.QSize(25, 25))
+        self.hcabspacer5=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer5)
+        self.toolExpExcel = QtWidgets.QToolButton(self.frame)
+        self.toolExpExcel.setObjectName("ExpExcel_Button")
+        self.toolExpExcel.setToolTip("Exportar a Excel")
+        self.hcab.addWidget(self.toolExpExcel)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolExpExcel.setIcon(icon)
+        self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
 
         self.hcabspacer2=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer2)
@@ -408,6 +425,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.Button_Query.clicked.connect(self.query_tags)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolShow.clicked.connect(self.show_columns)
+        self.toolExpExcel.clicked.connect(self.exporttoexcel)
         self.Numoffer_EditTags.returnPressed.connect(self.query_tags)
         self.Numorder_EditTags.returnPressed.connect(self.query_tags)
         self.model.dataChanged.connect(self.saveChanges)
@@ -1118,6 +1136,41 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         for column in self.hiddencolumns:
             self.tableEditTags.setColumnHidden(column, False)
         self.hiddencolumns.clear()
+
+# Function to export data to excel
+    def exporttoexcel(self):
+        if self.proxy.rowCount() == 0:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Exportar")
+            dlg.setText("No hay datos cargados")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+        else:
+            final_data = []
+
+            visible_columns = [col for col in range(self.model.columnCount()) if not self.tableEditTags.isColumnHidden(col)]
+            visible_headers = self.model.getColumnHeaders(visible_columns)
+            for row in range(self.proxy.rowCount()):
+                tag_data = []
+                for column in visible_columns:
+                    value = self.proxy.data(self.proxy.index(row, column))
+                    if isinstance(value, QDate):
+                        value = value.toString("dd/MM/yyyy")
+                    tag_data.append(value)
+                final_data.append(tag_data)
+
+            final_data.insert(0, visible_headers)
+            df = pd.DataFrame(final_data)
+            df.columns = df.iloc[0]
+            df = df[1:]
+
+            output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
+            if output_path:
+                df.to_excel(output_path, index=False, header=True)
 
 # Function to enable copy and paste cells
     def keyPressEvent(self, event):

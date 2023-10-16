@@ -28,9 +28,6 @@ class Ui_App_Purchasing(object):
     def __init__(self, name, username):
         self.name=name
         self.username=username
-    # def __init__(self):
-    #     self.name='Enrique Serrano'
-    #     self.username='e.serrano'
 
 
     def setupUi(self, App_Purchasing):
@@ -340,7 +337,7 @@ class Ui_App_Purchasing(object):
 
     def purchase(self):
         self.purchasing_window=QtWidgets.QMainWindow()
-        self.ui=Ui_Purchasing_Menu()
+        self.ui=Ui_Purchasing_Menu(self.name)
         self.ui.setupUi(self.purchasing_window)
         self.purchasing_window.show()
 
