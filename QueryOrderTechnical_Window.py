@@ -376,10 +376,11 @@ class Ui_QueryOrderTechnical_Window(object):
 
         else:
             commands_queryorder = ("""
-                        SELECT orders."num_order",orders."num_offer",offers."responsible",orders."num_ref_order",offers."client",offers."final_client",product_type."variable",orders."notes",offers."important"
+                        SELECT orders."num_order",orders."num_offer",users_data.initials."initials",orders."num_ref_order",offers."client",offers."final_client",product_type."variable",orders."notes",offers."important"
                         FROM offers
                         INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                         INNER JOIN product_type ON (offers."material"=product_type."material")
+                        INNER JOIN users_data.initials ON (offers."responsible"=users_data.initials."username")
                         WHERE (UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
                         AND
                         UPPER(orders."num_offer") LIKE UPPER('%%'||%s||'%%')

@@ -470,9 +470,9 @@ class Ui_ClientResume_Window(object):
                     ofadj = results_awarded[0][1] if not len(results_awarded) == 0 else 0
                     ofdis = results_dismissed[0][1] if not len(results_dismissed) == 0 else 0
                     ratioof = (ofadj / (ofadj + ofdis)) * 100 if not len(results_awarded) == 0 else 0
-                    amountadj = results_awarded[0][2] if not len(results_awarded) == 0 else 0
-                    amountdis = results_dismissed[0][2] if not len(results_dismissed) == 0 else 0
-                    ratioamount = (amountadj / (amountadj + amountdis)) * 100 if not len(results_awarded)==0 else 0
+                    amountadj = float(results_awarded[0][2] if not len(results_awarded) == 0 else 0)
+                    amountdis = float(results_dismissed[0][2] if not len(results_dismissed) == 0 else 0)
+                    ratioamount = 0 if (amountadj + amountdis == 0) else ((amountadj / (amountadj + amountdis)) * 100 if not len(results_awarded)==0 else 0)
 
                     self.label_yearof = QtWidgets.QLabel(parent=self.frame)
                     self.label_yearof.setMinimumSize(QtCore.QSize(0, 25))

@@ -19,8 +19,8 @@ class Ui_RegistrationWindow(object):
     def setupUi(self, RegistrationWindow):
         RegistrationWindow.setObjectName("RegistrationWindow")
         RegistrationWindow.resize(270, 615)
-        RegistrationWindow.setMinimumSize(QtCore.QSize(270, 615))
-        RegistrationWindow.setMaximumSize(QtCore.QSize(270, 615))
+        RegistrationWindow.setMinimumSize(QtCore.QSize(270, 655))
+        RegistrationWindow.setMaximumSize(QtCore.QSize(270, 655))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         RegistrationWindow.setWindowIcon(icon)
@@ -74,8 +74,8 @@ class Ui_RegistrationWindow(object):
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame.setMinimumSize(QtCore.QSize(230, 550))
-        self.frame.setMaximumSize(QtCore.QSize(230, 550))
+        self.frame.setMinimumSize(QtCore.QSize(230, 590))
+        self.frame.setMaximumSize(QtCore.QSize(230, 590))
         self.frame.setStyleSheet("")
         self.frame.setFrameShape(QtWidgets.QFrame.Shape.Box)
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
@@ -141,11 +141,6 @@ class Ui_RegistrationWindow(object):
         self.verticalLayout.addWidget(self.label_username_reg)
         self.username_reg = QtWidgets.QLineEdit(parent=self.frame)
         self.username_reg.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.username_reg.sizePolicy().hasHeightForWidth())
-        self.username_reg.setSizePolicy(sizePolicy)
         self.username_reg.setMinimumSize(QtCore.QSize(200, 25))
         self.username_reg.setMaximumSize(QtCore.QSize(200, 25))
         font = QtGui.QFont()
@@ -173,11 +168,6 @@ class Ui_RegistrationWindow(object):
         self.verticalLayout.addWidget(self.email_reg)
         self.label_password_reg = QtWidgets.QLabel(parent=self.frame)
         self.label_password_reg.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_password_reg.sizePolicy().hasHeightForWidth())
-        self.label_password_reg.setSizePolicy(sizePolicy)
         self.label_password_reg.setMinimumSize(QtCore.QSize(200, 25))
         self.label_password_reg.setMaximumSize(QtCore.QSize(200, 25))
         font = QtGui.QFont()
@@ -190,11 +180,6 @@ class Ui_RegistrationWindow(object):
         self.verticalLayout.addWidget(self.label_password_reg)
         self.password_reg = QtWidgets.QLineEdit(parent=self.frame)
         self.password_reg.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.password_reg.sizePolicy().hasHeightForWidth())
-        self.password_reg.setSizePolicy(sizePolicy)
         self.password_reg.setMinimumSize(QtCore.QSize(200, 25))
         self.password_reg.setMaximumSize(QtCore.QSize(200, 25))
         font = QtGui.QFont()
@@ -223,15 +208,32 @@ class Ui_RegistrationWindow(object):
         list_rol=['Comercial','Compras','Dirección','Documentación','Fábrica','Facturación','Técnico',]
         self.rol_reg.addItems(list_rol)
         self.verticalLayout.addWidget(self.rol_reg)
+        self.label_initials = QtWidgets.QLabel(parent=self.frame)
+        self.label_initials.setMinimumSize(QtCore.QSize(200, 25))
+        self.label_initials.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.label_initials.setFont(font)
+        self.label_initials.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.label_initials.setObjectName("label_initials")
+        self.verticalLayout.addWidget(self.label_initials)
+        self.initials_reg = QtWidgets.QLineEdit(parent=self.frame)
+        self.initials_reg.setEnabled(True)
+        self.initials_reg.setMinimumSize(QtCore.QSize(200, 25))
+        self.initials_reg.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.initials_reg.setFont(font)
+        self.initials_reg.setObjectName("initials_reg")
+        self.verticalLayout.addWidget(self.initials_reg)
+        if self.rol_reg.currentText() == 'Comercial':
+            self.label_initials.setVisible(True)
+            self.initials_reg.setVisible(True)
         spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.verticalLayout.addItem(spacerItem)
         self.accept_reg = QtWidgets.QPushButton(parent=self.frame)
         self.accept_reg.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.accept_reg.sizePolicy().hasHeightForWidth())
-        self.accept_reg.setSizePolicy(sizePolicy)
         self.accept_reg.setMinimumSize(QtCore.QSize(200, 30))
         self.accept_reg.setMaximumSize(QtCore.QSize(200, 30))
         self.accept_reg.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
@@ -248,11 +250,6 @@ class Ui_RegistrationWindow(object):
         self.verticalLayout.addWidget(self.accept_reg)
         self.exit_reg = QtWidgets.QPushButton(parent=self.frame)
         self.exit_reg.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.exit_reg.sizePolicy().hasHeightForWidth())
-        self.exit_reg.setSizePolicy(sizePolicy)
         self.exit_reg.setMinimumSize(QtCore.QSize(200, 30))
         self.exit_reg.setMaximumSize(QtCore.QSize(200, 30))
         self.exit_reg.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
@@ -291,6 +288,7 @@ class Ui_RegistrationWindow(object):
         self.accept_reg.clicked.connect(self.registration) # type: ignore
         self.exit_reg.clicked.connect(RegistrationWindow.close) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(RegistrationWindow)
+        self.rol_reg.currentIndexChanged.connect(self.visible)
 
 
     def retranslateUi(self, RegistrationWindow):
@@ -302,6 +300,7 @@ class Ui_RegistrationWindow(object):
         self.label_email_reg.setText(_translate("RegistrationWindow", "Correo electrónico:"))
         self.label_password_reg.setText(_translate("RegistrationWindow", "Contraseña:"))
         self.label_rol_reg.setText(_translate("RegistrationWindow", "Perfil:"))
+        self.label_initials.setText(_translate("RegistrationWindow", "Siglas:"))
         self.accept_reg.setText(_translate("RegistrationWindow", "Registrar"))
         self.exit_reg.setText(_translate("RegistrationWindow", "Salir"))
 
@@ -313,148 +312,188 @@ class Ui_RegistrationWindow(object):
         reg_email=self.email_reg.text()
         reg_password=self.password_reg.text()
         reg_rol=self.rol_reg.currentText()
+        reg_initials=self.initials_reg.text()
 
         if reg_name=="" or (reg_secondname=="" or (reg_username=="" or (reg_email=="" or reg_password==""))):
             self.label_error_reg.setText('Rellene todos los campos')
 
+        elif reg_rol == 'Comercial' and reg_initials == '':
+            self.label_error_reg.setText('Rellene el campo de "Siglas"')
+
+        # else:
+        #     if len(reg_username)<6:
+        #         dlg = QtWidgets.QMessageBox()
+        #         new_icon = QtGui.QIcon()
+        #         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        #         dlg.setWindowIcon(new_icon)
+        #         dlg.setWindowTitle("Username no válido")
+        #         dlg.setText("El Username debe tener al menos 6 caracteres")
+        #         dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        #         dlg.exec()
+        #         del dlg, new_icon
+
+
+        #     elif not re.fullmatch(r'[A-Za-z0-9¡!¿?%&]{8,}', reg_password):
+        #         dlg = QtWidgets.QMessageBox()
+        #         new_icon = QtGui.QIcon()
+        #         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        #         dlg.setWindowIcon(new_icon)
+        #         dlg.setWindowTitle("Contraseña no válida")
+        #         dlg.setText("·La contraseña debe tener al menos 8 caracteres\n"
+        #                     "·Debe contener al menos una mayúscula\n"
+        #                     "·Debe contener al menos una minúscula\n"
+        #                     "·Debe contener al menos un número\n"
+        #                     "·Solo admite los siguientes caracteres speciales: ¡!¿?%&")
+        #         dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        #         dlg.exec()
+        #         del dlg, new_icon
+
+
+        #     elif not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b', reg_email):
+        #         dlg = QtWidgets.QMessageBox()
+        #         new_icon = QtGui.QIcon()
+        #         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        #         dlg.setWindowIcon(new_icon)
+        #         dlg.setWindowTitle("Email no válido")
+        #         dlg.setText("Por favor, introduzca un email válido")
+        #         dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        #         dlg.exec()
+        #         del dlg, new_icon
+
+
+        #     else:
+        #     #SQL Query for loading existing data in database
+        #         commands_loadregdatabase = ("""
+        #                     SELECT *
+        #                     FROM users_data.registration
+        #                     """)
+        #         commands_loadinitials = ("""
+        #                     SELECT *
+        #                     FROM users_data.initials
+        #                     """)
+        #         conn = None
+        #         try:
+        #         # read the connection parameters
+        #             params = config()
+        #         # connect to the PostgreSQL server
+        #             conn = psycopg2.connect(**params)
+        #             cur = conn.cursor()
+        #         # execution of commands one by one
+        #             cur.execute(commands_loadregdatabase)
+        #             results=cur.fetchall()
+        #             match_username=list(filter(lambda x:reg_username in x, results))
+        #             match_email=list(filter(lambda x:reg_email in x, results))
+        #             cur.execute(commands_loadinitials)
+        #             results_initials=cur.fetchall()
+        #             match_initials=list(filter(lambda x:reg_initials in x, results_initials))
+        #         # close communication with the PostgreSQL database server
+        #             cur.close()
+        #         # commit the changes
+        #             conn.commit()
+        #         except (Exception, psycopg2.DatabaseError) as error:
+        #             print(error)
+        #         finally:
+        #             if conn is not None:
+        #                 conn.close()
+
+        #     # checking if username registered in database
+        #         if len(match_username)>0:
+        #             dlg = QtWidgets.QMessageBox()
+        #             new_icon = QtGui.QIcon()
+        #             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        #             dlg.setWindowIcon(new_icon)
+        #             dlg.setWindowTitle("Registrar Usuario")
+        #             dlg.setText("El nombre de usuario introducido ya está registrado")
+        #             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        #             dlg.exec()
+        #             del dlg, new_icon
+
+        #     # checking if email registered in database
+        #         elif len(match_email)>0:
+        #             dlg = QtWidgets.QMessageBox()
+        #             new_icon = QtGui.QIcon()
+        #             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        #             dlg.setWindowIcon(new_icon)
+        #             dlg.setWindowTitle("Registrar Usuario")
+        #             dlg.setText("El correo electrónico introducido ya está registrado")
+        #             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        #             dlg.exec()
+        #             del dlg, new_icon
+
+        #     # checking if initials registered in database
+        #         elif len(match_initials)>0:
+        #             dlg = QtWidgets.QMessageBox()
+        #             new_icon = QtGui.QIcon()
+        #             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        #             dlg.setWindowIcon(new_icon)
+        #             dlg.setWindowTitle("Registrar Usuario")
+        #             dlg.setText("Las siglas introducidas ya están registrado")
+        #             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        #             dlg.exec()
+        #             del dlg, new_icon
+
+        #         else:
+        #             commands_reguser = ("""
+        #                         INSERT INTO users_data.registration(
+        #                         "id","name","surname","username","email","password","profile")
+        #                         VALUES (DEFAULT,%s,%s,%s,%s,%s,%s)
+        #                         """)
+        #             commands_initials = ("""
+        #                         INSERT INTO users_data.initials(
+        #                         "username","initials")
+        #                         VALUES (%s,%s)
+        #                         """)
+        #             conn = None
+        #             try:
+        #             # read the connection parameters
+        #                 params = config()
+        #             # connect to the PostgreSQL server
+        #                 conn = psycopg2.connect(**params)
+        #                 cur = conn.cursor()
+        #             # execution of commands one by one
+        #                 data=(reg_name,reg_secondname,reg_username,reg_email,reg_password,reg_rol,)
+        #                 cur.execute(commands_reguser,data)
+        #                 if reg_rol == 'Comercial':
+        #                     data=(reg_username,reg_initials,)
+        #                     cur.execute(commands_initials,data)
+        #             # close communication with the PostgreSQL database server
+        #                 cur.close()
+        #             # commit the changes
+        #                 conn.commit()
+
+        #             # showing success window
+        #                 dlg = QtWidgets.QMessageBox()
+        #                 new_icon = QtGui.QIcon()
+        #                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        #                 dlg.setWindowIcon(new_icon)
+        #                 dlg.setWindowTitle("Registrar Usuario")
+        #                 dlg.setText("Usuario registrado con éxito")
+        #                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+        #                 dlg.exec()
+        #                 del dlg, new_icon
+
+        #             # putting all fields in blank
+        #                 self.name_reg.setText('')
+        #                 self.secondname_reg.setText('')
+        #                 self.username_reg.setText('')
+        #                 self.email_reg.setText('')
+        #                 self.password_reg.setText('')
+        #                 self.initials_reg.setText('')
+
+        #             except (Exception, psycopg2.DatabaseError) as error:
+        #                 print(error)
+        #             finally:
+        #                 if conn is not None:
+        #                     conn.close()
+
+
+    def visible(self):
+        if self.rol_reg.currentText() != 'Comercial':
+            self.label_initials.setVisible(False)
+            self.initials_reg.setVisible(False)
         else:
-            if len(reg_username)<6:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Username no válido")
-                dlg.setText("El Username debe tener al menos 6 caracteres")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
-
-
-            elif not re.fullmatch(r'[A-Za-z0-9¡!¿?%&]{8,}', reg_password):
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Contraseña no válida")
-                dlg.setText("·La contraseña debe tener al menos 8 caracteres\n"
-                            "·Debe contener al menos una mayúscula\n"
-                            "·Debe contener al menos una minúscula\n"
-                            "·Debe contener al menos un número\n"
-                            "·Solo admite los siguientes caracteres speciales: ¡!¿?%&")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
-
-
-            elif not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b', reg_email):
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Email no válido")
-                dlg.setText("Por favor, introduzca un email válido")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
-
-
-            else:
-            #SQL Query for loading existing data in database
-                commands_loadregdatabase = ("""
-                            SELECT *
-                            FROM users_data.registration
-                            """)
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands one by one
-                    cur.execute(commands_loadregdatabase)
-                    results=cur.fetchall()
-                    match_username=list(filter(lambda x:reg_username in x, results))
-                    match_email=list(filter(lambda x:reg_email in x, results))
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-                except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-            # checking if username registered in database
-                if len(match_username)>0:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Registrar Usuario")
-                    dlg.setText("El nombre de usuario introducido ya está registrado")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                    del dlg, new_icon
-
-            # checking if email registered in database
-                elif len(match_email)>0:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Registrar Usuario")
-                    dlg.setText("El correo electrónico introducido ya está registrado")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                else:
-                    commands_reguser = ("""
-                                INSERT INTO users_data.registration(
-                                "id","name","surname","username","email","password","profile")
-                                VALUES (DEFAULT,%s,%s,%s,%s,%s,%s)
-                                """)
-                    conn = None
-                    try:
-                    # read the connection parameters
-                        params = config()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands one by one
-                        data=(reg_name,reg_secondname,reg_username,reg_email,reg_password,reg_rol,)
-                        cur.execute(commands_reguser,data)
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
-
-                    # showing success window
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Registrar Usuario")
-                        dlg.setText("Usuario registrado con éxito")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg, new_icon
-
-                    # putting all fields in blank
-                        self.name_reg.setText('')
-                        self.secondname_reg.setText('')
-                        self.username_reg.setText('')
-                        self.email_reg.setText('')
-                        self.password_reg.setText('')
-
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        print(error)
-                    finally:
-                        if conn is not None:
-                            conn.close()
-
+            self.label_initials.setVisible(True)
+            self.initials_reg.setVisible(True)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

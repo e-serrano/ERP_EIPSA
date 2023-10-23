@@ -1016,9 +1016,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 
     def query_documents(self):
-        self.querydoc_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_QueryDoc_Window()
-        self.ui.setupUi(self.querydoc_menu)
+        self.querydoc_menu=Ui_QueryDoc_Window()
         self.querydoc_menu.show()
 
 

@@ -15,6 +15,9 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Edit_Offer_Window(object):
+    def __init__(self, num_offer = None):
+        self.num_offer = num_offer
+
     def setupUi(self, Edit_Offer_Window):
         Edit_Offer_Window.setObjectName("Edit_Offer_Window")
         Edit_Offer_Window.resize(670, 425)
@@ -496,7 +499,7 @@ class Ui_Edit_Offer_Window(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.MailsHint_EditOffer.setFont(font)
-        self.MailsHint_EditOffer.setText('mail1,mail2 copia:mailc1,mailc2')
+        self.MailsHint_EditOffer.setText('FORMATO MAILS -> mail1,mail2 copia:mailc1,mailc2')
         self.MailsHint_EditOffer.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextSelectableByMouse)
         self.MailsHint_EditOffer.setObjectName("MailsHint_EditOffer")
         self.hLayout3.addWidget(self.MailsHint_EditOffer)
@@ -603,6 +606,10 @@ class Ui_Edit_Offer_Window(object):
         list_material=[x[0] for x in results]
         list_material.sort()
         self.Material_EditOffer.addItems(list_material)
+
+        if self.num_offer is not None:
+            self.NumOffer_EditOffer.setText(self.num_offer)
+            self.queryofferdata()
 
 
     def retranslateUi(self, Edit_Offer_Window):

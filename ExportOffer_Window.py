@@ -9,17 +9,16 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config  
-from openpyxl import load_workbook
-import pandas as pd
 import os
-from tkinter import Tk
-from tkinter.filedialog import asksaveasfilename
-import os
+from ExportOffer_Form import Ui_ExportOffer_Form
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_ExportOffer_Window(object):
+    def __init__(self, username=None):
+        self.username=username
+
     def setupUi(self, ExportOffer_Window):
         ExportOffer_Window.setObjectName("ExportOffer_Window")
         ExportOffer_Window.resize(275, 340)
@@ -28,7 +27,8 @@ class Ui_ExportOffer_Window(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(ExportOffer_Window.sizePolicy().hasHeightForWidth())
         ExportOffer_Window.setSizePolicy(sizePolicy)
-        ExportOffer_Window.setMaximumSize(QtCore.QSize(275, 340))
+        ExportOffer_Window.setMinimumSize(QtCore.QSize(275, 390))
+        ExportOffer_Window.setMaximumSize(QtCore.QSize(275, 390))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         ExportOffer_Window.setWindowIcon(icon)
@@ -43,31 +43,16 @@ class Ui_ExportOffer_Window(object):
         ExportOffer_Window.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly)
         self.centralwidget = QtWidgets.QWidget(parent=ExportOffer_Window)
         self.centralwidget.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
-        self.centralwidget.setSizePolicy(sizePolicy)
         self.centralwidget.setAutoFillBackground(False)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame.setMinimumSize(QtCore.QSize(230, 300))
-        self.frame.setMaximumSize(QtCore.QSize(230, 300))
-        self.frame.setStyleSheet("")
-        self.frame.setFrameShape(QtWidgets.QFrame.Shape.Box)
-        self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame.setObjectName("frame")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.frame)
         self.verticalLayout.setObjectName("verticalLayout")
         self.label_numoffer_expoffer = QtWidgets.QLabel(parent=self.frame)
         self.label_numoffer_expoffer.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_numoffer_expoffer.sizePolicy().hasHeightForWidth())
-        self.label_numoffer_expoffer.setSizePolicy(sizePolicy)
         self.label_numoffer_expoffer.setMinimumSize(QtCore.QSize(200, 25))
         self.label_numoffer_expoffer.setMaximumSize(QtCore.QSize(200, 25))
         font = QtGui.QFont()
@@ -79,11 +64,6 @@ class Ui_ExportOffer_Window(object):
         self.verticalLayout.addWidget(self.label_numoffer_expoffer, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
         self.numoffer_expoffer = QtWidgets.QLineEdit(parent=self.frame)
         self.numoffer_expoffer.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.numoffer_expoffer.sizePolicy().hasHeightForWidth())
-        self.numoffer_expoffer.setSizePolicy(sizePolicy)
         self.numoffer_expoffer.setMinimumSize(QtCore.QSize(200, 25))
         self.numoffer_expoffer.setMaximumSize(QtCore.QSize(200, 25))
         font = QtGui.QFont()
@@ -92,13 +72,29 @@ class Ui_ExportOffer_Window(object):
         self.numoffer_expoffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.numoffer_expoffer.setObjectName("numoffer_expoffer")
         self.verticalLayout.addWidget(self.numoffer_expoffer, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.label_revision_expoffer = QtWidgets.QLabel(parent=self.frame)
+        self.label_revision_expoffer.setEnabled(True)
+        self.label_revision_expoffer.setMinimumSize(QtCore.QSize(200, 25))
+        self.label_revision_expoffer.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.label_revision_expoffer.setFont(font)
+        self.label_revision_expoffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.label_revision_expoffer.setObjectName("label_revision_expoffer")
+        self.verticalLayout.addWidget(self.label_revision_expoffer, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.revision_expoffer = QtWidgets.QLineEdit(parent=self.frame)
+        self.revision_expoffer.setEnabled(True)
+        self.revision_expoffer.setMinimumSize(QtCore.QSize(200, 25))
+        self.revision_expoffer.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.revision_expoffer.setFont(font)
+        self.revision_expoffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.revision_expoffer.setObjectName("revision_expoffer")
+        self.verticalLayout.addWidget(self.revision_expoffer, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
         self.export_expoffer = QtWidgets.QPushButton(parent=self.frame)
         self.export_expoffer.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.export_expoffer.sizePolicy().hasHeightForWidth())
-        self.export_expoffer.setSizePolicy(sizePolicy)
         self.export_expoffer.setMinimumSize(QtCore.QSize(200, 35))
         self.export_expoffer.setMaximumSize(QtCore.QSize(200, 35))
         font = QtGui.QFont()
@@ -154,7 +150,8 @@ class Ui_ExportOffer_Window(object):
         ExportOffer_Window.setMenuBar(self.menubar)
 
         self.retranslateUi(ExportOffer_Window)
-        self.export_expoffer.clicked.connect(self.exportoffer)
+        self.export_expoffer.clicked.connect(lambda: self.exportoffer(ExportOffer_Window))
+        self.revision_expoffer.returnPressed.connect(lambda: self.exportoffer(ExportOffer_Window))
         QtCore.QMetaObject.connectSlotsByName(ExportOffer_Window)
 
 
@@ -162,11 +159,13 @@ class Ui_ExportOffer_Window(object):
         _translate = QtCore.QCoreApplication.translate
         ExportOffer_Window.setWindowTitle(_translate("ExportOffer_Window", "ERP EIPSA"))
         self.label_numoffer_expoffer.setText(_translate("ExportOffer_Window", "Número Oferta:"))
+        self.label_revision_expoffer.setText(_translate("ExportOffer_Window", "Revisión:"))
         self.export_expoffer.setText(_translate("ExportOffer_Window", "Exportar"))
 
 
-    def exportoffer(self):
+    def exportoffer(self, ExportOffer_Window):
         numoffer=self.numoffer_expoffer.text()
+        revision=self.revision_expoffer.text()
 
         commands_checkoffer = ("""
                     SELECT * 
@@ -203,15 +202,16 @@ class Ui_ExportOffer_Window(object):
             dlg.setText("El número de oferta no se encuentra registrado")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
-
             del dlg, new_icon
 
         else:
-            commands_exportoffer = ("""
-                        SELECT *
+            query_typematerial = ('''
+                        SELECT num_offer, product_type."variable", responsible
                         FROM offers
-                        WHERE "num_offer" = %s
-                        """)
+                        INNER JOIN product_type ON (product_type."material" = offers."material")
+                        WHERE
+                        UPPER (offers."num_offer") LIKE UPPER('%%'||%s||'%%')
+                        ''')
             conn = None
             try:
             # read the connection parameters
@@ -219,29 +219,17 @@ class Ui_ExportOffer_Window(object):
             # connect to the PostgreSQL server
                 conn = psycopg2.connect(**params)
                 cur=conn.cursor()
-                cur.execute(commands_exportoffer,(numoffer,))
-                data=cur.fetchall()
+                cur.execute(query_typematerial,(numoffer,))
+                results_variable=cur.fetchone()
+                variable = results_variable[1] if results_variable != None else ''
+                responsible = results_variable[2] if results_variable != None else ''
 
-                columns=[]
-                for elt in cur.description:
-                    columns.append(elt[0])
-                df = pd.DataFrame(data=data,columns=columns)
-
-            # Saving the dataframe in an excel file
-                wb = load_workbook(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Template.xlsx")    # Loading Excel Template
-                sheet_name = "Hoja1"    # Selecting template sheet
-                ws = wb[sheet_name]
-                last_row = ws.max_row    # Obtaining last row used
-                for index, row in df.iterrows():    # Data in desired row
-                    for col_num, value in enumerate(row, start=1):
-                        ws.cell(row=last_row + index, column=col_num).value = value
-                root = Tk()
-                root.withdraw()  # Hiding main window Tkinter
-
-                # Dialog window to select folder and file name
-                output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")])
-                if output_path: # Check if path is selected
-                    wb.save(output_path) # Saving Excel file
+                self.exportoffer_form=QtWidgets.QMainWindow()
+                self.ui=Ui_ExportOffer_Form(responsible,numoffer,revision,variable)
+                self.ui.setupUi(self.exportoffer_form)
+                self.exportoffer_form.show()
+                ExportOffer_Window.hide()
+                self.ui.Button_Cancel.clicked.connect(ExportOffer_Window.show)
 
             # close communication with the PostgreSQL database server
             # commit the changes
@@ -251,19 +239,6 @@ class Ui_ExportOffer_Window(object):
             finally:
                 if conn is not None:
                     conn.close()
-
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Exportar Oferta")
-            dlg.setText("Oferta exportada con éxito")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-
-            self.numoffer_expoffer.setText('')
-
-            del dlg, new_icon
 
 
 if __name__ == "__main__":

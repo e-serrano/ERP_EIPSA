@@ -23,9 +23,10 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
 
 class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
-    def __init__(self, name):
+    def __init__(self, name, username):
         super().__init__()
         self.name=name
+        self.username=username
         self.setupUi(self)
     # def __init__(self):
     #     super().__init__()
@@ -35,7 +36,7 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
     def setupUi(self, ReclamationOffer_Window):
         ReclamationOffer_Window.setObjectName("ReclamationOffer_Window")
         ReclamationOffer_Window.resize(400, 561)
-        ReclamationOffer_Window.setMinimumSize(QtCore.QSize(800, 650))
+        ReclamationOffer_Window.setMinimumSize(QtCore.QSize(800, 700))
         # ReclamationOffer_Window.setMaximumSize(QtCore.QSize(600, 575))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -91,9 +92,9 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 2)
         self.tableReclamation = QtWidgets.QTableWidget(parent=self.frame)
         self.tableReclamation.setObjectName("tableWidget")
-        self.tableReclamation.setColumnCount(6)
+        self.tableReclamation.setColumnCount(7)
         self.tableReclamation.setRowCount(0)
-        for i in range(6):
+        for i in range(7):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -149,8 +150,10 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         item = self.tableReclamation.horizontalHeaderItem(3)
         item.setText(_translate("ReclamationOffer_Window", "Días Dif."))
         item = self.tableReclamation.horizontalHeaderItem(4)
-        item.setText(_translate("ReclamationOffer_Window", "Rec. 1"))
+        item.setText(_translate("ReclamationOffer_Window", "Mails"))
         item = self.tableReclamation.horizontalHeaderItem(5)
+        item.setText(_translate("ReclamationOffer_Window", "Rec. 1"))
+        item = self.tableReclamation.horizontalHeaderItem(6)
         item.setText(_translate("ReclamationOffer_Window", "Rec. 2"))
         self.Button_Cancel.setText(_translate("ReclamationOffer_Window", "Salir"))
         self.Button_Send.setText(_translate("ReclamationOffer_Window", "Reclamar"))
@@ -158,9 +161,13 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
 
     def ReclamationOffer(self):
         conn = None
+        commands_responsible = ("""
+                        SELECT *
+                        FROM users_data.initials
+                        """)
         commands_queryrecoffer = ("""
                         SELECT offers."num_offer",TO_CHAR(offers."presentation_date", 'DD-MM-YYYY'),TO_CHAR(offers."last_update", 'DD-MM-YYYY'),
-                        (offers."last_update" - offers."presentation_date") AS "difference_in_days"
+                        (offers."last_update" - offers."presentation_date") AS "difference_in_days", offers."mails"
                         FROM offers
                         WHERE (offers."responsible" = %s
                         AND
@@ -172,16 +179,16 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                         """)
 
         try:
-            if self.name == 'Carlos Crespo':
-                responsible=self.name[0] + self.name[self.name.find(' ')+1] + 'H'
-            else:
-                responsible=self.name[0] + self.name[self.name.find(' ')+1]
         # read the connection parameters
             params = config()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands one by one
+            cur.execute(commands_responsible)
+            results_responsible=cur.fetchall()
+            match=list(filter(lambda x:self.username in x, results_responsible))
+            responsible=match[0][0]
             cur.execute(commands_queryrecoffer, (responsible,))
             results=cur.fetchall()
         # close communication with the PostgreSQL database server
@@ -194,8 +201,8 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(6):
-                    if column in [4,5]:
+                for column in range(7):
+                    if column in [5,6]:
                         radio_button = QtWidgets.QRadioButton()
                         self.tableReclamation.setCellWidget(tablerow, column, radio_button)
                     else:
@@ -224,8 +231,7 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                                     WHERE username = %s
                                     """)
         commands_queryoffer = ("""
-                        SELECT offers."num_offer",offers."responsible",offers."state",offers."num_ref_offer",
-                        offers."presentation_date",offers."rec_auto",offers."last_update",offers."mails"
+                        SELECT offers."mails",offers."num_offer",offers."num_ref_offer",offers."presentation_date"
                         FROM offers
                         WHERE (offers."num_offer" = %s
                         )
@@ -236,8 +242,8 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         for row in range(self.tableReclamation.rowCount()):
             offer = self.tableReclamation.item(row, 0).text()
             reclamation = None
-            radio_button1  = self.tableReclamation.cellWidget(row, 4)
-            radio_button2  = self.tableReclamation.cellWidget(row, 5)
+            radio_button1  = self.tableReclamation.cellWidget(row, 5)
+            radio_button2  = self.tableReclamation.cellWidget(row, 6)
 
             if radio_button1 and radio_button1.isChecked():
                 reclamation = 'Rec1'
@@ -263,12 +269,23 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                 data=(offer[0],)
                 cur.execute(commands_queryoffer,data)
                 results_offers=cur.fetchall()
-                if offer[1] == 'Rec1':
-                    mail=email_offer1(results_offers[0][7], results_offers[0][0], results_offers[0][3], email, results_offers[0][4])
-                    mail.send_email()
-                elif offer[1] == 'Rec2':
-                    mail=email_offer2(results_offers[0][7], results_offers[0][0], results_offers[0][3], email, results_offers[0][4])
-                    mail.send_email()
+                if results_offers[0][0] in ['None','']:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("La oferta" + offer[0] + " no puede ser reclamada porque no tiene mails de contacto")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+                    del dlg, new_icon
+                else:
+                    if offer[1] == 'Rec1':
+                        mail=email_offer1(results_offers[0][0], results_offers[0][1], results_offers[0][2], email, results_offers[0][3])
+                        mail.send_email()
+                    elif offer[1] == 'Rec2':
+                        mail=email_offer2(results_offers[0][0], results_offers[0][1], results_offers[0][2], email, results_offers[0][3])
+                        mail.send_email()
 
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()

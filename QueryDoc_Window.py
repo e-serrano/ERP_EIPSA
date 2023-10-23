@@ -9,7 +9,8 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
-import datetime
+import pandas as pd
+from PyQt6.QtWidgets import QFileDialog
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -33,7 +34,11 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
             option.backgroundBrush = color
 
 
-class Ui_QueryDoc_Window(object):
+class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+
     def setupUi(self, QueryDoc_Window):
         QueryDoc_Window.setObjectName("QueryDoc_Window")
         QueryDoc_Window.resize(845, 654)
@@ -281,6 +286,12 @@ class Ui_QueryDoc_Window(object):
         self.Button_Query.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.Button_Query.setObjectName("Button_Query")
         self.hLayout6.addWidget(self.Button_Query)
+        self.Button_Export = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Export.setMinimumSize(QtCore.QSize(150, 35))
+        self.Button_Export.setMaximumSize(QtCore.QSize(150, 35))
+        self.Button_Export.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.Button_Export.setObjectName("Button_Export")
+        self.hLayout6.addWidget(self.Button_Export)
         self.gridLayout_2.addLayout(self.hLayout6, 7, 0, 1, 1)
         spacerItem2 = QtWidgets.QSpacerItem(20, 15, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem2, 8, 0, 1, 1)
@@ -353,6 +364,7 @@ class Ui_QueryDoc_Window(object):
         QtCore.QMetaObject.connectSlotsByName(QueryDoc_Window)
         self.Button_Clean.clicked.connect(self.clean_boxes) # type: ignore
         self.Button_Query.clicked.connect(self.query_doc) # type: ignore
+        self.Button_Export.clicked.connect(self.export_to_excel)
         self.NumOrder_QueryDoc.returnPressed.connect(self.query_doc)
         self.NumPo_QueryDoc.returnPressed.connect(self.query_doc)
         self.Client_QueryDoc.returnPressed.connect(self.query_doc)
@@ -402,6 +414,7 @@ class Ui_QueryDoc_Window(object):
         self.label_TypeDoc.setText(_translate("QueryDoc_Window", "Tipo Doc.:"))
         self.Button_Clean.setText(_translate("QueryDoc_Window", "Limpiar Filtros"))
         self.Button_Query.setText(_translate("QueryDoc_Window", "Buscar"))
+        self.Button_Export.setText(_translate("QueryDoc_Window", "Exportar"))
         self.label_NumDocClient.setText(_translate("QueryDoc_Window", "Nº Doc. Cliente:"))
         self.label_NumDocEipsa.setText(_translate("QueryDoc_Window", "Nº Doc. EIPSA:"))
 
@@ -528,12 +541,23 @@ class Ui_QueryDoc_Window(object):
             dlg.setText(cell_content)
             dlg.exec()
 
+    def export_to_excel(self):
+        file_name, _ = QFileDialog.getSaveFileName(self, "Guardar como Excel", "", "Archivos Excel (*.xlsx);;Todos los archivos (*)")
+
+        if file_name:
+            df = pd.DataFrame()
+            for col in range(self.tableQueryDoc.columnCount()):
+                header = self.tableQueryDoc.horizontalHeaderItem(col).text()
+                column_data = [self.tableQueryDoc.item(row, col).text() for row in range(self.tableQueryDoc.rowCount())]
+                df[header] = column_data
+
+            with pd.ExcelWriter(file_name, engine='openpyxl') as writer:
+                df.to_excel(writer, index=False)
+
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    QueryDoc_Window = QtWidgets.QMainWindow()
-    ui = Ui_QueryDoc_Window()
-    ui.setupUi(QueryDoc_Window)
+    QueryDoc_Window = Ui_QueryDoc_Window()
     QueryDoc_Window.show()
     sys.exit(app.exec())

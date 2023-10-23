@@ -1058,9 +1058,9 @@ class Ui_SupplierOrder_Window(object):
         self.gridLayout_2.addWidget(self.Button_Print, 15, 17, 1, 1)
         self.tableSupplierOrders = CustomTableWidget()
         self.tableSupplierOrders.setObjectName("tableSupplierOrders")
-        self.tableSupplierOrders.setColumnCount(18)
+        self.tableSupplierOrders.setColumnCount(19)
         self.tableSupplierOrders.setRowCount(0)
-        for i in range(18):
+        for i in range(19):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(int(10//1.5))
@@ -1129,6 +1129,7 @@ class Ui_SupplierOrder_Window(object):
         self.Button_ModifyOrder.clicked.connect(self.modifyorder)
         self.Button_AddRecord.clicked.connect(self.addrecord)
         self.Button_ModifyRecord.clicked.connect(self.modifyrecord)
+        self.Button_DeleteRecord.clicked.connect(self.deleterecord)
         self.Button_Deliv1.clicked.connect(self.adddeliv1)
         self.Button_Deliv2.clicked.connect(self.adddeliv2)
         self.Button_Deliv3.clicked.connect(self.adddeliv3)
@@ -1194,18 +1195,20 @@ class Ui_SupplierOrder_Window(object):
         item = self.tableSupplierOrders.horizontalHeaderItem(10)
         item.setText(_translate("SupplierOrder_Window", "Com Final"))
         item = self.tableSupplierOrders.horizontalHeaderItem(11)
-        item.setText(_translate("SupplierOrder_Window", "Forma Pago"))
+        item.setText(_translate("SupplierOrder_Window", "Total (€)"))
         item = self.tableSupplierOrders.horizontalHeaderItem(12)
-        item.setText(_translate("SupplierOrder_Window", "F. 1ª Entr."))
+        item.setText(_translate("SupplierOrder_Window", "Forma Pago"))
         item = self.tableSupplierOrders.horizontalHeaderItem(13)
-        item.setText(_translate("SupplierOrder_Window", "A. 1ª Entr."))
+        item.setText(_translate("SupplierOrder_Window", "F. 1ª Entr."))
         item = self.tableSupplierOrders.horizontalHeaderItem(14)
-        item.setText(_translate("SupplierOrder_Window", "F. 2ª Entr."))
+        item.setText(_translate("SupplierOrder_Window", "A. 1ª Entr."))
         item = self.tableSupplierOrders.horizontalHeaderItem(15)
-        item.setText(_translate("SupplierOrder_Window", "A. 2ª Entr."))
+        item.setText(_translate("SupplierOrder_Window", "F. 2ª Entr."))
         item = self.tableSupplierOrders.horizontalHeaderItem(16)
-        item.setText(_translate("SupplierOrder_Window", "F. 3ª Entr."))
+        item.setText(_translate("SupplierOrder_Window", "A. 2ª Entr."))
         item = self.tableSupplierOrders.horizontalHeaderItem(17)
+        item.setText(_translate("SupplierOrder_Window", "F. 3ª Entr."))
+        item = self.tableSupplierOrders.horizontalHeaderItem(18)
         item.setText(_translate("SupplierOrder_Window", "A. 3ª Ent."))
         self.Button_Print.setText(_translate("SupplierOrder_Window", "IMPRIMIR"))
         self.label_TheirRef.setText(_translate("SupplierOrder_Window", "S/Referencia:"))
@@ -1699,26 +1702,61 @@ class Ui_SupplierOrder_Window(object):
         record_id=self.label_IDRecord.text()
         supply_name=self.Supply_SupplierOrder.currentText()
         supply_name=supply_name[:supply_name.find(" |")]
-        unit_value=self.UnitValue_SupplierOrder.text()
-        unit_value=unit_value.replace(".",",")
-        discount=self.Discount_SupplierOrder.text().replace(" %", "") if " %" in self.Discount_SupplierOrder.text() else (self.Discount_SupplierOrder.text() if self.Discount_SupplierOrder.text() not in [""," "] else 0)
-        position=self.Position_SupplierOrder.text()
         quantity=self.Quantity_SupplierOrder.text()
-        deliv_quant_1=self.Deliv1_SupplierOrder.text() if self.Deliv1_SupplierOrder.text() not in [""," "] else 0
-        deliv_quant_2=self.Deliv2_SupplierOrder.text() if self.Deliv2_SupplierOrder.text() not in [""," "] else 0
-        deliv_quant_3=self.Deliv3_SupplierOrder.text() if self.Deliv3_SupplierOrder.text() not in [""," "] else 0
 
         if record_id == "":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Modificar Registros")
+            dlg.setWindowTitle("Eliminar Registros")
             dlg.setText("Selecciona un registro existente")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
             del dlg,new_icon
+        else:
+            commands_deleterecord = ("""
+                                DELETE FROM purch_fact.supplier_ord_detail_test
+                                WHERE purch_fact.supplier_ord_detail_test.id = %s
+                                """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                query_supplyid = "SELECT id, pending_stock FROM purch_fact.supplies_test WHERE reference = %s"
+                cur.execute(query_supplyid, (supply_name,))
+                result_supplyid = cur.fetchone()
 
+            # get id from table
+                supply_id = result_supplyid[0]
+                pending_stock = result_supplyid[1]
+                new_pending_stock = str(float(pending_stock) - float(quantity))
+
+                query_pending_stock = ("""UPDATE purch_fact.supplies_test
+                                        SET "pending_stock" = %s 
+                                        WHERE "reference" = %s""")
+                cur.execute(query_pending_stock, (new_pending_stock,supply_name,))
+            # execution of principal command
+                data=(record_id,)
+                cur.execute(commands_deleterecord, data)
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
+
+            self.loadtablerecords()
+            self.calculate_totalorder()
+            self.loadstocks()
 
 # Function to load client order form
     def loadformorder(self,item):
@@ -1818,21 +1856,16 @@ class Ui_SupplierOrder_Window(object):
 # Function to load table of orders
     def loadtableorders(self):
         commands_querytableorders = ("""
-                        SELECT purch_fact.supplier_ord_header_test.id,
-                        purch_fact.supplier_ord_header_test.supplier_order_num,
-                        purch_fact.suppliers_test."name",
-                        TO_CHAR(purch_fact.supplier_ord_header_test."order_date",'DD-MM-YYYY'),
-                        TO_CHAR(purch_fact.supplier_ord_header_test.delivery_date,'DD-MM-YYYY'),
-                        purch_fact.supplier_ord_header_test.their_ref,
-                        purch_fact.supplier_ord_header_test.notes, purch_fact.supplier_ord_header_test.delivery_term,
-                        purch_fact.supplier_ord_header_test.delivery_way, purch_fact.supplier_ord_header_test.order_com,
-                        purch_fact.supplier_ord_header_test.final_comment, purch_fact.supplier_ord_header_test.pay_way,
-                        TO_CHAR(purch_fact.supplier_ord_header_test.deliv_date_1,'DD-MM-YYYY'), purch_fact.supplier_ord_header_test.deliv_note_1,
-                        TO_CHAR(purch_fact.supplier_ord_header_test.deliv_date_2,'DD-MM-YYYY'), purch_fact.supplier_ord_header_test.deliv_note_2,
-                        TO_CHAR(purch_fact.supplier_ord_header_test.deliv_date_3,'DD-MM-YYYY'), purch_fact.supplier_ord_header_test.deliv_note_3
-                        FROM purch_fact.supplier_ord_header_test
-                        LEFT JOIN purch_fact.suppliers_test ON (purch_fact.suppliers_test."id" = purch_fact.supplier_ord_header_test."supplier_id")
-                        ORDER BY purch_fact.supplier_ord_header_test.id
+                        SELECT so_header.id, so_header.supplier_order_num, suppliers."name",
+                        TO_CHAR(so_header."order_date",'DD-MM-YYYY'), TO_CHAR(so_header.delivery_date,'DD-MM-YYYY'),
+                        so_header.their_ref, so_header.notes, so_header.delivery_term, so_header.delivery_way, so_header.order_com,
+                        so_header.final_comment, so_header.total_amount, so_header.pay_way,
+                        TO_CHAR(so_header.deliv_date_1,'DD-MM-YYYY'), so_header.deliv_note_1,
+                        TO_CHAR(so_header.deliv_date_2,'DD-MM-YYYY'), so_header.deliv_note_2,
+                        TO_CHAR(so_header.deliv_date_3,'DD-MM-YYYY'), so_header.deliv_note_3
+                        FROM purch_fact.supplier_ord_header_test AS so_header
+                        LEFT JOIN purch_fact.suppliers_test AS suppliers ON (suppliers."id" = so_header."supplier_id")
+                        ORDER BY so_header.id
                         """)
         conn = None
         try:
@@ -2636,6 +2669,31 @@ class Ui_SupplierOrder_Window(object):
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                 dlg.exec()
                 del dlg,new_icon
+
+                commands_updateorder = ("""
+                        UPDATE purch_fact.supplier_ord_header_test
+                        SET "total_amount" = %s
+                        WHERE "id" = %s
+                        """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of principal command
+                    data=(total_order,order_id,)
+                    cur.execute(commands_updateorder, data)
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
+                finally:
+                    if conn is not None:
+                        conn.close()
 
 
 # Function of popup window to enter quantities of deliveries

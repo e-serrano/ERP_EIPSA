@@ -938,6 +938,7 @@ class Ui_ClientOrder_Window(object):
         self.Button_ModifyOrder.clicked.connect(self.modifyorder)
         self.Button_AddRecord.clicked.connect(self.addrecord)
         self.Button_ModifyRecord.clicked.connect(self.modifyrecord)
+        self.Button_DeleteRecord.clicked.connect(self.deleterecord)
         self.Button_Deliv1.clicked.connect(self.adddeliv1)
         self.Button_Deliv2.clicked.connect(self.adddeliv2)
         self.Button_Deliv3.clicked.connect(self.adddeliv3)
@@ -1328,6 +1329,68 @@ class Ui_ClientOrder_Window(object):
                 data=(supply_id,quantity,deliv_quant_1,deliv_quant_2,deliv_quant_3,record_id,)
                 cur.execute(commands_modifyrecord, data)
 
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
+
+            self.loadtablerecords()
+            self.loadstocks()
+
+
+# Function to delete record data
+    def deleterecord(self):
+        record_id=self.label_IDRecord.text()
+        supply_name=self.Supply_ClientOrder.currentText()
+        supply_name=supply_name[:supply_name.find(" |")]
+        quantity=self.Quantity_ClientOrder.text()
+
+        if record_id == "":
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Modificar Registros")
+            dlg.setText("Selecciona un registro existente")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+
+        else:
+            commands_deleterecord = ("""
+                                DELETE FROM purch_fact.client_ord_detail_test
+                                WHERE purch_fact.client_ord_detail_test.id = %s
+                                """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                query_supplyid = "SELECT id, available_stock FROM purch_fact.supplies_test WHERE reference = %s"
+                cur.execute(query_supplyid, (supply_name,))
+                result_supplyid = cur.fetchone()
+
+            # get id from table
+                supply_id = result_supplyid[0]
+                available_stock = result_supplyid[1]
+                new_available_stock = str(float(available_stock) + float(quantity))
+
+                query_available_stock = ("""UPDATE purch_fact.supplies_test
+                                        SET "available_stock" = %s 
+                                        WHERE "reference" = %s""")
+                cur.execute(query_available_stock, (new_available_stock,supply_name,))
+            # execution of principal command
+                data=(record_id,)
+                cur.execute(commands_deleterecord, data)
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes

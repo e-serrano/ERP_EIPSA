@@ -341,9 +341,6 @@ class Ui_App_Purchasing(object):
         self.ui.setupUi(self.purchasing_window)
         self.purchasing_window.show()
 
-    def purchase_order(self):
-        print('ordenes de compra')
-
 
     def query_offer(self):
         self.query_offer_window=QtWidgets.QMainWindow()

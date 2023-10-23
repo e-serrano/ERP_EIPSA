@@ -795,8 +795,6 @@ class Ui_CreateTAGTemp_Window(object):
             if conn is not None:
                 conn.close()
 
-        print(len(all_results))
-
         self.Type_CreatetagT.addItems(sorted([x[0] for x in all_results[0]]))
         self.Typetw_CreatetagT.addItems(sorted([x[0] for x in all_results[1]]))
         self.Size_CreatetagT.addItems(sorted([x[0] for x in all_results[2]]))

@@ -7,11 +7,9 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QMenu
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import Qt
 import psycopg2
 import sys
-import configparser
-from Database_Connection import createConnection
 from config import config
 from datetime import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -19,6 +17,7 @@ from matplotlib.figure import Figure
 from matplotlib import ticker
 from NewOffer_Window import Ui_New_Offer_Window
 from EditOffer_Menu import Ui_EditOffer_Menu
+from EditOffer_Window import Ui_Edit_Offer_Window
 from QueryOffer_Window import Ui_QueryOffer_Window
 from NewOrder_Window import Ui_New_Order_Window
 from EditOrder_Window import Ui_Edit_Order_Window
@@ -26,8 +25,8 @@ from QueryOrder_Window import Ui_QueryOrder_Window
 from CreateTAG_Menu import Ui_CreateTag_Menu
 from EditTag_Menu import Ui_EditTags_Menu
 from QueryTags_Window import Ui_QueryTags_Window
-from ExportOffer_Window import Ui_ExportOffer_Window
 from QueryDoc_Window import Ui_QueryDoc_Window
+from ExportOffer_Window import Ui_ExportOffer_Window
 from GraphsOffer_Window import Ui_GraphsOffer_Window
 from ClientsGeneralResume_Window import Ui_ClientsGeneralResume_Window
 from AddTask_Window import Ui_AddTask_Window
@@ -363,6 +362,15 @@ class Ui_App_Comercial(object):
 
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem2)
+        self.HeaderUserName = QtWidgets.QLabel(parent=self.frame)
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.HeaderUserName.setFont(font)
+        self.HeaderUserName.setStyleSheet("color:rgb(255, 255, 255)")
+        self.HeaderUserName.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.HeaderUserName.setObjectName("HeaderUserName")
+        self.Header.addWidget(self.HeaderUserName)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
         font = QtGui.QFont()
         font.setPointSize(12)
@@ -614,6 +622,10 @@ class Ui_App_Comercial(object):
         self.BottomLayout.setObjectName("BottomLayout")
 
         try:
+            commands_responsible = ("""
+                        SELECT *
+                        FROM users_data.initials
+                        """)
             commands_graph1 = ("""
                         SELECT orders."order_month", CAST(SUM(orders."order_amount") AS numeric)
                         FROM offers
@@ -633,10 +645,11 @@ class Ui_App_Comercial(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                if self.name == 'Carlos Crespo':
-                    data=(self.name[0] + self.name[self.name.find(' ')+1] + 'H', date.today().year,)
-                else:
-                    data=(self.name[0] + self.name[self.name.find(' ')+1], date.today().year,)
+                cur.execute(commands_responsible)
+                results_responsible=cur.fetchall()
+                match=list(filter(lambda x:self.username in x, results_responsible))
+                responsible=match[0][0]
+                data=(responsible, date.today().year,)
                 cur.execute(commands_graph1, data)
                 results=cur.fetchall()
             # close communication with the PostgreSQL database server
@@ -690,10 +703,11 @@ class Ui_App_Comercial(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                if self.name == 'Carlos Crespo':
-                    data=(self.name[0] + self.name[self.name.find(' ')+1] + 'H', date.today().year,)
-                else:
-                    data=(self.name[0] + self.name[self.name.find(' ')+1], date.today().year,)
+                cur.execute(commands_responsible)
+                results_responsible=cur.fetchall()
+                match=list(filter(lambda x:self.username in x, results_responsible))
+                responsible=match[0][0]
+                data=(responsible, date.today().year,)
                 cur.execute(commands_graph2, data)
                 results2=cur.fetchall()
             # close communication with the PostgreSQL database server
@@ -827,6 +841,10 @@ class Ui_App_Comercial(object):
         if self.name in ['Ana Calvo']:
             self.Button_Users.clicked.connect(self.user_edition)
 
+        commands_responsible = ("""
+                        SELECT *
+                        FROM users_data.initials
+                        """)
         commands_appcomercial = ("""
                     SELECT "num_offer","state","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","notes","important","tracking"
                     FROM offers
@@ -846,10 +864,11 @@ class Ui_App_Comercial(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            if self.name == 'Carlos Crespo':
-                cur.execute(commands_appcomercial,(self.name[0] + self.name[self.name.find(' ')+1] + 'H',))
-            else:
-                cur.execute(commands_appcomercial,(self.name[0] + self.name[self.name.find(' ')+1],))
+            cur.execute(commands_responsible)
+            results_responsible=cur.fetchall()
+            match=list(filter(lambda x:self.username in x, results_responsible))
+            responsible=match[0][0]
+            cur.execute(commands_appcomercial,(responsible,))
             results=cur.fetchall()
             self.tableOffer.setRowCount(len(results))
             tablerow=0
@@ -902,6 +921,7 @@ class Ui_App_Comercial(object):
         _translate = QtCore.QCoreApplication.translate
         App_Comercial.setWindowTitle(_translate("App_Comercial", "ERP EIPSA - Comercial"))
         self.HeaderName.setText(_translate("App_Comercial", self.name))
+        self.HeaderUserName.setText(_translate("App_Comercial", self.username))
         self.Button_NewOffer.setText(_translate("App_Comercial", "    Nueva Oferta"))
         self.Button_EditOffer.setText(_translate("App_Comercial", "    Editar Oferta"))
         self.Button_QueryOffer.setText(_translate("App_Comercial", "    Consultar Ofertas"))
@@ -939,7 +959,7 @@ class Ui_App_Comercial(object):
 
     def new_offer(self):
         self.new_offer_window=QtWidgets.QMainWindow()
-        self.ui=Ui_New_Offer_Window(self.name)
+        self.ui=Ui_New_Offer_Window(self.username)
         self.ui.setupUi(self.new_offer_window)
         self.new_offer_window.show()
         self.ui.Button_Cancel.clicked.connect(self.update_table)
@@ -1005,26 +1025,14 @@ class Ui_App_Comercial(object):
 
 
     def export_offer(self):
-        # self.exportoffer_window=QtWidgets.QMainWindow()
-        # self.ui=Ui_ExportOffer_Window()
-        # self.ui.setupUi(self.exportoffer_window)
-        # self.exportoffer_window.show()
-
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Este módulo aún no está disponible.\nDisculpe las molestias")
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-        dlg.exec()
-        del dlg, new_icon
+        self.exportoffer_window=QtWidgets.QMainWindow()
+        self.ui=Ui_ExportOffer_Window(self.username)
+        self.ui.setupUi(self.exportoffer_window)
+        self.exportoffer_window.show()
 
 
     def query_documents(self):
-        self.querydoc_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_QueryDoc_Window()
-        self.ui.setupUi(self.querydoc_menu)
+        self.querydoc_menu=Ui_QueryDoc_Window()
         self.querydoc_menu.show()
 
 
@@ -1084,6 +1092,10 @@ class Ui_App_Comercial(object):
 #Function to update the table
     def update_table(self):
         self.tableOffer.setRowCount(0)
+        commands_responsible = ("""
+                        SELECT *
+                        FROM users_data.initials
+                        """)
         commands_appcomercial = ("""
                     SELECT "num_offer","state","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","notes","important","tracking"
                     FROM offers
@@ -1103,10 +1115,11 @@ class Ui_App_Comercial(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            if self.name == 'Carlos Crespo':
-                cur.execute(commands_appcomercial,(self.name[0] + self.name[self.name.find(' ')+1] + 'H',))
-            else:
-                cur.execute(commands_appcomercial,(self.name[0] + self.name[self.name.find(' ')+1],))
+            cur.execute(commands_responsible)
+            results_responsible=cur.fetchall()
+            match=list(filter(lambda x:self.username in x, results_responsible))
+            responsible=match[0][0]
+            cur.execute(commands_appcomercial,(responsible,))
             results=cur.fetchall()
             self.tableOffer.setRowCount(len(results))
             tablerow=0
@@ -1294,6 +1307,10 @@ class Ui_App_Comercial(object):
     def alert_offers(self):
         delay_date=QtCore.QDate.currentDate().addDays(-10)
 
+        commands_responsible = ("""
+                        SELECT *
+                        FROM users_data.initials
+                        """)
         commands_offerdelay = ("""
                     SELECT "num_offer"
                     FROM offers
@@ -1312,10 +1329,11 @@ class Ui_App_Comercial(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            if self.name == 'Carlos Crespo':
-                cur.execute(commands_offerdelay,(self.name[0] + self.name[self.name.find(' ')+1] + 'H',delay_date.toString(QtCore.Qt.DateFormat.ISODate),))
-            else:
-                cur.execute(commands_offerdelay,(self.name[0] + self.name[self.name.find(' ')+1],delay_date.toString(QtCore.Qt.DateFormat.ISODate),))
+            cur.execute(commands_responsible)
+            results_responsible=cur.fetchall()
+            match=list(filter(lambda x:self.username in x, results_responsible))
+            responsible=match[0][0]
+            cur.execute(commands_offerdelay,(responsible,delay_date.toString(QtCore.Qt.DateFormat.ISODate),))
             results=cur.fetchall()
         # close communication with the PostgreSQL database server
             cur.close()
@@ -1358,9 +1376,11 @@ class Ui_App_Comercial(object):
     def on_item_double_clicked(self, item):
         if item.column() == 2:
             self.clientresume(item)
+        elif item.column() == 0:
+            self.editofferform(item)
 
 
-# Function when double clicked cell is in first column
+# Function when double clicked cell is in client column
     def clientresume(self, item):
         clientname=item.text()
         self.client_resume_window=QtWidgets.QMainWindow()
@@ -1369,10 +1389,20 @@ class Ui_App_Comercial(object):
         self.client_resume_window.show()
 
 
+# Function when double clicked cell is in client column
+    def editofferform(self, item):
+        num_offer=item.text()
+        self.edit_offer_window=QtWidgets.QMainWindow()
+        self.ui=Ui_Edit_Offer_Window(num_offer)
+        self.ui.setupUi(self.edit_offer_window)
+        self.edit_offer_window.show()
+        self.ui.Button_Cancel.clicked.connect(self.update_table)
+
+
 # Function to open reclamation window
     def reclamation_offer(self):
         self.reclamationoffer_window=QtWidgets.QMainWindow()
-        self.ui=Ui_ReclamationOffer_Window(self.name)
+        self.ui=Ui_ReclamationOffer_Window(self.name, self.username)
         self.ui.setupUi(self.reclamationoffer_window)
         self.reclamationoffer_window.show()
 
@@ -1380,6 +1410,10 @@ class Ui_App_Comercial(object):
 # Function to show pop-up with offers to reclaim
     def alert_reclamation_offers(self):
         conn = None
+        commands_responsible = ("""
+                        SELECT *
+                        FROM users_data.initials
+                        """)
         commands_queryrecoffer = ("""
                         SELECT offers."num_offer",TO_CHAR(offers."presentation_date", 'DD-MM-YYYY'),TO_CHAR(offers."last_update", 'DD-MM-YYYY'),
                         (offers."last_update" - offers."presentation_date") AS "difference_in_days"
@@ -1394,16 +1428,16 @@ class Ui_App_Comercial(object):
                         """)
 
         try:
-            if self.name == 'Carlos Crespo':
-                responsible=self.name[0] + self.name[self.name.find(' ')+1] + 'H'
-            else:
-                responsible=self.name[0] + self.name[self.name.find(' ')+1]
         # read the connection parameters
             params = config()
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands one by one
+            cur.execute(commands_responsible)
+            results_responsible=cur.fetchall()
+            match=list(filter(lambda x:self.username in x, results_responsible))
+            responsible=match[0][0]
             cur.execute(commands_queryrecoffer, (responsible,))
             results=cur.fetchall()
         # close communication with the PostgreSQL database server

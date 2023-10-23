@@ -889,6 +889,7 @@ class Ui_CreateTAGNiv_Window(object):
         tag_state='Ofertado'
         numoffer=self.NumOffer_CreatetagN.text()
         numorder=self.NumOrder_CreatetagN.text()
+        num_po=self.NumPO_CreatetagN.text()
         position=self.Pos_CreatetagN.text()
         subpos=self.Subpos_CreatetagN.text()
         typeN=self.Type_CreatetagN.currentText()
@@ -928,7 +929,53 @@ class Ui_CreateTAGNiv_Window(object):
             self.label_error.setText('Rellene los campos con * mínimo')
         
         else:
-            print('a')
+            commands_inserttaglevel = ("""
+                            INSERT INTO tags_data.tags_level (
+                            "tag","tag_state","num_offer","num_order","num_po",
+                            "position","subposition","item_type","model_num","body_material",
+                            "proc_conn_type","proc_conn_size","proc_conn_rating","proc_conn_facing","conn_type",
+                            "visibility","cc_length","valve_type","dv_conn","dv_size",
+                            "dv_rating","dv_facing","gasket_mica","stud_nuts_material","illuminator",
+                            "float_material","case_cover_material","scale_type","flags","ip_code",
+                            "flange_type","nipple_hex","nipple_tub","antifrost","nace","amount","offer_notes"
+                            )
+                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                            """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands one by one
+                data = (tag,tag_state,numoffer,numorder,num_po,
+                        position,subpos,typeN,modelnum,bodymat,
+                        procconntype,procconnsize,procconnrating,procconnfacing,conntype,
+                        visibility,cc_length,valvetype,dvconn,dvsize,
+                        dvrating,dvfacing,gasketmica,mattorn,iluminator,
+                        matflot,matcover,scale,flags,ip_code,
+                        flangetype,niplohex,niptub,antifrost,nace,amount,notes)
+                cur.execute(commands_inserttaglevel,data)
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Crear Tag")
+                dlg.setText("Tag creado con éxito")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
 
 
     def queryoffernumber(self):

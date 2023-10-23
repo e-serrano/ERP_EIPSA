@@ -11,13 +11,14 @@ from datetime import *
 import psycopg2
 from config import config
 import os
+from OfferClientAdd_Window import Ui_OfferClientAdd_Window
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_New_Offer_Window(object):
-    def __init__(self,name):
-        self.name=name
+    def __init__(self,username):
+        self.username=username
 
     def setupUi(self, New_Offer):
         New_Offer.setObjectName("New_Offer")
@@ -101,16 +102,19 @@ class Ui_New_Offer_Window(object):
         self.vLayout1.addWidget(self.label_NumOffer)
         spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout1.addItem(spacerItem1)
+        self.hLayout3 = QtWidgets.QHBoxLayout()
+        self.hLayout3.setObjectName("hLayout2")
         self.label_Client = QtWidgets.QLabel(parent=self.frame)
-        self.label_Client.setMinimumSize(QtCore.QSize(105, 25))
-        self.label_Client.setMaximumSize(QtCore.QSize(105, 25))
+        self.label_Client.setMinimumSize(QtCore.QSize(80, 25))
+        self.label_Client.setMaximumSize(QtCore.QSize(80, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
         self.label_Client.setFont(font)
         self.label_Client.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_Client.setObjectName("label_Client")
-        self.vLayout1.addWidget(self.label_Client)
+        self.hLayout3.addWidget(self.label_Client)
+        self.vLayout1.addLayout(self.hLayout3)
         spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout1.addItem(spacerItem2)
         self.label_FinalClient = QtWidgets.QLabel(parent=self.frame)
@@ -174,7 +178,7 @@ class Ui_New_Offer_Window(object):
         self.vLayout2.addWidget(self.NumOffer_NewOffer)
         spacerItem5 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout2.addItem(spacerItem5)
-        self.Client_NewOffer = QtWidgets.QLineEdit(parent=self.frame)
+        self.Client_NewOffer = QtWidgets.QComboBox(parent=self.frame)
         self.Client_NewOffer.setMinimumSize(QtCore.QSize(175, 25))
         self.Client_NewOffer.setMaximumSize(QtCore.QSize(175, 25))
         font = QtGui.QFont()
@@ -391,16 +395,35 @@ class Ui_New_Offer_Window(object):
         self.Mails_NewOffer.setObjectName("Mails_NewOffer")
         self.hLayout1.addWidget(self.Mails_NewOffer)
         self.verticalLayout.addLayout(self.hLayout1)
+        self.hLayout4 = QtWidgets.QHBoxLayout()
+        self.hLayout4.setObjectName("hLayout1")
+        self.label_empty = QtWidgets.QLabel(parent=self.frame)
+        self.label_empty.setMinimumSize(QtCore.QSize(130, 25))
+        self.label_empty.setMaximumSize(QtCore.QSize(130, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_empty.setFont(font)
+        self.label_empty.setText("")
+        self.label_empty.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
+        self.label_empty.setObjectName("label_empty")
+        self.hLayout4.addWidget(self.label_empty)
+        self.HintMails_NewOffer = QtWidgets.QLabel(parent=self.frame)
+        self.HintMails_NewOffer.setMinimumSize(QtCore.QSize(175, 50))
+        self.HintMails_NewOffer.setMaximumSize(QtCore.QSize(16777215, 50))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.HintMails_NewOffer.setFont(font)
+        self.HintMails_NewOffer.setText('FORMATO MAILS -> mail1,mail2 copia:mailc1,mailc2')
+        self.HintMails_NewOffer.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.HintMails_NewOffer.setObjectName("HintMails_NewOffer")
+        self.hLayout4.addWidget(self.HintMails_NewOffer)
+        self.verticalLayout.addLayout(self.hLayout4)
         spacerItem21 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.verticalLayout.addItem(spacerItem21)
         self.hLayout2 = QtWidgets.QHBoxLayout()
         self.hLayout2.setObjectName("hLayout2")
         self.Button_NewOffer = QtWidgets.QPushButton(parent=self.frame)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Button_NewOffer.sizePolicy().hasHeightForWidth())
-        self.Button_NewOffer.setSizePolicy(sizePolicy)
         self.Button_NewOffer.setMinimumSize(QtCore.QSize(200, 30))
         self.Button_NewOffer.setMaximumSize(QtCore.QSize(200, 30))
         self.Button_NewOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
@@ -408,11 +431,6 @@ class Ui_New_Offer_Window(object):
         self.Button_NewOffer.setObjectName("Button_NewOffer")
         self.hLayout2.addWidget(self.Button_NewOffer)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Button_Cancel.sizePolicy().hasHeightForWidth())
-        self.Button_Cancel.setSizePolicy(sizePolicy)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(200, 30))
         self.Button_Cancel.setMaximumSize(QtCore.QSize(200, 30))
         self.Button_Cancel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
@@ -429,6 +447,50 @@ class Ui_New_Offer_Window(object):
         self.label_error_newoffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.label_error_newoffer.setObjectName("label_error_newoffer")
         self.verticalLayout.addWidget(self.label_error_newoffer)
+        self.Button_NewClient = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_NewClient.setMinimumSize(QtCore.QSize(50, 25))
+        self.Button_NewClient.setMaximumSize(QtCore.QSize(50, 25))
+        self.Button_NewClient.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_NewClient.setObjectName("Button_NewClient")
+        self.Button_NewClient.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.Button_NewClient.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 20px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 1px .1em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: center;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:focus {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255)\n"
+"}\n"
+"\n"
+"QPushButton:focus:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        self.hLayout3.addWidget(self.Button_NewClient)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         New_Offer.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=New_Offer)
@@ -443,6 +505,7 @@ class Ui_New_Offer_Window(object):
         self.retranslateUi(New_Offer)
         self.Button_Cancel.clicked.connect(New_Offer.close) # type: ignore
         self.Button_NewOffer.clicked.connect(self.NewOffer)
+        self.Button_NewClient.clicked.connect(self.NewClient)
         QtCore.QMetaObject.connectSlotsByName(New_Offer)
 
         list_nacext=['Exterior','Nacional']
@@ -461,7 +524,7 @@ class Ui_New_Offer_Window(object):
             cur = conn.cursor()
         # execution of commands one by one
             cur.execute(commands_productype)
-            results=cur.fetchall()
+            results_producttype=cur.fetchall()
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
@@ -472,9 +535,11 @@ class Ui_New_Offer_Window(object):
             if conn is not None:
                 conn.close()
 
-        list_material=[x[0] for x in results]
+        list_material=[x[0] for x in results_producttype]
         list_material.sort()
         self.Material_NewOffer.addItems(list_material)
+
+        self.load_clients()
 
 
     def retranslateUi(self, New_Offer):
@@ -495,12 +560,43 @@ class Ui_New_Offer_Window(object):
         self.label_Mails.setText(_translate("New_Offer", "*Mails Contacto:"))
         self.Button_NewOffer.setText(_translate("New_Offer", "Crear Oferta"))
         self.Button_Cancel.setText(_translate("New_Offer", "Cancelar"))
+        self.Button_NewClient.setText(_translate("New_Offer", "+"))
         self.label_error_newoffer.setText(_translate("New_Offer", ""))
+
+    def load_clients(self):
+        self.Client_NewOffer.clear()
+        commands_clients = ("""
+                        SELECT * 
+                        FROM clients_list
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands_clients)
+            results_clients=cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        list_clients=[x[0] for x in results_clients]
+        list_clients.sort()
+        self.Client_NewOffer.addItems(list_clients)
 
 
     def NewOffer(self):
         numoffer=self.NumOffer_NewOffer.text()
-        client=self.Client_NewOffer.text()
+        client=self.Client_NewOffer.currentText()
         finalclient=self.FinalClient_NewOffer.text()
         numref=self.NumRef_NewOffer.text()
         nacext=self.NacExt_NewOffer.currentText()
@@ -512,10 +608,6 @@ class Ui_New_Offer_Window(object):
         important=self.Important_NewOffer.toPlainText()
         ratetype=self.RateType_NewOffer.text()
         state="Registrada"
-        if self.name=='Carlos Crespo':
-            responsible=self.name[0] + self.name[self.name.find(' ')+1]+'H'
-        else:
-            responsible=self.name[0] + self.name[self.name.find(' ')+1]
         actual_date=date.today()
         actual_date=actual_date.strftime("%d/%m/%Y")
         mails=self.Mails_NewOffer.toPlainText()
@@ -525,6 +617,11 @@ class Ui_New_Offer_Window(object):
 
         else:
         #SQL Query for checking if offer number exists in database
+            query_username = ("""
+                    SELECT initials
+                    FROM users_data.initials
+                    WHERE username = %s
+                    """)
             commands_checkoffer = ("""
                         SELECT * 
                         FROM offers
@@ -580,7 +677,7 @@ class Ui_New_Offer_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    data=(numoffer, state, responsible, client, finalclient, numref, actual_date, nacext, buyer, material, notes, limitdate, ratetype, important, recepdate, mails)
+                    data=(numoffer, state, self.username, client, finalclient, numref, actual_date, nacext, buyer, material, notes, limitdate, ratetype, important, recepdate, mails)
                     cur.execute(commands_newoffer, data)
                 # close communication with the PostgreSQL database server
                     cur.close()
@@ -595,6 +692,7 @@ class Ui_New_Offer_Window(object):
                     dlg.setText("Oferta creada con éxito")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
+                    del dlg,new_icon
 
                     self.NumOffer_NewOffer.setText('')
                     self.Client_NewOffer.setText('')
@@ -607,14 +705,19 @@ class Ui_New_Offer_Window(object):
                     self.Important_NewOffer.setText('')
                     self.Mails_NewOffer.setText('')
 
-                    del dlg,new_icon
-
                 except (Exception, psycopg2.DatabaseError) as error:
                     print(error)
                 finally:
                     if conn is not None:
                         conn.close()
 
+
+    def NewClient(self):
+        self.new_client_window=QtWidgets.QMainWindow()
+        self.ui=Ui_OfferClientAdd_Window()
+        self.ui.setupUi(self.new_client_window)
+        self.new_client_window.show()
+        self.ui.exit_OfferClientAdd.clicked.connect(self.load_clients)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

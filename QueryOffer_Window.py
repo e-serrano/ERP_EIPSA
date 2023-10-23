@@ -329,6 +329,10 @@ class Ui_QueryOffer_Window(object):
                         SELECT *
                         FROM offers
                         """)
+        commands_comboboxes3queryoffer = ("""
+                        SELECT *
+                        FROM users_data.initials
+                        """)
         conn = None
         try:
         # read the connection parameters
@@ -341,6 +345,8 @@ class Ui_QueryOffer_Window(object):
             results1=cur.fetchall()
             cur.execute(commands_comboboxes2queryoffer)
             results2=cur.fetchall()
+            cur.execute(commands_comboboxes3queryoffer)
+            results3=cur.fetchall()
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
@@ -357,8 +363,10 @@ class Ui_QueryOffer_Window(object):
         list_states = [''] + list(set([x[1] for x in results2]))
         self.State_QueryOffer.addItems(sorted(list_states))
 
-        list_responsibles = [''] + list(set([x[2] for x in results2]))
+        list_responsibles = [''] + list(set([x[1] for x in results3]))
         self.Responsible_QueryOffer.addItems(sorted(list_responsibles))
+
+        self.responsibles_relation = {key: value for key, value in results3}
 
         self.retranslateUi(QueryOffer_Window)
         QtCore.QMetaObject.connectSlotsByName(QueryOffer_Window)
@@ -426,7 +434,7 @@ class Ui_QueryOffer_Window(object):
     def query_offer(self):
         numoffer=self.Numoffer_QueryOffer.text()
         client=self.Client_QueryOffer.text()
-        responsible=self.Responsible_QueryOffer.currentText()
+        responsible=list(self.responsibles_relation.keys())[list(self.responsibles_relation.values()).index(self.Responsible_QueryOffer.currentText())]
         state=self.State_QueryOffer.currentText()
         finalclient=self.FinalClient_QueryOffer.text()
         reference=self.Ref_QueryOffer.text()
@@ -446,9 +454,10 @@ class Ui_QueryOffer_Window(object):
 
         else:
             commands_queryoffer = ("""
-                        SELECT offers."num_offer",offers."responsible",offers."state",offers."num_ref_offer",offers."client",offers."final_client",product_type."variable",offers."offer_amount",offers."rate_type",offers."notes",offers."important"
+                        SELECT offers."num_offer",users_data.initials."initials",offers."state",offers."num_ref_offer",offers."client",offers."final_client",product_type."variable",offers."offer_amount",offers."rate_type",offers."notes",offers."important"
                         FROM offers
                         INNER JOIN product_type ON (offers."material"=product_type."material")
+                        INNER JOIN users_data.initials ON (offers."responsible"=users_data.initials."username")
                         WHERE (UPPER(offers."num_offer") LIKE UPPER('%%'||%s||'%%')
                         AND
                         UPPER(offers."num_ref_offer") LIKE UPPER('%%'||%s||'%%')

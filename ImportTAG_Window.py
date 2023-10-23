@@ -202,16 +202,17 @@ class Ui_ImportTAG_Window(object):
             cursor = conn.cursor()
 
         #Importing excel file into dataframe
-            df_table = pd.read_excel(excel_file, na_values=['N/A'], keep_default_na=False)
+            df_table = pd.read_excel(excel_file, na_values=['N/A'], keep_default_na=False, skiprows=7)
             df_table = df_table.astype(str)
             df_table.replace('nan', 'N/A', inplace=True)
 
             if self.radioFlow.isChecked()==True:
                 table_name='tags_data.tags_flow'
+                df_final = df_table.iloc[:,:29]
                 try:
-                    for index, row in df_table.iterrows():
+                    for index, row in df_final.iterrows():
                     # Create a list of pairs (column_name, column_value) for each column with value
-                        columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
+                        columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
 
                     # Creating string for columns names
                         columns = ', '.join([column for column, _ in columns_values])
@@ -245,10 +246,11 @@ class Ui_ImportTAG_Window(object):
 
             elif self.radioTemp.isChecked()==True:
                 table_name='tags_data.tags_temp'
+                df_final = df_table.iloc[:,:36]
                 try:
-                    for index, row in df_table.iterrows():
+                    for index, row in df_final.iterrows():
                     # Create a list of pairs (column_name, column_value) for each column with value
-                        columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
+                        columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
 
                     # Creating string for columns names
                         columns = ', '.join([column for column, _ in columns_values])
@@ -287,10 +289,11 @@ class Ui_ImportTAG_Window(object):
 
             elif self.radioLevel.isChecked()==True:
                 table_name='tags_data.tags_level'
+                df_final = df_table.iloc[:,:37]
                 try:
-                    for index, row in df_table.iterrows():
+                    for index, row in df_final.iterrows():
                     # Create a list of pairs (column_name, column_value) for each column with value
-                        columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
+                        columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
 
                     # Creating string for columns names
                         columns = ', '.join([column for column, _ in columns_values])

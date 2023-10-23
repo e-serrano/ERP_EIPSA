@@ -175,6 +175,16 @@ class Ui_TypeTagCreation_Menu(object):
             TypeTag_Menu.hide()
             self.ui.Button_Cancel.clicked.connect(TypeTag_Menu.show)
 
+        elif final_variable=='Otros':
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Crear Tag")
+            dlg.setText("Este tipo de TAG aún no está disponible")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

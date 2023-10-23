@@ -227,7 +227,7 @@ class Ui_ImportTableExist_Window(object):
                         columns = ', '.join([column for column, _ in columns_values])
 
                     # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
-                        values = ', '.join([f"'{value.replace('.', ',')}'" if column == 'amount' else f"'{value}'" for column, value in columns_values])
+                        values = ', '.join([f"'{value.replace('.', ',')}'" if column in ['offer_amount','order_amount'] else ('NULL' if value == '' else f"'{value}'") for column, value in columns_values])
 
                     # Creating insertion query and executing it
                         sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
