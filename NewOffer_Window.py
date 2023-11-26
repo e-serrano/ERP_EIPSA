@@ -695,7 +695,6 @@ class Ui_New_Offer_Window(object):
                     del dlg,new_icon
 
                     self.NumOffer_NewOffer.setText('')
-                    self.Client_NewOffer.setText('')
                     self.FinalClient_NewOffer.setText('')
                     self.NumRef_NewOffer.setText('')
                     self.Buyer_NewOffer.setText('')

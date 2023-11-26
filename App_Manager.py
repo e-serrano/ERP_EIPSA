@@ -7,23 +7,17 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QMenu
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import Qt
 import psycopg2
 import sys
-import configparser
-from Database_Connection import createConnection
 from config import config
 from datetime import *
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-from matplotlib import ticker
 from QueryOffer_Window import Ui_QueryOffer_Window
 from QueryOrder_Window import Ui_QueryOrder_Window
 from QueryTags_Window import Ui_QueryTags_Window
 from QueryDoc_Window import Ui_QueryDoc_Window
 from GraphsOffer_Window import Ui_GraphsOffer_Window
 from ClientsGeneralResume_Window import Ui_ClientsGeneralResume_Window
-from EditUser_Menu import Ui_EditUser_Menu
 from EditPassword_Window import Ui_EditPasswordWindow
 from ClientResume_Window import Ui_ClientResume_Window
 import os
@@ -633,11 +627,11 @@ class Ui_App_Manager(object):
 
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    App_Manager = QtWidgets.QMainWindow()
-    ui = Ui_App_Manager()
-    ui.setupUi(App_Manager)
-    App_Manager.showMaximized()
-    sys.exit(app.exec())
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     App_Manager = QtWidgets.QMainWindow()
+#     ui = Ui_App_Manager()
+#     ui.setupUi(App_Manager)
+#     App_Manager.showMaximized()
+#     sys.exit(app.exec())

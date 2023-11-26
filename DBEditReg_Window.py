@@ -61,11 +61,28 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
 
 class Ui_DBEditReg_Window(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, db):
         super().__init__()
         self.model = EditableTableModel()
+        self.db = db
         self.setupUi(self)
         self.model.dataChanged.connect(self.saveChanges)
+
+    def closeEvent(self, event):
+    # Closing database connection
+        if self.model:
+            self.model.clear()
+        self.closeConnection()
+
+    def closeConnection(self):
+    # Closing database connection
+        self.tableWidget.setModel(None)
+        del self.model
+        if self.db:
+            self.db.close()
+            del self.db
+            if QtSql.QSqlDatabase.contains("qt_sql_default_connection"):
+                QtSql.QSqlDatabase.removeDatabase("qt_sql_default_connection")
 
     def setupUi(self, EditReg_Window):
         EditReg_Window.setObjectName("EditReg_Window")
@@ -441,6 +458,8 @@ class Ui_DBEditReg_Window(QtWidgets.QMainWindow):
                 values = [code1,code2,code3]
         elif self.columns_number > 1:
             values = [code1,code2]
+        elif self.columns_number > 0:
+            values = [code1]
 
         columns = ', '.join([column for column in columns])
         values = ', '.join([f"'{value}'" for value in values])
@@ -593,21 +612,40 @@ class Ui_DBEditReg_Window(QtWidgets.QMainWindow):
             self.label_code7.setText('')
             self.code7_DBReg.setVisible(False)
             self.code7_DBReg.setText('')
+        elif self.columns_number > 0:
+            self.label_code1.setText(self.column_headers[0])
+            self.label_code2.setText('')
+            self.code2_DBReg.setVisible(False)
+            self.code2_DBReg.setText('')
+            self.label_code3.setText('')
+            self.code3_DBReg.setVisible(False)
+            self.code3_DBReg.setText('')
+            self.label_code4.setText('')
+            self.code4_DBReg.setVisible(False)
+            self.code4_DBReg.setText('')
+            self.label_code5.setText('')
+            self.code5_DBReg.setVisible(False)
+            self.code5_DBReg.setText('')
+            self.label_code6.setText('')
+            self.code6_DBReg.setVisible(False)
+            self.code6_DBReg.setText('')
+            self.label_code7.setText('')
+            self.code7_DBReg.setVisible(False)
+            self.code7_DBReg.setText('')
 
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     config_obj = configparser.ConfigParser()
+#     config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+#     dbparam = config_obj["postgresql"]
+#     # set your parameters for the database connection URI using the keys from the configfile.ini
+#     user_database = dbparam["user"]
+#     password_database = dbparam["password"]
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    config_obj = configparser.ConfigParser()
-    config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-    dbparam = config_obj["postgresql"]
-    # set your parameters for the database connection URI using the keys from the configfile.ini
-    user_database = dbparam["user"]
-    password_database = dbparam["password"]
+#     if not createConnection(user_database, password_database):
+#         sys.exit()
 
-    if not createConnection(user_database, password_database):
-        sys.exit()
-
-    EditReg_Window = Ui_DBEditReg_Window()
-    EditReg_Window.show()
-    sys.exit(app.exec())
+#     EditReg_Window = Ui_DBEditReg_Window()
+#     EditReg_Window.show()
+#     sys.exit(app.exec())

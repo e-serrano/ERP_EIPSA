@@ -10,7 +10,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
 import os
-from Excel_Export_Templates import offer_flow
+from Excel_Export_Templates import offer_flow, offer_temp, offer_level
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -304,12 +304,18 @@ class Ui_ExportOffer_Form(object):
         self.label_PayWay.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_PayWay.setObjectName("label_PayWay")
         self.hLayout4.addWidget(self.label_PayWay)
-        self.radio100 = QtWidgets.QRadioButton(parent=self.frame)
+        self.radio100_delivery = QtWidgets.QRadioButton(parent=self.frame)
         font = QtGui.QFont()
         font.setPointSize(12)
-        self.radio100.setFont(font)
-        self.radio100.setObjectName("radio100")
-        self.hLayout4.addWidget(self.radio100)
+        self.radio100_delivery.setFont(font)
+        self.radio100_delivery.setObjectName("radio100_delivery")
+        self.hLayout4.addWidget(self.radio100_delivery)
+        self.radio100_order = QtWidgets.QRadioButton(parent=self.frame)
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.radio100_order.setFont(font)
+        self.radio100_order.setObjectName("radio100_order")
+        self.hLayout4.addWidget(self.radio100_order)
         self.radio90_10 = QtWidgets.QRadioButton(parent=self.frame)
         font = QtGui.QFont()
         font.setPointSize(12)
@@ -382,7 +388,8 @@ class Ui_ExportOffer_Form(object):
         self.label_PayWay.setText(_translate("ExportOffer_Form", "Forma de pago:"))
         self.Button_ExportOffer_Form.setText(_translate("ExportOffer_Form", "Exportar Oferta"))
         self.Button_Cancel.setText(_translate("ExportOffer_Form", "Cancelar"))
-        self.radio100.setText(_translate("ExportOffer_Form", "100%"))
+        self.radio100_delivery.setText(_translate("ExportOffer_Form", "100% envío"))
+        self.radio100_order.setText(_translate("ExportOffer_Form", "100% pedido"))
         self.radio90_10.setText(_translate("ExportOffer_Form", "90% / 10%"))
         self.radio50_50.setText(_translate("ExportOffer_Form", "50% / 50%"))
         self.radioOthers.setText(_translate("ExportOffer_Form", "Otro"))
@@ -399,8 +406,10 @@ class Ui_ExportOffer_Form(object):
         revchanges = self.RevChanges_ExportOffer_Form.text()
         notes = self.Notes_ExportOffer_Form.toPlainText()
 
-        if self.radio100.isChecked()==True:
-            pay_term = '100'
+        if self.radio100_delivery.isChecked()==True:
+            pay_term = '100_delivery'
+        elif self.radio100_order.isChecked()==True:
+            pay_term = '100_order'
         elif self.radio90_10.isChecked()==True:
             pay_term = '90_10'
         elif self.radio50_50.isChecked()==True:
@@ -436,7 +445,7 @@ class Ui_ExportOffer_Form(object):
     #         #SQL Query for updating values in database
     #         commands_updateofferdata = ("""
     #                     UPDATE offers
-    #                     SET "validity" = %s, "delivery_time" = %s, "delivery_term" = %s, "project" = %s
+    #                     SET "validity" = %s, "delivery_time" = %s, "delivery_term" = %s, "project" = %s, "payment_term" = %s
     #                     WHERE "num_offer" = %s
     #                     """)
             conn = None
@@ -455,24 +464,23 @@ class Ui_ExportOffer_Form(object):
     #             conn.commit()
 
                 if self.variable == 'Caudal':
-                    offer_flow(numoffer,self.responsible,rev,project,delivery_term,delivery_time,validity,pay_term,testinspection,revchanges,notes)
+                    offer_flow(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                 elif self.variable == 'Temperatura':
-                    print('a')
+                    offer_temp(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                 elif self.variable == 'Nivel':
-                    print('b')
+                    offer_level(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
 
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Exportar Oferta")
+                dlg.setText("Oferta exportada con éxito")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+                del dlg, new_icon
 
-    #             dlg = QtWidgets.QMessageBox()
-    #             new_icon = QtGui.QIcon()
-    #             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-    #             dlg.setWindowIcon(new_icon)
-    #             dlg.setWindowTitle("Exportar Oferta")
-    #             dlg.setText("Oferta exportada con éxito")
-    #             dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-    #             dlg.exec()
-    #             del dlg, new_icon
-
-    #             # ExportOffer_Form.close
+                # ExportOffer_Form.close
 
             except (Exception, psycopg2.DatabaseError) as error:
                 print(error)

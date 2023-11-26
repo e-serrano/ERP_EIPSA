@@ -101,7 +101,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
             if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
                 text = text.toString("yyyy-MM-dd")
 
-            for expresion in expresions:
+            for expresion in expresions[0]:
                 if expresion == '':  # If expression is empty, match empty cells
                     if text == '':
                         break
@@ -177,17 +177,36 @@ class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
 
 
 class Ui_EditTags_Window(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, db):
         super().__init__()
         self.model = EditableTableModel()
         self.proxy = CustomProxyModel()
+        self.db = db
         self.checkbox_states = {}
         self.dict_valuesuniques = {}
         self.dict_ordersort = {}
         self.hiddencolumns = []
         self.variable = ''
+        self.action_checkbox_map = {}
+        self.checkbox_filters = {}
         self.setupUi(self)
         self.model.dataChanged.connect(self.saveChanges)
+
+    def closeEvent(self, event):
+    # Closing database connection
+        if self.model:
+            self.model.clear()
+        self.closeConnection()
+
+    def closeConnection(self):
+    # Closing database connection
+        self.tableEditTags.setModel(None)
+        del self.model
+        if self.db:
+            self.db.close()
+            del self.db
+            if QtSql.QSqlDatabase.contains("qt_sql_default_connection"):
+                QtSql.QSqlDatabase.removeDatabase("qt_sql_default_connection")
 
     def setupUi(self, EditTags_Window):
         EditTags_Window.setObjectName("EditTags_Window")
@@ -426,7 +445,10 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolShow.clicked.connect(self.show_columns)
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
-        self.Numoffer_EditTags.returnPressed.connect(self.query_tags)
+        try:
+            self.Numoffer_EditTags.returnPressed.connect(self.query_tags)
+        except Exception as error:
+            print(error)
         self.Numorder_EditTags.returnPressed.connect(self.query_tags)
         self.model.dataChanged.connect(self.saveChanges)
         self.createContextMenu()
@@ -555,7 +577,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.Numorder_EditTags.setText("")
         self.Numoffer_EditTags.setText("")
 
-# Function when delete all filters button is clicked
+# Function to delete all filters when tool button is clicked
     def delete_allFilters(self):
         columns_number=self.model.columnCount()
         for index in range(columns_number):
@@ -566,6 +588,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.checkbox_states = {}
         self.dict_valuesuniques = {}
         self.dict_ordersort = {}
+        self.checkbox_filters = {}
 
         self.proxy.invalidateFilter()
         self.tableEditTags.setModel(None)
@@ -586,7 +609,11 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                         self.checkbox_states[column][value] = True
                 self.dict_valuesuniques[column] = list_valuesUnique
 
-# Function to upload changes in database when field change
+        self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableEditTags.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableEditTags.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
+
+# Function to save changes into database
     def saveChanges(self):
         self.model.submitAll()
 
@@ -826,12 +853,16 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                     self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{numorder.upper()}%' AND num_offer <>'' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
 
         if self.variable != '':
+            self.tableEditTags.setModel(None)
+            self.tableEditTags.setModel(self.proxy)
             self.model.select()
 
             self.proxy.setSourceModel(self.model)
             self.tableEditTags.setModel(self.proxy)
 
             columns_number=self.model.columnCount()
+            for column in range(columns_number):
+                self.tableEditTags.setItemDelegateForColumn(column, None)
             self.model.column_range = range(self.initial_column,columns_number)
 
             if self.variable == 'Caudal':
@@ -852,7 +883,8 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 
             self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
             self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
-            self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableEditTags.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableEditTags.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
             self.tableEditTags.setObjectName("tableEditTags")
             self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
@@ -865,8 +897,8 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
                         "Tipo", "Tamaño Línea", "Rating", "Facing", "Schedule", "Material Brida", "Tipo Brida",
                         "Material Tubo", "Tamaño Tomas (Nº)", "Material Elemento", "Tipo Placa", "Espesor Placa",
-                        "Estándar Placa", "Material Junta", "Material Tornillería", "NACE", "Nº Saltos",
-                        "Pipe Spec.", "Peso Aprox. (kg)", "Long. Aprox. (mm)", "Precio (€)", "Notas Oferta",
+                        "Estándar Placa", "Material Junta", "Material Tornillería", "Nº Saltos", "Pipe Spec.",
+                        "Peso Aprox. (kg)", "Long. Aprox. (mm)", "NACE", "Precio (€)", "Notas Oferta",
                         "Cambios Comercial", "Fecha Contractual", "Ø Orif. (mm)", "Ø D/V (mm)", "Cambios Técnicos",
                         "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo", "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano",
                         "Estado Plano", "Fecha Estado Plano", "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra",
@@ -926,11 +958,16 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                     self.dict_valuesuniques[column] = list_valuesUnique
 
             # Setting cells with comboboxes
+            list_tag_state = ['DELETED', 'HOLD', 'PURCHASED', 'QUOTED']
             if self.variable == 'Caudal':
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
+                self.tableEditTags.setItemDelegateForColumn(2, self.combo_itemtype)
                 for i in range(16):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_flow[i]]))
                     self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
             elif self.variable == 'Temperatura':
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
+                self.tableEditTags.setItemDelegateForColumn(2, self.combo_itemtype)
                 for i in range(5):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
                     self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
@@ -940,6 +977,8 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
                     self.tableEditTags.setItemDelegateForColumn(i+11, self.combo_itemtype)
             elif self.variable == 'Nivel':
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
+                self.tableEditTags.setItemDelegateForColumn(2, self.combo_itemtype)
                 for i in range(8):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_level[i]]))
                     self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
@@ -951,10 +990,10 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             self.selection_model = self.tableEditTags.selectionModel()
             self.selection_model.selectionChanged.connect(self.countSelectedCells)
 
-# Function when clicking on header
+# Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
         self.logicalIndex = logicalIndex
-        self.menuValues = QtWidgets.QMenu(self.tableEditTags)
+        self.menuValues = QtWidgets.QMenu(self)
         self.signalMapper = QtCore.QSignalMapper(self.tableEditTags)
 
         valuesUnique_view = []
@@ -965,12 +1004,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 if isinstance(value, QtCore.QDate):
                     value=value.toString("dd/MM/yyyy")
                 valuesUnique_view.append(value)
-                if self.logicalIndex in self.proxy.filters and str(value) in self.proxy.filters[self.logicalIndex]:
-                    pass
-                else:
-                    if self.logicalIndex not in self.proxy.filters:
-                        self.proxy.filters[self.logicalIndex] = []
-                    self.proxy.filters[self.logicalIndex].append(str(value))
 
         actionSortAscending = QtGui.QAction("Ordenar Ascendente", self.tableEditTags)
         actionSortAscending.triggered.connect(self.on_actionSortAscending_triggered)
@@ -990,32 +1023,64 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(actionTextFilter)
         self.menuValues.addSeparator()
 
-        self.moreMenu = self.menuValues.addMenu("Más")
+        scroll_menu = QtWidgets.QScrollArea()
+        scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
+        scroll_menu.setWidgetResizable(True)
+        scroll_widget = QtWidgets.QWidget(scroll_menu)
+        scroll_menu.setWidget(scroll_widget)
+        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+
+        checkbox_all_widget = QtWidgets.QCheckBox('Seleccionar todo')
+
+        if not self.checkbox_states[self.logicalIndex]['Seleccionar todo'] == True:
+            checkbox_all_widget.setChecked(False)
+        else:
+            checkbox_all_widget.setChecked(True)
+        
+        checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled(checked, name))
+
+        scroll_layout.addWidget(checkbox_all_widget)
+        self.action_checkbox_map['Seleccionar todo'] = checkbox_all_widget
 
         if len(self.dict_ordersort) != 0 and self.logicalIndex in self.dict_ordersort:
             list_uniquevalues = sorted(list(set(self.dict_valuesuniques[self.logicalIndex])))
         else:
             list_uniquevalues = sorted(list(set(valuesUnique_view)))
 
-        for actionNumber, actionName in enumerate(['Seleccionar todo'] + list_uniquevalues):
-            checkbox_widget = CheckboxWidget(str(actionName))
-            action = QtWidgets.QWidgetAction(self.moreMenu)
-            action.setDefaultWidget(checkbox_widget)
-            self.moreMenu.addAction(action)
+        for actionName in list_uniquevalues:
+            checkbox_widget = QtWidgets.QCheckBox(actionName)
 
-            if not self.checkbox_states[self.logicalIndex][actionName] == True:
-                checkbox_widget.checkbox.setChecked(False)
+            if self.logicalIndex not in self.checkbox_filters:
+                checkbox_widget.setChecked(True)
+            elif actionName not in self.checkbox_filters[self.logicalIndex]:
+                checkbox_widget.setChecked(False)
             else:
-                checkbox_widget.checkbox.setChecked(True)
+                checkbox_widget.setChecked(True)
 
-            checkbox_widget.checkbox.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled(checked, name))
+            checkbox_widget.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled(checked, name))
 
-        self.moreMenu.setStyleSheet("QMenu { menu-scrollable: True; }")
+            scroll_layout.addWidget(checkbox_widget)
+            self.action_checkbox_map[actionName] = checkbox_widget
+
+        action_scroll_menu = QtWidgets.QWidgetAction(self.menuValues)
+        action_scroll_menu.setDefaultWidget(scroll_menu)
+        self.menuValues.addAction(action_scroll_menu)
+
+        self.menuValues.addSeparator()
+
+        accept_button = QtGui.QAction("ACEPTAR", self.tableEditTags)
+        accept_button.triggered.connect(self.menu_acceptbutton_triggered)
+
+        cancel_button = QtGui.QAction("CANCELAR", self.tableEditTags)
+        cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
+
+        self.menuValues.addAction(accept_button)
+        self.menuValues.addAction(cancel_button)
 
         self.menuValues.setStyleSheet("QMenu { color: black; }"
+                                        "QMenu { background-color: rgb(255, 255, 255); }"
                                         "QMenu::item:selected { background-color: #33bdef; }"
                                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
-        # self.signalMapper.mappedInt.connect(self.on_signalMapper_mapped)
 
         headerPos = self.tableEditTags.mapToGlobal(self.tableEditTags.horizontalHeader().pos())        
 
@@ -1023,9 +1088,45 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         scrollX = self.tableEditTags.horizontalScrollBar().value()
         xInView = self.tableEditTags.horizontalHeader().sectionViewportPosition(logicalIndex)
         posX = headerPos.x() + xInView - scrollX
-        # posX = headerPos.x() + self.tableEditTags.horizontalHeader().sectionPosition(self.logicalIndex)
 
         self.menuValues.exec(QtCore.QPoint(posX, posY))
+
+# Function when cancel button of menu is clicked
+    def menu_cancelbutton_triggered(self):
+        self.menuValues.hide()
+
+# Function when accept button of menu is clicked
+    def menu_acceptbutton_triggered(self):
+        for column, filters in self.checkbox_filters.items():
+            if filters:
+                self.proxy.setFilter(filters, column)
+            else:
+                self.proxy.setFilter(None, column)
+
+        self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableEditTags.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableEditTags.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
+
+# Function when select all checkbox is clicked
+    def on_select_all_toggled(self, checked, action_name):
+        filterColumn = self.logicalIndex
+        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
+
+        if checked:
+            for checkbox_name, checkbox_widget in self.action_checkbox_map.items():
+                checkbox_widget.setChecked(checked)
+                self.checkbox_states[self.logicalIndex][checkbox_name] = checked
+
+            if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map.values()):
+                self.model.setIconColumnHeader(filterColumn, icono)
+            else:
+                self.model.setIconColumnHeader(filterColumn, '')
+        
+        else:
+            for checkbox_name, checkbox_widget in self.action_checkbox_map.items():
+                checkbox_widget.setChecked(checked)
+                self.checkbox_states[self.logicalIndex][checkbox_widget.text()] = checked
 
 # Function when checkbox of header menu is clicked
     def on_checkbox_toggled(self, checked, action_name):
@@ -1033,38 +1134,22 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
-        if len(self.dict_ordersort) == 0:
-            self.dict_ordersort[self.logicalIndex] = 1
-
-        if action_name == "Seleccionar todo":
-            if checked:
-                for action in self.moreMenu.actions()[0:]:
-                    checkbox_widget = action.defaultWidget().checkbox
-                    checkbox_widget.setChecked(checked)
-                    self.checkbox_states[self.logicalIndex][checkbox_widget.text()] = True
-
+        if checked:
+            if filterColumn not in self.checkbox_filters:
+                self.checkbox_filters[filterColumn] = [action_name]
             else:
-                for action in self.moreMenu.actions()[0:]:
-                    checkbox_widget = action.defaultWidget().checkbox
-                    checkbox_widget.setChecked(checked)
-                    self.checkbox_states[self.logicalIndex][checkbox_widget.text()] = False
-
+                if action_name not in self.checkbox_filters[filterColumn]:
+                    self.checkbox_filters[filterColumn].append(action_name)
         else:
-            if checked:
-                self.proxy.setFilter(str(action_name), filterColumn)
-                self.checkbox_states[self.logicalIndex][action_name] = True
-                self.model.setIconColumnHeader(filterColumn, icono)
+            if filterColumn in self.checkbox_filters and action_name in self.checkbox_filters[filterColumn]:
+                self.checkbox_filters[filterColumn].remove(action_name)
 
-            else:
-                if action_name in self.checkbox_states[self.logicalIndex]:
-                    self.checkbox_states[self.logicalIndex][action_name] = False
-                    self.proxy.setFilter(str(action_name), filterColumn, str(action_name))
-                    self.model.setIconColumnHeader(filterColumn, icono)
+        if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map.values()):
+            self.model.setIconColumnHeader(filterColumn, '')
+        else:
+            self.model.setIconColumnHeader(filterColumn, icono)
 
-            if all(action.defaultWidget().checkbox.isChecked() for action in self.moreMenu.actions()[1:]):
-                self.model.setIconColumnHeader(filterColumn, '')
-
-# Function when delete filter action in header is clicked
+# Function to delete individual column filter
     def on_actionDeleteFilterColumn_triggered(self):
         filterColumn = self.logicalIndex
         if filterColumn in self.proxy.filters:
@@ -1072,8 +1157,11 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.model.setIconColumnHeader(filterColumn, '')
         self.proxy.invalidateFilter()
 
-        self.tableEditTags.setModel(None)  # Delecte actual model of view
+        self.tableEditTags.setModel(None)
         self.tableEditTags.setModel(self.proxy)
+
+        if filterColumn in self.checkbox_filters:
+            del self.checkbox_filters[filterColumn]
 
         self.checkbox_states[self.logicalIndex].clear()
         self.checkbox_states[self.logicalIndex]['Seleccionar todo'] = True
@@ -1081,21 +1169,25 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             value = self.model.record(row).value(filterColumn)
             if isinstance(value, QtCore.QDate):
                     value=value.toString("dd/MM/yyyy")
-            self.checkbox_states[self.logicalIndex][value] = True
+            self.checkbox_states[self.logicalIndex][str(value)] = True
 
-# Function when sort ascending action in header is clicked
+        self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableEditTags.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableEditTags.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
+
+# Function to order column ascending
     def on_actionSortAscending_triggered(self):
         sortColumn = self.logicalIndex
         sortOrder = Qt.SortOrder.AscendingOrder
         self.tableEditTags.sortByColumn(sortColumn, sortOrder)
 
-# Function when sort descending action in header is clicked
+# Function to order column descending
     def on_actionSortDescending_triggered(self):
         sortColumn = self.logicalIndex
         sortOrder = Qt.SortOrder.DescendingOrder
         self.tableEditTags.sortByColumn(sortColumn, sortOrder)
 
-# Function when text filter action in header is used
+# Function when text is searched
     def on_actionTextFilter_triggered(self):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
@@ -1112,18 +1204,13 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 stringAction=stringAction.toString("yyyy-MM-dd")
 
             filterString = QtCore.QRegularExpression(stringAction, QtCore.QRegularExpression.PatternOption(0))
+            # del self.proxy.filters[filterColumn]
+            self.proxy.setFilter([stringAction], filterColumn)
 
-            self.proxy.setFilter(filterString, filterColumn)
+            imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+            icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
+            self.model.setIconColumnHeader(filterColumn, icono)
 
-# Function when delete filter action in header is clicked
-    def on_signalMapper_mapped(self, i):
-        stringAction = self.signalMapper.mapping(i).text()
-        filterColumn = self.logicalIndex
-        self.proxy.setFilter(stringAction, filterColumn)
-
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
-        icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
-        self.model.setIconColumnHeader(filterColumn, icono)
 
 # Function to hide column when action clicked
     def hide_column(self):
@@ -1299,9 +1386,10 @@ if __name__ == "__main__":
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 
-    if not createConnection(user_database, password_database):
+    db = createConnection(user_database, password_database)
+    if not db:
         sys.exit()
 
-    EditTags_Window = Ui_EditTags_Window()
+    EditTags_Window = Ui_EditTags_Window(db)
     EditTags_Window.show()
     sys.exit(app.exec())

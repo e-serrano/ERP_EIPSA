@@ -55,6 +55,22 @@ class Ui_TechOffice_Window(QtWidgets.QMainWindow):
         self.model = EditableTableModel()
         self.setupUi(self)
 
+    def closeEvent(self, event):
+    # Closing database connection
+        if self.model:
+            self.model.clear()
+        self.closeConnection()
+
+    def closeConnection(self):
+    # Closing database connection
+        self.tableTechOf.setModel(None)
+        del self.model
+        if self.db:
+            self.db.close()
+            del self.db
+            if QtSql.QSqlDatabase.contains("qt_sql_default_connection"):
+                QtSql.QSqlDatabase.removeDatabase("qt_sql_default_connection")
+
 
     def setupUi(self, TechOffice_Window):
         self.id_list = []
@@ -112,10 +128,10 @@ class Ui_TechOffice_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.setObjectName("gridLayout_2")
         spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 1)
-        self.tableWorkshop=QtWidgets.QTableView(parent=self.frame)
+        self.tableTechOf=QtWidgets.QTableView(parent=self.frame)
         self.model = EditableTableModel()
-        self.tableWorkshop.setObjectName("tableWorkshop")
-        self.gridLayout_2.addWidget(self.tableWorkshop, 1, 0, 1, 1)
+        self.tableTechOf.setObjectName("tableTechOf")
+        self.gridLayout_2.addWidget(self.tableTechOf, 1, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         TechOffice_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=TechOffice_Window)
@@ -125,8 +141,8 @@ class Ui_TechOffice_Window(QtWidgets.QMainWindow):
         self.statusbar = QtWidgets.QStatusBar(parent=TechOffice_Window)
         self.statusbar.setObjectName("statusbar")
         TechOffice_Window.setStatusBar(self.statusbar)
-        self.tableWorkshop.setSortingEnabled(True)
-        self.tableWorkshop.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.tableTechOf.setSortingEnabled(True)
+        self.tableTechOf.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         # TechOffice_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
         self.retranslateUi(TechOffice_Window)
@@ -136,21 +152,21 @@ class Ui_TechOffice_Window(QtWidgets.QMainWindow):
         self.model.setFilter("porc_workshop <> 100 OR porc_workshop IS NULL")
         self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.model.select()
-        self.tableWorkshop.setModel(self.model)
+        self.tableTechOf.setModel(self.model)
 
         for i in range(1,9):
-            self.tableWorkshop.hideColumn(i)
+            self.tableTechOf.hideColumn(i)
         for i in range(11,23):
-            self.tableWorkshop.hideColumn(i)
+            self.tableTechOf.hideColumn(i)
 
         headers=['Nº Pedido', '','','','','','','','',
                 'Fecha Recepción','Observaciones',
                 '','','','', '','','','', '', '', '', '']
 
-        self.tableWorkshop.setItemDelegate(AlignDelegate(self.tableWorkshop))
-        self.tableWorkshop.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableWorkshop.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
-        self.gridLayout_2.addWidget(self.tableWorkshop, 3, 0, 1, 1)
+        self.tableTechOf.setItemDelegate(AlignDelegate(self.tableTechOf))
+        self.tableTechOf.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableTechOf.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.gridLayout_2.addWidget(self.tableTechOf, 3, 0, 1, 1)
 
         self.model.setAllColumnHeaders(headers)
 
@@ -159,19 +175,19 @@ class Ui_TechOffice_Window(QtWidgets.QMainWindow):
         TechOffice_Window.setWindowTitle(_translate("EditTags_Window", "Envíos"))
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    config_obj = configparser.ConfigParser()
-    config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-    dbparam = config_obj["postgresql"]
-    # set your parameters for the database connection URI using the keys from the configfile.ini
-    user_database = dbparam["user"]
-    password_database = dbparam["password"]
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     config_obj = configparser.ConfigParser()
+#     config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+#     dbparam = config_obj["postgresql"]
+#     # set your parameters for the database connection URI using the keys from the configfile.ini
+#     user_database = dbparam["user"]
+#     password_database = dbparam["password"]
 
-    if not createConnection(user_database, password_database):
-        sys.exit()
+#     if not createConnection(user_database, password_database):
+#         sys.exit()
 
-    TechOffice_Window = Ui_TechOffice_Window()
-    TechOffice_Window.show()
-    sys.exit(app.exec())
+#     TechOffice_Window = Ui_TechOffice_Window()
+#     TechOffice_Window.show()
+#     sys.exit(app.exec())

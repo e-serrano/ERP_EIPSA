@@ -63,11 +63,28 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
 
 class Ui_Countries_Window(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, db):
         super().__init__()
         self.model = EditableTableModel()
+        self.db = db
         self.setupUi(self)
         self.model.dataChanged.connect(self.saveChanges)
+
+    def closeEvent(self, event):
+    # Closing database connection
+        if self.model:
+            self.model.clear()
+        self.closeConnection()
+
+    def closeConnection(self):
+    # Closing database connection
+        self.tableCountries.setModel(None)
+        del self.model
+        if self.db:
+            self.db.close()
+            del self.db
+            if QtSql.QSqlDatabase.contains("qt_sql_default_connection"):
+                QtSql.QSqlDatabase.removeDatabase("qt_sql_default_connection")
 
 
     def setupUi(self, Countries_Window):
@@ -494,19 +511,19 @@ class Ui_Countries_Window(QtWidgets.QMainWindow):
 
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    config_obj = configparser.ConfigParser()
-    config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-    dbparam = config_obj["postgresql"]
-    # set your parameters for the database connection URI using the keys from the configfile.ini
-    user_database = dbparam["user"]
-    password_database = dbparam["password"]
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     config_obj = configparser.ConfigParser()
+#     config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+#     dbparam = config_obj["postgresql"]
+#     # set your parameters for the database connection URI using the keys from the configfile.ini
+#     user_database = dbparam["user"]
+#     password_database = dbparam["password"]
 
-    if not createConnection(user_database, password_database):
-        sys.exit()
+#     if not createConnection(user_database, password_database):
+#         sys.exit()
 
-    Countries_Window = Ui_Countries_Window()
-    Countries_Window.show()
-    sys.exit(app.exec())
+#     Countries_Window = Ui_Countries_Window()
+#     Countries_Window.show()
+#     sys.exit(app.exec())

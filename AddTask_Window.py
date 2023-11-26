@@ -18,8 +18,6 @@ class Ui_AddTask_Window(object):
     def __init__(self, name, date):
         self.name=name
         self.dateselected = date
-    # def __init__(self):
-    #     self.name="Luis Bravo"
 
     def setupUi(self, AddTask_Window):
         AddTask_Window.setObjectName("AddTask_Window")
@@ -304,11 +302,11 @@ class Ui_AddTask_Window(object):
             self.comboBox.setVisible(False)
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    AddTask_Window = QtWidgets.QMainWindow()
-    ui = Ui_AddTask_Window()
-    ui.setupUi(AddTask_Window)
-    AddTask_Window.show()
-    sys.exit(app.exec())
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     AddTask_Window = QtWidgets.QMainWindow()
+#     ui = Ui_AddTask_Window()
+#     ui.setupUi(AddTask_Window)
+#     AddTask_Window.show()
+#     sys.exit(app.exec())

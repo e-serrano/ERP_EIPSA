@@ -13,8 +13,7 @@ import configparser
 import locale
 from Database_Connection import createConnection
 from PyQt6.QtCore import Qt
-from PyQt6.QtSql import QSqlQuery
-from PyQt6.QtGui import QKeySequence, QClipboard, QTextDocument, QTextCursor
+from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from PyQt6.QtWidgets import QApplication
 import os
 
@@ -86,22 +85,23 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
     def filters(self):
         return self._filters
 
-    def setFilter(self, expresion, column, action_name=None):
-        if expresion or expresion == '':
-            if column in self.filters:
+    def setFilter(self, list_expresions, column, action_name=None):
+        for expresion in list_expresions:
+            if expresion or expresion == '':
+                if column in self.filters:
+                    if action_name or action_name == '':
+                        self.filters[column].remove(expresion)
+                    else:
+                        self.filters[column].append(expresion)
+                else:
+                    self.filters[column] = [expresion]
+            elif column in self.filters:
                 if action_name or action_name == '':
                     self.filters[column].remove(expresion)
+                    if not self.filters[column]:
+                        del self.filters[column]
                 else:
-                    self.filters[column].append(expresion)
-            else:
-                self.filters[column] = [expresion]
-        elif column in self.filters:
-            if action_name or action_name == '':
-                self.filters[column].remove(expresion)
-                if not self.filters[column]:
                     del self.filters[column]
-            else:
-                del self.filters[column]
         self.invalidateFilter()
 
 
@@ -161,15 +161,34 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
 
 class Ui_EditDoc_Window(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, db):
         super().__init__()
         self.model = EditableTableModel()
         self.proxy = CustomProxyModel()
+        self.db = db
         self.checkbox_states = {}
         self.dict_valuesuniques = {}
         self.dict_ordersort = {}
+        self.action_checkbox_map = {}
+        self.checkbox_filters = {}
         self.model.dataChanged.connect(self.saveChanges)
         self.setupUi(self)
+
+    def closeEvent(self, event):
+    # Closing database connection
+        if self.model:
+            self.model.clear()
+        self.closeConnection()
+
+    def closeConnection(self):
+    # Closing database connection
+        self.tableEditDocs.setModel(None)
+        del self.model
+        if self.db:
+            self.db.close()
+            del self.db
+            if QtSql.QSqlDatabase.contains("qt_sql_default_connection"):
+                QtSql.QSqlDatabase.removeDatabase("qt_sql_default_connection")
 
     def setupUi(self, EditDocs_Window):
         EditDocs_Window.setObjectName("EditDocs_Window")
@@ -256,13 +275,12 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.query_documents()
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
 
-
     def retranslateUi(self, EditDocs_Window):
         _translate = QtCore.QCoreApplication.translate
         EditDocs_Window.setWindowTitle(_translate("EditDocs_Window", "Editar Documentos"))
         self.tableEditDocs.setSortingEnabled(True)
 
-
+# Function to delete all filters when tool button is clicked
     def delete_allFilters(self):
         columns_number=self.model.columnCount()
         for index in range(columns_number):
@@ -273,6 +291,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.checkbox_states = {}
         self.dict_valuesuniques = {}
         self.dict_ordersort = {}
+        self.checkbox_filters = {}
 
         self.proxy.invalidateFilter()
         self.tableEditDocs.setModel(None)
@@ -293,7 +312,11 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
                         self.checkbox_states[column][value] = True
                 self.dict_valuesuniques[column] = list_valuesUnique
 
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
+# Function to save changes into database
     def saveChanges(self):
         self.model.submitAll()
 
@@ -309,7 +332,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
                         self.checkbox_states[column][value] = True
             self.dict_valuesuniques[column] = list_valuesUnique
 
-
+# Function to query data into table
     def query_documents(self):
         self.model.dataChanged.disconnect(self.saveChanges)
         self.model.setTable("documentation")
@@ -337,10 +360,10 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.tableEditDocs.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked)
 
         # Change all column names
-        headers = ["Nº Doc. EIPSA", "Nº Doc. Cliente", "Nº Pedido", "Título", "Crítico", "Nº Revisión", "Fecha Estado", "Estado","Fecha Reclamación"]
+        headers = ["Nº Doc. EIPSA", "Nº Doc. Cliente", "Nº Pedido", "Título", "Crítico", "Nº Revisión", "Fecha Estado", "Estado", "Fecha Reclamación"]
         self.model.setAllColumnHeaders(headers)
 
-        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditDocs, sorted(['Aprobado','Comentado','Eliminado','Enviado','Rechazado']))
+        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditDocs, sorted(['Aprobado','Comentado','Com. Mayores','Com. Menores','Eliminado','Enviado','Rechazado']))
         self.tableEditDocs.setItemDelegateForColumn(7, self.combo_itemtype)
 
     # Getting the unique values for each column of the model
@@ -362,11 +385,11 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.selection_model = self.tableEditDocs.selectionModel()
         self.selection_model.selectionChanged.connect(self.countSelectedCells)
 
-
+# Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
         self.logicalIndex = logicalIndex
-        self.menuValues = QtWidgets.QMenu(self.tableEditDocs)
-        self.signalMapper = QtCore.QSignalMapper(self.tableEditDocs)  
+        self.menuValues = QtWidgets.QMenu(self)
+        self.signalMapper = QtCore.QSignalMapper(self.tableEditDocs)
 
         valuesUnique_view = []
         for row in range(self.tableEditDocs.model().rowCount()):
@@ -376,12 +399,6 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
                 if isinstance(value, QtCore.QDate):
                     value=value.toString("dd/MM/yyyy")
                 valuesUnique_view.append(value)
-                if self.logicalIndex in self.proxy.filters and str(value) in self.proxy.filters[self.logicalIndex]:
-                    pass
-                else:
-                    if self.logicalIndex not in self.proxy.filters:
-                        self.proxy.filters[self.logicalIndex] = []
-                    self.proxy.filters[self.logicalIndex].append(str(value))
 
         actionSortAscending = QtGui.QAction("Ordenar Ascendente", self.tableEditDocs)
         actionSortAscending.triggered.connect(self.on_actionSortAscending_triggered)
@@ -401,30 +418,64 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(actionTextFilter)
         self.menuValues.addSeparator()
 
-        self.moreMenu = self.menuValues.addMenu("Más")
+        scroll_menu = QtWidgets.QScrollArea()
+        scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
+        scroll_menu.setWidgetResizable(True)
+        scroll_widget = QtWidgets.QWidget(scroll_menu)
+        scroll_menu.setWidget(scroll_widget)
+        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+
+        checkbox_all_widget = QtWidgets.QCheckBox('Seleccionar todo')
+
+        if not self.checkbox_states[self.logicalIndex]['Seleccionar todo'] == True:
+            checkbox_all_widget.setChecked(False)
+        else:
+            checkbox_all_widget.setChecked(True)
+        
+        checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled(checked, name))
+
+        scroll_layout.addWidget(checkbox_all_widget)
+        self.action_checkbox_map['Seleccionar todo'] = checkbox_all_widget
 
         if len(self.dict_ordersort) != 0 and self.logicalIndex in self.dict_ordersort:
             list_uniquevalues = sorted(list(set(self.dict_valuesuniques[self.logicalIndex])))
         else:
             list_uniquevalues = sorted(list(set(valuesUnique_view)))
 
-        for actionNumber, actionName in enumerate(['Seleccionar todo'] + list_uniquevalues):
-            checkbox_widget = CheckboxWidget(str(actionName))
-            action = QtWidgets.QWidgetAction(self.moreMenu)
-            action.setDefaultWidget(checkbox_widget)
-            self.moreMenu.addAction(action)
+        for actionName in list_uniquevalues:
+            checkbox_widget = QtWidgets.QCheckBox(actionName)
 
-            if not self.checkbox_states[self.logicalIndex][actionName] == True:
-                checkbox_widget.checkbox.setChecked(False)
+            if self.logicalIndex not in self.checkbox_filters:
+                checkbox_widget.setChecked(True)
+            elif actionName not in self.checkbox_filters[self.logicalIndex]:
+                checkbox_widget.setChecked(False)
             else:
-                checkbox_widget.checkbox.setChecked(True)
+                checkbox_widget.setChecked(True)
 
-            checkbox_widget.checkbox.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled(checked, name))
+            checkbox_widget.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled(checked, name))
+
+            scroll_layout.addWidget(checkbox_widget)
+            self.action_checkbox_map[actionName] = checkbox_widget
+
+        action_scroll_menu = QtWidgets.QWidgetAction(self.menuValues)
+        action_scroll_menu.setDefaultWidget(scroll_menu)
+        self.menuValues.addAction(action_scroll_menu)
+
+        self.menuValues.addSeparator()
+
+        accept_button = QtGui.QAction("ACEPTAR", self.tableEditDocs)
+        accept_button.triggered.connect(self.menu_acceptbutton_triggered)
+
+        cancel_button = QtGui.QAction("CANCELAR", self.tableEditDocs)
+        cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
+
+        self.menuValues.addAction(accept_button)
+        self.menuValues.addAction(cancel_button)
 
         self.menuValues.setStyleSheet("QMenu { color: black; }"
+                                        "QMenu { background-color: rgb(255, 255, 255); }"
                                         "QMenu::item:selected { background-color: #33bdef; }"
                                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
-        # self.signalMapper.mappedInt.connect(self.on_signalMapper_mapped)  
 
         headerPos = self.tableEditDocs.mapToGlobal(self.tableEditDocs.horizontalHeader().pos())        
 
@@ -432,9 +483,45 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         scrollX = self.tableEditDocs.horizontalScrollBar().value()
         xInView = self.tableEditDocs.horizontalHeader().sectionViewportPosition(logicalIndex)
         posX = headerPos.x() + xInView - scrollX
-        # posX = headerPos.x() + self.tableEditTags.horizontalHeader().sectionPosition(self.logicalIndex)
 
         self.menuValues.exec(QtCore.QPoint(posX, posY))
+
+# Function when cancel button of menu is clicked
+    def menu_cancelbutton_triggered(self):
+        self.menuValues.hide()
+
+# Function when accept button of menu is clicked
+    def menu_acceptbutton_triggered(self):
+        for column, filters in self.checkbox_filters.items():
+            if filters:
+                self.proxy.setFilter(filters, column)
+            else:
+                self.proxy.setFilter(None, column)
+
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
+
+# Function when select all checkbox is clicked
+    def on_select_all_toggled(self, checked, action_name):
+        filterColumn = self.logicalIndex
+        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
+
+        if checked:
+            for checkbox_name, checkbox_widget in self.action_checkbox_map.items():
+                checkbox_widget.setChecked(checked)
+                self.checkbox_states[self.logicalIndex][checkbox_name] = checked
+
+            if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map.values()):
+                self.model.setIconColumnHeader(filterColumn, icono)
+            else:
+                self.model.setIconColumnHeader(filterColumn, '')
+        
+        else:
+            for checkbox_name, checkbox_widget in self.action_checkbox_map.items():
+                checkbox_widget.setChecked(checked)
+                self.checkbox_states[self.logicalIndex][checkbox_widget.text()] = checked
 
 # Function when checkbox of header menu is clicked
     def on_checkbox_toggled(self, checked, action_name):
@@ -442,47 +529,34 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
-        if len(self.dict_ordersort) == 0:
-            self.dict_ordersort[self.logicalIndex] = 1
-
-        if action_name == "Seleccionar todo":
-            if checked:
-                for action in self.moreMenu.actions()[0:]:
-                    checkbox_widget = action.defaultWidget().checkbox
-                    checkbox_widget.setChecked(checked)
-                    self.checkbox_states[self.logicalIndex][checkbox_widget.text()] = True
-
+        if checked:
+            if filterColumn not in self.checkbox_filters:
+                self.checkbox_filters[filterColumn] = [action_name]
             else:
-                for action in self.moreMenu.actions()[0:]:
-                    checkbox_widget = action.defaultWidget().checkbox
-                    checkbox_widget.setChecked(checked)
-                    self.checkbox_states[self.logicalIndex][checkbox_widget.text()] = False
-
+                if action_name not in self.checkbox_filters[filterColumn]:
+                    self.checkbox_filters[filterColumn].append(action_name)
         else:
-            if checked:
-                self.proxy.setFilter(str(action_name), filterColumn)
-                self.checkbox_states[self.logicalIndex][action_name] = True
-                self.model.setIconColumnHeader(filterColumn, icono)
+            if filterColumn in self.checkbox_filters and action_name in self.checkbox_filters[filterColumn]:
+                self.checkbox_filters[filterColumn].remove(action_name)
 
-            else:
-                if action_name in self.checkbox_states[self.logicalIndex]:
-                    self.checkbox_states[self.logicalIndex][action_name] = False
-                    self.proxy.setFilter(str(action_name), filterColumn, str(action_name))
-                    self.model.setIconColumnHeader(filterColumn, icono)
+        if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map.values()):
+            self.model.setIconColumnHeader(filterColumn, '')
+        else:
+            self.model.setIconColumnHeader(filterColumn, icono)
 
-            if all(action.defaultWidget().checkbox.isChecked() for action in self.moreMenu.actions()[1:]):
-                self.model.setIconColumnHeader(filterColumn, '')
-
-
+# Function to delete individual column filter
     def on_actionDeleteFilterColumn_triggered(self):
         filterColumn = self.logicalIndex
         if filterColumn in self.proxy.filters:
-                del self.proxy.filters[filterColumn]
+            del self.proxy.filters[filterColumn]
         self.model.setIconColumnHeader(filterColumn, '')
         self.proxy.invalidateFilter()
 
         self.tableEditDocs.setModel(None)
         self.tableEditDocs.setModel(self.proxy)
+
+        if filterColumn in self.checkbox_filters:
+            del self.checkbox_filters[filterColumn]
 
         self.checkbox_states[self.logicalIndex].clear()
         self.checkbox_states[self.logicalIndex]['Seleccionar todo'] = True
@@ -490,31 +564,25 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
             value = self.model.record(row).value(filterColumn)
             if isinstance(value, QtCore.QDate):
                     value=value.toString("dd/MM/yyyy")
-            self.checkbox_states[self.logicalIndex][value] = True
+            self.checkbox_states[self.logicalIndex][str(value)] = True
 
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
-    def on_signalMapper_mapped(self, i):
-        stringAction = self.signalMapper.mapping(i).text()
-        filterColumn = self.logicalIndex
-        self.proxy.setFilter(stringAction, filterColumn)
-
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
-        icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
-        self.model.setIconColumnHeader(filterColumn, icono)
-
-
+# Function to order column ascending
     def on_actionSortAscending_triggered(self):
         sortColumn = self.logicalIndex
         sortOrder = Qt.SortOrder.AscendingOrder
         self.tableEditDocs.sortByColumn(sortColumn, sortOrder)
 
-
+# Function to order column descending
     def on_actionSortDescending_triggered(self):
         sortColumn = self.logicalIndex
         sortOrder = Qt.SortOrder.DescendingOrder
         self.tableEditDocs.sortByColumn(sortColumn, sortOrder)
 
-
+# Function when text is searched
     def on_actionTextFilter_triggered(self):
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
@@ -531,14 +599,14 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
                 stringAction=stringAction.toString("yyyy-MM-dd")
 
             filterString = QtCore.QRegularExpression(stringAction, QtCore.QRegularExpression.PatternOption(0))
-            del self.proxy.filters[filterColumn]
-            self.proxy.setFilter(stringAction, filterColumn)
+            # del self.proxy.filters[filterColumn]
+            self.proxy.setFilter([stringAction], filterColumn)
 
             imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             self.model.setIconColumnHeader(filterColumn, icono)
 
-
+# Function to copy and paste
     def keyPressEvent(self, event):
         if event.matches(QKeySequence.StandardKey.Copy):
             selected_indexes = self.tableEditDocs.selectionModel().selectedIndexes()
@@ -568,6 +636,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
 
         super().keyPressEvent(event)
 
+# Function to get the text selected
     def get_selected_text(self, indexes):
         if len(indexes) == 1:
             index = indexes[0]
@@ -592,7 +661,6 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
                 cursor.insertText('\n')
 
             return text_doc.toPlainText()
-
 
     # Function to count selected cells and sum its values
     def countSelectedCells(self):
@@ -638,11 +706,12 @@ if __name__ == "__main__":
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 
-    if not createConnection(user_database, password_database):
+    db = createConnection(user_database, password_database)
+    if not db:
         sys.exit()
 
     EditDocs_Window = QtWidgets.QMainWindow()
-    ui = Ui_EditDoc_Window()
+    ui = Ui_EditDoc_Window(db)
     ui.setupUi(EditDocs_Window)
     EditDocs_Window.show()
     sys.exit(app.exec())

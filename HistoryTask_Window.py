@@ -39,10 +39,8 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
     def __init__(self, name):
         super().__init__()
-        self.name=name
+        self.name = name
         self.setupUi(self)
-    # def __init__(self):
-    #     self.name="Luis Bravo"
 
     def setupUi(self, HistoryTask_Window):
         HistoryTask_Window.setObjectName("HistoryTask_Window")

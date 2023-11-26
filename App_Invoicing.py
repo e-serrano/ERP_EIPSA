@@ -50,12 +50,9 @@ class ImageCalendarWidget(QtWidgets.QCalendarWidget):
 
 
 class Ui_App_Invoicing(object):
-    # def __init__(self, name, username):
-    #     self.name=name
-    #     self.username=username
-    def __init__(self):
-        self.name='Miguel Sahuquillo'
-        self.username='e.serranog'
+    def __init__(self, name, username):
+        self.name=name
+        self.username=username
 
 
     def setupUi(self, App_Invoicing):
@@ -479,10 +476,11 @@ class Ui_App_Invoicing(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        if not createConnection(user_database, password_database):
+        db_banks = createConnection(user_database, password_database)
+        if not db_banks:
             sys.exit()
 
-        self.banks_window=Ui_Banks_Window()
+        self.banks_window=Ui_Banks_Window(db_banks)
         self.banks_window.show()
 
     def payway(self):
@@ -493,10 +491,11 @@ class Ui_App_Invoicing(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        if not createConnection(user_database, password_database):
+        db_payway = createConnection(user_database, password_database)
+        if not db_payway:
             sys.exit()
 
-        self.payway_window=Ui_PayWay_Window()
+        self.payway_window=Ui_PayWay_Window(db_payway)
         self.payway_window.show()
 
     def countries(self):
@@ -507,10 +506,11 @@ class Ui_App_Invoicing(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        if not createConnection(user_database, password_database):
+        db_countries = createConnection(user_database, password_database)
+        if not db_countries:
             sys.exit()
 
-        self.countries_window=Ui_Countries_Window()
+        self.countries_window=Ui_Countries_Window(db_countries)
         self.countries_window.show()
 
 
@@ -590,11 +590,11 @@ class Ui_App_Invoicing(object):
         self.edit_password_window.show()
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    App_Invoicing = QtWidgets.QMainWindow()
-    ui = Ui_App_Invoicing()
-    ui.setupUi(App_Invoicing)
-    App_Invoicing.showMaximized()
-    sys.exit(app.exec())
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     App_Invoicing = QtWidgets.QMainWindow()
+#     ui = Ui_App_Invoicing()
+#     ui.setupUi(App_Invoicing)
+#     App_Invoicing.showMaximized()
+#     sys.exit(app.exec())

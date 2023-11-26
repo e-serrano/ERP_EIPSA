@@ -11,6 +11,8 @@ from datetime import *
 import psycopg2
 from config import config
 import os
+import re
+
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -305,8 +307,21 @@ class Ui_New_Order_Window(object):
         actual_date=date.today()
         actual_date= actual_date.strftime("%d/%m/%Y")
 
+        pattern = r'^(P[AB]?-\d{2}/\d{3}-S\d{2}.+|PA-\d{2}/\d{3})$'
+
         if numorder=="" or (numoffer=="" or  (numref=="" or amount=="")):
             self.label_error_neworder.setText('Rellene todos los campos. Solo el campo notas pueden estar en blanco')
+
+
+        elif not re.match(pattern, numorder):
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Nuevo Pedido")
+            dlg.setText("El número de pedido debe tener el siguiente formato")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
 
         else:
             commands_offer = ("""
@@ -381,7 +396,7 @@ class Ui_New_Order_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    data=(numorder, numoffer, numref, actual_date, expectdate, notes, amount, state, numoffer)
+                    data = (numorder, numoffer, numref, actual_date, expectdate, notes, amount, state, numoffer)
                     cur.execute(commands_neworder, data)
                 # close communication with the PostgreSQL database server
                     cur.close()

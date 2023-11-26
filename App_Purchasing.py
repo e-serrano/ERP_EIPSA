@@ -379,13 +379,3 @@ class Ui_App_Purchasing(object):
         self.ui=Ui_EditPasswordWindow(self.username)
         self.ui.setupUi(self.edit_password_window)
         self.edit_password_window.show()
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    App_Purchasing = QtWidgets.QMainWindow()
-    ui = Ui_App_Purchasing()
-    ui.setupUi(App_Purchasing)
-    App_Purchasing.show()
-    sys.exit(app.exec())

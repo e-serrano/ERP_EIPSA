@@ -143,13 +143,3 @@ class Ui_Warehouse_Menu(object):
         self.ui.setupUi(self.supplierorder_window)
         self.supplierorder_window.showMaximized()
         Warehouse_Menu.close()
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Warehouse_Menu = QtWidgets.QMainWindow()
-    ui = Ui_Warehouse_Menu()
-    ui.setupUi(Warehouse_Menu)
-    Warehouse_Menu.show()
-    sys.exit(app.exec())

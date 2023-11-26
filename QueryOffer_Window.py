@@ -9,13 +9,13 @@ import re
 from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
-from PyQt6.QtWidgets import QApplication
 import locale
 import pandas as pd
 import tkinter as tk
 from tkinter import filedialog
+from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QTextDocument, QTextCursor
+from PyQt6.QtCore import Qt
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -45,7 +45,11 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
             option.backgroundBrush = color
 
 
-class Ui_QueryOffer_Window(object):
+class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+
     def setupUi(self, QueryOffer_Window):
         QueryOffer_Window.setObjectName("QueryOffer_Window")
         QueryOffer_Window.resize(845, 590)
@@ -367,6 +371,7 @@ class Ui_QueryOffer_Window(object):
         self.Responsible_QueryOffer.addItems(sorted(list_responsibles))
 
         self.responsibles_relation = {key: value for key, value in results3}
+        self.responsibles_relation[''] = ''
 
         self.retranslateUi(QueryOffer_Window)
         QtCore.QMetaObject.connectSlotsByName(QueryOffer_Window)
@@ -600,11 +605,44 @@ class Ui_QueryOffer_Window(object):
             del dlg,new_icon
 
 
+    def keyPressEvent(self, event):
+        super().keyPressEvent(event)
+        if event.matches(QtGui.QKeySequence.StandardKey.Copy):
+            selected_indexes = self.tableQueryOffer.selectedIndexes()
+            if selected_indexes:
+                clipboard = QApplication.clipboard()
+                text = self.get_selected_text(selected_indexes)
+                clipboard.setText(text)
+
+
+    def get_selected_text(self, indexes):
+        rows = set()
+        cols = set()
+        for index in indexes:
+            rows.add(index.row())
+            cols.add(index.column())
+
+        text_doc = QTextDocument()
+        cursor = QTextCursor(text_doc)
+
+        header_labels = [self.tableQueryOffer.horizontalHeaderItem(col).text() for col in sorted(cols)]
+        for label in header_labels:
+            cursor.insertText(label)
+            cursor.insertText('\t')  # Tab separador de columnas
+        cursor.insertText('\n')   # Salto de línea después de las cabeceras
+
+        for row in sorted(rows):
+            for col in sorted(cols):
+                cell_data = self.tableQueryOffer.item(row, col).data(Qt.ItemDataRole.DisplayRole)
+                cursor.insertText(cell_data)
+                cursor.insertText('\t')  # Tab separador de columnas
+            cursor.insertText('\n')  # Salto de línea al final de la fila
+
+        return text_doc.toPlainText()
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    QueryOffer_Window = QtWidgets.QMainWindow()
-    ui = Ui_QueryOffer_Window()
-    ui.setupUi(QueryOffer_Window)
+    QueryOffer_Window = Ui_QueryOffer_Window()
     QueryOffer_Window.show()
     sys.exit(app.exec())

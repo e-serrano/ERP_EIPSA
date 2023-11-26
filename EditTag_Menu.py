@@ -12,7 +12,8 @@ import configparser
 from Database_Connection import createConnection
 from datetime import *
 from EditTags_Commercial_Window import Ui_EditTags_Window
-from TAGOrderToOffer_Window import Ui_TAGOrderToOffer_Window
+from TAGOfferToOrder_Window import Ui_TAGOfferToOrder_Window
+from TAGUpdate_Window import Ui_TAGUpdate_Window
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -76,16 +77,6 @@ class Ui_EditTags_Menu(object):
         self.frame.setObjectName("frame")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem, 2, 0, 1, 1)
-        self.hLayout2 = QtWidgets.QHBoxLayout()
-        self.hLayout2.setObjectName("hLayout2")
-        self.Button_OfferToOrder = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_OfferToOrder.setMinimumSize(QtCore.QSize(250, 35))
-        self.Button_OfferToOrder.setMaximumSize(QtCore.QSize(250, 35))
-        self.Button_OfferToOrder.setObjectName("Button_OfferToOrder")
-        self.hLayout2.addWidget(self.Button_OfferToOrder)
-        self.gridLayout_2.addLayout(self.hLayout2, 3, 0, 1, 1)
         self.hLayout1 = QtWidgets.QHBoxLayout()
         self.hLayout1.setObjectName("hLayout1")
         self.Button_EditTags = QtWidgets.QPushButton(parent=self.frame)
@@ -94,6 +85,28 @@ class Ui_EditTags_Menu(object):
         self.Button_EditTags.setObjectName("Button_EditTags")
         self.hLayout1.addWidget(self.Button_EditTags)
         self.gridLayout_2.addLayout(self.hLayout1, 0, 0, 1, 1)
+        spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.gridLayout_2.addItem(spacerItem, 1, 0, 1, 1)
+        self.hLayout2 = QtWidgets.QHBoxLayout()
+        self.hLayout2.setObjectName("hLayout2")
+        self.Button_Update = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Update.setMinimumSize(QtCore.QSize(250, 35))
+        self.Button_Update.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_Update.setObjectName("Button_Update")
+        self.hLayout2.addWidget(self.Button_Update)
+        self.gridLayout_2.addLayout(self.hLayout2, 2, 0, 1, 1)
+        spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.gridLayout_2.addItem(spacerItem2, 3, 0, 1, 1)
+        self.hLayout3 = QtWidgets.QHBoxLayout()
+        self.hLayout3.setObjectName("hLayout3")
+        self.Button_OfferToOrder = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_OfferToOrder.setMinimumSize(QtCore.QSize(250, 35))
+        self.Button_OfferToOrder.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_OfferToOrder.setObjectName("Button_OfferToOrder")
+        self.hLayout3.addWidget(self.Button_OfferToOrder)
+        self.gridLayout_2.addLayout(self.hLayout3, 4, 0, 1, 1)
+        spacerItem3 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.gridLayout_2.addItem(spacerItem3, 5, 0, 1, 1)
         self.hLayout4 = QtWidgets.QHBoxLayout()
         self.hLayout4.setContentsMargins(-1, 0, -1, -1)
         self.hLayout4.setObjectName("hLayout4")
@@ -105,7 +118,7 @@ class Ui_EditTags_Menu(object):
         self.Button_Cancel.setMaximumSize(QtCore.QSize(100, 35))
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.hLayout4.addWidget(self.Button_Cancel)
-        self.gridLayout_2.addLayout(self.hLayout4, 11, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.hLayout4, 6, 0, 1, 1)
         spacerItem5 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem5, 6, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
@@ -120,6 +133,7 @@ class Ui_EditTags_Menu(object):
 
         self.retranslateUi(EditTags_Menu)
         self.Button_OfferToOrder.clicked.connect(lambda: self.tag_order_to_offer(EditTags_Menu))
+        self.Button_Update.clicked.connect(lambda: self.tag_update(EditTags_Menu))
         self.Button_EditTags.clicked.connect(lambda: self.edit_tag(EditTags_Menu))
         self.Button_Cancel.clicked.connect(EditTags_Menu.close)
         QtCore.QMetaObject.connectSlotsByName(EditTags_Menu)
@@ -128,18 +142,25 @@ class Ui_EditTags_Menu(object):
     def retranslateUi(self, EditTags_Menu):
         _translate = QtCore.QCoreApplication.translate
         EditTags_Menu.setWindowTitle(_translate("EditTags_Menu", "ERP EIPSA - Compras"))
-        self.Button_OfferToOrder.setText(_translate("EditTags_Menu", "Tags oferta a pedido"))
+        self.Button_OfferToOrder.setText(_translate("EditTags_Menu", "Tags de oferta a pedido"))
         self.Button_EditTags.setText(_translate("EditTags_Menu", "Editar Tags"))
+        self.Button_Update.setText(_translate("EditTags_Menu", "Actualizar Tags de Excel"))
         self.Button_Cancel.setText(_translate("EditTags_Menu", "Salir"))
 
 
     def tag_order_to_offer(self,EditTags_Menu):
         self.tagordertooffer_window=QtWidgets.QMainWindow()
-        self.ui=Ui_TAGOrderToOffer_Window()
+        self.ui=Ui_TAGOfferToOrder_Window()
         self.ui.setupUi(self.tagordertooffer_window)
-        self.tagordertooffer_window.showMaximized()
+        self.tagordertooffer_window.show()
         EditTags_Menu.close()
 
+    def tag_update(self,EditTags_Menu):
+        self.tagupdate_window=QtWidgets.QMainWindow()
+        self.ui=Ui_TAGUpdate_Window()
+        self.ui.setupUi(self.tagupdate_window)
+        self.tagupdate_window.show()
+        EditTags_Menu.close()
 
     def edit_tag(self,EditTags_Menu):
         config_obj = configparser.ConfigParser()
@@ -149,11 +170,12 @@ class Ui_EditTags_Menu(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        if not createConnection(user_database, password_database):
+        db_tag_com = createConnection(user_database, password_database)
+        if not db_tag_com:
             sys.exit()
 
-        self.edit_tags_app = Ui_EditTags_Window()
-        self.edit_tags_app.show()
+        self.edit_tags_app = Ui_EditTags_Window(db_tag_com)
+        self.edit_tags_app.showMaximized()
         EditTags_Menu.close()
 
 

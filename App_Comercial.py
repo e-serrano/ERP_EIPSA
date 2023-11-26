@@ -26,7 +26,7 @@ from CreateTAG_Menu import Ui_CreateTag_Menu
 from EditTag_Menu import Ui_EditTags_Menu
 from QueryTags_Window import Ui_QueryTags_Window
 from QueryDoc_Window import Ui_QueryDoc_Window
-from ExportOffer_Window import Ui_ExportOffer_Window
+from ExportDocs_Menu import Ui_ExportDocs_Menu
 from GraphsOffer_Window import Ui_GraphsOffer_Window
 from ClientsGeneralResume_Window import Ui_ClientsGeneralResume_Window
 from AddTask_Window import Ui_AddTask_Window
@@ -35,6 +35,7 @@ from EditUser_Menu import Ui_EditUser_Menu
 from EditPassword_Window import Ui_EditPasswordWindow
 from ClientResume_Window import Ui_ClientResume_Window
 from ReclamationOffer_Window import Ui_ReclamationOffer_Window
+from HistoryNotifications_Window import Ui_HistoryNotifications_Window
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -110,7 +111,7 @@ class Ui_App_Comercial(object):
         self.Button_ExpOffer = QtWidgets.QPushButton(parent=self.frame)
         self.Button_ExpOffer.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_ExpOffer.setMaximumSize(QtCore.QSize(50, 50))
-        self.Button_ExpOffer.setToolTip('Exportar Oferta')
+        self.Button_ExpOffer.setToolTip('Exportar Documentos')
         self.Button_ExpOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_ExpOffer.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
@@ -136,7 +137,7 @@ class Ui_App_Comercial(object):
 "}")
         self.Button_ExpOffer.setText("")
         icon12 = QtGui.QIcon()
-        icon12.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Offer_Export.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon12.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Export_Doc.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_ExpOffer.setIcon(icon12)
         self.Button_ExpOffer.setIconSize(QtCore.QSize(40, 40))
         self.Button_ExpOffer.setObjectName("Button_ExpOffer")
@@ -362,6 +363,17 @@ class Ui_App_Comercial(object):
 
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem2)
+        # self.HeaderGif = QtWidgets.QLabel(parent=self.frame)
+        # self.HeaderGif.setStyleSheet("color:rgb(255, 255, 255)")
+        # self.HeaderGif.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        # self.HeaderGif.setMinimumSize(QtCore.QSize(200, 40))
+        # self.HeaderGif.setMaximumSize(QtCore.QSize(200, 40))
+        # self.HeaderGif.setObjectName("HeaderGif")
+        # self.movie = QtGui.QMovie(os.path.abspath(os.path.join(basedir, "Resources/Iconos/xmas.gif")))
+        # self.movie.setScaledSize(QtCore.QSize(self.HeaderGif.width(), self.HeaderGif.height()))
+        # self.HeaderGif.setMovie(self.movie)
+        # self.movie.start()
+        # self.Header.addWidget(self.HeaderGif)
         self.HeaderUserName = QtWidgets.QLabel(parent=self.frame)
         font = QtGui.QFont()
         font.setPointSize(12)
@@ -382,6 +394,39 @@ class Ui_App_Comercial(object):
         self.Header.addWidget(self.HeaderName)
         spacerItem3 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem3)
+        self.Button_Notification = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Notification.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Notification.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Notification.setToolTip('Configuración')
+        self.Button_Notification.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Notification.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
+        self.Button_Notification.setText("")
+        self.Button_Notification.setIconSize(QtCore.QSize(40, 40))
+        self.Button_Notification.setObjectName("Button_Notification")
+        self.Header.addWidget(self.Button_Notification)
+        spacerItem15 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem15)
         self.Button_Profile = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Profile.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_Profile.setMaximumSize(QtCore.QSize(50, 50))
@@ -411,14 +456,14 @@ class Ui_App_Comercial(object):
 "}")
         self.Button_Profile.setText("")
         icon13 = QtGui.QIcon()
-        if self.name == 'Luis Bravo':
-            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Mando.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        elif self.name == 'Sandra Sanz':
-            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Bender.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        elif self.name == 'Carlos Crespo':
-            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Pikachu.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        else:
-            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        # if self.name == 'Luis Bravo':
+        #     icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Mando.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        # elif self.name == 'Sandra Sanz':
+        #     icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Bender.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        # elif self.name == 'Carlos Crespo':
+        #     icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Pikachu.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        # else:
+        icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Profile.setIcon(icon13)
         self.Button_Profile.setIconSize(QtCore.QSize(40, 40))
         self.Button_Profile.setObjectName("Button_Profile")
@@ -825,7 +870,7 @@ class Ui_App_Comercial(object):
         self.Button_NewTag.clicked.connect(self.new_tag)
         self.Button_EditTag.clicked.connect(self.edit_tag)
         self.Button_QueryTag.clicked.connect(self.query_tag)
-        self.Button_ExpOffer.clicked.connect(self.export_offer)
+        self.Button_ExpOffer.clicked.connect(self.export_menu)
         self.Button_Doc.clicked.connect(self.query_documents)
         self.Button_Graphs.clicked.connect(self.graphs)
         self.Button_ClientsResume.clicked.connect(self.clients_generalresume)
@@ -835,6 +880,7 @@ class Ui_App_Comercial(object):
         self.tableOffer.itemDoubleClicked.connect(self.on_item_double_clicked)
         self.Calendar.activated.connect(self.show_selected_date_tasks)
         self.Calendar.customContextMenuRequested.connect(self.show_context_menu)
+        self.Button_Notification.clicked.connect(self.notifications)
 
         self.setup_task_dates()
 
@@ -901,11 +947,12 @@ class Ui_App_Comercial(object):
         self.alert_offers()
         self.alert_reclamation_offers()
 
+        self.load_notifications()
+
 
     def show_context_menu(self, point):
         selected_date = self.Calendar.selectedDate()
         menu = QMenu(self.centralwidget)
-
         menu.setStyleSheet("QMenu { border: 1px solid black; width: 150px; right: -1px; }"
         "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
 
@@ -974,9 +1021,7 @@ class Ui_App_Comercial(object):
 
 
     def query_offer(self):
-        self.query_offer_window=QtWidgets.QMainWindow()
-        self.ui=Ui_QueryOffer_Window()
-        self.ui.setupUi(self.query_offer_window)
+        self.query_offer_window=Ui_QueryOffer_Window()
         self.query_offer_window.show()
 
 
@@ -997,9 +1042,7 @@ class Ui_App_Comercial(object):
 
 
     def query_order(self):
-        self.query_order_window=QtWidgets.QMainWindow()
-        self.ui=Ui_QueryOrder_Window()
-        self.ui.setupUi(self.query_order_window)
+        self.query_order_window=Ui_QueryOrder_Window()
         self.query_order_window.show()
 
 
@@ -1024,11 +1067,11 @@ class Ui_App_Comercial(object):
         self.querytag_window.show()
 
 
-    def export_offer(self):
-        self.exportoffer_window=QtWidgets.QMainWindow()
-        self.ui=Ui_ExportOffer_Window(self.username)
-        self.ui.setupUi(self.exportoffer_window)
-        self.exportoffer_window.show()
+    def export_menu(self):
+        self.exportdocs_menu=QtWidgets.QMainWindow()
+        self.ui=Ui_ExportDocs_Menu(self.username)
+        self.ui.setupUi(self.exportdocs_menu)
+        self.exportdocs_menu.show()
 
 
     def query_documents(self):
@@ -1087,6 +1130,12 @@ class Ui_App_Comercial(object):
         self.ui=Ui_EditUser_Menu()
         self.ui.setupUi(self.edit_user_menu)
         self.edit_user_menu.show()
+
+
+    def notifications(self):
+        self.notification_window=Ui_HistoryNotifications_Window(self.username)
+        self.notification_window.show()
+        self.notification_window.Button_Cancel.clicked.connect(self.load_notifications)
 
 
 #Function to update the table
@@ -1469,11 +1518,57 @@ class Ui_App_Comercial(object):
                 conn.close()
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    App_Comercial = QtWidgets.QMainWindow()
-    ui = Ui_App_Comercial()
-    ui.setupUi(App_Comercial)
-    App_Comercial.showMaximized()
-    sys.exit(app.exec())
+# Function to load number of notifications
+    def load_notifications(self):
+        query_tables_notifications = """SELECT table_name
+                                FROM information_schema.tables
+                                WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(query_tables_notifications)
+            results=cur.fetchall()
+            tables_names=[x[0] for x in results]
+
+            notifications = []
+
+            for table in tables_names:
+                commands_notifications = f" SELECT * FROM notifications.{table} WHERE username = '{self.username}' and state = 'Pendiente'"
+                cur.execute(commands_notifications)
+                results=cur.fetchall()
+
+                for x in results:
+                    notifications.append(x)
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        if len(notifications) != 0:
+            icon13 = QtGui.QIcon()
+            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_on.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        else:
+            icon13 = QtGui.QIcon()
+            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Notification.setIcon(icon13)
+
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     App_Comercial = QtWidgets.QMainWindow()
+#     ui = Ui_App_Comercial()
+#     ui.setupUi(App_Comercial)
+#     App_Comercial.showMaximized()
+#     sys.exit(app.exec())

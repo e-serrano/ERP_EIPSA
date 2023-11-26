@@ -20,12 +20,14 @@ from ForgetPass_Window import Ui_ForgetPass_Window
 from App_Warehouse import Ui_Warehouse_Menu
 from App_Manager import Ui_App_Manager
 from App_ManagerF import Ui_App_ManagerF
+from App_Invoicing import Ui_App_Invoicing
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
+
 class Ui_Login_Window(object):
     def setupUi(self, Login_Window):
-        self.Login_Window=Login_Window
+        self.Login_Window = Login_Window
         Login_Window.setObjectName("Login_Window")
         Login_Window.resize(670, 392)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.MinimumExpanding, QtWidgets.QSizePolicy.Policy.Preferred)
@@ -39,12 +41,12 @@ class Ui_Login_Window(object):
         Login_Window.setWindowIcon(icon)
         Login_Window.setAutoFillBackground(False)
         Login_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}")
+        "background-color: rgb(255, 255, 255);\n"
+        "}\n"
+        "\n"
+        ".QFrame {\n"
+        "    border: 2px solid black;\n"
+        "}")
         Login_Window.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly)
         self.centralwidget = QtWidgets.QWidget(parent=Login_Window)
         self.centralwidget.setEnabled(True)
@@ -172,42 +174,42 @@ class Ui_Login_Window(object):
         font.setStrikeOut(False)
         self.accept_login.setFont(font)
         self.accept_login.setStyleSheet("\n"
-"QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 8px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-"QPushButton:focus{\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:focus:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        "QPushButton {\n"
+        "background-color: #33bdef;\n"
+        "  border: 1px solid transparent;\n"
+        "  border-radius: 3px;\n"
+        "  color: #fff;\n"
+        "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+        "  font-weight: 800;\n"
+        "  line-height: 1.15385;\n"
+        "  margin: 0;\n"
+        "  outline: none;\n"
+        "  padding: 8px .8em;\n"
+        "  text-align: center;\n"
+        "  text-decoration: none;\n"
+        "  vertical-align: baseline;\n"
+        "  white-space: nowrap;\n"
+        "}\n"
+        "\n"
+        "QPushButton:hover {\n"
+        "    background-color: #019ad2;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "}\n"
+        "\n"
+        "QPushButton:pressed {\n"
+        "    background-color: rgb(1, 140, 190);\n"
+        "    border-color: rgb(255, 255, 255);\n"
+        "}\n"
+        "\n"
+        "QPushButton:focus{\n"
+        "    background-color: #019ad2;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "}\n"
+        "\n"
+        "QPushButton:focus:pressed {\n"
+        "    background-color: rgb(1, 140, 190);\n"
+        "    border-color: rgb(255, 255, 255);\n"
+        "}")
         self.accept_login.setObjectName("accept_login")
         self.verticalLayout.addWidget(self.accept_login)
         self.forgetpass_login = QtWidgets.QPushButton(parent=self.frame)
@@ -227,42 +229,42 @@ class Ui_Login_Window(object):
         font.setStrikeOut(False)
         self.forgetpass_login.setFont(font)
         self.forgetpass_login.setStyleSheet("QPushButton {\n"
-"background-color: #fff;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  border-color: #33bdef;\n"
-"  color: #33bdef;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 8px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: center;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: rgb(236, 236, 236);\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(220, 220, 220);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-"QPushButton:focus{\n"
-"    background-color: rgb(236, 236, 236);\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:focus:pressed {\n"
-"    background-color: rgb(220, 220, 220);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        "background-color: #fff;\n"
+        "  border: 1px solid transparent;\n"
+        "  border-radius: 3px;\n"
+        "  border-color: #33bdef;\n"
+        "  color: #33bdef;\n"
+        "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+        "  font-weight: 800;\n"
+        "  line-height: 1.15385;\n"
+        "  margin: 0;\n"
+        "  outline: none;\n"
+        "  padding: 8px .8em;\n"
+        "  text-align: center;\n"
+        "  text-decoration: none;\n"
+        "  vertical-align: center;\n"
+        "  white-space: nowrap;\n"
+        "}\n"
+        "\n"
+        "QPushButton:hover {\n"
+        "    background-color: rgb(236, 236, 236);\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "}\n"
+        "\n"
+        "QPushButton:pressed {\n"
+        "    background-color: rgb(220, 220, 220);\n"
+        "    border-color: rgb(255, 255, 255);\n"
+        "}\n"
+        "\n"
+        "QPushButton:focus{\n"
+        "    background-color: rgb(236, 236, 236);\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "}\n"
+        "\n"
+        "QPushButton:focus:pressed {\n"
+        "    background-color: rgb(220, 220, 220);\n"
+        "    border-color: rgb(255, 255, 255);\n"
+        "}")
         self.forgetpass_login.setObjectName("forgetpass_login")
         self.verticalLayout.addWidget(self.forgetpass_login)
         self.label_error_login = QtWidgets.QLabel(parent=self.frame)
@@ -292,7 +294,6 @@ class Ui_Login_Window(object):
         self.password_login.returnPressed.connect(self.verification_login)
         QtCore.QMetaObject.connectSlotsByName(Login_Window)
 
-
     def retranslateUi(self, Login_Window):
         _translate = QtCore.QCoreApplication.translate
         Login_Window.setWindowTitle(_translate("Login_Window", "ERP EIPSA"))
@@ -301,31 +302,30 @@ class Ui_Login_Window(object):
         self.accept_login.setText(_translate("Login_Window", "Acceder"))
         self.forgetpass_login.setText(_translate("Login_Window", "¿Olvidaste la contraseña?"))
 
-
     def verification_login(self):
         login_username = self.username_login.text()
         login_password = self.password_login.text()
 
-        if login_username=='' or login_password=='':
+        if login_username == '' or login_password == '':
             self.label_error_login.setText('Por favor, rellena los campos')
-        
+
         else:
-        #SQL Query for loading existing data in database
+            # SQL Query for loading existing data in database
             commands_userlogin = ("""
                         SELECT *
                         FROM users_data.registration
                         """)
             conn = None
             try:
-            # read the connection parameters
+                # read the connection parameters
                 params = config()
             # connect to the PostgreSQL server
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands one by one
                 cur.execute(commands_userlogin)
-                results=cur.fetchall()
-                match=list(filter(lambda x:login_username in x, results))
+                results = cur.fetchall()
+                match = list(filter(lambda x: login_username in x, results))
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes
@@ -341,65 +341,72 @@ class Ui_Login_Window(object):
                 self.label_error_login.setText('Usuario incorrecto. Inténtalo de nuevo')
 
         # checking if password is correct
-            elif login_password!=match[0][5]:
+            elif login_password != match[0][5]:
                 self.label_error_login.setText('Contraseña incorrecta. Inténtalo de nuevo')
 
             else:
-                rol_app=match[0][6]
+                rol_app = match[0][6]
 
                 if rol_app == 'Comercial':
-                    self.app_window=QtWidgets.QMainWindow()
-                    self.ui_comercial=Ui_App_Comercial(match[0][1]+' '+match[0][2], login_username)
+                    self.app_window = QtWidgets.QMainWindow()
+                    self.ui_comercial = Ui_App_Comercial(match[0][1]+' '+match[0][2], login_username)
                     self.ui_comercial.setupUi(self.app_window)
                     self.app_window.showMaximized()
                     self.Login_Window.close()
 
                 elif rol_app == "Compras":
-                    self.app_window=QtWidgets.QMainWindow()
-                    self.ui_purchase=Ui_App_Purchasing(match[0][1]+' '+match[0][2], login_username)
+                    self.app_window = QtWidgets.QMainWindow()
+                    self.ui_purchase = Ui_App_Purchasing(match[0][1]+' '+match[0][2], login_username)
                     self.ui_purchase.setupUi(self.app_window)
                     self.app_window.showMaximized()
                     self.Login_Window.close()
 
                 elif rol_app == "Técnico":
-                    self.app_window=QtWidgets.QMainWindow()
-                    self.ui_documentation=Ui_App_Technical(match[0][1]+' '+match[0][2], login_username)
-                    self.ui_documentation.setupUi(self.app_window)
+                    self.app_window = QtWidgets.QMainWindow()
+                    self.ui_technical = Ui_App_Technical(match[0][1]+' '+match[0][2], login_username)
+                    self.ui_technical.setupUi(self.app_window)
                     self.app_window.showMaximized()
                     self.Login_Window.close()
 
                 elif rol_app == "Master":
-                    self.app_window=QtWidgets.QMainWindow()
-                    self.ui_master=Ui_App_Master(match[0][1]+' '+match[0][2], login_username)
+                    self.app_window = QtWidgets.QMainWindow()
+                    self.ui_master = Ui_App_Master(match[0][1]+' '+match[0][2], login_username)
                     self.ui_master.setupUi(self.app_window)
                     self.app_window.showMaximized()
                     self.Login_Window.close()
 
                 elif rol_app == "Almacén":
-                    self.app_window=QtWidgets.QMainWindow()
-                    self.ui_master=Ui_Warehouse_Menu()
-                    self.ui_master.setupUi(self.app_window)
+                    self.app_window = QtWidgets.QMainWindow()
+                    self.ui_warehouse = Ui_Warehouse_Menu()
+                    self.ui_warehouse.setupUi(self.app_window)
                     self.app_window.show()
                     self.Login_Window.close()
 
                 elif rol_app == "Taller":
-                    self.app_window=QtWidgets.QMainWindow()
-                    self.ui_purchase=Ui_App_Workshop(match[0][1]+' '+match[0][2], login_username)
-                    self.ui_purchase.setupUi(self.app_window)
+                    self.app_window = QtWidgets.QMainWindow()
+                    self.ui_workshop = Ui_App_Workshop(match[0][1]+' '+match[0][2], login_username)
+                    self.ui_workshop.setupUi(self.app_window)
                     self.app_window.showMaximized()
                     self.Login_Window.close()
 
                 elif rol_app == "Dirección":
-                    self.app_window=QtWidgets.QMainWindow()
-                    self.ui_purchase=Ui_App_Manager(match[0][1]+' '+match[0][2], login_username)
-                    self.ui_purchase.setupUi(self.app_window)
+                    self.app_window = QtWidgets.QMainWindow()
+                    self.ui_manager = Ui_App_Manager(match[0][1]+' '+match[0][2], login_username)
+                    self.ui_manager.setupUi(self.app_window)
                     self.app_window.showMaximized()
                     self.Login_Window.close()
 
                 elif rol_app == "DirecciónF":
-                    self.app_window=QtWidgets.QMainWindow()
-                    self.ui_purchase=Ui_App_ManagerF(match[0][1]+' '+match[0][2], login_username)
-                    self.ui_purchase.setupUi(self.app_window)
+                    self.app_window = QtWidgets.QMainWindow()
+                    self.ui_managerf = Ui_App_ManagerF(match[0][1]+' '+match[0][2], login_username)
+                    self.ui_managerf.setupUi(self.app_window)
+                    self.app_window.showMaximized()
+                    self.Login_Window.close()
+
+                elif rol_app == "Facturación":
+                    self.app_window = QtWidgets.QMainWindow()
+                    self.ui_invoice = Ui_App_Invoicing(match[0][1]+' '+match[0][2], login_username)
+                    self.ui_invoice.setupUi(self.app_window)
                     self.app_window.showMaximized()
                     self.Login_Window.close()
 
@@ -413,7 +420,6 @@ class Ui_Login_Window(object):
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                     dlg.exec()
                     del dlg, new_icon
-
 
     def forgetpassword(self):
         # self.forgetpass_window=QtWidgets.QMainWindow()

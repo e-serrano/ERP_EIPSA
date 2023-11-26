@@ -27,6 +27,7 @@ from NewDoc_Window import Ui_New_Doc_Window
 from EditDoc_Window import Ui_EditDoc_Window
 from QueryDoc_Window import Ui_QueryDoc_Window
 from EditPassword_Window import Ui_EditPasswordWindow
+from HistoryNotifications_Window import Ui_HistoryNotifications_Window
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -487,6 +488,39 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Header.addWidget(self.HeaderName)
         spacerItem2 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem2)
+        self.Button_Notification = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Notification.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Notification.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Notification.setToolTip('Configuración')
+        self.Button_Notification.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Notification.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
+        self.Button_Notification.setText("")
+        self.Button_Notification.setIconSize(QtCore.QSize(40, 40))
+        self.Button_Notification.setObjectName("Button_Notification")
+        self.Header.addWidget(self.Button_Notification)
+        spacerItem15 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem15)
         self.Button_Profile = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Profile.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_Profile.setMaximumSize(QtCore.QSize(50, 50))
@@ -820,8 +854,11 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_EditDoc.clicked.connect(self.EditDoc)
         self.Button_QueryDoc.clicked.connect(self.query_documents)
         self.Button_Profile.clicked.connect(self.showMenu)
+        self.Button_Notification.clicked.connect(self.notifications)
         self.tableDocs.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
         QtCore.QMetaObject.connectSlotsByName(App_Technical)
+
+        self.load_notifications()
 
 
     def retranslateUi(self, App_Technical):
@@ -856,10 +893,11 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        if not createConnection(user_database, password_database):
+        db_validation = createConnection(user_database, password_database)
+        if not db_validation:
             sys.exit()
 
-        self.dbedit_window=Ui_DBEditReg_Window()
+        self.dbedit_window=Ui_DBEditReg_Window(db_validation)
         self.dbedit_window.show()
 
     def deliveries(self):
@@ -870,20 +908,30 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        if not createConnection(user_database, password_database):
+        db_deliveries = createConnection(user_database, password_database)
+        if not db_deliveries:
             sys.exit()
 
-        self.deliveries_window = Ui_Deliveries_Window()
+        self.deliveries_window = Ui_Deliveries_Window(db_deliveries)
         self.deliveries_window.show()
+
 
     def times(self):
         print('tiempos')
+
 
     def otorder(self):
         self.otgeneralcreate_window=QtWidgets.QMainWindow()
         self.ui=Ui_OTGeneralCreate_Window()
         self.ui.setupUi(self.otgeneralcreate_window)
         self.otgeneralcreate_window.show()
+
+    
+    def notifications(self):
+        self.notification_window=Ui_HistoryNotifications_Window(self.username)
+        self.notification_window.show()
+        self.notification_window.Button_Cancel.clicked.connect(self.load_notifications)
+
 
     def query_order(self):
         self.query_order_window=QtWidgets.QMainWindow()
@@ -903,10 +951,11 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        if not createConnection(user_database, password_database):
+        db_tags_tech = createConnection(user_database, password_database)
+        if not db_tags_tech:
             sys.exit()
 
-        self.edit_tags_app = Ui_EditTags_Window(self.name)
+        self.edit_tags_app = Ui_EditTags_Window(self.name, db_tags_tech)
         self.edit_tags_app.show()
 
 
@@ -992,7 +1041,16 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                     del dlg, new_icon
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + error)
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
                 finally:
                     if conn is not None:
                         conn.close()
@@ -1006,13 +1064,14 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        if not createConnection(user_database, password_database):
+        db_doc = createConnection(user_database, password_database)
+        if not db_doc:
             sys.exit()
 
         self.editdoc_window=QtWidgets.QMainWindow()
-        self.ui=Ui_EditDoc_Window()
+        self.ui=Ui_EditDoc_Window(db_doc)
         self.ui.setupUi(self.editdoc_window)
-        self.editdoc_window.show()
+        self.editdoc_window.showMaximized()
 
 
     def query_documents(self):
@@ -1096,12 +1155,48 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         popup_pos = self.tableDocs.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableDocs.show_unique_values_menu(logical_index, popup_pos, header_height)
 
+# Function to load number of notifications
+    def load_notifications(self):
+        query_tables_notifications = """SELECT table_name
+                                FROM information_schema.tables
+                                WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(query_tables_notifications)
+            results=cur.fetchall()
+            tables_names=[x[0] for x in results]
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    # App_Technical = QtWidgets.QMainWindow()
-    ui = Ui_App_Technical()
-    # ui.setupUi(App_Technical)
-    ui.show()
-    sys.exit(app.exec())
+            notifications = []
+
+            for table in tables_names:
+                commands_notifications = f" SELECT * FROM notifications.{table} WHERE username = '{self.username}' and state = 'Pendiente'"
+                cur.execute(commands_notifications)
+                results=cur.fetchall()
+
+                for x in results:
+                    notifications.append(x)
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+        finally:
+            if conn is not None:
+                conn.close()
+
+        if len(notifications) != 0:
+            icon13 = QtGui.QIcon()
+            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_on.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        else:
+            icon13 = QtGui.QIcon()
+            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Notification.setIcon(icon13)

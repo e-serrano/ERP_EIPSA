@@ -285,7 +285,7 @@ class Ui_OfferClientAdd_Window(object):
 
             else:
                 commands = ("""
-                    INSERT INTO clients_list ("client_name") VALUES (%s)
+                    INSERT INTO clients_list ("client_name", "country") VALUES (%s,%s)
                     """)
                 conn = None
                 try:
@@ -295,7 +295,7 @@ class Ui_OfferClientAdd_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands one by one
-                    cur.execute(commands,(client_name,))
+                    cur.execute(commands,(client_name,country,))
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes

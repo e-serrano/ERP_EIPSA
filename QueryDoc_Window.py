@@ -354,7 +354,7 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
         list_typedoc=['']+[x[1] for x in results_doctype]
         self.TypeDoc_QueryDoc.addItems(sorted(list_typedoc))
 
-        list_state=['','Aprobado','Comentado','Eliminado','Enviado','Rechazado']
+        list_state=['','Aprobado','Comentado','Com. Menores','Com. Mayores','Eliminado','Enviado','Rechazado']
         self.State_QueryDoc.addItems(sorted(list_state))
 
         list_critical=['','No','Sí']

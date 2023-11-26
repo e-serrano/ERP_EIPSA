@@ -10,6 +10,12 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
 import locale
+import pandas as pd
+import tkinter as tk
+from tkinter import filedialog
+from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QTextDocument, QTextCursor
+from PyQt6.QtCore import Qt
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -21,7 +27,11 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
-class Ui_QueryOrder_Window(object):
+class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+
     def setupUi(self, QueryOrder_Window):
         QueryOrder_Window.setObjectName("QueryOrder_Window")
         QueryOrder_Window.resize(790, 595)
@@ -235,15 +245,21 @@ class Ui_QueryOrder_Window(object):
         self.Button_Query.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.Button_Query.setObjectName("Button_Query")
         self.hLayout5.addWidget(self.Button_Query)
+        self.Button_Export = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Export.setMinimumSize(QtCore.QSize(150, 35))
+        self.Button_Export.setMaximumSize(QtCore.QSize(150, 35))
+        self.Button_Export.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.Button_Export.setObjectName("Button_Export")
+        self.hLayout5.addWidget(self.Button_Export)
         self.gridLayout_2.addLayout(self.hLayout5, 6, 0, 1, 1)
         spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem2, 7, 0, 1, 1)
         self.tableQueryOrder = QtWidgets.QTableWidget(parent=self.frame)
         self.tableQueryOrder.setAlternatingRowColors(False)
         self.tableQueryOrder.setObjectName("tableQueryOrder")
-        self.tableQueryOrder.setColumnCount(11)
+        self.tableQueryOrder.setColumnCount(12)
         self.tableQueryOrder.setRowCount(0)
-        for i in range(11):
+        for i in range(12):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -324,6 +340,7 @@ class Ui_QueryOrder_Window(object):
         QtCore.QMetaObject.connectSlotsByName(QueryOrder_Window)
         self.Button_Clean.clicked.connect(self.clean_boxes) # type: ignore
         self.Button_Query.clicked.connect(self.query_order) # type: ignore
+        self.Button_Export.clicked.connect(self.export_data)  # type: ignore
         self.Numorder_QueryOrder.returnPressed.connect(self.query_order)
         self.Numoffer_QueryOrder.returnPressed.connect(self.query_order)
         self.Ref_QueryOrder.returnPressed.connect(self.query_order)
@@ -346,20 +363,22 @@ class Ui_QueryOrder_Window(object):
         item = self.tableQueryOrder.horizontalHeaderItem(2)
         item.setText(_translate("QueryOrder_Window", "Responsable"))
         item = self.tableQueryOrder.horizontalHeaderItem(3)
-        item.setText(_translate("QueryOrder_Window", "Nº Referencia"))
+        item.setText(_translate("QueryOrder_Window", "Fecha Pedido"))
         item = self.tableQueryOrder.horizontalHeaderItem(4)
-        item.setText(_translate("QueryOrder_Window", "Cliente"))
+        item.setText(_translate("QueryOrder_Window", "Nº Referencia"))
         item = self.tableQueryOrder.horizontalHeaderItem(5)
-        item.setText(_translate("QueryOrder_Window", "Cliente Final"))
+        item.setText(_translate("QueryOrder_Window", "Cliente"))
         item = self.tableQueryOrder.horizontalHeaderItem(6)
-        item.setText(_translate("QueryOrder_Window", "Tipo Equipo"))
+        item.setText(_translate("QueryOrder_Window", "Cliente Final"))
         item = self.tableQueryOrder.horizontalHeaderItem(7)
-        item.setText(_translate("QueryOrder_Window", "Notas Pedido"))
+        item.setText(_translate("QueryOrder_Window", "Tipo Equipo"))
         item = self.tableQueryOrder.horizontalHeaderItem(8)
-        item.setText(_translate("QueryOrder_Window", "Importante Oferta"))
+        item.setText(_translate("QueryOrder_Window", "Notas Pedido"))
         item = self.tableQueryOrder.horizontalHeaderItem(9)
-        item.setText(_translate("QueryOrder_Window", "Importe Pedido (€)"))
+        item.setText(_translate("QueryOrder_Window", "Importante Oferta"))
         item = self.tableQueryOrder.horizontalHeaderItem(10)
+        item.setText(_translate("QueryOrder_Window", "Importe Pedido (€)"))
+        item = self.tableQueryOrder.horizontalHeaderItem(11)
         item.setText(_translate("QueryOrder_Window", "Importe Oferta (€)"))
         self.label_EqType.setText(_translate("QueryOrder_Window", "Tipo Equipo:"))
         self.label_NumOffer.setText(_translate("QueryOrder_Window", "Nº Oferta:"))
@@ -368,6 +387,7 @@ class Ui_QueryOrder_Window(object):
         self.label_Client.setText(_translate("QueryOrder_Window", "Cliente:"))
         self.Button_Clean.setText(_translate("QueryOrder_Window", "Limpiar Filtros"))
         self.Button_Query.setText(_translate("QueryOrder_Window", "Buscar"))
+        self.Button_Export.setText(_translate("QueryOrder_Window", "Exportar Excel"))
         self.label_RefNum.setText(_translate("QueryOrder_Window", "Referencia:"))
         self.label_Amount.setText(_translate("QueryOrder_Window", "Importe (€):"))
 
@@ -406,7 +426,7 @@ class Ui_QueryOrder_Window(object):
 
         else:
             commands_queryorder = ("""
-                        SELECT orders."num_order",orders."num_offer",users_data.initials."initials",orders."num_ref_order",offers."client",offers."final_client",product_type."variable",orders."notes",offers."important",orders."order_amount",offers."offer_amount"
+                        SELECT orders."num_order",orders."num_offer",users_data.initials."initials",TO_CHAR(orders."order_date", 'DD-MM-YYYY'),orders."num_ref_order",offers."client",offers."final_client",product_type."variable",orders."notes",offers."important",orders."order_amount",offers."offer_amount"
                         FROM offers
                         INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                         INNER JOIN product_type ON (offers."material"=product_type."material")
@@ -444,7 +464,7 @@ class Ui_QueryOrder_Window(object):
 
             # fill the Qt Table with the query results
                 for row in results:
-                    for column in range(11):
+                    for column in range(12):
                         value = row[column]
                         if value is None:
                             value = ''
@@ -511,13 +531,72 @@ class Ui_QueryOrder_Window(object):
             dlg.setText(cell_content)
             dlg.exec()
 
+    def export_data(self):
+        num_rows = self.tableQueryOrder.rowCount()
+        if num_rows > 0:
+            num_columns = 12
 
+            column_names = [self.tableQueryOrder.horizontalHeaderItem(col).text() for col in range(num_columns)]
+
+            df = pd.DataFrame(columns=column_names)
+
+            for row in range(num_rows):
+                row_data = []
+                for col in range(num_columns):
+                    item = self.tableQueryOrder.item(row,col)
+                    if item is not None:
+                        row_data.append(item.text())
+                    else:
+                        row_data.append('')
+                df.loc[row] = row_data
+
+            root = tk.Tk()
+            root.withdraw()
+
+            file_path = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("Excel Files", "*.xlsx")])
+
+            if file_path:
+                df.to_excel(file_path, index=False)
+
+
+    def keyPressEvent(self, event):
+        super().keyPressEvent(event)
+        if event.matches(QtGui.QKeySequence.StandardKey.Copy):
+            selected_indexes = self.tableQueryOrder.selectedIndexes()
+            if selected_indexes:
+                clipboard = QApplication.clipboard()
+                text = self.get_selected_text(selected_indexes)
+                clipboard.setText(text)
+
+
+    def get_selected_text(self, indexes):
+        rows = set()
+        cols = set()
+        for index in indexes:
+            rows.add(index.row())
+            cols.add(index.column())
+
+        text_doc = QTextDocument()
+        cursor = QTextCursor(text_doc)
+
+        header_labels = [self.tableQueryOrder.horizontalHeaderItem(col).text() for col in sorted(cols)]
+        for label in header_labels:
+            cursor.insertText(label)
+            cursor.insertText('\t')  # Tab separador de columnas
+        cursor.insertText('\n')   # Salto de línea después de las cabeceras
+
+        for row in sorted(rows):
+            for col in sorted(cols):
+                cell_data = self.tableQueryOrder.item(row, col).data(Qt.ItemDataRole.DisplayRole)
+                cursor.insertText(cell_data)
+                cursor.insertText('\t')  # Tab separador de columnas
+            cursor.insertText('\n')  # Salto de línea al final de la fila
+
+        return text_doc.toPlainText()
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    QueryOrder_Window = QtWidgets.QMainWindow()
-    ui = Ui_QueryOrder_Window()
-    ui.setupUi(QueryOrder_Window)
+    QueryOrder_Window = Ui_QueryOrder_Window()
     QueryOrder_Window.show()
     sys.exit(app.exec())

@@ -38,7 +38,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
     def flags(self, index):
         flags = super().flags(index)
-        if index.column() == 0:
+        if index.column() in [0,1]:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -50,10 +50,27 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
 
 class Ui_Workshop_Window(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, db):
         super().__init__()
         self.model = EditableTableModel()
+        self.db = db
         self.setupUi(self)
+
+    def closeEvent(self, event):
+    # Closing database connection
+        if self.model:
+            self.model.clear()
+        self.closeConnection()
+
+    def closeConnection(self):
+    # Closing database connection
+        self.tableWorkshop.setModel(None)
+        del self.model
+        if self.db:
+            self.db.close()
+            del self.db
+            if QtSql.QSqlDatabase.contains("qt_sql_default_connection"):
+                QtSql.QSqlDatabase.removeDatabase("qt_sql_default_connection")
 
 
     def setupUi(self, Workshop_Window):
@@ -133,19 +150,21 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(Workshop_Window)
 
         self.model.setTable("public.orders")
-        self.model.setFilter("porc_workshop <> 100 OR porc_workshop IS NULL")
+        self.model.setFilter("num_order LIKE 'P-%' AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)")
         self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.model.select()
         self.tableWorkshop.setModel(self.model)
 
-        for i in range(1,11):
+        for i in range(1,4):
+            self.tableWorkshop.hideColumn(i)
+        for i in range(5,11):
             self.tableWorkshop.hideColumn(i)
         for i in range(15,23):
             self.tableWorkshop.hideColumn(i)
 
-        headers=['Nº Pedido', '','','','','','','','','','',
+        headers=['Nº Pedido', '','','','Fecha Contractual','','','','','','',
                 '% Fabricación','Fecha Recepción','Fecha Prevista','Observaciones',
-                '','','','', '', '', '', '']
+                '','','','', '', '', '', '','OK']
 
         self.tableWorkshop.setItemDelegate(AlignDelegate(self.tableWorkshop))
         self.tableWorkshop.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
@@ -159,19 +178,19 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         Workshop_Window.setWindowTitle(_translate("EditTags_Window", "Envíos"))
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    config_obj = configparser.ConfigParser()
-    config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-    dbparam = config_obj["postgresql"]
-    # set your parameters for the database connection URI using the keys from the configfile.ini
-    user_database = dbparam["user"]
-    password_database = dbparam["password"]
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     config_obj = configparser.ConfigParser()
+#     config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+#     dbparam = config_obj["postgresql"]
+#     # set your parameters for the database connection URI using the keys from the configfile.ini
+#     user_database = dbparam["user"]
+#     password_database = dbparam["password"]
 
-    if not createConnection(user_database, password_database):
-        sys.exit()
+#     if not createConnection(user_database, password_database):
+#         sys.exit()
 
-    Workshop_Window = Ui_Workshop_Window()
-    Workshop_Window.show()
-    sys.exit(app.exec())
+#     Workshop_Window = Ui_Workshop_Window()
+#     Workshop_Window.show()
+#     sys.exit(app.exec())

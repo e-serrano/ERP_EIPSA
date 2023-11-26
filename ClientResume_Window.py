@@ -23,10 +23,6 @@ class Ui_ClientResume_Window(object):
     def __init__(self, clientname):
         self.clientname=clientname
 
-    # def __init__(self):
-    #     self.clientname='AXIOM'
-
-
     def setupUi(self, ClientResume_Window):
         ClientResume_Window.setObjectName("ClientResume_Window")
         ClientResume_Window.resize(1165, 945)
@@ -736,11 +732,11 @@ class Ui_ClientResume_Window(object):
             return '{:d}'.format(int(y))
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    ClientResume_Window = QtWidgets.QMainWindow()
-    ui = Ui_ClientResume_Window()
-    ui.setupUi(ClientResume_Window)
-    ClientResume_Window.show()
-    sys.exit(app.exec())
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     ClientResume_Window = QtWidgets.QMainWindow()
+#     ui = Ui_ClientResume_Window()
+#     ui.setupUi(ClientResume_Window)
+#     ClientResume_Window.show()
+#     sys.exit(app.exec())

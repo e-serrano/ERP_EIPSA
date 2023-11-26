@@ -327,10 +327,11 @@ class Ui_App_Workshop(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        if not createConnection(user_database, password_database):
+        db_manufacture = createConnection(user_database, password_database)
+        if not db_manufacture:
             sys.exit()
 
-        self.workshop_window = Ui_Workshop_Window()
+        self.workshop_window = Ui_Workshop_Window(db_manufacture)
         self.workshop_window.show()
 
     def assembly(self):
@@ -341,10 +342,11 @@ class Ui_App_Workshop(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        if not createConnection(user_database, password_database):
+        db_assembly = createConnection(user_database, password_database)
+        if not db_assembly:
             sys.exit()
 
-        self.assembly_window = Ui_Assembly_Window()
+        self.assembly_window = Ui_Assembly_Window(db_assembly)
         self.assembly_window.show()
 
 

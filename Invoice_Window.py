@@ -1646,6 +1646,7 @@ class Ui_Inovice_Window(object):
         self.tableWidget.verticalHeader().hide()
         self.tableWidget.setSortingEnabled(False)
         self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+
 # Function to calculate the order total amount
     def calculate_totalorder(self):
         locale.setlocale(locale.LC_ALL, '')

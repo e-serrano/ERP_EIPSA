@@ -300,10 +300,10 @@ class Ui_SubmitOffer_Window(object):
                         conn.close()
 
 
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    SubmitOffer_Window = QtWidgets.QMainWindow()
-    ui = Ui_SubmitOffer_Window()
-    ui.setupUi(SubmitOffer_Window)
-    SubmitOffer_Window.show()
-    sys.exit(app.exec())
+# if __name__ == "__main__":
+#     app = QtWidgets.QApplication(sys.argv)
+#     SubmitOffer_Window = QtWidgets.QMainWindow()
+#     ui = Ui_SubmitOffer_Window()
+#     ui.setupUi(SubmitOffer_Window)
+#     SubmitOffer_Window.show()
+#     sys.exit(app.exec())

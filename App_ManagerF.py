@@ -846,11 +846,11 @@ class Ui_App_ManagerF(object):
 
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    App_ManagerF = QtWidgets.QMainWindow()
-    ui = Ui_App_ManagerF()
-    ui.setupUi(App_ManagerF)
-    App_ManagerF.showMaximized()
-    sys.exit(app.exec())
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     App_ManagerF = QtWidgets.QMainWindow()
+#     ui = Ui_App_ManagerF()
+#     ui.setupUi(App_ManagerF)
+#     App_ManagerF.showMaximized()
+#     sys.exit(app.exec())

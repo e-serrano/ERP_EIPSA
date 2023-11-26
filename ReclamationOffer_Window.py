@@ -12,6 +12,7 @@ import psycopg2
 from PyQt6.QtWidgets import QAbstractItemView
 import os
 from Email_Styles import email_offer1, email_offer2
+from datetime import *
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -92,9 +93,9 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 2)
         self.tableReclamation = QtWidgets.QTableWidget(parent=self.frame)
         self.tableReclamation.setObjectName("tableWidget")
-        self.tableReclamation.setColumnCount(7)
+        self.tableReclamation.setColumnCount(10)
         self.tableReclamation.setRowCount(0)
-        for i in range(7):
+        for i in range(10):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -125,7 +126,7 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         self.statusbar.setObjectName("statusbar")
         ReclamationOffer_Window.setStatusBar(self.statusbar)
         self.tableReclamation.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableReclamation.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableReclamation.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableReclamation.setSortingEnabled(True)
         self.tableReclamation.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         ReclamationOffer_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
@@ -146,14 +147,20 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         item = self.tableReclamation.horizontalHeaderItem(1)
         item.setText(_translate("ReclamationOffer_Window", "Fecha Presentación"))
         item = self.tableReclamation.horizontalHeaderItem(2)
-        item.setText(_translate("ReclamationOffer_Window", "Última Fecha"))
+        item.setText(_translate("ReclamationOffer_Window", "Última Actualización"))
         item = self.tableReclamation.horizontalHeaderItem(3)
-        item.setText(_translate("ReclamationOffer_Window", "Días Dif."))
+        item.setText(_translate("ReclamationOffer_Window", "Días Dif. Pres. - Act."))
         item = self.tableReclamation.horizontalHeaderItem(4)
-        item.setText(_translate("ReclamationOffer_Window", "Mails"))
+        item.setText(_translate("ReclamationOffer_Window", "Última Reclamación"))
         item = self.tableReclamation.horizontalHeaderItem(5)
-        item.setText(_translate("ReclamationOffer_Window", "Rec. 1"))
+        item.setText(_translate("ReclamationOffer_Window", "Días Última Rec."))
         item = self.tableReclamation.horizontalHeaderItem(6)
+        item.setText(_translate("ReclamationOffer_Window", "Tipo Rec."))
+        item = self.tableReclamation.horizontalHeaderItem(7)
+        item.setText(_translate("ReclamationOffer_Window", "Mails"))
+        item = self.tableReclamation.horizontalHeaderItem(8)
+        item.setText(_translate("ReclamationOffer_Window", "Rec. 1"))
+        item = self.tableReclamation.horizontalHeaderItem(9)
         item.setText(_translate("ReclamationOffer_Window", "Rec. 2"))
         self.Button_Cancel.setText(_translate("ReclamationOffer_Window", "Salir"))
         self.Button_Send.setText(_translate("ReclamationOffer_Window", "Reclamar"))
@@ -167,7 +174,8 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                         """)
         commands_queryrecoffer = ("""
                         SELECT offers."num_offer",TO_CHAR(offers."presentation_date", 'DD-MM-YYYY'),TO_CHAR(offers."last_update", 'DD-MM-YYYY'),
-                        (offers."last_update" - offers."presentation_date") AS "difference_in_days", offers."mails"
+                        (offers."last_update" - offers."presentation_date") AS "difference_update", TO_CHAR(offers."last_rec", 'DD-MM-YYYY'),
+                        (current_date - offers."last_rec") AS "difference_rec", offers."type_rec", offers."mails"
                         FROM offers
                         WHERE (offers."responsible" = %s
                         AND
@@ -201,8 +209,8 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(7):
-                    if column in [5,6]:
+                for column in range(10):
+                    if column in [8,9]:
                         radio_button = QtWidgets.QRadioButton()
                         self.tableReclamation.setCellWidget(tablerow, column, radio_button)
                     else:
@@ -217,6 +225,8 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
 
             self.tableReclamation.verticalHeader().hide()
             self.tableReclamation.setItemDelegate(AlignDelegate(self.tableReclamation))
+            self.tableReclamation.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableReclamation.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.ResizeMode.Interactive)
 
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
@@ -225,18 +235,25 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                 conn.close()
 
     def sendmails(self):
+        actual_date=date.today()
+        actual_date= actual_date.strftime("%d/%m/%Y")
         commands_responsiblemail = ("""
                                     SELECT email
                                     FROM users_data.registration
                                     WHERE username = %s
                                     """)
         commands_queryoffer = ("""
-                        SELECT offers."mails",offers."num_offer",offers."num_ref_offer",offers."presentation_date"
-                        FROM offers
-                        WHERE (offers."num_offer" = %s
-                        )
-                        ORDER BY offers."num_offer"
-                        """)
+                                SELECT offers."mails",offers."num_offer",offers."num_ref_offer",offers."presentation_date"
+                                FROM offers
+                                WHERE (offers."num_offer" = %s
+                                )
+                                ORDER BY offers."num_offer"
+                                """)
+        commands_insertdataoffer = ("""
+                                    UPDATE offers (
+                                    SET "last_rec" = %s, "type_rec" = %s
+                                    WHERE "num_offer" = %s
+                                    """)
 
         offers_reclamation = []
         for row in range(self.tableReclamation.rowCount()):
@@ -286,6 +303,9 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                     elif offer[1] == 'Rec2':
                         mail=email_offer2(results_offers[0][0], results_offers[0][1], results_offers[0][2], email, results_offers[0][3])
                         mail.send_email()
+
+                    data = (actual_date,offer[1],offer[0])
+                    cur.execute(commands_insertdataoffer,data)
 
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()

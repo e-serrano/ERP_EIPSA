@@ -50,10 +50,27 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
 
 class Ui_Deliveries_Window(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, db):
         super().__init__()
         self.model = EditableTableModel()
+        self.db = db
         self.setupUi(self)
+
+    def closeEvent(self, event):
+    # Closing database connection
+        if self.model:
+            self.model.clear()
+        self.closeConnection()
+
+    def closeConnection(self):
+    # Closing database connection
+        self.tableDeliveries.setModel(None)
+        del self.model
+        if self.db:
+            self.db.close()
+            del self.db
+            if QtSql.QSqlDatabase.contains("qt_sql_default_connection"):
+                QtSql.QSqlDatabase.removeDatabase("qt_sql_default_connection")
 
 
     def setupUi(self, Deliveries_Window):
@@ -133,7 +150,7 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(Deliveries_Window)
 
         self.model.setTable("public.orders")
-        self.model.setFilter("porc_deliveries <> 100 OR porc_deliveries IS NULL")
+        self.model.setFilter("num_order LIKE 'P-%' AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)")
         self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.model.select()
         self.tableDeliveries.setModel(self.model)
@@ -142,7 +159,7 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
             self.tableDeliveries.hideColumn(i)
 
         headers=['Nº Pedido', '','','','','','','','','','','','','','','','','','',
-                '% Real Envío', 'Fecha Último Envío', 'Fecha Entregas Parciales', 'Observaciones']
+                '% Real Envío', 'Fecha Último Envío', 'Fecha Entregas Parciales', 'Observaciones','OK']
 
         self.tableDeliveries.setItemDelegate(AlignDelegate(self.tableDeliveries))
         self.tableDeliveries.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
@@ -156,19 +173,19 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
         Deliveries_Window.setWindowTitle(_translate("EditTags_Window", "Envíos"))
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    config_obj = configparser.ConfigParser()
-    config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-    dbparam = config_obj["postgresql"]
-    # set your parameters for the database connection URI using the keys from the configfile.ini
-    user_database = dbparam["user"]
-    password_database = dbparam["password"]
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     config_obj = configparser.ConfigParser()
+#     config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+#     dbparam = config_obj["postgresql"]
+#     # set your parameters for the database connection URI using the keys from the configfile.ini
+#     user_database = dbparam["user"]
+#     password_database = dbparam["password"]
 
-    if not createConnection(user_database, password_database):
-        sys.exit()
+#     if not createConnection(user_database, password_database):
+#         sys.exit()
 
-    Deliveries_Window = Ui_Deliveries_Window()
-    Deliveries_Window.show()
-    sys.exit(app.exec())
+#     Deliveries_Window = Ui_Deliveries_Window()
+#     Deliveries_Window.show()
+#     sys.exit(app.exec())
