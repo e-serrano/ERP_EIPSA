@@ -8,10 +8,10 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from Purchasing_Menu import Ui_Purchasing_Menu
-from QueryOffer_Window import Ui_QueryOffer_Window
-from QueryOrder_Window import Ui_QueryOrder_Window
-from QueryTags_Window import Ui_QueryTags_Window
-from EditPassword_Window import Ui_EditPasswordWindow
+from OfferQuery_Window import Ui_QueryOffer_Window
+from OrderQuery_Window import Ui_QueryOrder_Window
+from TAGQuery_Window import Ui_QueryTags_Window
+from PasswordEdit_Window import Ui_EditPasswordWindow
 from PyQt6.QtWidgets import QMenu
 import os
 

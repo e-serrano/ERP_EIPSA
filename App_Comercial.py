@@ -15,27 +15,27 @@ from datetime import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib import ticker
-from NewOffer_Window import Ui_New_Offer_Window
-from EditOffer_Menu import Ui_EditOffer_Menu
-from EditOffer_Window import Ui_Edit_Offer_Window
-from QueryOffer_Window import Ui_QueryOffer_Window
-from NewOrder_Window import Ui_New_Order_Window
-from EditOrder_Window import Ui_Edit_Order_Window
-from QueryOrder_Window import Ui_QueryOrder_Window
-from CreateTAG_Menu import Ui_CreateTag_Menu
-from EditTag_Menu import Ui_EditTags_Menu
-from QueryTags_Window import Ui_QueryTags_Window
-from QueryDoc_Window import Ui_QueryDoc_Window
+from OfferNew_Window import Ui_New_Offer_Window
+from OfferEdit_Menu import Ui_EditOffer_Menu
+from OfferEdit_Window import Ui_Edit_Offer_Window
+from OfferQuery_Window import Ui_QueryOffer_Window
+from OrderNew_Window import Ui_New_Order_Window
+from OrderEdit_Menu import Ui_EditOrder_Menu
+from OrderQuery_Window import Ui_QueryOrder_Window
+from TAGCreate_Menu import Ui_CreateTag_Menu
+from TAGEdit_Menu import Ui_EditTags_Menu
+from TAGQuery_Window import Ui_QueryTags_Window
+from DocQuery_Window import Ui_QueryDoc_Window
 from ExportDocs_Menu import Ui_ExportDocs_Menu
-from GraphsOffer_Window import Ui_GraphsOffer_Window
+from OfferGraphs_Window import Ui_GraphsOffer_Window
 from ClientsGeneralResume_Window import Ui_ClientsGeneralResume_Window
-from AddTask_Window import Ui_AddTask_Window
-from QueryTask_Window import Ui_QueryTask_Window
-from EditUser_Menu import Ui_EditUser_Menu
-from EditPassword_Window import Ui_EditPasswordWindow
+from TaskAdd_Window import Ui_AddTask_Window
+from TaskQuery_Window import Ui_QueryTask_Window
+from UserEdit_Menu import Ui_EditUser_Menu
+from PasswordEdit_Window import Ui_EditPasswordWindow
 from ClientResume_Window import Ui_ClientResume_Window
-from ReclamationOffer_Window import Ui_ReclamationOffer_Window
-from HistoryNotifications_Window import Ui_HistoryNotifications_Window
+from OfferReclamation_Window import Ui_ReclamationOffer_Window
+from NotificationsHistory_Window import Ui_HistoryNotifications_Window
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -397,7 +397,7 @@ class Ui_App_Comercial(object):
         self.Button_Notification = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Notification.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_Notification.setMaximumSize(QtCore.QSize(50, 50))
-        self.Button_Notification.setToolTip('Configuración')
+        self.Button_Notification.setToolTip('Notificaciones')
         self.Button_Notification.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Notification.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
@@ -456,14 +456,16 @@ class Ui_App_Comercial(object):
 "}")
         self.Button_Profile.setText("")
         icon13 = QtGui.QIcon()
-        # if self.name == 'Luis Bravo':
-        #     icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Mando.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        # elif self.name == 'Sandra Sanz':
-        #     icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Bender.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        # elif self.name == 'Carlos Crespo':
-        #     icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Pikachu.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        # else:
-        icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        if self.name == 'Luis Bravo':
+            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Mando.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        elif self.name == 'Sandra Sanz':
+            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Bender.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        elif self.name == 'Carlos Crespo':
+            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Pikachu.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        elif self.name == 'Ana Calvo':
+            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Girl.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        else:
+            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Profile.setIcon(icon13)
         self.Button_Profile.setIconSize(QtCore.QSize(40, 40))
         self.Button_Profile.setObjectName("Button_Profile")
@@ -1035,7 +1037,7 @@ class Ui_App_Comercial(object):
 
     def edit_order(self):
         self.edit_order_window=QtWidgets.QMainWindow()
-        self.ui=Ui_Edit_Order_Window()
+        self.ui=Ui_EditOrder_Menu()
         self.ui.setupUi(self.edit_order_window)
         self.edit_order_window.show()
         self.ui.Button_Cancel.clicked.connect(self.update_table)

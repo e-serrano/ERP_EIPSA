@@ -15,7 +15,7 @@ from Clients_Window import Ui_Clients_Window
 from Banks_Window import Ui_Banks_Window
 from Countries_Window import Ui_Countries_Window
 from PayWay_Window import Ui_PayWay_Window
-from EditPassword_Window import Ui_EditPasswordWindow
+from PasswordEdit_Window import Ui_EditPasswordWindow
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"

@@ -8,9 +8,9 @@
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 
-from CreateTAGFlow_Window import Ui_CreateTAGFlow_Window
-from CreateTAGTemp_Window import Ui_CreateTAGTemp_Window
-from CreateTAGNiv_Window import Ui_CreateTAGNiv_Window
+from TAGCreateFlow_Window import Ui_CreateTAGFlow_Window
+from TAGCreateTemp_Window import Ui_CreateTAGTemp_Window
+from TAGCreateNiv_Window import Ui_CreateTAGNiv_Window
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"

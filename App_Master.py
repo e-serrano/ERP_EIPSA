@@ -15,15 +15,15 @@ from Database_Connection import createConnection
 from config import config
 from datetime import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from QueryOffer_Window import Ui_QueryOffer_Window
-from QueryOrder_Window import Ui_QueryOrder_Window
-from QueryDoc_Window import Ui_QueryDoc_Window
-from QueryTags_Window import Ui_QueryTags_Window
-from EditTags_Commercial_Window import Ui_EditTags_Window
-from EditUser_Menu import Ui_EditUser_Menu
+from OfferQuery_Window import Ui_QueryOffer_Window
+from OrderQuery_Window import Ui_QueryOrder_Window
+from DocQuery_Window import Ui_QueryDoc_Window
+from TAGQuery_Window import Ui_QueryTags_Window
+# from TAGEdit_Commercial_Window import Ui_EditTags_Window
+from UserEdit_Menu import Ui_EditUser_Menu
 from QueryTableChanges_Window import Ui_QueryTableChanges_Window
-from AddTask_Window import Ui_AddTask_Window
-from EditPassword_Window import Ui_EditPasswordWindow
+from TaskAdd_Window import Ui_AddTask_Window
+from PasswordEdit_Window import Ui_EditPasswordWindow
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"

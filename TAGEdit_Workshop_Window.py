@@ -37,6 +37,77 @@ def imagen_to_base64(imagen):
     return base64_data
 
 
+class FreezeTableWidget(QtWidgets.QTableView):
+    def __init__(self, model):
+        super(FreezeTableWidget, self).__init__()
+        self.setModel(model)
+        self.frozenTableView = QtWidgets.QTableView(self)
+        self.init()
+        self.horizontalHeader().sectionResized.connect(self.updateSectionWidth)
+        self.verticalHeader().sectionResized.connect(self.updateSectionHeight)
+        self.frozenTableView.verticalScrollBar().valueChanged.connect(
+            self.verticalScrollBar().setValue)
+        self.verticalScrollBar().valueChanged.connect(
+            self.frozenTableView.verticalScrollBar().setValue)
+
+    def init(self):
+        self.frozenTableView.setModel(self.model())
+        self.frozenTableView.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.frozenTableView.verticalHeader().hide()
+        self.frozenTableView.horizontalHeader().setSectionResizeMode(
+                QtWidgets.QHeaderView.ResizeMode.Fixed)
+        self.viewport().stackUnder(self.frozenTableView)
+        self.frozenTableView.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+
+        self.frozenTableView.setSelectionModel(self.selectionModel())
+        for col in range(self.model().columnCount()):
+            if col < 2:
+                self.frozenTableView.setColumnWidth(col, self.columnWidth(col))
+            else:
+                self.frozenTableView.setColumnHidden(col, True)
+        self.frozenTableView.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.frozenTableView.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.frozenTableView.show()
+        self.updateFrozenTableGeometry()
+        self.setHorizontalScrollMode(QtWidgets.QAbstractItemView.ScrollMode.ScrollPerPixel)
+        self.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollMode.ScrollPerPixel)
+        self.frozenTableView.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollMode.ScrollPerPixel)
+
+    def updateSectionWidth(self, logicalIndex, oldSize, newSize):
+        if logicalIndex < 2:
+            self.frozenTableView.setColumnWidth(logicalIndex, newSize)
+            self.updateFrozenTableGeometry()
+
+    def updateSectionHeight(self, logicalIndex, oldSize, newSize):
+        self.frozenTableView.setRowHeight(logicalIndex, newSize)
+
+    def resizeEvent(self, event):
+        super(FreezeTableWidget, self).resizeEvent(event)
+        self.updateFrozenTableGeometry()
+
+    def moveCursor(self, cursorAction, modifiers):
+        current = super(FreezeTableWidget, self).moveCursor(cursorAction, modifiers)
+        if (cursorAction == Qt.Key.Key_Left and
+                self.current.column() > 1 and
+                self.visualRect(current).topLeft().x() <
+                self.frozenTableView.columnWidth(0) + self.frozenTableView.columnWidth(1)):
+            newValue = (self.horizontalScrollBar().value() +
+                        self.visualRect(current).topLeft().x() -
+                        self.frozenTableView.columnWidth(0) - self.frozenTableView.columnWidth(1))
+            self.horizontalScrollBar().setValue(newValue)
+        return current
+
+    def scrollTo(self, index, hint):
+        if index.column() > 1:
+            super(FreezeTableWidget, self).scrollTo(index, hint)
+
+    def updateFrozenTableGeometry(self):
+        self.frozenTableView.setGeometry(
+            self.verticalHeader().width() + self.frameWidth(),
+            self.frameWidth(), self.columnWidth(0) + self.columnWidth(1),
+            self.viewport().height() + self.horizontalHeader().height())
+
+
 class CheckboxWidget(QtWidgets.QWidget):
     def __init__(self, text):
         super().__init__()
@@ -150,11 +221,9 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
     def flags(self, index):
         flags = super().flags(index)
-        if index.column() in range (0,8) or index.column() in self.column_range:
-            flags &= ~Qt.ItemFlag.ItemIsEditable
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        else:
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+        flags &= ~Qt.ItemFlag.ItemIsEditable
+        return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+
 
     def getColumnHeaders(self, visible_columns):
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
@@ -180,7 +249,7 @@ class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
         model.setData(index, editor.currentText(), Qt.ItemDataRole.EditRole)
 
 
-class Ui_EditTags_Window(QtWidgets.QMainWindow):
+class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
     def __init__(self,name,db):
         super().__init__()
         self.model = EditableTableModel()
@@ -193,7 +262,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.action_checkbox_map = {}
         self.checkbox_filters = {}
         self.setupUi(self)
-        self.model.dataChanged.connect(self.saveChanges)
         self.name = name
         self.variable = ''
 
@@ -257,36 +325,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.toolShow.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer2=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer2)
-        self.toolMatOrder = QtWidgets.QToolButton(self.frame)
-        self.toolMatOrder.setObjectName("MatOrder_Button")
-        self.toolMatOrder.setToolTip("Pedido Materiales")
-        self.hcab.addWidget(self.toolMatOrder)
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Purchase_Order.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.toolMatOrder.setIcon(icon)
-        self.toolMatOrder.setIconSize(QtCore.QSize(25, 25))
-        self.hcabspacer3=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.hcab.addItem(self.hcabspacer3)
-        self.toolFabOrder = QtWidgets.QToolButton(self.frame)
-        self.toolFabOrder.setObjectName("FabOrder_Button")
-        self.toolFabOrder.setToolTip("Orden Fabricación")
-        self.hcab.addWidget(self.toolFabOrder)
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Fab_Order.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.toolFabOrder.setIcon(icon)
-        self.toolFabOrder.setIconSize(QtCore.QSize(25, 25))
-        self.hcabspacer4=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.hcab.addItem(self.hcabspacer4)
-        self.toolInspection = QtWidgets.QToolButton(self.frame)
-        self.toolInspection.setObjectName("Inspection_Button")
-        self.toolInspection.setToolTip("Inspeccion")
-        self.hcab.addWidget(self.toolInspection)
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Inspection.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.toolInspection.setIcon(icon)
-        self.toolInspection.setIconSize(QtCore.QSize(25, 25))
-        self.hcabspacer5=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.hcab.addItem(self.hcabspacer5)
         self.toolExpExcel = QtWidgets.QToolButton(self.frame)
         self.toolExpExcel.setObjectName("ExpExcel_Button")
         self.toolExpExcel.setToolTip("Exportar a Excel")
@@ -318,48 +356,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.Numorder_EditTags.setFont(font)
         self.Numorder_EditTags.setObjectName("Numorder_EditTags")
         self.hLayout1.addWidget(self.Numorder_EditTags)
-        self.Button_Clean = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Clean.setMinimumSize(QtCore.QSize(150, 35))
-        self.Button_Clean.setMaximumSize(QtCore.QSize(150, 35))
-        self.Button_Clean.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.Button_Clean.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 8px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:focus {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255)\n"
-"}\n"
-"\n"
-"QPushButton:focus:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
-        self.Button_Clean.setObjectName("Button_Clean")
         self.gridLayout_2.addLayout(self.hLayout1, 1, 0, 1, 1)
         self.Button_Query = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Query.setMinimumSize(QtCore.QSize(150, 35))
@@ -404,11 +400,10 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 "}")
         self.Button_Query.setObjectName("Button_Query")
         self.hLayout1.addWidget(self.Button_Query)
-        self.hLayout1.addWidget(self.Button_Clean)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 3, 0, 1, 1)
-        self.tableEditTags=QtWidgets.QTableView(parent=self.frame)
         self.model = EditableTableModel()
+        self.tableEditTags=FreezeTableWidget(self.model)
         self.tableEditTags.setObjectName("tableEditTags")
         self.gridLayout_2.addWidget(self.tableEditTags, 4, 0, 1, 1)
         self.hLayout3 = QtWidgets.QHBoxLayout()
@@ -454,16 +449,11 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 
         self.retranslateUi(EditTags_Window)
         QtCore.QMetaObject.connectSlotsByName(EditTags_Window)
-        self.Button_Clean.clicked.connect(self.clean_boxes)
         self.Button_Query.clicked.connect(self.query_tags)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolShow.clicked.connect(self.show_columns)
-        self.toolMatOrder.clicked.connect(lambda: self.materialorder(self.variable))
-        self.toolFabOrder.clicked.connect(self.faborder)
-        self.toolInspection.clicked.connect(self.setinspection)
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
         self.Numorder_EditTags.returnPressed.connect(self.query_tags)
-        self.model.dataChanged.connect(self.saveChanges)
         self.createContextMenu()
 
         commands_comboboxes_flow = [
@@ -578,11 +568,10 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 
     def retranslateUi(self, EditTags_Window):
         _translate = QtCore.QCoreApplication.translate
-        EditTags_Window.setWindowTitle(_translate("EditTags_Window", "Editar Tags"))
+        EditTags_Window.setWindowTitle(_translate("EditTags_Window", "Consultar Tags"))
         self.tableEditTags.setSortingEnabled(True)
         self.Button_Query.setText(_translate("EditTags_Window", "Buscar"))
         self.label_NumOrder.setText(_translate("EditTags_Window", "Nº Pedido:"))
-        self.Button_Clean.setText(_translate("EditTags_Window", "Vaciar Cuadros"))
 
 # Function to clear the text boxes
     def clean_boxes(self):
@@ -602,8 +591,10 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.checkbox_filters = {}
 
         self.proxy.invalidateFilter()
-        self.tableEditTags.setModel(None)
-        self.tableEditTags.setModel(self.proxy)
+        # self.tableEditTags.setModel(None)
+        # self.tableEditTags.setModel(self.proxy)
+        self.proxy.setSourceModel(self.model)
+        self.tableEditTags=FreezeTableWidget(self.proxy)
 
         # Getting the unique values for each column of the model
         for column in range(self.model.columnCount()):
@@ -624,107 +615,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.tableEditTags.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditTags.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
-# Function to save changes into database
-    def saveChanges(self, topLeft, bottomRight, roles):
-        row = topLeft.row()
-        column = topLeft.column()
-
-        actual_date=date.today()
-        actual_date= actual_date.strftime("%d/%m/%Y")
-
-
-        if (column == 34 and self.variable == 'Caudal') or \
-            ((column == 45 and self.variable == 'Temperatura') or \
-            (column == 42 and self.variable == 'Nivel')):
-
-            commands_queryorder = ("""
-                            SELECT orders."num_order",offers."responsible"
-                            FROM offers
-                            INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
-                            WHERE UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
-                            ORDER BY orders."num_order"
-                            """)
-            commands_check_notif = ("""
-                        SELECT *
-                        FROM notifications.notifications_change_tags
-                        WHERE ("username" = %s
-                        AND "message" = 'Cambios en pedido: ' || UPPER(%s)
-                        AND "state" = 'Pendiente')
-                        """)
-            commands_notification_changes = ("""INSERT INTO notifications.notifications_change_tags (
-                                                "username","message","state","date_creation"
-                                                )
-                                                VALUES (%s,%s,%s,%s)
-                                                """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                data = (self.numorder,)
-                cur.execute(commands_queryorder, data)
-                results_queryorder=cur.fetchall()
-
-                cur.execute(commands_check_notif,(results_queryorder[0][1], self.numorder,))
-                results_order = cur.fetchall()
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-            except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-            finally:
-                if conn is not None:
-                    conn.close()
-
-            if not len(results_order)>0:
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    data = (results_queryorder[0][1], 'Cambios en pedido: ' + self.numorder, 'Pendiente',actual_date,)
-                    cur.execute(commands_notification_changes, data)
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-                except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-            # new_value = self.model.data(topLeft)
-            # print(f"Nuevo valor: {new_value}")
-
-            # # Obtener el valor de la columna 1 de la misma fila
-            # value_column_1 = self.model.data(self.model.index(row, 1))
-            # print(f"Valor de la columna 1: {value_column_1}")
-
-
-
-
-        self.model.submitAll()
-
-        for column in range(self.model.columnCount()):
-            list_valuesUnique = []
-            for row in range(self.model.rowCount()):
-                value = self.model.record(row).value(column)
-                if value not in list_valuesUnique:
-                    if isinstance(value, QtCore.QDate):
-                        value=value.toString("dd/MM/yyyy")
-                    list_valuesUnique.append(str(value))
-                    if value not in self.checkbox_states[column]:
-                        self.checkbox_states[column][value] = True
-            self.dict_valuesuniques[column] = list_valuesUnique
 
 # Function to load table and setting in the window
     def query_tags(self):
@@ -733,7 +623,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.dict_ordersort = {}
         self.hiddencolumns = []
 
-        self.model.dataChanged.disconnect(self.saveChanges)
         self.numorder = self.Numorder_EditTags.text()
 
         if self.numorder=="":
@@ -746,7 +635,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
             del dlg, new_icon
-            self.model.dataChanged.connect(self.saveChanges)
 
         else:
             if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', self.numorder):
@@ -759,7 +647,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg.exec()
                 del dlg, new_icon
-                self.model.dataChanged.connect(self.saveChanges)
 
             else:
                 query = ('''
@@ -801,7 +688,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                     dlg.exec()
                     del dlg, new_icon
-                    self.model.dataChanged.connect(self.saveChanges)
 
                 else:
                     if self.variable == 'Caudal':
@@ -817,11 +703,12 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
 
         if self.variable != '':
             self.tableEditTags.setModel(None)
-            self.tableEditTags.setModel(self.proxy)
+            # self.tableEditTags.setModel(self.proxy)
             self.model.select()
 
             self.proxy.setSourceModel(self.model)
-            self.tableEditTags.setModel(self.proxy)
+            # self.tableEditTags.setModel(self.proxy)
+            self.tableEditTags=FreezeTableWidget(self.proxy)
 
             columns_number=self.model.columnCount()
             for column in range(columns_number):
@@ -853,7 +740,7 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
             self.tableEditTags.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
             self.tableEditTags.setObjectName("tableEditTags")
-            self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
+            self.gridLayout_2.addWidget(self.tableEditTags, 4, 0, 1, 1)
             self.tableEditTags.setSortingEnabled(False)
             self.tableEditTags.horizontalHeader().sectionDoubleClicked.connect(self.on_view_horizontalHeader_sectionClicked)
             self.tableEditTags.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
@@ -958,7 +845,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
                 self.tableEditTags.setItemDelegateForColumn(53, self.combo_itemtype)
 
-            self.model.dataChanged.connect(self.saveChanges)
             self.selection_model = self.tableEditTags.selectionModel()
             self.selection_model.selectionChanged.connect(self.countSelectedCells)
 
@@ -1129,8 +1015,10 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         self.model.setIconColumnHeader(filterColumn, '')
         self.proxy.invalidateFilter()
 
-        self.tableEditTags.setModel(None)
-        self.tableEditTags.setModel(self.proxy)
+        # self.tableEditTags.setModel(None)
+        # self.tableEditTags.setModel(self.proxy)
+        self.proxy.setSourceModel(self.model)
+        self.tableEditTags=FreezeTableWidget(self.proxy)
 
         if filterColumn in self.checkbox_filters:
             del self.checkbox_filters[filterColumn]
@@ -1194,81 +1082,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         for column in self.hiddencolumns:
             self.tableEditTags.setColumnHidden(column, False)
         self.hiddencolumns.clear()
-
-# Function to create material order for flow elements
-    def materialorder_flow(self):
-        dlg = QtWidgets.QInputDialog()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle('Pedido Materiales')
-        dlg.setLabelText('Introduce el pedido:')
-        clickedButton=dlg.exec()
-
-        if clickedButton == 1:
-            numorder_pedmat = dlg.textValue()
-            flow_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable)
-
-# Function to create material order for temperature elements
-    def materialorder_temp(self):
-        dlg = QtWidgets.QInputDialog()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle('Pedido Materiales')
-        dlg.setLabelText('Introduce el pedido:')
-        clickedButton=dlg.exec()
-
-        if clickedButton == 1:
-            numorder_pedmat = dlg.textValue()
-            temp_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable)
-
-# Function to create material order for level elements
-    def materialorder_level(self):
-        dlg = QtWidgets.QInputDialog()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle('Pedido Materiales')
-        dlg.setLabelText('Introduce el pedido:')
-        clickedButton=dlg.exec()
-
-        if clickedButton == 1:
-            numorder_pedmat = dlg.textValue()
-            level_matorder(self.proxy, self.model, self.numorder, numorder_pedmat, self.variable)
-
-# Function to create fabrication order
-    def faborder(self):
-        if self.proxy.rowCount() == 0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Orden Fabricación")
-            dlg.setText("No hay datos cargados")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
-        else:
-            self.createfaborder_window=QtWidgets.QMainWindow()
-            self.ui=Ui_CreateFabOrder_Window(self.variable, self.proxy, self.model)
-            self.ui.setupUi(self.createfaborder_window)
-            self.createfaborder_window.showMaximized()
-
-# Function to set inspection number
-    def setinspection(self):
-        if self.proxy.rowCount() == 0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Inspección")
-            dlg.setText("No hay datos cargados")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
-        else:
-            inspection(self.proxy, self.model, self.variable)
 
 # Function to export data to excel
     def exporttoexcel(self):
@@ -1395,25 +1208,6 @@ class Ui_EditTags_Window(QtWidgets.QMainWindow):
         else:
             return 0.0
 
-# Function to select which material order has to be created
-    def materialorder(self, variable):
-        if self.proxy.rowCount() == 0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Pedido Materiales")
-            dlg.setText("No hay datos cargados")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
-        else:
-            if self.variable == 'Caudal':
-                self.materialorder_flow()
-            elif self.variable == 'Temperatura':
-                self.materialorder_temp()
-            elif self.variable == 'Nivel':
-                self.materialorder_level()
 
     def createContextMenu(self):
         self.context_menu = QtWidgets.QMenu(self)
@@ -1452,6 +1246,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    EditTags_Window = Ui_EditTags_Window('Jesús Martínez',db)
+    EditTags_Window = Ui_EditTags_Workshop_Window('Julio Zofio',db)
     EditTags_Window.show()
     sys.exit(app.exec())

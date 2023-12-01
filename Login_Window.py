@@ -11,12 +11,12 @@ import os
 from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
+from PasswordForget_Window import Ui_ForgetPass_Window
 from App_Comercial import Ui_App_Comercial
 from App_Purchasing import Ui_App_Purchasing
 from App_Technical import Ui_App_Technical
 from App_Workshop import Ui_App_Workshop
 from App_Master import Ui_App_Master
-from ForgetPass_Window import Ui_ForgetPass_Window
 from App_Warehouse import Ui_Warehouse_Menu
 from App_Manager import Ui_App_Manager
 from App_ManagerF import Ui_App_ManagerF

@@ -232,41 +232,50 @@ class Ui_TAGOfferToOrder_Window(object):
             if table_name != '':
                 try:
                     for index, row in df_final.iterrows():
-                        print(row)
-                        # if "ID" in row and "tag" in row and "tag_state" in row:
-                        #     id_value = row["ID"]
-                        #     tag_value = row["tag"]
-                        #     state_value = row["tag_state"]
-                        #     new_num_order = row["num_order"]
-                        #     new_num_po = row["num_po"]
-                        #     new_position = row["position"]
-                        #     new_subposition = row["subposition"]
+                        if "ID" in row and "tag" in row and "tag_state" in row:
+                            id_value = row["ID"]
+                            tag_value = row["tag"]
+                            state_value = row["tag_state"]
+                            new_num_order = row["num_order"]
+                            new_num_po = row["num_po"]
+                            new_position = row["position"]
+                            new_subposition = row["subposition"]
 
-                        # # Creating the SET clause with proper formatting
-                        #     set_clause = f'"tag_state" = \'{state_value}\', "num_order" = \'{new_num_order}\', "num_po" = \'{new_num_po}\', "position" = \'{new_position}\', "subposition" = \'{new_subposition}\''
-                            
-                        # # Creating the WHERE clause with proper formatting
-                        #     where_clause = f'"id" = \'{id_value}\' AND "tag" = \'{tag_value}\''
-                            
-                        # # Creating the update query and executing it
-                        #     sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
-                        #     sql_check = f'SELECT * FROM {table_name} WHERE "id" = \'{id_value}\' AND "tag" = \'{tag_value}\''
-                        #     cursor.execute(sql_check)
-                        #     result_check=cursor.fetchall()
+                        # Creating the SET clause with proper formatting
+                            set_clause = f'"tag_state" = \'{state_value}\', "num_order" = \'{new_num_order}\', "num_po" = \'{new_num_po}\', "position" = \'{new_position}\', "subposition" = \'{new_subposition}\''
 
-                        #     if len(result_check) == 0:
-                        #         dlg = QtWidgets.QMessageBox()
-                        #         new_icon = QtGui.QIcon()
-                        #         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        #         dlg.setWindowIcon(new_icon)
-                        #         dlg.setWindowTitle("ERP EIPSA")
-                        #         dlg.setText(f"El ID \'{id_value}\' no se corresponde con el TAG \'{tag_value}\' \n"
-                        #                     "Este TAG no se actualizará")
-                        #         dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        #         dlg.exec()
-                        #         del dlg, new_icon
+                        # Creating the WHERE clause with proper formatting
+                            if self.radioFlow.isChecked()==True:
+                                where_clause = f'"id_tag_flow" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+                            elif self.radioTemp.isChecked()==True:
+                                where_clause = f'"id_tag_temp" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+                            elif self.radioLevel.isChecked()==True:
+                                where_clause = f'"id_tag_level" = \'{id_value}\' AND "tag" = \'{tag_value}\''
 
-                        #     cursor.execute(sql_update)
+                        # Creating the update query and executing it
+                            sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
+                            if self.radioFlow.isChecked()==True:
+                                sql_check = f'SELECT * FROM {table_name} WHERE "id_tag_flow" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+                            elif self.radioTemp.isChecked()==True:
+                                sql_check = f'SELECT * FROM {table_name} WHERE "id_tag_temp" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+                            elif self.radioLevel.isChecked()==True:
+                                sql_check = f'SELECT * FROM {table_name} WHERE "id_tag_level" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+                            cursor.execute(sql_check)
+                            result_check=cursor.fetchall()
+
+                            if len(result_check) == 0:
+                                dlg = QtWidgets.QMessageBox()
+                                new_icon = QtGui.QIcon()
+                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                dlg.setWindowIcon(new_icon)
+                                dlg.setWindowTitle("ERP EIPSA")
+                                dlg.setText(f"El ID \'{id_value}\' no se corresponde con el TAG \'{tag_value}\' \n"
+                                            "Este TAG no se actualizará")
+                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                dlg.exec()
+                                del dlg, new_icon
+
+                            cursor.execute(sql_update)
 
                 # Closing cursor and database connection
                     conn.commit()
@@ -283,7 +292,16 @@ class Ui_TAGOfferToOrder_Window(object):
                     del dlg, new_icon
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
                 finally:
                     if conn is not None:
                         conn.close()

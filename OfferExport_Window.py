@@ -10,7 +10,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config  
 import os
-from ExportOffer_Form import Ui_ExportOffer_Form
+from OfferExport_Form import Ui_ExportOffer_Form
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 

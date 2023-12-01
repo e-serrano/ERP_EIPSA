@@ -307,19 +307,21 @@ class Ui_New_Order_Window(object):
         actual_date=date.today()
         actual_date= actual_date.strftime("%d/%m/%Y")
 
-        pattern = r'^(P[AB]?-\d{2}/\d{3}-S\d{2}.+|PA-\d{2}/\d{3})$'
 
         if numorder=="" or (numoffer=="" or  (numref=="" or amount=="")):
             self.label_error_neworder.setText('Rellene todos los campos. Solo el campo notas pueden estar en blanco')
 
 
-        elif not re.match(pattern, numorder):
+        elif not re.match(r'^(P-\d{2}/\d{3}-S\d{2}R?|PA-\d{2}/\d{3})$', numorder):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Nuevo Pedido")
-            dlg.setText("El número de pedido debe tener el siguiente formato")
+            dlg.setText("El número de pedido debe tener el siguiente formato\n" +
+                        "- P-XX/YYY-SZZ\n" + 
+                        "- P-XX/YYY-SZZR\n" + 
+                        "- PA-XX/YYY")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
 

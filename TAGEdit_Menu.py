@@ -11,7 +11,7 @@ import sys
 import configparser
 from Database_Connection import createConnection
 from datetime import *
-from EditTags_Commercial_Window import Ui_EditTags_Window
+from TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
 from TAGOfferToOrder_Window import Ui_TAGOfferToOrder_Window
 from TAGUpdate_Window import Ui_TAGUpdate_Window
 import os
@@ -48,7 +48,7 @@ class Ui_EditTags_Menu(object):
 "  line-height: 1.15385;\n"
 "  margin: 0;\n"
 "  outline: none;\n"
-"  padding: 8px .8em;\n"
+"  padding: 4px .8em;\n"
 "  text-align: center;\n"
 "  text-decoration: none;\n"
 "  vertical-align: baseline;\n"
@@ -141,10 +141,10 @@ class Ui_EditTags_Menu(object):
 
     def retranslateUi(self, EditTags_Menu):
         _translate = QtCore.QCoreApplication.translate
-        EditTags_Menu.setWindowTitle(_translate("EditTags_Menu", "ERP EIPSA - Compras"))
-        self.Button_OfferToOrder.setText(_translate("EditTags_Menu", "Tags de oferta a pedido"))
-        self.Button_EditTags.setText(_translate("EditTags_Menu", "Editar Tags"))
-        self.Button_Update.setText(_translate("EditTags_Menu", "Actualizar Tags de Excel"))
+        EditTags_Menu.setWindowTitle(_translate("EditTags_Menu", "ERP EIPSA - Comercial"))
+        self.Button_OfferToOrder.setText(_translate("EditTags_Menu", "Tags de Oferta a Pedido"))
+        self.Button_EditTags.setText(_translate("EditTags_Menu", "Editar Tags en Tabla"))
+        self.Button_Update.setText(_translate("EditTags_Menu", "Actualizar Tags desde Excel"))
         self.Button_Cancel.setText(_translate("EditTags_Menu", "Salir"))
 
 
@@ -174,7 +174,7 @@ class Ui_EditTags_Menu(object):
         if not db_tag_com:
             sys.exit()
 
-        self.edit_tags_app = Ui_EditTags_Window(db_tag_com)
+        self.edit_tags_app = Ui_EditTags_Commercial_Window(db_tag_com)
         self.edit_tags_app.showMaximized()
         EditTags_Menu.close()
 

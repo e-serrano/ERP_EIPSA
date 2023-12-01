@@ -14,6 +14,22 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
+class ColorDelegate(QtWidgets.QItemDelegate):
+    def paint(self, painter, option, index: QtCore.QModelIndex):
+        value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
+        if index.column() == 11 and value <= 50 and value >= 1:
+            background_color = QtGui.QColor(255, 255, 0) #Yellow
+        elif index.column() == 11 and value < 100  and value > 50:
+            background_color = QtGui.QColor(0, 255, 0) #Green
+        elif index.column() == 11 and value == 100:
+            background_color = QtGui.QColor(0, 102, 204) #Blue
+        else:
+            background_color = QtGui.QColor(255, 255, 255) #White
+
+        painter.fillRect(option.rect, background_color)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+        super().paint(painter, option, index)
+
 class EditableTableModel(QtSql.QSqlTableModel):
     updateFailed = QtCore.pyqtSignal(str)
 
@@ -150,7 +166,7 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(Workshop_Window)
 
         self.model.setTable("public.orders")
-        self.model.setFilter("num_order LIKE 'P-%' AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)")
+        self.model.setFilter("num_order LIKE 'P-%' AND num_order NOT LIKE '%R%' AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)")
         self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.model.select()
         self.tableWorkshop.setModel(self.model)
@@ -167,7 +183,15 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
                 '','','','', '', '', '', '','OK']
 
         self.tableWorkshop.setItemDelegate(AlignDelegate(self.tableWorkshop))
+        self.color_delegate = ColorDelegate(self)
+        self.tableWorkshop.setItemDelegateForColumn(11, self.color_delegate)
         self.tableWorkshop.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableWorkshop.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableWorkshop.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableWorkshop.horizontalHeader().setSectionResizeMode(11, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableWorkshop.horizontalHeader().setSectionResizeMode(12, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableWorkshop.horizontalHeader().setSectionResizeMode(13, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableWorkshop.horizontalHeader().setSectionResizeMode(14, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableWorkshop.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
         self.gridLayout_2.addWidget(self.tableWorkshop, 3, 0, 1, 1)
 
@@ -178,19 +202,19 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         Workshop_Window.setWindowTitle(_translate("EditTags_Window", "Envíos"))
 
 
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     config_obj = configparser.ConfigParser()
-#     config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-#     dbparam = config_obj["postgresql"]
-#     # set your parameters for the database connection URI using the keys from the configfile.ini
-#     user_database = dbparam["user"]
-#     password_database = dbparam["password"]
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    config_obj = configparser.ConfigParser()
+    config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+    dbparam = config_obj["postgresql"]
+    # set your parameters for the database connection URI using the keys from the configfile.ini
+    user_database = dbparam["user"]
+    password_database = dbparam["password"]
 
-#     if not createConnection(user_database, password_database):
-#         sys.exit()
+    if not createConnection(user_database, password_database):
+        sys.exit()
 
-#     Workshop_Window = Ui_Workshop_Window()
-#     Workshop_Window.show()
-#     sys.exit(app.exec())
+    Workshop_Window = Ui_Workshop_Window()
+    Workshop_Window.show()
+    sys.exit(app.exec())

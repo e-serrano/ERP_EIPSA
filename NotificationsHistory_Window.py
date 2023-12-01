@@ -188,7 +188,7 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
         # commit the changes
             conn.commit()
 
-            self.tableNotifications.setRowCount(len(results))
+            self.tableNotifications.setRowCount(len(notifications))
             tablerow=0
 
         # fill the Qt Table with the query results
@@ -207,6 +207,7 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
 
                 tablerow+=1
 
+            self.tableNotifications.verticalHeader().hide()
             self.tableNotifications.setItemDelegate(AlignDelegate(self.tableNotifications))
 
         except (Exception, psycopg2.DatabaseError) as error:

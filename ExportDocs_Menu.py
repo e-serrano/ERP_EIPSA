@@ -8,7 +8,7 @@
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 
-from ExportOffer_Window import Ui_ExportOffer_Window
+from OfferExport_Window import Ui_ExportOffer_Window
 from OrderAccept_Window import Ui_OrderAccept_Window
 import os
 

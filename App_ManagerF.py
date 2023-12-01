@@ -12,16 +12,16 @@ import psycopg2
 import sys
 from config import config
 from datetime import *
-from QueryOffer_Window import Ui_QueryOffer_Window
-from QueryOrder_Window import Ui_QueryOrder_Window
-from QueryTags_Window import Ui_QueryTags_Window
-from QueryDoc_Window import Ui_QueryDoc_Window
-from GraphsOffer_Window import Ui_GraphsOffer_Window
+from OfferQuery_Window import Ui_QueryOffer_Window
+from OrderQuery_Window import Ui_QueryOrder_Window
+from TAGQuery_Window import Ui_QueryTags_Window
+from DocQuery_Window import Ui_QueryDoc_Window
+from OfferGraphs_Window import Ui_GraphsOffer_Window
 from ClientsGeneralResume_Window import Ui_ClientsGeneralResume_Window
-from EditPassword_Window import Ui_EditPasswordWindow
+from PasswordEdit_Window import Ui_EditPasswordWindow
 from ClientResume_Window import Ui_ClientResume_Window
-from QueryTask_Window import Ui_QueryTask_Window
-from AddTask_Window import Ui_AddTask_Window
+from TaskQuery_Window import Ui_QueryTask_Window
+from TaskAdd_Window import Ui_AddTask_Window
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"

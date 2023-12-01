@@ -19,15 +19,16 @@ import pandas as pd
 from DBEditReg_Window import Ui_DBEditReg_Window
 from Deliveries_Window import Ui_Deliveries_Window
 from OTGeneralCreate_Window import Ui_OTGeneralCreate_Window
-from QueryOrder_Window import Ui_QueryOrder_Window
-from QueryOrderTechnical_Window import Ui_QueryOrderTechnical_Window
-from EditTags_Technical_Window import Ui_EditTags_Window
-from QueryTags_Window import Ui_QueryTags_Window
-from NewDoc_Window import Ui_New_Doc_Window
-from EditDoc_Window import Ui_EditDoc_Window
-from QueryDoc_Window import Ui_QueryDoc_Window
-from EditPassword_Window import Ui_EditPasswordWindow
-from HistoryNotifications_Window import Ui_HistoryNotifications_Window
+from TechOffice_Window import Ui_TechOffice_Window
+from OrderQuery_Window import Ui_QueryOrder_Window
+from OrderQueryTechnical_Window import Ui_QueryOrderTechnical_Window
+from TAGEdit_Technical_Window import Ui_EditTags_Technical_Window
+from TAGQuery_Window import Ui_QueryTags_Window
+from DocNew_Window import Ui_New_Doc_Window
+from DocEdit_Window import Ui_EditDoc_Window
+from DocQuery_Window import Ui_QueryDoc_Window
+from PasswordEdit_Window import Ui_EditPasswordWindow
+from NotificationsHistory_Window import Ui_HistoryNotifications_Window
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -294,6 +295,42 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         spacerItem = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem)
         if self.name in ["Ernesto Carrillo","Enrique Serrano"]:
+            self.Button_ImportTimes = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_ImportTimes.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_ImportTimes.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_ImportTimes.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_ImportTimes.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_ImportTimes.setText("")
+            icon5 = QtGui.QIcon()
+            icon5.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/ClockIn.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_ImportTimes.setIcon(icon5)
+            self.Button_ImportTimes.setIconSize(QtCore.QSize(40, 40))
+            self.Button_ImportTimes.setObjectName("Button_ImportTimes")
+            self.Button_ImportTimes.setToolTip("Importar Tiempos")
+            self.Header.addWidget(self.Button_ImportTimes)
+            spacerItem10 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem10)
             self.Button_DBEdit = QtWidgets.QPushButton(parent=self.frame)
             self.Button_DBEdit.setMinimumSize(QtCore.QSize(50, 50))
             self.Button_DBEdit.setMaximumSize(QtCore.QSize(50, 50))
@@ -328,6 +365,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_DBEdit.setObjectName("Button_DBEdit")
             self.Header.addWidget(self.Button_DBEdit)
             self.Button_DBEdit.clicked.connect(self.editdb)
+            self.Button_ImportTimes.clicked.connect(self.importtimes)
         elif self.name in ["Jorge Valtierra"]:
             self.Button_Deliveries = QtWidgets.QPushButton(parent=self.frame)
             self.Button_Deliveries.setMinimumSize(QtCore.QSize(50, 50))
@@ -397,7 +435,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_OT.setIcon(icon2)
             self.Button_OT.setIconSize(QtCore.QSize(40, 40))
             self.Button_OT.setObjectName("Button_OT")
-            self.Button_OT.setToolTip("Envíos")
+            self.Button_OT.setToolTip("Ordenes de Trabajo 900")
             self.Header.addWidget(self.Button_OT)
             self.Button_Deliveries.clicked.connect(self.deliveries)
             self.Button_OT.clicked.connect(self.otorder)
@@ -470,10 +508,46 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_OT.setIcon(icon2)
             self.Button_OT.setIconSize(QtCore.QSize(40, 40))
             self.Button_OT.setObjectName("Button_OT")
-            self.Button_OT.setToolTip("Envíos")
+            self.Button_OT.setToolTip("Ordenes de Trabajo 900")
             self.Header.addWidget(self.Button_OT)
             self.Button_Times.clicked.connect(self.times)
             self.Button_OT.clicked.connect(self.otorder)
+        elif self.name in ["Santos Sánchez"]:
+            self.Button_TechOffice = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_TechOffice.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_TechOffice.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_TechOffice.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_TechOffice.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_TechOffice.setText("")
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/TechOffice.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_TechOffice.setIcon(icon2)
+            self.Button_TechOffice.setIconSize(QtCore.QSize(40, 40))
+            self.Button_TechOffice.setObjectName("Button_TechOffice")
+            self.Button_TechOffice.setToolTip("Oficina Técnica")
+            self.Header.addWidget(self.Button_TechOffice)
+            self.Button_TechOffice.clicked.connect(self.techoffice)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -491,7 +565,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_Notification = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Notification.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_Notification.setMaximumSize(QtCore.QSize(50, 50))
-        self.Button_Notification.setToolTip('Configuración')
+        self.Button_Notification.setToolTip('Notificaciones')
         self.Button_Notification.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Notification.setStyleSheet("QPushButton{\n"
 "    border: 1px solid transparent;\n"
@@ -926,7 +1000,23 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ui.setupUi(self.otgeneralcreate_window)
         self.otgeneralcreate_window.show()
 
-    
+
+    def techoffice(self):
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_techoffice = createConnection(user_database, password_database)
+        if not db_techoffice:
+            sys.exit()
+
+        self.techoffice_window = Ui_TechOffice_Window(db_techoffice)
+        self.techoffice_window.show()
+
+
     def notifications(self):
         self.notification_window=Ui_HistoryNotifications_Window(self.username)
         self.notification_window.show()
@@ -955,7 +1045,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         if not db_tags_tech:
             sys.exit()
 
-        self.edit_tags_app = Ui_EditTags_Window(self.name, db_tags_tech)
+        self.edit_tags_app = Ui_EditTags_Technical_Window(self.name, db_tags_tech)
         self.edit_tags_app.show()
 
 
@@ -1047,7 +1137,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + error)
+                                + str(error))
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                     dlg.exec()
                     del dlg, new_icon
@@ -1155,6 +1245,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         popup_pos = self.tableDocs.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableDocs.show_unique_values_menu(logical_index, popup_pos, header_height)
 
+
 # Function to load number of notifications
     def load_notifications(self):
         query_tables_notifications = """SELECT table_name
@@ -1200,3 +1291,43 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             icon13 = QtGui.QIcon()
             icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Notification.setIcon(icon13)
+
+
+# Function to import clock times
+    def importtimes(self):
+        fname = askopenfilename(filetypes=[("Archivos de Excel", "*.txt")],
+                            title="Seleccionar archivo Excel")
+        if fname:
+            df = pd.read_csv(fname, sep = "|", header=None, encoding="latin-1")
+            df = df.astype(str)
+            final_df = df.iloc[:,[0, 2, 7, 8, 10]]
+            final_df.columns = ['personal_id','date_ot','time_ot','number_ot','operations_id']
+
+            params = config()
+            conn = psycopg2.connect(**params)
+            cursor = conn.cursor()
+
+            try:
+
+                for index, row in final_df.iterrows():
+                # Create a list of pairs (column_name, column_value) for each column with value
+                    columns_values = [(column, row[column]) for column in final_df.columns if not pd.isnull(row[column])]
+
+                # Creating string for columns names
+                    columns = ', '.join([column for column, _ in columns_values])
+
+                # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
+                    values = ', '.join([f"'{values.replace(',', '.')}'" if column in ['time_ot'] else f"'{values}'" for column, values in columns_values])
+
+                    sql_insertion = f"INSERT INTO fabrication.imp_ot ({columns}) VALUES ({values})"
+
+                    cursor.execute(sql_insertion)
+
+                conn.commit()
+                cursor.close()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()

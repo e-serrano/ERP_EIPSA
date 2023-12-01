@@ -13,6 +13,22 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
+class ColorDelegate(QtWidgets.QItemDelegate):
+    def paint(self, painter, option, index: QtCore.QModelIndex):
+        value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
+        if index.column() == 15 and value <= 50 and value >= 1:
+            background_color = QtGui.QColor(255, 255, 0) #Yellow
+        elif index.column() == 15 and value < 100  and value > 50:
+            background_color = QtGui.QColor(0, 255, 0) #Green
+        elif index.column() == 15 and value == 100:
+            background_color = QtGui.QColor(0, 102, 204) #Blue
+        else:
+            background_color = QtGui.QColor(255, 255, 255) #White
+
+        painter.fillRect(option.rect, background_color)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+        super().paint(painter, option, index)
+
 
 class EditableTableModel(QtSql.QSqlTableModel):
     updateFailed = QtCore.pyqtSignal(str)
@@ -20,6 +36,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
     def __init__(self, parent=None, column_range=None):
         super().__init__(parent)
         self.column_range = column_range
+
 
     def setAllColumnHeaders(self, headers):
         for column, header in enumerate(headers):
@@ -150,7 +167,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(Assembly_Window)
 
         self.model.setTable("public.orders")
-        self.model.setFilter("num_order LIKE 'P-%' AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)")
+        self.model.setFilter("num_order LIKE 'P-%' AND num_order NOT LIKE '%R%' AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)")
         self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.model.select()
         self.tableAssembly.setModel(self.model)
@@ -167,7 +184,15 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                 '', '', '', '','OK']
 
         self.tableAssembly.setItemDelegate(AlignDelegate(self.tableAssembly))
+        self.color_delegate = ColorDelegate(self)
+        self.tableAssembly.setItemDelegateForColumn(15, self.color_delegate)
         self.tableAssembly.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableAssembly.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableAssembly.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableAssembly.horizontalHeader().setSectionResizeMode(15, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableAssembly.horizontalHeader().setSectionResizeMode(16, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableAssembly.horizontalHeader().setSectionResizeMode(17, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableAssembly.horizontalHeader().setSectionResizeMode(18, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableAssembly.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
         self.gridLayout_2.addWidget(self.tableAssembly, 3, 0, 1, 1)
 

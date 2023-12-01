@@ -10,7 +10,8 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
 import os
-from Excel_Export_Templates import offer_flow, offer_temp, offer_level
+from Excel_Export_Templates import offer_flow, offer_temp, offer_level, offer_short_flow, offer_short_temp, offer_short_level
+from datetime import *
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -337,23 +338,52 @@ class Ui_ExportOffer_Form(object):
         self.verticalLayout.addLayout(self.hLayout4)
         spacerItem25 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
         self.verticalLayout.addItem(spacerItem25)
-        self.hLayout5 = QtWidgets.QHBoxLayout()
-        self.hLayout5.setObjectName("hLayout5")
+
+        self.hLayout4 = QtWidgets.QHBoxLayout()
+        self.hLayout4.setObjectName("hLayout4")
+        self.label_Format = QtWidgets.QLabel(parent=self.frame)
+        self.label_Format.setMinimumSize(QtCore.QSize(155, 25))
+        self.label_Format.setMaximumSize(QtCore.QSize(155, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Format.setFont(font)
+        self.label_Format.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_Format.setObjectName("label_Format")
+        self.hLayout4.addWidget(self.label_Format)
+        self.longformat = QtWidgets.QRadioButton(parent=self.frame)
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.longformat.setFont(font)
+        self.longformat.setObjectName("longformat")
+        self.hLayout4.addWidget(self.longformat)
+        self.shortformat = QtWidgets.QRadioButton(parent=self.frame)
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.shortformat.setFont(font)
+        self.shortformat.setObjectName("shortformat")
+        self.hLayout4.addWidget(self.shortformat)
+        self.verticalLayout.addLayout(self.hLayout4)
+        spacerItem26 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        self.verticalLayout.addItem(spacerItem26)
+
+        self.hLayout6 = QtWidgets.QHBoxLayout()
+        self.hLayout6.setObjectName("hLayout6")
         self.Button_ExportOffer_Form = QtWidgets.QPushButton(parent=self.frame)
         self.Button_ExportOffer_Form.setMinimumSize(QtCore.QSize(200, 30))
         self.Button_ExportOffer_Form.setMaximumSize(QtCore.QSize(200, 30))
         self.Button_ExportOffer_Form.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_ExportOffer_Form.setAutoDefault(True)
         self.Button_ExportOffer_Form.setObjectName("Button_ExportOffer_Form")
-        self.hLayout5.addWidget(self.Button_ExportOffer_Form)
+        self.hLayout6.addWidget(self.Button_ExportOffer_Form)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(200, 30))
         self.Button_Cancel.setMaximumSize(QtCore.QSize(200, 30))
         self.Button_Cancel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Cancel.setAutoDefault(True)
         self.Button_Cancel.setObjectName("Button_Cancel")
-        self.hLayout5.addWidget(self.Button_Cancel)
-        self.verticalLayout.addLayout(self.hLayout5)
+        self.hLayout6.addWidget(self.Button_Cancel)
+        self.verticalLayout.addLayout(self.hLayout6)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         ExportOffer_Form.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=ExportOffer_Form)
@@ -386,6 +416,7 @@ class Ui_ExportOffer_Form(object):
         self.label_RevChanges.setText(_translate("ExportOffer_Form", "Cambios Rev.:"))
         self.label_Notes.setText(_translate("ExportOffer_Form", "Notas:"))
         self.label_PayWay.setText(_translate("ExportOffer_Form", "Forma de pago:"))
+        self.label_Format.setText(_translate("ExportOffer_Form", "Formato de oferta:"))
         self.Button_ExportOffer_Form.setText(_translate("ExportOffer_Form", "Exportar Oferta"))
         self.Button_Cancel.setText(_translate("ExportOffer_Form", "Cancelar"))
         self.radio100_delivery.setText(_translate("ExportOffer_Form", "100% envío"))
@@ -393,6 +424,8 @@ class Ui_ExportOffer_Form(object):
         self.radio90_10.setText(_translate("ExportOffer_Form", "90% / 10%"))
         self.radio50_50.setText(_translate("ExportOffer_Form", "50% / 50%"))
         self.radioOthers.setText(_translate("ExportOffer_Form", "Otro"))
+        self.longformat.setText(_translate("ExportOffer_Form", "Formato Largo"))
+        self.shortformat.setText(_translate("ExportOffer_Form", "Formato Corto"))
 
 
     def ExportOffer_Form(self):
@@ -405,6 +438,7 @@ class Ui_ExportOffer_Form(object):
         project = self.Project_ExportOffer_Form.text()
         revchanges = self.RevChanges_ExportOffer_Form.text()
         notes = self.Notes_ExportOffer_Form.toPlainText()
+        actual_date = date.today()
 
         if self.radio100_delivery.isChecked()==True:
             pay_term = '100_delivery'
@@ -418,6 +452,13 @@ class Ui_ExportOffer_Form(object):
             pay_term = 'Others'
         else:
             pay_term = 'Not Value'
+
+        if self.longformat.isChecked()==True:
+            format_offer = 'Long'
+        elif self.shortformat.isChecked()==True:
+            format_offer = 'Short'
+        else:
+            format_offer = 'Not Value'
 
         if any(value  in ['None',''] for value in [validity, delivery_time, delivery_term, testinspection, project]):
             dlg = QtWidgets.QMessageBox()
@@ -441,34 +482,53 @@ class Ui_ExportOffer_Form(object):
                 dlg.exec()
                 del dlg, new_icon
 
+        elif format_offer == 'Not Value':
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Exportar Oferta")
+                dlg.setText("Selecciona un formato de oferta")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg, new_icon
+
         else:
-    #         #SQL Query for updating values in database
-    #         commands_updateofferdata = ("""
-    #                     UPDATE offers
-    #                     SET "validity" = %s, "delivery_time" = %s, "delivery_term" = %s, "project" = %s, "payment_term" = %s
-    #                     WHERE "num_offer" = %s
-    #                     """)
+            #SQL Query for updating values in database
+            commands_updateofferdata = ("""
+                        UPDATE offers
+                        SET "validity" = %s, "delivery_time" = %s, "delivery_term" = %s, "project" = %s, "payment_term" = %s, "last_rev"= %s, "last_rev_date" = %s
+                        WHERE "num_offer" = %s
+                        """)
             conn = None
             try:
             # read the connection parameters
                 params = config()
             # connect to the PostgreSQL server
                 conn = psycopg2.connect(**params)
-                # cur = conn.cursor()
-    #         # execution of commands one by one
-    #             data=(validity,delivery_time,delivery_term,project,numoffer,)
-    #             cur.execute(commands_updateofferdata,data)
-    #         # close communication with the PostgreSQL database server
-    #             cur.close()
-    #         # commit the changes
-    #             conn.commit()
+                cur = conn.cursor()
+            # execution of commands one by one
+                data=(validity, delivery_time, delivery_term, project, pay_term, rev, actual_date, numoffer,)
+                cur.execute(commands_updateofferdata,data)
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
 
-                if self.variable == 'Caudal':
-                    offer_flow(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
-                elif self.variable == 'Temperatura':
-                    offer_temp(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
-                elif self.variable == 'Nivel':
-                    offer_level(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                if format_offer == 'Long':
+                    if self.variable == 'Caudal':
+                        offer_flow(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                    elif self.variable == 'Temperatura':
+                        offer_temp(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                    elif self.variable == 'Nivel':
+                        offer_level(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                elif format_offer == 'Short':
+                    if self.variable == 'Caudal':
+                        offer_short_flow(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                    elif self.variable == 'Temperatura':
+                        offer_short_temp(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                    elif self.variable == 'Nivel':
+                        offer_short_level(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()

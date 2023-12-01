@@ -27,8 +27,8 @@ class Ui_OrderAccept_Window(object):
     def setupUi(self, OrderAccept_Window):
         OrderAccept_Window.setObjectName("OrderAccept_Window")
         OrderAccept_Window.resize(300, 450)
-        OrderAccept_Window.setMinimumSize(QtCore.QSize(300, 450))
-        OrderAccept_Window.setMaximumSize(QtCore.QSize(300, 450))
+        OrderAccept_Window.setMinimumSize(QtCore.QSize(300, 650))
+        OrderAccept_Window.setMaximumSize(QtCore.QSize(300, 650))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         OrderAccept_Window.setWindowIcon(icon)
@@ -108,27 +108,111 @@ class Ui_OrderAccept_Window(object):
         self.numorder_orderaccept.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.numorder_orderaccept.setObjectName("numorder_orderaccept")
         self.verticalLayout.addWidget(self.numorder_orderaccept, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
-        self.label_revision_orderaccept = QtWidgets.QLabel(parent=self.frame)
-        self.label_revision_orderaccept.setEnabled(True)
-        self.label_revision_orderaccept.setMinimumSize(QtCore.QSize(200, 25))
-        self.label_revision_orderaccept.setMaximumSize(QtCore.QSize(200, 25))
+        self.label_address_orderaccept = QtWidgets.QLabel(parent=self.frame)
+        self.label_address_orderaccept.setEnabled(True)
+        self.label_address_orderaccept.setMinimumSize(QtCore.QSize(200, 25))
+        self.label_address_orderaccept.setMaximumSize(QtCore.QSize(200, 25))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
-        self.label_revision_orderaccept.setFont(font)
-        self.label_revision_orderaccept.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.label_revision_orderaccept.setObjectName("label_revision_orderaccept")
-        self.verticalLayout.addWidget(self.label_revision_orderaccept, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
-        self.revision_orderaccept = QtWidgets.QLineEdit(parent=self.frame)
-        self.revision_orderaccept.setEnabled(True)
-        self.revision_orderaccept.setMinimumSize(QtCore.QSize(200, 100))
-        self.revision_orderaccept.setMaximumSize(QtCore.QSize(200, 100))
+        self.label_address_orderaccept.setFont(font)
+        self.label_address_orderaccept.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.label_address_orderaccept.setObjectName("label_address_orderaccept")
+        self.verticalLayout.addWidget(self.label_address_orderaccept, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.address_orderaccept = QtWidgets.QLineEdit(parent=self.frame)
+        self.address_orderaccept.setEnabled(True)
+        self.address_orderaccept.setMinimumSize(QtCore.QSize(200, 25))
+        self.address_orderaccept.setMaximumSize(QtCore.QSize(200, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.revision_orderaccept.setFont(font)
-        self.revision_orderaccept.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.revision_orderaccept.setObjectName("revision_orderaccept")
-        self.verticalLayout.addWidget(self.revision_orderaccept, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.address_orderaccept.setFont(font)
+        self.address_orderaccept.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.address_orderaccept.setObjectName("address_orderaccept")
+        self.verticalLayout.addWidget(self.address_orderaccept, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.label_zipcode_orderaccept = QtWidgets.QLabel(parent=self.frame)
+        self.label_zipcode_orderaccept.setEnabled(True)
+        self.label_zipcode_orderaccept.setMinimumSize(QtCore.QSize(200, 25))
+        self.label_zipcode_orderaccept.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.label_zipcode_orderaccept.setFont(font)
+        self.label_zipcode_orderaccept.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.label_zipcode_orderaccept.setObjectName("label_zipcode_orderaccept")
+        self.verticalLayout.addWidget(self.label_zipcode_orderaccept, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.zipcode_orderaccept = QtWidgets.QLineEdit(parent=self.frame)
+        self.zipcode_orderaccept.setEnabled(True)
+        self.zipcode_orderaccept.setMinimumSize(QtCore.QSize(200, 25))
+        self.zipcode_orderaccept.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.zipcode_orderaccept.setFont(font)
+        self.zipcode_orderaccept.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.zipcode_orderaccept.setObjectName("zipcode_orderaccept")
+        self.verticalLayout.addWidget(self.zipcode_orderaccept, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.label_city_orderaccept = QtWidgets.QLabel(parent=self.frame)
+        self.label_city_orderaccept.setEnabled(True)
+        self.label_city_orderaccept.setMinimumSize(QtCore.QSize(200, 25))
+        self.label_city_orderaccept.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.label_city_orderaccept.setFont(font)
+        self.label_city_orderaccept.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.label_city_orderaccept.setObjectName("label_city_orderaccept")
+        self.verticalLayout.addWidget(self.label_city_orderaccept, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.city_orderaccept = QtWidgets.QLineEdit(parent=self.frame)
+        self.city_orderaccept.setEnabled(True)
+        self.city_orderaccept.setMinimumSize(QtCore.QSize(200, 25))
+        self.city_orderaccept.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.city_orderaccept.setFont(font)
+        self.city_orderaccept.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.city_orderaccept.setObjectName("city_orderaccept")
+        self.verticalLayout.addWidget(self.city_orderaccept, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.label_country_orderaccept = QtWidgets.QLabel(parent=self.frame)
+        self.label_country_orderaccept.setEnabled(True)
+        self.label_country_orderaccept.setMinimumSize(QtCore.QSize(200, 25))
+        self.label_country_orderaccept.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.label_country_orderaccept.setFont(font)
+        self.label_country_orderaccept.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.label_country_orderaccept.setObjectName("label_country_orderaccept")
+        self.verticalLayout.addWidget(self.label_country_orderaccept, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.country_orderaccept = QtWidgets.QLineEdit(parent=self.frame)
+        self.country_orderaccept.setEnabled(True)
+        self.country_orderaccept.setMinimumSize(QtCore.QSize(200, 25))
+        self.country_orderaccept.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.country_orderaccept.setFont(font)
+        self.country_orderaccept.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.country_orderaccept.setObjectName("country_orderaccept")
+        self.verticalLayout.addWidget(self.country_orderaccept, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.label_responsible_client_orderaccept = QtWidgets.QLabel(parent=self.frame)
+        self.label_responsible_client_orderaccept.setEnabled(True)
+        self.label_responsible_client_orderaccept.setMinimumSize(QtCore.QSize(200, 25))
+        self.label_responsible_client_orderaccept.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.label_responsible_client_orderaccept.setFont(font)
+        self.label_responsible_client_orderaccept.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.label_responsible_client_orderaccept.setObjectName("label_responsible_client_orderaccept")
+        self.verticalLayout.addWidget(self.label_responsible_client_orderaccept, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.responsible_client_orderaccept = QtWidgets.QLineEdit(parent=self.frame)
+        self.responsible_client_orderaccept.setEnabled(True)
+        self.responsible_client_orderaccept.setMinimumSize(QtCore.QSize(200, 25))
+        self.responsible_client_orderaccept.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.responsible_client_orderaccept.setFont(font)
+        self.responsible_client_orderaccept.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.responsible_client_orderaccept.setObjectName("responsible_client_orderaccept")
+        self.verticalLayout.addWidget(self.responsible_client_orderaccept, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
         self.checkbox_bond = QtWidgets.QCheckBox(parent=self.frame)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -207,8 +291,8 @@ class Ui_OrderAccept_Window(object):
         OrderAccept_Window.setMenuBar(self.menubar)
 
         self.retranslateUi(OrderAccept_Window)
-        self.generate_orderaccept.clicked.connect(lambda: self.generateoffer(OrderAccept_Window))
-        self.revision_orderaccept.returnPressed.connect(lambda: self.generateoffer(OrderAccept_Window))
+        self.generate_orderaccept.clicked.connect(lambda: self.generate_document(OrderAccept_Window))
+        # self.revision_orderaccept.returnPressed.connect(lambda: self.generateoffer(OrderAccept_Window))
         QtCore.QMetaObject.connectSlotsByName(OrderAccept_Window)
 
 
@@ -216,22 +300,30 @@ class Ui_OrderAccept_Window(object):
         _translate = QtCore.QCoreApplication.translate
         OrderAccept_Window.setWindowTitle(_translate("OrderAccept_Window", "Generar Acuse Pedido"))
         self.label_numorder_orderaccept.setText(_translate("OrderAccept_Window", "Número Pedido:"))
-        self.label_revision_orderaccept.setText(_translate("OrderAccept_Window", "Revisión:"))
+        self.label_address_orderaccept.setText(_translate("OrderAccept_Window", "Dirección Cliente:"))
+        self.label_zipcode_orderaccept.setText(_translate("OrderAccept_Window", "CP Cliente:"))
+        self.label_city_orderaccept.setText(_translate("OrderAccept_Window", "Ciudad Cliente:"))
+        self.label_country_orderaccept.setText(_translate("OrderAccept_Window", "País Cliente:"))
+        self.label_responsible_client_orderaccept.setText(_translate("OrderAccept_Window", "Responsable Cliente:"))
         self.generate_orderaccept.setText(_translate("OrderAccept_Window", "Generar"))
         self.checkbox_bond.setText(_translate("OrderAccept_Window", "Aval"))
         self.longformat.setText(_translate("TAGOfferToOrder_Window", "Formato Largo"))
         self.shortformat.setText(_translate("TAGOfferToOrder_Window", "Formato Corto"))
 
 
-    def generateoffer(self, OrderAccept_Window):
-        numorder=self.numorder_orderaccept.text()
-        revision=self.revision_orderaccept.text()
+    def generate_document(self, OrderAccept_Window):
+        numorder = self.numorder_orderaccept.text()
+        address_client = self.address_orderaccept.text()
+        zipcode_client = self.zipcode_orderaccept.text()
+        city_client = self.city_orderaccept.text()
+        country_client = self.country_orderaccept.text()
+        client_responsible = self.responsible_client_orderaccept.text()
         actual_date=date.today()
 
         locale.setlocale(locale.LC_TIME, '')
-        locale_actual = locale.getlocale(locale.LC_TIME)
 
         english_actual_date = format_date(actual_date, format='long', locale='en')
+        spanish_actual_date = format_date(actual_date, format='long', locale='es')
 
         commands_checkorder = ("""
                     SELECT * 
@@ -266,6 +358,17 @@ class Ui_OrderAccept_Window(object):
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Generar Acuse Pedido")
             dlg.setText("El número de pedido no se encuentra registrado")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
+
+        elif address_client =="" or (zipcode_client =="" or (city_client =="" or (country_client =="" or client_responsible ==""))):
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Generar Acuse Pedido")
+            dlg.setText("Por favor, rellena todos los campos")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
             del dlg, new_icon
@@ -360,7 +463,12 @@ class Ui_OrderAccept_Window(object):
                             'num_offer': num_offer,
                             'client': client,
                             'note_bond_english': note_bond_english,
-                            'note_bond_spanish': note_bond_spanish}
+                            'note_bond_spanish': note_bond_spanish,
+                            'address_client': address_client,
+                            'zipcode_client': zipcode_client,
+                            'city_client': city_client, 
+                            'country_client': country_client,
+                            'client_responsible': client_responsible}
                 doc.render(context)
                 self.save_document(doc)
 
@@ -374,11 +482,33 @@ class Ui_OrderAccept_Window(object):
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                 dlg.exec()
                 del dlg, new_icon
-                OrderAccept_Window.close()
+
+                self.numorder_orderaccept.setText("")
+                self.address_orderaccept.setText("")
+                self.zipcode_orderaccept.setText("")
+                self.city_orderaccept.setText("")
+                self.country_orderaccept.setText("")
+                self.responsible_client_orderaccept.setText("")
+
+                # OrderAccept_Window.close()
+
 
             elif self.shortformat.isChecked()==True:
                 doc = DocxTemplate(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Corto Pedido.docx")
-                context = {'client': "World company"}
+                context = {'client': client,
+                            'spanish_actual_date': spanish_actual_date,
+                            'num_ref_order': num_ref_order,
+                            'num_order': num_order,
+                            'spanish_order_date': spanish_order_date,
+                            'order_amount': order_amount,
+                            'delivery_term': delivery_term,
+                            'delivery_time': delivery_time,
+                            'note_bond_spanish': note_bond_spanish,
+                            'address_client': address_client,
+                            'zipcode_client': zipcode_client,
+                            'city_client': city_client, 
+                            'country_client': country_client,
+                            'client_responsible': client_responsible}
                 doc.render(context)
                 self.save_document(doc)
 

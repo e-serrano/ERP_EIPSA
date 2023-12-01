@@ -50,9 +50,10 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
 
 class Ui_TechOffice_Window(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self,db):
         super().__init__()
         self.model = EditableTableModel()
+        self.db = db
         self.setupUi(self)
 
     def closeEvent(self, event):
@@ -149,7 +150,7 @@ class Ui_TechOffice_Window(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(TechOffice_Window)
 
         self.model.setTable("public.orders")
-        self.model.setFilter("porc_workshop <> 100 OR porc_workshop IS NULL")
+        self.model.setFilter("num_order LIKE 'P-%' AND num_order NOT LIKE '%R%' AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)")
         self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.model.select()
         self.tableTechOf.setModel(self.model)
@@ -161,7 +162,7 @@ class Ui_TechOffice_Window(QtWidgets.QMainWindow):
 
         headers=['Nº Pedido', '','','','','','','','',
                 'Fecha Recepción','Observaciones',
-                '','','','', '','','','', '', '', '', '']
+                '','','','', '','','','', '', '', '', '', 'OK']
 
         self.tableTechOf.setItemDelegate(AlignDelegate(self.tableTechOf))
         self.tableTechOf.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
@@ -172,7 +173,7 @@ class Ui_TechOffice_Window(QtWidgets.QMainWindow):
 
     def retranslateUi(self, TechOffice_Window):
         _translate = QtCore.QCoreApplication.translate
-        TechOffice_Window.setWindowTitle(_translate("EditTags_Window", "Envíos"))
+        TechOffice_Window.setWindowTitle(_translate("EditTags_Window", "Oficina Técnica"))
 
 
 # if __name__ == "__main__":

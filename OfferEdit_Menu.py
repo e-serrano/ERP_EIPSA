@@ -7,8 +7,8 @@
 
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
-from SubmitOffer_Window import Ui_SubmitOffer_Window
-from EditOffer_Window import Ui_Edit_Offer_Window
+from OfferSubmit_Window import Ui_SubmitOffer_Window
+from OfferEdit_Window import Ui_Edit_Offer_Window
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
