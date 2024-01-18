@@ -346,7 +346,16 @@ class Ui_OrderAccept_Window(object):
         # commit the changes
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -395,7 +404,16 @@ class Ui_OrderAccept_Window(object):
             # commit the changes
                 conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
             finally:
                 if conn is not None:
                     conn.close()
@@ -415,8 +433,6 @@ class Ui_OrderAccept_Window(object):
 
             expected_date += timedelta(days=(validity + 28))
 
-            payment_term_db = "90_10"
-
             if payment_term_db == "100_delivery":
                 payment_term_english = "100% of total amount of purchase order upon delivery of material according to Incoterms 2020"
                 payment_term_spanish = "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020"
@@ -429,7 +445,7 @@ class Ui_OrderAccept_Window(object):
             elif payment_term_db == "50_50":
                 payment_term_english = "50% of the total amount of purchase order upon receipt of purchase order. Remaining 50% before be delivered according to Incoterms 2020"
                 payment_term_spanish = "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020"
-            elif payment_term_db == "Others":
+            elif payment_term_db == "Others" or payment_term_db == None:
                     payment_term_english = "PAYMENT TERMS TO BE DEFINED"
                     payment_term_spanish = "TERMINOS DE PAGO POR DEFINIR"
 

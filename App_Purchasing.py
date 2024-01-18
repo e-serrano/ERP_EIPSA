@@ -7,11 +7,6 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-from Purchasing_Menu import Ui_Purchasing_Menu
-from OfferQuery_Window import Ui_QueryOffer_Window
-from OrderQuery_Window import Ui_QueryOrder_Window
-from TAGQuery_Window import Ui_QueryTags_Window
-from PasswordEdit_Window import Ui_EditPasswordWindow
 from PyQt6.QtWidgets import QMenu
 import os
 
@@ -336,6 +331,7 @@ class Ui_App_Purchasing(object):
 
 
     def purchase(self):
+        from Purchasing_Menu import Ui_Purchasing_Menu
         self.purchasing_window=QtWidgets.QMainWindow()
         self.ui=Ui_Purchasing_Menu(self.name)
         self.ui.setupUi(self.purchasing_window)
@@ -343,6 +339,7 @@ class Ui_App_Purchasing(object):
 
 
     def query_offer(self):
+        from OfferQuery_Window import Ui_QueryOffer_Window
         self.query_offer_window=QtWidgets.QMainWindow()
         self.ui=Ui_QueryOffer_Window()
         self.ui.setupUi(self.query_offer_window)
@@ -350,6 +347,7 @@ class Ui_App_Purchasing(object):
 
 
     def query_order(self):
+        from OrderQuery_Window import Ui_QueryOrder_Window
         self.query_order_window=QtWidgets.QMainWindow()
         self.ui=Ui_QueryOrder_Window()
         self.ui.setupUi(self.query_order_window)
@@ -357,6 +355,7 @@ class Ui_App_Purchasing(object):
 
 
     def query_tag(self):
+        from TAGQuery_Window import Ui_QueryTags_Window
         self.querytag_window=QtWidgets.QMainWindow()
         self.ui=Ui_QueryTags_Window('Comercial')
         self.ui.setupUi(self.querytag_window)
@@ -375,6 +374,7 @@ class Ui_App_Purchasing(object):
 
 
     def editpassword(self):
+        from PasswordEdit_Window import Ui_EditPasswordWindow
         self.edit_password_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditPasswordWindow(self.username)
         self.ui.setupUi(self.edit_password_window)

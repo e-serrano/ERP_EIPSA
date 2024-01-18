@@ -4,6 +4,9 @@ dist/
 *.spec
 *.pyc
 
+UI_Files/
+*.ui
+
 Resources/
 
 PDF_Styles.py
@@ -31,5 +34,9 @@ zz test2.py
 zz test3.py
 
 zz test4.py
+
+zz test5.py
+
+MoneyChange.py
 
 frozencolumn.py

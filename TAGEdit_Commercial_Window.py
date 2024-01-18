@@ -448,7 +448,16 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         try:
             self.Numoffer_EditTags.returnPressed.connect(self.query_tags)
         except Exception as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         self.Numorder_EditTags.returnPressed.connect(self.query_tags)
         self.model.dataChanged.connect(self.saveChanges)
         self.createContextMenu()
@@ -558,7 +567,16 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         # commit the changes
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -690,7 +708,16 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 # commit the changes
                     conn.commit()
                 except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
                 finally:
                     if conn is not None:
                         conn.close()
@@ -710,7 +737,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 else:
                     if self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
-                        self.initial_column = 32
+                        self.initial_column = 34
                     elif self.variable == 'Temperatura':
                         self.model.setTable("tags_data.tags_temp")
                         self.initial_column = 39
@@ -756,7 +783,16 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 # commit the changes
                     conn.commit()
                 except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
                 finally:
                     if conn is not None:
                         conn.close()
@@ -776,7 +812,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 else:
                     if self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
-                        self.initial_column = 32
+                        self.initial_column = 34
                     elif self.variable == 'Temperatura':
                         self.model.setTable("tags_data.tags_temp")
                         self.initial_column = 39
@@ -823,7 +859,16 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 # commit the changes
                     conn.commit()
                 except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
                 finally:
                     if conn is not None:
                         conn.close()
@@ -843,7 +888,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 else:
                     if self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
-                        self.initial_column = 32
+                        self.initial_column = 34
                     elif self.variable == 'Temperatura':
                         self.model.setTable("tags_data.tags_temp")
                         self.initial_column = 39
@@ -866,19 +911,19 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             self.model.column_range = range(self.initial_column,columns_number)
 
             if self.variable == 'Caudal':
-                for i in range(42,63):
+                for i in range(44,67):
                     self.tableEditTags.hideColumn(i)
-                for i in range(66,columns_number):
+                for i in range(70,columns_number):
                     self.tableEditTags.hideColumn(i)
             elif self.variable == 'Temperatura':
-                for i in range(53,70):
+                for i in range(54,75):
                     self.tableEditTags.hideColumn(i)
-                for i in range(73,columns_number):
+                for i in range(78,columns_number):
                     self.tableEditTags.hideColumn(i)
             elif self.variable == 'Nivel':
-                for i in range(48,51):
+                for i in range(48,55):
                     self.tableEditTags.hideColumn(i)
-                for i in range(54,columns_number):
+                for i in range(58,columns_number):
                     self.tableEditTags.hideColumn(i)
 
             self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
@@ -897,16 +942,27 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
                         "Tipo", "Tamaño Línea", "Rating", "Facing", "Schedule", "Material Brida", "Tipo Brida",
                         "Material Tubo", "Tamaño Tomas (Nº)", "Material Elemento", "Tipo Placa", "Espesor Placa",
-                        "Estándar Placa", "Material Junta", "Material Tornillería", "Nº Saltos", "Pipe Spec.",
+                        "Estándar Placa", "Material Junta", "Material Tornillería", "Con. Válvula", "Material Cuerpo Vlv.", "Nº Saltos", "Pipe Spec.",
                         "Peso Aprox. (kg)", "Long. Aprox. (mm)", "NACE", "Precio (€)", "Notas Oferta",
                         "Cambios Comercial", "Fecha Contractual", "Ø Orif. (mm)", "Ø D/V (mm)", "Cambios Técnicos",
                         "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo", "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano",
                         "Estado Plano", "Fecha Estado Plano", "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra",
-                        "Fecha OF Placa", "Plano OF Placa", "Colada Placa", "Fecha OF Brida", "Plano OF Brida",
-                        "Colada Brida", "Nº Tapones", "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material",
+                        "Plano Dim.", "Plano OF", "Fecha OF", "Notas Equipo", "Colada Placa", "Cert. Placa", "Colada Brida",
+                        "Cert. Brida", "Nº Tapones", "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material",
                         "RTJ Espesor", "RTJ Dim", "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos",
                         "Cantidad Espárragos", "Tamaño Extractor", "Cantidad Extractor", "Estado Fabricación", "Inspección",
-                        "Envío RN"]
+                        "Envío RN","","","",
+                        "","","","","","","","","","",
+                        "","","","","","","","","","",
+                        "","","","","","","","","","",
+                        "","","","","","","","","","",
+                        "","","","","","","","","","",
+                        "Fecha PH1","","","","",
+                        "Fecha PH2","","","","",
+                        "Fecha LP","","","","","",
+                        "Fecha Dureza","","","","","","","",
+                        "Fecha Verif. Dim.","","",
+                        "Fecha Verif. OF","","",]
 
             headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
                         "Tipo", "Tipo TW", "Tamaño Brida", "Rating Brida", "Facing Brida", "Standard TW",
@@ -918,10 +974,23 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         "Stress", "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Ø Picaje (mm)",
                         "Notas Cálculo", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo",
                         "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Planos",
-                        "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Fecha OF Sensor", "Plano OF Sensor", 
+                        "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Plano Dim.", "Plano OF Sensor", "Fecha OF Sensor", 
                         "Notas Sensor", "Estado Fabricación Sensor", "Fecha OF TW", "Plano OF TW", "Notas TW",
-                        "Estado Fabricación TW", "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)",
-                        "Tapón", "Estado Fabricación", "Inspección", "Envío RN"]
+                        "Estado Fabricación TW", " Colada Barra", "Cert. Barra", "Colada Brida", "Cert.Brida",
+                        "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)",
+                        "Tapón", "Estado Fabricación", "Inspección", "Envío RN","","",
+                        "","","","","","","","","","",
+                        "","","","","","","","","","",
+                        "","","","","","","","","","",
+                        "","","","","","","","","","",
+                        "","","","","","","","","","",
+                        "Fecha PH1","","","","",
+                        "Fecha PH2","","","","",
+                        "Fecha LP","","","","","",
+                        "Fecha Dureza","","","","","","","",
+                        "Fecha Verif. Dim.","","",
+                        "Fecha Verif. OF Vaina","","",
+                        "Fecha Verif. OF Sensor"]
 
             headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Modelo",
@@ -932,8 +1001,22 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                             "Cod. IP", "Tipo Brida", "Niplo Hex.", "Niplo Tubo", "Antifrost",
                             "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
                             "Dim. Flotador", "Junta Bridas", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Plano",
-                            "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Fecha OF", "Plano OF",
-                            "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Estado Fabricación", "Inspección", "Envío RN"]
+                            "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra",
+                            "Plano Dim.", "Plano OF", "Fecha OF", "Notas Equipo", "Estado Fabricación", "Inspección", "Envío RN",
+                            "","",
+                            "","","","","","","","","","",
+                            "","","","","","","","","","",
+                            "","","","","","","","","","",
+                            "","","","","","","","","","",
+                            "","","","","","","","","","",
+                            "","","","","","","","","","",
+                            "","","","","","","","","","",
+                            "Fecha PH1","","","","",
+                            "Fecha PH2","","","","",
+                            "Fecha LP","","","","","",
+                            "Fecha Dureza","","","","","","","",
+                            "Fecha Verif. Dim.","","",
+                            "Fecha Verif. OF","","",]
 
             if self.variable == 'Caudal':
                 self.model.setAllColumnHeaders(headers_flow)

@@ -25,7 +25,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
-        if index.column() == 4:  # Verifica que estemos en la tercera columna
+        if index.column() == 4:  # Check column and paint when apply
             value = index.data()
 
             if value == "Completado":  
@@ -260,7 +260,16 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
             self.tableTasks.setItemDelegate(AlignDelegate(self.tableTasks))
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -279,41 +288,6 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
             with pd.ExcelWriter(file_name, engine='openpyxl') as writer:
                 df.to_excel(writer, index=False)
 
-
-    def keyPressEvent(self, event):
-        super().keyPressEvent(event)
-        if event.matches(QtGui.QKeySequence.StandardKey.Copy):
-            selected_indexes = self.tableTasks.selectedIndexes()
-            if selected_indexes:
-                clipboard = QApplication.clipboard()
-                text = self.get_selected_text(selected_indexes)
-                clipboard.setText(text)
-
-
-    def get_selected_text(self, indexes):
-        rows = set()
-        cols = set()
-        for index in indexes:
-            rows.add(index.row())
-            cols.add(index.column())
-
-        text_doc = QTextDocument()
-        cursor = QTextCursor(text_doc)
-
-        header_labels = [self.tableTasks.horizontalHeaderItem(col).text() for col in sorted(cols)]
-        for label in header_labels:
-            cursor.insertText(label)
-            cursor.insertText('\t')  # Tab separador de columnas
-        cursor.insertText('\n')   # Salto de línea después de las cabeceras
-
-        for row in sorted(rows):
-            for col in sorted(cols):
-                cell_data = self.tableTasks.item(row, col).data(Qt.ItemDataRole.DisplayRole)
-                cursor.insertText(cell_data)
-                cursor.insertText('\t')  # Tab separador de columnas
-            cursor.insertText('\n')  # Salto de línea al final de la fila
-
-        return text_doc.toPlainText()
 
     def on_item_double_clicked(self, item):
         if item.column() == 2:

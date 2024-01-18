@@ -185,7 +185,16 @@ class Ui_ImportTableNew_Window(object):
             conn.commit()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -203,17 +212,17 @@ class Ui_ImportTableNew_Window(object):
             dlg.exec()
             del dlg, new_icon
 
-        elif not re.match(r"^[a-z_]+$",table_name):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("El formato del nombre de tabla no es correcto\n"
-                        "Sólo pueden utilizarse minúsculas y guiones bajos")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+        # elif not re.match(r"^[a-z_]+$",table_name):
+        #     dlg = QtWidgets.QMessageBox()
+        #     new_icon = QtGui.QIcon()
+        #     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        #     dlg.setWindowIcon(new_icon)
+        #     dlg.setWindowTitle("ERP EIPSA")
+        #     dlg.setText("El formato del nombre de tabla no es correcto\n"
+        #                 "Sólo pueden utilizarse minúsculas y guiones bajos")
+        #     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        #     dlg.exec()
+        #     del dlg, new_icon
 
         elif table_name in tablesdatabase_names:
             dlg = QtWidgets.QMessageBox()
@@ -254,11 +263,10 @@ class Ui_ImportTableNew_Window(object):
             columns_datatypes = list(df_raw.columns)
             columns_names = list(df_table.columns)
 
-            columns_datatypes[0] = "integer NOT NULL"
+            columns_datatypes[0] = "character varying NOT NULL"
             columns_datatypes[1] = "character varying"
-            columns_datatypes[2] = "character varying"
 
-            table_name="fabrication." + table_name
+            table_name="verification." + table_name
             
         # Creating list of pairs (name, dataype) for each column
             columns_definition = [f"{name} {datatype}" for name, datatype in zip(columns_names, columns_datatypes)]

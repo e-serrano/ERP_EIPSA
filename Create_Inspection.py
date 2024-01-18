@@ -20,14 +20,14 @@ def inspection(proxy, model, variable):
                 break
         if target_row is not None:
             if variable == 'Caudal':
-                ped_type_tag = model.data(model.index(target_row, 106))
-                inspection = model.data(model.index(target_row, 64))
-            elif variable == 'Temperatura':
-                ped_type_tag = model.data(model.index(target_row, 112))
-                inspection = model.data(model.index(target_row, 71))
-            elif variable == 'Nivel':
                 ped_type_tag = model.data(model.index(target_row, 110))
-                inspection = model.data(model.index(target_row, 54))
+                inspection = model.data(model.index(target_row, 68))
+            elif variable == 'Temperatura':
+                ped_type_tag = model.data(model.index(target_row, 117))
+                inspection = model.data(model.index(target_row, 76))
+            elif variable == 'Nivel':
+                ped_type_tag = model.data(model.index(target_row, 112))
+                inspection = model.data(model.index(target_row, 56))
 
             conn = None
             try:
@@ -76,7 +76,16 @@ def inspection(proxy, model, variable):
             # commit the changes
                 conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
             finally:
                 if conn is not None:
                     conn.close()

@@ -9,33 +9,11 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QMenu
 from PyQt6.QtCore import Qt
 import psycopg2
-import sys
 from config import config
 from datetime import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib import ticker
-from OfferNew_Window import Ui_New_Offer_Window
-from OfferEdit_Menu import Ui_EditOffer_Menu
-from OfferEdit_Window import Ui_Edit_Offer_Window
-from OfferQuery_Window import Ui_QueryOffer_Window
-from OrderNew_Window import Ui_New_Order_Window
-from OrderEdit_Menu import Ui_EditOrder_Menu
-from OrderQuery_Window import Ui_QueryOrder_Window
-from TAGCreate_Menu import Ui_CreateTag_Menu
-from TAGEdit_Menu import Ui_EditTags_Menu
-from TAGQuery_Window import Ui_QueryTags_Window
-from DocQuery_Window import Ui_QueryDoc_Window
-from ExportDocs_Menu import Ui_ExportDocs_Menu
-from OfferGraphs_Window import Ui_GraphsOffer_Window
-from ClientsGeneralResume_Window import Ui_ClientsGeneralResume_Window
-from TaskAdd_Window import Ui_AddTask_Window
-from TaskQuery_Window import Ui_QueryTask_Window
-from UserEdit_Menu import Ui_EditUser_Menu
-from PasswordEdit_Window import Ui_EditPasswordWindow
-from ClientResume_Window import Ui_ClientResume_Window
-from OfferReclamation_Window import Ui_ReclamationOffer_Window
-from NotificationsHistory_Window import Ui_HistoryNotifications_Window
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -325,7 +303,44 @@ class Ui_App_Comercial(object):
         spacerItem12 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem12)
 
-        if self.name in ['Ana Calvo']:
+        if self.name in ['Luis Bravo']:
+            self.Button_ClockIn = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_ClockIn.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_ClockIn.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_ClockIn.setToolTip('Fichajes')
+            self.Button_ClockIn.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_ClockIn.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_ClockIn.setText("")
+            icon17 = QtGui.QIcon()
+            icon17.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/ClockIn.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_ClockIn.setIcon(icon17)
+            self.Button_ClockIn.setIconSize(QtCore.QSize(40, 40))
+            self.Button_ClockIn.setObjectName("Button_ClockIn")
+            self.Button_ClockIn.clicked.connect(self.clockin)
+            self.Header.addWidget(self.Button_ClockIn)
+
+        elif self.name in ['Ana Calvo']:
             self.Button_Users = QtWidgets.QPushButton(parent=self.frame)
             self.Button_Users.setMinimumSize(QtCore.QSize(50, 50))
             self.Button_Users.setMaximumSize(QtCore.QSize(50, 50))
@@ -359,6 +374,7 @@ class Ui_App_Comercial(object):
             self.Button_Users.setIcon(icon2)
             self.Button_Users.setIconSize(QtCore.QSize(40, 40))
             self.Button_Users.setObjectName("Button_Users")
+            self.Button_Users.clicked.connect(self.user_edition)
             self.Header.addWidget(self.Button_Users)
 
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -664,127 +680,11 @@ class Ui_App_Comercial(object):
         self.MainLayout.addWidget(self.tableOffer)
         spacerItem6 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.MainLayout.addItem(spacerItem6)
-        self.BottomLayout = QtWidgets.QHBoxLayout()
+        self.BottomLayout = QtWidgets.QGridLayout()
         self.BottomLayout.setContentsMargins(-1, 0, -1, -1)
         self.BottomLayout.setObjectName("BottomLayout")
-
-        try:
-            commands_responsible = ("""
-                        SELECT *
-                        FROM users_data.initials
-                        """)
-            commands_graph1 = ("""
-                        SELECT orders."order_month", CAST(SUM(orders."order_amount") AS numeric)
-                        FROM offers
-                        INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
-                        WHERE (offers."responsible"=%s
-                        AND
-                        orders."order_year"=%s
-                        )
-                        GROUP BY orders."order_month"
-                        ORDER BY orders."order_month"
-                        """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(commands_responsible)
-                results_responsible=cur.fetchall()
-                match=list(filter(lambda x:self.username in x, results_responsible))
-                responsible=match[0][0]
-                data=(responsible, date.today().year,)
-                cur.execute(commands_graph1, data)
-                results=cur.fetchall()
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-            except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-            finally:
-                if conn is not None:
-                    conn.close()
-
-            months=[int(x[0]) for x in results]
-            amounts=[float(x[1]) for x in results]
-
-            self.canvas=FigureCanvas(Figure())
-            ax=self.canvas.figure.subplots()
-            ax.bar(months,amounts)
-            ax.set_xticks(range(1,13))
-            axticks_y=ticker.FuncFormatter(self.format_y_ticks)
-            ax.yaxis.set_major_formatter(axticks_y)
-            ax.set_title('Ventas totales año actual')
-            ax.set_xlabel('Mes')
-            ax.set_ylabel('Importe (€)')
-
-            self.canvas.setMinimumSize(QtCore.QSize(200, 400))
-            self.canvas.setMaximumSize(QtCore.QSize(583, 400))
-
-            self.canvas.setObjectName("Graph1")
-            self.BottomLayout.addWidget(self.canvas)
-
-            spacerItem7 = QtWidgets.QSpacerItem(15, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.BottomLayout.addItem(spacerItem7)
-
-            commands_graph2 = ("""
-                        SELECT COUNT(orders."num_order"), product_type."variable"
-                        FROM offers
-                        INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
-                        INNER JOIN product_type ON (offers."material"=product_type."material")
-                        WHERE (offers."responsible"=%s
-                        AND
-                        "order_year"=%s
-                        )
-                        GROUP BY product_type."variable"
-                        """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(commands_responsible)
-                results_responsible=cur.fetchall()
-                match=list(filter(lambda x:self.username in x, results_responsible))
-                responsible=match[0][0]
-                data=(responsible, date.today().year,)
-                cur.execute(commands_graph2, data)
-                results2=cur.fetchall()
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-            except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-            finally:
-                if conn is not None:
-                    conn.close()
-
-            count=[x[0] for x in results2]
-            labels=[x[1] for x in results2]
-
-            self.canvas2=FigureCanvas(Figure())
-            bx=self.canvas2.figure.subplots()
-            bx.pie(count,labels=labels,autopct='%1.1f%%')
-            bx.set_title('Proporción equipos vendidos')
-
-            self.canvas2.setMinimumSize(QtCore.QSize(200, 400))
-            self.canvas2.setMaximumSize(QtCore.QSize(583, 400))
-            self.canvas2.setObjectName("canvas2")
-            self.BottomLayout.addWidget(self.canvas2)
-
-        except:
-            pass
-
-        spacerItem8 = QtWidgets.QSpacerItem(15, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.BottomLayout.addItem(spacerItem8)
+        # spacerItem8 = QtWidgets.QSpacerItem(15, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        # self.BottomLayout.addItem(spacerItem8)
         self.Calendar = ImageCalendarWidget(parent=self.frame)
         self.Calendar.setEnabled(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
@@ -844,7 +744,7 @@ class Ui_App_Comercial(object):
         self.Calendar.setDateEditEnabled(True)
         self.Calendar.setObjectName("Calendar")
         self.Calendar.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.BottomLayout.addWidget(self.Calendar)
+        self.BottomLayout.addWidget(self.Calendar, 0, 2, 1, 1)
         self.MainLayout.addLayout(self.BottomLayout)
         self.PrincipalScreen.addLayout(self.MainLayout)
         self.FrameApp.addLayout(self.PrincipalScreen)
@@ -886,65 +786,7 @@ class Ui_App_Comercial(object):
 
         self.setup_task_dates()
 
-        if self.name in ['Ana Calvo']:
-            self.Button_Users.clicked.connect(self.user_edition)
-
-        commands_responsible = ("""
-                        SELECT *
-                        FROM users_data.initials
-                        """)
-        commands_appcomercial = ("""
-                    SELECT "num_offer","state","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","notes","important","tracking"
-                    FROM offers
-                    WHERE ("responsible" = %s
-                    AND
-                    ("state" = 'Presentada'
-                    OR
-                    "state" = 'Registrada'
-                    ))
-                    ORDER BY "num_offer"
-                    """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_responsible)
-            results_responsible=cur.fetchall()
-            match=list(filter(lambda x:self.username in x, results_responsible))
-            responsible=match[0][0]
-            cur.execute(commands_appcomercial,(responsible,))
-            results=cur.fetchall()
-            self.tableOffer.setRowCount(len(results))
-            tablerow=0
-
-        # fill the Qt Table with the query results
-            for row in results:
-                for column in range(10):
-                    value = row[column]
-                    if value is None:
-                        value = ''
-                    it = QtWidgets.QTableWidgetItem(str(value))
-                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                    self.tableOffer.setItem(tablerow, column, it)
-
-                tablerow+=1
-
-            self.tableOffer.verticalHeader().hide()
-            self.tableOffer.setItemDelegate(AlignDelegate(self.tableOffer))
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-        finally:
-            if conn is not None:
-                conn.close()
+        self.update_principal_screen()
 
         self.alert_offers()
         self.alert_reclamation_offers()
@@ -1007,48 +849,55 @@ class Ui_App_Comercial(object):
 
 
     def new_offer(self):
+        from OfferNew_Window import Ui_New_Offer_Window
         self.new_offer_window=QtWidgets.QMainWindow()
         self.ui=Ui_New_Offer_Window(self.username)
         self.ui.setupUi(self.new_offer_window)
         self.new_offer_window.show()
-        self.ui.Button_Cancel.clicked.connect(self.update_table)
+        self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
 
     def edit_offer(self):
+        from OfferEdit_Menu import Ui_EditOffer_Menu
         self.edit_offer_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditOffer_Menu()
         self.ui.setupUi(self.edit_offer_window)
         self.edit_offer_window.show()
-        self.ui.Button_Cancel.clicked.connect(self.update_table)
+        self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
 
     def query_offer(self):
+        from OfferQuery_Window import Ui_QueryOffer_Window
         self.query_offer_window=Ui_QueryOffer_Window()
         self.query_offer_window.show()
 
 
     def new_order(self):
+        from OrderNew_Window import Ui_New_Order_Window
         self.new_order_window=QtWidgets.QMainWindow()
         self.ui=Ui_New_Order_Window()
         self.ui.setupUi(self.new_order_window)
         self.new_order_window.show()
-        self.ui.Button_Cancel.clicked.connect(self.update_table)
+        self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
 
     def edit_order(self):
+        from OrderEdit_Menu import Ui_EditOrder_Menu
         self.edit_order_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditOrder_Menu()
         self.ui.setupUi(self.edit_order_window)
         self.edit_order_window.show()
-        self.ui.Button_Cancel.clicked.connect(self.update_table)
+        self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
 
     def query_order(self):
+        from OrderQuery_Window import Ui_QueryOrder_Window
         self.query_order_window=Ui_QueryOrder_Window()
         self.query_order_window.show()
 
 
     def new_tag(self):
+        from TAGCreate_Menu import Ui_CreateTag_Menu
         self.new_tag_window=QtWidgets.QMainWindow()
         self.ui=Ui_CreateTag_Menu()
         self.ui.setupUi(self.new_tag_window)
@@ -1056,6 +905,7 @@ class Ui_App_Comercial(object):
 
 
     def edit_tag(self):
+        from TAGEdit_Menu import Ui_EditTags_Menu
         self.edittags_menu=QtWidgets.QMainWindow()
         self.ui=Ui_EditTags_Menu()
         self.ui.setupUi(self.edittags_menu)
@@ -1063,6 +913,7 @@ class Ui_App_Comercial(object):
 
 
     def query_tag(self):
+        from TAGQuery_Window import Ui_QueryTags_Window
         self.querytag_window=QtWidgets.QMainWindow()
         self.ui=Ui_QueryTags_Window('Comercial')
         self.ui.setupUi(self.querytag_window)
@@ -1070,6 +921,7 @@ class Ui_App_Comercial(object):
 
 
     def export_menu(self):
+        from ExportDocs_Menu import Ui_ExportDocs_Menu
         self.exportdocs_menu=QtWidgets.QMainWindow()
         self.ui=Ui_ExportDocs_Menu(self.username)
         self.ui.setupUi(self.exportdocs_menu)
@@ -1077,11 +929,13 @@ class Ui_App_Comercial(object):
 
 
     def query_documents(self):
+        from DocQuery_Window import Ui_QueryDoc_Window
         self.querydoc_menu=Ui_QueryDoc_Window()
         self.querydoc_menu.show()
 
 
     def graphs(self):
+        from OfferGraphs_Window import Ui_GraphsOffer_Window
         self.graphswindow=QtWidgets.QMainWindow()
         self.ui=Ui_GraphsOffer_Window()
         self.ui.setupUi(self.graphswindow)
@@ -1089,6 +943,7 @@ class Ui_App_Comercial(object):
 
 
     def clients_generalresume(self):
+        from ClientsGeneralResume_Window import Ui_ClientsGeneralResume_Window
         self.clients_general_resume_window=QtWidgets.QMainWindow()
         self.ui=Ui_ClientsGeneralResume_Window()
         self.ui.setupUi(self.clients_general_resume_window)
@@ -1096,12 +951,14 @@ class Ui_App_Comercial(object):
 
 
     def querytask(self, date=None):
+        from TaskQuery_Window import Ui_QueryTask_Window
         self.querytaskwindow=Ui_QueryTask_Window(self.name, date)
         self.querytaskwindow.show()
         self.querytaskwindow.Button_Cancel.clicked.connect(self.setup_task_dates)
 
 
     def newtask(self, date):
+        from TaskAdd_Window import Ui_AddTask_Window
         self.newtaskwindow=QtWidgets.QMainWindow()
         self.ui=Ui_AddTask_Window(self.name, date)
         self.ui.setupUi(self.newtaskwindow)
@@ -1121,6 +978,7 @@ class Ui_App_Comercial(object):
 
 
     def editpassword(self):
+        from PasswordEdit_Window import Ui_EditPasswordWindow
         self.edit_password_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditPasswordWindow(self.username)
         self.ui.setupUi(self.edit_password_window)
@@ -1128,6 +986,7 @@ class Ui_App_Comercial(object):
 
 
     def user_edition(self):
+        from UserEdit_Menu import Ui_EditUser_Menu
         self.edit_user_menu=QtWidgets.QMainWindow()
         self.ui=Ui_EditUser_Menu()
         self.ui.setupUi(self.edit_user_menu)
@@ -1135,13 +994,156 @@ class Ui_App_Comercial(object):
 
 
     def notifications(self):
+        from NotificationsHistory_Window import Ui_HistoryNotifications_Window
         self.notification_window=Ui_HistoryNotifications_Window(self.username)
         self.notification_window.show()
         self.notification_window.Button_Cancel.clicked.connect(self.load_notifications)
 
 
-#Function to update the table
-    def update_table(self):
+# Function to update table and graphs at the same time
+    def update_principal_screen(self):
+        self.load_table()
+        self.load_graphs()
+
+
+# Function to load values on graphs
+    def load_graphs(self):
+        try:
+            commands_responsible = ("""
+                        SELECT *
+                        FROM users_data.initials
+                        """)
+            commands_graph1 = ("""
+                        SELECT orders."order_month", CAST(SUM(orders."order_amount") AS numeric)
+                        FROM offers
+                        INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
+                        WHERE (offers."responsible"=%s
+                        AND
+                        orders."order_year"=%s
+                        )
+                        GROUP BY orders."order_month"
+                        ORDER BY orders."order_month"
+                        """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(commands_responsible)
+                results_responsible=cur.fetchall()
+                match=list(filter(lambda x:self.username in x, results_responsible))
+                responsible=match[0][0]
+                data=(responsible, date.today().year,)
+                cur.execute(commands_graph1, data)
+                results=cur.fetchall()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
+
+            months=[int(x[0]) for x in results]
+            amounts=[float(x[1]) for x in results]
+
+            self.canvas=FigureCanvas(Figure())
+            ax=self.canvas.figure.subplots()
+            ax.bar(months,amounts)
+            ax.set_xticks(range(1,13))
+            axticks_y=ticker.FuncFormatter(self.format_y_ticks)
+            ax.yaxis.set_major_formatter(axticks_y)
+            ax.set_title('Ventas totales año actual')
+            ax.set_xlabel('Mes')
+            ax.set_ylabel('Importe (€)')
+
+            self.canvas.setMinimumSize(QtCore.QSize(200, 400))
+            self.canvas.setMaximumSize(QtCore.QSize(583, 400))
+
+            self.canvas.setObjectName("Graph1")
+            self.BottomLayout.addWidget(self.canvas, 0, 0, 1, 1)
+
+            # spacerItem7 = QtWidgets.QSpacerItem(15, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            # self.BottomLayout.addItem(spacerItem7)
+
+            commands_graph2 = ("""
+                        SELECT COUNT(orders."num_order"), product_type."variable"
+                        FROM offers
+                        INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
+                        INNER JOIN product_type ON (offers."material"=product_type."material")
+                        WHERE (offers."responsible"=%s
+                        AND
+                        "order_year"=%s
+                        )
+                        GROUP BY product_type."variable"
+                        """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(commands_responsible)
+                results_responsible=cur.fetchall()
+                match=list(filter(lambda x:self.username in x, results_responsible))
+                responsible=match[0][0]
+                data=(responsible, date.today().year,)
+                cur.execute(commands_graph2, data)
+                results2=cur.fetchall()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
+
+            count=[x[0] for x in results2]
+            labels=[x[1] for x in results2]
+
+            self.canvas2=FigureCanvas(Figure())
+            bx=self.canvas2.figure.subplots()
+            bx.pie(count,labels=labels,autopct='%1.1f%%')
+            bx.set_title('Proporción equipos vendidos')
+
+            self.canvas2.setMinimumSize(QtCore.QSize(200, 400))
+            self.canvas2.setMaximumSize(QtCore.QSize(583, 400))
+            self.canvas2.setObjectName("canvas2")
+            self.BottomLayout.addWidget(self.canvas2, 0, 1, 1, 1)
+
+        except:
+            pass
+
+
+#Function to load values on table
+    def load_table(self):
         self.tableOffer.setRowCount(0)
         commands_responsible = ("""
                         SELECT *
@@ -1195,7 +1197,16 @@ class Ui_App_Comercial(object):
         # commit the changes
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -1243,7 +1254,16 @@ class Ui_App_Comercial(object):
             dates_with_tasks=list(set(dates_with_tasks_raw))
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -1348,7 +1368,16 @@ class Ui_App_Comercial(object):
             return value_to_return
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -1391,7 +1420,16 @@ class Ui_App_Comercial(object):
         # commit the changes
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -1433,6 +1471,7 @@ class Ui_App_Comercial(object):
 
 # Function when double clicked cell is in client column
     def clientresume(self, item):
+        from ClientResume_Window import Ui_ClientResume_Window
         clientname=item.text()
         self.client_resume_window=QtWidgets.QMainWindow()
         self.ui=Ui_ClientResume_Window(clientname)
@@ -1442,16 +1481,18 @@ class Ui_App_Comercial(object):
 
 # Function when double clicked cell is in client column
     def editofferform(self, item):
+        from OfferEdit_Window import Ui_Edit_Offer_Window
         num_offer=item.text()
         self.edit_offer_window=QtWidgets.QMainWindow()
         self.ui=Ui_Edit_Offer_Window(num_offer)
         self.ui.setupUi(self.edit_offer_window)
         self.edit_offer_window.show()
-        self.ui.Button_Cancel.clicked.connect(self.update_table)
+        self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
 
 # Function to open reclamation window
     def reclamation_offer(self):
+        from OfferReclamation_Window import Ui_ReclamationOffer_Window
         self.reclamationoffer_window=QtWidgets.QMainWindow()
         self.ui=Ui_ReclamationOffer_Window(self.name, self.username)
         self.ui.setupUi(self.reclamationoffer_window)
@@ -1514,7 +1555,16 @@ class Ui_App_Comercial(object):
                 del dlg, new_icon
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -1553,7 +1603,16 @@ class Ui_App_Comercial(object):
             conn.commit()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -1565,6 +1624,12 @@ class Ui_App_Comercial(object):
             icon13 = QtGui.QIcon()
             icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Notification.setIcon(icon13)
+
+
+    def clockin(self):
+        from ClockIn_Window import MyCalendarApp
+        self.clockin_window = MyCalendarApp(self.username)
+        self.clockin_window.showMaximized()
 
 # if __name__ == "__main__":
 #     import sys

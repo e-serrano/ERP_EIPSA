@@ -11,16 +11,6 @@ import os
 from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
-from PasswordForget_Window import Ui_ForgetPass_Window
-from App_Comercial import Ui_App_Comercial
-from App_Purchasing import Ui_App_Purchasing
-from App_Technical import Ui_App_Technical
-from App_Workshop import Ui_App_Workshop
-from App_Master import Ui_App_Master
-from App_Warehouse import Ui_Warehouse_Menu
-from App_Manager import Ui_App_Manager
-from App_ManagerF import Ui_App_ManagerF
-from App_Invoicing import Ui_App_Invoicing
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -303,7 +293,7 @@ class Ui_Login_Window(object):
         self.forgetpass_login.setText(_translate("Login_Window", "¿Olvidaste la contraseña?"))
 
     def verification_login(self):
-        login_username = self.username_login.text()
+        login_username = self.username_login.text().lower()
         login_password = self.password_login.text()
 
         if login_username == '' or login_password == '':
@@ -331,7 +321,16 @@ class Ui_Login_Window(object):
             # commit the changes
                 conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
             finally:
                 if conn is not None:
                     conn.close()
@@ -348,6 +347,7 @@ class Ui_Login_Window(object):
                 rol_app = match[0][6]
 
                 if rol_app == 'Comercial':
+                    from App_Comercial import Ui_App_Comercial
                     self.app_window = QtWidgets.QMainWindow()
                     self.ui_comercial = Ui_App_Comercial(match[0][1]+' '+match[0][2], login_username)
                     self.ui_comercial.setupUi(self.app_window)
@@ -355,6 +355,7 @@ class Ui_Login_Window(object):
                     self.Login_Window.close()
 
                 elif rol_app == "Compras":
+                    from App_Purchasing import Ui_App_Purchasing
                     self.app_window = QtWidgets.QMainWindow()
                     self.ui_purchase = Ui_App_Purchasing(match[0][1]+' '+match[0][2], login_username)
                     self.ui_purchase.setupUi(self.app_window)
@@ -362,6 +363,7 @@ class Ui_Login_Window(object):
                     self.Login_Window.close()
 
                 elif rol_app == "Técnico":
+                    from App_Technical import Ui_App_Technical
                     self.app_window = QtWidgets.QMainWindow()
                     self.ui_technical = Ui_App_Technical(match[0][1]+' '+match[0][2], login_username)
                     self.ui_technical.setupUi(self.app_window)
@@ -369,6 +371,7 @@ class Ui_Login_Window(object):
                     self.Login_Window.close()
 
                 elif rol_app == "Master":
+                    from App_Master import Ui_App_Master
                     self.app_window = QtWidgets.QMainWindow()
                     self.ui_master = Ui_App_Master(match[0][1]+' '+match[0][2], login_username)
                     self.ui_master.setupUi(self.app_window)
@@ -376,6 +379,7 @@ class Ui_Login_Window(object):
                     self.Login_Window.close()
 
                 elif rol_app == "Almacén":
+                    from App_Warehouse import Ui_Warehouse_Menu
                     self.app_window = QtWidgets.QMainWindow()
                     self.ui_warehouse = Ui_Warehouse_Menu()
                     self.ui_warehouse.setupUi(self.app_window)
@@ -383,6 +387,7 @@ class Ui_Login_Window(object):
                     self.Login_Window.close()
 
                 elif rol_app == "Taller":
+                    from App_Workshop import Ui_App_Workshop
                     self.app_window = QtWidgets.QMainWindow()
                     self.ui_workshop = Ui_App_Workshop(match[0][1]+' '+match[0][2], login_username)
                     self.ui_workshop.setupUi(self.app_window)
@@ -390,6 +395,7 @@ class Ui_Login_Window(object):
                     self.Login_Window.close()
 
                 elif rol_app == "Dirección":
+                    from App_Manager import Ui_App_Manager
                     self.app_window = QtWidgets.QMainWindow()
                     self.ui_manager = Ui_App_Manager(match[0][1]+' '+match[0][2], login_username)
                     self.ui_manager.setupUi(self.app_window)
@@ -397,6 +403,7 @@ class Ui_Login_Window(object):
                     self.Login_Window.close()
 
                 elif rol_app == "DirecciónF":
+                    from App_ManagerF import Ui_App_ManagerF
                     self.app_window = QtWidgets.QMainWindow()
                     self.ui_managerf = Ui_App_ManagerF(match[0][1]+' '+match[0][2], login_username)
                     self.ui_managerf.setupUi(self.app_window)
@@ -404,9 +411,26 @@ class Ui_Login_Window(object):
                     self.Login_Window.close()
 
                 elif rol_app == "Facturación":
+                    from App_Invoicing import Ui_App_Invoicing
                     self.app_window = QtWidgets.QMainWindow()
                     self.ui_invoice = Ui_App_Invoicing(match[0][1]+' '+match[0][2], login_username)
                     self.ui_invoice.setupUi(self.app_window)
+                    self.app_window.showMaximized()
+                    self.Login_Window.close()
+
+                elif rol_app == 'Verificación':
+                    from App_Verification import Ui_App_Verification
+                    self.app_window = QtWidgets.QMainWindow()
+                    self.ui_verification = Ui_App_Verification(match[0][1]+' '+match[0][2], login_username)
+                    self.ui_verification.setupUi(self.app_window)
+                    self.app_window.showMaximized()
+                    self.Login_Window.close()
+
+                elif rol_app == 'Técnico-Comercial':
+                    from App_Technical_Commercial import Ui_App_Technical_Commerical
+                    self.app_window = QtWidgets.QMainWindow()
+                    self.ui_tech_comm = Ui_App_Technical_Commerical(match[0][1]+' '+match[0][2], login_username)
+                    self.ui_tech_comm.setupUi(self.app_window)
                     self.app_window.showMaximized()
                     self.Login_Window.close()
 
@@ -422,6 +446,7 @@ class Ui_Login_Window(object):
                     del dlg, new_icon
 
     def forgetpassword(self):
+        # from PasswordForget_Window import Ui_ForgetPass_Window
         # self.forgetpass_window=QtWidgets.QMainWindow()
         # self.ui=Ui_ForgetPass_Window()
         # self.ui.setupUi(self.forgetpass_window)

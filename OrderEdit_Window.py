@@ -184,6 +184,18 @@ class Ui_Edit_Order_Window(object):
         self.label_Amount.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_Amount.setObjectName("label_Amount")
         self.vLayout3.addWidget(self.label_Amount)
+        spacerItem11 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.vLayout3.addItem(spacerItem11)
+        self.label_num_items = QtWidgets.QLabel(parent=self.frame)
+        self.label_num_items.setMinimumSize(QtCore.QSize(105, 25))
+        self.label_num_items.setMaximumSize(QtCore.QSize(105, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_num_items.setFont(font)
+        self.label_num_items.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_num_items.setObjectName("label_num_items")
+        self.vLayout3.addWidget(self.label_num_items)
         self.hLayout.addLayout(self.vLayout3)
         self.vlLayout4 = QtWidgets.QVBoxLayout()
         self.vlLayout4.setObjectName("vlLayout4")
@@ -215,6 +227,16 @@ class Ui_Edit_Order_Window(object):
         self.Amount_EditOrder.setFont(font)
         self.Amount_EditOrder.setObjectName("Amount_EditOrder")
         self.vlLayout4.addWidget(self.Amount_EditOrder)
+        spacerItem12 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.vlLayout4.addItem(spacerItem12)
+        self.NumItems_EditOrder = QtWidgets.QLineEdit(parent=self.frame)
+        self.NumItems_EditOrder.setMinimumSize(QtCore.QSize(175, 25))
+        self.NumItems_EditOrder.setMaximumSize(QtCore.QSize(175, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.NumItems_EditOrder.setFont(font)
+        self.NumItems_EditOrder.setObjectName("NumItems_EditOrder")
+        self.vlLayout4.addWidget(self.NumItems_EditOrder)
         self.hLayout.addLayout(self.vlLayout4)
         self.verticalLayout.addLayout(self.hLayout)
         spacerItem10 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -280,9 +302,10 @@ class Ui_Edit_Order_Window(object):
         self.label_NumOrder.setText(_translate("Edit_Order_Window", "Nº Pedido:"))
         self.label_NumOffer.setText(_translate("Edit_Order_Window", "Nº Oferta:"))
         self.label_NumRef.setText(_translate("Edit_Order_Window", "Nº Referencia:"))
-        self.label_ExpectDate.setText(_translate("Edit_Order_Window", "Fecha Previstaual:"))
+        self.label_ExpectDate.setText(_translate("Edit_Order_Window", "Fecha Prevista:"))
         self.label_Notes.setText(_translate("Edit_Order_Window", "Notas:"))
         self.label_Amount.setText(_translate("Edit_Order_Window", "Importe (€):"))
+        self.label_num_items.setText(_translate("New_Order", "Nº Equipos:"))
         self.Button_EditOrder.setText(_translate("Edit_Order_Window", "Editar Pedido"))
         self.Button_Cancel.setText(_translate("Edit_Order_Window", "Cancelar"))
 
@@ -294,6 +317,7 @@ class Ui_Edit_Order_Window(object):
         expectdate=self.ExpectDate_EditOrder.text() if self.ExpectDate_EditOrder.text() != '' else None
         notes=self.Notes_EditOrder.toPlainText()
         amount=self.Amount_EditOrder.text()
+        num_items=self.NumItems_EditOrder.text() if self.NumItems_EditOrder.text() != '' else '0'
         amount=amount.replace(".",",")
 
         #SQL Query for checking if order number exists in database
@@ -318,7 +342,16 @@ class Ui_Edit_Order_Window(object):
         # commit the changes
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -334,7 +367,7 @@ class Ui_Edit_Order_Window(object):
             dlg.exec()
             del dlg, new_icon
 
-        elif numorder== "" or (numoffer== "" or (numref== "" or (expectdate=="" or (notes=="" or amount=="")))):
+        elif numorder== "" or (numoffer== "" or (numref== "" or (expectdate=="" or amount==""))):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -349,7 +382,7 @@ class Ui_Edit_Order_Window(object):
             #SQL Query for updating values in database
             commands_editorder = ("""
                         UPDATE orders
-                        SET "num_offer" = %s, "num_ref_order" = %s, "expected_date" = %s, "notes" = %s, "order_amount" = %s
+                        SET "num_offer" = %s, "num_ref_order" = %s, "expected_date" = %s, "notes" = %s, "order_amount" = %s, "items_number" = %s
                         WHERE "num_order" = %s
                         """)
             conn = None
@@ -360,14 +393,23 @@ class Ui_Edit_Order_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands one by one
-                data=(numoffer,numref,expectdate,notes,amount,numorder,)
+                data=(numoffer,numref,expectdate,notes,amount,num_items,numorder,)
                 cur.execute(commands_editorder,data)
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes
                 conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
             finally:
                 if conn is not None:
                     conn.close()
@@ -387,6 +429,7 @@ class Ui_Edit_Order_Window(object):
             self.ExpectDate_EditOrder.setText('')
             self.Notes_EditOrder.setText('')
             self.Amount_EditOrder.setText('')
+            self.NumItems_EditOrder.setText('')
 
             del dlg, new_icon
 
@@ -395,7 +438,7 @@ class Ui_Edit_Order_Window(object):
         numorder=self.NumOrder_EditOrder.text()
     #SQL Query for loading existing data in database
         commands_loaddataorder = ("""
-                    SELECT "num_order","num_offer","num_ref_order",TO_CHAR("expected_date", 'DD-MM-YYYY'),"notes",CAST("order_amount" AS numeric) AS "amount"
+                    SELECT "num_order","num_offer","num_ref_order",TO_CHAR("expected_date", 'DD-MM-YYYY'),"notes",CAST("order_amount" AS numeric) AS "amount","items_number"
                     FROM orders
                     WHERE "num_order" = %s
                     """)
@@ -415,7 +458,16 @@ class Ui_Edit_Order_Window(object):
         # commit the changes
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -436,6 +488,7 @@ class Ui_Edit_Order_Window(object):
             self.ExpectDate_EditOrder.setText(str(results[0][3]) if str(results[0][3]) != 'None' else '')
             self.Notes_EditOrder.setText(str(results[0][4]))
             self.Amount_EditOrder.setText(str(results[0][5]))
+            self.NumItems_EditOrder.setText(str(results[0][6]))
 
 
 if __name__ == "__main__":

@@ -220,9 +220,9 @@ class Ui_QueryOrderTechnical_Window(object):
         self.tableQueryOrder = QtWidgets.QTableWidget(parent=self.frame)
         self.tableQueryOrder.setAlternatingRowColors(False)
         self.tableQueryOrder.setObjectName("tableQueryOrder")
-        self.tableQueryOrder.setColumnCount(12)
+        self.tableQueryOrder.setColumnCount(13)
         self.tableQueryOrder.setRowCount(0)
-        for i in range(12):
+        for i in range(13):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -291,7 +291,16 @@ class Ui_QueryOrderTechnical_Window(object):
         # commit the changes
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -332,14 +341,16 @@ class Ui_QueryOrderTechnical_Window(object):
         item = self.tableQueryOrder.horizontalHeaderItem(6)
         item.setText(_translate("QueryOrderTechnical_Window", "Tipo Equipo"))
         item = self.tableQueryOrder.horizontalHeaderItem(7)
-        item.setText(_translate("QueryOrderTechnical_Window", "Notas Pedido"))
+        item.setText(_translate("QueryOrderTechnical_Window", "Nº Equipos"))
         item = self.tableQueryOrder.horizontalHeaderItem(8)
-        item.setText(_translate("QueryOrderTechnical_Window", "Importante Oferta"))
+        item.setText(_translate("QueryOrderTechnical_Window", "Notas Pedido"))
         item = self.tableQueryOrder.horizontalHeaderItem(9)
-        item.setText(_translate("QueryOrderTechnical_Window", "% Fabricación"))
+        item.setText(_translate("QueryOrderTechnical_Window", "Importante Oferta"))
         item = self.tableQueryOrder.horizontalHeaderItem(10)
-        item.setText(_translate("QueryOrderTechnical_Window", "% Montaje"))
+        item.setText(_translate("QueryOrderTechnical_Window", "% Fabricación"))
         item = self.tableQueryOrder.horizontalHeaderItem(11)
+        item.setText(_translate("QueryOrderTechnical_Window", "% Montaje"))
+        item = self.tableQueryOrder.horizontalHeaderItem(12)
         item.setText(_translate("QueryOrderTechnical_Window", "% Envío"))
         self.label_EqType.setText(_translate("QueryOrderTechnical_Window", "Tipo Equipo:"))
         self.label_NumOffer.setText(_translate("QueryOrderTechnical_Window", "Nº Oferta:"))
@@ -382,7 +393,7 @@ class Ui_QueryOrderTechnical_Window(object):
 
         else:
             commands_queryorder = ("""
-                        SELECT orders."num_order",orders."num_offer",users_data.initials."initials",orders."num_ref_order",offers."client",offers."final_client",product_type."variable",orders."notes",offers."important", orders."porc_workshop", orders."porc_assembly", orders."porc_deliveries"
+                        SELECT orders."num_order",orders."num_offer",users_data.initials."initials",orders."num_ref_order",offers."client",offers."final_client",product_type."variable",orders."items_number",orders."notes",offers."important", orders."porc_workshop", orders."porc_assembly", orders."porc_deliveries"
                         FROM offers
                         INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                         INNER JOIN product_type ON (offers."material"=product_type."material")
@@ -418,7 +429,7 @@ class Ui_QueryOrderTechnical_Window(object):
 
             # fill the Qt Table with the query results
                 for row in results:
-                    for column in range(12):
+                    for column in range(13):
                         value = row[column]
                         if value is None:
                             value = ''
@@ -436,7 +447,16 @@ class Ui_QueryOrderTechnical_Window(object):
             # commit the changes
                 conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
             finally:
                 if conn is not None:
                     conn.close()
@@ -474,7 +494,7 @@ class Ui_QueryOrderTechnical_Window(object):
 
 
     def on_item_double_clicked(self, item):
-        if item.column() in [7,8]:
+        if item.column() in [8,9]:
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()

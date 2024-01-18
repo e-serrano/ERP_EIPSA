@@ -293,6 +293,10 @@ class Ui_ExportOffer_Form(object):
         spacerItem24 = QtWidgets.QSpacerItem(5, 5, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         self.hLayout3.addItem(spacerItem24)
         self.verticalLayout.addLayout(self.hLayout3)
+
+        self.group1 = QtWidgets.QButtonGroup()
+        self.group2 = QtWidgets.QButtonGroup()
+
         self.hLayout4 = QtWidgets.QHBoxLayout()
         self.hLayout4.setObjectName("hLayout4")
         self.label_PayWay = QtWidgets.QLabel(parent=self.frame)
@@ -335,12 +339,17 @@ class Ui_ExportOffer_Form(object):
         self.radioOthers.setFont(font)
         self.radioOthers.setObjectName("radioOthers")
         self.hLayout4.addWidget(self.radioOthers)
+        self.group1.addButton(self.radio100_delivery)
+        self.group1.addButton(self.radio100_order)
+        self.group1.addButton(self.radio90_10)
+        self.group1.addButton(self.radio50_50)
+        self.group1.addButton(self.radioOthers)
         self.verticalLayout.addLayout(self.hLayout4)
         spacerItem25 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
         self.verticalLayout.addItem(spacerItem25)
 
-        self.hLayout4 = QtWidgets.QHBoxLayout()
-        self.hLayout4.setObjectName("hLayout4")
+        self.hLayout5 = QtWidgets.QHBoxLayout()
+        self.hLayout5.setObjectName("hLayout5")
         self.label_Format = QtWidgets.QLabel(parent=self.frame)
         self.label_Format.setMinimumSize(QtCore.QSize(155, 25))
         self.label_Format.setMaximumSize(QtCore.QSize(155, 25))
@@ -350,20 +359,22 @@ class Ui_ExportOffer_Form(object):
         self.label_Format.setFont(font)
         self.label_Format.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_Format.setObjectName("label_Format")
-        self.hLayout4.addWidget(self.label_Format)
+        self.hLayout5.addWidget(self.label_Format)
         self.longformat = QtWidgets.QRadioButton(parent=self.frame)
         font = QtGui.QFont()
         font.setPointSize(12)
         self.longformat.setFont(font)
         self.longformat.setObjectName("longformat")
-        self.hLayout4.addWidget(self.longformat)
+        self.hLayout5.addWidget(self.longformat)
         self.shortformat = QtWidgets.QRadioButton(parent=self.frame)
         font = QtGui.QFont()
         font.setPointSize(12)
         self.shortformat.setFont(font)
         self.shortformat.setObjectName("shortformat")
-        self.hLayout4.addWidget(self.shortformat)
-        self.verticalLayout.addLayout(self.hLayout4)
+        self.hLayout5.addWidget(self.shortformat)
+        self.group2.addButton(self.longformat)
+        self.group2.addButton(self.shortformat)
+        self.verticalLayout.addLayout(self.hLayout5)
         spacerItem26 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
         self.verticalLayout.addItem(spacerItem26)
 
@@ -522,6 +533,9 @@ class Ui_ExportOffer_Form(object):
                         offer_temp(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                     elif self.variable == 'Nivel':
                         offer_level(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                    elif self.variable == 'Caudal+Temp':
+                        offer_flow(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                        offer_temp(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                 elif format_offer == 'Short':
                     if self.variable == 'Caudal':
                         offer_short_flow(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
@@ -529,6 +543,9 @@ class Ui_ExportOffer_Form(object):
                         offer_short_temp(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                     elif self.variable == 'Nivel':
                         offer_short_level(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                    elif self.variable == 'Caudal+Temp':
+                        offer_short_flow(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                        offer_short_temp(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
@@ -543,7 +560,16 @@ class Ui_ExportOffer_Form(object):
                 # ExportOffer_Form.close
 
             except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
             finally:
                 if conn is not None:
                     conn.close()
@@ -577,7 +603,16 @@ class Ui_ExportOffer_Form(object):
             self.Project_ExportOffer_Form.setText(str(results[0][3]))
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()

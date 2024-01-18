@@ -229,7 +229,16 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
             self.tableReclamation.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.ResizeMode.Interactive)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -250,7 +259,7 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                                 ORDER BY offers."num_offer"
                                 """)
         commands_insertdataoffer = ("""
-                                    UPDATE offers (
+                                    UPDATE offers
                                     SET "last_rec" = %s, "type_rec" = %s
                                     WHERE "num_offer" = %s
                                     """)
@@ -259,8 +268,8 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         for row in range(self.tableReclamation.rowCount()):
             offer = self.tableReclamation.item(row, 0).text()
             reclamation = None
-            radio_button1  = self.tableReclamation.cellWidget(row, 5)
-            radio_button2  = self.tableReclamation.cellWidget(row, 6)
+            radio_button1  = self.tableReclamation.cellWidget(row, 8)
+            radio_button2  = self.tableReclamation.cellWidget(row, 9)
 
             if radio_button1 and radio_button1.isChecked():
                 reclamation = 'Rec1'
@@ -299,13 +308,14 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                 else:
                     if offer[1] == 'Rec1':
                         mail=email_offer1(results_offers[0][0], results_offers[0][1], results_offers[0][2], email, results_offers[0][3])
-                        mail.send_email()
+                        # mail.send_email()
+                        data = (actual_date,offer[1],offer[0])
+                        cur.execute(commands_insertdataoffer,data)
                     elif offer[1] == 'Rec2':
                         mail=email_offer2(results_offers[0][0], results_offers[0][1], results_offers[0][2], email, results_offers[0][3])
-                        mail.send_email()
-
-                    data = (actual_date,offer[1],offer[0])
-                    cur.execute(commands_insertdataoffer,data)
+                        # mail.send_email()
+                        data = (actual_date,offer[1],offer[0])
+                        cur.execute(commands_insertdataoffer,data)
 
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
@@ -322,7 +332,16 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         # commit the changes
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -332,6 +351,6 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    ReclamationOffer_Window = Ui_ReclamationOffer_Window()
+    ReclamationOffer_Window = Ui_ReclamationOffer_Window('Carlos Crespo', 'c.crespo')
     ReclamationOffer_Window.show()
     sys.exit(app.exec())

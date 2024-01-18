@@ -11,9 +11,6 @@ from PyQt6 import QtSql
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
-from Create_FabOrder_Window import Ui_CreateFabOrder_Window
-from Create_MatOrder import flow_matorder, temp_matorder, level_matorder
-from Create_Inspection import inspection
 from Database_Connection import createConnection
 from config import config
 import psycopg2
@@ -122,25 +119,6 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
-class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
-    def __init__(self, parent=None, options=None):
-        super().__init__(parent)
-        self.options = options
-
-    def createEditor(self, parent, option, index):
-        editor = QtWidgets.QComboBox(parent)
-        editor.setEditable(True)
-        return editor
-
-    def setEditorData(self, editor, index):
-        text = index.data(Qt.ItemDataRole.DisplayRole)
-        editor.addItems(self.options)
-        editor.setEditText(text)
-
-    def setModelData(self, editor, model, index):
-        model.setData(index, editor.currentText(), Qt.ItemDataRole.EditRole)
-
-
 class CustomProxyModel(QtCore.QSortFilterProxyModel):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -228,25 +206,6 @@ class EditableTableModel(QtSql.QSqlTableModel):
     def getColumnHeaders(self, visible_columns):
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
-
-
-class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
-    def __init__(self, parent=None, options=None):
-        super().__init__(parent)
-        self.options = options
-
-    def createEditor(self, parent, option, index):
-        editor = QtWidgets.QComboBox(parent)
-        editor.setEditable(True)
-        return editor
-
-    def setEditorData(self, editor, index):
-        text = index.data(Qt.ItemDataRole.DisplayRole)
-        editor.addItems(self.options)
-        editor.setEditText(text)
-
-    def setModelData(self, editor, model, index):
-        model.setData(index, editor.currentText(), Qt.ItemDataRole.EditRole)
 
 
 class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
@@ -456,115 +415,6 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
         self.Numorder_EditTags.returnPressed.connect(self.query_tags)
         self.createContextMenu()
 
-        commands_comboboxes_flow = [
-            "SELECT item_type FROM validation_data.flow_item_type",
-            "SELECT line_size FROM validation_data.flow_line_size",
-            "SELECT rating FROM validation_data.flow_rating",
-            "SELECT facing FROM validation_data.flow_facing",
-            "SELECT schedule FROM validation_data.flow_schedule",
-            "SELECT flange_material FROM validation_data.flow_flange_material",
-            "SELECT flange_type FROM validation_data.flow_flange_type",
-            "SELECT element_material FROM validation_data.flow_element_material",
-            "SELECT tapping FROM validation_data.flow_tapping",
-            "SELECT element_material FROM validation_data.flow_element_material",
-            "SELECT plate_type FROM validation_data.flow_plate_type",
-            "SELECT plate_thk FROM validation_data.flow_plate_thk",
-            "SELECT plate_std FROM validation_data.flow_plate_std",
-            "SELECT gasket_material FROM validation_data.flow_gasket_material",
-            "SELECT bolts_nuts_material FROM validation_data.flow_bolts_nuts_material",
-            "SELECT nace FROM validation_data.flow_nace"
-            ]
-
-        commands_comboboxes_temp = [
-            "SELECT item_type FROM validation_data.temp_item_type",
-            "SELECT tw_type FROM validation_data.temp_tw_type",
-            "SELECT flange_size FROM validation_data.temp_flange_size",
-            "SELECT flange_rating FROM validation_data.temp_flange_rating",
-            "SELECT flange_facing FROM validation_data.temp_flange_facing",
-            "SELECT tw_material FROM validation_data.temp_tw_material",
-            "SELECT root_diam FROM validation_data.temp_root_diam",
-            "SELECT tip_diam FROM validation_data.temp_tip_diam",
-            "SELECT sensor_element FROM validation_data.temp_sensor_element",
-            "SELECT sheath_stem_material FROM validation_data.temp_sheath_stem_material",
-            "SELECT sheath_stem_diam FROM validation_data.temp_sheath_stem_diam",
-            "SELECT insulation FROM validation_data.temp_insulation",
-            "SELECT temp_inf FROM validation_data.temp_temp_inf",
-            "SELECT temp_sup FROM validation_data.temp_temp_sup",
-            "SELECT nipple_ext_material FROM validation_data.temp_nipple_ext_material",
-            "SELECT nipple_ext_length FROM validation_data.temp_nipple_ext_length",
-            "SELECT head_case_material FROM validation_data.temp_head_case_material",
-            "SELECT head_conn_case_diam FROM validation_data.temp_head_conn_case_diam",
-            "SELECT tttb FROM validation_data.temp_tttb",
-            "SELECT flange_material_lapjoint FROM validation_data.temp_flange_material_lapjoint",
-            "SELECT gasket_material FROM validation_data.temp_gasket_material",
-            "SELECT puntal FROM validation_data.temp_puntal",
-            "SELECT tube_t FROM validation_data.temp_tube_t",
-            "SELECT nace FROM validation_data.temp_nace",
-            "SELECT plug FROM validation_data.temp_plug"
-            ]
-
-        commands_comboboxes_level = [
-            "SELECT item_type FROM validation_data.level_item_type",
-            "SELECT model_num FROM validation_data.level_model_num",
-            "SELECT body_mat FROM validation_data.level_body_mat",
-            "SELECT proc_conn_type FROM validation_data.level_proc_conn_type",
-            "SELECT proc_conn_size FROM validation_data.level_proc_conn_size",
-            "SELECT proc_conn_rating FROM validation_data.level_proc_conn_rating",
-            "SELECT proc_conn_facing FROM validation_data.level_proc_conn_facing",
-            "SELECT conn_type FROM validation_data.level_conn_type",
-            "SELECT valve_type FROM validation_data.level_valve_type",
-            "SELECT dv_conn FROM validation_data.level_dv_conn",
-            "SELECT dv_size FROM validation_data.level_dv_size",
-            "SELECT dv_rating FROM validation_data.level_dv_rating",
-            "SELECT dv_facing FROM validation_data.level_dv_facing",
-            "SELECT gasket FROM validation_data.level_gasket",
-            "SELECT stud_nuts FROM validation_data.level_stud_nuts",
-            "SELECT illuminator FROM validation_data.level_illuminator",
-            "SELECT float_mat FROM validation_data.level_float_mat",
-            "SELECT case_cover_mat FROM validation_data.level_case_cover_mat",
-            "SELECT scale_type FROM validation_data.level_scale",
-            "SELECT flags_color_mat FROM validation_data.level_flags_color_mat",
-            "SELECT ip_code FROM validation_data.level_ip_code",
-            "SELECT flange_type FROM validation_data.level_flange_type",
-            "SELECT nipple FROM validation_data.level_nipple",
-            "SELECT nipple FROM validation_data.level_nipple",
-            "SELECT antifrost FROM validation_data.level_antifrost",
-            "SELECT nace FROM validation_data.level_nace",
-            ]
-
-        self.all_results_flow = []
-        self.all_results_temp = []
-        self.all_results_level = []
-
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            for query in commands_comboboxes_flow:
-                cur.execute(query)
-                results_flow=cur.fetchall()
-                self.all_results_flow.append(results_flow)
-            for query in commands_comboboxes_temp:
-                cur.execute(query)
-                results_temp=cur.fetchall()
-                self.all_results_temp.append(results_temp)
-            for query in commands_comboboxes_level:
-                cur.execute(query)
-                results_level=cur.fetchall()
-                self.all_results_level.append(results_level)
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
-        finally:
-            if conn is not None:
-                conn.close()
 
     def retranslateUi(self, EditTags_Window):
         _translate = QtCore.QCoreApplication.translate
@@ -673,7 +523,16 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                 # commit the changes
                     conn.commit()
                 except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
                 finally:
                     if conn is not None:
                         conn.close()
@@ -692,7 +551,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                 else:
                     if self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
-                        self.initial_column = 28
+                        self.initial_column = 30
                     elif self.variable == 'Temperatura':
                         self.model.setTable("tags_data.tags_temp")
                         self.initial_column = 35
@@ -716,18 +575,56 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
             self.model.column_range = range(self.initial_column,self.initial_column + 4)
 
             if self.variable == 'Caudal':
-                for i in range(66,columns_number):
+                for i in range(70,123):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(124,128):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(129,133):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(134,139):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(140,147):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(148,150):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(151,columns_number):
                     self.tableEditTags.hideColumn(i)
             elif self.variable == 'Temperatura':
-                for i in range(73,columns_number):
+                for i in range(78,130):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(131,135):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(136,140):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(141,146):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(147,154):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(155,157):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(158,160):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(161,columns_number):
                     self.tableEditTags.hideColumn(i)
             elif self.variable == 'Nivel':
-                for i in range(56,columns_number):
+                for i in range(58,130):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(131,135):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(136,140):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(141,146):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(147,154):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(155,157):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(158,columns_number):
                     self.tableEditTags.hideColumn(i)
 
             if self.name != 'Jesús Martínez':
                 if self.variable == 'Caudal':
-                    self.tableEditTags.hideColumn(28)
+                    self.tableEditTags.hideColumn(30)
                 elif self.variable == 'Temperatura':
                     self.tableEditTags.hideColumn(35)
                 elif self.variable == 'Nivel':
@@ -750,16 +647,27 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
             headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
                         "Tipo", "Tamaño Línea", "Rating", "Facing", "Schedule", "Material Brida", "Tipo Brida",
                         "Material Tubo", "Tamaño Tomas (Nº)", "Material Elemento", "Tipo Placa", "Espesor Placa",
-                        "Estándar Placa", "Material Junta", "Material Tornillería", "Nº Saltos", "Pipe Spec.",
+                        "Estándar Placa", "Material Junta", "Material Tornillería", "Con. Válvula", "Material Cuerpo Vlv.", "Nº Saltos", "Pipe Spec.",
                         "Peso Aprox. (kg)", "Long. Aprox. (mm)", "NACE", "Precio (€)", "Notas Oferta",
                         "Cambios Comercial", "Fecha Contractual", "Ø Orif. (mm)", "Ø D/V (mm)", "Cambios Técnicos",
                         "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo", "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano",
                         "Estado Plano", "Fecha Estado Plano", "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra",
-                        "Fecha OF Placa", "Plano OF Placa", "Colada Placa", "Fecha OF Brida", "Plano OF Brida",
-                        "Colada Brida", "Nº Tapones", "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material",
+                        "Plano Dim.", "Plano OF", "Fecha OF", "Notas Equipo", "Colada Placa", "Cert. Placa", "Colada Brida",
+                        "Cert. Brida", "Nº Tapones", "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material",
                         "RTJ Espesor", "RTJ Dim", "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos",
                         "Cantidad Espárragos", "Tamaño Extractor", "Cantidad Extractor", "Estado Fabricación", "Inspección",
-                        "Envío RN"]
+                        "Envío RN","","","",
+                        "","","","","","","","","","",
+                        "","","","","","","","","","",
+                        "","","","","","","","","","",
+                        "","","","","","","","","","",
+                        "","","","","","","","","","",
+                        "Fecha PH1","","","","",
+                        "Fecha PH2","","","","",
+                        "Fecha LP","","","","","",
+                        "Fecha Dureza","","","","","","","",
+                        "Fecha Verif. Dim.","","",
+                        "Fecha Verif. OF","","",]
 
             headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
                         "Tipo", "Tipo TW", "Tamaño Brida", "Rating Brida", "Facing Brida", "Standard TW",
@@ -771,10 +679,23 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                         "Stress", "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Ø Picaje (mm)",
                         "Notas Cálculo", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo",
                         "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Planos",
-                        "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Fecha OF Sensor", "Plano OF Sensor", 
+                        "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Plano Dim.", "Plano OF Sensor", "Fecha OF Sensor", 
                         "Notas Sensor", "Estado Fabricación Sensor", "Fecha OF TW", "Plano OF TW", "Notas TW",
-                        "Estado Fabricación TW", "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)",
-                        "Tapón", "Estado Fabricación", "Inspección", "Envío RN"]
+                        "Estado Fabricación TW", " Colada Barra", "Cert. Barra", "Colada Brida", "Cert.Brida",
+                        "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)",
+                        "Tapón", "Estado Fabricación", "Inspección", "Envío RN","","",
+                        "","","","","","","","","","",
+                        "","","","","","","","","","",
+                        "","","","","","","","","","",
+                        "","","","","","","","","","",
+                        "","","","","","","","","","",
+                        "Fecha PH1","","","","",
+                        "Fecha PH2","","","","",
+                        "Fecha LP","","","","","",
+                        "Fecha Dureza","","","","","","","",
+                        "Fecha Verif. Dim.","","",
+                        "Fecha Verif. OF Vaina","","",
+                        "Fecha Verif. OF Sensor"]
 
             headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Modelo",
@@ -785,8 +706,22 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                             "Cod. IP", "Tipo Brida", "Niplo Hex.", "Niplo Tubo", "Antifrost",
                             "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
                             "Dim. Flotador", "Junta Bridas", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Plano",
-                            "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Fecha OF", "Plano OF",
-                            "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Estado Fabricación", "Inspección", "Envío RN"]
+                            "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra",
+                            "Plano Dim.", "Plano OF", "Fecha OF", "Notas Equipo", "Estado Fabricación", "Inspección", "Envío RN",
+                            "","",
+                            "","","","","","","","","","",
+                            "","","","","","","","","","",
+                            "","","","","","","","","","",
+                            "","","","","","","","","","",
+                            "","","","","","","","","","",
+                            "","","","","","","","","","",
+                            "","","","","","","","","","",
+                            "Fecha PH1","","","","",
+                            "Fecha PH2","","","","",
+                            "Fecha LP","","","","","",
+                            "Fecha Dureza","","","","","","","",
+                            "Fecha Verif. Dim.","","",
+                            "Fecha Verif. OF","","",]
 
             if self.variable == 'Caudal':
                 self.model.setAllColumnHeaders(headers_flow)
@@ -809,41 +744,6 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                             list_valuesUnique.append(str(value))
                             self.checkbox_states[column][value] = True
                     self.dict_valuesuniques[column] = list_valuesUnique
-
-        # Setting cells with comboboxes
-            list_fab_state = ['','PTE.APROBACIÓN','EN FABRICACIÓN','INSPECCIÓN','ENVIADO']
-            if self.variable == 'Caudal':
-                for i in range(16):
-                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_flow[i]]))
-                    self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
-                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
-                self.tableEditTags.setItemDelegateForColumn(63, self.combo_itemtype)
-            elif self.variable == 'Temperatura':
-                for i in range(5):
-                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
-                    self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
-                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[5]]))
-                self.tableEditTags.setItemDelegateForColumn(14, self.combo_itemtype)
-                for i in range(6,24):
-                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
-                    self.tableEditTags.setItemDelegateForColumn(i+11, self.combo_itemtype)
-                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
-                self.tableEditTags.setItemDelegateForColumn(60, self.combo_itemtype)
-                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
-                self.tableEditTags.setItemDelegateForColumn(64, self.combo_itemtype)
-                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[24]]))
-                self.tableEditTags.setItemDelegateForColumn(69, self.combo_itemtype)
-                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
-                self.tableEditTags.setItemDelegateForColumn(70, self.combo_itemtype)
-            elif self.variable == 'Nivel':
-                for i in range(8):
-                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_level[i]]))
-                    self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
-                for i in range(18):
-                    self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_level[i+8]]))
-                    self.tableEditTags.setItemDelegateForColumn(i+18, self.combo_itemtype)
-                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_fab_state)
-                self.tableEditTags.setItemDelegateForColumn(53, self.combo_itemtype)
 
             self.selection_model = self.tableEditTags.selectionModel()
             self.selection_model.selectionChanged.connect(self.countSelectedCells)
@@ -1166,11 +1066,11 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
 
             for row in sorted(rows):
                 for col in sorted(cols):
-                    index = self.model.index(row, col)  # Obtener el índice correspondiente
+                    index = self.model.index(row, col)  # Obtain corresponding index
                     cell_data = index.data(Qt.ItemDataRole.DisplayRole)
                     cursor.insertText(str(cell_data))
-                    cursor.insertText('\t')  # Tab separador de columnas
-                cursor.insertText('\n')  # Salto de línea al final de la fila
+                    cursor.insertText('\t')  # Tab separating columns
+                cursor.insertText('\n')  # Line break at end of row
 
             return text_doc.toPlainText()
 

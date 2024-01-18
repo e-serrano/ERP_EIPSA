@@ -248,7 +248,7 @@ if __name__ == "__main__":
 
     pdf_buffer = pdf.output()
 
-    temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))
+    temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
 
     with open(temp_file_path, "wb") as temp_file:
         temp_file.write(pdf_buffer)

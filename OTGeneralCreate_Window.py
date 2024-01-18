@@ -470,7 +470,16 @@ class Ui_OTGeneralCreate_Window(object):
         #     self.tableWidget.setItemDelegate(AlignDelegate(self.tableWidget))
 
         # except (Exception, psycopg2.DatabaseError) as error:
-        #     print(error)
+        #     dlg = QtWidgets.QMessageBox()
+        #     new_icon = QtGui.QIcon()
+        #     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        #     dlg.setWindowIcon(new_icon)
+        #     dlg.setWindowTitle("ERP EIPSA")
+        #     dlg.setText("Ha ocurrido el siguiente error:\n"
+        #                 + str(error))
+        #     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+        #     dlg.exec()
+        #     del dlg, new_icon
         # finally:
         #     if conn is not None:
         #         conn.close()
@@ -545,7 +554,16 @@ class Ui_OTGeneralCreate_Window(object):
                 conn.commit()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
             finally:
                 if conn is not None:
                     conn.close()
@@ -594,7 +612,16 @@ class Ui_OTGeneralCreate_Window(object):
             self.tableWidget.setItemDelegate(AlignDelegate(self.tableWidget))
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()

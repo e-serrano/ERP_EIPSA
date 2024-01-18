@@ -14,10 +14,6 @@ import configparser
 from config import config
 import psycopg2
 from Database_Connection import createConnection
-from Assembly_Window import Ui_Assembly_Window
-from Workshop_Window import Ui_Workshop_Window
-from NotificationsHistory_Window import Ui_HistoryNotifications_Window
-from TAGEdit_Workshop_Window import Ui_EditTags_Workshop_Window
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -201,7 +197,7 @@ class Ui_App_Workshop(object):
         icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/TAG_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_QueryTag.setIcon(icon1)
         self.Button_QueryTag.setIconSize(QtCore.QSize(int(40), int(40)))
-        self.Button_QueryTag.setObjectName("v")
+        self.Button_QueryTag.setObjectName("Button_QueryTag")
         self.verticalLayout_3.addWidget(self.Button_QueryTag)
         self.Button_Manufacturing = QtWidgets.QPushButton(parent=self.ButtonFrame)
         self.Button_Manufacturing.setMinimumSize(QtCore.QSize(int(200), int(50)))
@@ -376,11 +372,13 @@ class Ui_App_Workshop(object):
 
 
     def notifications(self):
+        from NotificationsHistory_Window import Ui_HistoryNotifications_Window
         self.notification_window=Ui_HistoryNotifications_Window(self.username)
         self.notification_window.show()
         self.notification_window.Button_Cancel.clicked.connect(self.load_notifications)
 
     def query_tag(self):
+        from TAGEdit_Workshop_Window import Ui_EditTags_Workshop_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
@@ -397,6 +395,7 @@ class Ui_App_Workshop(object):
 
 
     def manufacture(self):
+        from Workshop_Window import Ui_Workshop_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
@@ -412,6 +411,7 @@ class Ui_App_Workshop(object):
         self.workshop_window.show()
 
     def assembly(self):
+        from Assembly_Window import Ui_Assembly_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
@@ -429,7 +429,20 @@ class Ui_App_Workshop(object):
 
 
     def dispatch(self):
-        print('ordenes de compra')
+        from Dispatch_Window import Ui_Dispatch_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_dispatch = createConnection(user_database, password_database)
+        if not db_dispatch:
+            sys.exit()
+
+        self.dispatch_window = Ui_Dispatch_Window(db_dispatch)
+        self.dispatch_window.show()
 
 
     def times(self):
@@ -486,7 +499,16 @@ class Ui_App_Workshop(object):
             conn.commit()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()

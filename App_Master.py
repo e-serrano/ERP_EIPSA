@@ -518,8 +518,8 @@ class Ui_App_Master(object):
         self.Button_QueryTag.clicked.connect(self.query_tag)
         self.Button_EditTag.clicked.connect(self.edit_tag)
         self.Button_Users.clicked.connect(self.user_edition)
-        self.Button_DBEdit.clicked.connect(self.editdb)
-        self.Button_DBImport.clicked.connect(self.importdb)
+        # self.Button_DBEdit.clicked.connect(self.editdb)
+        # self.Button_DBImport.clicked.connect(self.importdb)
         self.Button_DBChanges.clicked.connect(self.dbchanges)
         self.Button_NewTask.clicked.connect(self.newtask)
         self.Button_Profile.clicked.connect(self.showMenu)
@@ -677,7 +677,16 @@ class Ui_App_Master(object):
             dates_with_tasks=list(set(dates_with_tasks_raw))
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -746,7 +755,16 @@ class Ui_App_Master(object):
             return dict.get(date)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -756,7 +774,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     App_Master = QtWidgets.QMainWindow()
-    ui = Ui_App_Master()
+    ui = Ui_App_Master('Enrique Serrano', 'e.serrano')
     ui.setupUi(App_Master)
     App_Master.show()
     sys.exit(app.exec())

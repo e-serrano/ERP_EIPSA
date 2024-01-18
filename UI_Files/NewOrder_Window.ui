@@ -6,17 +6,11 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>680</width>
+    <width>773</width>
     <height>425</height>
    </rect>
   </property>
   <property name="minimumSize">
-   <size>
-    <width>680</width>
-    <height>425</height>
-   </size>
-  </property>
-  <property name="maximumSize">
    <size>
     <width>680</width>
     <height>425</height>
@@ -102,478 +96,356 @@ QPushButton:pressed {
         </spacer>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="hLayout">
-         <item>
-          <layout class="QVBoxLayout" name="vLayout1">
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="label_NumOrder">
-             <property name="minimumSize">
-              <size>
-               <width>105</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>105</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>11</pointsize>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Nº Pedido:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="vSpacer1">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>60</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_NumOffer">
-             <property name="minimumSize">
-              <size>
-               <width>105</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>105</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>11</pointsize>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Nº Oferta:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="vSpacer2">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>60</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_NumRef">
-             <property name="minimumSize">
-              <size>
-               <width>105</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>105</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>11</pointsize>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Nº Referencia:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="vLayout2">
-           <item>
-            <widget class="QLineEdit" name="NumOrder_NewOrder">
-             <property name="minimumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="vSpacer4">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>60</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="NewOffer_NewOrder">
-             <property name="minimumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="vSpacer5">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>60</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="NumRef_NewOrder">
-             <property name="minimumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <spacer name="hSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Fixed</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
+        <layout class="QGridLayout" name="gridLayout_2">
+         <property name="horizontalSpacing">
+          <number>15</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>40</number>
+         </property>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_NumOffer">
+           <property name="minimumSize">
             <size>
-             <width>20</width>
+             <width>105</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>105</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Nº Oferta:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_ContracDate">
+           <property name="minimumSize">
+            <size>
+             <width>105</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>105</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Fecha Prevista:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLabel" name="label_Amount">
+           <property name="minimumSize">
+            <size>
+             <width>105</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>105</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Importe:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <widget class="QLineEdit" name="Amount_NewOrder">
+           <property name="minimumSize">
+            <size>
+             <width>160</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>160</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="5">
+          <widget class="QRadioButton" name="radioButton">
+           <property name="minimumSize">
+            <size>
+             <width>25</width>
              <height>20</height>
             </size>
            </property>
-          </spacer>
+           <property name="maximumSize">
+            <size>
+             <width>25</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>RadioButton</string>
+           </property>
+          </widget>
          </item>
-         <item>
-          <layout class="QVBoxLayout" name="vLayout3">
-           <item>
-            <widget class="QLabel" name="label_ContracDate">
-             <property name="minimumSize">
-              <size>
-               <width>130</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>130</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>11</pointsize>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Fecha Contractual:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="vSpacer7">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>60</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_Notes">
-             <property name="minimumSize">
-              <size>
-               <width>130</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>130</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>11</pointsize>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Notas:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="vSpacer8">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>60</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_Amount">
-             <property name="minimumSize">
-              <size>
-               <width>130</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>130</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>11</pointsize>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Importe (€):</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
+         <item row="1" column="2">
+          <widget class="QLabel" name="label_Notes">
+           <property name="minimumSize">
+            <size>
+             <width>105</width>
+             <height>40</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>105</width>
+             <height>40</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Notas:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+          </widget>
          </item>
-         <item>
-          <layout class="QVBoxLayout" name="vlLayout4">
-           <item>
-            <widget class="QLineEdit" name="ContracDate_NewOrder">
-             <property name="minimumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="vSpacer10">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>60</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QTextEdit" name="Notes_NewOrder">
-             <property name="minimumSize">
-              <size>
-               <width>175</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>175</width>
-               <height>40</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="vSpacer11">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>60</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="Amount_NewOrder">
-             <property name="minimumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>175</width>
-               <height>25</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="NewOffer_NewOrder">
+           <property name="minimumSize">
+            <size>
+             <width>160</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>160</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="NumOrder_NewOrder">
+           <property name="minimumSize">
+            <size>
+             <width>160</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>160</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_NumRef">
+           <property name="minimumSize">
+            <size>
+             <width>105</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>105</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Nº Referencia:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="QTextEdit" name="Notes_NewOrder">
+           <property name="minimumSize">
+            <size>
+             <width>160</width>
+             <height>40</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>160</width>
+             <height>40</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QLineEdit" name="ContracDate_NewOrder">
+           <property name="minimumSize">
+            <size>
+             <width>160</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>160</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_NumOrder">
+           <property name="minimumSize">
+            <size>
+             <width>105</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>105</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>11</pointsize>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Nº Pedido:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="NumRef_NewOrder">
+           <property name="minimumSize">
+            <size>
+             <width>160</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>160</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="4">
+          <widget class="QRadioButton" name="radioButton_2">
+           <property name="minimumSize">
+            <size>
+             <width>25</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>25</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>RadioButton</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -698,7 +570,7 @@ QPushButton:pressed {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>680</width>
+     <width>773</width>
      <height>22</height>
     </rect>
    </property>
@@ -706,8 +578,6 @@ QPushButton:pressed {
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <tabstops>
-  <tabstop>NumOrder_NewOrder</tabstop>
-  <tabstop>NewOffer_NewOrder</tabstop>
   <tabstop>Button_NewOrder</tabstop>
   <tabstop>Button_Cancel</tabstop>
  </tabstops>

@@ -248,11 +248,13 @@ class Ui_ImportTAG_Window(object):
 
                                 # Creating string for columns names and values
                                     columns = ', '.join([column for column, _ in columns_values])
-                                    values = ', '.join([f"'{values.replace('.', ',')}'" if column in ['amount','plate_thk'] else f"'{values}'" for column, values in columns_values])
+                                    values = ', '.join([f"'{values.replace('.', ',')}'" if column in ['amount','plate_thk']
+                                                        else ('NULL' if values == '' and column == 'num_order'
+                                                        else f"'{values}'") for column, values in columns_values])
 
                                 # Creating insertion query and executing it
                                     sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
-                                    # cursor.execute(sql_insertion)
+                                    cursor.execute(sql_insertion)
                             
                                     sql_query_id = f'SELECT "id_tag_flow" FROM {table_name} WHERE "tag" = \'{row["tag"]}\' AND "num_offer" = \'{row["num_offer"]}\''
                                     cursor.execute(sql_query_id)
@@ -328,6 +330,12 @@ class Ui_ImportTAG_Window(object):
 
                         else:
                             try:
+                            # Loading Excel Template
+                                self.wb = load_workbook(self.fname)    
+
+                            # Editing sheet Import
+                                sheet_name = "Import"
+
                                 for index, row in df_final.iterrows():
                                 # Create a list of pairs for each column with value
                                     columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
@@ -336,9 +344,10 @@ class Ui_ImportTAG_Window(object):
                                     columns = ', '.join([column for column, _ in columns_values])
                                     values = ', '.join([
                                                 f"'{int(float(values))}'" if column in ['flange_rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam'] and values.endswith('.0')
-                                                else f"'{values.replace('.', ',')}'" if column in ['amount', 'root_diam', 'tip_diam', 'sheath_stem_diam']
+                                                else (f"'{values.replace('.', ',')}'" if column in ['amount', 'root_diam', 'tip_diam', 'sheath_stem_diam']
                                                 else ('NULL' if values == 'N/A' and column in ['std_length', 'ins_length']
-                                                else f"'{values}'") for column, values in columns_values
+                                                else ('NULL' if values == '' and column == 'num_order'
+                                                else f"'{values}'"))) for column, values in columns_values
                                                 ])
 
                                 # Creating insertion query and executing it
@@ -420,6 +429,12 @@ class Ui_ImportTAG_Window(object):
 
                         else:
                             try:
+                            # Loading Excel Template
+                                self.wb = load_workbook(self.fname)  
+
+                            # Editing sheet Import
+                                sheet_name = "Import"
+                                
                                 for index, row in df_final.iterrows():
                                 # Create a list of pairs for each column with value
                                     columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
@@ -428,9 +443,10 @@ class Ui_ImportTAG_Window(object):
                                     columns = ', '.join([column for column, _ in columns_values])
                                     values = ', '.join([
                                                 f"'{int(float(values))}'" if column in ['proc_conn_rating', 'dv_rating'] and values.endswith('.0')
-                                                else f"'{values.replace('.', ',')}'" if column in ['amount']
+                                                else (f"'{values.replace('.', ',')}'" if column in ['amount']
                                                 else ('NULL' if values == 'N/A' and column in ['visibility', 'cc_length']
-                                                else f"'{values}'") for column, values in columns_values
+                                                else ('NULL' if values == '' and column == 'num_order'
+                                                else f"'{values}'"))) for column, values in columns_values
                                                 ])
 
                                 # Creating insertion query and executing it

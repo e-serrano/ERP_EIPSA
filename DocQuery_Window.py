@@ -19,9 +19,13 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
-        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
-        if index.column() == 9:  # Verifica que estemos en la tercera columna
+        if index.column() == 12:
+            option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignLeft
+        else:
+            option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+
+        if index.column() == 9:  # Check column and paint when apply
             value = index.data()
 
             if value == "Aprobado":  
@@ -343,7 +347,16 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
         # commit the changes
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -431,6 +444,7 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
 
 
     def query_doc(self):
+        self.tableQueryDoc.setRowCount(0)
         numorder=self.NumOrder_QueryDoc.text()
         numpo=self.NumPo_QueryDoc.text()
         client=self.Client_QueryDoc.text()
@@ -512,6 +526,7 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
                     tablerow+=1
 
                 self.tableQueryDoc.verticalHeader().hide()
+                self.tableQueryDoc.setSortingEnabled(True)
                 self.tableQueryDoc.setItemDelegate(AlignDelegate(self.tableQueryDoc))
                 self.tableQueryDoc.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
                 for i in range(1,12):
@@ -524,7 +539,16 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
             # commit the changes
                 conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
             finally:
                 if conn is not None:
                     conn.close()
@@ -540,6 +564,7 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
             dlg.setWindowTitle("Documentación")
             dlg.setText(cell_content)
             dlg.exec()
+
 
     def export_to_excel(self):
         file_name, _ = QFileDialog.getSaveFileName(self, "Guardar como Excel", "", "Archivos Excel (*.xlsx);;Todos los archivos (*)")

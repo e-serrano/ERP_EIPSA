@@ -117,7 +117,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                     if text == '':
                         break
 
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', str(expresion)):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
                     regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
@@ -125,7 +125,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                         break
 
                 else:
-                    regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
                         break
             else:
@@ -224,10 +224,46 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.hcabspacer2=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer2)
         self.gridLayout_2.addLayout(self.hcab, 0, 0, 1, 1)
+        self.hLayout = QtWidgets.QHBoxLayout()
+        self.hLayout.setObjectName("hLayout")
+        self.Button_All = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_All.setMinimumSize(QtCore.QSize(150, 35))
+        self.Button_All.setMaximumSize(QtCore.QSize(150, 35))
+        self.Button_All.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.Button_All.setObjectName("Button_All")
+        self.Button_All.setStyleSheet("QPushButton{\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 8px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        self.hLayout.addWidget(self.Button_All)
+        self.gridLayout_2.addLayout(self.hLayout, 1, 0, 1, 1)
         self.tableEditDocs=QtWidgets.QTableView(parent=self.frame)
         self.model = EditableTableModel()
         self.tableEditDocs.setObjectName("tableEditDocs")
-        self.gridLayout_2.addWidget(self.tableEditDocs, 3, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.tableEditDocs, 2, 0, 1, 1)
         self.hLayout3 = QtWidgets.QHBoxLayout()
         self.hLayout3.setObjectName("hLayout3")
         spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -256,7 +292,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.label_CountValue.setText("")
         self.label_CountValue.setObjectName("label_CountValue")
         self.hLayout3.addWidget(self.label_CountValue)
-        self.gridLayout_2.addLayout(self.hLayout3, 5, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.hLayout3, 4, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
@@ -271,12 +307,15 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
 
         self.retranslateUi(EditDocs_Window)
         QtCore.QMetaObject.connectSlotsByName(EditDocs_Window)
+
         self.model.dataChanged.connect(self.saveChanges)
         self.query_documents()
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
+        self.Button_All.clicked.connect(self.query_all_documents)
 
     def retranslateUi(self, EditDocs_Window):
         _translate = QtCore.QCoreApplication.translate
+        self.Button_All.setText(_translate("EditDocs_Window", "Ver Todos"))
         EditDocs_Window.setWindowTitle(_translate("EditDocs_Window", "Editar Documentos"))
         self.tableEditDocs.setSortingEnabled(True)
 
@@ -313,6 +352,8 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
                 self.dict_valuesuniques[column] = list_valuesUnique
 
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
@@ -336,7 +377,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
     def query_documents(self):
         self.model.dataChanged.disconnect(self.saveChanges)
         self.model.setTable("documentation")
-        # self.model.setFilter(f"state IS NULL OR state IN ('Enviado', 'Comentado')")
+        self.model.setFilter(f"state NOT IN ('Aprobado', 'Eliminado')")
         self.model.select()
 
         column_names = ["doc_type_id"] # Hidding column by name
@@ -351,6 +392,63 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         # self.tableEditDocs.verticalHeader().hide()
         self.tableEditDocs.setItemDelegate(AlignDelegate(self.tableEditDocs))
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableEditDocs.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableEditDocs.setObjectName("tableEditDocs")
+        self.gridLayout_2.addWidget(self.tableEditDocs, 3, 0, 1, 1)
+        self.tableEditDocs.setSortingEnabled(False)
+        self.tableEditDocs.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked)
+
+        # Change all column names
+        headers = ["Nº Doc. EIPSA", "Nº Doc. Cliente", "Nº Pedido", "Título", "Crítico", "Nº Revisión", "Fecha Estado", "Estado", "Fecha Reclamación"]
+        self.model.setAllColumnHeaders(headers)
+
+        self.combo_itemtype = EditableComboBoxDelegate(self.tableEditDocs, sorted(['Aprobado','Comentado','Com. Mayores','Com. Menores','Eliminado','Enviado','Rechazado']))
+        self.tableEditDocs.setItemDelegateForColumn(7, self.combo_itemtype)
+
+    # Getting the unique values for each column of the model
+        for column in range(self.model.columnCount()):
+            list_valuesUnique = []
+            if column not in self.checkbox_states:
+                self.checkbox_states[column] = {}
+                self.checkbox_states[column]['Seleccionar todo'] = True
+                for row in range(self.model.rowCount()):
+                    value = self.model.record(row).value(column)
+                    if value not in list_valuesUnique:
+                        if isinstance(value, QtCore.QDate):
+                            value=value.toString("dd/MM/yyyy")
+                        list_valuesUnique.append(str(value))
+                        self.checkbox_states[column][value] = True
+                self.dict_valuesuniques[column] = list_valuesUnique
+
+        self.model.dataChanged.connect(self.saveChanges)
+        self.selection_model = self.tableEditDocs.selectionModel()
+        self.selection_model.selectionChanged.connect(self.countSelectedCells)
+
+    def query_all_documents(self):
+        self.model.dataChanged.disconnect(self.saveChanges)
+        self.delete_allFilters()
+        self.model.setTable("documentation")
+        # self.model.setFilter(f"state NOT IN ('Enviado', 'Comentado')")
+        self.model.select()
+
+        column_names = ["doc_type_id"] # Hidding column by name
+        for column_index in range(self.model.columnCount(),-1,-1):
+            column_name = self.model.record().fieldName(column_index)
+            if column_name in column_names:
+                self.model.removeColumn(column_index)
+
+        self.proxy.setSourceModel(self.model)
+        self.tableEditDocs.setModel(self.proxy)
+
+        # self.tableEditDocs.verticalHeader().hide()
+        self.tableEditDocs.setItemDelegate(AlignDelegate(self.tableEditDocs))
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableEditDocs.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
@@ -443,7 +541,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
             list_uniquevalues = sorted(list(set(valuesUnique_view)))
 
         for actionName in list_uniquevalues:
-            checkbox_widget = QtWidgets.QCheckBox(actionName)
+            checkbox_widget = QtWidgets.QCheckBox(str(actionName))
 
             if self.logicalIndex not in self.checkbox_filters:
                 checkbox_widget.setChecked(True)
@@ -499,6 +597,8 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
                 self.proxy.setFilter(None, column)
 
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
@@ -567,6 +667,8 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
             self.checkbox_states[self.logicalIndex][str(value)] = True
 
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableEditDocs.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
@@ -606,39 +708,41 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             self.model.setIconColumnHeader(filterColumn, icono)
 
-# Function to copy and paste
+# Function to enable copy and paste cells
     def keyPressEvent(self, event):
         if event.matches(QKeySequence.StandardKey.Copy):
-            selected_indexes = self.tableEditDocs.selectionModel().selectedIndexes()
-            if selected_indexes:
-                clipboard = QApplication.clipboard()
-                text = self.get_selected_text(selected_indexes)
-                clipboard.setText(text)
+            if self.tableEditDocs.selectionModel() != None:
+                selected_indexes = self.tableEditDocs.selectionModel().selectedIndexes()
+                if selected_indexes:
+                    clipboard = QApplication.clipboard()
+                    text = self.get_selected_text(selected_indexes)
+                    clipboard.setText(text.toString("dd/MM/yyyy") if isinstance(text, QtCore.QDate) else str(text))
 
         elif event.matches(QKeySequence.StandardKey.Paste):
-            selected_indexes = self.tableEditDocs.selectionModel().selectedIndexes()
-            if selected_indexes:
-                clipboard = QApplication.clipboard()
-                text = clipboard.text()
-                for index in selected_indexes:
-                    current_row = index.row()
-                    current_column = index.column()
-                    first_column_value = self.proxy.data(self.proxy.index(current_row, 0))
-                    target_row = None
-                    for row in range(self.model.rowCount()):
-                        if self.model.data(self.model.index(row, 0)) == first_column_value:
-                            target_row = row
-                            break
-                    if target_row is not None:
-                        target_index = self.model.index(target_row, current_column)
-                        self.model.setData(target_index, text, Qt.ItemDataRole.EditRole)
-                self.model.submitAll()
+            if self.tableEditDocs.selectionModel() != None:
+                selected_indexes = self.tableEditDocs.selectionModel().selectedIndexes()
+                if selected_indexes:
+                    clipboard = QApplication.clipboard()
+                    text = clipboard.text()
+                    for index in selected_indexes:
+                        current_row = index.row()
+                        current_column = index.column()
+                        first_column_value = self.proxy.data(self.proxy.index(current_row, 0))
+                        target_row = None
+                        for row in range(self.model.rowCount()):
+                            if self.model.data(self.model.index(row, 0)) == first_column_value:
+                                target_row = row
+                                break
+                        if target_row is not None:
+                            target_index = self.model.index(target_row, current_column)
+                            self.model.setData(target_index, text, Qt.ItemDataRole.EditRole)
+                    self.model.submitAll()
 
         super().keyPressEvent(event)
 
-# Function to get the text selected
+# Function to get the text of the selected cells
     def get_selected_text(self, indexes):
-        if len(indexes) == 1:
+        if len(indexes) == 1:  # For only one cell selected
             index = indexes[0]
             cell_data = index.data(Qt.ItemDataRole.DisplayRole)
             return cell_data
@@ -654,7 +758,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
 
             for row in sorted(rows):
                 for col in sorted(cols):
-                    index = self.model.index(row, col)
+                    index = self.model.index(row, col)  
                     cell_data = index.data(Qt.ItemDataRole.DisplayRole)
                     cursor.insertText(str(cell_data))
                     cursor.insertText('\t')
@@ -710,8 +814,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    EditDocs_Window = QtWidgets.QMainWindow()
-    ui = Ui_EditDoc_Window(db)
-    ui.setupUi(EditDocs_Window)
+    EditDocs_Window = Ui_EditDoc_Window(db)
     EditDocs_Window.show()
     sys.exit(app.exec())

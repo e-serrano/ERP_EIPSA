@@ -13,9 +13,6 @@ import locale
 import pandas as pd
 import tkinter as tk
 from tkinter import filedialog
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtGui import QTextDocument, QTextCursor
-from PyQt6.QtCore import Qt
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -26,7 +23,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
-        if index.column() == 2:  # Verifica que estemos en la tercera columna
+        if index.column() == 2:  # Check column and paint when apply
             value = index.data()
 
             if value == "Adjudicada":  
@@ -115,8 +112,10 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.setObjectName("gridLayout_2")
         spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 1)
-        self.hLayout1 = QtWidgets.QHBoxLayout()
-        self.hLayout1.setObjectName("hLayout1")
+        self.gridLayout_3 = QtWidgets.QGridLayout()
+        self.gridLayout_3.setObjectName("gridLayout_3")
+        self.gridLayout_3.setVerticalSpacing(10)
+        self.gridLayout_3.setHorizontalSpacing(6)
         self.label_NumOffer = QtWidgets.QLabel(parent=self.frame)
         self.label_NumOffer.setMinimumSize(QtCore.QSize(95, 25))
         self.label_NumOffer.setMaximumSize(QtCore.QSize(95, 25))
@@ -125,7 +124,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         font.setBold(True)
         self.label_NumOffer.setFont(font)
         self.label_NumOffer.setObjectName("label_NumOffer")
-        self.hLayout1.addWidget(self.label_NumOffer)
+        self.gridLayout_3.addWidget(self.label_NumOffer, 0, 0, 1, 1)
         self.Numoffer_QueryOffer = QtWidgets.QLineEdit(parent=self.frame)
         self.Numoffer_QueryOffer.setMinimumSize(QtCore.QSize(250, 25))
         self.Numoffer_QueryOffer.setMaximumSize(QtCore.QSize(250, 25))
@@ -133,7 +132,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         font.setPointSize(10)
         self.Numoffer_QueryOffer.setFont(font)
         self.Numoffer_QueryOffer.setObjectName("Numoffer_QueryOffer")
-        self.hLayout1.addWidget(self.Numoffer_QueryOffer)
+        self.gridLayout_3.addWidget(self.Numoffer_QueryOffer, 0, 1, 1, 1)
         self.label_RefNum = QtWidgets.QLabel(parent=self.frame)
         self.label_RefNum.setMinimumSize(QtCore.QSize(90, 25))
         self.label_RefNum.setMaximumSize(QtCore.QSize(90, 25))
@@ -142,18 +141,14 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         font.setBold(True)
         self.label_RefNum.setFont(font)
         self.label_RefNum.setObjectName("label_RefNum")
-        self.hLayout1.addWidget(self.label_RefNum)
+        self.gridLayout_3.addWidget(self.label_RefNum, 0, 2, 1, 1)
         self.Ref_QueryOffer = QtWidgets.QLineEdit(parent=self.frame)
         self.Ref_QueryOffer.setMinimumSize(QtCore.QSize(250, 25))
-        self.Ref_QueryOffer.setMaximumSize(QtCore.QSize(250, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Ref_QueryOffer.setFont(font)
         self.Ref_QueryOffer.setObjectName("Ref_QueryOffer")
-        self.hLayout1.addWidget(self.Ref_QueryOffer)
-        self.gridLayout_2.addLayout(self.hLayout1, 1, 0, 1, 1)
-        self.hLayout2 = QtWidgets.QHBoxLayout()
-        self.hLayout2.setObjectName("hLayout2")
+        self.gridLayout_3.addWidget(self.Ref_QueryOffer, 0, 3, 1, 3)
         self.label_Responsible = QtWidgets.QLabel(parent=self.frame)
         self.label_Responsible.setMinimumSize(QtCore.QSize(95, 25))
         self.label_Responsible.setMaximumSize(QtCore.QSize(95, 25))
@@ -162,7 +157,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         font.setBold(True)
         self.label_Responsible.setFont(font)
         self.label_Responsible.setObjectName("label_Responsible")
-        self.hLayout2.addWidget(self.label_Responsible)
+        self.gridLayout_3.addWidget(self.label_Responsible, 1, 0, 1, 1)
         self.Responsible_QueryOffer = QtWidgets.QComboBox(parent=self.frame)
         self.Responsible_QueryOffer.setMinimumSize(QtCore.QSize(250, 25))
         self.Responsible_QueryOffer.setMaximumSize(QtCore.QSize(250, 25))
@@ -170,7 +165,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         font.setPointSize(10)
         self.Responsible_QueryOffer.setFont(font)
         self.Responsible_QueryOffer.setObjectName("Responsible_QueryOffer")
-        self.hLayout2.addWidget(self.Responsible_QueryOffer)
+        self.gridLayout_3.addWidget(self.Responsible_QueryOffer, 1, 1, 1, 1)
         self.label_Client = QtWidgets.QLabel(parent=self.frame)
         self.label_Client.setMinimumSize(QtCore.QSize(90, 25))
         self.label_Client.setMaximumSize(QtCore.QSize(90, 25))
@@ -179,18 +174,14 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         font.setBold(True)
         self.label_Client.setFont(font)
         self.label_Client.setObjectName("label_Client")
-        self.hLayout2.addWidget(self.label_Client)
+        self.gridLayout_3.addWidget(self.label_Client, 1, 2, 1, 1)
         self.Client_QueryOffer = QtWidgets.QLineEdit(parent=self.frame)
         self.Client_QueryOffer.setMinimumSize(QtCore.QSize(250, 25))
-        self.Client_QueryOffer.setMaximumSize(QtCore.QSize(250, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Client_QueryOffer.setFont(font)
         self.Client_QueryOffer.setObjectName("Client_QueryOffer")
-        self.hLayout2.addWidget(self.Client_QueryOffer)
-        self.gridLayout_2.addLayout(self.hLayout2, 2, 0, 1, 1)
-        self.hLayout3 = QtWidgets.QHBoxLayout()
-        self.hLayout3.setObjectName("hLayout3")
+        self.gridLayout_3.addWidget(self.Client_QueryOffer, 1, 3, 1, 3)
         self.label_State = QtWidgets.QLabel(parent=self.frame)
         self.label_State.setMinimumSize(QtCore.QSize(95, 25))
         self.label_State.setMaximumSize(QtCore.QSize(95, 25))
@@ -199,7 +190,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         font.setBold(True)
         self.label_State.setFont(font)
         self.label_State.setObjectName("label_State")
-        self.hLayout3.addWidget(self.label_State)
+        self.gridLayout_3.addWidget(self.label_State, 2, 0, 1, 1)
         self.State_QueryOffer = QtWidgets.QComboBox(parent=self.frame)
         self.State_QueryOffer.setMinimumSize(QtCore.QSize(250, 25))
         self.State_QueryOffer.setMaximumSize(QtCore.QSize(250, 25))
@@ -207,7 +198,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         font.setPointSize(10)
         self.State_QueryOffer.setFont(font)
         self.State_QueryOffer.setObjectName("State_QueryOffer")
-        self.hLayout3.addWidget(self.State_QueryOffer)
+        self.gridLayout_3.addWidget(self.State_QueryOffer, 2, 1, 1, 1)
         self.label_FinalClient = QtWidgets.QLabel(parent=self.frame)
         self.label_FinalClient.setMinimumSize(QtCore.QSize(90, 25))
         self.label_FinalClient.setMaximumSize(QtCore.QSize(90, 25))
@@ -216,18 +207,14 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         font.setBold(True)
         self.label_FinalClient.setFont(font)
         self.label_FinalClient.setObjectName("label_FinalClient")
-        self.hLayout3.addWidget(self.label_FinalClient)
+        self.gridLayout_3.addWidget(self.label_FinalClient, 2, 2, 1, 1)
         self.FinalClient_QueryOffer = QtWidgets.QLineEdit(parent=self.frame)
         self.FinalClient_QueryOffer.setMinimumSize(QtCore.QSize(250, 25))
-        self.FinalClient_QueryOffer.setMaximumSize(QtCore.QSize(250, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.FinalClient_QueryOffer.setFont(font)
         self.FinalClient_QueryOffer.setObjectName("FinalClient_QueryOffer")
-        self.hLayout3.addWidget(self.FinalClient_QueryOffer)
-        self.gridLayout_2.addLayout(self.hLayout3, 3, 0, 1, 1)
-        self.hLayout4 = QtWidgets.QHBoxLayout()
-        self.hLayout4.setObjectName("hLayout4")
+        self.gridLayout_3.addWidget(self.FinalClient_QueryOffer, 2, 3, 1, 3)
         self.label_Material = QtWidgets.QLabel(parent=self.frame)
         self.label_Material.setMinimumSize(QtCore.QSize(90, 25))
         self.label_Material.setMaximumSize(QtCore.QSize(90, 25))
@@ -236,7 +223,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         font.setBold(True)
         self.label_Material.setFont(font)
         self.label_Material.setObjectName("label_Material")
-        self.hLayout4.addWidget(self.label_Material)
+        self.gridLayout_3.addWidget(self.label_Material, 3, 0, 1, 1)
         self.Material_QueryOffer = QtWidgets.QComboBox(parent=self.frame)
         self.Material_QueryOffer.setMinimumSize(QtCore.QSize(250, 25))
         self.Material_QueryOffer.setMaximumSize(QtCore.QSize(250, 25))
@@ -244,10 +231,43 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         font.setPointSize(10)
         self.Material_QueryOffer.setFont(font)
         self.Material_QueryOffer.setObjectName("Material_QueryOffer")
-        self.hLayout4.addWidget(self.Material_QueryOffer)
-        self.gridLayout_2.addLayout(self.hLayout4, 4, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.Material_QueryOffer, 3, 1, 1, 1)
+        self.label_Months= QtWidgets.QLabel(parent=self.frame)
+        self.label_Months.setMinimumSize(QtCore.QSize(90, 25))
+        self.label_Months.setMaximumSize(QtCore.QSize(90, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Months.setFont(font)
+        self.label_Months.setObjectName("label_Months")
+        self.gridLayout_3.addWidget(self.label_Months, 3, 2, 1, 1)
+        self.Month1_QueryOffer = QtWidgets.QComboBox(parent=self.frame)
+        self.Month1_QueryOffer.setMinimumSize(QtCore.QSize(120, 25))
+        self.Month1_QueryOffer.setMaximumSize(QtCore.QSize(120, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Month1_QueryOffer.setFont(font)
+        self.Month1_QueryOffer.setObjectName("Month1_QueryOffer")
+        self.gridLayout_3.addWidget(self.Month1_QueryOffer, 3, 3, 1, 1)
+        self.Month2_QueryOffer = QtWidgets.QComboBox(parent=self.frame)
+        self.Month2_QueryOffer.setMinimumSize(QtCore.QSize(120, 25))
+        self.Month2_QueryOffer.setMaximumSize(QtCore.QSize(120, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Month2_QueryOffer.setFont(font)
+        self.Month2_QueryOffer.setObjectName("Month2_QueryOffer")
+        self.gridLayout_3.addWidget(self.Month2_QueryOffer, 3, 4, 1, 1)
+        self.Year_QueryOffer = QtWidgets.QLineEdit(parent=self.frame)
+        self.Year_QueryOffer.setMinimumSize(QtCore.QSize(120, 25))
+        self.Year_QueryOffer.setMaximumSize(QtCore.QSize(120, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Year_QueryOffer.setFont(font)
+        self.Year_QueryOffer.setObjectName("Year_QueryOffer")
+        self.gridLayout_3.addWidget(self.Year_QueryOffer, 3, 5, 1, 1)
+        self.gridLayout_2.addLayout(self.gridLayout_3, 1, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem, 5, 0, 1, 1)
+        self.gridLayout_2.addItem(spacerItem, 2, 0, 1, 1)
         self.hLayout4 = QtWidgets.QHBoxLayout()
         self.hLayout4.setObjectName("hLayout4")
         self.Button_Clean = QtWidgets.QPushButton(parent=self.frame)
@@ -268,14 +288,14 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         self.Button_Export.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.Button_Export.setObjectName("Button_Export")
         self.hLayout4.addWidget(self.Button_Export)
-        self.gridLayout_2.addLayout(self.hLayout4, 6, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.hLayout4, 3, 0, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem1, 7, 0, 1, 1)
+        self.gridLayout_2.addItem(spacerItem1, 4, 0, 1, 1)
         self.tableQueryOffer = QtWidgets.QTableWidget(parent=self.frame)
         self.tableQueryOffer.setObjectName("tableQueryOffer")
-        self.tableQueryOffer.setColumnCount(11)
+        self.tableQueryOffer.setColumnCount(16)
         self.tableQueryOffer.setRowCount(0)
-        for i in range(11):
+        for i in range(16):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -284,7 +304,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
             self.tableQueryOffer.setHorizontalHeaderItem(i, item)
         self.tableQueryOffer.setSortingEnabled(True)
         self.tableQueryOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
-        self.gridLayout_2.addWidget(self.tableQueryOffer, 8, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.tableQueryOffer, 5, 0, 1, 1)
         self.hLayout5 = QtWidgets.QHBoxLayout()
         self.hLayout5.setObjectName("hLayout5")
         spacerItem3 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -313,7 +333,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         self.label_CountValue.setText("")
         self.label_CountValue.setObjectName("label_CountValue")
         self.hLayout5.addWidget(self.label_CountValue)
-        self.gridLayout_2.addLayout(self.hLayout5, 9, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.hLayout5, 6, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         QueryOffer_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=QueryOffer_Window)
@@ -356,7 +376,16 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         # commit the changes
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -373,6 +402,10 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         self.responsibles_relation = {key: value for key, value in results3}
         self.responsibles_relation[''] = ''
 
+        list_months = [''] + [str(x) for x in range(1,13)]
+        self.Month1_QueryOffer.addItems(list_months)
+        self.Month2_QueryOffer.addItems(list_months)
+
         self.retranslateUi(QueryOffer_Window)
         QtCore.QMetaObject.connectSlotsByName(QueryOffer_Window)
         self.Button_Clean.clicked.connect(self.clean_boxes) # type: ignore
@@ -385,6 +418,9 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         self.Responsible_QueryOffer.currentIndexChanged.connect(self.query_offer)
         self.State_QueryOffer.currentIndexChanged.connect(self.query_offer)
         self.Material_QueryOffer.currentIndexChanged.connect(self.query_offer)
+        self.Month1_QueryOffer.currentIndexChanged.connect(self.query_offer)
+        self.Month2_QueryOffer.currentIndexChanged.connect(self.query_offer)
+        self.Year_QueryOffer.returnPressed.connect(self.query_offer)
         self.tableQueryOffer.itemSelectionChanged.connect(self.countSelectedCells)
         self.tableQueryOffer.itemDoubleClicked.connect(self.on_item_double_clicked)
 
@@ -413,6 +449,16 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         item = self.tableQueryOffer.horizontalHeaderItem(9)
         item.setText(_translate("QueryOffer_Window", "Notas"))
         item = self.tableQueryOffer.horizontalHeaderItem(10)
+        item.setText(_translate("QueryOffer_Window", "Nº Equipos"))
+        item = self.tableQueryOffer.horizontalHeaderItem(11)
+        item.setText(_translate("QueryOffer_Window", "Fecha Recepción"))
+        item = self.tableQueryOffer.horizontalHeaderItem(12)
+        item.setText(_translate("QueryOffer_Window", "Portal"))
+        item = self.tableQueryOffer.horizontalHeaderItem(13)
+        item.setText(_translate("QueryOffer_Window", "Fecha Límite"))
+        item = self.tableQueryOffer.horizontalHeaderItem(14)
+        item.setText(_translate("QueryOffer_Window", "Fecha Presentación"))
+        item = self.tableQueryOffer.horizontalHeaderItem(15)
         item.setText(_translate("QueryOffer_Window", "Ptos. Importantes"))
         self.Button_Clean.setText(_translate("QueryOffer_Window", "Limpiar Filtros"))
         self.Button_Query.setText(_translate("QueryOffer_Window", "Buscar"))
@@ -424,6 +470,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         self.label_FinalClient.setText(_translate("QueryOffer_Window", "Cliente Final:"))
         self.label_RefNum.setText(_translate("QueryOffer_Window", "Referencia:"))
         self.label_Material.setText(_translate("QueryOffer_Window", "Material:"))
+        self.label_Months.setText(_translate("QueryOffer_Window", "Meses/Año:"))
 
 
     def clean_boxes(self):
@@ -437,6 +484,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
 
 
     def query_offer(self):
+        self.tableQueryOffer.setRowCount(0)
         numoffer=self.Numoffer_QueryOffer.text()
         client=self.Client_QueryOffer.text()
         responsible=list(self.responsibles_relation.keys())[list(self.responsibles_relation.values()).index(self.Responsible_QueryOffer.currentText())]
@@ -444,22 +492,38 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         finalclient=self.FinalClient_QueryOffer.text()
         reference=self.Ref_QueryOffer.text()
         material=self.Material_QueryOffer.currentText()
+        month1 = self.Month1_QueryOffer.currentText()
+        month2 = self.Month2_QueryOffer.currentText()
+        year = int(self.Year_QueryOffer.text()) if self.Year_QueryOffer.text() != '' else None
 
-        if ((numoffer=="" or numoffer==" ") and (client=="" or client==" ") and (responsible=="" or responsible==" ") and (state=="" or state==" ")
-        and (finalclient=="" or finalclient==" ") and (reference=="" or reference==" ") and (material=="" or material==" ")):
+        # if ((numoffer=="" or numoffer==" ") and (client=="" or client==" ") and (responsible=="" or responsible==" ") and (state=="" or state==" ")
+        # and (finalclient=="" or finalclient==" ") and (reference=="" or reference==" ") and (material=="" or material==" ")):
+        #     dlg = QtWidgets.QMessageBox()
+        #     new_icon = QtGui.QIcon()
+        #     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        #     dlg.setWindowIcon(new_icon)
+        #     dlg.setWindowTitle("Consultar Oferta")
+        #     dlg.setText("Introduce un filtro en alguno de los campos")
+        #     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        #     dlg.exec()
+        #     del dlg,new_icon
+
+        if month1=='' and month2!='':
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Consultar Oferta")
-            dlg.setText("Introduce un filtro en alguno de los campos")
+            dlg.setWindowTitle("Consultar Pedido")
+            dlg.setText("No puede haber un segundo mes sin haber introducido un primer mes")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
-            del dlg,new_icon
 
         else:
+            self.tableQueryOffer.setRowCount(0)
             commands_queryoffer = ("""
-                        SELECT offers."num_offer",users_data.initials."initials",offers."state",offers."num_ref_offer",offers."client",offers."final_client",product_type."variable",offers."offer_amount",offers."rate_type",offers."notes",offers."important"
+                        SELECT offers."num_offer", users_data.initials."initials", offers."state", offers."num_ref_offer", offers."client",
+                        offers."final_client", product_type."variable", offers."offer_amount", offers."rate_type", offers."notes", offers."items_number",
+                        TO_CHAR(offers."recep_date",'dd/MM/yyyy'), offers."portal", TO_CHAR(offers."limit_date",'dd/MM/yyyy'), TO_CHAR(offers."presentation_date",'dd/MM/yyyy'), offers."important"
                         FROM offers
                         INNER JOIN product_type ON (offers."material"=product_type."material")
                         INNER JOIN users_data.initials ON (offers."responsible"=users_data.initials."username")
@@ -476,6 +540,62 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
                         UPPER(offers."state") LIKE UPPER('%%'||%s||'%%')
                         AND
                         product_type."variable" LIKE '%%'||%s||'%%'
+                        AND
+                        (EXTRACT(YEAR FROM offers."register_date") = %s OR %s IS NULL)
+                        )
+                        ORDER BY offers."num_offer"
+                        """)
+            commands_queryoffer_dates1 = ("""
+                        SELECT offers."num_offer", users_data.initials."initials", offers."state", offers."num_ref_offer", offers."client",
+                        offers."final_client", product_type."variable", offers."offer_amount", offers."rate_type", offers."notes", offers."items_number",
+                        TO_CHAR(offers."recep_date",'dd/MM/yyyy'), offers."portal", TO_CHAR(offers."limit_date",'dd/MM/yyyy'), TO_CHAR(offers."presentation_date",'dd/MM/yyyy'), offers."important"
+                        FROM offers
+                        INNER JOIN product_type ON (offers."material"=product_type."material")
+                        INNER JOIN users_data.initials ON (offers."responsible"=users_data.initials."username")
+                        WHERE (UPPER(offers."num_offer") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        UPPER(offers."num_ref_offer") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        UPPER(offers."client") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        UPPER(offers."final_client") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        UPPER(offers."responsible") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        UPPER(offers."state") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        product_type."variable" LIKE '%%'||%s||'%%'
+                        AND
+                        offers."offer_month" = %s
+                        AND
+                        (EXTRACT(YEAR FROM offers."register_date") = %s OR %s IS NULL)
+                        )
+                        ORDER BY offers."num_offer"
+                        """)
+            commands_queryoffer_dates2 = ("""
+                        SELECT offers."num_offer", users_data.initials."initials", offers."state", offers."num_ref_offer", offers."client",
+                        offers."final_client", product_type."variable", offers."offer_amount", offers."rate_type", offers."notes", offers."items_number",
+                        TO_CHAR(offers."recep_date",'dd/MM/yyyy'), offers."portal", TO_CHAR(offers."limit_date",'dd/MM/yyyy'), TO_CHAR(offers."presentation_date",'dd/MM/yyyy'), offers."important"
+                        FROM offers
+                        INNER JOIN product_type ON (offers."material"=product_type."material")
+                        INNER JOIN users_data.initials ON (offers."responsible"=users_data.initials."username")
+                        WHERE (UPPER(offers."num_offer") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        UPPER(offers."num_ref_offer") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        UPPER(offers."client") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        UPPER(offers."final_client") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        UPPER(offers."responsible") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        UPPER(offers."state") LIKE UPPER('%%'||%s||'%%')
+                        AND
+                        product_type."variable" LIKE '%%'||%s||'%%'
+                        AND
+                        offers."offer_month" BETWEEN %s AND %s
+                        AND
+                        (EXTRACT(YEAR FROM offers."register_date") = %s OR %s IS NULL)
                         )
                         ORDER BY offers."num_offer"
                         """)
@@ -487,8 +607,15 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                data=(numoffer,reference,client,finalclient,responsible,state,material,)
-                cur.execute(commands_queryoffer,data)
+                if month1 == '' and month2 == '':
+                    data=(numoffer,reference,client,finalclient,responsible,state,material,year,year,)
+                    cur.execute(commands_queryoffer,data)
+                elif month1 != '' and month2 == '':
+                    data=(numoffer,reference,client,finalclient,responsible,state,material,month1,year,year,)
+                    cur.execute(commands_queryoffer_dates1, data)
+                elif month1 != '' and month2 != '':
+                    data=(numoffer,reference,client,finalclient,responsible,state,material,month1,month2,year,year,)
+                    cur.execute(commands_queryoffer_dates2, data)
                 results=cur.fetchall()
                 self.tableQueryOffer.setRowCount(0)
                 self.tableQueryOffer.setRowCount(len(results))
@@ -496,7 +623,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
 
             # fill the Qt Table with the query results
                 for row in results:
-                    for column in range(11):
+                    for column in range(14):
                         value = row[column]
                         if value is None:
                             value = ''
@@ -507,7 +634,10 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
                     self.tableQueryOffer.setItemDelegateForRow(tablerow, AlignDelegate(self.tableQueryOffer))
                     tablerow+=1
 
-                self.tableQueryOffer.verticalHeader().hide()
+                # self.tableQueryOffer.verticalHeader().hide()
+                self.tableQueryOffer.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                self.tableQueryOffer.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.Interactive)
+                self.tableQueryOffer.horizontalHeader().setSectionResizeMode(15,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
 
             # close communication with the PostgreSQL database server
@@ -515,7 +645,16 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
             # commit the changes
                 conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
             finally:
                 if conn is not None:
                     conn.close()
@@ -554,7 +693,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
 
 
     def on_item_double_clicked(self, item):
-        if item.column() in [9,10]:
+        if item.column() in [9,15]:
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
@@ -569,7 +708,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
     def export_data(self):
         num_rows = self.tableQueryOffer.rowCount()
         if num_rows > 0:
-            num_columns = 8
+            num_columns = 16
 
             column_names = [self.tableQueryOffer.horizontalHeaderItem(col).text() for col in range(num_columns)]
 
@@ -604,41 +743,6 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
             dlg.exec()
             del dlg,new_icon
 
-
-    def keyPressEvent(self, event):
-        super().keyPressEvent(event)
-        if event.matches(QtGui.QKeySequence.StandardKey.Copy):
-            selected_indexes = self.tableQueryOffer.selectedIndexes()
-            if selected_indexes:
-                clipboard = QApplication.clipboard()
-                text = self.get_selected_text(selected_indexes)
-                clipboard.setText(text)
-
-
-    def get_selected_text(self, indexes):
-        rows = set()
-        cols = set()
-        for index in indexes:
-            rows.add(index.row())
-            cols.add(index.column())
-
-        text_doc = QTextDocument()
-        cursor = QTextCursor(text_doc)
-
-        header_labels = [self.tableQueryOffer.horizontalHeaderItem(col).text() for col in sorted(cols)]
-        for label in header_labels:
-            cursor.insertText(label)
-            cursor.insertText('\t')  # Tab separador de columnas
-        cursor.insertText('\n')   # Salto de línea después de las cabeceras
-
-        for row in sorted(rows):
-            for col in sorted(cols):
-                cell_data = self.tableQueryOffer.item(row, col).data(Qt.ItemDataRole.DisplayRole)
-                cursor.insertText(cell_data)
-                cursor.insertText('\t')  # Tab separador de columnas
-            cursor.insertText('\n')  # Salto de línea al final de la fila
-
-        return text_doc.toPlainText()
 
 if __name__ == "__main__":
     import sys

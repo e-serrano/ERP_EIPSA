@@ -291,7 +291,16 @@ class Ui_QueryTask_Window(QtWidgets.QMainWindow):
             self.tableTasks.setItemDelegate(AlignDelegate(self.tableTasks))
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -388,7 +397,16 @@ class Ui_QueryTask_Window(QtWidgets.QMainWindow):
             self.tableTasks.setSortingEnabled(True)
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -455,15 +473,15 @@ class Ui_QueryTask_Window(QtWidgets.QMainWindow):
         header_labels = [self.tableTasks.horizontalHeaderItem(col).text() for col in sorted(cols)]
         for label in header_labels:
             cursor.insertText(label)
-            cursor.insertText('\t')  # Tab separador de columnas
-        cursor.insertText('\n')   # Salto de línea después de las cabeceras
+            cursor.insertText('\t')  # Tab separating columns
+        cursor.insertText('\n')   # Line break at end of row
 
         for row in sorted(rows):
             for col in sorted(cols):
                 cell_data = self.tableTasks.item(row, col).data(Qt.ItemDataRole.DisplayRole)
                 cursor.insertText(cell_data)
-                cursor.insertText('\t')  # Tab separador de columnas
-            cursor.insertText('\n')  # Salto de línea al final de la fila
+                cursor.insertText('\t')  # Tab separating columns
+            cursor.insertText('\n')  # Line break at end of row
 
         return text_doc.toPlainText()
 

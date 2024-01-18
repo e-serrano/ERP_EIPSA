@@ -169,7 +169,16 @@ class Ui_UpdateTableExist_Window(object):
             conn.commit()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -229,28 +238,30 @@ class Ui_UpdateTableExist_Window(object):
 
                     # Creating the SET  and WHERE clause with proper formatting
                         set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
-                        where_clause = f'"id_tag_temp" = \'{id_value}\''
+                        where_clause = f'"num_order" = \'{id_value}\''
 
                     # Creating the update query and executing it after checking existing tags and id
                         sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
-                        sql_check = f'SELECT * FROM {table_name} WHERE "id_tag_temp" = \'{id_value}\''
-                        cursor.execute(sql_check)
-                        result_check=cursor.fetchall()
+                        cursor.execute(sql_update)
+                        # sql_check = f'SELECT * FROM {table_name} WHERE "id_tag_temp" = \'{id_value}\''
+                        # cursor.execute(sql_check)
+                        # result_check=cursor.fetchall()
 
-                        if len(result_check) == 0:
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("ERP EIPSA")
-                            dlg.setText(f"El ID \'{id_value}\' no existe \n"
-                                        "Este TAG no se actualizará")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg.exec()
-                            del dlg, new_icon
 
-                        else:
-                            cursor.execute(sql_update)
+                        # if len(result_check) == 0:
+                        #     dlg = QtWidgets.QMessageBox()
+                        #     new_icon = QtGui.QIcon()
+                        #     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        #     dlg.setWindowIcon(new_icon)
+                        #     dlg.setWindowTitle("ERP EIPSA")
+                        #     dlg.setText(f"El ID \'{id_value}\' no existe \n"
+                        #                 "Este TAG no se actualizará")
+                        #     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                        #     dlg.exec()
+                        #     del dlg, new_icon
+
+                        # else:
+                        #     cursor.execute(sql_update)
                     
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
@@ -267,7 +278,16 @@ class Ui_UpdateTableExist_Window(object):
                 cursor.close()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
             finally:
                 if conn is not None:
                     conn.close()

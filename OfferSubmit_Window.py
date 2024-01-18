@@ -11,6 +11,8 @@ from datetime import *
 import psycopg2
 from config import config
 import os
+import re
+from MoneyChange import obtain_money_change
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -82,9 +84,9 @@ class Ui_SubmitOffer_Window(object):
         self.gridLayout_2.setObjectName("gridLayout_2")
         spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
-        self.horizontalLayout1 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout1.setContentsMargins(-1, 10, -1, 0)
-        self.horizontalLayout1.setObjectName("horizontalLayout_2")
+        self.gridlayout = QtWidgets.QGridLayout()
+        self.gridlayout.setObjectName = ("gridlayout")
+        self.gridlayout.setVerticalSpacing(30)
         self.label_Offer_Submit = QtWidgets.QLabel(parent=self.frame)
         self.label_Offer_Submit.setMinimumSize(QtCore.QSize(100, 25))
         self.label_Offer_Submit.setMaximumSize(QtCore.QSize(100, 25))
@@ -93,22 +95,16 @@ class Ui_SubmitOffer_Window(object):
         font.setBold(True)
         self.label_Offer_Submit.setFont(font)
         self.label_Offer_Submit.setObjectName("label_Offer_Submit")
-        self.horizontalLayout1.addWidget(self.label_Offer_Submit)
+        self.gridlayout.addWidget(self.label_Offer_Submit, 0, 0, 1, 1)
         self.Offer_Submit = QtWidgets.QLineEdit(parent=self.frame)
         self.Offer_Submit.setMinimumSize(QtCore.QSize(150, 25))
-        self.Offer_Submit.setMaximumSize(QtCore.QSize(150, 25))
+        self.Offer_Submit.setMaximumSize(QtCore.QSize(16777215, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Offer_Submit.setFont(font)
         self.Offer_Submit.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.Offer_Submit.setObjectName("Offer_Submit")
-        self.horizontalLayout1.addWidget(self.Offer_Submit)
-        self.gridLayout_2.addLayout(self.horizontalLayout1, 1, 0, 1, 1)
-        spacerItem3 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem3, 2, 0, 1, 1)
-        self.horizontalLayout2 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout2.setContentsMargins(-1, 10, -1, 0)
-        self.horizontalLayout2.setObjectName("horizontalLayout_2")
+        self.gridlayout.addWidget(self.Offer_Submit, 0, 1, 1, 1)
         self.label_Offer_Date = QtWidgets.QLabel(parent=self.frame)
         self.label_Offer_Date.setMinimumSize(QtCore.QSize(100, 25))
         self.label_Offer_Date.setMaximumSize(QtCore.QSize(100, 25))
@@ -117,43 +113,53 @@ class Ui_SubmitOffer_Window(object):
         font.setBold(True)
         self.label_Offer_Date.setFont(font)
         self.label_Offer_Date.setObjectName("label_Offer_Date")
-        self.horizontalLayout2.addWidget(self.label_Offer_Date)
+        self.gridlayout.addWidget(self.label_Offer_Date, 1, 0, 1, 1)
         self.Offer_Date = QtWidgets.QLineEdit(parent=self.frame)
         self.Offer_Date.setMinimumSize(QtCore.QSize(150, 25))
-        self.Offer_Date.setMaximumSize(QtCore.QSize(150, 25))
+        self.Offer_Date.setMaximumSize(QtCore.QSize(16777215, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Offer_Date.setFont(font)
         self.Offer_Date.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.Offer_Date.setObjectName("Offer_Date")
-        self.horizontalLayout2.addWidget(self.Offer_Date)
-        self.gridLayout_2.addLayout(self.horizontalLayout2, 3, 0, 1, 1)
-        spacerItem3 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem3, 4, 0, 1, 1)
-        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_3.setContentsMargins(-1, 10, -1, -1)
-        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.gridlayout.addWidget(self.Offer_Date, 1, 1, 1, 1)
         self.label_amount_Submit = QtWidgets.QLabel(parent=self.frame)
-        self.label_amount_Submit.setMinimumSize(QtCore.QSize(100, 25))
-        self.label_amount_Submit.setMaximumSize(QtCore.QSize(100, 25))
+        self.label_amount_Submit.setMinimumSize(QtCore.QSize(75, 25))
+        self.label_amount_Submit.setMaximumSize(QtCore.QSize(75, 25))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
         self.label_amount_Submit.setFont(font)
         self.label_amount_Submit.setObjectName("label_amount_Submit")
-        self.horizontalLayout_3.addWidget(self.label_amount_Submit)
+        self.gridlayout.addWidget(self.label_amount_Submit, 2, 0, 1, 1)
         self.Amount_Submit = QtWidgets.QLineEdit(parent=self.frame)
         self.Amount_Submit.setMinimumSize(QtCore.QSize(150, 25))
-        self.Amount_Submit.setMaximumSize(QtCore.QSize(150, 25))
+        self.Amount_Submit.setMaximumSize(QtCore.QSize(16777215, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Amount_Submit.setFont(font)
         self.Amount_Submit.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.Amount_Submit.setObjectName("Amount_Submit")
-        self.horizontalLayout_3.addWidget(self.Amount_Submit)
-        self.gridLayout_2.addLayout(self.horizontalLayout_3, 5, 0, 1, 1)
-        spacerItem2 = QtWidgets.QSpacerItem(20, 80, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem2, 6, 0, 1, 1)
+        self.gridlayout.addWidget(self.Amount_Submit, 2, 1, 1, 1)
+        self.euromoney = QtWidgets.QRadioButton(parent=self.frame)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.euromoney.setFont(font)
+        self.euromoney.setMinimumSize(QtCore.QSize(25, 20))
+        self.euromoney.setMaximumSize(QtCore.QSize(25, 20))
+        self.euromoney.setObjectName("euromoney")
+        self.gridlayout.addWidget(self.euromoney, 2, 2, 1, 1)
+        self.dollarmoney = QtWidgets.QRadioButton(parent=self.frame)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.dollarmoney.setFont(font)
+        self.dollarmoney.setMinimumSize(QtCore.QSize(25, 20))
+        self.dollarmoney.setMaximumSize(QtCore.QSize(25, 20))
+        self.dollarmoney.setObjectName("dollarmoney")
+        self.gridlayout.addWidget(self.dollarmoney, 2, 3, 1, 1)
+        self.gridLayout_2.addLayout(self.gridlayout, 1, 0, 1, 1)
+        spacerItem2 = QtWidgets.QSpacerItem(20, 30, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.gridLayout_2.addItem(spacerItem2, 2, 0, 1, 1)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout.setObjectName("horizontalLayout")
@@ -175,9 +181,9 @@ class Ui_SubmitOffer_Window(object):
         self.Button_Cancel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.horizontalLayout.addWidget(self.Button_Cancel)
-        self.gridLayout_2.addLayout(self.horizontalLayout, 7, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.horizontalLayout, 3, 0, 1, 1)
         spacerItem4 = QtWidgets.QSpacerItem(80, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.gridLayout_2.addItem(spacerItem4, 8, 0, 1, 1)
+        self.gridLayout_2.addItem(spacerItem4, 4, 0, 1, 1)
         SubmitOffer_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=SubmitOffer_Window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 450, 22))
@@ -200,27 +206,49 @@ class Ui_SubmitOffer_Window(object):
         self.Button_Present.setText(_translate("SubmitOffer_Window", "Presentar"))
         self.Button_Cancel.setText(_translate("SubmitOffer_Window", "Cancelar"))
         self.label_Offer_Submit.setText(_translate("SubmitOffer_Window", "Nº Oferta:"))
-        self.label_amount_Submit.setText(_translate("SubmitOffer_Window", "Importe (€):"))
+        self.label_amount_Submit.setText(_translate("SubmitOffer_Window", "Importe:"))
         self.label_Offer_Date.setText(_translate("SubmitOffer_Window", "Fecha Pres.:"))
+        self.euromoney.setText(_translate("SubmitOffer_Window", "€"))
+        self.dollarmoney.setText(_translate("SubmitOffer_Window", "$"))
 
     def SubmitOffer(self):
         numoffer=self.Offer_Submit.text()
-        amount=self.Amount_Submit.text()
-        amount=amount.replace(".",",")
+        initial_amount=self.Amount_Submit.text()
         state="Presentada"
-        actual_date= self.Offer_Date.text()
+        presentation_date = self.Offer_Date.text()
+        actual_date = date.today().strftime("%d/%m/%Y")
 
-        if numoffer=="" or (amount=="" or actual_date==""):
+        if numoffer=="" or (initial_amount=="" or (presentation_date=="" or (self.euromoney.isChecked()==False and self.dollarmoney.isChecked()==False))):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Registrar Oferta")
-            dlg.setText("Rellene todos los campos")
+            dlg.setText("Rellene todos los campos y seleccione una divisa para el importe")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
 
+        elif not re.match(r'^\d{2}[/\-]\d{2}[/\-]\d{4}$', presentation_date):
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("La fecha debe tener formato dd/mm/yyyy o dd-mm-yyyy")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
+
         else:
+            if self.dollarmoney.isChecked()==True:
+                result_conversion = self.dollars_to_euros(float(initial_amount))
+                euros_amount = str(result_conversion[0])
+                change_type = result_conversion[1]
+                amount = euros_amount.replace(".",",")
+
+            elif self.euromoney.isChecked()==True:
+                amount = initial_amount.replace(".",",")
+
             commands_checkoffer = ("""
                         SELECT *
                         FROM offers
@@ -243,7 +271,16 @@ class Ui_SubmitOffer_Window(object):
                 conn.commit()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
 
             finally:
                 if conn is not None:
@@ -260,9 +297,14 @@ class Ui_SubmitOffer_Window(object):
                     dlg.exec()
             
             else:
+                commands_notesoffer = ("""
+                        SELECT notes
+                        FROM offers
+                        WHERE "num_offer" = %s
+                        """)
                 commands_submitoffer = ("""
                             UPDATE offers 
-                            SET "offer_amount"=%s, "state"=%s, "presentation_date"=%s, "last_update"=%s
+                            SET "offer_amount"=%s, "state"=%s, "presentation_date"=%s, "last_update"=%s, "notes"=%s
                             WHERE "num_offer"=%s
                             """)
                 conn = None
@@ -273,7 +315,14 @@ class Ui_SubmitOffer_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    data=(amount,state,actual_date,actual_date,numoffer,)
+                    cur.execute(commands_notesoffer, (numoffer,))
+                    results = cur.fetchall()
+                    notes = results[0][0]
+
+                    if self.dollarmoney.isChecked()==True:
+                        notes += ' // IMPORTE DE OFERTA EN DOLARES (' + initial_amount + '). Tipo de cambio: ' + str(round(change_type, 2)) + '$ - 1€ ' + actual_date
+
+                    data=(amount,state,presentation_date,presentation_date,notes,numoffer,)
                     cur.execute(commands_submitoffer, data)
                 # close communication with the PostgreSQL database server
                     cur.close()
@@ -293,17 +342,37 @@ class Ui_SubmitOffer_Window(object):
                     self.Amount_Submit.setText('')
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
 
                 finally:
                     if conn is not None:
                         conn.close()
 
+# Function to convert dollars to euros
+    def dollars_to_euros(self, dollar_amount):
+        change_type = obtain_money_change()
 
-# if __name__ == "__main__":
-#     app = QtWidgets.QApplication(sys.argv)
-#     SubmitOffer_Window = QtWidgets.QMainWindow()
-#     ui = Ui_SubmitOffer_Window()
-#     ui.setupUi(SubmitOffer_Window)
-#     SubmitOffer_Window.show()
-#     sys.exit(app.exec())
+        if change_type is not None:
+            euros_amount = round(dollar_amount / change_type, 2)
+            return [euros_amount, change_type]
+        else:
+            return None
+
+
+
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    SubmitOffer_Window = QtWidgets.QMainWindow()
+    ui = Ui_SubmitOffer_Window()
+    ui.setupUi(SubmitOffer_Window)
+    SubmitOffer_Window.show()
+    sys.exit(app.exec())

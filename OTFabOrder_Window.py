@@ -190,7 +190,16 @@ class Ui_OTFabOrder_Window(object):
         # commit the changes
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -244,34 +253,34 @@ class Ui_OTFabOrder_Window(object):
             if target_row is not None:
                 ped_type_tag = self.model.data(self.model.index(target_row, 4)) + '-' + self.model.data(self.model.index(target_row, 8)) + '-' + self.model.data(self.model.index(target_row, 1))
                 if self.variable == 'Caudal':
-                    num_of_plate = self.model.data(self.model.index(target_row, 46)) 
-                    num_of = self.model.data(self.model.index(target_row, 49))
-                    codefab_eq = self.model.data(self.model.index(target_row, 67))
-                    trad_eq = self.model.data(self.model.index(target_row, 68))
-                    codefab_orifice_flange = self.model.data(self.model.index(target_row, 70))
-                    trad_orifice_flange = self.model.data(self.model.index(target_row, 107))
-                    codefab_line_flange = self.model.data(self.model.index(target_row, 73))
-                    trad_line_flange = self.model.data(self.model.index(target_row, 108))
-                    codefab_gasket = self.model.data(self.model.index(target_row, 76))
-                    trad_gasket = self.model.data(self.model.index(target_row, 109))
-                    codefab_bolts = self.model.data(self.model.index(target_row, 79))
-                    trad_bolts = self.model.data(self.model.index(target_row, 110))
-                    codefab_plugs = self.model.data(self.model.index(target_row, 82))
-                    trad_plugs = self.model.data(self.model.index(target_row, 111))
-                    codefab_extractor = self.model.data(self.model.index(target_row, 85))
-                    trad_extractor = self.model.data(self.model.index(target_row, 112))
-                    codefab_plate = self.model.data(self.model.index(target_row, 88))
-                    trad_plate = self.model.data(self.model.index(target_row, 113))
-                    codefab_nipple = self.model.data(self.model.index(target_row, 91))
-                    trad_nipple = self.model.data(self.model.index(target_row, 114))
-                    codefab_handle = self.model.data(self.model.index(target_row, 94))
-                    trad_handle = self.model.data(self.model.index(target_row, 115))
-                    codefab_chring = self.model.data(self.model.index(target_row, 97))
-                    trad_chring = self.model.data(self.model.index(target_row, 116))
-                    codefab_tube = self.model.data(self.model.index(target_row, 100))
-                    trad_tube = self.model.data(self.model.index(target_row, 117))
-                    codefab_piece2 = self.model.data(self.model.index(target_row, 103))
-                    trad_piece2 = self.model.data(self.model.index(target_row, 118))
+                    num_of_plate = self.model.data(self.model.index(target_row, 48)) 
+                    num_of = self.model.data(self.model.index(target_row, 51))
+                    codefab_eq = self.model.data(self.model.index(target_row, 69))
+                    trad_eq = self.model.data(self.model.index(target_row, 70))
+                    codefab_orifice_flange = self.model.data(self.model.index(target_row, 72))
+                    trad_orifice_flange = self.model.data(self.model.index(target_row, 109))
+                    codefab_line_flange = self.model.data(self.model.index(target_row, 75))
+                    trad_line_flange = self.model.data(self.model.index(target_row, 110))
+                    codefab_gasket = self.model.data(self.model.index(target_row, 78))
+                    trad_gasket = self.model.data(self.model.index(target_row, 111))
+                    codefab_bolts = self.model.data(self.model.index(target_row, 81))
+                    trad_bolts = self.model.data(self.model.index(target_row, 112))
+                    codefab_plugs = self.model.data(self.model.index(target_row, 84))
+                    trad_plugs = self.model.data(self.model.index(target_row, 113))
+                    codefab_extractor = self.model.data(self.model.index(target_row, 86))
+                    trad_extractor = self.model.data(self.model.index(target_row, 114))
+                    codefab_plate = self.model.data(self.model.index(target_row, 90))
+                    trad_plate = self.model.data(self.model.index(target_row, 115))
+                    codefab_nipple = self.model.data(self.model.index(target_row, 93))
+                    trad_nipple = self.model.data(self.model.index(target_row, 116))
+                    codefab_handle = self.model.data(self.model.index(target_row, 96))
+                    trad_handle = self.model.data(self.model.index(target_row, 117))
+                    codefab_chring = self.model.data(self.model.index(target_row, 99))
+                    trad_chring = self.model.data(self.model.index(target_row, 118))
+                    codefab_tube = self.model.data(self.model.index(target_row, 102))
+                    trad_tube = self.model.data(self.model.index(target_row, 119))
+                    codefab_piece2 = self.model.data(self.model.index(target_row, 105))
+                    trad_piece2 = self.model.data(self.model.index(target_row, 120))
                     list_of = [num_of, num_of_plate]
                     list_trad = [codefab_eq, trad_eq, codefab_orifice_flange, trad_orifice_flange, codefab_line_flange,
                                         trad_line_flange, codefab_gasket, trad_gasket, codefab_bolts, trad_bolts,
@@ -315,7 +324,7 @@ class Ui_OTFabOrder_Window(object):
                                         codefab_plug, trad_plug, codefab_tw, trad_tw, codefab_cable, trad_cable]
 
                 elif self.variable == 'Nivel':
-                    num_of = self.model.data(self.model.index(target_row, 49))
+                    num_of = self.model.data(self.model.index(target_row, 52))
                     codefab_eq = self.model.data(self.model.index(target_row, 57))
                     trad_eq = self.model.data(self.model.index(target_row, 58))
                     codefab_body = self.model.data(self.model.index(target_row, 60))
@@ -426,7 +435,16 @@ class Ui_OTFabOrder_Window(object):
             # commit the changes
                 conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
             finally:
                 if conn is not None:
                     conn.close()
@@ -452,7 +470,7 @@ class Ui_OTFabOrder_Window(object):
             pdf.cell(1.3, 0.53, self.tableOT.item(row, 8).text(), align='C', border=1)
             pdf.ln(0.53)
 
-        output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar Pedido Proveedor")
+        output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar Orden Fabricación")
 
         if output_path:
             pdf.output(output_path)

@@ -12,6 +12,7 @@ import psycopg2
 from config import config
 import os
 import re
+from MoneyChange import obtain_money_change
 
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -21,8 +22,8 @@ class Ui_New_Order_Window(object):
     def setupUi(self, New_Order):
         New_Order.setObjectName("New_Order")
         New_Order.resize(680, 425)
-        New_Order.setMinimumSize(QtCore.QSize(680, 425))
-        New_Order.setMaximumSize(QtCore.QSize(680, 425))
+        New_Order.setMinimumSize(QtCore.QSize(775, 425))
+        New_Order.setMaximumSize(QtCore.QSize(775, 425))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         New_Order.setWindowIcon(icon)
@@ -81,13 +82,10 @@ class Ui_New_Order_Window(object):
         self.frame.setObjectName("frame")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.frame)
         self.verticalLayout.setObjectName("verticalLayout")
-        spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.verticalLayout.addItem(spacerItem)
-        self.hLayout = QtWidgets.QHBoxLayout()
-        self.hLayout.setObjectName("hLayout")
-        self.vLayout1 = QtWidgets.QVBoxLayout()
-        self.vLayout1.setContentsMargins(0, -1, 0, -1)
-        self.vLayout1.setObjectName("vLayout1")
+        self.gridlayoutprincipal = QtWidgets.QGridLayout()
+        self.gridlayoutprincipal.setObjectName("gridlayoutprincipal")
+        self.gridlayoutprincipal.setVerticalSpacing(40)
+        self.gridlayoutprincipal.setHorizontalSpacing(15)
         self.label_NumOrder = QtWidgets.QLabel(parent=self.frame)
         self.label_NumOrder.setMinimumSize(QtCore.QSize(105, 25))
         self.label_NumOrder.setMaximumSize(QtCore.QSize(105, 25))
@@ -97,9 +95,33 @@ class Ui_New_Order_Window(object):
         self.label_NumOrder.setFont(font)
         self.label_NumOrder.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_NumOrder.setObjectName("label_NumOrder")
-        self.vLayout1.addWidget(self.label_NumOrder)
-        spacerItem1 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.vLayout1.addItem(spacerItem1)
+        self.gridlayoutprincipal.addWidget(self.label_NumOrder, 0, 0, 1, 1)
+        self.NumOrder_NewOrder = QtWidgets.QLineEdit(parent=self.frame)
+        self.NumOrder_NewOrder.setMinimumSize(QtCore.QSize(160, 25))
+        self.NumOrder_NewOrder.setMaximumSize(QtCore.QSize(160, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.NumOrder_NewOrder.setFont(font)
+        self.NumOrder_NewOrder.setObjectName("NumOrder_NewOrder")
+        self.gridlayoutprincipal.addWidget(self.NumOrder_NewOrder, 0, 1, 1, 1)
+        self.label_ExpectDate = QtWidgets.QLabel(parent=self.frame)
+        self.label_ExpectDate.setMinimumSize(QtCore.QSize(105, 25))
+        self.label_ExpectDate.setMaximumSize(QtCore.QSize(105, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_ExpectDate.setFont(font)
+        self.label_ExpectDate.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_ExpectDate.setObjectName("label_ExpectDate")
+        self.gridlayoutprincipal.addWidget(self.label_ExpectDate, 0, 2, 1, 1)
+        self.ExpectDate_NewOrder = QtWidgets.QLineEdit(parent=self.frame)
+        self.ExpectDate_NewOrder.setMinimumSize(QtCore.QSize(160, 25))
+        self.ExpectDate_NewOrder.setMaximumSize(QtCore.QSize(160, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.ExpectDate_NewOrder.setFont(font)
+        self.ExpectDate_NewOrder.setObjectName("ExpectDate_NewOrder")
+        self.gridlayoutprincipal.addWidget(self.ExpectDate_NewOrder, 0, 3, 1, 1)
         self.label_NumOffer = QtWidgets.QLabel(parent=self.frame)
         self.label_NumOffer.setMinimumSize(QtCore.QSize(105, 25))
         self.label_NumOffer.setMaximumSize(QtCore.QSize(105, 25))
@@ -109,9 +131,33 @@ class Ui_New_Order_Window(object):
         self.label_NumOffer.setFont(font)
         self.label_NumOffer.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_NumOffer.setObjectName("label_NumOffer")
-        self.vLayout1.addWidget(self.label_NumOffer)
-        spacerItem2 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.vLayout1.addItem(spacerItem2)
+        self.gridlayoutprincipal.addWidget(self.label_NumOffer, 1, 0, 1, 1)
+        self.NumOffer_NewOrder = QtWidgets.QLineEdit(parent=self.frame)
+        self.NumOffer_NewOrder.setMinimumSize(QtCore.QSize(160, 25))
+        self.NumOffer_NewOrder.setMaximumSize(QtCore.QSize(160, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.NumOffer_NewOrder.setFont(font)
+        self.NumOffer_NewOrder.setObjectName("NumOffer_NewOrder")
+        self.gridlayoutprincipal.addWidget(self.NumOffer_NewOrder, 1, 1, 1, 1)
+        self.label_Notes = QtWidgets.QLabel(parent=self.frame)
+        self.label_Notes.setMinimumSize(QtCore.QSize(105, 40))
+        self.label_Notes.setMaximumSize(QtCore.QSize(105, 40))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Notes.setFont(font)
+        self.label_Notes.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
+        self.label_Notes.setObjectName("label_Notes")
+        self.gridlayoutprincipal.addWidget(self.label_Notes, 1, 2, 1, 1)
+        self.Notes_NewOrder = QtWidgets.QTextEdit(parent=self.frame)
+        self.Notes_NewOrder.setMinimumSize(QtCore.QSize(160, 40))
+        self.Notes_NewOrder.setMaximumSize(QtCore.QSize(160, 40))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Notes_NewOrder.setFont(font)
+        self.Notes_NewOrder.setObjectName("Notes_NewOrder")
+        self.gridlayoutprincipal.addWidget(self.Notes_NewOrder, 1, 3, 1, 1)
         self.label_NumRef = QtWidgets.QLabel(parent=self.frame)
         self.label_NumRef.setMinimumSize(QtCore.QSize(105, 25))
         self.label_NumRef.setMaximumSize(QtCore.QSize(105, 25))
@@ -121,112 +167,70 @@ class Ui_New_Order_Window(object):
         self.label_NumRef.setFont(font)
         self.label_NumRef.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_NumRef.setObjectName("label_NumRef")
-        self.vLayout1.addWidget(self.label_NumRef)
-        self.hLayout.addLayout(self.vLayout1)
-        self.vLayout2 = QtWidgets.QVBoxLayout()
-        self.vLayout2.setObjectName("vLayout2")
-        self.NumOrder_NewOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.NumOrder_NewOrder.setMinimumSize(QtCore.QSize(175, 25))
-        self.NumOrder_NewOrder.setMaximumSize(QtCore.QSize(175, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.NumOrder_NewOrder.setFont(font)
-        self.NumOrder_NewOrder.setObjectName("NumOrder_NewOrder")
-        self.vLayout2.addWidget(self.NumOrder_NewOrder)
-        spacerItem3 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.vLayout2.addItem(spacerItem3)
-        self.NumOffer_NewOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.NumOffer_NewOrder.setMinimumSize(QtCore.QSize(175, 25))
-        self.NumOffer_NewOrder.setMaximumSize(QtCore.QSize(175, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.NumOffer_NewOrder.setFont(font)
-        self.NumOffer_NewOrder.setObjectName("NumOffer_NewOrder")
-        self.vLayout2.addWidget(self.NumOffer_NewOrder)
-        spacerItem4 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.vLayout2.addItem(spacerItem4)
+        self.gridlayoutprincipal.addWidget(self.label_NumRef, 2, 0, 1, 1)
         self.NumRef_NewOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.NumRef_NewOrder.setMinimumSize(QtCore.QSize(175, 25))
-        self.NumRef_NewOrder.setMaximumSize(QtCore.QSize(175, 25))
+        self.NumRef_NewOrder.setMinimumSize(QtCore.QSize(160, 25))
+        self.NumRef_NewOrder.setMaximumSize(QtCore.QSize(160, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.NumRef_NewOrder.setFont(font)
         self.NumRef_NewOrder.setObjectName("NumRef_NewOrder")
-        self.vLayout2.addWidget(self.NumRef_NewOrder)
-        self.hLayout.addLayout(self.vLayout2)
-        spacerItem5 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.hLayout.addItem(spacerItem5)
-        self.vLayout3 = QtWidgets.QVBoxLayout()
-        self.vLayout3.setObjectName("vLayout3")
-        self.label_ExpectDate = QtWidgets.QLabel(parent=self.frame)
-        self.label_ExpectDate.setMinimumSize(QtCore.QSize(130, 25))
-        self.label_ExpectDate.setMaximumSize(QtCore.QSize(130, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_ExpectDate.setFont(font)
-        self.label_ExpectDate.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_ExpectDate.setObjectName("label_ExpectDate")
-        self.vLayout3.addWidget(self.label_ExpectDate)
-        spacerItem6 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.vLayout3.addItem(spacerItem6)
-        self.label_Notes = QtWidgets.QLabel(parent=self.frame)
-        self.label_Notes.setMinimumSize(QtCore.QSize(130, 40))
-        self.label_Notes.setMaximumSize(QtCore.QSize(130, 40))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_Notes.setFont(font)
-        self.label_Notes.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
-        self.label_Notes.setObjectName("label_Notes")
-        self.vLayout3.addWidget(self.label_Notes)
-        spacerItem7 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.vLayout3.addItem(spacerItem7)
+        self.gridlayoutprincipal.addWidget(self.NumRef_NewOrder, 2, 1, 1, 1)
         self.label_Amount = QtWidgets.QLabel(parent=self.frame)
-        self.label_Amount.setMinimumSize(QtCore.QSize(130, 25))
-        self.label_Amount.setMaximumSize(QtCore.QSize(130, 25))
+        self.label_Amount.setMinimumSize(QtCore.QSize(105, 25))
+        self.label_Amount.setMaximumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
         self.label_Amount.setFont(font)
         self.label_Amount.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_Amount.setObjectName("label_Amount")
-        self.vLayout3.addWidget(self.label_Amount)
-        self.hLayout.addLayout(self.vLayout3)
-        self.vlLayout4 = QtWidgets.QVBoxLayout()
-        self.vlLayout4.setObjectName("vlLayout4")
-        self.ExpectDate_NewOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.ExpectDate_NewOrder.setMinimumSize(QtCore.QSize(175, 25))
-        self.ExpectDate_NewOrder.setMaximumSize(QtCore.QSize(175, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.ExpectDate_NewOrder.setFont(font)
-        self.ExpectDate_NewOrder.setObjectName("ExpectDate_NewOrder")
-        self.vlLayout4.addWidget(self.ExpectDate_NewOrder)
-        spacerItem8 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.vlLayout4.addItem(spacerItem8)
-        self.Notes_NewOrder = QtWidgets.QTextEdit(parent=self.frame)
-        self.Notes_NewOrder.setMinimumSize(QtCore.QSize(175, 40))
-        self.Notes_NewOrder.setMaximumSize(QtCore.QSize(175, 40))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Notes_NewOrder.setFont(font)
-        self.Notes_NewOrder.setObjectName("Notes_NewOrder")
-        self.vlLayout4.addWidget(self.Notes_NewOrder)
-        spacerItem9 = QtWidgets.QSpacerItem(20, 60, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.vlLayout4.addItem(spacerItem9)
+        self.gridlayoutprincipal.addWidget(self.label_Amount, 2, 2, 1, 1)
         self.Amount_NewOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.Amount_NewOrder.setMinimumSize(QtCore.QSize(175, 25))
-        self.Amount_NewOrder.setMaximumSize(QtCore.QSize(175, 25))
+        self.Amount_NewOrder.setMinimumSize(QtCore.QSize(160, 25))
+        self.Amount_NewOrder.setMaximumSize(QtCore.QSize(160, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Amount_NewOrder.setFont(font)
         self.Amount_NewOrder.setObjectName("Amount_NewOrder")
-        self.vlLayout4.addWidget(self.Amount_NewOrder)
-        self.hLayout.addLayout(self.vlLayout4)
-        self.verticalLayout.addLayout(self.hLayout)
-        spacerItem10 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.verticalLayout.addItem(spacerItem10)
+        self.gridlayoutprincipal.addWidget(self.Amount_NewOrder, 2, 3, 1, 1)
+        self.euromoney = QtWidgets.QRadioButton(parent=self.frame)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.euromoney.setFont(font)
+        self.euromoney.setMinimumSize(QtCore.QSize(25, 20))
+        self.euromoney.setMaximumSize(QtCore.QSize(25, 20))
+        self.euromoney.setObjectName("euromoney")
+        self.gridlayoutprincipal.addWidget(self.euromoney, 2, 4, 1, 1)
+        self.dollarmoney = QtWidgets.QRadioButton(parent=self.frame)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.dollarmoney.setFont(font)
+        self.dollarmoney.setMinimumSize(QtCore.QSize(25, 20))
+        self.dollarmoney.setMaximumSize(QtCore.QSize(25, 20))
+        self.dollarmoney.setObjectName("dollarmoney")
+        self.gridlayoutprincipal.addWidget(self.dollarmoney, 2, 5, 1, 1)
+        self.label_num_items = QtWidgets.QLabel(parent=self.frame)
+        self.label_num_items.setMinimumSize(QtCore.QSize(105, 25))
+        self.label_num_items.setMaximumSize(QtCore.QSize(105, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_num_items.setFont(font)
+        self.label_num_items.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_num_items.setObjectName("label_num_items")
+        self.gridlayoutprincipal.addWidget(self.label_num_items, 3, 1, 1, 1)
+        self.NumItems_NewOrder = QtWidgets.QLineEdit(parent=self.frame)
+        self.NumItems_NewOrder.setMinimumSize(QtCore.QSize(105, 25))
+        self.NumItems_NewOrder.setMaximumSize(QtCore.QSize(105, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.NumItems_NewOrder.setFont(font)
+        self.NumItems_NewOrder.setObjectName("NumItems_NewOrder")
+        self.gridlayoutprincipal.addWidget(self.NumItems_NewOrder, 3, 2, 1, 1)
+        self.verticalLayout.addLayout(self.gridlayoutprincipal)
+        spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.verticalLayout.addItem(spacerItem2)
         self.hLayout1 = QtWidgets.QHBoxLayout()
         self.hLayout1.setObjectName("hLayout1")
         self.Button_NewOrder = QtWidgets.QPushButton(parent=self.frame)
@@ -254,6 +258,8 @@ class Ui_New_Order_Window(object):
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.hLayout1.addWidget(self.Button_Cancel)
         self.verticalLayout.addLayout(self.hLayout1)
+        spacerItem3 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.verticalLayout.addItem(spacerItem3)
         self.label_error_neworder = QtWidgets.QLabel(parent=self.frame)
         self.label_error_neworder.setMinimumSize(QtCore.QSize(0, 25))
         self.label_error_neworder.setMaximumSize(QtCore.QSize(16777215, 25))
@@ -275,6 +281,7 @@ class Ui_New_Order_Window(object):
         self.statusbar = QtWidgets.QStatusBar(parent=New_Order)
         self.statusbar.setObjectName("statusbar")
         New_Order.setStatusBar(self.statusbar)
+        New_Order.setWindowFlags(QtCore.Qt.WindowType.WindowMinimizeButtonHint)
 
         self.retranslateUi(New_Order)
         self.Button_Cancel.clicked.connect(New_Order.close) # type: ignore
@@ -290,9 +297,12 @@ class Ui_New_Order_Window(object):
         self.label_NumRef.setText(_translate("New_Order", "Nº Referencia:"))
         self.label_ExpectDate.setText(_translate("New_Order", "Fecha Prevista:"))
         self.label_Notes.setText(_translate("New_Order", "Notas:"))
-        self.label_Amount.setText(_translate("New_Order", "Importe (€):"))
+        self.label_Amount.setText(_translate("New_Order", "Importe:"))
+        self.label_num_items.setText(_translate("New_Order", "Nº Equipos:"))
         self.Button_NewOrder.setText(_translate("New_Order", "Crear Pedido"))
         self.Button_Cancel.setText(_translate("New_Order", "Cancelar"))
+        self.euromoney.setText(_translate("New_Order", "€"))
+        self.dollarmoney.setText(_translate("New_Order", "$"))
 
 
     def NewOrder(self):
@@ -301,16 +311,14 @@ class Ui_New_Order_Window(object):
         numref=self.NumRef_NewOrder.text()
         expectdate=self.ExpectDate_NewOrder.text()
         notes=self.Notes_NewOrder.toPlainText()
-        amount=self.Amount_NewOrder.text()
-        amount=amount.replace(".",",")
+        initial_amount=self.Amount_NewOrder.text()
+        num_items=self.NumItems_NewOrder.text()
         state="Adjudicada"
         actual_date=date.today()
         actual_date= actual_date.strftime("%d/%m/%Y")
 
-
-        if numorder=="" or (numoffer=="" or  (numref=="" or amount=="")):
-            self.label_error_neworder.setText('Rellene todos los campos. Solo el campo notas pueden estar en blanco')
-
+        if numorder=="" or (numoffer=="" or  (numref=="" or (initial_amount=="" or (num_items=="" or (self.euromoney.isChecked()==False and self.dollarmoney.isChecked()==False))))):
+            self.label_error_neworder.setText('Rellene todos los campos y seleccione el tipo de moneda. Solo el campo notas pueden estar en blanco')
 
         elif not re.match(r'^(P-\d{2}/\d{3}-S\d{2}R?|PA-\d{2}/\d{3})$', numorder):
             dlg = QtWidgets.QMessageBox()
@@ -326,6 +334,15 @@ class Ui_New_Order_Window(object):
             dlg.exec()
 
         else:
+            if self.dollarmoney.isChecked()==True:
+                result_conversion = self.dollars_to_euros(float(initial_amount))
+                euros_amount = str(result_conversion[0])
+                change_type = result_conversion[1]
+                amount = euros_amount.replace(".",",")
+
+            elif self.euromoney.isChecked()==True:
+                amount = initial_amount.replace(".",",")
+
             commands_offer = ("""
                         SELECT *
                         FROM offers
@@ -355,7 +372,16 @@ class Ui_New_Order_Window(object):
             # commit the changes
                 conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
             finally:
                 if conn is not None:
                     conn.close()
@@ -383,12 +409,26 @@ class Ui_New_Order_Window(object):
             else:
                 commands_neworder = ("""
                             INSERT INTO orders (
-                            "num_order","num_offer","num_ref_order","order_date","expected_date","notes","order_amount"
+                            "num_order","num_offer","num_ref_order","order_date","expected_date","notes","order_amount","items_number"
                             )
-                            VALUES (%s,%s,%s,%s,%s,%s,%s);
+                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s);
                             UPDATE offers
                             SET "state" = %s
-                            WHERE "num_offer"=%s;
+                            WHERE "num_offer" = %s;
+                            """)
+                commands_select_ppi = ("""
+                            SELECT * FROM verification."ppi_verification" WHERE "num_order" = %s
+                            """)
+                commands_select_exp = ("""
+                            SELECT * FROM verification."exp_verification" WHERE "num_order" = %s
+                            """)
+                commands_insert_ppi = ("""
+                            INSERT INTO verification."ppi_verification" (num_order) 
+                            VALUES(%s)
+                            """)
+                commands_insert_exp = ("""
+                            INSERT INTO verification."exp_verification" (num_order) 
+                            VALUES(%s)
                             """)
                 conn = None
                 try:
@@ -398,8 +438,23 @@ class Ui_New_Order_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    data = (numorder, numoffer, numref, actual_date, expectdate, notes, amount, state, numoffer)
+                    if self.dollarmoney.isChecked()==True:
+                        notes += ' // IMPORTE DE OFERTA EN DOLARES (' + initial_amount + '). Tipo de cambio: ' + str(round(change_type, 2)) + '$ - 1€ ' + actual_date
+
+                    data = (numorder, numoffer, numref, actual_date, expectdate, notes, amount, num_items, state, numoffer)
                     cur.execute(commands_neworder, data)
+
+                    numorder_verif = numorder[:9] if numorder[:2] == 'PA' else numorder[:8]
+
+                    cur.execute(commands_select_ppi, (numorder_verif,))
+                    results_ppi = cur.fetchall()
+                    if len(results_ppi) == 0:
+                        cur.execute(commands_insert_ppi, (numorder_verif,))
+
+                    cur.execute(commands_select_exp, (numorder_verif,))
+                    results_exp = cur.fetchall()
+                    if len(results_exp) == 0:
+                        cur.execute(commands_insert_exp, (numorder_verif,))
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
@@ -414,12 +469,37 @@ class Ui_New_Order_Window(object):
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
 
+                    self.NumOrder_NewOrder.setText('')
+                    self.NumOffer_NewOrder.setText('')
+                    self.NumRef_NewOrder.setText('')
+                    self.ExpectDate_NewOrder.setText('')
+                    self.Notes_NewOrder.setText('')
+                    self.Amount_NewOrder.setText('')
+
                 except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Crear Pedido")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
                 finally:
                     if conn is not None:
                         conn.close()
 
+
+# Function to convert dollars to euros
+    def dollars_to_euros(self, dollar_amount):
+        change_type = obtain_money_change()
+
+        if change_type is not None:
+            euros_amount = round(dollar_amount / change_type, 2)
+            return [euros_amount, change_type]
+        else:
+            return None
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

@@ -88,6 +88,42 @@ class Ui_App_Invoicing(object):
         self.Header.addWidget(self.LogoIcon)
         spacerItem = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem)
+        if self.name == 'Miguel Sahuquillo':
+            self.Button_Sending = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Sending.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Sending.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_Sending.setToolTip('Enviar Factura/Albarán')
+            self.Button_Sending.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Sending.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_Sending.setText("")
+            self.Button_Sending.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Sending.setObjectName("Button_Sending")
+            self.Header.addWidget(self.Button_Sending)
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Invoice_Send.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Sending.setIcon(icon2)
+            self.Button_Sending.clicked.connect(self.send_documents)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem2)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -446,16 +482,9 @@ class Ui_App_Invoicing(object):
         self.retranslateUi(App_Invoicing)
         QtCore.QMetaObject.connectSlotsByName(App_Invoicing)
 
-        
-        # self.Button_EditOffer.clicked.connect(self.edit_offer)
-        # self.Button_QueryOffer.clicked.connect(self.query_offer)
         self.Button_Clients.clicked.connect(self.clients)
-        # self.Button_EditOrder.clicked.connect(self.edit_order)
-        # self.Button_QueryOrder.clicked.connect(self.query_order)
-        # self.Button_NewTag.clicked.connect(self.new_tag)
-        # self.Button_EditTag.clicked.connect(self.edit_tag)
-        # self.Button_QueryTag.clicked.connect(self.query_tag)
-        # self.Button_Profile.clicked.connect(self.showMenu)
+        self.Button_Invoice.clicked.connect(self.invoice)
+        self.Button_Profile.clicked.connect(self.showMenu)
 
 
     def retranslateUi(self, App_Invoicing):
@@ -466,6 +495,22 @@ class Ui_App_Invoicing(object):
         self.Button_QueryInvoice.setText(_translate("App_Invoicing", "    Ver Facturación"))
         self.Button_ExpirationInvoice.setText(_translate("App_Invoicing", "    Venc. Facturas"))
         self.Button_Clients.setText(_translate("App_Invoicing", "    Clientes"))
+
+
+    def send_documents(self):
+        from InvoiceSend_Menu import Ui_InvoiceSend_Menu
+        self.send_invoice_menu=QtWidgets.QMainWindow()
+        self.ui=Ui_InvoiceSend_Menu()
+        self.ui.setupUi(self.send_invoice_menu)
+        self.send_invoice_menu.show()
+
+
+    def invoice(self):
+        from InvoiceNew_Window import Ui_InvoiceNew_Window
+        self.invoice_window=QtWidgets.QMainWindow()
+        self.ui=Ui_InvoiceNew_Window()
+        self.ui.setupUi(self.invoice_window)
+        self.invoice_window.showMaximized()
 
 
     def banks(self):

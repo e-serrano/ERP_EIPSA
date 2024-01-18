@@ -208,13 +208,13 @@ class Ui_TAGOfferToOrder_Window(object):
 
             if self.radioFlow.isChecked()==True:
                 table_name='tags_data.tags_flow'
-                df_final = df_table.iloc[:,:32]
+                df_final = df_table.iloc[:,:33]
             elif self.radioTemp.isChecked()==True:
                 table_name='tags_data.tags_temp'
-                df_final = df_table.iloc[:,:37]
+                df_final = df_table.iloc[:,:38]
             elif self.radioLevel.isChecked()==True:
                 table_name= 'tags_data.tags_level'
-                df_final = df_table.iloc[:,:38]
+                df_final = df_table.iloc[:,:39]
             elif self.radioOthers.isChecked()==True:
                 table_name= '' 
             else:
@@ -231,6 +231,7 @@ class Ui_TAGOfferToOrder_Window(object):
 
             if table_name != '':
                 try:
+                    df_final = df_final[df_final['tag_state'] == 'PURCHASED']
                     for index, row in df_final.iterrows():
                         if "ID" in row and "tag" in row and "tag_state" in row:
                             id_value = row["ID"]
@@ -240,9 +241,10 @@ class Ui_TAGOfferToOrder_Window(object):
                             new_num_po = row["num_po"]
                             new_position = row["position"]
                             new_subposition = row["subposition"]
+                            new_cont_date = row["contractual_date"]
 
                         # Creating the SET clause with proper formatting
-                            set_clause = f'"tag_state" = \'{state_value}\', "num_order" = \'{new_num_order}\', "num_po" = \'{new_num_po}\', "position" = \'{new_position}\', "subposition" = \'{new_subposition}\''
+                            set_clause = f'"tag_state" = \'{state_value}\', "num_order" = \'{new_num_order}\', "num_po" = \'{new_num_po}\', "position" = \'{new_position}\', "subposition" = \'{new_subposition}\', "contractual_date" = \'{new_cont_date}\''
 
                         # Creating the WHERE clause with proper formatting
                             if self.radioFlow.isChecked()==True:

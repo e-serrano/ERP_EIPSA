@@ -12,16 +12,6 @@ import psycopg2
 import sys
 from config import config
 from datetime import *
-from OfferQuery_Window import Ui_QueryOffer_Window
-from OrderQuery_Window import Ui_QueryOrder_Window
-from TAGQuery_Window import Ui_QueryTags_Window
-from DocQuery_Window import Ui_QueryDoc_Window
-from OfferGraphs_Window import Ui_GraphsOffer_Window
-from ClientsGeneralResume_Window import Ui_ClientsGeneralResume_Window
-from PasswordEdit_Window import Ui_EditPasswordWindow
-from ClientResume_Window import Ui_ClientResume_Window
-from TaskQuery_Window import Ui_QueryTask_Window
-from TaskAdd_Window import Ui_AddTask_Window
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -506,7 +496,16 @@ class Ui_App_ManagerF(object):
         # commit the changes
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -563,6 +562,7 @@ class Ui_App_ManagerF(object):
 
 
     def query_offer(self):
+        from OfferQuery_Window import Ui_QueryOffer_Window
         self.query_offer_window=QtWidgets.QMainWindow()
         self.ui=Ui_QueryOffer_Window()
         self.ui.setupUi(self.query_offer_window)
@@ -570,6 +570,7 @@ class Ui_App_ManagerF(object):
 
 
     def query_order(self):
+        from OrderQuery_Window import Ui_QueryOrder_Window
         self.query_order_window=QtWidgets.QMainWindow()
         self.ui=Ui_QueryOrder_Window()
         self.ui.setupUi(self.query_order_window)
@@ -577,6 +578,7 @@ class Ui_App_ManagerF(object):
 
 
     def query_tag(self):
+        from TAGQuery_Window import Ui_QueryTags_Window
         self.querytag_window=QtWidgets.QMainWindow()
         self.ui=Ui_QueryTags_Window('Comercial')
         self.ui.setupUi(self.querytag_window)
@@ -584,6 +586,7 @@ class Ui_App_ManagerF(object):
 
 
     def query_documents(self):
+        from DocQuery_Window import Ui_QueryDoc_Window
         self.querydoc_menu=QtWidgets.QMainWindow()
         self.ui=Ui_QueryDoc_Window()
         self.ui.setupUi(self.querydoc_menu)
@@ -591,6 +594,7 @@ class Ui_App_ManagerF(object):
 
 
     def graphs(self):
+        from OfferGraphs_Window import Ui_GraphsOffer_Window
         self.graphswindow=QtWidgets.QMainWindow()
         self.ui=Ui_GraphsOffer_Window()
         self.ui.setupUi(self.graphswindow)
@@ -598,6 +602,7 @@ class Ui_App_ManagerF(object):
 
 
     def clients_generalresume(self):
+        from ClientsGeneralResume_Window import Ui_ClientsGeneralResume_Window
         self.clients_general_resume_window=QtWidgets.QMainWindow()
         self.ui=Ui_ClientsGeneralResume_Window()
         self.ui.setupUi(self.clients_general_resume_window)
@@ -605,12 +610,14 @@ class Ui_App_ManagerF(object):
 
 
     def querytask(self, date=None):
+        from TaskQuery_Window import Ui_QueryTask_Window
         self.querytaskwindow=Ui_QueryTask_Window(self.name, date)
         self.querytaskwindow.show()
         self.querytaskwindow.Button_Cancel.clicked.connect(self.setup_task_dates)
 
 
     def newtask(self, date):
+        from TaskAdd_Window import Ui_AddTask_Window
         self.newtaskwindow=QtWidgets.QMainWindow()
         self.ui=Ui_AddTask_Window(self.name, date)
         self.ui.setupUi(self.newtaskwindow)
@@ -630,6 +637,7 @@ class Ui_App_ManagerF(object):
 
 
     def editpassword(self):
+        from PasswordEdit_Window import Ui_EditPasswordWindow
         self.edit_password_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditPasswordWindow(self.username)
         self.ui.setupUi(self.edit_password_window)
@@ -686,7 +694,16 @@ class Ui_App_ManagerF(object):
         # commit the changes
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -710,6 +727,7 @@ class Ui_App_ManagerF(object):
 
 # Function when double clicked cell is in first column
     def clientresume(self, item):
+        from ClientResume_Window import Ui_ClientResume_Window
         clientname=item.text()
         self.client_resume_window=QtWidgets.QMainWindow()
         self.ui=Ui_ClientResume_Window(clientname)
@@ -746,7 +764,16 @@ class Ui_App_ManagerF(object):
             dates_with_tasks=list(set(dates_with_tasks_raw))
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -838,7 +865,16 @@ class Ui_App_ManagerF(object):
             return value_to_return
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()

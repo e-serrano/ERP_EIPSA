@@ -16,19 +16,6 @@ import configparser
 from Database_Connection import createConnection
 from tkinter.filedialog import askopenfilename
 import pandas as pd
-from DBEditReg_Window import Ui_DBEditReg_Window
-from Deliveries_Window import Ui_Deliveries_Window
-from OTGeneralCreate_Window import Ui_OTGeneralCreate_Window
-from TechOffice_Window import Ui_TechOffice_Window
-from OrderQuery_Window import Ui_QueryOrder_Window
-from OrderQueryTechnical_Window import Ui_QueryOrderTechnical_Window
-from TAGEdit_Technical_Window import Ui_EditTags_Technical_Window
-from TAGQuery_Window import Ui_QueryTags_Window
-from DocNew_Window import Ui_New_Doc_Window
-from DocEdit_Window import Ui_EditDoc_Window
-from DocQuery_Window import Ui_QueryDoc_Window
-from PasswordEdit_Window import Ui_EditPasswordWindow
-from NotificationsHistory_Window import Ui_HistoryNotifications_Window
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -39,7 +26,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
-        if index.column() == 5:  # Verifica que estemos en la tercera columna
+        if index.column() == 5: # Checking column number and painting if apply
             value = str(index.data())
             if value != '':
                 fecha_str_split = value.split('-')
@@ -243,16 +230,6 @@ class CustomTableWidget(QtWidgets.QTableWidget):
             super().contextMenuEvent(event)
 
 
-    def contextMenuEvent(self, event):
-        if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
-            logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
-            header_pos = self.mapToGlobal(self.horizontalHeader().pos())
-            header_height = self.horizontalHeader().height()
-            self.show_unique_values_menu(logical_index, header_pos, header_height)
-        else:
-            super().contextMenuEvent(event)
-
-
 class Ui_App_Technical(QtWidgets.QMainWindow):
     def __init__(self, name, username):
         super().__init__() 
@@ -323,7 +300,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "}")
             self.Button_ImportTimes.setText("")
             icon5 = QtGui.QIcon()
-            icon5.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/ClockIn.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon5.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Import_Time.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_ImportTimes.setIcon(icon5)
             self.Button_ImportTimes.setIconSize(QtCore.QSize(40, 40))
             self.Button_ImportTimes.setObjectName("Button_ImportTimes")
@@ -467,9 +444,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "    border-radius: 10px;\n"
     "}")
             self.Button_Times.setText("")
-            icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Clock.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_Times.setIcon(icon2)
+            icon6 = QtGui.QIcon()
+            icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Clock.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Times.setIcon(icon6)
             self.Button_Times.setIconSize(QtCore.QSize(40, 40))
             self.Button_Times.setObjectName("Button_Times")
             self.Button_Times.setToolTip("Tiempos")
@@ -510,8 +487,119 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_OT.setObjectName("Button_OT")
             self.Button_OT.setToolTip("Ordenes de Trabajo 900")
             self.Header.addWidget(self.Button_OT)
+            spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem2)
+            self.Button_DB_Manuf = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_DB_Manuf.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_DB_Manuf.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_DB_Manuf.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_DB_Manuf.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_DB_Manuf.setText("")
+            icon7 = QtGui.QIcon()
+            icon7.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Worker.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_DB_Manuf.setIcon(icon7)
+            self.Button_DB_Manuf.setIconSize(QtCore.QSize(40, 40))
+            self.Button_DB_Manuf.setObjectName("Button_DB_Manuf")
+            self.Button_DB_Manuf.setToolTip("Personal/Operaciones")
+            self.Header.addWidget(self.Button_DB_Manuf)
+            spacerItem6 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem6)
+            self.Button_ClockIn_Import = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_ClockIn_Import.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_ClockIn_Import.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_ClockIn_Import.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_ClockIn_Import.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_ClockIn_Import.setText("")
+            icon7 = QtGui.QIcon()
+            icon7.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/ClockIn_Import.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_ClockIn_Import.setIcon(icon7)
+            self.Button_ClockIn_Import.setIconSize(QtCore.QSize(40, 40))
+            self.Button_ClockIn_Import.setObjectName("Button_ClockIn_Import")
+            self.Button_ClockIn_Import.setToolTip("Importar fichajes")
+            self.Header.addWidget(self.Button_ClockIn_Import)
+            spacerItem18 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem18)
+            self.Button_ClockIn = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_ClockIn.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_ClockIn.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_ClockIn.setToolTip('Fichajes')
+            self.Button_ClockIn.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_ClockIn.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_ClockIn.setText("")
+            icon17 = QtGui.QIcon()
+            icon17.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/ClockIn.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_ClockIn.setIcon(icon17)
+            self.Button_ClockIn.setIconSize(QtCore.QSize(40, 40))
+            self.Button_ClockIn.setObjectName("Button_ClockIn")
+            self.Header.addWidget(self.Button_ClockIn)
             self.Button_Times.clicked.connect(self.times)
             self.Button_OT.clicked.connect(self.otorder)
+            self.Button_DB_Manuf.clicked.connect(self.dbmanufedit)
+            self.Button_ClockIn_Import.clicked.connect(self.importclockin)
+            self.Button_ClockIn.clicked.connect(self.clockin)
         elif self.name in ["Santos Sánchez"]:
             self.Button_TechOffice = QtWidgets.QPushButton(parent=self.frame)
             self.Button_TechOffice.setMinimumSize(QtCore.QSize(50, 50))
@@ -875,7 +963,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                     SELECT "num_doc_eipsa","num_order","doc_title","state","revision",TO_CHAR("state_date", 'DD-MM-YYYY')
                     FROM documentation
                     WHERE (
-                    "state" IS NULL OR "state" IN ('','Enviado','Comentado')
+                    "state" IS NULL OR "state" IN ('','Enviado','Comentado','Com. Mayores','Com. Menores')
                     )
                     ORDER BY "num_doc_eipsa"
                     """)
@@ -913,7 +1001,16 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         # commit the changes
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -960,6 +1057,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 
     def editdb(self):
+        from DBEditReg_Window import Ui_DBEditReg_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
@@ -974,7 +1072,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.dbedit_window=Ui_DBEditReg_Window(db_validation)
         self.dbedit_window.show()
 
+
     def deliveries(self):
+        from Deliveries_Window import Ui_Deliveries_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
@@ -995,6 +1095,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 
     def otorder(self):
+        from OTGeneralCreate_Window import Ui_OTGeneralCreate_Window
         self.otgeneralcreate_window=QtWidgets.QMainWindow()
         self.ui=Ui_OTGeneralCreate_Window()
         self.ui.setupUi(self.otgeneralcreate_window)
@@ -1002,6 +1103,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 
     def techoffice(self):
+        from TechOffice_Window import Ui_TechOffice_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
@@ -1018,6 +1120,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 
     def notifications(self):
+        from NotificationsHistory_Window import Ui_HistoryNotifications_Window
         self.notification_window=Ui_HistoryNotifications_Window(self.username)
         self.notification_window.show()
         self.notification_window.Button_Cancel.clicked.connect(self.load_notifications)
@@ -1026,14 +1129,17 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     def query_order(self):
         self.query_order_window=QtWidgets.QMainWindow()
         if self.name in ['Jesús Martínez']:
+            from OrderQuery_Window import Ui_QueryOrder_Window
             self.ui=Ui_QueryOrder_Window()
         else:
+            from OrderQueryTechnical_Window import Ui_QueryOrderTechnical_Window
             self.ui=Ui_QueryOrderTechnical_Window()
         self.ui.setupUi(self.query_order_window)
         self.query_order_window.show()
 
 
     def edit_tag(self):
+        from TAGEdit_Technical_Window import Ui_EditTags_Technical_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
@@ -1050,6 +1156,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 
     def query_tag(self):
+        from TAGQuery_Window import Ui_QueryTags_Window
         self.querytag_window=QtWidgets.QMainWindow()
         self.ui=Ui_QueryTags_Window('Técnico')
         self.ui.setupUi(self.querytag_window)
@@ -1057,6 +1164,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 
     def CreateDoc(self):
+        from DocNew_Window import Ui_New_Doc_Window
         self.createdoc_window=QtWidgets.QMainWindow()
         self.ui=Ui_New_Doc_Window()
         self.ui.setupUi(self.createdoc_window)
@@ -1147,6 +1255,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 
     def EditDoc(self):
+        from DocEdit_Window import Ui_EditDoc_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
@@ -1165,6 +1274,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 
     def query_documents(self):
+        from DocQuery_Window import Ui_QueryDoc_Window
         self.querydoc_menu=Ui_QueryDoc_Window()
         self.querydoc_menu.show()
 
@@ -1181,6 +1291,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 
     def editpassword(self):
+        from PasswordEdit_Window import Ui_EditPasswordWindow
         self.edit_password_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditPasswordWindow(self.username)
         self.ui.setupUi(self.edit_password_window)
@@ -1194,7 +1305,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                     SELECT "num_doc_eipsa","num_order","doc_title","state","revision",TO_CHAR("state_date", 'DD-MM-YYYY')
                     FROM documentation
                     WHERE (
-                    "state" IS NULL OR "state" IN ('Enviado', 'Comentado')
+                    "state" IS NULL OR "state" IN ('','Enviado','Comentado','Com. Mayores','Com. Menores')
                     )
                     ORDER BY "num_doc_eipsa"
                     """)
@@ -1232,7 +1343,16 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         # commit the changes
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -1279,7 +1399,16 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             conn.commit()
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -1295,8 +1424,8 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to import clock times
     def importtimes(self):
-        fname = askopenfilename(filetypes=[("Archivos de Excel", "*.txt")],
-                            title="Seleccionar archivo Excel")
+        fname = askopenfilename(filetypes=[("Archivos de texto", "*.txt")],
+                            title="Seleccionar archivo de texto de tiempos")
         if fname:
             df = pd.read_csv(fname, sep = "|", header=None, encoding="latin-1")
             df = df.astype(str)
@@ -1327,7 +1456,105 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                 cursor.close()
 
             except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
             finally:
                 if conn is not None:
                     conn.close()
+
+
+    def dbmanufedit(self):
+        from DBManufEditReg_Window import Ui_DBManufEditReg_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_manuf = createConnection(user_database, password_database)
+        if not db_manuf:
+            sys.exit()
+
+        self.dbedit_window=Ui_DBManufEditReg_Window(db_manuf)
+        self.dbedit_window.show()
+
+
+    def importclockin(self):
+        fname = askopenfilename(filetypes=[("Archivos de Excel", "*.txt")],
+                        title="Seleccionar archivo Excel")
+
+        if fname:
+            # Expected columns
+            column_names = ['worker_id', 'name', 'workday', 'type_day', 'notes', 'time_1', 'time_2', 'time_3', 'time_4','extra']
+            
+            df = pd.read_csv(fname, sep="|", header=None, names=column_names, encoding="latin-1")
+            df = df.astype(str)
+            df_final = df.iloc[1:,[0, 2, 4, 5, 6, 7, 8]].copy()
+            columns_update = ['time_1', 'time_2', 'time_3', 'time_4']
+
+            # Apply replace on selected columns
+            df_final[columns_update] = df_final[columns_update].apply(lambda x: x.str.replace(r'\(\d+\)', '', regex=True))
+            df_final[columns_update] = df_final[columns_update].apply(lambda x: x.str.replace('nan', '0:00', regex=True))
+
+            params = config()
+            conn = psycopg2.connect(**params)
+            cursor = conn.cursor()
+
+            try:
+
+                for index, row in df_final.iterrows():
+                # Create a list of pairs (column_name, column_value) for each column with value
+                    columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
+
+                # Creating string for columns names
+                    columns = ', '.join([column for column, _ in columns_values])
+
+                # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
+                    values = ', '.join([f"'{values.replace(',', '.')}'" if column in ['time_ot'] else f"'{values}'" for column, values in columns_values])
+
+                    sql_insertion = f"INSERT INTO clock_in_times ({columns}) VALUES ({values})"
+
+                    cursor.execute(sql_insertion)
+
+                conn.commit()
+                cursor.close()
+
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Datos importados con éxito")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+                del dlg, new_icon
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
+
+
+    def clockin(self):
+        from ClockIn_Window import MyCalendarApp
+        self.clockin_window = MyCalendarApp(self.username)
+        self.clockin_window.showMaximized()

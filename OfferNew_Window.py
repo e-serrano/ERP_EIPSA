@@ -11,6 +11,7 @@ from datetime import *
 import psycopg2
 from config import config
 import os
+import re
 from OfferClientAdd_Window import Ui_OfferClientAdd_Window
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -23,8 +24,8 @@ class Ui_New_Offer_Window(object):
     def setupUi(self, New_Offer):
         New_Offer.setObjectName("New_Offer")
         New_Offer.resize(670, 425)
-        New_Offer.setMinimumSize(QtCore.QSize(690, 500))
-        New_Offer.setMaximumSize(QtCore.QSize(690, 500))
+        New_Offer.setMinimumSize(QtCore.QSize(700, 650))
+        New_Offer.setMaximumSize(QtCore.QSize(700, 650))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         New_Offer.setWindowIcon(icon)
@@ -163,6 +164,18 @@ class Ui_New_Offer_Window(object):
         self.label_RecepDate.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_RecepDate.setObjectName("label_RecepDate")
         self.vLayout1.addWidget(self.label_RecepDate)
+        spacerItem27 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.vLayout1.addItem(spacerItem27)
+        self.label_Portal = QtWidgets.QLabel(parent=self.frame)
+        self.label_Portal.setMinimumSize(QtCore.QSize(110, 25))
+        self.label_Portal.setMaximumSize(QtCore.QSize(110, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Portal.setFont(font)
+        self.label_Portal.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_Portal.setObjectName("label_Portal")
+        self.vLayout1.addWidget(self.label_Portal)
         spacerItem5 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout1.addItem(spacerItem5)
         self.hLayout.addLayout(self.vLayout1)
@@ -227,6 +240,17 @@ class Ui_New_Offer_Window(object):
         self.RecepDate_NewOffer.setFont(font)
         self.RecepDate_NewOffer.setObjectName("RecepDate_NewOffer")
         self.vLayout2.addWidget(self.RecepDate_NewOffer)
+        spacerItem27 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.vLayout2.addItem(spacerItem27)
+        self.Portal_NewOffer = QtWidgets.QComboBox(parent=self.frame)
+        self.Portal_NewOffer.setMinimumSize(QtCore.QSize(175, 25))
+        self.Portal_NewOffer.setMaximumSize(QtCore.QSize(175, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Portal_NewOffer.setFont(font)
+        self.Portal_NewOffer.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
+        self.Portal_NewOffer.setObjectName("Portal_NewOffer")
+        self.vLayout2.addWidget(self.Portal_NewOffer)
         spacerItem9 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout2.addItem(spacerItem9)
         self.hLayout.addLayout(self.vLayout2)
@@ -304,6 +328,18 @@ class Ui_New_Offer_Window(object):
         self.label_Important.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Important.setObjectName("label_Important")
         self.vLayout3.addWidget(self.label_Important)
+        spacerItem28 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.vLayout3.addItem(spacerItem28)
+        self.label_NumItems = QtWidgets.QLabel(parent=self.frame)
+        self.label_NumItems.setMinimumSize(QtCore.QSize(110, 25))
+        self.label_NumItems.setMaximumSize(QtCore.QSize(110, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_NumItems.setFont(font)
+        self.label_NumItems.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
+        self.label_NumItems.setObjectName("label_NumItems")
+        self.vLayout3.addWidget(self.label_NumItems)
         spacerItem15 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout3.addItem(spacerItem15)
         self.hLayout.addLayout(self.vLayout3)
@@ -351,8 +387,8 @@ class Ui_New_Offer_Window(object):
         spacerItem20 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout4.addItem(spacerItem20)
         self.Notes_NewOffer = QtWidgets.QTextEdit(parent=self.frame)
-        self.Notes_NewOffer.setMinimumSize(QtCore.QSize(175, 40))
-        self.Notes_NewOffer.setMaximumSize(QtCore.QSize(175, 40))
+        self.Notes_NewOffer.setMinimumSize(QtCore.QSize(175, 35))
+        self.Notes_NewOffer.setMaximumSize(QtCore.QSize(175, 35))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Notes_NewOffer.setFont(font)
@@ -361,13 +397,23 @@ class Ui_New_Offer_Window(object):
         spacerItem25 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout4.addItem(spacerItem25)
         self.Important_NewOffer = QtWidgets.QTextEdit(parent=self.frame)
-        self.Important_NewOffer.setMinimumSize(QtCore.QSize(175, 40))
-        self.Important_NewOffer.setMaximumSize(QtCore.QSize(175, 40))
+        self.Important_NewOffer.setMinimumSize(QtCore.QSize(175, 35))
+        self.Important_NewOffer.setMaximumSize(QtCore.QSize(175, 35))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Important_NewOffer.setFont(font)
         self.Important_NewOffer.setObjectName("Important_NewOffer")
         self.vLayout4.addWidget(self.Important_NewOffer)
+        spacerItem29 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.vLayout4.addItem(spacerItem29)
+        self.NumItems_NewOffer = QtWidgets.QLineEdit(parent=self.frame)
+        self.NumItems_NewOffer.setMinimumSize(QtCore.QSize(175, 25))
+        self.NumItems_NewOffer.setMaximumSize(QtCore.QSize(175, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.NumItems_NewOffer.setFont(font)
+        self.NumItems_NewOffer.setObjectName("NumItems_NewOffer")
+        self.vLayout4.addWidget(self.NumItems_NewOffer)
         spacerItem19 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout4.addItem(spacerItem19)
         self.hLayout.addLayout(self.vLayout4)
@@ -530,7 +576,16 @@ class Ui_New_Offer_Window(object):
         # commit the changes
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -538,6 +593,8 @@ class Ui_New_Offer_Window(object):
         list_material=[x[0] for x in results_producttype]
         list_material.sort()
         self.Material_NewOffer.addItems(list_material)
+
+        self.Portal_NewOffer.addItems(['Sí', 'No'])
 
         self.load_clients()
 
@@ -557,6 +614,8 @@ class Ui_New_Offer_Window(object):
         self.label_Notes.setText(_translate("New_Offer", "Notas:"))
         self.label_Important.setText(_translate("New_Offer", "Importante:"))
         self.label_RateType.setText(_translate("New_Offer", "*Tipo Tarifa:"))
+        self.label_Portal.setText(_translate("New_Offer", "*Portal:"))
+        self.label_NumItems.setText(_translate("New_Offer", "*Nº Equipos:"))
         self.label_Mails.setText(_translate("New_Offer", "*Mails Contacto:"))
         self.Button_NewOffer.setText(_translate("New_Offer", "Crear Oferta"))
         self.Button_Cancel.setText(_translate("New_Offer", "Cancelar"))
@@ -584,7 +643,16 @@ class Ui_New_Offer_Window(object):
         # commit the changes
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
         finally:
             if conn is not None:
                 conn.close()
@@ -611,9 +679,33 @@ class Ui_New_Offer_Window(object):
         actual_date=date.today()
         actual_date=actual_date.strftime("%d/%m/%Y")
         mails=self.Mails_NewOffer.toPlainText()
+        items_number=self.NumItems_NewOffer.text()
+        portal=self.Portal_NewOffer.currentText()
 
-        if numoffer=="" or (client=="" or (numref=="" or (recepdate=="" or (limitdate=="" or (mails=="" or ratetype==""))))):
+        if numoffer=="" or (client=="" or (numref=="" or (recepdate=="" or (limitdate=="" or (mails=="" or (ratetype=="" or items_number=="")))))):
             self.label_error_newoffer.setText('Rellene todos los campos con *')
+
+        elif not re.match(r'^[A-Z]{1,3}-\d{2}/\d{3}[A-Z\d-]*$', numoffer):
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("El formato de número de oferta no es válido")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
+
+        elif not re.match(r'^\d{2}[/\-]\d{2}[/\-]\d{4}$', recepdate) or not re.match(r'^\d{2}[/\-]\d{2}[/\-]\d{4}$', limitdate):
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Las fechas debe tener formato dd/mm/yyyy o dd-mm-yyyy")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
 
         else:
         #SQL Query for checking if offer number exists in database
@@ -643,7 +735,16 @@ class Ui_New_Offer_Window(object):
             # commit the changes
                 conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
             finally:
                 if conn is not None:
                     conn.close()
@@ -705,7 +806,16 @@ class Ui_New_Offer_Window(object):
                     self.Mails_NewOffer.setText('')
 
                 except (Exception, psycopg2.DatabaseError) as error:
-                    print(error)
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
                 finally:
                     if conn is not None:
                         conn.close()
@@ -721,7 +831,7 @@ class Ui_New_Offer_Window(object):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     New_Offer = QtWidgets.QMainWindow()
-    ui = Ui_New_Offer_Window()
+    ui = Ui_New_Offer_Window('l.bravo')
     ui.setupUi(New_Offer)
     New_Offer.show()
     sys.exit(app.exec())
