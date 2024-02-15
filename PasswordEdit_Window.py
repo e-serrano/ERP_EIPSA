@@ -11,6 +11,7 @@ import re
 import psycopg2
 from config import config
 import os
+import hashlib
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -271,6 +272,10 @@ class Ui_EditPasswordWindow(object):
             dlg.exec()
 
         else:
+            password_bytes = new_password.encode('utf-8')
+            hash_object = hashlib.sha256(password_bytes)
+            hashed_password = hash_object.hexdigest()
+
         #SQL Query for updating values in database
             commands_editpassword = ("""
                         UPDATE users_data.registration
@@ -285,7 +290,7 @@ class Ui_EditPasswordWindow(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands one by one
-                data=(new_password,self.username,)
+                data=(hashed_password,self.username,)
                 cur.execute(commands_editpassword,data)
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -317,11 +322,11 @@ class Ui_EditPasswordWindow(object):
                     conn.close()
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    EditPasswordWindow = QtWidgets.QMainWindow()
-    ui = Ui_EditPasswordWindow()
-    ui.setupUi(EditPasswordWindow)
-    EditPasswordWindow.show()
-    sys.exit(app.exec())
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     EditPasswordWindow = QtWidgets.QMainWindow()
+#     ui = Ui_EditPasswordWindow()
+#     ui.setupUi(EditPasswordWindow)
+#     EditPasswordWindow.show()
+#     sys.exit(app.exec())

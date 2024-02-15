@@ -613,7 +613,7 @@ class Ui_New_Offer_Window(object):
         self.label_Material.setText(_translate("New_Offer", "Instrumento:"))
         self.label_Notes.setText(_translate("New_Offer", "Notas:"))
         self.label_Important.setText(_translate("New_Offer", "Importante:"))
-        self.label_RateType.setText(_translate("New_Offer", "*Tipo Tarifa:"))
+        self.label_RateType.setText(_translate("New_Offer", "Tipo Tarifa:"))
         self.label_Portal.setText(_translate("New_Offer", "*Portal:"))
         self.label_NumItems.setText(_translate("New_Offer", "*Nº Equipos:"))
         self.label_Mails.setText(_translate("New_Offer", "*Mails Contacto:"))
@@ -661,6 +661,44 @@ class Ui_New_Offer_Window(object):
         list_clients.sort()
         self.Client_NewOffer.addItems(list_clients)
 
+        query_username = ("""
+                SELECT email
+                FROM users_data.registration
+                WHERE username = %s
+                """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(query_username,(self.username,))
+            results=cur.fetchall()
+
+            user_email = results[0][0]
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        self.Mails_NewOffer.setText("copia:" + user_email + ",fernando-gallego@eipsa.es")
+
 
     def NewOffer(self):
         numoffer=self.NumOffer_NewOffer.text()
@@ -682,8 +720,19 @@ class Ui_New_Offer_Window(object):
         items_number=self.NumItems_NewOffer.text()
         portal=self.Portal_NewOffer.currentText()
 
-        if numoffer=="" or (client=="" or (numref=="" or (recepdate=="" or (limitdate=="" or (mails=="" or (ratetype=="" or items_number=="")))))):
+        if numoffer=="" or (client=="" or (numref=="" or (recepdate=="" or (limitdate=="" or (mails=="" or items_number==""))))):
             self.label_error_newoffer.setText('Rellene todos los campos con *')
+
+        elif not (items_number.isdigit() or (items_number.startswith('-') and items_number[1:].isdigit())) or float(items_number) < 0:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Introduce un número de equipos válido. En caso de no saber el alcance definitivo, pon 0")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
 
         elif not re.match(r'^[A-Z]{1,3}-\d{2}/\d{3}[A-Z\d-]*$', numoffer):
             dlg = QtWidgets.QMessageBox()
@@ -766,9 +815,9 @@ class Ui_New_Offer_Window(object):
                             INSERT INTO offers (
                             "num_offer","state","responsible","client","final_client",
                             "num_ref_offer","register_date","nac_ext","buyer","material",
-                            "notes","limit_date","rate_type","important","recep_date","mails"
+                            "notes","limit_date","rate_type","important","recep_date","mails", "portal", "items_number"
                             )
-                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                             """)
                 conn = None
                 try:
@@ -778,7 +827,7 @@ class Ui_New_Offer_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    data=(numoffer, state, self.username, client, finalclient, numref, actual_date, nacext, buyer, material, notes, limitdate, ratetype, important, recepdate, mails)
+                    data=(numoffer, state, self.username, client, finalclient, numref, actual_date, nacext, buyer, material, notes, limitdate, ratetype, important, recepdate, mails, portal, items_number)
                     cur.execute(commands_newoffer, data)
                 # close communication with the PostgreSQL database server
                     cur.close()

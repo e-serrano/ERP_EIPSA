@@ -26,8 +26,8 @@ def inspection(proxy, model, variable):
                 ped_type_tag = model.data(model.index(target_row, 117))
                 inspection = model.data(model.index(target_row, 76))
             elif variable == 'Nivel':
-                ped_type_tag = model.data(model.index(target_row, 112))
-                inspection = model.data(model.index(target_row, 56))
+                ped_type_tag = model.data(model.index(target_row, 118))
+                inspection = model.data(model.index(target_row, 62))
 
             conn = None
             try:

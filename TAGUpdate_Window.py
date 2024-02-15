@@ -207,7 +207,7 @@ class Ui_TAGUpdate_Window(object):
 
             if self.radioFlow.isChecked()==True:
                 table_name='tags_data.tags_flow'
-                df = df_table.iloc[:,:33]
+                df = df_table.iloc[:,:35]
                 df_final = df[df['actualizar'] == 'X']
                 df_final = df_final.drop(['num_offer', 'actualizar'], axis=1)
 
@@ -278,7 +278,7 @@ class Ui_TAGUpdate_Window(object):
 
             elif self.radioTemp.isChecked()==True:
                 table_name='tags_data.tags_temp'
-                df = df_table.iloc[:,:38]
+                df = df_table.iloc[:,:40]
                 df_final = df[df['actualizar'] == 'X']
                 df_final = df_final.drop(['num_offer', 'actualizar'], axis=1)
 
@@ -354,7 +354,7 @@ class Ui_TAGUpdate_Window(object):
 
             elif self.radioLevel.isChecked()==True:
                 table_name= 'tags_data.tags_level'
-                df = df_table.iloc[:,:39]
+                df = df_table.iloc[:,:41]
                 df_final = df[df['actualizar'] == 'X']
                 df_final = df_final.drop(['num_offer', 'actualizar'], axis=1)
 
@@ -429,16 +429,80 @@ class Ui_TAGUpdate_Window(object):
                         conn.close()
 
             elif self.radioOthers.isChecked()==True:
-                table_name= ''
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Módulo aún no disponible")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
+                table_name= 'tags_data.tags_others'
+                df = df_table.iloc[:,:16]
+                df_final = df[df['actualizar'] == 'X']
+                df_final = df_final.drop(['num_offer', 'actualizar'], axis=1)
+
+                try:
+                    for index, row in df_final.iterrows():
+                        if "ID" in row and "tag" in row:
+                            id_value = row["ID"]
+                            tag_value = row["tag"]
+
+                        # Creating string for columns names and values
+                            columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
+                            columns = ', '.join([column for column, _ in columns_values])
+                            values = ', '.join([
+                                                f"'{values.replace('.', ',')}'" if column in ['amount']
+                                                else f"'{values}'" for column, values in columns_values
+                                                ])
+
+                        # Creating the SET  and WHERE clause with proper formatting
+                            set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[2:], values.split(", ")[2:])])
+                            where_clause = f'"id_tag_others" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+
+                        # Creating the update query and executing it after checking existing tags and id
+                            sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
+                            sql_check = f'SELECT * FROM {table_name} WHERE "id_tag_others" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+                            cursor.execute(sql_check)
+                            result_check=cursor.fetchall()
+
+                            if len(result_check) == 0:
+                                dlg = QtWidgets.QMessageBox()
+                                new_icon = QtGui.QIcon()
+                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                dlg.setWindowIcon(new_icon)
+                                dlg.setWindowTitle("ERP EIPSA")
+                                dlg.setText(f"El ID \'{id_value}\' no se corresponde con el TAG \'{tag_value}\' \n"
+                                            "Este TAG no se actualizará")
+                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                dlg.exec()
+                                del dlg, new_icon
+
+                            else:
+                                cursor.execute(sql_update)
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Datos actualizados con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                # Closing cursor and database connection
+                    conn.commit()
+                    cursor.close()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+
             else:
                 table_name= '' 
                 dlg = QtWidgets.QMessageBox()

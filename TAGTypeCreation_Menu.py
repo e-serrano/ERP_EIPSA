@@ -11,6 +11,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from TAGCreateFlow_Window import Ui_CreateTAGFlow_Window
 from TAGCreateTemp_Window import Ui_CreateTAGTemp_Window
 from TAGCreateNiv_Window import Ui_CreateTAGNiv_Window
+from TAGCreateOthers_Window import Ui_CreateTAGOthers_Window
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -176,14 +177,12 @@ class Ui_TypeTagCreation_Menu(object):
             self.ui.Button_Cancel.clicked.connect(TypeTag_Menu.show)
 
         elif final_variable=='Otros':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Crear Tag")
-            dlg.setText("Este tipo de TAG aún no está disponible")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
+            self.createtagO_window=QtWidgets.QMainWindow()
+            self.ui=Ui_CreateTAGOthers_Window()
+            self.ui.setupUi(self.createtagO_window)
+            self.createtagO_window.show()
+            TypeTag_Menu.hide()
+            self.ui.Button_Cancel.clicked.connect(TypeTag_Menu.show)
 
 
 if __name__ == "__main__":

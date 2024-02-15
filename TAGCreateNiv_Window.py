@@ -895,9 +895,9 @@ class Ui_CreateTAGNiv_Window(object):
 
     def createtagN(self):
         tag=self.TAG_CreatetagN.text()
-        tag_state='Ofertado'
+        tag_state='QUOTED'
         numoffer=self.NumOffer_CreatetagN.text()
-        numorder=self.NumOrder_CreatetagN.text()
+        numorder=self.NumOrder_CreatetagN.text() if self.NumOrder_CreatetagN.text() != '' else None
         num_po=self.NumPO_CreatetagN.text()
         position=self.Pos_CreatetagN.text()
         subpos=self.Subpos_CreatetagN.text()

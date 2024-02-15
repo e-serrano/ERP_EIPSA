@@ -65,6 +65,9 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         actionOrderDesc = menu.addAction("Ordenar Descendente")
         actionOrderDesc.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.DescendingOrder))
         menu.addSeparator()
+        actionFilterByText = menu.addAction("Buscar Texto")
+        actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
+        menu.addSeparator()
 
         menu.setStyleSheet("QMenu { color: black; }"
                         "QMenu::item:selected { background-color: #33bdef; }"
@@ -118,6 +121,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         menu.exec(header_pos - QtCore.QPoint(0, header_height))
 
+
 # Function to delete filter on selected column
     def delete_filter(self,column_index):
         if column_index in self.column_filters:
@@ -133,6 +137,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         header_item = self.horizontalHeaderItem(column_index)
         header_item.setIcon(QtGui.QIcon())
 
+
 # Function to set all checkboxes state
     def set_all_checkboxes_state(self, checkboxes, state, column_index):
         if column_index not in self.checkbox_states:
@@ -143,28 +148,43 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         self.checkbox_states[column_index]["Seleccionar todo"] = state
 
+
 # Function to apply filters to table
-    def apply_filter(self, column_index, value, checked):
+    def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
 
-        if value is None:
-            self.column_filters[column_index] = set()
-        elif checked:
-            self.column_filters[column_index].add(value)
-        elif value in self.column_filters[column_index]:
-            self.column_filters[column_index].remove(value)
+        if text_filter is None:
+            if value is None:
+                self.column_filters[column_index] = set()
+            elif checked:
+                self.column_filters[column_index].add(value)
+            elif value in self.column_filters[column_index]:
+                self.column_filters[column_index].remove(value)
 
         rows_to_hide = set()
         for row in range(self.rowCount()):
             show_row = True
+
+            # Check filters for all columns
             for col, filters in self.column_filters.items():
                 item = self.item(row, col)
                 if item:
                     item_value = item.text()
-                    if filters and item_value not in filters:
+                    if text_filter is None:
+                        if filters and item_value not in filters:
+                            show_row = False
+                            break
+
+        # Filtering by text
+            if text_filter is not None:
+                filter_dialog.accept()
+                item = self.item(row, column_index)
+                if item:
+                    if text_filter.upper() in item.text().upper():
+                        self.column_filters[column_index].add(item.text())
+                    else:
                         show_row = False
-                        break
 
             if not show_row:
                 if row not in self.general_rows_to_hide:
@@ -174,20 +194,76 @@ class CustomTableWidget(QtWidgets.QTableWidget):
                 if row in self.general_rows_to_hide:
                     self.general_rows_to_hide.remove(row)
 
-    # Update hidden rows for this column
-        if checked:
+        # Update hidden rows for this column depending on checkboxes
+        if checked and text_filter is None:
             if column_index not in self.rows_hidden:
                 self.rows_hidden[column_index] = set(rows_to_hide)
             else:
                 self.rows_hidden[column_index].update(rows_to_hide)
 
-    # Iterate over all rows to hide them as necessary
+        # Update hidden rows for this column depending on filtered text
+        if text_filter is not None and value is None:
+            if column_index not in self.rows_hidden:
+                self.rows_hidden[column_index] = set(rows_to_hide)
+            else:
+                self.rows_hidden[column_index].update(rows_to_hide)
+
+        # Iterate over all rows to hide them as necessary
         for row in range(self.rowCount()):
             self.setRowHidden(row, row in self.general_rows_to_hide)
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
             header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+        else:
+            header_item.setIcon(QtGui.QIcon())
+
+
+    def filter_by_text(self, column_index):
+        filter_dialog = QtWidgets.QDialog(self)
+        filter_dialog.setWindowTitle("Filtrar por texto")
+        
+        label = QtWidgets.QLabel("Texto a filtrar:")
+        text_input = QtWidgets.QLineEdit()
+        
+        filter_button = QtWidgets.QPushButton("Filtrar")
+        filter_button.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 2px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        filter_button.clicked.connect(lambda: self.apply_filter(column_index, None, False, text_input.text(), filter_dialog))
+
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(label)
+        layout.addWidget(text_input)
+        layout.addWidget(filter_button)
+
+        filter_dialog.setLayout(layout)
+        filter_dialog.exec()
+
 
 # Function to obtain the unique matching applied filters 
     def get_unique_values(self, column_index):
@@ -217,7 +293,42 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to sort column
     def sort_column(self, column_index, sortOrder):
-        self.sortByColumn(column_index, sortOrder)
+        if column_index == 5:
+            self.custom_sort(column_index, sortOrder)
+        else:
+            self.sortByColumn(column_index, sortOrder)
+
+
+    def custom_sort(self, column, order):
+    # Obtén la cantidad de filas en la tabla
+        row_count = self.rowCount()
+
+        # Crea una lista de índices ordenados según las fechas
+        indexes = list(range(row_count))
+        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd-MM-yyyy"))
+
+        # Si el orden es descendente, invierte la lista
+        if order == QtCore.Qt.SortOrder.DescendingOrder:
+            indexes.reverse()
+
+        # Guarda el estado actual de las filas ocultas
+        hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
+
+        # Actualiza las filas en la tabla en el orden ordenado
+        rows = self.rowCount()
+        for i in range(rows):
+            self.insertRow(i)
+
+        for new_row, old_row in enumerate(indexes):
+            for col in range(self.columnCount()):
+                item = self.takeItem(old_row + rows, col)
+                self.setItem(new_row, col, item)
+
+        for i in range(rows):
+            self.removeRow(rows)
+
+        for row in hidden_rows:
+            self.setRowHidden(row, True)
 
 # Function with the menu configuration
     def contextMenuEvent(self, event):
@@ -414,8 +525,45 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_OT.setObjectName("Button_OT")
             self.Button_OT.setToolTip("Ordenes de Trabajo 900")
             self.Header.addWidget(self.Button_OT)
+            spacerItem12 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem12)
+            self.Button_PMI = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_PMI.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_PMI.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_PMI.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_PMI.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_PMI.setText("")
+            icon9 = QtGui.QIcon()
+            icon9.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/pmi.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_PMI.setIcon(icon9)
+            self.Button_PMI.setIconSize(QtCore.QSize(40, 40))
+            self.Button_PMI.setObjectName("Button_PMI")
+            self.Button_PMI.setToolTip("Insertar PMI")
+            self.Header.addWidget(self.Button_PMI)
             self.Button_Deliveries.clicked.connect(self.deliveries)
             self.Button_OT.clicked.connect(self.otorder)
+            self.Button_PMI.clicked.connect(self.insert_pmi)
         elif self.name in ["Jesús Martínez"]:
             self.Button_Times = QtWidgets.QPushButton(parent=self.frame)
             self.Button_Times.setMinimumSize(QtCore.QSize(50, 50))
@@ -867,9 +1015,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.tableDocs = CustomTableWidget()
         self.tableDocs.setMinimumSize(QtCore.QSize(650, 280))
         self.tableDocs.setObjectName("tableDocs")
-        self.tableDocs.setColumnCount(6)
+        self.tableDocs.setColumnCount(7)
         self.tableDocs.setRowCount(0)
-        for i in range(6):
+        for i in range(7):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -960,7 +1108,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
         delay_date=QtCore.QDate.currentDate().addDays(-10)
         commands_documentation = ("""
-                    SELECT "num_doc_eipsa","num_order","doc_title","state","revision",TO_CHAR("state_date", 'DD-MM-YYYY')
+                    SELECT "num_doc_eipsa","num_order","doc_title","state","revision",TO_CHAR("state_date", 'DD-MM-YYYY'),"tracking"
                     FROM documentation
                     WHERE (
                     "state" IS NULL OR "state" IN ('','Enviado','Comentado','Com. Mayores','Com. Menores')
@@ -982,7 +1130,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(6):
+                for column in range(7):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -1054,6 +1202,8 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         item.setText(_translate("App_Technical", "Revisión"))
         item = self.tableDocs.horizontalHeaderItem(5)
         item.setText(_translate("App_Technical", "Fecha"))
+        item = self.tableDocs.horizontalHeaderItem(6)
+        item.setText(_translate("App_Technical", "Seguimiento"))
 
 
     def editdb(self):
@@ -1100,6 +1250,11 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ui=Ui_OTGeneralCreate_Window()
         self.ui.setupUi(self.otgeneralcreate_window)
         self.otgeneralcreate_window.show()
+
+    def insert_pmi(self):
+        from TestPmiInsert_Window import Ui_PmiInsert_Window
+        self.Pmiinsert_window=Ui_PmiInsert_Window(self.username)
+        self.Pmiinsert_window.show()
 
 
     def techoffice(self):
@@ -1302,7 +1457,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.tableDocs.setRowCount(0)
         delay_date=QtCore.QDate.currentDate().addDays(-10)
         commands_documentation = ("""
-                    SELECT "num_doc_eipsa","num_order","doc_title","state","revision",TO_CHAR("state_date", 'DD-MM-YYYY')
+                    SELECT "num_doc_eipsa","num_order","doc_title","state","revision",TO_CHAR("state_date", 'DD-MM-YYYY'),"tracking"
                     FROM documentation
                     WHERE (
                     "state" IS NULL OR "state" IN ('','Enviado','Comentado','Com. Mayores','Com. Menores')
@@ -1324,7 +1479,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(6):
+                for column in range(7):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -1558,3 +1713,39 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         from ClockIn_Window import MyCalendarApp
         self.clockin_window = MyCalendarApp(self.username)
         self.clockin_window.showMaximized()
+
+
+    def keyPressEvent(self, event):
+        super().keyPressEvent(event)
+        if event.matches(QtGui.QKeySequence.StandardKey.Copy):
+            selected_indexes = self.tableDocs.selectedIndexes()
+            if selected_indexes:
+                clipboard = QtWidgets.QApplication.clipboard()
+                text = self.get_selected_text(selected_indexes)
+                clipboard.setText(text)
+
+
+    def get_selected_text(self, indexes):
+        rows = set()
+        cols = set()
+        for index in indexes:
+            rows.add(index.row())
+            cols.add(index.column())
+
+        text_doc = QtGui.QTextDocument()
+        cursor = QtGui.QTextCursor(text_doc)
+
+        header_labels = [self.tableDocs.horizontalHeaderItem(col).text() for col in sorted(cols)]
+        for label in header_labels:
+            cursor.insertText(label)
+            cursor.insertText('\t')  # Tab separador de columnas
+        cursor.insertText('\n')   # Salto de línea después de las cabeceras
+
+        for row in sorted(rows):
+            for col in sorted(cols):
+                cell_data = self.tableDocs.item(row, col).data(QtCore.Qt.ItemDataRole.DisplayRole)
+                cursor.insertText(cell_data)
+                cursor.insertText('\t')  # Tab separador de columnas
+            cursor.insertText('\n')  # Salto de línea al final de la fila
+
+        return text_doc.toPlainText()

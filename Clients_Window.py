@@ -36,6 +36,9 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         actionOrderDesc = menu.addAction("Ordenar Descendente")
         actionOrderDesc.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.DescendingOrder))
         menu.addSeparator()
+        actionFilterByText = menu.addAction("Buscar Texto")
+        actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
+        menu.addSeparator()
 
         menu.setStyleSheet("QMenu { color: black; }"
                         "QMenu::item:selected { background-color: #33bdef; }"
@@ -89,6 +92,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         menu.exec(header_pos - QtCore.QPoint(0, header_height))
 
+
 # Function to delete filter on selected column
     def delete_filter(self,column_index):
         if column_index in self.column_filters:
@@ -104,6 +108,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         header_item = self.horizontalHeaderItem(column_index)
         header_item.setIcon(QtGui.QIcon())
 
+
 # Function to set all checkboxes state
     def set_all_checkboxes_state(self, checkboxes, state, column_index):
         if column_index not in self.checkbox_states:
@@ -114,28 +119,43 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         self.checkbox_states[column_index]["Seleccionar todo"] = state
 
+
 # Function to apply filters to table
-    def apply_filter(self, column_index, value, checked):
+    def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
 
-        if value is None:
-            self.column_filters[column_index] = set()
-        elif checked:
-            self.column_filters[column_index].add(value)
-        elif value in self.column_filters[column_index]:
-            self.column_filters[column_index].remove(value)
+        if text_filter is None:
+            if value is None:
+                self.column_filters[column_index] = set()
+            elif checked:
+                self.column_filters[column_index].add(value)
+            elif value in self.column_filters[column_index]:
+                self.column_filters[column_index].remove(value)
 
         rows_to_hide = set()
         for row in range(self.rowCount()):
             show_row = True
+
+            # Check filters for all columns
             for col, filters in self.column_filters.items():
                 item = self.item(row, col)
                 if item:
                     item_value = item.text()
-                    if filters and item_value not in filters:
+                    if text_filter is None:
+                        if filters and item_value not in filters:
+                            show_row = False
+                            break
+
+        # Filtering by text
+            if text_filter is not None:
+                filter_dialog.accept()
+                item = self.item(row, column_index)
+                if item:
+                    if text_filter.upper() in item.text().upper():
+                        self.column_filters[column_index].add(item.text())
+                    else:
                         show_row = False
-                        break
 
             if not show_row:
                 if row not in self.general_rows_to_hide:
@@ -145,20 +165,76 @@ class CustomTableWidget(QtWidgets.QTableWidget):
                 if row in self.general_rows_to_hide:
                     self.general_rows_to_hide.remove(row)
 
-    # Update hidden rows for this column
-        if checked:
+        # Update hidden rows for this column depending on checkboxes
+        if checked and text_filter is None:
             if column_index not in self.rows_hidden:
                 self.rows_hidden[column_index] = set(rows_to_hide)
             else:
                 self.rows_hidden[column_index].update(rows_to_hide)
 
-    # Iterate over all rows to hide them as necessary
+        # Update hidden rows for this column depending on filtered text
+        if text_filter is not None and value is None:
+            if column_index not in self.rows_hidden:
+                self.rows_hidden[column_index] = set(rows_to_hide)
+            else:
+                self.rows_hidden[column_index].update(rows_to_hide)
+
+        # Iterate over all rows to hide them as necessary
         for row in range(self.rowCount()):
             self.setRowHidden(row, row in self.general_rows_to_hide)
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
             header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+        else:
+            header_item.setIcon(QtGui.QIcon())
+
+
+    def filter_by_text(self, column_index):
+        filter_dialog = QtWidgets.QDialog(self)
+        filter_dialog.setWindowTitle("Filtrar por texto")
+        
+        label = QtWidgets.QLabel("Texto a filtrar:")
+        text_input = QtWidgets.QLineEdit()
+        
+        filter_button = QtWidgets.QPushButton("Filtrar")
+        filter_button.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 2px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        filter_button.clicked.connect(lambda: self.apply_filter(column_index, None, False, text_input.text(), filter_dialog))
+
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(label)
+        layout.addWidget(text_input)
+        layout.addWidget(filter_button)
+
+        filter_dialog.setLayout(layout)
+        filter_dialog.exec()
+
 
 # Function to obtain the unique matching applied filters 
     def get_unique_values(self, column_index):
@@ -189,6 +265,38 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 # Function to sort column
     def sort_column(self, column_index, sortOrder):
         self.sortByColumn(column_index, sortOrder)
+
+
+    def custom_sort(self, column, order):
+    # Obtén la cantidad de filas en la tabla
+        row_count = self.rowCount()
+
+        # Crea una lista de índices ordenados según las fechas
+        indexes = list(range(row_count))
+        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd-MM-yyyy"))
+
+        # Si el orden es descendente, invierte la lista
+        if order == QtCore.Qt.SortOrder.DescendingOrder:
+            indexes.reverse()
+
+        # Guarda el estado actual de las filas ocultas
+        hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
+
+        # Actualiza las filas en la tabla en el orden ordenado
+        rows = self.rowCount()
+        for i in range(rows):
+            self.insertRow(i)
+
+        for new_row, old_row in enumerate(indexes):
+            for col in range(self.columnCount()):
+                item = self.takeItem(old_row + rows, col)
+                self.setItem(new_row, col, item)
+
+        for i in range(rows):
+            self.removeRow(rows)
+
+        for row in hidden_rows:
+            self.setRowHidden(row, True)
 
 # Function with the menu configuration
     def contextMenuEvent(self, event):
@@ -265,9 +373,9 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(11//self.scale))
         font.setBold(True)
         self.label_Name.setFont(font)
-        self.label_Name.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTop)
+        self.label_Name.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Name.setObjectName("label_Name")
-        self.gridLayout_2.addWidget(self.label_Name, 1, 4, 1, 1)
+        self.gridLayout_2.addWidget(self.label_Name, 1, 3, 1, 1)
         self.Name_Clients = QtWidgets.QLineEdit(parent=self.frame)
         self.Name_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
         self.Name_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -275,7 +383,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Name_Clients.setFont(font)
         self.Name_Clients.setObjectName("Name_Clients")
-        self.gridLayout_2.addWidget(self.Name_Clients, 1, 5, 1, 7)
+        self.gridLayout_2.addWidget(self.Name_Clients, 1, 4, 1, 1)
         self.label_CIF = QtWidgets.QLabel(parent=self.frame)
         self.label_CIF.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
         self.label_CIF.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
@@ -283,9 +391,9 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(11//self.scale))
         font.setBold(True)
         self.label_CIF.setFont(font)
-        self.label_CIF.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
+        self.label_CIF.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_CIF.setObjectName("label_CIF")
-        self.gridLayout_2.addWidget(self.label_CIF, 1, 12, 1, 1)
+        self.gridLayout_2.addWidget(self.label_CIF, 1, 5, 1, 2)
         self.Cif_Clients = QtWidgets.QLineEdit(parent=self.frame)
         self.Cif_Clients.setMinimumSize(QtCore.QSize(0, int(25//self.scale)))
         self.Cif_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -293,7 +401,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Cif_Clients.setFont(font)
         self.Cif_Clients.setObjectName("Cif_Clients")
-        self.gridLayout_2.addWidget(self.Cif_Clients, 1, 13, 1, 4)
+        self.gridLayout_2.addWidget(self.Cif_Clients, 1, 8, 1, 1)
         self.label_Address = QtWidgets.QLabel(parent=self.frame)
         self.label_Address.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
         self.label_Address.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
@@ -311,7 +419,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Address_Clients.setFont(font)
         self.Address_Clients.setObjectName("Address_Clients")
-        self.gridLayout_2.addWidget(self.Address_Clients, 2, 2, 1, 6)
+        self.gridLayout_2.addWidget(self.Address_Clients, 2, 2, 1, 1)
         self.label_ZipCode = QtWidgets.QLabel(parent=self.frame)
         self.label_ZipCode.setMinimumSize(QtCore.QSize(int(110//self.scale), int(25//self.scale)))
         self.label_ZipCode.setMaximumSize(QtCore.QSize(int(110//self.scale), int(25//self.scale)))
@@ -321,7 +429,7 @@ class Ui_Clients_Window(object):
         self.label_ZipCode.setFont(font)
         self.label_ZipCode.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_ZipCode.setObjectName("label_ZipCode")
-        self.gridLayout_2.addWidget(self.label_ZipCode, 2, 8, 1, 1)
+        self.gridLayout_2.addWidget(self.label_ZipCode, 2, 3, 1, 1)
         self.Zipcode_Clients = QtWidgets.QLineEdit(parent=self.frame)
         self.Zipcode_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
         self.Zipcode_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -329,7 +437,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Zipcode_Clients.setFont(font)
         self.Zipcode_Clients.setObjectName("Zipcode_Clients")
-        self.gridLayout_2.addWidget(self.Zipcode_Clients, 2, 9, 1, 3)
+        self.gridLayout_2.addWidget(self.Zipcode_Clients, 2, 4, 1, 1)
         self.label_City = QtWidgets.QLabel(parent=self.frame)
         self.label_City.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
         self.label_City.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
@@ -337,9 +445,9 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(11//self.scale))
         font.setBold(True)
         self.label_City.setFont(font)
-        self.label_City.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
+        self.label_City.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_City.setObjectName("label_City")
-        self.gridLayout_2.addWidget(self.label_City, 2, 12, 1, 1)
+        self.gridLayout_2.addWidget(self.label_City, 2, 5, 1, 2)
         self.City_Clients = QtWidgets.QLineEdit(parent=self.frame)
         self.City_Clients.setMinimumSize(QtCore.QSize(0, int(25//self.scale)))
         self.City_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -347,7 +455,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.City_Clients.setFont(font)
         self.City_Clients.setObjectName("City_Clients")
-        self.gridLayout_2.addWidget(self.City_Clients, 2, 13, 1, 4)
+        self.gridLayout_2.addWidget(self.City_Clients, 2, 8, 1, 1)
         self.label_Province = QtWidgets.QLabel(parent=self.frame)
         self.label_Province.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
         self.label_Province.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
@@ -365,7 +473,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Province_Clients.setFont(font)
         self.Province_Clients.setObjectName("Province_Clients")
-        self.gridLayout_2.addWidget(self.Province_Clients, 3, 2, 1, 6)
+        self.gridLayout_2.addWidget(self.Province_Clients, 3, 2, 1, 1)
         self.label_Country = QtWidgets.QLabel(parent=self.frame)
         self.label_Country.setMinimumSize(QtCore.QSize(int(110//self.scale), int(25//self.scale)))
         self.label_Country.setMaximumSize(QtCore.QSize(int(110//self.scale), int(25//self.scale)))
@@ -375,7 +483,7 @@ class Ui_Clients_Window(object):
         self.label_Country.setFont(font)
         self.label_Country.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Country.setObjectName("label_Country")
-        self.gridLayout_2.addWidget(self.label_Country, 3, 8, 1, 1)
+        self.gridLayout_2.addWidget(self.label_Country, 3, 3, 1, 1)
         self.Country_Clients = QtWidgets.QLineEdit(parent=self.frame)
         self.Country_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
         self.Country_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -383,7 +491,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Country_Clients.setFont(font)
         self.Country_Clients.setObjectName("Country_Clients")
-        self.gridLayout_2.addWidget(self.Country_Clients, 3, 9, 1, 3)
+        self.gridLayout_2.addWidget(self.Country_Clients, 3, 4, 1, 1)
         self.label_PhoneNumber = QtWidgets.QLabel(parent=self.frame)
         self.label_PhoneNumber.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
         self.label_PhoneNumber.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
@@ -391,16 +499,34 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(11//self.scale))
         font.setBold(True)
         self.label_PhoneNumber.setFont(font)
-        self.label_PhoneNumber.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
+        self.label_PhoneNumber.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_PhoneNumber.setObjectName("label_PhoneNumber")
-        self.gridLayout_2.addWidget(self.label_PhoneNumber, 3, 12, 1, 1)
+        self.gridLayout_2.addWidget(self.label_PhoneNumber, 3, 5, 1, 2)
         self.Phones_Clients = QtWidgets.QTextEdit(parent=self.frame)
         self.Phones_Clients.setMinimumSize(QtCore.QSize(0, int(100//self.scale)))
         font = QtGui.QFont()
         font.setPointSize(int(10//self.scale))
         self.Phones_Clients.setFont(font)
         self.Phones_Clients.setObjectName("Phones_Clients")
-        self.gridLayout_2.addWidget(self.Phones_Clients, 3, 13, 3, 4)
+        self.gridLayout_2.addWidget(self.Phones_Clients, 3, 8, 3, 1)
+        self.label_Group = QtWidgets.QLabel(parent=self.frame)
+        self.label_Group.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
+        self.label_Group.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
+        font = QtGui.QFont()
+        font.setPointSize(int(11//self.scale))
+        font.setBold(True)
+        self.label_Group.setFont(font)
+        self.label_Group.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
+        self.label_Group.setObjectName("label_Group")
+        self.gridLayout_2.addWidget(self.label_Group, 4, 1, 1, 1)
+        self.Group_Clients = QtWidgets.QLineEdit(parent=self.frame)
+        self.Group_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
+        self.Group_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
+        font = QtGui.QFont()
+        font.setPointSize(int(10//self.scale))
+        self.Group_Clients.setFont(font)
+        self.Group_Clients.setObjectName("Group_Clients")
+        self.gridLayout_2.addWidget(self.Group_Clients, 4, 2, 1, 1)   
         self.label_IVA = QtWidgets.QLabel(parent=self.frame)
         self.label_IVA.setMinimumSize(QtCore.QSize(int(35//self.scale), int(25//self.scale)))
         self.label_IVA.setMaximumSize(QtCore.QSize(int(35//self.scale), int(25//self.scale)))
@@ -410,7 +536,7 @@ class Ui_Clients_Window(object):
         self.label_IVA.setFont(font)
         self.label_IVA.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_IVA.setObjectName("label_IVA")
-        self.gridLayout_2.addWidget(self.label_IVA, 5, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.label_IVA, 4, 3, 1, 1)
         self.Iva_Clients = QtWidgets.QComboBox(parent=self.frame)
         self.Iva_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
         self.Iva_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -418,25 +544,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Iva_Clients.setFont(font)
         self.Iva_Clients.setObjectName("Iva_Clients")
-        self.gridLayout_2.addWidget(self.Iva_Clients, 5, 2, 1, 4)
-        self.label_PayWay = QtWidgets.QLabel(parent=self.frame)
-        self.label_PayWay.setMinimumSize(QtCore.QSize(0, int(25//self.scale)))
-        self.label_PayWay.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
-        font = QtGui.QFont()
-        font.setPointSize(int(11//self.scale))
-        font.setBold(True)
-        self.label_PayWay.setFont(font)
-        self.label_PayWay.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
-        self.label_PayWay.setObjectName("label_PayWay")
-        self.gridLayout_2.addWidget(self.label_PayWay, 5, 6, 1, 2)
-        self.Payway_Clients = QtWidgets.QComboBox(parent=self.frame)
-        self.Payway_Clients.setMinimumSize(QtCore.QSize(0, int(25//self.scale)))
-        self.Payway_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
-        font = QtGui.QFont()
-        font.setPointSize(int(10//self.scale))
-        self.Payway_Clients.setFont(font)
-        self.Payway_Clients.setObjectName("Payway_Clients")
-        self.gridLayout_2.addWidget(self.Payway_Clients, 5, 8, 1, 2)
+        self.gridLayout_2.addWidget(self.Iva_Clients, 4, 4, 1, 1)
         self.label_Vto1 = QtWidgets.QLabel(parent=self.frame)
         self.label_Vto1.setMinimumSize(QtCore.QSize(int(80//self.scale), int(25//self.scale)))
         self.label_Vto1.setMaximumSize(QtCore.QSize(int(80//self.scale), int(25//self.scale)))
@@ -446,7 +554,59 @@ class Ui_Clients_Window(object):
         self.label_Vto1.setFont(font)
         self.label_Vto1.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTop|QtCore.Qt.AlignmentFlag.AlignTrailing)
         self.label_Vto1.setObjectName("label_Vto1")
-        self.gridLayout_2.addWidget(self.label_Vto1, 4, 11, 1, 1)
+        self.gridLayout_2.addWidget(self.label_Vto1, 4, 5, 1, 1)
+        self.Vto1_Clients = QtWidgets.QLineEdit(parent=self.frame)
+        self.Vto1_Clients.setMinimumSize(QtCore.QSize(int(50//self.scale), 0))
+        self.Vto1_Clients.setMaximumSize(QtCore.QSize(int(50//self.scale), int(25//self.scale)))
+        font = QtGui.QFont()
+        font.setPointSize(int(10//self.scale))
+        self.Vto1_Clients.setFont(font)
+        self.Vto1_Clients.setObjectName("Vto1_Clients")
+        self.gridLayout_2.addWidget(self.Vto1_Clients, 4, 6, 1, 1)
+        self.label_days1 = QtWidgets.QLabel(parent=self.frame)
+        self.label_days1.setMinimumSize(QtCore.QSize(int(30//self.scale), 0))
+        self.label_days1.setMaximumSize(QtCore.QSize(int(30//self.scale), int(30//self.scale)))
+        font = QtGui.QFont()
+        font.setPointSize(int(10//self.scale))
+        self.label_days1.setFont(font)
+        self.label_days1.setObjectName("label_days1")
+        self.gridLayout_2.addWidget(self.label_days1, 4, 7, 1, 1)
+        self.label_Bank = QtWidgets.QLabel(parent=self.frame)
+        self.label_Bank.setMinimumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
+        self.label_Bank.setMaximumSize(QtCore.QSize(int(75//self.scale), int(25//self.scale)))
+        font = QtGui.QFont()
+        font.setPointSize(int(11//self.scale))
+        font.setBold(True)
+        self.label_Bank.setFont(font)
+        self.label_Bank.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
+        self.label_Bank.setObjectName("label_Bank")
+        self.gridLayout_2.addWidget(self.label_Bank, 5, 1, 1, 1)
+        self.Bank_Clients = QtWidgets.QComboBox(parent=self.frame)
+        self.Bank_Clients.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
+        self.Bank_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
+        font = QtGui.QFont()
+        font.setPointSize(int(10//self.scale))
+        self.Bank_Clients.setFont(font)
+        self.Bank_Clients.setObjectName("Bank_Clients")
+        self.gridLayout_2.addWidget(self.Bank_Clients, 5, 2, 1, 1)
+        self.label_PayWay = QtWidgets.QLabel(parent=self.frame)
+        self.label_PayWay.setMinimumSize(QtCore.QSize(0, int(25//self.scale)))
+        self.label_PayWay.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
+        font = QtGui.QFont()
+        font.setPointSize(int(11//self.scale))
+        font.setBold(True)
+        self.label_PayWay.setFont(font)
+        self.label_PayWay.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
+        self.label_PayWay.setObjectName("label_PayWay")
+        self.gridLayout_2.addWidget(self.label_PayWay, 5, 3, 1, 1)
+        self.Payway_Clients = QtWidgets.QComboBox(parent=self.frame)
+        self.Payway_Clients.setMinimumSize(QtCore.QSize(0, int(25//self.scale)))
+        self.Payway_Clients.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
+        font = QtGui.QFont()
+        font.setPointSize(int(10//self.scale))
+        self.Payway_Clients.setFont(font)
+        self.Payway_Clients.setObjectName("Payway_Clients")
+        self.gridLayout_2.addWidget(self.Payway_Clients, 5, 4, 1, 1)
         self.label_Vto2 = QtWidgets.QLabel(parent=self.frame)
         self.label_Vto2.setMinimumSize(QtCore.QSize(int(80//self.scale), int(25//self.scale)))
         self.label_Vto2.setMaximumSize(QtCore.QSize(int(80//self.scale), int(25//self.scale)))
@@ -456,28 +616,7 @@ class Ui_Clients_Window(object):
         self.label_Vto2.setFont(font)
         self.label_Vto2.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTop|QtCore.Qt.AlignmentFlag.AlignTrailing)
         self.label_Vto2.setObjectName("label_Vto2")
-        self.gridLayout_2.addWidget(self.label_Vto2, 5, 11, 1, 1)
-        self.horizontalLayout = QtWidgets.QHBoxLayout()
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.Vto1_Clients = QtWidgets.QLineEdit(parent=self.frame)
-        self.Vto1_Clients.setMinimumSize(QtCore.QSize(int(50//self.scale), 0))
-        self.Vto1_Clients.setMaximumSize(QtCore.QSize(int(50//self.scale), int(25//self.scale)))
-        font = QtGui.QFont()
-        font.setPointSize(int(10//self.scale))
-        self.Vto1_Clients.setFont(font)
-        self.Vto1_Clients.setObjectName("Vto1_Clients")
-        self.horizontalLayout.addWidget(self.Vto1_Clients)
-        self.label_days1 = QtWidgets.QLabel(parent=self.frame)
-        self.label_days1.setMinimumSize(QtCore.QSize(int(30//self.scale), 0))
-        self.label_days1.setMaximumSize(QtCore.QSize(int(30//self.scale), int(30//self.scale)))
-        font = QtGui.QFont()
-        font.setPointSize(int(10//self.scale))
-        self.label_days1.setFont(font)
-        self.label_days1.setObjectName("label_days1")
-        self.horizontalLayout.addWidget(self.label_days1)
-        self.gridLayout_2.addLayout(self.horizontalLayout, 4, 12, 1, 1)
-        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.gridLayout_2.addWidget(self.label_Vto2, 5, 5, 1, 1)
         self.Vto2_Clients = QtWidgets.QLineEdit(parent=self.frame)
         self.Vto2_Clients.setMinimumSize(QtCore.QSize(int(50//self.scale), 0))
         self.Vto2_Clients.setMaximumSize(QtCore.QSize(int(50//self.scale), int(25//self.scale)))
@@ -485,7 +624,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.Vto2_Clients.setFont(font)
         self.Vto2_Clients.setObjectName("Vto2_Clients")
-        self.horizontalLayout_2.addWidget(self.Vto2_Clients)
+        self.gridLayout_2.addWidget(self.Vto2_Clients, 5, 6, 1, 1)
         self.label_days2 = QtWidgets.QLabel(parent=self.frame)
         self.label_days2.setMinimumSize(QtCore.QSize(int(30//self.scale), 0))
         self.label_days2.setMaximumSize(QtCore.QSize(int(30//self.scale), int(25//self.scale)))
@@ -493,8 +632,7 @@ class Ui_Clients_Window(object):
         font.setPointSize(int(10//self.scale))
         self.label_days2.setFont(font)
         self.label_days2.setObjectName("label_days2")
-        self.horizontalLayout_2.addWidget(self.label_days2)
-        self.gridLayout_2.addLayout(self.horizontalLayout_2, 5, 12, 1, 1)
+        self.gridLayout_2.addWidget(self.label_days2, 5, 7, 1, 1)
         self.label_Notes = QtWidgets.QLabel(parent=self.frame)
         self.label_Notes.setMinimumSize(QtCore.QSize(0, int(25//self.scale)))
         self.label_Notes.setMaximumSize(QtCore.QSize(16777215, int(25//self.scale)))
@@ -503,17 +641,17 @@ class Ui_Clients_Window(object):
         font.setBold(True)
         self.label_Notes.setFont(font)
         self.label_Notes.setObjectName("label_Notes")
-        self.gridLayout_2.addWidget(self.label_Notes, 7, 1, 1, 3)
+        self.gridLayout_2.addWidget(self.label_Notes, 6, 1, 1, 2)
         self.Notes_Clients = QtWidgets.QTextEdit(parent=self.frame)
         self.Notes_Clients.setMinimumSize(QtCore.QSize(0, int(100//self.scale)))
         self.Notes_Clients.setMaximumSize(QtCore.QSize(16777215, int(100//self.scale)))
         self.Notes_Clients.setObjectName("Notes_Clients")
-        self.gridLayout_2.addWidget(self.Notes_Clients, 8, 1, 1, 20)
+        self.gridLayout_2.addWidget(self.Notes_Clients, 7, 1, 1, 9)
         self.tableClients = CustomTableWidget()
         self.tableClients.setObjectName("tableClients")
-        self.tableClients.setColumnCount(16)
+        self.tableClients.setColumnCount(18)
         self.tableClients.setRowCount(0)
-        for i in range(16):
+        for i in range(18):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(int(10//self.scale))
@@ -521,14 +659,14 @@ class Ui_Clients_Window(object):
             item.setFont(font)
             self.tableClients.setHorizontalHeaderItem(i, item)
         self.tableClients.setSortingEnabled(False)
-        self.gridLayout_2.addWidget(self.tableClients, 9, 1, 1, 20)
+        self.gridLayout_2.addWidget(self.tableClients, 8, 1, 1, 9)
         self.label = QtWidgets.QLabel(parent=self.frame)
         self.label.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
         self.label.setMaximumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
-        self.label.setText("")
-        self.label.setStyleSheet("color: rgb(255, 255, 255);")
+        self.label.setText("aaa")
+        # self.label.setStyleSheet("color: rgb(255, 255, 255);")
         self.label.setObjectName("label")
-        self.gridLayout_2.addWidget(self.label, 4, 4, 1, 1)
+        self.gridLayout_2.addWidget(self.label, 6, 4, 1, 1)
         self.Button_AddClient = QtWidgets.QPushButton(parent=self.frame)
         self.Button_AddClient.setObjectName("Button_AddClient")
         if self.name in ['Daniel Márquez']:
@@ -587,7 +725,7 @@ class Ui_Clients_Window(object):
     "    background-color: rgb(1, 140, 190);\n"
     "    border-color: rgb(255, 255, 255);\n"
     "}")
-        self.gridLayout_2.addWidget(self.Button_AddClient, 1, 19, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_AddClient, 1, 9, 1, 1)
         self.Button_ModifyClient = QtWidgets.QPushButton(parent=self.frame)
         self.Button_ModifyClient.setObjectName("Button_ModifyClient")
         if self.name in ['Daniel Márquez']:
@@ -646,7 +784,7 @@ class Ui_Clients_Window(object):
     "    background-color: rgb(1, 140, 190);\n"
     "    border-color: rgb(255, 255, 255);\n"
     "}")
-        self.gridLayout_2.addWidget(self.Button_ModifyClient, 3, 19, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_ModifyClient, 3, 9, 1, 1)
         self.Button_DeleteClient = QtWidgets.QPushButton(parent=self.frame)
         self.Button_DeleteClient.setObjectName("Button_DeleteClient")
         if self.name in ['Daniel Márquez']:
@@ -705,7 +843,7 @@ class Ui_Clients_Window(object):
     "    background-color: rgb(1, 140, 190);\n"
     "    border-color: rgb(255, 255, 255);\n"
     "}")
-        self.gridLayout_2.addWidget(self.Button_DeleteClient, 5, 19, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_DeleteClient, 5, 9, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 1, 1, 1)
         Clients_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=Clients_Window)
@@ -732,6 +870,10 @@ class Ui_Clients_Window(object):
                         SELECT * 
                         FROM purch_fact.pay_way
                         """)
+        commands_banks = ("""
+                        SELECT * 
+                        FROM purch_fact.banks
+                        """)
         conn = None
         try:
         # read the connection parameters
@@ -744,6 +886,8 @@ class Ui_Clients_Window(object):
             results_iva=cur.fetchall()
             cur.execute(commands_payway)
             results_payway=cur.fetchall()
+            cur.execute(commands_banks)
+            results_banks=cur.fetchall()
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
@@ -768,6 +912,9 @@ class Ui_Clients_Window(object):
 
         list_payway=[x[1] for x in results_payway]
         self.Payway_Clients.addItems(list_payway)
+
+        list_banks=[x[1] for x in results_banks]
+        self.Bank_Clients.addItems(list_banks)
 
         self.tableClients.itemClicked.connect(self.loadformclients)
         self.tableClients.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
@@ -812,7 +959,13 @@ class Ui_Clients_Window(object):
         item.setText(_translate("Clients_Window", "IVA"))
         item = self.tableClients.horizontalHeaderItem(15)
         item.setText(_translate("Clients_Window", "Observaciones"))
+        item = self.tableClients.horizontalHeaderItem(16)
+        item.setText(_translate("Clients_Window", "Banco"))
+        item = self.tableClients.horizontalHeaderItem(17)
+        item.setText(_translate("Clients_Window", "Grupo"))
         self.label_Country.setText(_translate("Clients_Window", "País:"))
+        self.label_Group.setText(_translate("Clients_Window", "Grupo:"))
+        self.label_Bank.setText(_translate("Clients_Window", "Banco:"))
         self.label_days1.setText(_translate("Clients_Window", "días"))
         self.label_IVA.setText(_translate("Clients_Window", "IVA:"))
         self.label_Province.setText(_translate("Clients_Window", "Provincia:"))
@@ -850,6 +1003,8 @@ class Ui_Clients_Window(object):
         vto1=self.Vto1_Clients.text()
         vto2=self.Vto2_Clients.text()
         notes=self.Notes_Clients.toPlainText()
+        bank=self.Bank_Clients.currentText()
+        group=self.Group_Clients.text()
 
         if name=="" or (code=="" or (cif=="" or country=="")):
             dlg = QtWidgets.QMessageBox()
@@ -919,9 +1074,9 @@ class Ui_Clients_Window(object):
                 commands_newclient = ("""
                             INSERT INTO purch_fact.clients_test (
                             code,name,cif,address,phone_number,fax,city,province,country,
-                            zip_code,pay_way_id,vto_prog1,vto_prog2,iva_id,notes
+                            zip_code,pay_way_id,vto_prog1,vto_prog2,iva_id,notes,bank_id,group_client
                             )
-                            VALUES (%s,%s,%s,%s,%s,'',%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                            VALUES (%s,%s,%s,%s,%s,'',%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                             """)
                 conn = None
                 try:
@@ -931,6 +1086,10 @@ class Ui_Clients_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
+                    query_bank = "SELECT id FROM purch_fact.banks WHERE name = %s"
+                    cur.execute(query_bank, (bank,))
+                    result_bank = cur.fetchone()
+
                     query_ivatype = "SELECT id FROM purch_fact.iva WHERE iva_type = %s"
                     cur.execute(query_ivatype, (iva,))
                     result_iva = cur.fetchone()
@@ -939,10 +1098,11 @@ class Ui_Clients_Window(object):
                     cur.execute(query_paywaytype, (payway,))
                     result_payway = cur.fetchone()
                 # get id from table
+                    id_bank = result_bank[0]
                     id_iva = result_iva[0] if result_iva is not None else None
                     id_payway = result_payway[0]
                 # execution of principal command
-                    data=(code,name,cif,address,phones,city,province,country,zipcode,id_payway,vto1,vto2,id_iva,notes,)
+                    data=(code,name,cif,address,phones,city,province,country,zipcode,id_payway,vto1,vto2,id_iva,notes,id_bank,group,)
                     cur.execute(commands_newclient, data)
                 # close communication with the PostgreSQL database server
                     cur.close()
@@ -995,6 +1155,8 @@ class Ui_Clients_Window(object):
         vto1=self.Vto1_Clients.text()
         vto2=self.Vto2_Clients.text()
         notes=self.Notes_Clients.toPlainText()
+        bank=self.Bank_Clients.currentText()
+        group=self.Group_Clients.text()
 
         if id=="":
             dlg = QtWidgets.QMessageBox()
@@ -1010,7 +1172,7 @@ class Ui_Clients_Window(object):
             commands_modifyclient = ("""
                             UPDATE purch_fact.clients_test
                             SET "code" = %s, "name" = %s, "cif" = %s, "address" = %s, "phone_number" = %s, "city" = %s, "province" = %s,
-                            "country" = %s, "zip_code" = %s, "pay_way_id" = %s, "vto_prog1" = %s, "vto_prog2" = %s, "iva_id" = %s, "notes" = %s
+                            "country" = %s, "zip_code" = %s, "pay_way_id" = %s, "vto_prog1" = %s, "vto_prog2" = %s, "iva_id" = %s, "notes" = %s, "bank_id" = %s, "group_client" = %s
                             WHERE "id" = %s
                             """)
             conn = None
@@ -1021,6 +1183,10 @@ class Ui_Clients_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
 
+                query_bank = "SELECT id FROM purch_fact.banks WHERE name = %s"
+                cur.execute(query_bank, (bank,))
+                result_bank = cur.fetchone()
+
                 query_ivatype = "SELECT id FROM purch_fact.iva WHERE iva_type = %s"
                 cur.execute(query_ivatype, (iva,))
                 result_iva = cur.fetchone()
@@ -1029,10 +1195,11 @@ class Ui_Clients_Window(object):
                 cur.execute(query_paywaytype, (payway,))
                 result_payway = cur.fetchone()
             # get id from table
+                id_bank = result_bank[0]
                 id_iva = result_iva[0] if result_iva is not None else None
                 id_payway = result_payway[0]
             # execution of commands one by one
-                data=(code,name,cif,address,phones,city,province,country,zipcode,id_payway,vto1,vto2,id_iva,notes,id,)
+                data=(code,name,cif,address,phones,city,province,country,zipcode,id_payway,vto1,vto2,id_iva,notes,id_bank,group,id,)
                 cur.execute(commands_modifyclient,data)
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -1133,7 +1300,7 @@ class Ui_Clients_Window(object):
     def loadformclients(self,item):
         data_client=[]
 
-        for column in range(16):
+        for column in range(18):
             item_text=self.tableClients.item(item.row(), column).text()
             data_client.append(item_text)
 
@@ -1152,23 +1319,28 @@ class Ui_Clients_Window(object):
         self.Vto2_Clients.setText(data_client[13])
         self.Iva_Clients.setCurrentText(data_client[14])
         self.Notes_Clients.setText(data_client[15])
+        self.Bank_Clients.setCurrentText(data_client[16])
+        self.Group_Clients.setText(data_client[17])
 
 
 # Function to load data of clients in table
     def loadtableclients(self):
         commands_queryclients = ("""
-                        SELECT purch_fact.clients_test.id,purch_fact.clients_test.code,purch_fact.clients_test.name,
-                        purch_fact.clients_test.cif,purch_fact.clients_test.address,
-                        purch_fact.clients_test.phone_number,purch_fact.clients_test.fax,
-                        purch_fact.clients_test.city,purch_fact.clients_test.province,
-                        purch_fact.clients_test.country,purch_fact.clients_test.zip_code,
+                        SELECT purch_fact.clients_test."id",purch_fact.clients_test."code",purch_fact.clients_test."name",
+                        purch_fact.clients_test."cif",purch_fact.clients_test."address",
+                        purch_fact.clients_test."phone_number",purch_fact.clients_test."fax",
+                        purch_fact.clients_test."city",purch_fact.clients_test."province",
+                        purch_fact.clients_test."country",purch_fact.clients_test."zip_code",
                         purch_fact.pay_way."pay_way_type",
-                        purch_fact.clients_test.vto_prog1,purch_fact.clients_test.vto_prog2,
+                        purch_fact.clients_test."vto_prog1",purch_fact.clients_test."vto_prog2",
                         purch_fact.iva."iva_type",
-                        purch_fact.clients_test.notes
+                        purch_fact.clients_test."notes",
+                        purch_fact.banks."name",
+                        purch_fact.clients_test."group_client"
                         FROM purch_fact.clients_test
                         LEFT JOIN purch_fact.pay_way ON (purch_fact.pay_way."id" = purch_fact.clients_test."pay_way_id")
                         LEFT JOIN purch_fact.iva ON (purch_fact.iva."id" = purch_fact.clients_test."iva_id")
+                        LEFT JOIN purch_fact.banks ON (purch_fact.banks."id" = purch_fact.clients_test."bank_id")
                         ORDER BY purch_fact.clients_test.id
                         """)
         conn = None
@@ -1208,7 +1380,7 @@ class Ui_Clients_Window(object):
 
     # fill the Qt Table with the query results
         for row in results_client:
-            for column in range(16):
+            for column in range(18):
                 value = row[column]
                 if value is None:
                     value = ''

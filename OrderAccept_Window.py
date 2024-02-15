@@ -431,7 +431,8 @@ class Ui_OrderAccept_Window(object):
             # validity = int(results_queryorder[0][10])
             validity = 30
 
-            expected_date += timedelta(days=(validity + 28))
+            if num_order[-1] != 'R':
+                expected_date = order_date + timedelta(days=(validity + 28))
 
             if payment_term_db == "100_delivery":
                 payment_term_english = "100% of total amount of purchase order upon delivery of material according to Incoterms 2020"

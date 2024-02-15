@@ -15,6 +15,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib import ticker
 import os
+from ExportDocs_Menu import Ui_ExportDocs_Menu
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -849,20 +850,20 @@ class Ui_App_Comercial(object):
 
 
     def new_offer(self):
-        from OfferNew_Window import Ui_New_Offer_Window
-        self.new_offer_window=QtWidgets.QMainWindow()
-        self.ui=Ui_New_Offer_Window(self.username)
-        self.ui.setupUi(self.new_offer_window)
-        self.new_offer_window.show()
+        from OfferNew_Menu import Ui_NewOffer_Menu
+        self.new_offer_menu=QtWidgets.QMainWindow()
+        self.ui=Ui_NewOffer_Menu(self.username)
+        self.ui.setupUi(self.new_offer_menu)
+        self.new_offer_menu.show()
         self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
 
     def edit_offer(self):
         from OfferEdit_Menu import Ui_EditOffer_Menu
-        self.edit_offer_window=QtWidgets.QMainWindow()
+        self.edit_offer_menu=QtWidgets.QMainWindow()
         self.ui=Ui_EditOffer_Menu()
-        self.ui.setupUi(self.edit_offer_window)
-        self.edit_offer_window.show()
+        self.ui.setupUi(self.edit_offer_menu)
+        self.edit_offer_menu.show()
         self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
 
@@ -921,7 +922,6 @@ class Ui_App_Comercial(object):
 
 
     def export_menu(self):
-        from ExportDocs_Menu import Ui_ExportDocs_Menu
         self.exportdocs_menu=QtWidgets.QMainWindow()
         self.ui=Ui_ExportDocs_Menu(self.username)
         self.ui.setupUi(self.exportdocs_menu)
@@ -1034,8 +1034,10 @@ class Ui_App_Comercial(object):
             # execution of commands
                 cur.execute(commands_responsible)
                 results_responsible=cur.fetchall()
+
                 match=list(filter(lambda x:self.username in x, results_responsible))
                 responsible=match[0][0]
+
                 data=(responsible, date.today().year,)
                 cur.execute(commands_graph1, data)
                 results=cur.fetchall()
@@ -1072,7 +1074,7 @@ class Ui_App_Comercial(object):
             ax.set_ylabel('Importe (€)')
 
             self.canvas.setMinimumSize(QtCore.QSize(200, 400))
-            self.canvas.setMaximumSize(QtCore.QSize(583, 400))
+            self.canvas.setMaximumSize(QtCore.QSize(585, 400))
 
             self.canvas.setObjectName("Graph1")
             self.BottomLayout.addWidget(self.canvas, 0, 0, 1, 1)
@@ -1101,8 +1103,10 @@ class Ui_App_Comercial(object):
             # execution of commands
                 cur.execute(commands_responsible)
                 results_responsible=cur.fetchall()
+
                 match=list(filter(lambda x:self.username in x, results_responsible))
                 responsible=match[0][0]
+
                 data=(responsible, date.today().year,)
                 cur.execute(commands_graph2, data)
                 results2=cur.fetchall()
@@ -1134,7 +1138,7 @@ class Ui_App_Comercial(object):
             bx.set_title('Proporción equipos vendidos')
 
             self.canvas2.setMinimumSize(QtCore.QSize(200, 400))
-            self.canvas2.setMaximumSize(QtCore.QSize(583, 400))
+            self.canvas2.setMaximumSize(QtCore.QSize(585, 400))
             self.canvas2.setObjectName("canvas2")
             self.BottomLayout.addWidget(self.canvas2, 0, 1, 1, 1)
 
@@ -1454,9 +1458,9 @@ class Ui_App_Comercial(object):
 #Function to formatting y axis of graps
     def format_y_ticks(self, y, pos):
         if y >= 1e6:
-            return '{:.0f}M'.format(y * 1e-6)
+            return '{:.1f}M'.format(y * 1e-6)
         elif y >= 1e3:
-            return '{:.0f}k'.format(y * 1e-3)
+            return '{:.1f}k'.format(y * 1e-3)
         else:
             return '{:d}'.format(int(y))
 

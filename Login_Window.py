@@ -11,6 +11,7 @@ import os
 from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
+import hashlib
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -19,13 +20,9 @@ class Ui_Login_Window(object):
     def setupUi(self, Login_Window):
         self.Login_Window = Login_Window
         Login_Window.setObjectName("Login_Window")
-        Login_Window.resize(670, 392)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.MinimumExpanding, QtWidgets.QSizePolicy.Policy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(Login_Window.sizePolicy().hasHeightForWidth())
-        Login_Window.setSizePolicy(sizePolicy)
-        Login_Window.setMaximumSize(QtCore.QSize(670, 392))
+        Login_Window.resize(670, 400)
+        Login_Window.setMinimumSize(QtCore.QSize(670, 400))
+        Login_Window.setMaximumSize(QtCore.QSize(670, 400))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico")))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Login_Window.setWindowIcon(icon)
@@ -40,87 +37,52 @@ class Ui_Login_Window(object):
         Login_Window.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly)
         self.centralwidget = QtWidgets.QWidget(parent=Login_Window)
         self.centralwidget.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
-        self.centralwidget.setSizePolicy(sizePolicy)
         self.centralwidget.setAutoFillBackground(False)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame.setMinimumSize(QtCore.QSize(652, 352))
-        self.frame.setMaximumSize(QtCore.QSize(652, 352))
-        self.frame.setStyleSheet("")
         self.frame.setFrameShape(QtWidgets.QFrame.Shape.Box)
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame.setObjectName("frame")
         self.gridLayout = QtWidgets.QGridLayout(self.frame)
         self.gridLayout.setObjectName("gridLayout")
-        self.horizontalLayout = QtWidgets.QHBoxLayout()
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        spacerItem = QtWidgets.QSpacerItem(48, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.horizontalLayout.addItem(spacerItem)
+        self.gridLayout_3 = QtWidgets.QGridLayout()
+        self.gridLayout_3.setObjectName("gridLayout_3")
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.gridLayout_3.addItem(spacerItem1, 0, 0, 1, 1)
         self.logo = QtWidgets.QLabel(parent=self.frame)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.logo.sizePolicy().hasHeightForWidth())
-        self.logo.setSizePolicy(sizePolicy)
-        self.logo.setMaximumSize(QtCore.QSize(255, 235))
+        self.logo.setMaximumSize(QtCore.QSize(275, 200))
         self.logo.setText("")
         self.logo.setPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Logo.ico"))))
         self.logo.setScaledContents(False)
         self.logo.setObjectName("logo")
-        self.horizontalLayout.addWidget(self.logo)
-        spacerItem1 = QtWidgets.QSpacerItem(48, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.horizontalLayout.addItem(spacerItem1)
-        self.verticalLayout = QtWidgets.QVBoxLayout()
-        self.verticalLayout.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetFixedSize)
-        self.verticalLayout.setObjectName("verticalLayout")
+        self.gridLayout_3.addWidget(self.logo, 1, 1, 7, 1)
         self.label_username_login = QtWidgets.QLabel(parent=self.frame)
         self.label_username_login.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_username_login.sizePolicy().hasHeightForWidth())
-        self.label_username_login.setSizePolicy(sizePolicy)
         self.label_username_login.setMinimumSize(QtCore.QSize(200, 25))
-        self.label_username_login.setMaximumSize(QtCore.QSize(200, 25))
+        self.label_username_login.setMaximumSize(QtCore.QSize(16777215, 25))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
         self.label_username_login.setFont(font)
         self.label_username_login.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.label_username_login.setObjectName("label_username_login")
-        self.verticalLayout.addWidget(self.label_username_login)
+        self.gridLayout_3.addWidget(self.label_username_login, 1, 2, 1, 2)
         self.username_login = QtWidgets.QLineEdit(parent=self.frame)
         self.username_login.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.username_login.sizePolicy().hasHeightForWidth())
-        self.username_login.setSizePolicy(sizePolicy)
         self.username_login.setMinimumSize(QtCore.QSize(200, 25))
-        self.username_login.setMaximumSize(QtCore.QSize(200, 25))
+        self.username_login.setMaximumSize(QtCore.QSize(16777215, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.username_login.setFont(font)
         self.username_login.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.username_login.setObjectName("username_login")
-        self.verticalLayout.addWidget(self.username_login)
-        spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.verticalLayout.addItem(spacerItem2)
+        self.gridLayout_3.addWidget(self.username_login, 2, 2, 1, 2)
         self.label_password_login = QtWidgets.QLabel(parent=self.frame)
         self.label_password_login.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_password_login.sizePolicy().hasHeightForWidth())
-        self.label_password_login.setSizePolicy(sizePolicy)
         self.label_password_login.setMinimumSize(QtCore.QSize(200, 25))
-        self.label_password_login.setMaximumSize(QtCore.QSize(200, 25))
+        self.label_password_login.setMaximumSize(QtCore.QSize(16777215, 25))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -128,14 +90,9 @@ class Ui_Login_Window(object):
         self.label_password_login.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.label_password_login.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.label_password_login.setObjectName("label_password_login")
-        self.verticalLayout.addWidget(self.label_password_login)
+        self.gridLayout_3.addWidget(self.label_password_login, 3, 2, 1, 2)
         self.password_login = QtWidgets.QLineEdit(parent=self.frame)
         self.password_login.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.password_login.sizePolicy().hasHeightForWidth())
-        self.password_login.setSizePolicy(sizePolicy)
         self.password_login.setMinimumSize(QtCore.QSize(200, 25))
         self.password_login.setMaximumSize(QtCore.QSize(200, 25))
         font = QtGui.QFont()
@@ -144,24 +101,63 @@ class Ui_Login_Window(object):
         self.password_login.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
         self.password_login.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.password_login.setObjectName("password_login")
-        self.verticalLayout.addWidget(self.password_login)
-        spacerItem3 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.verticalLayout.addItem(spacerItem3)
+        self.gridLayout_3.addWidget(self.password_login, 4, 2, 1, 1)
+        self.show_password = QtWidgets.QPushButton(parent=self.frame)
+        self.show_password.setMinimumSize(QtCore.QSize(25, 25))
+        self.show_password.setMaximumSize(QtCore.QSize(25, 25))
+        self.show_password.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.show_password.setStyleSheet("\n"
+        "QPushButton {\n"
+        "background-color: #33bdef;\n"
+        "  border: 1px solid transparent;\n"
+        "  border-radius: 3px;\n"
+        "  color: #fff;\n"
+        "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+        "  font-weight: 800;\n"
+        "  line-height: 1.15385;\n"
+        "  margin: 0;\n"
+        "  outline: none;\n"
+        "  padding: 8px .8em;\n"
+        "  text-align: center;\n"
+        "  text-decoration: none;\n"
+        "  vertical-align: baseline;\n"
+        "  white-space: nowrap;\n"
+        "}\n"
+        "\n"
+        "QPushButton:hover {\n"
+        "    background-color: #019ad2;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "}\n"
+        "\n"
+        "QPushButton:pressed {\n"
+        "    background-color: rgb(1, 140, 190);\n"
+        "    border-color: rgb(255, 255, 255);\n"
+        "}\n"
+        "\n"
+        "QPushButton:focus{\n"
+        "    background-color: #019ad2;\n"
+        "    border-color: rgb(0, 0, 0);\n"
+        "}\n"
+        "\n"
+        "QPushButton:focus:pressed {\n"
+        "    background-color: rgb(1, 140, 190);\n"
+        "    border-color: rgb(255, 255, 255);\n"
+        "}")
+        self.show_password.setObjectName("accept_login")
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.show_password.setIcon(icon6)
+        self.show_password.setIconSize(QtCore.QSize(20, 20))
+        self.gridLayout_3.addWidget(self.show_password, 4, 3, 1, 1)
+        
         self.accept_login = QtWidgets.QPushButton(parent=self.frame)
         self.accept_login.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.accept_login.sizePolicy().hasHeightForWidth())
-        self.accept_login.setSizePolicy(sizePolicy)
         self.accept_login.setMinimumSize(QtCore.QSize(200, 35))
-        self.accept_login.setMaximumSize(QtCore.QSize(200, 35))
+        self.accept_login.setMaximumSize(QtCore.QSize(16777215, 35))
         self.accept_login.setAutoDefault(True)
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
-        font.setUnderline(False)
-        font.setStrikeOut(False)
         self.accept_login.setFont(font)
         self.accept_login.setStyleSheet("\n"
         "QPushButton {\n"
@@ -201,16 +197,11 @@ class Ui_Login_Window(object):
         "    border-color: rgb(255, 255, 255);\n"
         "}")
         self.accept_login.setObjectName("accept_login")
-        self.verticalLayout.addWidget(self.accept_login)
+        self.gridLayout_3.addWidget(self.accept_login, 6, 2, 1, 2)
         self.forgetpass_login = QtWidgets.QPushButton(parent=self.frame)
         self.forgetpass_login.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.forgetpass_login.sizePolicy().hasHeightForWidth())
-        self.forgetpass_login.setSizePolicy(sizePolicy)
         self.forgetpass_login.setMinimumSize(QtCore.QSize(200, 35))
-        self.forgetpass_login.setMaximumSize(QtCore.QSize(200, 35))
+        self.forgetpass_login.setMaximumSize(QtCore.QSize(16777215, 35))
         self.forgetpass_login.setAutoDefault(True)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -256,20 +247,14 @@ class Ui_Login_Window(object):
         "    border-color: rgb(255, 255, 255);\n"
         "}")
         self.forgetpass_login.setObjectName("forgetpass_login")
-        self.verticalLayout.addWidget(self.forgetpass_login)
-        self.label_error_login = QtWidgets.QLabel(parent=self.frame)
-        self.label_error_login.setMinimumSize(QtCore.QSize(200, 30))
-        self.label_error_login.setMaximumSize(QtCore.QSize(200, 30))
-        self.label_error_login.setStyleSheet("color: rgb(255, 0, 0);")
-        self.label_error_login.setWordWrap(True)
-        self.label_error_login.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.label_error_login.setText("")
-        self.label_error_login.setObjectName("label_error_login")
-        self.verticalLayout.addWidget(self.label_error_login)
-        self.horizontalLayout.addLayout(self.verticalLayout)
-        spacerItem4 = QtWidgets.QSpacerItem(48, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.horizontalLayout.addItem(spacerItem4)
-        self.gridLayout.addLayout(self.horizontalLayout, 0, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.forgetpass_login, 7, 2, 1, 2)
+        spacerItem2 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        self.gridLayout_3.addItem(spacerItem2, 0, 2, 1, 2)
+        spacerItem3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        self.gridLayout_3.addItem(spacerItem3, 5, 2, 1, 2)
+        spacerItem4 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        self.gridLayout_3.addItem(spacerItem4, 8, 2, 1, 2)
+        self.gridLayout.addLayout(self.gridLayout_3, 0, 0, 1, 1)
         self.gridLayout_2.addWidget(self.frame, 0, 0, 1, 1)
         Login_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=Login_Window)
@@ -284,6 +269,9 @@ class Ui_Login_Window(object):
         self.password_login.returnPressed.connect(self.verification_login)
         QtCore.QMetaObject.connectSlotsByName(Login_Window)
 
+        self.show_password.pressed.connect(self.start_show_timer)
+        self.show_password.released.connect(self.stop_show_timer)
+
     def retranslateUi(self, Login_Window):
         _translate = QtCore.QCoreApplication.translate
         Login_Window.setWindowTitle(_translate("Login_Window", "ERP EIPSA"))
@@ -297,7 +285,14 @@ class Ui_Login_Window(object):
         login_password = self.password_login.text()
 
         if login_username == '' or login_password == '':
-            self.label_error_login.setText('Por favor, rellena los campos')
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("EIPSA ERP")
+            dlg.setText('Por favor, rellena los campos')
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
 
         else:
             # SQL Query for loading existing data in database
@@ -336,12 +331,31 @@ class Ui_Login_Window(object):
                     conn.close()
 
         # checking if username is correct
+            password_bytes = login_password.encode('utf-8')
+            hash_object = hashlib.sha256(password_bytes)
+            hashed_password = hash_object.hexdigest()
+
             if len(match) == 0:
-                self.label_error_login.setText('Usuario incorrecto. Inténtalo de nuevo')
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("EIPSA ERP")
+                dlg.setText('Usuario incorrecto. Inténtalo de nuevo')
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
 
         # checking if password is correct
-            elif login_password != match[0][5]:
-                self.label_error_login.setText('Contraseña incorrecta. Inténtalo de nuevo')
+            elif hashed_password != match[0][5]:
+            # elif login_password != match[0][5]:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("EIPSA ERP")
+                dlg.setText('Contraseña incorrecta. Inténtalo de nuevo')
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
 
             else:
                 rol_app = match[0][6]
@@ -364,9 +378,7 @@ class Ui_Login_Window(object):
 
                 elif rol_app == "Técnico":
                     from App_Technical import Ui_App_Technical
-                    self.app_window = QtWidgets.QMainWindow()
-                    self.ui_technical = Ui_App_Technical(match[0][1]+' '+match[0][2], login_username)
-                    self.ui_technical.setupUi(self.app_window)
+                    self.app_window = Ui_App_Technical(match[0][1]+' '+match[0][2], login_username)
                     self.app_window.showMaximized()
                     self.Login_Window.close()
 
@@ -428,10 +440,8 @@ class Ui_Login_Window(object):
 
                 elif rol_app == 'Técnico-Comercial':
                     from App_Technical_Commercial import Ui_App_Technical_Commerical
-                    self.app_window = QtWidgets.QMainWindow()
                     self.ui_tech_comm = Ui_App_Technical_Commerical(match[0][1]+' '+match[0][2], login_username)
-                    self.ui_tech_comm.setupUi(self.app_window)
-                    self.app_window.showMaximized()
+                    self.ui_tech_comm.showMaximized()
                     self.Login_Window.close()
 
                 else:
@@ -446,21 +456,29 @@ class Ui_Login_Window(object):
                     del dlg, new_icon
 
     def forgetpassword(self):
-        # from PasswordForget_Window import Ui_ForgetPass_Window
-        # self.forgetpass_window=QtWidgets.QMainWindow()
-        # self.ui=Ui_ForgetPass_Window()
-        # self.ui.setupUi(self.forgetpass_window)
-        # self.forgetpass_window.show()
+        from PasswordForget_Window import Ui_ForgetPass_Window
+        self.forgetpass_window=QtWidgets.QMainWindow()
+        self.ui=Ui_ForgetPass_Window()
+        self.ui.setupUi(self.forgetpass_window)
+        self.forgetpass_window.show()
 
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Este módulo aún no está disponible. Póngase en contacto con el administrador del sistema.\nDisculpe las molestias")
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-        dlg.exec()
-        del dlg, new_icon
+        # dlg = QtWidgets.QMessageBox()
+        # new_icon = QtGui.QIcon()
+        # new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        # dlg.setWindowIcon(new_icon)
+        # dlg.setWindowTitle("ERP EIPSA")
+        # dlg.setText("Este módulo aún no está disponible. Póngase en contacto con el administrador del sistema.\nDisculpe las molestias")
+        # dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        # dlg.exec()
+        # del dlg, new_icon
+
+    def start_show_timer(self):
+        self.password_login.setEchoMode(QtWidgets.QLineEdit.EchoMode.Normal)
+
+    def stop_show_timer(self):
+        self.password_login.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
+
+
 
 
 if __name__ == "__main__":

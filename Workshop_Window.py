@@ -6,6 +6,9 @@ import configparser
 from datetime import *
 import os
 import re
+from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import Qt, QDate, QMimeData
+from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -112,7 +115,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
     def flags(self, index):
         flags = super().flags(index)
-        if index.column() in [0,1]:
+        if index.column() in [0,4]:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -267,10 +270,12 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
             self.tableWorkshop.hideColumn(i)
         for i in range(16,25):
             self.tableWorkshop.hideColumn(i)
+        self.tableWorkshop.hideColumn(26)
+        self.tableWorkshop.hideColumn(27)
 
         headers=['Nº Pedido', '','','','Fecha Contractual','','','','','','',
                 '% Fabricación','Cambios %','Fecha Recepción','Fecha Prevista','Observaciones',
-                '','','','','', '', '', '', '','OK']
+                '','','','','','','','','','OK','','']
 
         self.tableWorkshop.setItemDelegate(AlignDelegate(self.tableWorkshop))
         self.color_delegate = ColorDelegate(self)
@@ -332,10 +337,11 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         for i in range(16,25):
             self.tableWorkshop.hideColumn(i)
         self.tableWorkshop.hideColumn(26)
+        self.tableWorkshop.hideColumn(27)
 
         headers=['Nº Pedido', '','','','Fecha Contractual','','','','','','',
                 '% Fabricación','Cambios %','Fecha Recepción','Fecha Prevista','Observaciones',
-                '','','','','','','','','','OK','']
+                '','','','','','','','','','OK','','']
 
         self.tableWorkshop.setItemDelegate(AlignDelegate(self.tableWorkshop))
         self.color_delegate = ColorDelegate(self)
@@ -348,6 +354,7 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         self.tableWorkshop.horizontalHeader().setSectionResizeMode(13, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableWorkshop.horizontalHeader().setSectionResizeMode(14, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableWorkshop.horizontalHeader().setSectionResizeMode(15, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableWorkshop.setColumnWidth(15, 300)
         self.tableWorkshop.horizontalHeader().setSectionResizeMode(25, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableWorkshop.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
         self.gridLayout_2.addWidget(self.tableWorkshop, 2, 0, 1, 1)
@@ -396,6 +403,7 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         self.tableWorkshop.horizontalHeader().setSectionResizeMode(13, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableWorkshop.horizontalHeader().setSectionResizeMode(14, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableWorkshop.horizontalHeader().setSectionResizeMode(15, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableWorkshop.setColumnWidth(15, 300)
         self.tableWorkshop.horizontalHeader().setSectionResizeMode(25, QtWidgets.QHeaderView.ResizeMode.Stretch)
 
 
@@ -541,6 +549,8 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         self.tableWorkshop.horizontalHeader().setSectionResizeMode(13, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableWorkshop.horizontalHeader().setSectionResizeMode(14, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableWorkshop.horizontalHeader().setSectionResizeMode(15, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableWorkshop.setColumnWidth(15, 300)
+        self.tableWorkshop.horizontalHeader().setSectionResizeMode(25, QtWidgets.QHeaderView.ResizeMode.Stretch)
 
 # Function when select all checkbox is clicked
     def on_select_all_toggled(self, checked, action_name):
@@ -617,6 +627,8 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         self.tableWorkshop.horizontalHeader().setSectionResizeMode(13, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableWorkshop.horizontalHeader().setSectionResizeMode(14, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableWorkshop.horizontalHeader().setSectionResizeMode(15, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableWorkshop.setColumnWidth(15, 300)
+        self.tableWorkshop.horizontalHeader().setSectionResizeMode(25, QtWidgets.QHeaderView.ResizeMode.Stretch)
 
 # Function to order column ascending
     def on_actionSortAscending_triggered(self):
@@ -654,6 +666,66 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             self.model.setIconColumnHeader(filterColumn, icono)
 
+
+    def keyPressEvent(self, event):
+        if event.modifiers() and QtCore.Qt.KeyboardModifier.ControlModifier:
+            if event.key() == QtCore.Qt.Key.Key_Comma:
+                selected_indexes = self.tableWorkshop.selectionModel().selectedIndexes()
+                if not selected_indexes:
+                    return
+                
+                model = self.tableWorkshop.model()
+                model_indexes = [model.mapToSource(index) for index in selected_indexes]
+
+                for index in model_indexes:
+                    self.model.setData(index, date.today().strftime("%d/%m/%Y"))
+
+        
+        elif event.matches(QKeySequence.StandardKey.Copy):
+            selected_indexes = self.tableWorkshop.selectionModel().selectedIndexes()
+            if not selected_indexes:
+                return
+            
+            model = self.tableWorkshop.model()
+            model_indexes = [model.mapToSource(index) for index in selected_indexes]
+
+            mime_data = QMimeData()
+            data = bytearray()
+
+            for index in model_indexes:
+                data += str(self.model.data(index)).encode('utf-8') + b'\t'
+
+            mime_data.setData("text/plain", data)
+
+            clipboard = QApplication.clipboard()
+            clipboard.setMimeData(mime_data)
+
+        elif event.matches(QKeySequence.StandardKey.Paste):
+            if self.tableWorkshop.selectionModel() != None:
+
+                clipboard = QApplication.clipboard()
+                mime_data = clipboard.mimeData()
+
+                if not mime_data.hasFormat("text/plain"):
+                    return
+
+                data = mime_data.data("text/plain").data()
+                values = data.split(b'\t')
+
+                selected_indexes = self.tableWorkshop.selectionModel().selectedIndexes()
+                if not selected_indexes:
+                    return
+                
+                model = self.tableWorkshop.model()
+                model_indexes = [model.mapToSource(index) for index in selected_indexes]
+
+                for index, value in zip(model_indexes, values):
+                    self.model.setData(index, value.decode('utf-8'))
+
+                self.model.submitAll()
+
+
+        super().keyPressEvent(event)
 
 # if __name__ == "__main__":
 #     import sys

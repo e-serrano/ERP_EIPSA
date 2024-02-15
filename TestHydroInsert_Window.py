@@ -44,9 +44,11 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         actionOrderDesc = menu.addAction("Ordenar Descendente")
         actionOrderDesc.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.DescendingOrder))
         menu.addSeparator()
+        actionFilterByText = menu.addAction("Buscar Texto")
+        actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
+        menu.addSeparator()
 
-        menu.setStyleSheet("QMenu { color: black; }"
-                        "QMenu::item:selected { background-color: #33bdef; }"
+        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         if column_index not in self.column_filters:
@@ -97,6 +99,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         menu.exec(header_pos - QtCore.QPoint(0, header_height))
 
+
 # Function to delete filter on selected column
     def delete_filter(self,column_index):
         if column_index in self.column_filters:
@@ -112,6 +115,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         header_item = self.horizontalHeaderItem(column_index)
         header_item.setIcon(QtGui.QIcon())
 
+
 # Function to set all checkboxes state
     def set_all_checkboxes_state(self, checkboxes, state, column_index):
         if column_index not in self.checkbox_states:
@@ -122,28 +126,43 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         self.checkbox_states[column_index]["Seleccionar todo"] = state
 
+
 # Function to apply filters to table
-    def apply_filter(self, column_index, value, checked):
+    def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
 
-        if value is None:
-            self.column_filters[column_index] = set()
-        elif checked:
-            self.column_filters[column_index].add(value)
-        elif value in self.column_filters[column_index]:
-            self.column_filters[column_index].remove(value)
+        if text_filter is None:
+            if value is None:
+                self.column_filters[column_index] = set()
+            elif checked:
+                self.column_filters[column_index].add(value)
+            elif value in self.column_filters[column_index]:
+                self.column_filters[column_index].remove(value)
 
         rows_to_hide = set()
         for row in range(self.rowCount()):
             show_row = True
+
+            # Check filters for all columns
             for col, filters in self.column_filters.items():
                 item = self.item(row, col)
                 if item:
                     item_value = item.text()
-                    if filters and item_value not in filters:
+                    if text_filter is None:
+                        if filters and item_value not in filters:
+                            show_row = False
+                            break
+
+        # Filtering by text
+            if text_filter is not None:
+                filter_dialog.accept()
+                item = self.item(row, column_index)
+                if item:
+                    if text_filter.upper() in item.text().upper():
+                        self.column_filters[column_index].add(item.text())
+                    else:
                         show_row = False
-                        break
 
             if not show_row:
                 if row not in self.general_rows_to_hide:
@@ -153,20 +172,76 @@ class CustomTableWidget(QtWidgets.QTableWidget):
                 if row in self.general_rows_to_hide:
                     self.general_rows_to_hide.remove(row)
 
-    # Update hidden rows for this column
-        if checked:
+        # Update hidden rows for this column depending on checkboxes
+        if checked and text_filter is None:
             if column_index not in self.rows_hidden:
                 self.rows_hidden[column_index] = set(rows_to_hide)
             else:
                 self.rows_hidden[column_index].update(rows_to_hide)
 
-    # Iterate over all rows to hide them as necessary
+        # Update hidden rows for this column depending on filtered text
+        if text_filter is not None and value is None:
+            if column_index not in self.rows_hidden:
+                self.rows_hidden[column_index] = set(rows_to_hide)
+            else:
+                self.rows_hidden[column_index].update(rows_to_hide)
+
+        # Iterate over all rows to hide them as necessary
         for row in range(self.rowCount()):
             self.setRowHidden(row, row in self.general_rows_to_hide)
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
             header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+        else:
+            header_item.setIcon(QtGui.QIcon())
+
+
+    def filter_by_text(self, column_index):
+        filter_dialog = QtWidgets.QDialog(self)
+        filter_dialog.setWindowTitle("Filtrar por texto")
+        
+        label = QtWidgets.QLabel("Texto a filtrar:")
+        text_input = QtWidgets.QLineEdit()
+        
+        filter_button = QtWidgets.QPushButton("Filtrar")
+        filter_button.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 2px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        filter_button.clicked.connect(lambda: self.apply_filter(column_index, None, False, text_input.text(), filter_dialog))
+
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(label)
+        layout.addWidget(text_input)
+        layout.addWidget(filter_button)
+
+        filter_dialog.setLayout(layout)
+        filter_dialog.exec()
+
 
 # Function to obtain the unique matching applied filters 
     def get_unique_values(self, column_index):
@@ -196,7 +271,42 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to sort column
     def sort_column(self, column_index, sortOrder):
-        self.sortByColumn(column_index, sortOrder)
+        if self.horizontalHeaderItem(column_index).text() in ['Fecha PH1', 'Fecha PH2']:
+            self.custom_sort(column_index, sortOrder)
+        else:
+            self.sortByColumn(column_index, sortOrder)
+
+
+    def custom_sort(self, column, order):
+    # Obtén la cantidad de filas en la tabla
+        row_count = self.rowCount()
+
+        # Crea una lista de índices ordenados según las fechas
+        indexes = list(range(row_count))
+        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd/MM/yyyy"))
+
+        # Si el orden es descendente, invierte la lista
+        if order == QtCore.Qt.SortOrder.DescendingOrder:
+            indexes.reverse()
+
+        # Guarda el estado actual de las filas ocultas
+        hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
+
+        # Actualiza las filas en la tabla en el orden ordenado
+        rows = self.rowCount()
+        for i in range(rows):
+            self.insertRow(i)
+
+        for new_row, old_row in enumerate(indexes):
+            for col in range(self.columnCount()):
+                item = self.takeItem(old_row + rows, col)
+                self.setItem(new_row, col, item)
+
+        for i in range(rows):
+            self.removeRow(rows)
+
+        for row in hidden_rows:
+            self.setRowHidden(row, True)
 
 # Function with the menu configuration
     def contextMenuEvent(self, event):
@@ -210,8 +320,9 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 
 class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, username):
         super().__init__()
+        self.username = username
         self.setupUi(self)
 
 
@@ -223,41 +334,78 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         TestHydroInsert_Window.setWindowIcon(icon)
-        TestHydroInsert_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
-"QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 2px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        if self.username == 'm.gil':
+            TestHydroInsert_Window.setStyleSheet("QWidget {\n"
+    "background-color: rgb(0, 0, 0); color: rgb(255, 255, 255)\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid black;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 2px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
+        else:
+            TestHydroInsert_Window.setStyleSheet("QWidget {\n"
+    "background-color: rgb(255, 255, 255);\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid black;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 2px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
         self.centralwidget = QtWidgets.QWidget(parent=TestHydroInsert_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -288,15 +436,25 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.num_order.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.num_order.setObjectName("num_order")
         self.gridLayout_2.addWidget(self.num_order, 1, 1, 1, 3)
+        self.label_types = QtWidgets.QLabel(parent=self.frame)
+        self.label_types.setMinimumSize(QtCore.QSize(105, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_types.setFont(font)
+        self.label_types.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_types.setObjectName("label_types")
+        self.gridLayout_2.addWidget(self.label_types, 2, 0, 1, 4)
         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.gridLayout_2.addItem(spacerItem3, 2, 1, 1, 1)
+        self.gridLayout_2.addItem(spacerItem3, 3, 1, 1, 1)
         self.select_all = QtWidgets.QCheckBox('Seleccionar todos')
-        self.gridLayout_2.addWidget(self.select_all, 3, 3, 1, 1)
+        self.select_all.setLayoutDirection(QtCore.Qt.LayoutDirection.RightToLeft)
+        self.gridLayout_2.addWidget(self.select_all, 4, 3, 1, 1)
         self.tableTags = CustomTableWidget()
         self.tableTags.setObjectName("tableWidget")
         self.tableTags.setColumnCount(0)
         self.tableTags.setRowCount(0)
-        self.gridLayout_2.addWidget(self.tableTags, 4, 0, 1, 4)
+        self.gridLayout_2.addWidget(self.tableTags, 5, 0, 1, 4)
         self.label_date1 = QtWidgets.QLabel(parent=self.frame)
         self.label_date1.setMinimumSize(QtCore.QSize(105, 25))
         self.label_date1.setMaximumSize(QtCore.QSize(105, 25))
@@ -306,7 +464,7 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.label_date1.setFont(font)
         self.label_date1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_date1.setObjectName("label_date1")
-        self.gridLayout_2.addWidget(self.label_date1, 5, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_date1, 6, 0, 1, 1)
         self.date_test1 = QtWidgets.QLineEdit(parent=self.frame)
         self.date_test1.setMinimumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
@@ -314,7 +472,7 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.date_test1.setFont(font)
         self.date_test1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.date_test1.setObjectName("date_test1")
-        self.gridLayout_2.addWidget(self.date_test1, 5, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.date_test1, 6, 1, 1, 1)
         self.label_manometer1 = QtWidgets.QLabel(parent=self.frame)
         self.label_manometer1.setMinimumSize(QtCore.QSize(105, 25))
         self.label_manometer1.setMaximumSize(QtCore.QSize(105, 25))
@@ -324,14 +482,14 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.label_manometer1.setFont(font)
         self.label_manometer1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_manometer1.setObjectName("label_manometer1")
-        self.gridLayout_2.addWidget(self.label_manometer1, 6, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_manometer1, 7, 0, 1, 1)
         self.manometer_test1 = QtWidgets.QComboBox(parent=self.frame)
         self.manometer_test1.setMinimumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.manometer_test1.setFont(font)
         self.manometer_test1.setObjectName("manometer_test1")
-        self.gridLayout_2.addWidget(self.manometer_test1, 6, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.manometer_test1, 7, 1, 1, 1)
         self.label_pressure1 = QtWidgets.QLabel(parent=self.frame)
         self.label_pressure1.setMinimumSize(QtCore.QSize(115, 25))
         self.label_pressure1.setMaximumSize(QtCore.QSize(115, 25))
@@ -341,7 +499,7 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.label_pressure1.setFont(font)
         self.label_pressure1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_pressure1.setObjectName("label_pressure1")
-        self.gridLayout_2.addWidget(self.label_pressure1, 7, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_pressure1, 8, 0, 1, 1)
         self.presure_test1 = QtWidgets.QLineEdit(parent=self.frame)
         self.presure_test1.setMinimumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
@@ -349,7 +507,7 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.presure_test1.setFont(font)
         self.presure_test1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.presure_test1.setObjectName("presure_test1")
-        self.gridLayout_2.addWidget(self.presure_test1, 7, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.presure_test1, 8, 1, 1, 1)
         self.label_state1 = QtWidgets.QLabel(parent=self.frame)
         self.label_state1.setMinimumSize(QtCore.QSize(115, 25))
         self.label_state1.setMaximumSize(QtCore.QSize(115, 25))
@@ -359,14 +517,14 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.label_state1.setFont(font)
         self.label_state1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_state1.setObjectName("label_state1")
-        self.gridLayout_2.addWidget(self.label_state1, 8, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_state1, 9, 0, 1, 1)
         self.state_test1 = QtWidgets.QComboBox(parent=self.frame)
         self.state_test1.setMinimumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.state_test1.setFont(font)
         self.state_test1.setObjectName("state_test1")
-        self.gridLayout_2.addWidget(self.state_test1, 8, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.state_test1, 9, 1, 1, 1)
         self.label_obs1 = QtWidgets.QLabel(parent=self.frame)
         self.label_obs1.setMinimumSize(QtCore.QSize(115, 25))
         self.label_obs1.setMaximumSize(QtCore.QSize(115, 25))
@@ -376,7 +534,7 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.label_obs1.setFont(font)
         self.label_obs1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_obs1.setObjectName("label_obs1")
-        self.gridLayout_2.addWidget(self.label_obs1, 9, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_obs1, 10, 0, 1, 1)
         self.obs_test1 = QtWidgets.QTextEdit(parent=self.frame)
         self.obs_test1.setMinimumSize(QtCore.QSize(105, 25))
         self.obs_test1.setMaximumSize(QtCore.QSize(16777215, 25))
@@ -385,7 +543,7 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.obs_test1.setFont(font)
         self.obs_test1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.obs_test1.setObjectName("obs_test1")
-        self.gridLayout_2.addWidget(self.obs_test1, 9, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.obs_test1, 10, 1, 1, 1)
         self.label_date2 = QtWidgets.QLabel(parent=self.frame)
         self.label_date2.setMinimumSize(QtCore.QSize(105, 25))
         self.label_date2.setMaximumSize(QtCore.QSize(105, 25))
@@ -395,7 +553,7 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.label_date2.setFont(font)
         self.label_date2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_date2.setObjectName("label_date2")
-        self.gridLayout_2.addWidget(self.label_date2, 5, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.label_date2, 6, 2, 1, 1)
         self.date_test2 = QtWidgets.QLineEdit(parent=self.frame)
         self.date_test2.setMinimumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
@@ -403,7 +561,7 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.date_test2.setFont(font)
         self.date_test2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.date_test2.setObjectName("date_test2")
-        self.gridLayout_2.addWidget(self.date_test2, 5, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.date_test2, 6, 3, 1, 1)
         self.label_manometer2 = QtWidgets.QLabel(parent=self.frame)
         self.label_manometer2.setMinimumSize(QtCore.QSize(105, 25))
         self.label_manometer2.setMaximumSize(QtCore.QSize(105, 25))
@@ -413,14 +571,14 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.label_manometer2.setFont(font)
         self.label_manometer2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_manometer2.setObjectName("label_manometer2")
-        self.gridLayout_2.addWidget(self.label_manometer2, 6, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.label_manometer2, 7, 2, 1, 1)
         self.manometer_test2 = QtWidgets.QComboBox(parent=self.frame)
         self.manometer_test2.setMinimumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.manometer_test2.setFont(font)
         self.manometer_test2.setObjectName("manometer_test2")
-        self.gridLayout_2.addWidget(self.manometer_test2, 6, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.manometer_test2, 7, 3, 1, 1)
         self.label_pressure2 = QtWidgets.QLabel(parent=self.frame)
         self.label_pressure2.setMinimumSize(QtCore.QSize(115, 25))
         self.label_pressure2.setMaximumSize(QtCore.QSize(115, 25))
@@ -430,7 +588,7 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.label_pressure2.setFont(font)
         self.label_pressure2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_pressure2.setObjectName("label_pressure2")
-        self.gridLayout_2.addWidget(self.label_pressure2, 7, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.label_pressure2, 8, 2, 1, 1)
         self.presure_test2 = QtWidgets.QLineEdit(parent=self.frame)
         self.presure_test2.setMinimumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
@@ -438,7 +596,7 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.presure_test2.setFont(font)
         self.presure_test2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.presure_test2.setObjectName("presure_test2")
-        self.gridLayout_2.addWidget(self.presure_test2, 7, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.presure_test2, 8, 3, 1, 1)
         self.label_state2 = QtWidgets.QLabel(parent=self.frame)
         self.label_state2.setMinimumSize(QtCore.QSize(115, 25))
         self.label_state2.setMaximumSize(QtCore.QSize(115, 25))
@@ -448,14 +606,14 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.label_state2.setFont(font)
         self.label_state2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_state2.setObjectName("label_state2")
-        self.gridLayout_2.addWidget(self.label_state2, 8, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.label_state2, 9, 2, 1, 1)
         self.state_test2 = QtWidgets.QComboBox(parent=self.frame)
         self.state_test2.setMinimumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.state_test2.setFont(font)
         self.state_test2.setObjectName("state_test2")
-        self.gridLayout_2.addWidget(self.state_test2, 8, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.state_test2, 9, 3, 1, 1)
         self.label_obs2 = QtWidgets.QLabel(parent=self.frame)
         self.label_obs2.setMinimumSize(QtCore.QSize(115, 25))
         self.label_obs2.setMaximumSize(QtCore.QSize(115, 25))
@@ -465,7 +623,7 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.label_obs2.setFont(font)
         self.label_obs2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_obs2.setObjectName("label_obs2")
-        self.gridLayout_2.addWidget(self.label_obs2, 9, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.label_obs2, 10, 2, 1, 1)
         self.obs_test2 = QtWidgets.QTextEdit(parent=self.frame)
         self.obs_test2.setMinimumSize(QtCore.QSize(105, 25))
         self.obs_test2.setMaximumSize(QtCore.QSize(16777215, 25))
@@ -474,19 +632,19 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.obs_test2.setFont(font)
         self.obs_test2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.obs_test2.setObjectName("obs_test2")
-        self.gridLayout_2.addWidget(self.obs_test2, 9, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.obs_test2, 10, 3, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.gridLayout_2.addItem(spacerItem1, 10, 1, 1, 1)
+        self.gridLayout_2.addItem(spacerItem1, 11, 1, 1, 1)
         self.Button_Insert = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Insert.setMinimumSize(QtCore.QSize(100, 35))
         # self.Button_Insert.setMaximumSize(QtCore.QSize(100, 35))
         self.Button_Insert.setObjectName("Button_Insert")
-        self.gridLayout_2.addWidget(self.Button_Insert, 11, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_Insert, 12, 1, 1, 1)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(100, 35))
         # self.Button_Cancel.setMaximumSize(QtCore.QSize(100, 35))
         self.Button_Cancel.setObjectName("Button_Cancel")
-        self.gridLayout_2.addWidget(self.Button_Cancel, 11, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_Cancel, 12, 3, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         TestHydroInsert_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=TestHydroInsert_Window)
@@ -499,7 +657,11 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.tableTags.verticalHeader().setVisible(True)
         self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableTags.setSortingEnabled(False)
-        self.tableTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+        if self.username == 'm.gil':
+            self.tableTags.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+        else:
+            self.tableTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
         TestHydroInsert_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
         self.retranslateUi(TestHydroInsert_Window)
@@ -508,7 +670,7 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.Button_Cancel.clicked.connect(TestHydroInsert_Window.close)
         self.num_order.returnPressed.connect(self.querytags)
         self.Button_Insert.clicked.connect(self.insert)
-        self.tableTags.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
+        self.tableTags.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
         self.select_all.clicked.connect(self.toggle_checkboxes)
         self.tableTags.itemClicked.connect(self.loadform)
 
@@ -519,6 +681,7 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         TestHydroInsert_Window.setWindowTitle(_translate("TestHydroInsert_Window", "Prueba Hidrostática"))
         self.label_order.setText(_translate("TestHydroInsert_Window", "Nº Pedido:"))
+        self.label_types.setText(_translate("TestHydroInsert_Window", "Otras opciones: ALMACEN, INTERNO, PROTOTIPOS"))
         self.label_date1.setText(_translate("TestHydroInsert_Window", "Fecha1:"))
         self.label_manometer1.setText(_translate("TestHydroInsert_Window", "Manómetro1:"))
         self.label_pressure1.setText(_translate("TestHydroInsert_Window", "Presión1:"))
@@ -610,8 +773,8 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                 self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
                 self.tableTags.setSortingEnabled(False)
                 self.tableTags.setHorizontalHeaderLabels(column_headers)
-                self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
-                self.tableTags.horizontalHeader().setSectionResizeMode(self.num_columns - 1, QtWidgets.QHeaderView.ResizeMode.Stretch)
+                self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                self.tableTags.hideColumn(0)
 
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
@@ -683,7 +846,8 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                     item = self.tableTags.cellWidget(row, (self.num_columns - 1))
                     if item is not None:
                         if item.checkState() == QtCore.Qt.CheckState.Checked:
-                            id_list.append(int(self.tableTags.item(row, 0).text()))
+                            date_test = self.tableTags.item(row, 6).text() if self.table_name == "tags_data.tags_temp" else self.tableTags.item(row, 5).text()
+                            id_list.append([int(self.tableTags.item(row, 0).text()), date_test, self.tableTags.item(row, 1).text()])
 
                 if len(id_list) == 0:
                     dlg = QtWidgets.QMessageBox()
@@ -704,23 +868,49 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                         conn = psycopg2.connect(**params)
                         cur = conn.cursor()
                     # execution of commands
-                        for id_value in id_list:
-                            commands_hydrotest = f"UPDATE {self.table_name} SET ph1_date = '{test_date1}', ph1_manometer = '{manometer1}', ph1_pressure = '{pressure1}', ph1_state = '{test_state1}', ph1_obs = '{notes1}', ph2_date = {test_date2}, ph2_manometer = '{manometer2}', ph2_pressure = '{pressure2}', ph2_state = '{test_state2}', ph2_obs = '{notes2}' WHERE {self.column_id} = {id_value}"
-                            cur.execute(commands_hydrotest)
+                        for element in id_list:
+                            if element[1] == '':
+                                commands_hydrotest = f"UPDATE {self.table_name} SET ph1_date = '{test_date1}', ph1_manometer = '{manometer1}', ph1_pressure = '{pressure1}', ph1_state = '{test_state1}', ph1_obs = '{notes1}', ph2_date = {test_date2}, ph2_manometer = '{manometer2}', ph2_pressure = '{pressure2}', ph2_state = '{test_state2}', ph2_obs = '{notes2}' WHERE {self.column_id} = {element[0]}"
+                                cur.execute(commands_hydrotest)
+
+                                dlg = QtWidgets.QMessageBox()
+                                new_icon = QtGui.QIcon()
+                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                dlg.setWindowIcon(new_icon)
+                                dlg.setWindowTitle("Prueba Hidrostática")
+                                dlg.setText("Datos insertados con éxito")
+                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                                dlg.exec()
+                                del dlg,new_icon
+                            else:
+                                dlg_yes_no = QtWidgets.QMessageBox()
+                                new_icon_yes_no = QtGui.QIcon()
+                                new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                                dlg_yes_no.setWindowTitle("ERP EIPSA")
+                                dlg_yes_no.setText(f"El tag {element[2]} ya tiene datos\n"
+                                                    "¿Estás seguro de que deseas sobreescribir los datos?")
+                                dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                                result = dlg_yes_no.exec()
+
+                                if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                    commands_hydrotest = f"UPDATE {self.table_name} SET ph1_date = '{test_date1}', ph1_manometer = '{manometer1}', ph1_pressure = '{pressure1}', ph1_state = '{test_state1}', ph1_obs = '{notes1}', ph2_date = {test_date2}, ph2_manometer = '{manometer2}', ph2_pressure = '{pressure2}', ph2_state = '{test_state2}', ph2_obs = '{notes2}' WHERE {self.column_id} = {element[0]}"
+                                    cur.execute(commands_hydrotest)
+                                    dlg = QtWidgets.QMessageBox()
+                                    new_icon = QtGui.QIcon()
+                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg.setWindowIcon(new_icon)
+                                    dlg.setWindowTitle("Prueba Hidrostática")
+                                    dlg.setText("Datos insertados con éxito")
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                                    dlg.exec()
+                                    del dlg,new_icon
+                                del dlg_yes_no, new_icon_yes_no
                     # close communication with the PostgreSQL database server
                         cur.close()
                     # commit the changes
                         conn.commit()
-
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Prueba Hidrostática")
-                        dlg.setText("Datos insertados con éxito")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg,new_icon
 
                         self.querytags()
 
@@ -748,12 +938,19 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                 dlg.setWindowTitle('Prueba Hidrostática')
                 dlg.setLabelText('Introduce un TAG:')
 
-                dlg2 = QtWidgets.QInputDialog()
-                new_icon2 = QtGui.QIcon()
-                new_icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg2.setWindowIcon(new_icon2)
-                dlg2.setWindowTitle('Prueba Hidrostática')
-                dlg2.setLabelText('Introduce una descripción:')
+                # dlg2 = QtWidgets.QInputDialog()
+                # new_icon2 = QtGui.QIcon()
+                # new_icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                # dlg2.setWindowIcon(new_icon2)
+                # dlg2.setWindowTitle('Prueba Hidrostática')
+                # dlg2.setLabelText('Introduce una descripción:')
+
+                dlg3 = QtWidgets.QInputDialog()
+                new_icon3 = QtGui.QIcon()
+                new_icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg3.setWindowIcon(new_icon3)
+                dlg3.setWindowTitle('Prueba Hidrostática')
+                dlg3.setLabelText('Introduce una cantidad:')
 
                 while True:
                     clickedButton = dlg.exec()
@@ -761,51 +958,68 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                         tag = dlg.textValue()
                         if tag != '':
                             while True:
-                                clickedButton2 = dlg2.exec()
-                                if clickedButton2 == 1:
-                                    item_type = dlg2.textValue()
+                                item, ok = QtWidgets.QInputDialog.getItem(self, "Prueba Hidrostática", "Seleccióna un tipo de pieza:", self.list_parts, 0, False)
+                                if ok and item:
+                                    item_type = item
                                     if item_type != '':
-                                        conn = None
-                                        try:
-                                        # read the connection parameters
-                                            params = config()
-                                        # connect to the PostgreSQL server
-                                            conn = psycopg2.connect(**params)
-                                            cur = conn.cursor()
-                                        # execution of commands
-                                            commands_inserthydrotest = ("""INSERT INTO verification.test_hydro (num_order, tag, item_type, test1_date, manometer1, pressure1, test1_state, obs1, test2_date, manometer2, pressure2, test2_state, obs2) 
-                                                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""")
-                                            cur.execute(commands_inserthydrotest, (num_order, tag, item_type, test_date1, manometer1, pressure1, test_state1, notes1, test_date2, manometer2, pressure2, test_state2, notes2,))
+                                        while True:
+                                            clickedButton3 = dlg3.exec()
+                                            if clickedButton3 == 1:
+                                                qty = dlg3.textValue()
+                                                if qty != '' and (qty.isdigit() and int(qty) > 0):
+                                                    conn = None
+                                                    try:
+                                                    # read the connection parameters
+                                                        params = config()
+                                                    # connect to the PostgreSQL server
+                                                        conn = psycopg2.connect(**params)
+                                                        cur = conn.cursor()
+                                                    # execution of commands
+                                                        commands_inserthydrotest = f"""INSERT INTO verification.test_hydro (num_order, tag, item_type, test1_date, manometer1, pressure1, test1_state, obs1, test2_date, manometer2, pressure2, test2_state, obs2, quantity) 
+                                                                        VALUES ('{num_order}', '{tag}', '{item_type}', '{test_date1}', '{manometer1}', '{pressure1}', '{test_state1}', '{notes1}', {test_date2}, '{manometer2}', '{pressure2}', '{test_state2}', '{notes2}', '{qty}')"""
+                                                        cur.execute(commands_inserthydrotest)
 
-                                        # close communication with the PostgreSQL database server
-                                            cur.close()
-                                        # commit the changes
-                                            conn.commit()
+                                                    # close communication with the PostgreSQL database server
+                                                        cur.close()
+                                                    # commit the changes
+                                                        conn.commit()
 
-                                            dlg = QtWidgets.QMessageBox()
-                                            new_icon = QtGui.QIcon()
-                                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                            dlg.setWindowIcon(new_icon)
-                                            dlg.setWindowTitle("Prueba Hidrostática")
-                                            dlg.setText("Datos insertados con éxito")
-                                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                            dlg.exec()
-                                            del dlg,new_icon
+                                                        dlg = QtWidgets.QMessageBox()
+                                                        new_icon = QtGui.QIcon()
+                                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                                        dlg.setWindowIcon(new_icon)
+                                                        dlg.setWindowTitle("Prueba Hidrostática")
+                                                        dlg.setText("Datos insertados con éxito")
+                                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                                                        dlg.exec()
+                                                        del dlg,new_icon
 
-                                        except (Exception, psycopg2.DatabaseError) as error:
-                                            dlg = QtWidgets.QMessageBox()
-                                            new_icon = QtGui.QIcon()
-                                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                            dlg.setWindowIcon(new_icon)
-                                            dlg.setWindowTitle("ERP EIPSA")
-                                            dlg.setText("Ha ocurrido el siguiente error:\n"
-                                                        + str(error))
-                                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                            dlg.exec()
-                                            del dlg, new_icon
-                                        finally:
-                                            if conn is not None:
-                                                conn.close()
+                                                    except (Exception, psycopg2.DatabaseError) as error:
+                                                        dlg = QtWidgets.QMessageBox()
+                                                        new_icon = QtGui.QIcon()
+                                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                                        dlg.setWindowIcon(new_icon)
+                                                        dlg.setWindowTitle("ERP EIPSA")
+                                                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                                    + str(error))
+                                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                                        dlg.exec()
+                                                        del dlg, new_icon
+                                                    finally:
+                                                        if conn is not None:
+                                                            conn.close()
+                                                    break
+                                                dlg_error = QtWidgets.QMessageBox()
+                                                new_icon = QtGui.QIcon()
+                                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                                dlg_error.setWindowIcon(new_icon)
+                                                dlg_error.setWindowTitle("Prueba Hidrostática")
+                                                dlg_error.setText("La cantidad no puede estar vacía o no es un valor válido")
+                                                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                                dlg_error.exec()
+                                                del dlg_error,new_icon
+                                            else:
+                                                break
                                         break
                                     dlg_error = QtWidgets.QMessageBox()
                                     new_icon = QtGui.QIcon()
@@ -878,6 +1092,10 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                             FROM verification.states_verification
                             ORDER BY "id"
                             """)
+        query_parts = ("""SELECT "part"
+                            FROM verification.parts_verification
+                            ORDER BY "part"
+                        """)
         conn = None
         try:
         # read the connection parameters
@@ -887,11 +1105,16 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
             cur = conn.cursor()
         # execution of commands
             cur.execute(query_manometers)
-            results=cur.fetchall()
-            list_manometers = [x[0] for x in results]
+            results_manometers=cur.fetchall()
+            list_manometers = [x[0] for x in results_manometers]
+
             cur.execute(query_states)
-            results=cur.fetchall()
-            list_states = [x[0] for x in results]
+            results_states=cur.fetchall()
+            list_states = [x[0] for x in results_states]
+
+            cur.execute(query_parts)
+            results_parts=cur.fetchall()
+            self.list_parts = [x[0] for x in results_parts]
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
@@ -916,6 +1139,10 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key.Key_F5:
             self.load_values()
+        
+        super().keyPressEvent(event)
+
+
 
 if __name__ == "__main__":
     import sys

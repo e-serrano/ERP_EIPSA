@@ -445,7 +445,7 @@ class Ui_ClientResume_Window(object):
                         FROM offers
                         WHERE ("client" = '{self.clientname}'
                         AND
-                        "state" = 'Desestimada'
+                        "state" = 'Perdida'
                         AND
                         "offer_year" = '{year1 + i}' )
                         GROUP BY "client"

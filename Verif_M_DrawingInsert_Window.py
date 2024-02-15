@@ -18,8 +18,9 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Verif_M_DrawingInsert_Window(object):
-    def __init__(self, numorder):
+    def __init__(self, numorder, username):
         self.numorder = numorder
+        self.username = username
 
     def setupUi(self, Verif_M_DrawingInsert_Window):
         Verif_M_DrawingInsert_Window.setObjectName("Verif_M_DrawingInsert_Window")
@@ -29,51 +30,98 @@ class Ui_Verif_M_DrawingInsert_Window(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Verif_M_DrawingInsert_Window.setWindowIcon(icon)
-        Verif_M_DrawingInsert_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
-"QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 8px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-"QPushButton:focus{\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:focus:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        if self.username == 'm.gil':
+                Verif_M_DrawingInsert_Window.setStyleSheet("QWidget {\n"
+    "background-color: #121212; color: rgb(255, 255, 255);\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid black;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 8px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}\n"
+    "\n"
+    "QPushButton:focus{\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:focus:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
+        else:
+            Verif_M_DrawingInsert_Window.setStyleSheet("QWidget {\n"
+    "background-color: rgb(255, 255, 255);\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid black;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 8px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}\n"
+    "\n"
+    "QPushButton:focus{\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:focus:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
         self.centralwidget = QtWidgets.QWidget(parent=Verif_M_DrawingInsert_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
@@ -237,7 +285,7 @@ class Ui_Verif_M_DrawingInsert_Window(object):
         self.label_obs.setText(_translate("Verif_M_DrawingInsert_Window", "Obs.:"))
         self.label_drawing.setText(_translate("Verif_M_DrawingInsert_Window", "Nº Plano:"))
         self.label_verif_date.setText(_translate("Verif_M_DrawingInsert_Window", "Fecha:"))
-        self.label_verif_state.setText(_translate("Verif_PpiInsert_Window", "Estado:"))
+        self.label_verif_state.setText(_translate("Verif_M_DrawingInsert_Window", "Estado:"))
 
 
     def insert_m_drawing(self):
@@ -269,54 +317,157 @@ class Ui_Verif_M_DrawingInsert_Window(object):
             del dlg, new_icon
 
         else:
-            commands_checkorder = ("""
-                        SELECT *
-                        FROM orders
-                        WHERE "num_order" = %s
-                        """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_checkorder,(num_order,))
-                results = cur.fetchall()
-                match = list(filter(lambda x:num_order in x, results))
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+            if num_order not in  ['ALMACÉN', 'ALMACEN']:
+                commands_checkorder = ("""
+                            SELECT *
+                            FROM orders
+                            WHERE UPPER("num_order") LIKE UPPER('%%'||%s||'%%')
+                            """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands one by one
+                    cur.execute(commands_checkorder,(num_order,))
+                    results=cur.fetchall()
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
 
-            except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-
-            finally:
-                if conn is not None:
-                    conn.close()
-
-            if len(match) == 0:
+                except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
                     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Verificación Planos M")
-                    dlg.setText("El número de pedido introducido no existe")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                     dlg.exec()
-    
+                    del dlg, new_icon
+
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+                if len(results) == 0:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Verificación Planos M")
+                        dlg.setText("El número de pedido introducido no existe. Introduce un pedido válido o pon 'ALMACÉN'")
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                        dlg.exec()
+
+                else:
+                    commands_select_m_drawing = ("""
+                                SELECT verif_m_drawing_date
+                                FROM verification."m_drawing_verification"
+                                WHERE ("num_order" = %s AND "drawing_number" =%s)
+                                """)
+
+                    commands_insert_m_drawing = ("""
+                                INSERT INTO verification."m_drawing_verification" (num_order, drawing_number, verif_m_drawing_date, verif_m_drawing_state, verif_m_drawing_obs) 
+                                VALUES(%s, %s, %s, %s, %s)
+                                """)
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(commands_select_m_drawing, (num_order, drawing, ))
+                        results = cur.fetchall()
+
+                        if len(results) != 0:
+                            if results[0][0] is None:
+                                cur.execute(commands_insert_m_drawing, (num_order, drawing, verif_date, verif_state, notes, ))
+                                dlg = QtWidgets.QMessageBox()
+                                new_icon = QtGui.QIcon()
+                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                dlg.setWindowIcon(new_icon)
+                                dlg.setWindowTitle("Verificación Planos M")
+                                dlg.setText("Datos insertados con éxito")
+                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                                dlg.exec()
+                                del dlg, new_icon
+
+                            else:
+                                    dlg_yes_no = QtWidgets.QMessageBox()
+                                    new_icon_yes_no = QtGui.QIcon()
+                                    new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                                    dlg_yes_no.setWindowTitle("ERP EIPSA")
+                                    dlg_yes_no.setText(f"Ya ha datos existentes para el plano {drawing}\n"
+                                                        "¿Deseas sobreescribirlos?\n")
+                                    dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                    dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                                    result = dlg_yes_no.exec()
+                                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                        cur.execute(commands_insert_m_drawing, (num_order, drawing, verif_date, verif_state, notes, ))
+
+                                        dlg = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg.setWindowIcon(new_icon)
+                                        dlg.setWindowTitle("Verificación Planos M")
+                                        dlg.setText("Datos insertados con éxito")
+                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                                        dlg.exec()
+                                        del dlg, new_icon
+
+                                        self.num_order.setText('')
+                                        self.notes.setText('')
+
+                                    del dlg_yes_no, new_icon_yes_no
+
+                        else:
+                            cur.execute(commands_insert_m_drawing, (num_order, drawing, verif_date, verif_state, notes, ))
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("Verificación Planos M")
+                            dlg.setText("Datos insertados con éxito")
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                            dlg.exec()
+                            del dlg, new_icon
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Verificación Planos M")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
             else:
+                commands_select_m_drawing = ("""
+                            SELECT verif_m_drawing_date
+                            FROM verification."m_drawing_verification"
+                            WHERE ("num_order" = %s AND "drawing_number" =%s)
+                            """)
+
                 commands_insert_m_drawing = ("""
                             INSERT INTO verification."m_drawing_verification" (num_order, drawing_number, verif_m_drawing_date, verif_m_drawing_state, verif_m_drawing_obs) 
                             VALUES(%s, %s, %s, %s, %s)
@@ -329,23 +480,67 @@ class Ui_Verif_M_DrawingInsert_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    cur.execute(commands_insert_m_drawing, (num_order, drawing, verif_date, verif_state, notes, ))
+                    cur.execute(commands_select_m_drawing, (num_order, drawing, ))
+                    results = cur.fetchall()
+
+                    if len(results) != 0:
+                        if results[0][0] is None:
+                            cur.execute(commands_insert_m_drawing, (num_order, drawing, verif_date, verif_state, notes, ))
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("Verificación Planos M")
+                            dlg.setText("Datos insertados con éxito")
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                            dlg.exec()
+                            del dlg, new_icon
+
+                        else:
+                                dlg_yes_no = QtWidgets.QMessageBox()
+                                new_icon_yes_no = QtGui.QIcon()
+                                new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                                dlg_yes_no.setWindowTitle("ERP EIPSA")
+                                dlg_yes_no.setText(f"Ya ha datos existentes para el plano {drawing}\n"
+                                                    "¿Deseas sobreescribirlos?\n")
+                                dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                                result = dlg_yes_no.exec()
+                                if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                    cur.execute(commands_insert_m_drawing, (num_order, drawing, verif_date, verif_state, notes, ))
+
+                                    dlg = QtWidgets.QMessageBox()
+                                    new_icon = QtGui.QIcon()
+                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg.setWindowIcon(new_icon)
+                                    dlg.setWindowTitle("Verificación Planos M")
+                                    dlg.setText("Datos insertados con éxito")
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                                    dlg.exec()
+                                    del dlg, new_icon
+
+                                    self.num_order.setText('')
+                                    self.notes.setText('')
+
+                                del dlg_yes_no, new_icon_yes_no
+
+                    else:
+                        cur.execute(commands_insert_m_drawing, (num_order, drawing, verif_date, verif_state, notes, ))
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Verificación Planos M")
+                        dlg.setText("Datos insertados con éxito")
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                        dlg.exec()
+                        del dlg, new_icon
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
                     conn.commit()
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Verificación Planos M")
-                    dlg.setText("Datos insertados con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-
-                    self.num_order.setText('')
-                    self.notes.setText('')
 
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()

@@ -319,6 +319,7 @@ class Ui_New_Doc_Window(object):
         numdocclient=self.NumDocClient_NewDoc.text()
         titledoc=self.TitleDoc_NewDoc.text()
         critical=self.Critical_NewDoc.currentText()
+        state=''
 
         if neworder=="" or (numdoceipsa=="" or  (numdocclient=="" or titledoc=="")):
             self.label_error.setText('Rellene todos los campos')
@@ -375,9 +376,9 @@ class Ui_New_Doc_Window(object):
             else:
                 commands_newdoc = ("""
                             INSERT INTO documentation (
-                            "num_order","num_doc_eipsa","num_doc_client","doc_type_id","doc_title","critical"
+                            "num_order","num_doc_eipsa","num_doc_client","doc_type_id","doc_title","critical","state"
                             )
-                            VALUES (%s,%s,%s,%s,%s,%s)
+                            VALUES (%s,%s,%s,%s,%s,%s,%s)
                             """)
                 conn = None
                 try:
@@ -394,7 +395,7 @@ class Ui_New_Doc_Window(object):
                 # get id from table
                     id_doctype = resultado[0]
                 # execution of principal command
-                    data=(neworder, numdoceipsa, numdocclient, id_doctype, titledoc,critical,)
+                    data=(neworder, numdoceipsa, numdocclient, id_doctype, titledoc, critical, state)
                     cur.execute(commands_newdoc, data)
                 # close communication with the PostgreSQL database server
                     cur.close()

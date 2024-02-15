@@ -444,7 +444,7 @@ class Ui_New_Order_Window(object):
                     data = (numorder, numoffer, numref, actual_date, expectdate, notes, amount, num_items, state, numoffer)
                     cur.execute(commands_neworder, data)
 
-                    numorder_verif = numorder[:9] if numorder[:2] == 'PA' else numorder[:8]
+                    numorder_verif = numorder if numorder[:2] == 'PA' else numorder.split('-S')[0]
 
                     cur.execute(commands_select_ppi, (numorder_verif,))
                     results_ppi = cur.fetchall()

@@ -63,6 +63,76 @@ class Ui_App_Workshop(object):
         self.Header.addWidget(self.LogoIcon)
         spacerItem = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem)
+        self.Button_M_Drawings = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_M_Drawings.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_M_Drawings.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_M_Drawings.setToolTip('Planos M')
+        self.Button_M_Drawings.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_M_Drawings.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
+        self.Button_M_Drawings.setText("")
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/M_Drawing.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_M_Drawings.setIcon(icon2)
+        self.Button_M_Drawings.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_M_Drawings.setObjectName("Button_M_Drawings")
+        self.Header.addWidget(self.Button_M_Drawings)
+        spacerItem6 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem6)
+        self.Button_Index_Drawings = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Index_Drawings.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Index_Drawings.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Index_Drawings.setToolTip('Índice Planos')
+        self.Button_Index_Drawings.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Index_Drawings.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
+        self.Button_Index_Drawings.setText("")
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Drawing_Index.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Index_Drawings.setIcon(icon6)
+        self.Button_Index_Drawings.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Index_Drawings.setObjectName("Button_Index_Drawings")
+        self.Header.addWidget(self.Button_Index_Drawings)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -355,6 +425,8 @@ class Ui_App_Workshop(object):
         self.Button_Times.clicked.connect(self.times)
         self.Button_Notification.clicked.connect(self.notifications)
         self.Button_Profile.clicked.connect(self.showMenu)
+        self.Button_M_Drawings.clicked.connect(self.insert_m_drawings)
+        self.Button_Index_Drawings.clicked.connect(self.index_drawing)
 
         self.load_notifications()
 
@@ -520,6 +592,32 @@ class Ui_App_Workshop(object):
             icon13 = QtGui.QIcon()
             icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Notification.setIcon(icon13)
+
+
+    def insert_m_drawings(self):
+        from Workshop_M_DrawingInsert_Window import Ui_Workshop_M_DrawingInsert_Window
+        self.m_drawing_insert_window=QtWidgets.QMainWindow()
+        self.ui=Ui_Workshop_M_DrawingInsert_Window(self.username)
+        self.ui.setupUi(self.m_drawing_insert_window)
+        self.m_drawing_insert_window.show()
+
+
+
+    def index_drawing(self):
+        from WorkshopDrawingIndex_Window import Ui_WorkshopDrawingIndex_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_index = createConnection(user_database, password_database)
+        if not db_index:
+            sys.exit()
+
+        self.index_drawing_window = Ui_WorkshopDrawingIndex_Window(db_index)
+        self.index_drawing_window.showMaximized()
 
 
 if __name__ == "__main__":

@@ -20,7 +20,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
 
-        if index.column() == 12:
+        if index.column() == 13:
             option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignLeft
         else:
             option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
@@ -36,6 +36,304 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 color = QtGui.QColor(255, 255, 255)  # White for rest
 
             option.backgroundBrush = color
+
+
+class CustomTableWidget(QtWidgets.QTableWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.list_filters=[]
+        self.column_filters = {}
+        self.column_actions = {}
+        self.checkbox_states = {}
+        self.rows_hidden = {}
+        self.general_rows_to_hide = set()
+
+# Function to show the menu
+    def show_unique_values_menu(self, column_index, header_pos, header_height):
+        menu = QtWidgets.QMenu(self)
+        actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro")
+        actionDeleteFilterColumn.triggered.connect(lambda: self.delete_filter(column_index))
+        menu.addAction(actionDeleteFilterColumn)
+        menu.addSeparator()
+        actionOrderAsc = menu.addAction("Ordenar Ascendente")
+        actionOrderAsc.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.AscendingOrder))
+        actionOrderDesc = menu.addAction("Ordenar Descendente")
+        actionOrderDesc.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.DescendingOrder))
+        menu.addSeparator()
+        actionFilterByText = menu.addAction("Buscar Texto")
+        actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
+        menu.addSeparator()
+
+        menu.setStyleSheet("QMenu { color: black; }"
+                        "QMenu::item:selected { background-color: #33bdef; }"
+                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+
+        if column_index not in self.column_filters:
+            self.column_filters[column_index] = set()
+
+        scroll_menu = QtWidgets.QScrollArea()
+        scroll_menu.setWidgetResizable(True)
+        scroll_widget = QtWidgets.QWidget(scroll_menu)
+        scroll_menu.setWidget(scroll_widget)
+        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+
+        checkboxes = []
+
+        select_all_checkbox = QtWidgets.QCheckBox("Seleccionar todo")
+        if column_index in self.checkbox_states:
+            select_all_checkbox.setCheckState(QtCore.Qt.CheckState(self.checkbox_states[column_index].get("Seleccionar todo", QtCore.Qt.CheckState(2))))
+        else:
+            select_all_checkbox.setCheckState(QtCore.Qt.CheckState(2))
+        scroll_layout.addWidget(select_all_checkbox)
+        checkboxes.append(select_all_checkbox)
+
+        unique_values = self.get_unique_values(column_index)
+        filtered_values = self.get_filtered_values()
+
+        for value in sorted(unique_values):
+            checkbox = QtWidgets.QCheckBox(value)
+            if select_all_checkbox.isChecked(): 
+                checkbox.setCheckState(QtCore.Qt.CheckState(2))
+            else:
+                if column_index in self.checkbox_states and value in self.checkbox_states[column_index]:
+                    checkbox.setCheckState(QtCore.Qt.CheckState(self.checkbox_states[column_index][value]))
+                elif filtered_values is None or value in filtered_values[column_index]:
+                    checkbox.setCheckState(QtCore.Qt.CheckState(2))
+                else:
+                    checkbox.setCheckState(QtCore.Qt.CheckState(0))
+            scroll_layout.addWidget(checkbox)
+            checkboxes.append(checkbox)
+
+        select_all_checkbox.stateChanged.connect(lambda state: self.set_all_checkboxes_state(checkboxes, state, column_index))
+
+        for value, checkbox in zip(sorted(unique_values), checkboxes[1:]):
+            checkbox.stateChanged.connect(lambda checked, value=value, checkbox=checkbox: self.apply_filter(column_index, value, checked))
+
+    # Action for drop down menu and adding scroll area as widget
+        action_scroll_menu = QtWidgets.QWidgetAction(menu)
+        action_scroll_menu.setDefaultWidget(scroll_menu)
+        menu.addAction(action_scroll_menu)
+
+        menu.exec(header_pos - QtCore.QPoint(0, header_height))
+
+
+# Function to delete filter on selected column
+    def delete_filter(self,column_index):
+        if column_index in self.column_filters:
+            del self.column_filters[column_index]
+        if column_index in self.checkbox_states:
+            del self.checkbox_states[column_index]
+        if column_index in self.rows_hidden:
+            for item in self.rows_hidden[column_index]:
+                self.setRowHidden(item, False)
+                if item in self.general_rows_to_hide:
+                    self.general_rows_to_hide.remove(item)
+            del self.rows_hidden[column_index]
+        header_item = self.horizontalHeaderItem(column_index)
+        header_item.setIcon(QtGui.QIcon())
+
+
+# Function to set all checkboxes state
+    def set_all_checkboxes_state(self, checkboxes, state, column_index):
+        if column_index not in self.checkbox_states:
+            self.checkbox_states[column_index] = {}
+
+        for checkbox in checkboxes:
+            checkbox.setCheckState(QtCore.Qt.CheckState(state))
+
+        self.checkbox_states[column_index]["Seleccionar todo"] = state
+
+
+# Function to apply filters to table
+    def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
+        if column_index not in self.column_filters:
+            self.column_filters[column_index] = set()
+
+        if text_filter is None:
+            if value is None:
+                self.column_filters[column_index] = set()
+            elif checked:
+                self.column_filters[column_index].add(value)
+            elif value in self.column_filters[column_index]:
+                self.column_filters[column_index].remove(value)
+
+        rows_to_hide = set()
+        for row in range(self.rowCount()):
+            show_row = True
+
+            # Check filters for all columns
+            for col, filters in self.column_filters.items():
+                item = self.item(row, col)
+                if item:
+                    item_value = item.text()
+                    if text_filter is None:
+                        if filters and item_value not in filters:
+                            show_row = False
+                            break
+
+        # Filtering by text
+            if text_filter is not None:
+                filter_dialog.accept()
+                item = self.item(row, column_index)
+                if item:
+                    if text_filter.upper() in item.text().upper():
+                        self.column_filters[column_index].add(item.text())
+                    else:
+                        show_row = False
+
+            if not show_row:
+                if row not in self.general_rows_to_hide:
+                    self.general_rows_to_hide.add(row)
+                    rows_to_hide.add(row)
+            else:
+                if row in self.general_rows_to_hide:
+                    self.general_rows_to_hide.remove(row)
+
+        # Update hidden rows for this column depending on checkboxes
+        if checked and text_filter is None:
+            if column_index not in self.rows_hidden:
+                self.rows_hidden[column_index] = set(rows_to_hide)
+            else:
+                self.rows_hidden[column_index].update(rows_to_hide)
+
+        # Update hidden rows for this column depending on filtered text
+        if text_filter is not None and value is None:
+            if column_index not in self.rows_hidden:
+                self.rows_hidden[column_index] = set(rows_to_hide)
+            else:
+                self.rows_hidden[column_index].update(rows_to_hide)
+
+        # Iterate over all rows to hide them as necessary
+        for row in range(self.rowCount()):
+            self.setRowHidden(row, row in self.general_rows_to_hide)
+
+        header_item = self.horizontalHeaderItem(column_index)
+        if len(self.general_rows_to_hide) > 0:
+            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+        else:
+            header_item.setIcon(QtGui.QIcon())
+
+
+    def filter_by_text(self, column_index):
+        filter_dialog = QtWidgets.QDialog(self)
+        filter_dialog.setWindowTitle("Filtrar por texto")
+        
+        label = QtWidgets.QLabel("Texto a filtrar:")
+        text_input = QtWidgets.QLineEdit()
+        
+        filter_button = QtWidgets.QPushButton("Filtrar")
+        filter_button.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 2px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        filter_button.clicked.connect(lambda: self.apply_filter(column_index, None, False, text_input.text(), filter_dialog))
+
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(label)
+        layout.addWidget(text_input)
+        layout.addWidget(filter_button)
+
+        filter_dialog.setLayout(layout)
+        filter_dialog.exec()
+
+
+# Function to obtain the unique matching applied filters 
+    def get_unique_values(self, column_index):
+        unique_values = set()
+        for row in range(self.rowCount()):
+            show_row = True
+            for col, filters in self.column_filters.items():
+                if col != column_index:
+                    item = self.item(row, col)
+                    if item:
+                        item_value = item.text()
+                        if filters and item_value not in filters:
+                            show_row = False
+                            break
+            if show_row:
+                item = self.item(row, column_index)
+                if item:
+                    unique_values.add(item.text())
+        return unique_values
+
+# Function to get values filtered by all columns
+    def get_filtered_values(self):
+        filtered_values = {}
+        for col, filters in self.column_filters.items():
+            filtered_values[col] = filters
+        return filtered_values
+
+# Function to sort column
+    def sort_column(self, column_index, sortOrder):
+        if column_index == 11:
+            self.custom_sort(column_index, sortOrder)
+        else:
+            self.sortByColumn(column_index, sortOrder)
+
+
+    def custom_sort(self, column, order):
+    # Obtén la cantidad de filas en la tabla
+        row_count = self.rowCount()
+
+        # Crea una lista de índices ordenados según las fechas
+        indexes = list(range(row_count))
+        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd-MM-yyyy"))
+
+        # Si el orden es descendente, invierte la lista
+        if order == QtCore.Qt.SortOrder.DescendingOrder:
+            indexes.reverse()
+
+        # Guarda el estado actual de las filas ocultas
+        hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
+
+        # Actualiza las filas en la tabla en el orden ordenado
+        rows = self.rowCount()
+        for i in range(rows):
+            self.insertRow(i)
+
+        for new_row, old_row in enumerate(indexes):
+            for col in range(self.columnCount()):
+                item = self.takeItem(old_row + rows, col)
+                self.setItem(new_row, col, item)
+
+        for i in range(rows):
+            self.removeRow(rows)
+
+        for row in hidden_rows:
+            self.setRowHidden(row, True)
+
+# Function with the menu configuration
+    def contextMenuEvent(self, event):
+        if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
+            logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
+            header_pos = self.mapToGlobal(self.horizontalHeader().pos())
+            header_height = self.horizontalHeader().height()
+            self.show_unique_values_menu(logical_index, header_pos, header_height)
+        else:
+            super().contextMenuEvent(event)
 
 
 class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
@@ -104,217 +402,32 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame.setObjectName("frame")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
-        self.gridLayout_2.setVerticalSpacing(10)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        self.hLayout1 = QtWidgets.QHBoxLayout()
-        self.hLayout1.setObjectName("hLayout1")
-        self.label_NumOrder = QtWidgets.QLabel(parent=self.frame)
-        self.label_NumOrder.setMinimumSize(QtCore.QSize(110, 25))
-        self.label_NumOrder.setMaximumSize(QtCore.QSize(110, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_NumOrder.setFont(font)
-        self.label_NumOrder.setObjectName("label_NumOrder")
-        self.hLayout1.addWidget(self.label_NumOrder)
-        self.NumOrder_QueryDoc = QtWidgets.QLineEdit(parent=self.frame)
-        self.NumOrder_QueryDoc.setMinimumSize(QtCore.QSize(250, 25))
-        self.NumOrder_QueryDoc.setMaximumSize(QtCore.QSize(250, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.NumOrder_QueryDoc.setFont(font)
-        self.NumOrder_QueryDoc.setObjectName("NumOrder_QueryDoc")
-        self.hLayout1.addWidget(self.NumOrder_QueryDoc)
-        self.label_Client = QtWidgets.QLabel(parent=self.frame)
-        self.label_Client.setMinimumSize(QtCore.QSize(110, 25))
-        self.label_Client.setMaximumSize(QtCore.QSize(110, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_Client.setFont(font)
-        self.label_Client.setObjectName("label_Client")
-        self.hLayout1.addWidget(self.label_Client)
-        self.Client_QueryDoc = QtWidgets.QLineEdit(parent=self.frame)
-        self.Client_QueryDoc.setMinimumSize(QtCore.QSize(250, 25))
-        self.Client_QueryDoc.setMaximumSize(QtCore.QSize(250, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Client_QueryDoc.setFont(font)
-        self.Client_QueryDoc.setObjectName("Client_QueryDoc")
-        self.hLayout1.addWidget(self.Client_QueryDoc)
-        self.gridLayout_2.addLayout(self.hLayout1, 1, 0, 1, 1)
-        self.hLayout2 = QtWidgets.QHBoxLayout()
-        self.hLayout2.setObjectName("hLayout2")
-        self.label_NumPO = QtWidgets.QLabel(parent=self.frame)
-        self.label_NumPO.setMinimumSize(QtCore.QSize(110, 25))
-        self.label_NumPO.setMaximumSize(QtCore.QSize(110, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_NumPO.setFont(font)
-        self.label_NumPO.setObjectName("label_NumPO")
-        self.hLayout2.addWidget(self.label_NumPO)
-        self.NumPo_QueryDoc = QtWidgets.QLineEdit(parent=self.frame)
-        self.NumPo_QueryDoc.setMinimumSize(QtCore.QSize(250, 25))
-        self.NumPo_QueryDoc.setMaximumSize(QtCore.QSize(250, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.NumPo_QueryDoc.setFont(font)
-        self.NumPo_QueryDoc.setObjectName("NumPo_QueryDoc")
-        self.hLayout2.addWidget(self.NumPo_QueryDoc)
-        self.label_TypeDoc = QtWidgets.QLabel(parent=self.frame)
-        self.label_TypeDoc.setMinimumSize(QtCore.QSize(110, 25))
-        self.label_TypeDoc.setMaximumSize(QtCore.QSize(110, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_TypeDoc.setFont(font)
-        self.label_TypeDoc.setObjectName("label_TypeDoc")
-        self.hLayout2.addWidget(self.label_TypeDoc)
-        self.TypeDoc_QueryDoc = QtWidgets.QComboBox(parent=self.frame)
-        self.TypeDoc_QueryDoc.setMinimumSize(QtCore.QSize(250, 25))
-        self.TypeDoc_QueryDoc.setMaximumSize(QtCore.QSize(250, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.TypeDoc_QueryDoc.setFont(font)
-        self.TypeDoc_QueryDoc.setObjectName("TypeDoc_QueryDoc")
-        self.hLayout2.addWidget(self.TypeDoc_QueryDoc)
-        self.gridLayout_2.addLayout(self.hLayout2, 2, 0, 1, 1)
-        self.hLayout3 = QtWidgets.QHBoxLayout()
-        self.hLayout3.setObjectName("hLayout3")
-        self.label_Material = QtWidgets.QLabel(parent=self.frame)
-        self.label_Material.setMinimumSize(QtCore.QSize(110, 25))
-        self.label_Material.setMaximumSize(QtCore.QSize(110, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_Material.setFont(font)
-        self.label_Material.setObjectName("label_Material")
-        self.hLayout3.addWidget(self.label_Material)
-        self.Material_QueryDoc = QtWidgets.QComboBox(parent=self.frame)
-        self.Material_QueryDoc.setMinimumSize(QtCore.QSize(250, 25))
-        self.Material_QueryDoc.setMaximumSize(QtCore.QSize(250, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Material_QueryDoc.setFont(font)
-        self.Material_QueryDoc.setObjectName("Material_QueryDoc")
-        self.hLayout3.addWidget(self.Material_QueryDoc)
-        self.label_NumDocEipsa = QtWidgets.QLabel(parent=self.frame)
-        self.label_NumDocEipsa.setMinimumSize(QtCore.QSize(110, 25))
-        self.label_NumDocEipsa.setMaximumSize(QtCore.QSize(110, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_NumDocEipsa.setFont(font)
-        self.label_NumDocEipsa.setObjectName("label_NumDocEipsa")
-        self.hLayout3.addWidget(self.label_NumDocEipsa)
-        self.NumDocEipsa_QueryDoc = QtWidgets.QLineEdit(parent=self.frame)
-        self.NumDocEipsa_QueryDoc.setMinimumSize(QtCore.QSize(250, 25))
-        self.NumDocEipsa_QueryDoc.setMaximumSize(QtCore.QSize(250, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.NumDocEipsa_QueryDoc.setFont(font)
-        self.NumDocEipsa_QueryDoc.setObjectName("NumDocEipsa_QueryDoc")
-        self.hLayout3.addWidget(self.NumDocEipsa_QueryDoc)
-        self.gridLayout_2.addLayout(self.hLayout3, 3, 0, 1, 1)
-        self.hLayout4 = QtWidgets.QHBoxLayout()
-        self.hLayout4.setObjectName("hLayout4")
-        self.label_NumDocClient = QtWidgets.QLabel(parent=self.frame)
-        self.label_NumDocClient.setMinimumSize(QtCore.QSize(110, 25))
-        self.label_NumDocClient.setMaximumSize(QtCore.QSize(110, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_NumDocClient.setFont(font)
-        self.label_NumDocClient.setObjectName("label_NumDocClient")
-        self.hLayout4.addWidget(self.label_NumDocClient)
-        self.NumDocClient_QueryDoc = QtWidgets.QLineEdit(parent=self.frame)
-        self.NumDocClient_QueryDoc.setMinimumSize(QtCore.QSize(250, 25))
-        self.NumDocClient_QueryDoc.setMaximumSize(QtCore.QSize(250, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.NumDocClient_QueryDoc.setFont(font)
-        self.NumDocClient_QueryDoc.setObjectName("NumDocClient_QueryDoc")
-        self.hLayout4.addWidget(self.NumDocClient_QueryDoc)
-        self.label_Critical = QtWidgets.QLabel(parent=self.frame)
-        self.label_Critical.setMinimumSize(QtCore.QSize(110, 25))
-        self.label_Critical.setMaximumSize(QtCore.QSize(110, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_Critical.setFont(font)
-        self.label_Critical.setObjectName("label_Critical")
-        self.hLayout4.addWidget(self.label_Critical)
-        self.Critical_QueryDoc = QtWidgets.QComboBox(parent=self.frame)
-        self.Critical_QueryDoc.setMinimumSize(QtCore.QSize(250, 25))
-        self.Critical_QueryDoc.setMaximumSize(QtCore.QSize(250, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Critical_QueryDoc.setFont(font)
-        self.Critical_QueryDoc.setObjectName("Critical_QueryDoc")
-        self.hLayout4.addWidget(self.Critical_QueryDoc)
-        self.gridLayout_2.addLayout(self.hLayout4, 4, 0, 1, 1)
-        self.hLayout5 = QtWidgets.QHBoxLayout()
-        self.hLayout5.setObjectName("hLayout5")
-        self.label_State = QtWidgets.QLabel(parent=self.frame)
-        self.label_State.setMinimumSize(QtCore.QSize(110, 25))
-        self.label_State.setMaximumSize(QtCore.QSize(110, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_State.setFont(font)
-        self.label_State.setObjectName("label_State")
-        self.hLayout5.addWidget(self.label_State)
-        self.State_QueryDoc = QtWidgets.QComboBox(parent=self.frame)
-        self.State_QueryDoc.setMinimumSize(QtCore.QSize(250, 25))
-        self.State_QueryDoc.setMaximumSize(QtCore.QSize(250, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.State_QueryDoc.setFont(font)
-        self.State_QueryDoc.setObjectName("State_QueryDoc")
-        self.hLayout5.addWidget(self.State_QueryDoc)
-        self.gridLayout_2.addLayout(self.hLayout5, 5, 0, 1, 1)
-        spacerItem1 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem1, 6, 0, 1, 1)
-        self.hLayout6 = QtWidgets.QHBoxLayout()
-        self.hLayout6.setObjectName("hLayout6")
-        self.Button_Clean = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Clean.setMinimumSize(QtCore.QSize(150, 35))
-        self.Button_Clean.setMaximumSize(QtCore.QSize(150, 35))
-        self.Button_Clean.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.Button_Clean.setObjectName("Button_Clean")
-        self.hLayout6.addWidget(self.Button_Clean)
-        self.Button_Query = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Query.setMinimumSize(QtCore.QSize(150, 35))
-        self.Button_Query.setMaximumSize(QtCore.QSize(150, 35))
-        self.Button_Query.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.Button_Query.setObjectName("Button_Query")
-        self.hLayout6.addWidget(self.Button_Query)
+        spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 2)
         self.Button_Export = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Export.setMinimumSize(QtCore.QSize(150, 35))
         self.Button_Export.setMaximumSize(QtCore.QSize(150, 35))
         self.Button_Export.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.Button_Export.setObjectName("Button_Export")
-        self.hLayout6.addWidget(self.Button_Export)
-        self.gridLayout_2.addLayout(self.hLayout6, 7, 0, 1, 1)
-        spacerItem2 = QtWidgets.QSpacerItem(20, 15, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem2, 8, 0, 1, 1)
-        self.tableQueryDoc = QtWidgets.QTableWidget(parent=self.frame)
+        self.gridLayout_2.addWidget(self.Button_Export, 1, 0, 1, 1)
+        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.gridLayout_2.addItem(spacerItem3, 1, 1, 1, 1)
+        self.tableQueryDoc = CustomTableWidget()
         self.tableQueryDoc.setObjectName("tableQueryDoc")
-        self.tableQueryDoc.setColumnCount(13)
+        self.tableQueryDoc.setColumnCount(14)
         self.tableQueryDoc.setRowCount(0)
-        for i in range(13):
+        for i in range(14):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
             font.setBold(True)
             item.setFont(font)
             self.tableQueryDoc.setHorizontalHeaderItem(i, item)
+        self.tableQueryDoc.setSortingEnabled(False)
         self.tableQueryDoc.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableQueryDoc.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
-        self.gridLayout_2.addWidget(self.tableQueryDoc, 8, 0, 1, 1)
-        spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.tableQueryDoc, 2, 0, 1, 2)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         QueryDoc_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=QueryDoc_Window)
@@ -325,76 +438,17 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
         self.statusbar.setObjectName("statusbar")
         QueryDoc_Window.setStatusBar(self.statusbar)
 
-
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute("""SELECT * FROM product_type""")
-            results_material=cur.fetchall()
-
-            cur.execute("""SELECT * FROM document_type""")
-            results_doctype=cur.fetchall()
-
-            # cur.execute("""SELECT * FROM product_type""")
-            # results_material=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-        list_material=['']+list(set([x[1] for x in results_material]))
-        self.Material_QueryDoc.addItems(sorted(list_material))
-
-        list_typedoc=['']+[x[1] for x in results_doctype]
-        self.TypeDoc_QueryDoc.addItems(sorted(list_typedoc))
-
-        list_state=['','Aprobado','Comentado','Com. Menores','Com. Mayores','Eliminado','Enviado','Rechazado']
-        self.State_QueryDoc.addItems(sorted(list_state))
-
-        list_critical=['','No','Sí']
-        self.Critical_QueryDoc.addItems(list_critical)
-
         self.retranslateUi(QueryDoc_Window)
         QtCore.QMetaObject.connectSlotsByName(QueryDoc_Window)
-        self.Button_Clean.clicked.connect(self.clean_boxes) # type: ignore
-        self.Button_Query.clicked.connect(self.query_doc) # type: ignore
+
         self.Button_Export.clicked.connect(self.export_to_excel)
-        self.NumOrder_QueryDoc.returnPressed.connect(self.query_doc)
-        self.NumPo_QueryDoc.returnPressed.connect(self.query_doc)
-        self.Client_QueryDoc.returnPressed.connect(self.query_doc)
-        self.Material_QueryDoc.currentIndexChanged.connect(self.query_doc)
-        self.TypeDoc_QueryDoc.currentIndexChanged.connect(self.query_doc)
-        self.NumDocClient_QueryDoc.returnPressed.connect(self.query_doc)
-        self.NumDocEipsa_QueryDoc.returnPressed.connect(self.query_doc)
-        self.State_QueryDoc.currentIndexChanged.connect(self.query_doc)
-        self.Critical_QueryDoc.currentIndexChanged.connect(self.query_doc)
+        self.tableQueryDoc.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
+        self.query_all_docs()
 
 
     def retranslateUi(self, QueryDoc_Window):
         _translate = QtCore.QCoreApplication.translate
         QueryDoc_Window.setWindowTitle(_translate("QueryDoc_Window", "Consultar Documentación"))
-        self.label_NumOrder.setText(_translate("QueryDoc_Window", "Nº Pedido:"))
-        self.label_NumPO.setText(_translate("QueryDoc_Window", "Nº PO:"))
-        self.label_Client.setText(_translate("QueryDoc_Window", "Cliente:"))
         item = self.tableQueryDoc.horizontalHeaderItem(0)
         item.setText(_translate("QueryDoc_Window", "Nº Pedido"))
         item = self.tableQueryDoc.horizontalHeaderItem(1)
@@ -420,44 +474,87 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
         item = self.tableQueryDoc.horizontalHeaderItem(11)
         item.setText(_translate("QueryDoc_Window", "Fecha"))
         item = self.tableQueryDoc.horizontalHeaderItem(12)
-        item.setText(_translate("QueryDoc_Window", "Historial"))
-        self.label_State.setText(_translate("QueryDoc_Window", "Estado:"))
-        self.label_Critical.setText(_translate("QueryDoc_Window", "Crítico:"))
-        self.label_Material.setText(_translate("QueryDoc_Window", "Material:"))
-        self.label_TypeDoc.setText(_translate("QueryDoc_Window", "Tipo Doc.:"))
-        self.Button_Clean.setText(_translate("QueryDoc_Window", "Limpiar Filtros"))
-        self.Button_Query.setText(_translate("QueryDoc_Window", "Buscar"))
+        item.setText(_translate("QueryDoc_Window", "Seguimiento"))
+        item = self.tableQueryDoc.horizontalHeaderItem(13)
+        item.setText(_translate("QueryDoc_Window", "Historial Rev."))
         self.Button_Export.setText(_translate("QueryDoc_Window", "Exportar"))
-        self.label_NumDocClient.setText(_translate("QueryDoc_Window", "Nº Doc. Cliente:"))
-        self.label_NumDocEipsa.setText(_translate("QueryDoc_Window", "Nº Doc. EIPSA:"))
 
 
-    def clean_boxes(self):
-        self.NumOrder_QueryDoc.setText("")
-        self.Client_QueryDoc.setText("")
-        self.Material_QueryDoc.setCurrentText("")
-        self.TypeDoc_QueryDoc.setCurrentText("")
-        self.NumDocClient_QueryDoc.setText("")
-        self.NumDocEipsa_QueryDoc.setText("")
-        self.State_QueryDoc.setCurrentText("")
-        self.Critical_QueryDoc.setCurrentText("")
+    def query_all_docs(self):
+        self.tableQueryDoc.setRowCount(0)
+        commands_queryalldoc = ("""
+                        SELECT documentation."num_order",orders."num_ref_order",offers."client",product_type."variable",documentation."num_doc_client",documentation."num_doc_eipsa",documentation."doc_title",document_type."doc_type",documentation."critical",documentation."state",documentation."revision",TO_CHAR(documentation."state_date", 'DD-MM-YYYY'),documentation."tracking",hist_doc."hist_rev_column"
+                        FROM documentation
+                        INNER JOIN orders ON (orders."num_order" = documentation."num_order")
+                        INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
+                        INNER JOIN document_type ON (document_type."id" = documentation."doc_type_id")
+                        LEFT JOIN hist_doc ON (hist_doc."num_doc_eipsa" = documentation."num_doc_eipsa")
+                        INNER JOIN product_type ON (product_type."material" = offers."material")
+                        ORDER BY documentation."num_order"
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(commands_queryalldoc)
+            results=cur.fetchall()
+
+            self.tableQueryDoc.setRowCount(len(results))
+            tablerow=0
+
+        # fill the Qt Table with the query results
+            for row in results:
+                for column in range(14):
+                    value = row[column]
+                    if value is None:
+                        value = ''
+                    it = QtWidgets.QTableWidgetItem(str(value))
+                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                    self.tableQueryDoc.setItem(tablerow, column, it)
+
+                tablerow+=1
+
+            self.tableQueryDoc.verticalHeader().hide()
+            self.tableQueryDoc.setSortingEnabled(False)
+            self.tableQueryDoc.setItemDelegate(AlignDelegate(self.tableQueryDoc))
+            self.tableQueryDoc.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+
+            for i in range(1,13):
+                self.tableQueryDoc.horizontalHeader().setSectionResizeMode(i,QtWidgets.QHeaderView.ResizeMode.Interactive)
+                self.tableQueryDoc.setColumnWidth(i, 100)
+
+            self.tableQueryDoc.itemDoubleClicked.connect(self.expand_cell)
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
 
 
     def query_doc(self):
         self.tableQueryDoc.setRowCount(0)
         numorder=self.NumOrder_QueryDoc.text()
         numpo=self.NumPo_QueryDoc.text()
-        client=self.Client_QueryDoc.text()
-        material=self.Material_QueryDoc.currentText()
-        typedoc=self.TypeDoc_QueryDoc.currentText()
-        numdocclient=self.NumDocClient_QueryDoc.text()
-        numdoceipsa=self.NumDocEipsa_QueryDoc.text()
-        state=self.State_QueryDoc.currentText()
-        critical=self.Critical_QueryDoc.currentText()
 
-        if ((numorder=="" or numorder==" ") and (numpo=="" or numpo==" ") and (client=="" or client==" ") and (material=="" or material==" ")
-        and (typedoc=="" or typedoc==" ") and (numdocclient=="" or numdocclient==" ") and (numdoceipsa=="" or numdoceipsa==" ")
-        and (state=="" or state==" ") and (critical=="" or critical==" ")):
+        if ((numorder=="" or numorder==" ") and (numpo=="" or numpo==" ")):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -469,7 +566,7 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
 
         else:
             commands = ("""
-                        SELECT documentation."num_order",orders."num_ref_order",offers."client",product_type."variable",documentation."num_doc_client",documentation."num_doc_eipsa",documentation."doc_title",document_type."doc_type",documentation."critical",documentation."state",documentation."revision",TO_CHAR(documentation."state_date", 'DD-MM-YYYY'),hist_doc."hist_rev_column"
+                        SELECT documentation."num_order",orders."num_ref_order",offers."client",product_type."variable",documentation."num_doc_client",documentation."num_doc_eipsa",documentation."doc_title",document_type."doc_type",documentation."critical",documentation."state",documentation."revision",TO_CHAR(documentation."state_date", 'DD-MM-YYYY'),documentation."tracking",hist_doc."hist_rev_column"
                         FROM documentation
                         INNER JOIN orders ON (orders."num_order" = documentation."num_order")
                         INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
@@ -483,18 +580,6 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
                         UPPER(orders."num_ref_order") LIKE UPPER('%%'||%s||'%%')
                         AND
                         UPPER(offers."client") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        product_type."variable" LIKE '%%'||%s||'%%'
-                        AND
-                        document_type."doc_type" LIKE '%%'||%s||'%%'
-                        AND
-                        UPPER(documentation."num_doc_client") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        UPPER(documentation."num_doc_eipsa") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        documentation."state" LIKE '%%'||%s||'%%'
-                        AND
-                        documentation."critical" LIKE '%%'||%s||'%%'
                         )
                         ORDER BY documentation."num_order"
                         """)
@@ -506,16 +591,16 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                data=(numorder,numpo,client,material,typedoc,numdocclient,numdoceipsa,state,critical,)
+                data=(numorder,numpo,)
                 cur.execute(commands, data)
                 results=cur.fetchall()
-                self.tableQueryDoc.setRowCount(0)
+
                 self.tableQueryDoc.setRowCount(len(results))
                 tablerow=0
 
             # fill the Qt Table with the query results
                 for row in results:
-                    for column in range(13):
+                    for column in range(14):
                         value = row[column]
                         if value is None:
                             value = ''
@@ -526,10 +611,10 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
                     tablerow+=1
 
                 self.tableQueryDoc.verticalHeader().hide()
-                self.tableQueryDoc.setSortingEnabled(True)
+                self.tableQueryDoc.setSortingEnabled(False)
                 self.tableQueryDoc.setItemDelegate(AlignDelegate(self.tableQueryDoc))
                 self.tableQueryDoc.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                for i in range(1,12):
+                for i in range(1,13):
                     self.tableQueryDoc.horizontalHeader().setSectionResizeMode(i,QtWidgets.QHeaderView.ResizeMode.Interactive)
 
                 self.tableQueryDoc.itemDoubleClicked.connect(self.expand_cell)
@@ -555,7 +640,7 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
 
 
     def expand_cell(self, item):
-        if item.column() == 12:
+        if item.column() in [12, 13]:
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
@@ -567,17 +652,50 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
 
 
     def export_to_excel(self):
-        file_name, _ = QFileDialog.getSaveFileName(self, "Guardar como Excel", "", "Archivos Excel (*.xlsx);;Todos los archivos (*)")
+        if self.tableQueryDoc.rowCount() > 0:
+            file_name, _ = QFileDialog.getSaveFileName(self, "Guardar como Excel", "", "Archivos Excel (*.xlsx);;Todos los archivos (*)")
 
-        if file_name:
-            df = pd.DataFrame()
-            for col in range(self.tableQueryDoc.columnCount()):
-                header = self.tableQueryDoc.horizontalHeaderItem(col).text()
-                column_data = [self.tableQueryDoc.item(row, col).text() for row in range(self.tableQueryDoc.rowCount())]
-                df[header] = column_data
+            if file_name:
+                df = pd.DataFrame()
+                for col in range(self.tableQueryDoc.columnCount()):
+                    header = self.tableQueryDoc.horizontalHeaderItem(col).text()
+                    column_data = []
+                    for row in range(self.tableQueryDoc.rowCount()):
+                        if not self.tableQueryDoc.isRowHidden(row):
+                            column_data.append(self.tableQueryDoc.item(row, col).text())
+                    df[header] = column_data
 
-            with pd.ExcelWriter(file_name, engine='openpyxl') as writer:
-                df.to_excel(writer, index=False)
+                with pd.ExcelWriter(file_name, engine='openpyxl') as writer:
+                    df.to_excel(writer, index=False)
+
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Consultar Documentación")
+                dlg.setText("Datos exportados con éxito")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg,new_icon
+
+        else:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Consultar Documentación")
+            dlg.setText("No hay datos para exportar")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+
+
+#Function when clicking on table header
+    def on_header_section_clicked(self, logical_index):
+        header_pos = self.tableQueryDoc.horizontalHeader().sectionViewportPosition(logical_index)
+        header_height = self.tableQueryDoc.horizontalHeader().height()
+        popup_pos = self.tableQueryDoc.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
+        self.tableQueryDoc.show_unique_values_menu(logical_index, popup_pos, header_height)
 
 
 if __name__ == "__main__":

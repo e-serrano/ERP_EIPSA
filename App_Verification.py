@@ -8,44 +8,21 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QMenu
-from PyQt6.QtCore import Qt
-import psycopg2
 import sys
 import configparser
 from Database_Connection import createConnection
-from config import config
 from datetime import *
 import os
+import locale
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
-
-
-class ImageCalendarWidget(QtWidgets.QCalendarWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.task_dates = []
-
-    def set_task_dates(self, dates):
-        self.task_dates = dates
-        self.updateCells()
-
-    def paintCell(self, painter, rect, date):
-        QtWidgets.QCalendarWidget.paintCell(self, painter, rect, date)
-
-        if date in self.task_dates:
-            image_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Flag.png")) 
-            image = QtGui.QImage(image_path)
-            if not image.isNull():
-                image_scaled = image.scaled(rect.width() // 4, rect.height() // 4, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.SmoothTransformation)
-                image_rect = image_scaled.rect()
-                image_rect.moveTopRight(rect.topRight() - QtCore.QPoint(2, -5))
-                painter.drawImage(image_rect, image_scaled)
 
 
 class Ui_App_Verification(object):
     def __init__(self, name, username):
         self.name=name
         self.username=username
+        locale.setlocale(locale.LC_TIME, 'es_ES.utf8')
 
 
     def setupUi(self, App_Verification):
@@ -55,7 +32,10 @@ class Ui_App_Verification(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Verification.setWindowIcon(icon)
-        App_Verification.setStyleSheet("background-color: rgb(255, 255, 255);")
+        if self.username == 'm.gil':
+            App_Verification.setStyleSheet("background-color: rgb(38, 38, 38);")
+        else:
+            App_Verification.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget = QtWidgets.QWidget(parent=App_Verification)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
@@ -75,14 +55,132 @@ class Ui_App_Verification(object):
         self.LogoIcon.setMinimumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setMaximumSize(QtCore.QSize(220, 52))
         self.LogoIcon.setText("")
-        self.LogoIcon.setPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Logo.ico"))))
+        self.LogoIcon.setPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Logo Nobg.ico"))))
         self.LogoIcon.setScaledContents(True)
         self.LogoIcon.setObjectName("LogoIcon")
         self.Header.addWidget(self.LogoIcon)
         spacerItem = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem)
-        spacerItem5 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Button_DBEdit = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_DBEdit.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_DBEdit.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_DBEdit.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'm.gil':
+            self.Button_DBEdit.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_DBEdit.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_DBEdit.setText("")
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Database_Admin.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_DBEdit.setIcon(icon2)
+        self.Button_DBEdit.setIconSize(QtCore.QSize(40, 40))
+        self.Button_DBEdit.setObjectName("Button_DBEdit")
+        self.Header.addWidget(self.Button_DBEdit)
+        self.Button_DBEdit.clicked.connect(self.editdb)
+        spacerItem5 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem5)
+        self.Button_Timer = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Timer.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Timer.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Timer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'm.gil':
+            self.Button_Timer.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Timer.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Timer.setText("")
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Timer.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Timer.setIcon(icon5)
+        self.Button_Timer.setIconSize(QtCore.QSize(40, 40))
+        self.Button_Timer.setObjectName("Button_Timer")
+        self.Header.addWidget(self.Button_Timer)
+        self.Button_Timer.clicked.connect(self.timer)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
         font = QtGui.QFont()
         font.setPointSize(12)
@@ -97,28 +195,52 @@ class Ui_App_Verification(object):
         self.Button_Profile = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Profile.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_Profile.setMaximumSize(QtCore.QSize(50, 50))
-        self.Button_Profile.setStyleSheet("QPushButton{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border-radius: 10px;\n"
-"}\n"
-"\n"
-"QPushButton:hover{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"    color: rgb(0,0,0);\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border-radius: 10px;\n"
-"}\n"
-"\n"
-"QPushButton:pressed{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"    color: rgb(0,0,0);\n"
-"    background-color: rgb(200, 200, 200);\n"
-"    border-radius: 10px;\n"
-"}")
+        if self.username == 'm.gil':
+            self.Button_Profile.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Profile.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
         self.Button_Profile.setText("")
         icon6 = QtGui.QIcon()
         icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Mario.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -135,32 +257,60 @@ class Ui_App_Verification(object):
         self.ButtonFrame.setMinimumSize(QtCore.QSize(220, 0))
         self.ButtonFrame.setMaximumSize(QtCore.QSize(220, 16777215))
         self.ButtonFrame.setAutoFillBackground(False)
-        self.ButtonFrame.setStyleSheet("QFrame{\n"
-"    background-color: rgb(3, 174, 236);\n"
-"}\n"
-"\n"
-"QPushButton{\n"
-"    border: 1px solid transparent;\n"
-"    color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border-radius: 10px;\n"
-"}\n"
-"\n"
-"QPushButton:hover{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"    color: rgb(0,0,0);\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border-radius: 10px;\n"
-"}\n"
-"\n"
-"QPushButton:pressed{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"    color: rgb(0,0,0);\n"
-"    background-color: rgb(200, 200, 200);\n"
-"    border-radius: 10px;\n"
-"}")
+        if self.username == 'm.gil':
+            self.ButtonFrame.setStyleSheet("QFrame{\n"
+    "    background-color: rgb(3, 174, 236);\n"
+    "}\n"
+    "\n"
+    "QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.ButtonFrame.setStyleSheet("QFrame{\n"
+    "    background-color: rgb(3, 174, 236);\n"
+    "}\n"
+    "\n"
+    "QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
         self.ButtonFrame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.ButtonFrame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.ButtonFrame.setObjectName("ButtonFrame")
@@ -267,84 +417,41 @@ class Ui_App_Verification(object):
         self.Button_Suppliers.setObjectName("Button_Suppliers")
         self.verticalLayout_3.addWidget(self.Button_Suppliers)
         self.PrincipalScreen.addWidget(self.ButtonFrame)
-        spacerItem8 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.PrincipalScreen.addItem(spacerItem8)
-        self.MainLayout = QtWidgets.QVBoxLayout()
-        self.MainLayout.setObjectName("MainLayout")
-        self.tableMaster = QtWidgets.QTableWidget(parent=self.frame)
-        self.tableMaster.setMinimumSize(QtCore.QSize(650, 280))
-        self.tableMaster.setObjectName("tableMaster")
-        self.tableMaster.setColumnCount(0)
-        self.tableMaster.setRowCount(0)
-        self.tableMaster.verticalHeader().setVisible(False)
-        self.MainLayout.addWidget(self.tableMaster)
-        spacerItem9 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.MainLayout.addItem(spacerItem9)
-        self.BottomLayout = QtWidgets.QHBoxLayout()
-        self.BottomLayout.setContentsMargins(-1, 0, -1, -1)
-        self.BottomLayout.setObjectName("BottomLayout")
-#         self.Calendar = ImageCalendarWidget(parent=self.frame)
-#         self.Calendar.setEnabled(True)
-#         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
-#         sizePolicy.setHorizontalStretch(0)
-#         sizePolicy.setVerticalStretch(0)
-#         sizePolicy.setHeightForWidth(self.Calendar.sizePolicy().hasHeightForWidth())
-#         self.Calendar.setSizePolicy(sizePolicy)
-#         self.Calendar.setMinimumSize(QtCore.QSize(300, 400))
-#         self.Calendar.setMaximumSize(QtCore.QSize(583, 400))
-#         self.Calendar.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
-#         self.Calendar.setStyleSheet("QCalendarWidget QWidget{\n"
-# "background-color: rgb(3, 174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QTableView{\n"
-# "    background-color: white;\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton {\n"
-# "    color: white;\n"
-# "    font-size:20px;\n"
-# "    icon-size:30px 30px;\n"
-# "    background-color:rgb(3, 174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton::hover {\n"
-# "    background-color : #019ad2;\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton::pressed {\n"
-# "    background-color: rgb(1, 140, 190);\n"
-# "    border: 3px solid;\n"
-# "    border-color: rgb(255, 255, 255);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QSpinBox{\n"
-# "    background-color: rgb(255, 255, 255);\n"
-# "    border: 2px solid;\n"
-# "    border-color: rgb(3,174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QAbstractItemView:enabled{\n"
-# "    selection-background-color: rgb(3, 174, 236);\n"
-# "    selection-color: white;\n"
-# "}\n"
-# "\n"
-# "#qt_calendar_prevmonth {\n"
-# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
-# "}\n"
-# "#qt_calendar_nextmonth {\n"
-# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
-# "\n"
-# "}")
-#         self.Calendar.setSelectedDate(QtCore.QDate.currentDate())
-#         self.Calendar.setGridVisible(True)
-#         self.Calendar.setNavigationBarVisible(True)
-#         self.Calendar.setDateEditEnabled(True)
-#         self.Calendar.setObjectName("Calendar")
-#         self.Calendar.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-#         self.BottomLayout.addWidget(self.Calendar)
-        self.MainLayout.addLayout(self.BottomLayout)
-        self.PrincipalScreen.addLayout(self.MainLayout)
+        self.ClockFrame = QtWidgets.QFrame(parent=self.frame)
+        self.ClockFrame.setMinimumSize(QtCore.QSize(220, 0))
+        self.ClockFrame.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.ClockFrame.setAutoFillBackground(False)
+        self.gridLayout_3 = QtWidgets.QGridLayout(self.ClockFrame)
+        self.gridLayout_3.setObjectName("gridLayout")
+        self.clock_indicator = QtWidgets.QLabel(parent=self.frame)
+        font_id = QtGui.QFontDatabase.addApplicationFont(os.path.abspath(os.path.join(basedir, "Resources/Iconos/DS-DIGI.ttf")))
+        if font_id != -1:
+            font_family = QtGui.QFontDatabase.applicationFontFamilies(font_id)[0]
+            font = QtGui.QFont(font_family, 350)
+        else:
+            font = QtGui.QFont("arial", 150)
+        font.setBold(True)
+        self.clock_indicator.setFont(font)
+        self.clock_indicator.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        if self.username == 'm.gil':
+            self.clock_indicator.setStyleSheet("color: white")
+        self.clock = QtCore.QTimer()
+        self.clock.timeout.connect(self.showTime)
+        self.clock.start(1000)
+        self.gridLayout_3.addWidget(self.clock_indicator, 0, 0, 1, 1)
+        self.weekday_indicator = QtWidgets.QLabel(parent=self.frame)
+        font = QtGui.QFont()
+        font.setPointSize(50)
+        font.setBold(True)
+        self.weekday_indicator.setFont(font)
+        self.weekday_indicator.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        if self.username == 'm.gil':
+            self.weekday_indicator.setStyleSheet("color: white")
+        weekday = datetime.now().strftime("%A").encode('latin-1').decode('utf-8')
+        actual_date = date.today().strftime("%d/%m/%Y")
+        self.weekday_indicator.setText(f"{weekday}, {actual_date}")
+        self.gridLayout_3.addWidget(self.weekday_indicator, 1, 0, 1, 1)
+        self.PrincipalScreen.addWidget(self.ClockFrame)
         self.FrameApp.addLayout(self.PrincipalScreen)
         self.gridLayout.addLayout(self.FrameApp, 3, 0, 1, 1)
         self.gridLayout_2.addWidget(self.frame, 0, 0, 1, 1)
@@ -368,9 +475,6 @@ class Ui_App_Verification(object):
         self.Button_Calibration.clicked.connect(self.calibration)
         self.Button_Suppliers.clicked.connect(self.suppliers_delivnote)
         self.Button_Profile.clicked.connect(self.showMenu)
-        # self.Calendar.activated.connect(self.show_selected_date_tasks)
-        # self.Calendar.customContextMenuRequested.connect(self.show_context_menu)
-        # self.setup_task_dates()
 
 
     def retranslateUi(self, App_Verification):
@@ -384,11 +488,39 @@ class Ui_App_Verification(object):
         self.Button_Hardness.setText(_translate("App_Verification", "    Prueba Dureza"))
         self.Button_Calibration.setText(_translate("App_Verification", "    Calibraciones"))
         self.Button_Suppliers.setText(_translate("App_Verification", "    Proveedores"))
-        self.tableMaster.setSortingEnabled(True)
 
 
+# Function to show the current time on screen
+    def showTime(self):
+        # getting current time
+        current_time = QtCore.QTime.currentTime()
+        # converting QTime object to string
+        label_time = current_time.toString('hh:mm')
+        # showing it to the label
+        self.clock_indicator.setText(label_time)
+
+
+# Function to open corresponding window when Edit DB button is clicked
+    def editdb(self):
+        from DBEditRegVerif_Window import Ui_DBEditRegVerif_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_validation = createConnection(user_database, password_database)
+        if not db_validation:
+            sys.exit()
+
+        self.dbedit_window=Ui_DBEditRegVerif_Window(db_validation, self.username)
+        self.dbedit_window.show()
+
+
+# Function to open corresponding window when Query Tags button is clicked
     def query_tag(self):
-        from TAGEdit_Workshop_Window import Ui_EditTags_Workshop_Window
+        from TAGEdit_Verification_Window import Ui_EditTags_Verification_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
@@ -400,43 +532,47 @@ class Ui_App_Verification(object):
         if not db_tags_tech:
             sys.exit()
 
-        self.edit_tags_app = Ui_EditTags_Workshop_Window(self.name, db_tags_tech)
+        self.edit_tags_app = Ui_EditTags_Verification_Window(self.name, db_tags_tech, self.username)
         self.edit_tags_app.show()
 
 
-
+# Function to open corresponding window when Verification button is clicked
     def verification(self):
         from Verification_Menu import Ui_Verification_Menu
         self.verif_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_Verification_Menu()
+        self.ui=Ui_Verification_Menu(self.username)
         self.ui.setupUi(self.verif_menu)
         self.verif_menu.show()
 
 
+# Function to open corresponding window when Hydrostatic Test button is clicked
     def hydrotest(self):
         from TestHydro_Menu import Ui_TestHydro_Menu
         self.testhydro_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_TestHydro_Menu()
+        self.ui=Ui_TestHydro_Menu(self.username)
         self.ui.setupUi(self.testhydro_menu)
         self.testhydro_menu.show()
 
 
+# Function to open corresponding window when Liquid Test button is clicked
     def liquidtest(self):
         from TestLiquid_Menu import Ui_TestLiquid_Menu
         self.testliquid_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_TestLiquid_Menu()
+        self.ui=Ui_TestLiquid_Menu(self.username)
         self.ui.setupUi(self.testliquid_menu)
         self.testliquid_menu.show()
 
 
+# Function to open corresponding window when Hardness Test button is clicked
     def hardtest(self):
         from TestHard_Menu import Ui_TestHard_Menu
         self.testhard_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_TestHard_Menu()
+        self.ui=Ui_TestHard_Menu(self.username)
         self.ui.setupUi(self.testhard_menu)
         self.testhard_menu.show()
 
 
+# Function to open corresponding window when Calibration button is clicked
     def calibration(self):
         from Calibration_ThermoElements_Window import Ui_Calibration_ThermoElements_Window
         config_obj = configparser.ConfigParser()
@@ -450,22 +586,28 @@ class Ui_App_Verification(object):
         if not db_calibration:
             sys.exit()
 
-        self.calibration_window = Ui_Calibration_ThermoElements_Window(db_calibration)
+        self.calibration_window = Ui_Calibration_ThermoElements_Window(db_calibration, self.username)
         self.calibration_window.showMaximized()
 
 
+# Function to open corresponding window when Suppliers button is clicked
     def suppliers_delivnote(self):
         from VerifSupplierInsert_Window import Ui_VerifSupplierInsert_Window
         self.verifsupplier_window=QtWidgets.QMainWindow()
-        self.ui=Ui_VerifSupplierInsert_Window()
+        self.ui=Ui_VerifSupplierInsert_Window(self.username)
         self.ui.setupUi(self.verifsupplier_window)
         self.verifsupplier_window.show()
 
 
+# Function to show menu when Profile button is clicked 
     def showMenu(self):
         menu = QMenu(self.centralwidget)
-        menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; }"
-        "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
+        if self.username == 'm.gil':
+            menu.setStyleSheet("QMenu { background-color: rgb(255, 255, 255); border: 1px solid black; width: 125px; right: -1px; }"
+            "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
+        else:
+            menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; }"
+            "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
         option1 = menu.addAction("Editar contraseña")
         option1.triggered.connect(lambda: self.editpassword())
         menu.addAction(option1)
@@ -473,6 +615,7 @@ class Ui_App_Verification(object):
         menu.exec(button.mapToGlobal(QtCore.QPoint(-75, 50)))
 
 
+# Function to open corresponding window when Edit Password option is clicked
     def editpassword(self):
         from PasswordEdit_Window import Ui_EditPasswordWindow
         self.edit_password_window=QtWidgets.QMainWindow()
@@ -481,209 +624,17 @@ class Ui_App_Verification(object):
         self.edit_password_window.show()
 
 
-    def newtask(self, date):
-        from TaskAdd_Window import Ui_AddTask_Window
-        self.newtaskwindow=QtWidgets.QMainWindow()
-        self.ui=Ui_AddTask_Window(self.name, date)
-        self.ui.setupUi(self.newtaskwindow)
-        self.newtaskwindow.show()
-        self.ui.Button_Cancel.clicked.connect(self.setup_task_dates)
+    def timer(self):
+        from TimerWindow import Ui_TimerWindow
+        self.timerwindow=Ui_TimerWindow(self.username)
+        self.timerwindow.show()
 
 
-    def querytask(self, date=None):
-        from TaskQuery_Window import Ui_QueryTask_Window
-        self.querytaskwindow=Ui_QueryTask_Window(self.name, date)
-        self.querytaskwindow.show()
-        self.querytaskwindow.Button_Cancel.clicked.connect(self.setup_task_dates)
-
-
-    def show_context_menu(self, point):
-        selected_date = self.Calendar.selectedDate()
-        menu = QMenu(self.centralwidget)
-        menu.setStyleSheet("QMenu { border: 1px solid black; width: 150px; right: -1px; }"
-        "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
-
-        action1 = menu.addAction("Agregar tareas")
-        action1.triggered.connect(lambda: self.newtask(selected_date))
-        action2 = menu.addAction("Editar tareas")
-        action2.triggered.connect(lambda: self.querytask(selected_date))
-
-        menu.exec(self.Calendar.mapToGlobal(point))
-
-# Function to stablish dates with task assigned to put icon on calendar
-    def setup_task_dates(self):
-        commands_loaddatestasks_LB = ("""
-                    SELECT "task_date","task"
-                    FROM tasks
-                    WHERE ("creator" IN ('CCH', 'SS', 'LB')
-                    AND
-                    "state" = 'Pendiente')
-                    ORDER BY "task_date"
-                    """)
-        commands_loaddatestasks = ("""
-                    SELECT "task_date","task"
-                    FROM tasks
-                    WHERE ("responsible" = %s
-                    AND
-                    "state" = 'Pendiente')
-                    ORDER BY "task_date"
-                    """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            if self.name == 'Luis Bravo':
-                cur.execute(commands_loaddatestasks_LB)
-            else:
-                cur.execute(commands_loaddatestasks,(self.name,))
-            results=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-
-            dates_with_tasks_raw=[x[0] for x in results]
-            dates_with_tasks=list(set(dates_with_tasks_raw))
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-        # task_dates = [QtCore.QDate.currentDate().addDays(0), QtCore.QDate.currentDate().addDays(3)]
-        task_dates = dates_with_tasks
-        self.Calendar.set_task_dates(task_dates)
-
-
-    def show_selected_date_tasks(self):
-        self.click_count = 0
-        selected_date = self.Calendar.selectedDate()
-        if self.name == 'Carlos Crespo':
-            creator=self.name[0] + self.name[self.name.find(' ')+1] + 'H'
-        else:
-            creator=self.name[0] + self.name[self.name.find(' ')+1]
-        returned = self.get_tasks_for_date(creator, selected_date)
-
-        if returned:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            final_text=''
-
-            for item in returned:
-                responsible = item[0]
-                tasks = item [1]
-                task_text = "<br><br>-".join(tasks)
-                final_text += "<br><br>" + f"<b>{responsible}:</b><br>-" + task_text
-
-            dlg.setText(f"<html><body>Tareas para la fecha {selected_date.toString('dd-MM-yyyy')}:{final_text}</body></html>")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-            del dlg, new_icon
-
-
-#Function to obtain tasks associated to a date
-    def get_tasks_for_date(self, creator, date):
-        commands_loaddatestasks_LB = ("""
-                    SELECT "responsible","task_date","task","state","creator"
-                    FROM tasks
-                    WHERE ("creator" IN ('CCH', 'SS', 'LB')
-                    AND
-                    "task_date" IS NOT NULL
-                    AND
-                    "state" = 'Pendiente')
-                    ORDER BY "task_date"
-                    """)
-        commands_loaddatestasks = ("""
-                    SELECT "responsible","task_date","task","state","creator"
-                    FROM tasks
-                    WHERE ("responsible" = %s
-                    AND
-                    "task_date" IS NOT NULL
-                    AND
-                    "state" = 'Pendiente')
-                    ORDER BY "task_date"
-                    """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            if self.name == 'Luis Bravo':
-                cur.execute(commands_loaddatestasks_LB)
-            else:
-                cur.execute(commands_loaddatestasks,(self.name,))
-            results=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-
-            dict_responsibles_tasks={}
-
-            for i in range(len(results)):
-                responsible=results[i][0]
-                key=QtCore.QDate(results[i][1].year, results[i][1].month, results[i][1].day)
-                value="(" + results[i][4]+") " + results[i][2] + " (" + results[i][3] + ")"
-
-                if responsible not in dict_responsibles_tasks:
-                    dict_responsibles_tasks[responsible] = [{key: [value]}]
-
-                else:
-                    for item in dict_responsibles_tasks[responsible]:
-                        if key not in item:
-                            item[key] = [value]
-
-                        else:
-                            item[key].append(value)
-
-            value_to_return = []
-            for item in dict_responsibles_tasks.keys():
-                for element in dict_responsibles_tasks[item]:
-                    if date in element:
-                        value_to_return.append([item,dict_responsibles_tasks[item][dict_responsibles_tasks[item].index(element)][date]])
-
-            return value_to_return
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     App_Verification = QtWidgets.QMainWindow()
-#     ui = Ui_App_Verification('Mario Gil', 'm.gil')
-#     ui.setupUi(App_Verification)
-#     App_Verification.show()
-#     sys.exit(app.exec())
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    App_Verification = QtWidgets.QMainWindow()
+    ui = Ui_App_Verification('Mario Gil', 'm.gil')
+    ui.setupUi(App_Verification)
+    App_Verification.show()
+    sys.exit(app.exec())

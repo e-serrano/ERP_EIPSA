@@ -212,7 +212,7 @@ class Ui_ImportTAG_Window(object):
 
                     if self.radioFlow.isChecked()==True:
                         table_name='tags_data.tags_flow'
-                        df_final = df_table.iloc[:,1:32]
+                        df_final = df_table.iloc[:,1:34]
                         filled_column_names = ["tag", "tag_state", "num_offer", "item_type", "line_size",
                                         "rating", "facing", "schedule", "flange_material", "flange_type",
                                         "tube_material", "tapping_num_size", "element_material", "plate_type", "plate_thk",
@@ -249,7 +249,7 @@ class Ui_ImportTAG_Window(object):
                                 # Creating string for columns names and values
                                     columns = ', '.join([column for column, _ in columns_values])
                                     values = ', '.join([f"'{values.replace('.', ',')}'" if column in ['amount','plate_thk']
-                                                        else ('NULL' if values == '' and column == 'num_order'
+                                                        else ('NULL' if values == '' and column in ['num_order','contractual_date']
                                                         else f"'{values}'") for column, values in columns_values])
 
                                 # Creating insertion query and executing it
@@ -289,6 +289,7 @@ class Ui_ImportTAG_Window(object):
                                 del dlg, new_icon
 
                             except (Exception, psycopg2.DatabaseError) as error:
+                                print(error)
                                 dlg = QtWidgets.QMessageBox()
                                 new_icon = QtGui.QIcon()
                                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -304,7 +305,7 @@ class Ui_ImportTAG_Window(object):
 
                     elif self.radioTemp.isChecked()==True:
                         table_name='tags_data.tags_temp'
-                        df_final = df_table.iloc[:,1:37]
+                        df_final = df_table.iloc[:,1:39]
                         filled_column_names = ["tag", "tag_state", "num_offer", "item_type", "tw_type",
                                         "flange_size", "flange_rating", "flange_facing", "material_tw", "root_diam",
                                         "tip_diam", "sensor_element", "sheath_stem_material", "sheath_stem_diam", "insulation",
@@ -346,7 +347,7 @@ class Ui_ImportTAG_Window(object):
                                                 f"'{int(float(values))}'" if column in ['flange_rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam'] and values.endswith('.0')
                                                 else (f"'{values.replace('.', ',')}'" if column in ['amount', 'root_diam', 'tip_diam', 'sheath_stem_diam']
                                                 else ('NULL' if values == 'N/A' and column in ['std_length', 'ins_length']
-                                                else ('NULL' if values == '' and column == 'num_order'
+                                                else ('NULL' if values == '' and column in ['num_order','contractual_date']
                                                 else f"'{values}'"))) for column, values in columns_values
                                                 ])
 
@@ -403,7 +404,7 @@ class Ui_ImportTAG_Window(object):
 
                     elif self.radioLevel.isChecked()==True:
                         table_name='tags_data.tags_level'
-                        df_final = df_table.iloc[:,1:38]
+                        df_final = df_table.iloc[:,1:40]
                         filled_column_names = ["tag", "tag_state", "num_offer", "item_type", "model_num",
                                                 "body_material", "proc_conn_type", "proc_conn_size", "proc_conn_rating", "proc_conn_facing",
                                                 "conn_type", "valve_type", "dv_conn", "dv_size", "dv_rating",
@@ -445,7 +446,7 @@ class Ui_ImportTAG_Window(object):
                                                 f"'{int(float(values))}'" if column in ['proc_conn_rating', 'dv_rating'] and values.endswith('.0')
                                                 else (f"'{values.replace('.', ',')}'" if column in ['amount']
                                                 else ('NULL' if values == 'N/A' and column in ['visibility', 'cc_length']
-                                                else ('NULL' if values == '' and column == 'num_order'
+                                                else ('NULL' if values == '' and column in ['num_order','contractual_date']
                                                 else f"'{values}'"))) for column, values in columns_values
                                                 ])
 
@@ -502,7 +503,93 @@ class Ui_ImportTAG_Window(object):
                                     conn.close()
 
                     elif self.radioOthers.isChecked()==True:
-                        print(excel_file)
+                        table_name='tags_data.tags_others'
+                        df_final = df_table.iloc[:,1:15]
+                        filled_column_names = ["tag", "tag_state", "num_offer", "description", "nace"]
+                        empty_counts = []
+                        for column in filled_column_names:
+                            if df_table[column].eq('').sum() > 0:
+                                empty_counts.append(column)
+
+                        if len(empty_counts) > 0:
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("ERP EIPSA")
+                            dlg.setText("Las siguientes columnas no pueden tener celdas vacías:\n" + 
+                                        ', '.join(empty_counts) + "\n\n" + "El Excel no se importará")
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg.exec()
+                            del dlg, new_icon
+
+                        else:
+                            try:
+                            # Loading Excel Template
+                                self.wb = load_workbook(self.fname)  
+
+                            # Editing sheet Import
+                                sheet_name = "Import"
+                                
+                                for index, row in df_final.iterrows():
+                                # Create a list of pairs for each column with value
+                                    columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
+
+                                # Creating string for columns names and values
+                                    columns = ', '.join([column for column, _ in columns_values])
+                                    values = ', '.join([
+                                                f"'{values.replace('.', ',')}'" if column in ['amount']
+                                                else ('NULL' if values == '' and column in ['num_order','contractual_date']
+                                                else f"'{values}'") for column, values in columns_values
+                                                ])
+
+                                # Creating insertion query and executing it
+                                    sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+                                    cursor.execute(sql_insertion)
+
+                                    sql_query_id = f'SELECT "id_tag_others" FROM {table_name} WHERE "tag" = \'{row["tag"]}\' AND "num_offer" = \'{row["num_offer"]}\''
+                                    cursor.execute(sql_query_id)
+                                    result_id=cursor.fetchall()
+                                    self.ws = self.wb[sheet_name]
+                                    self.ws[f'A{index+9}'] = result_id[0][0]
+
+                                #Setting data validation as original excel
+                                    relation_column_validation={'C':'A', 'K':'B'}
+                                    for key, value in relation_column_validation.items():
+                                        formula = f'=OFFSET(Validatos!${value}$1, 1, 0, COUNTA(Validatos!${value}:${value})-1, 1)'
+                                        dv = DataValidation(type="list", formula1=formula, allow_blank=False)
+                                        self.ws.add_data_validation(dv)
+                                        dv.add(f'{key}9:{key}2000')
+
+                                self.wb.save(self.fname)
+
+                            # Closing cursor and database connection
+                                conn.commit()
+                                cursor.close()
+
+                                dlg = QtWidgets.QMessageBox()
+                                new_icon = QtGui.QIcon()
+                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                dlg.setWindowIcon(new_icon)
+                                dlg.setWindowTitle("ERP EIPSA")
+                                dlg.setText("Datos importados con éxito")
+                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                                dlg.exec()
+                                del dlg, new_icon
+
+                            except (Exception, psycopg2.DatabaseError) as error:
+                                dlg = QtWidgets.QMessageBox()
+                                new_icon = QtGui.QIcon()
+                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                dlg.setWindowIcon(new_icon)
+                                dlg.setWindowTitle("ERP EIPSA")
+                                dlg.setText(f"<html><body>Error con el tag <b>{row[df_final.columns[0]]}:</b><br><br>{str(error).splitlines()[1]}<br><br><b><u>NO SE REALIZARÁ LA IMPORTACIÓN<</b></u></body></html>")
+                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                dlg.exec()
+                                del dlg, new_icon
+                            finally:
+                                if conn is not None:
+                                    conn.close()
 
                     else:
                         dlg = QtWidgets.QMessageBox()

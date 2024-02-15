@@ -7,10 +7,14 @@
 
 import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
+import random
+import string
 import re
 import psycopg2
 from config import config
 import os
+import hashlib 
+from Email_Styles import emai_new_user
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -82,11 +86,9 @@ class Ui_RegistrationWindow(object):
         self.frame.setObjectName("frame")
         self.gridLayout = QtWidgets.QGridLayout(self.frame)
         self.gridLayout.setObjectName("gridLayout")
-        self.verticalLayout = QtWidgets.QVBoxLayout()
-        self.verticalLayout.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetDefaultConstraint)
-        self.verticalLayout.setContentsMargins(4, -1, 0, -1)
-        self.verticalLayout.setSpacing(6)
-        self.verticalLayout.setObjectName("verticalLayout")
+        self.gridLayout_3 = QtWidgets.QGridLayout()
+        self.gridLayout_3.setObjectName("gridLayout_3")
+        self.gridLayout_3.setVerticalSpacing(10)
         self.label_name_reg = QtWidgets.QLabel(parent=self.frame)
         self.label_name_reg.setMinimumSize(QtCore.QSize(200, 25))
         self.label_name_reg.setMaximumSize(QtCore.QSize(200, 25))
@@ -96,7 +98,7 @@ class Ui_RegistrationWindow(object):
         self.label_name_reg.setFont(font)
         self.label_name_reg.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.label_name_reg.setObjectName("label_name_reg")
-        self.verticalLayout.addWidget(self.label_name_reg)
+        self.gridLayout_3.addWidget(self.label_name_reg, 0, 0, 1, 1)
         self.name_reg = QtWidgets.QLineEdit(parent=self.frame)
         self.name_reg.setMinimumSize(QtCore.QSize(200, 25))
         self.name_reg.setMaximumSize(QtCore.QSize(200, 25))
@@ -104,7 +106,7 @@ class Ui_RegistrationWindow(object):
         font.setPointSize(10)
         self.name_reg.setFont(font)
         self.name_reg.setObjectName("name_reg")
-        self.verticalLayout.addWidget(self.name_reg)
+        self.gridLayout_3.addWidget(self.name_reg, 1, 0, 1, 1)
         self.label_secondname_reg = QtWidgets.QLabel(parent=self.frame)
         self.label_secondname_reg.setMinimumSize(QtCore.QSize(200, 25))
         self.label_secondname_reg.setMaximumSize(QtCore.QSize(200, 25))
@@ -114,7 +116,7 @@ class Ui_RegistrationWindow(object):
         self.label_secondname_reg.setFont(font)
         self.label_secondname_reg.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.label_secondname_reg.setObjectName("label_secondname_reg")
-        self.verticalLayout.addWidget(self.label_secondname_reg)
+        self.gridLayout_3.addWidget(self.label_secondname_reg, 2, 0, 1, 1)
         self.secondname_reg = QtWidgets.QLineEdit(parent=self.frame)
         self.secondname_reg.setMinimumSize(QtCore.QSize(200, 25))
         self.secondname_reg.setMaximumSize(QtCore.QSize(200, 25))
@@ -122,14 +124,9 @@ class Ui_RegistrationWindow(object):
         font.setPointSize(10)
         self.secondname_reg.setFont(font)
         self.secondname_reg.setObjectName("secondname_reg")
-        self.verticalLayout.addWidget(self.secondname_reg)
+        self.gridLayout_3.addWidget(self.secondname_reg, 3, 0, 1, 1)
         self.label_username_reg = QtWidgets.QLabel(parent=self.frame)
         self.label_username_reg.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_username_reg.sizePolicy().hasHeightForWidth())
-        self.label_username_reg.setSizePolicy(sizePolicy)
         self.label_username_reg.setMinimumSize(QtCore.QSize(200, 25))
         self.label_username_reg.setMaximumSize(QtCore.QSize(200, 25))
         font = QtGui.QFont()
@@ -138,7 +135,7 @@ class Ui_RegistrationWindow(object):
         self.label_username_reg.setFont(font)
         self.label_username_reg.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.label_username_reg.setObjectName("label_username_reg")
-        self.verticalLayout.addWidget(self.label_username_reg)
+        self.gridLayout_3.addWidget(self.label_username_reg, 4, 0, 1, 1)
         self.username_reg = QtWidgets.QLineEdit(parent=self.frame)
         self.username_reg.setEnabled(True)
         self.username_reg.setMinimumSize(QtCore.QSize(200, 25))
@@ -147,7 +144,7 @@ class Ui_RegistrationWindow(object):
         font.setPointSize(10)
         self.username_reg.setFont(font)
         self.username_reg.setObjectName("username_reg")
-        self.verticalLayout.addWidget(self.username_reg)
+        self.gridLayout_3.addWidget(self.username_reg, 5, 0, 1, 1)
         self.label_email_reg = QtWidgets.QLabel(parent=self.frame)
         self.label_email_reg.setMinimumSize(QtCore.QSize(200, 25))
         self.label_email_reg.setMaximumSize(QtCore.QSize(200, 25))
@@ -157,7 +154,7 @@ class Ui_RegistrationWindow(object):
         self.label_email_reg.setFont(font)
         self.label_email_reg.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.label_email_reg.setObjectName("label_email_reg")
-        self.verticalLayout.addWidget(self.label_email_reg)
+        self.gridLayout_3.addWidget(self.label_email_reg, 6, 0, 1, 1)
         self.email_reg = QtWidgets.QLineEdit(parent=self.frame)
         self.email_reg.setMinimumSize(QtCore.QSize(200, 25))
         self.email_reg.setMaximumSize(QtCore.QSize(200, 25))
@@ -165,29 +162,7 @@ class Ui_RegistrationWindow(object):
         font.setPointSize(10)
         self.email_reg.setFont(font)
         self.email_reg.setObjectName("email_reg")
-        self.verticalLayout.addWidget(self.email_reg)
-        self.label_password_reg = QtWidgets.QLabel(parent=self.frame)
-        self.label_password_reg.setEnabled(True)
-        self.label_password_reg.setMinimumSize(QtCore.QSize(200, 25))
-        self.label_password_reg.setMaximumSize(QtCore.QSize(200, 25))
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        self.label_password_reg.setFont(font)
-        self.label_password_reg.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
-        self.label_password_reg.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.label_password_reg.setObjectName("label_password_reg")
-        self.verticalLayout.addWidget(self.label_password_reg)
-        self.password_reg = QtWidgets.QLineEdit(parent=self.frame)
-        self.password_reg.setEnabled(True)
-        self.password_reg.setMinimumSize(QtCore.QSize(200, 25))
-        self.password_reg.setMaximumSize(QtCore.QSize(200, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.password_reg.setFont(font)
-        self.password_reg.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
-        self.password_reg.setObjectName("password_reg")
-        self.verticalLayout.addWidget(self.password_reg)
+        self.gridLayout_3.addWidget(self.email_reg, 7, 0, 1, 1)
         self.label_rol_reg = QtWidgets.QLabel(parent=self.frame)
         self.label_rol_reg.setMinimumSize(QtCore.QSize(200, 25))
         self.label_rol_reg.setMaximumSize(QtCore.QSize(200, 25))
@@ -197,7 +172,7 @@ class Ui_RegistrationWindow(object):
         self.label_rol_reg.setFont(font)
         self.label_rol_reg.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.label_rol_reg.setObjectName("label_rol_reg")
-        self.verticalLayout.addWidget(self.label_rol_reg)
+        self.gridLayout_3.addWidget(self.label_rol_reg, 8, 0, 1, 1)
         self.rol_reg = QtWidgets.QComboBox(parent=self.frame)
         self.rol_reg.setMinimumSize(QtCore.QSize(200, 25))
         self.rol_reg.setMaximumSize(QtCore.QSize(200, 25))
@@ -207,7 +182,7 @@ class Ui_RegistrationWindow(object):
         self.rol_reg.setObjectName("rol_reg")
         list_rol=['Almacén','Comercial','Compras','Dirección','Facturación','Taller','Técnico','Verificación']
         self.rol_reg.addItems(list_rol)
-        self.verticalLayout.addWidget(self.rol_reg)
+        self.gridLayout_3.addWidget(self.rol_reg, 9, 0, 1, 1)
         self.label_initials = QtWidgets.QLabel(parent=self.frame)
         self.label_initials.setMinimumSize(QtCore.QSize(200, 25))
         self.label_initials.setMaximumSize(QtCore.QSize(200, 25))
@@ -217,7 +192,7 @@ class Ui_RegistrationWindow(object):
         self.label_initials.setFont(font)
         self.label_initials.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.label_initials.setObjectName("label_initials")
-        self.verticalLayout.addWidget(self.label_initials)
+        self.gridLayout_3.addWidget(self.label_initials, 10, 0, 1, 1)
         self.initials_reg = QtWidgets.QLineEdit(parent=self.frame)
         self.initials_reg.setEnabled(True)
         self.initials_reg.setMinimumSize(QtCore.QSize(200, 25))
@@ -226,12 +201,11 @@ class Ui_RegistrationWindow(object):
         font.setPointSize(10)
         self.initials_reg.setFont(font)
         self.initials_reg.setObjectName("initials_reg")
-        self.verticalLayout.addWidget(self.initials_reg)
-        if self.rol_reg.currentText() == 'Comercial':
-            self.label_initials.setVisible(True)
-            self.initials_reg.setVisible(True)
+        self.gridLayout_3.addWidget(self.initials_reg, 11, 0, 1, 1)
+        self.label_initials.setVisible(False)
+        self.initials_reg.setVisible(False)
         spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.verticalLayout.addItem(spacerItem)
+        self.gridLayout_3.addItem(spacerItem, 12, 0, 1, 1)
         self.accept_reg = QtWidgets.QPushButton(parent=self.frame)
         self.accept_reg.setEnabled(True)
         self.accept_reg.setMinimumSize(QtCore.QSize(200, 30))
@@ -241,13 +215,11 @@ class Ui_RegistrationWindow(object):
         font.setFamily("-apple-system")
         font.setPointSize(10)
         font.setBold(True)
-        font.setUnderline(False)
-        font.setStrikeOut(False)
         self.accept_reg.setFont(font)
         self.accept_reg.setAutoDefault(True)
         self.accept_reg.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.accept_reg.setObjectName("accept_reg")
-        self.verticalLayout.addWidget(self.accept_reg)
+        self.gridLayout_3.addWidget(self.accept_reg, 13, 0, 1, 1)
         self.exit_reg = QtWidgets.QPushButton(parent=self.frame)
         self.exit_reg.setEnabled(True)
         self.exit_reg.setMinimumSize(QtCore.QSize(200, 30))
@@ -257,23 +229,12 @@ class Ui_RegistrationWindow(object):
         font.setFamily("-apple-system")
         font.setPointSize(10)
         font.setBold(True)
-        font.setUnderline(False)
-        font.setStrikeOut(False)
         self.exit_reg.setFont(font)
         self.exit_reg.setAutoDefault(True)
         self.exit_reg.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.exit_reg.setObjectName("exit_reg")
-        self.verticalLayout.addWidget(self.exit_reg)
-        self.label_error_reg = QtWidgets.QLabel(parent=self.frame)
-        self.label_error_reg.setMinimumSize(QtCore.QSize(200, 25))
-        self.label_error_reg.setMaximumSize(QtCore.QSize(200, 25))
-        self.label_error_reg.setStyleSheet("color: rgb(255, 0, 0);")
-        self.label_error_reg.setText("")
-        self.label_error_reg.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.label_error_reg.setWordWrap(True)
-        self.label_error_reg.setObjectName("label_error_reg")
-        self.verticalLayout.addWidget(self.label_error_reg)
-        self.gridLayout.addLayout(self.verticalLayout, 0, 0, 2, 2)
+        self.gridLayout_3.addWidget(self.exit_reg, 14, 0, 1, 1)
+        self.gridLayout.addLayout(self.gridLayout_3, 0, 0, 1, 1)
         self.gridLayout_2.addWidget(self.frame, 0, 0, 1, 1)
         RegistrationWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=RegistrationWindow)
@@ -298,7 +259,6 @@ class Ui_RegistrationWindow(object):
         self.label_secondname_reg.setText(_translate("RegistrationWindow", "Apellido:"))
         self.label_username_reg.setText(_translate("RegistrationWindow", "Nombre de Usuario:"))
         self.label_email_reg.setText(_translate("RegistrationWindow", "Correo electrónico:"))
-        self.label_password_reg.setText(_translate("RegistrationWindow", "Contraseña:"))
         self.label_rol_reg.setText(_translate("RegistrationWindow", "Perfil:"))
         self.label_initials.setText(_translate("RegistrationWindow", "Siglas:"))
         self.accept_reg.setText(_translate("RegistrationWindow", "Registrar"))
@@ -310,15 +270,44 @@ class Ui_RegistrationWindow(object):
         reg_secondname=self.secondname_reg.text()
         reg_username=self.username_reg.text()
         reg_email=self.email_reg.text()
-        reg_password=self.password_reg.text()
         reg_rol=self.rol_reg.currentText()
         reg_initials=self.initials_reg.text()
 
-        if reg_name=="" or (reg_secondname=="" or (reg_username=="" or (reg_email=="" or reg_password==""))):
-            self.label_error_reg.setText('Rellene todos los campos')
+    # Generating a random password
+        caract = string.ascii_letters + string.digits + string.punctuation
+        long = 12
+        random_password = ""
+        pattern = re.compile(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$')
+        while True:
+            for _ in range(long):
+                random_password += random.choice(caract)
+
+            if pattern.match(random_password):
+                break
+            else:
+                random_password = ""
+
+        if reg_name=="" or (reg_secondname=="" or (reg_username=="" or reg_email=="")):
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Registrar Usuario")
+            dlg.setText("Rellene todos los campos")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
 
         elif reg_rol == 'Comercial' and reg_initials == '':
-            self.label_error_reg.setText('Rellene el campo de "Siglas"')
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Registrar Usuario")
+            dlg.setText("Rellene el campo de siglas")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
 
         else:
             if len(reg_username)<6:
@@ -331,23 +320,6 @@ class Ui_RegistrationWindow(object):
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg.exec()
                 del dlg, new_icon
-
-
-            elif not re.fullmatch(r'[A-Za-z0-9¡!¿?%&]{8,}', reg_password):
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Contraseña no válida")
-                dlg.setText("·La contraseña debe tener al menos 8 caracteres\n"
-                            "·Debe contener al menos una mayúscula\n"
-                            "·Debe contener al menos una minúscula\n"
-                            "·Debe contener al menos un número\n"
-                            "·Solo admite los siguientes caracteres speciales: ¡!¿?%&")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg, new_icon
-
 
             elif not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b', reg_email):
                 dlg = QtWidgets.QMessageBox()
@@ -383,6 +355,7 @@ class Ui_RegistrationWindow(object):
                     results=cur.fetchall()
                     match_username=list(filter(lambda x:reg_username in x, results))
                     match_email=list(filter(lambda x:reg_email in x, results))
+
                     cur.execute(commands_loadinitials)
                     results_initials=cur.fetchall()
                     match_initials=list(filter(lambda x:reg_initials in x, results_initials))
@@ -442,6 +415,10 @@ class Ui_RegistrationWindow(object):
                     del dlg, new_icon
 
                 else:
+                    password_bytes = random_password.encode('utf-8')
+                    hash_object = hashlib.sha256(password_bytes)
+                    reg_password = hash_object.hexdigest()
+
                     commands_reguser = ("""
                                 INSERT INTO users_data.registration(
                                 "id","name","surname","username","email","password","profile")
@@ -470,6 +447,9 @@ class Ui_RegistrationWindow(object):
                     # commit the changes
                         conn.commit()
 
+                        email = emai_new_user(reg_email, reg_username, reg_password)
+                        email.send_email()
+
                     # showing success window
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
@@ -486,7 +466,6 @@ class Ui_RegistrationWindow(object):
                         self.secondname_reg.setText('')
                         self.username_reg.setText('')
                         self.email_reg.setText('')
-                        self.password_reg.setText('')
                         self.initials_reg.setText('')
 
                     except (Exception, psycopg2.DatabaseError) as error:
@@ -513,10 +492,10 @@ class Ui_RegistrationWindow(object):
             self.label_initials.setVisible(True)
             self.initials_reg.setVisible(True)
 
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    RegistrationWindow = QtWidgets.QMainWindow()
-    ui = Ui_RegistrationWindow()
-    ui.setupUi(RegistrationWindow)
-    RegistrationWindow.show()
-    sys.exit(app.exec())
+# if __name__ == "__main__":
+#     app = QtWidgets.QApplication(sys.argv)
+#     RegistrationWindow = QtWidgets.QMainWindow()
+#     ui = Ui_RegistrationWindow()
+#     ui.setupUi(RegistrationWindow)
+#     RegistrationWindow.show()
+#     sys.exit(app.exec())

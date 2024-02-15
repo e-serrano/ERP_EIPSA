@@ -498,7 +498,7 @@ class Ui_Edit_Offer_Window(object):
         QtCore.QMetaObject.connectSlotsByName(Edit_Offer_Window)
 
     #Adding items to ComboBox
-        list_state=['Adjudicada','Desestimada','Estimación','Presentada','Reasignada','Rechazada','Registrada']
+        list_state=['Adjudicada','Declinada','Estimación','Presentada','Reasignada','Perdida','Registrada']
         self.State_EditOffer.addItems(list_state)
 
         list_nacext=['Exterior','Nacional']
@@ -581,7 +581,7 @@ class Ui_Edit_Offer_Window(object):
         client=self.Client_EditOffer.text()
         finalclient=self.FinalClient_EditOffer.text()
         numref=self.NumRef_EditOffer.text()
-        state=self.State_EditOffer.currentText()
+        state=self.State_EditOffer.currentText().split()[0]
         nacext=self.NacExt_EditOffer.currentText()
         buyer=self.Buyer_EditOffer.text()
         material=self.Material_EditOffer.currentText()
@@ -594,12 +594,12 @@ class Ui_Edit_Offer_Window(object):
         important_issues=self.ImportantIssues_EditOffer.toPlainText()
         tracking=self.Tracking_EditOffer.toPlainText()
         mails=self.Mails_EditOffer.toPlainText()
-        last_update = self.LastUpdate_EditOffer.text()
-        presentation_date = self.PresDate_EditOffer.text()
+        last_update = self.LastUpdate_EditOffer.text() if self.NumItems_EditOffer.text() != 'None' else None
+        presentation_date = self.PresDate_EditOffer.text() if self.NumItems_EditOffer.text() != 'None' else None
         portal = self.Portal_EditOffer.currentText()
-        numitems = self.NumItems_EditOffer.text()
+        numitems = self.NumItems_EditOffer.text() if self.NumItems_EditOffer.text() != 'None' else None
 
-        if last_update in ['None',''] or presentation_date in ['None','']:
+        if state in ['Presentada', 'Adjudicada','Perdida'] and (last_update in ['None',''] or presentation_date in ['None','']):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -609,8 +609,30 @@ class Ui_Edit_Offer_Window(object):
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
             del dlg, new_icon
-        else:
 
+        elif state in ['Presentada', 'Adjudicada','Perdida'] and numitems is None:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText('El número de equipos no puede ser "None" ni estar vacío')
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
+
+        elif state in ['Presentada', 'Adjudicada','Perdida'] and (not (numitems.isdigit() or (numitems.startswith('-') and numitems[1:].isdigit())) or float(numitems) < 0):
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Introduce un número de equipos válido. En caso de no saber el alcance definitivo, pon 0")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
+
+        else:
         #SQL Query for checking if offer number exists in database
             commands_checkoffer = ("""
                         SELECT * 
@@ -727,6 +749,7 @@ class Ui_Edit_Offer_Window(object):
                     self.NumItems_EditOffer.setText('')
 
                 except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
                     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)

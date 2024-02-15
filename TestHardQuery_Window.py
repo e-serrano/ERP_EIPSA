@@ -71,11 +71,11 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
             value = str(state_column_index.data())
 
             if value in self.colors_dict:
-                color = self.colors_dict[value]
+                text_color = self.colors_dict[value]
             else:
-                color = QtGui.QColor(255, 255, 255)  # White for rest
+                text_color = QtGui.QColor(0, 0, 0, 0)
 
-            option.backgroundBrush = color
+            option.palette.setBrush(QtGui.QPalette.ColorRole.Text, text_color)
 
 
 class CustomTableWidget(QtWidgets.QTableWidget):
@@ -100,9 +100,11 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         actionOrderDesc = menu.addAction("Ordenar Descendente")
         actionOrderDesc.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.DescendingOrder))
         menu.addSeparator()
+        actionFilterByText = menu.addAction("Buscar Texto")
+        actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
+        menu.addSeparator()
 
-        menu.setStyleSheet("QMenu { color: black; }"
-                        "QMenu::item:selected { background-color: #33bdef; }"
+        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         if column_index not in self.column_filters:
@@ -153,6 +155,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         menu.exec(header_pos - QtCore.QPoint(0, header_height))
 
+
 # Function to delete filter on selected column
     def delete_filter(self,column_index):
         if column_index in self.column_filters:
@@ -168,6 +171,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         header_item = self.horizontalHeaderItem(column_index)
         header_item.setIcon(QtGui.QIcon())
 
+
 # Function to set all checkboxes state
     def set_all_checkboxes_state(self, checkboxes, state, column_index):
         if column_index not in self.checkbox_states:
@@ -178,28 +182,43 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         self.checkbox_states[column_index]["Seleccionar todo"] = state
 
+
 # Function to apply filters to table
-    def apply_filter(self, column_index, value, checked):
+    def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
 
-        if value is None:
-            self.column_filters[column_index] = set()
-        elif checked:
-            self.column_filters[column_index].add(value)
-        elif value in self.column_filters[column_index]:
-            self.column_filters[column_index].remove(value)
+        if text_filter is None:
+            if value is None:
+                self.column_filters[column_index] = set()
+            elif checked:
+                self.column_filters[column_index].add(value)
+            elif value in self.column_filters[column_index]:
+                self.column_filters[column_index].remove(value)
 
         rows_to_hide = set()
         for row in range(self.rowCount()):
             show_row = True
+
+            # Check filters for all columns
             for col, filters in self.column_filters.items():
                 item = self.item(row, col)
                 if item:
                     item_value = item.text()
-                    if filters and item_value not in filters:
+                    if text_filter is None:
+                        if filters and item_value not in filters:
+                            show_row = False
+                            break
+
+        # Filtering by text
+            if text_filter is not None:
+                filter_dialog.accept()
+                item = self.item(row, column_index)
+                if item:
+                    if text_filter.upper() in item.text().upper():
+                        self.column_filters[column_index].add(item.text())
+                    else:
                         show_row = False
-                        break
 
             if not show_row:
                 if row not in self.general_rows_to_hide:
@@ -209,20 +228,76 @@ class CustomTableWidget(QtWidgets.QTableWidget):
                 if row in self.general_rows_to_hide:
                     self.general_rows_to_hide.remove(row)
 
-    # Update hidden rows for this column
-        if checked:
+        # Update hidden rows for this column depending on checkboxes
+        if checked and text_filter is None:
             if column_index not in self.rows_hidden:
                 self.rows_hidden[column_index] = set(rows_to_hide)
             else:
                 self.rows_hidden[column_index].update(rows_to_hide)
 
-    # Iterate over all rows to hide them as necessary
+        # Update hidden rows for this column depending on filtered text
+        if text_filter is not None and value is None:
+            if column_index not in self.rows_hidden:
+                self.rows_hidden[column_index] = set(rows_to_hide)
+            else:
+                self.rows_hidden[column_index].update(rows_to_hide)
+
+        # Iterate over all rows to hide them as necessary
         for row in range(self.rowCount()):
             self.setRowHidden(row, row in self.general_rows_to_hide)
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
             header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+        else:
+            header_item.setIcon(QtGui.QIcon())
+
+
+    def filter_by_text(self, column_index):
+        filter_dialog = QtWidgets.QDialog(self)
+        filter_dialog.setWindowTitle("Filtrar por texto")
+        
+        label = QtWidgets.QLabel("Texto a filtrar:")
+        text_input = QtWidgets.QLineEdit()
+        
+        filter_button = QtWidgets.QPushButton("Filtrar")
+        filter_button.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 2px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        filter_button.clicked.connect(lambda: self.apply_filter(column_index, None, False, text_input.text(), filter_dialog))
+
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(label)
+        layout.addWidget(text_input)
+        layout.addWidget(filter_button)
+
+        filter_dialog.setLayout(layout)
+        filter_dialog.exec()
+
 
 # Function to obtain the unique matching applied filters 
     def get_unique_values(self, column_index):
@@ -252,7 +327,42 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to sort column
     def sort_column(self, column_index, sortOrder):
-        self.sortByColumn(column_index, sortOrder)
+        if self.horizontalHeaderItem(column_index).text() == 'Fecha':
+            self.custom_sort(column_index, sortOrder)
+        else:
+            self.sortByColumn(column_index, sortOrder)
+
+
+    def custom_sort(self, column, order):
+    # Obtén la cantidad de filas en la tabla
+        row_count = self.rowCount()
+
+        # Crea una lista de índices ordenados según las fechas
+        indexes = list(range(row_count))
+        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd/MM/yyyy"))
+
+        # Si el orden es descendente, invierte la lista
+        if order == QtCore.Qt.SortOrder.DescendingOrder:
+            indexes.reverse()
+
+        # Guarda el estado actual de las filas ocultas
+        hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
+
+        # Actualiza las filas en la tabla en el orden ordenado
+        rows = self.rowCount()
+        for i in range(rows):
+            self.insertRow(i)
+
+        for new_row, old_row in enumerate(indexes):
+            for col in range(self.columnCount()):
+                item = self.takeItem(old_row + rows, col)
+                self.setItem(new_row, col, item)
+
+        for i in range(rows):
+            self.removeRow(rows)
+
+        for row in hidden_rows:
+            self.setRowHidden(row, True)
 
 # Function with the menu configuration
     def contextMenuEvent(self, event):
@@ -266,8 +376,9 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 
 class Ui_TestHardQuery_Window(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, username):
         super().__init__()
+        self.username = username
         self.setupUi(self)
 
 
@@ -278,12 +389,13 @@ class Ui_TestHardQuery_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         TestHardQuery_Window.setWindowIcon(icon)
-        TestHardQuery_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
+        if self.username == 'm.gil':
+            TestHardQuery_Window.setStyleSheet("QWidget {\n"
+"background-color: #121212; color: rgb(255, 255, 255)\n"
 "}\n"
 "\n"
 ".QFrame {\n"
-"    border: 2px solid black;\n"
+"    border: 2px solid white;\n"
 "}\n"
 "\n"
 "QPushButton {\n"
@@ -313,6 +425,42 @@ class Ui_TestHardQuery_Window(QtWidgets.QMainWindow):
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
 "}")
+        else:
+            TestHardQuery_Window.setStyleSheet("QWidget {\n"
+    "background-color: rgb(255, 255, 255);\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid black;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 2px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
         self.centralwidget = QtWidgets.QWidget(parent=TestHardQuery_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -356,14 +504,19 @@ class Ui_TestHardQuery_Window(QtWidgets.QMainWindow):
         self.tableTags.verticalHeader().setVisible(True)
         self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableTags.setSortingEnabled(False)
-        self.tableTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        if self.username == 'm.gil':
+            self.tableTags.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+        else:
+            self.tableTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         TestHardQuery_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
         self.retranslateUi(TestHardQuery_Window)
         QtCore.QMetaObject.connectSlotsByName(TestHardQuery_Window)
 
         self.Button_Cancel.clicked.connect(TestHardQuery_Window.close)
-        self.tableTags.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
+        self.tableTags.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
+        self.tableTags.itemDoubleClicked.connect(self.edit_data)
         self.querytags()
 
 
@@ -373,46 +526,48 @@ class Ui_TestHardQuery_Window(QtWidgets.QMainWindow):
         item = self.tableTags.horizontalHeaderItem(0)
         item.setText(_translate("TestHardQuery_Window", "ID"))
         item = self.tableTags.horizontalHeaderItem(1)
-        item.setText(_translate("TestHardQuery_Window", "Tabla"))
-        item = self.tableTags.horizontalHeaderItem(2)
         item.setText(_translate("TestHardQuery_Window", "Nº Pedido"))
-        item = self.tableTags.horizontalHeaderItem(3)
+        item = self.tableTags.horizontalHeaderItem(2)
         item.setText(_translate("TestHardQuery_Window", "TAG"))
-        item = self.tableTags.horizontalHeaderItem(4)
+        item = self.tableTags.horizontalHeaderItem(3)
         item.setText(_translate("TestHardQuery_Window", "Descripción"))
-        item = self.tableTags.horizontalHeaderItem(5)
+        item = self.tableTags.horizontalHeaderItem(4)
         item.setText(_translate("TestLiquidQuery_Window", "OF Equipo"))
-        item = self.tableTags.horizontalHeaderItem(6)
+        item = self.tableTags.horizontalHeaderItem(5)
         item.setText(_translate("TestLiquidQuery_Window", "OF Sensor"))
-        item = self.tableTags.horizontalHeaderItem(7)
+        item = self.tableTags.horizontalHeaderItem(6)
         item.setText(_translate("TestHardQuery_Window", "Fecha"))
-        item = self.tableTags.horizontalHeaderItem(8)
+        item = self.tableTags.horizontalHeaderItem(7)
         item.setText(_translate("TestHardQuery_Window", "Dureza"))
-        item = self.tableTags.horizontalHeaderItem(9)
+        item = self.tableTags.horizontalHeaderItem(8)
         item.setText(_translate("TestHardQuery_Window", "Dureza HB"))
-        item = self.tableTags.horizontalHeaderItem(10)
+        item = self.tableTags.horizontalHeaderItem(9)
         item.setText(_translate("TestHardQuery_Window", "Bola"))
-        item = self.tableTags.horizontalHeaderItem(11)
+        item = self.tableTags.horizontalHeaderItem(10)
         item.setText(_translate("TestHardQuery_Window", "Carga"))
-        item = self.tableTags.horizontalHeaderItem(12)
+        item = self.tableTags.horizontalHeaderItem(11)
         item.setText(_translate("TestHardQuery_Window", "Colada"))
-        item = self.tableTags.horizontalHeaderItem(13)
+        item = self.tableTags.horizontalHeaderItem(12)
         item.setText(_translate("TestHardQuery_Window", "Estado"))
-        item = self.tableTags.horizontalHeaderItem(14)
+        item = self.tableTags.horizontalHeaderItem(13)
         item.setText(_translate("TestHardQuery_Window", "Observaciones"))
+        item = self.tableTags.horizontalHeaderItem(14)
+        item.setText(_translate("TestHardQuery_Window", "Cantidad"))
         self.Button_Cancel.setText(_translate("TestHardQuery_Window", "Cancelar"))
 
 
     def querytags(self):
         self.tableTags.setRowCount(0)
         query_tags = ("""
-                        SELECT id_tag_flow, 'tags_data.tags_flow', num_order, tag, item_type, of_drawing, NULL as of_sensor_drawing, TO_CHAR(hard_date, 'DD/MM/YYYY'), hard_hardness, hard_hardness_hb, hard_ball, hard_force, hard_hn, hard_state, hard_obs FROM tags_data.tags_flow WHERE hard_date IS NOT NULL
+                        SELECT id_tag_flow, num_order, tag, item_type, of_drawing, NULL as of_sensor_drawing, TO_CHAR(hard_date, 'DD/MM/YYYY'), hard_hardness, hard_hardness_hb, hard_ball, hard_force, hard_hn, hard_state, hard_obs, 1 FROM tags_data.tags_flow WHERE hard_date IS NOT NULL
                         UNION
-                        SELECT id_tag_temp, 'tags_data.tags_temp', num_order, tag, item_type, of_drawing, of_sensor_drawing, TO_CHAR(hard_date, 'DD/MM/YYYY'), hard_hardness, hard_hardness_hb, hard_ball, hard_force, hard_hn, hard_state, hard_obs FROM tags_data.tags_temp WHERE hard_date IS NOT NULL
+                        SELECT id_tag_temp, num_order, tag, item_type, of_drawing, of_sensor_drawing, TO_CHAR(hard_date, 'DD/MM/YYYY'), hard_hardness, hard_hardness_hb, hard_ball, hard_force, hard_hn, hard_state, hard_obs, 1 FROM tags_data.tags_temp WHERE hard_date IS NOT NULL
                         UNION
-                        SELECT id_tag_level, 'tags_data.tags_level', num_order, tag, item_type, of_drawing, NULL as of_sensor_drawing, TO_CHAR(hard_date, 'DD/MM/YYYY'), hard_hardness, hard_hardness_hb, hard_ball, hard_force, hard_hn, hard_state, hard_obs FROM tags_data.tags_level WHERE hard_date IS NOT NULL
+                        SELECT id_tag_level, num_order, tag, item_type, of_drawing, NULL as of_sensor_drawing, TO_CHAR(hard_date, 'DD/MM/YYYY'), hard_hardness, hard_hardness_hb, hard_ball, hard_force, hard_hn, hard_state, hard_obs, 1 FROM tags_data.tags_level WHERE hard_date IS NOT NULL
                         UNION
-                        SELECT id, 'verification.test_hardness', num_order, tag, item_type, NULL as of_drawing, NULL as of_sensor_drawing, TO_CHAR(test_date, 'DD/MM/YYYY'), hardness, hardness_hb, ball, force, heat_number, test_state, obs FROM verification.test_hardness
+                        SELECT id_tag_others, num_order, tag, description, of_drawing, NULL as of_sensor_drawing, TO_CHAR(hard_date, 'DD/MM/YYYY'), hard_hardness, hard_hardness_hb, hard_ball, hard_force, hard_hn, hard_state, hard_obs, 1 FROM tags_data.tags_others WHERE hard_date IS NOT NULL
+                        UNION
+                        SELECT id, num_order, tag, item_type, NULL as of_drawing, NULL as of_sensor_drawing, TO_CHAR(test_date, 'DD/MM/YYYY'), hardness, hardness_hb, ball, force, heat_number, test_state, obs, quantity FROM verification.test_hardness
                         """)
         conn = None
         try:
@@ -450,6 +605,7 @@ class Ui_TestHardQuery_Window(QtWidgets.QMainWindow):
             self.tableTags.setSortingEnabled(False)
             self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             self.tableTags.horizontalHeader().setSectionResizeMode(14, QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableTags.hideColumn(0)
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -473,6 +629,32 @@ class Ui_TestHardQuery_Window(QtWidgets.QMainWindow):
         header_height = self.tableTags.horizontalHeader().height()
         popup_pos = self.tableTags.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableTags.show_unique_values_menu(logical_index, popup_pos, header_height)
+
+
+    def edit_data(self, item):
+        row = item.row()
+        num_order = self.tableTags.item(row, 1).text()
+
+        if num_order in ['ALMACÉN', 'ALMACEN', 'INTERNO', 'PROTOTIPOS']:
+            from TestHardEdit_Window import Ui_TestHardEdit_Window
+            id_item = self.tableTags.item(row, 0).text()
+            num_order = self.tableTags.item(row, 1).text()
+            tag = self.tableTags.item(row, 2).text()
+            description = self.tableTags.item(row, 3).text()
+            test_date = self.tableTags.item(row, 6).text()
+            hardness = self.tableTags.item(row, 7).text()
+            ball = self.tableTags.item(row, 9).text()
+            force = self.tableTags.item(row, 10).text()
+            heat_number = self.tableTags.item(row, 11).text()
+            state = self.tableTags.item(row, 12).text()
+            obs = self.tableTags.item(row, 13).text()
+            qty = self.tableTags.item(row, 14).text()
+
+            self.edit_testhard_window=QtWidgets.QMainWindow()
+            self.ui=Ui_TestHardEdit_Window(self.username, id_item, num_order, tag, description, test_date, hardness, ball, force, heat_number, state, qty, obs)
+            self.ui.setupUi(self.edit_testhard_window)
+            self.edit_testhard_window.show()
+            self.ui.Button_Cancel.clicked.connect(self.querytags)
 
 
 if __name__ == "__main__":

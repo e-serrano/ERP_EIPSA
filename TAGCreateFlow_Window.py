@@ -729,9 +729,9 @@ class Ui_CreateTAGFlow_Window(object):
 
     def createtagF(self):
         tag=self.TAG_CreatetagQ.text()
-        tag_state='Ofertado'
+        tag_state='QUOTED'
         numoffer=self.NumOffer_CreatetagQ.text()
-        numorder=self.NumOrder_CreatetagQ.text()
+        numorder=self.NumOrder_CreatetagQ.text() if self.NumOrder_CreatetagQ.text() != '' else None
         num_po=self.NumPO_CreatetagQ.text()
         pos=self.Pos_CreatetagQ.text()
         subpos=self.Subpos_CreatetagQ.text()

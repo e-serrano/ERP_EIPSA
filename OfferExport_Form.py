@@ -10,7 +10,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
 import os
-from Excel_Export_Templates import offer_flow, offer_temp, offer_level, offer_short_flow, offer_short_temp, offer_short_level
+from Excel_Export_Templates import offer_flow, offer_temp, offer_level, offer_short_flow_spanish, offer_short_temp_spanish, offer_short_level_spanish, offer_short_flow_english, offer_short_temp_english, offer_short_level_english
 from datetime import *
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -536,16 +536,54 @@ class Ui_ExportOffer_Form(object):
                     elif self.variable == 'Caudal+Temp':
                         offer_flow(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                         offer_temp(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+
                 elif format_offer == 'Short':
                     if self.variable == 'Caudal':
-                        offer_short_flow(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                        msgbox = QtWidgets.QMessageBox()
+                        msgbox.setWindowTitle("Oferta Corta")
+                        msgbox.setText('¿En qué idioma quieres generar la oferta?')
+                        msgbox.addButton('Español', QtWidgets.QMessageBox.ButtonRole.YesRole)
+                        msgbox.addButton('Inglés', QtWidgets.QMessageBox.ButtonRole.NoRole)
+                        bttn = msgbox.exec()
+                        if bttn:
+                            offer_short_flow_spanish(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                        else:
+                            offer_short_flow_english(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                     elif self.variable == 'Temperatura':
-                        offer_short_temp(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                        msgbox = QtWidgets.QMessageBox()
+                        msgbox.setWindowTitle("Oferta Corta")
+                        msgbox.setText('¿En qué idioma quieres generar la oferta?')
+                        msgbox.addButton('Español', QtWidgets.QMessageBox.ButtonRole.YesRole)
+                        msgbox.addButton('Inglés', QtWidgets.QMessageBox.ButtonRole.NoRole)
+                        bttn = msgbox.exec()
+                        if bttn:
+                            offer_short_temp_spanish(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                        else:
+                            offer_short_temp_english(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                     elif self.variable == 'Nivel':
-                        offer_short_level(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                        msgbox = QtWidgets.QMessageBox()
+                        msgbox.setWindowTitle("Oferta Corta")
+                        msgbox.setText('¿En qué idioma quieres generar la oferta?')
+                        msgbox.addButton('Español', QtWidgets.QMessageBox.ButtonRole.YesRole)
+                        msgbox.addButton('Inglés', QtWidgets.QMessageBox.ButtonRole.NoRole)
+                        bttn = msgbox.exec()
+                        if bttn:
+                            offer_short_level_spanish(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                        else:
+                            offer_short_level_english(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                     elif self.variable == 'Caudal+Temp':
-                        offer_short_flow(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
-                        offer_short_temp(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                        msgbox = QtWidgets.QMessageBox()
+                        msgbox.setWindowTitle("Oferta Corta")
+                        msgbox.setText('¿En qué idioma quieres generar la oferta?')
+                        msgbox.addButton('Español', QtWidgets.QMessageBox.ButtonRole.YesRole)
+                        msgbox.addButton('Inglés', QtWidgets.QMessageBox.ButtonRole.NoRole)
+                        bttn = msgbox.exec()
+                        if bttn:
+                            offer_short_flow_spanish(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                            offer_short_temp_spanish(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                        else:
+                            offer_short_flow_english(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                            offer_short_temp_english(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()

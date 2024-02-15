@@ -282,13 +282,15 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         for i in range(10,54):
             self.tableDispatch.hideColumn(i)
         self.tableDispatch.hideColumn(60)
+        self.tableDispatch.hideColumn(61)
+        self.tableDispatch.hideColumn(62)
 
         headers=['ID', 'Nº Factura', '', '', 'Nº Albarán', '', '', '', '', 'Nº Pedido',
                 '', '', '', '', '', '', '', '', '', '',
                 '', '', '', '', '', '', '', '', '', '',
                 '', '', '', '', '', '', '', '', '', '',
                 '', '', '', '', '', '', '', '', '', '',
-                '', '', '', '', 'Destino', 'Bultos', 'Peso', 'Descripción', 'Transporte', 'Fecha']
+                '', '', '', '', 'Destino', 'Bultos', 'Peso', 'Descripción', 'Transporte', 'Fecha', '', '', '']
 
         self.tableDispatch.setItemDelegate(AlignDelegate(self.tableDispatch))
         # self.color_delegate = ColorDelegate(self)
@@ -347,13 +349,15 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         for i in range(10,54):
             self.tableDispatch.hideColumn(i)
         self.tableDispatch.hideColumn(60)
+        self.tableDispatch.hideColumn(61)
+        self.tableDispatch.hideColumn(62)
 
         headers=['ID', 'Nº Factura', '', '', 'Nº Albarán', '', '', '', '', 'Nº Pedido',
                 '', '', '', '', '', '', '', '', '', '',
                 '', '', '', '', '', '', '', '', '', '',
                 '', '', '', '', '', '', '', '', '', '',
                 '', '', '', '', '', '', '', '', '', '',
-                '', '', '', '', 'Destino', 'Bultos', 'Peso', 'Descripción', 'Transporte', 'Fecha']
+                '', '', '', '', 'Destino', 'Bultos', 'Peso', 'Descripción', 'Transporte', 'Fecha', '', '', '']
 
         self.tableDispatch.setItemDelegate(AlignDelegate(self.tableDispatch))
         # self.color_delegate = ColorDelegate(self)

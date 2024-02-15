@@ -9,6 +9,7 @@ import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 from OfferSubmit_Window import Ui_SubmitOffer_Window
 from OfferEdit_Window import Ui_Edit_Offer_Window
+from OfferReceivedQuery_Window import Ui_QueryOfferReceived_Window
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -18,8 +19,8 @@ class Ui_EditOffer_Menu(object):
     def setupUi(self, EditOffer_Menu):
         EditOffer_Menu.setObjectName("EditOffer_Menu")
         EditOffer_Menu.resize(300, 336)
-        EditOffer_Menu.setMinimumSize(QtCore.QSize(300, 300))
-        EditOffer_Menu.setMaximumSize(QtCore.QSize(300, 340))
+        EditOffer_Menu.setMinimumSize(QtCore.QSize(300, 400))
+        EditOffer_Menu.setMaximumSize(QtCore.QSize(300, 400))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditOffer_Menu.setWindowIcon(icon)
@@ -64,15 +65,12 @@ class Ui_EditOffer_Menu(object):
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame.setMinimumSize(QtCore.QSize(275, 275))
-        self.frame.setMaximumSize(QtCore.QSize(275, 275))
         self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame.setObjectName("frame")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        spacerItem = QtWidgets.QSpacerItem(20, 80, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem, 4, 0, 1, 1)
+        
         self.Button_Submit = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Submit.setMinimumSize(QtCore.QSize(250, 35))
         self.Button_Submit.setMaximumSize(QtCore.QSize(250, 35))
@@ -87,11 +85,29 @@ class Ui_EditOffer_Menu(object):
         self.Button_Edit.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Edit.setObjectName("Button_Edit")
         self.gridLayout_2.addWidget(self.Button_Edit, 3, 0, 1, 1)
+        self.Button_RecToOfficial = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_RecToOfficial.setMinimumSize(QtCore.QSize(250, 35))
+        self.Button_RecToOfficial.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_RecToOfficial.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_RecToOfficial.setObjectName("Button_RecToOfficial")
+        spacerItem2 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.gridLayout_2.addItem(spacerItem2, 4, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_RecToOfficial, 5, 0, 1, 1)
+        self.Button_EditRec = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_EditRec.setMinimumSize(QtCore.QSize(250, 35))
+        self.Button_EditRec.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_EditRec.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_EditRec.setObjectName("Button_EditRec")
+        spacerItem3 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.gridLayout_2.addItem(spacerItem3, 6, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_EditRec, 7, 0, 1, 1)
+        spacerItem = QtWidgets.QSpacerItem(20, 80, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.gridLayout_2.addItem(spacerItem, 8, 0, 1, 1)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout.setObjectName("horizontalLayout")
-        spacerItem2 = QtWidgets.QSpacerItem(140, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.horizontalLayout.addItem(spacerItem2)
+        spacerItem4 = QtWidgets.QSpacerItem(140, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.horizontalLayout.addItem(spacerItem4)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Cancel.setEnabled(True)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(100, 35))
@@ -99,7 +115,7 @@ class Ui_EditOffer_Menu(object):
         self.Button_Cancel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.horizontalLayout.addWidget(self.Button_Cancel)
-        self.gridLayout_2.addLayout(self.horizontalLayout, 5, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.horizontalLayout, 9, 0, 1, 1)
         spacerItem3 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem3, 0, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
@@ -118,6 +134,8 @@ class Ui_EditOffer_Menu(object):
         self.Button_Cancel.clicked.connect(EditOffer_Menu.close) # type: ignore
         self.Button_Submit.clicked.connect(lambda: self.SubmitOffer(EditOffer_Menu))
         self.Button_Edit.clicked.connect(lambda: self.EditOffer(EditOffer_Menu))
+        self.Button_RecToOfficial.clicked.connect(lambda: self.RecOfferToOf(EditOffer_Menu))
+        self.Button_EditRec.clicked.connect(lambda: self.EditOfferRec(EditOffer_Menu))
         QtCore.QMetaObject.connectSlotsByName(EditOffer_Menu)
 
 
@@ -127,6 +145,8 @@ class Ui_EditOffer_Menu(object):
         self.Button_Submit.setText(_translate("EditOffer_Menu", "Presentar Oferta"))
         self.Button_Edit.setText(_translate("EditOffer_Menu", "Editar Oferta"))
         self.Button_Cancel.setText(_translate("EditOffer_Menu", "Cancelar"))
+        self.Button_RecToOfficial.setText(_translate("EditOffer_Menu", "Pasar Recibida a Oficial"))
+        self.Button_EditRec.setText(_translate("EditOffer_Menu", "Editar Oferta Recibida"))
 
 
     def SubmitOffer(self,EditOffer_Menu):
@@ -145,6 +165,25 @@ class Ui_EditOffer_Menu(object):
         self.editoffer_window.show()
         EditOffer_Menu.hide()
         self.ui.Button_Cancel.clicked.connect(EditOffer_Menu.show)
+
+
+    def RecOfferToOf(self,EditOffer_Menu):
+        self.recoffer_window=QtWidgets.QMainWindow()
+        self.ui=Ui_QueryOfferReceived_Window('Oficial')
+        self.ui.setupUi(self.recoffer_window)
+        self.recoffer_window.show()
+        EditOffer_Menu.hide()
+        self.ui.Button_Cancel.clicked.connect(EditOffer_Menu.show)
+
+
+    def EditOfferRec(self,EditOffer_Menu):
+        self.recoffer_window=QtWidgets.QMainWindow()
+        self.ui=Ui_QueryOfferReceived_Window('Editar')
+        self.ui.setupUi(self.recoffer_window)
+        self.recoffer_window.show()
+        EditOffer_Menu.hide()
+        self.ui.Button_Cancel.clicked.connect(EditOffer_Menu.show)
+
 
 
 if __name__ == "__main__":

@@ -30,6 +30,304 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
+class CustomTableWidget(QtWidgets.QTableWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.list_filters=[]
+        self.column_filters = {}
+        self.column_actions = {}
+        self.checkbox_states = {}
+        self.rows_hidden = {}
+        self.general_rows_to_hide = set()
+
+# Function to show the menu
+    def show_unique_values_menu(self, column_index, header_pos, header_height):
+        menu = QtWidgets.QMenu(self)
+        actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro")
+        actionDeleteFilterColumn.triggered.connect(lambda: self.delete_filter(column_index))
+        menu.addAction(actionDeleteFilterColumn)
+        menu.addSeparator()
+        actionOrderAsc = menu.addAction("Ordenar Ascendente")
+        actionOrderAsc.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.AscendingOrder))
+        actionOrderDesc = menu.addAction("Ordenar Descendente")
+        actionOrderDesc.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.DescendingOrder))
+        menu.addSeparator()
+        actionFilterByText = menu.addAction("Buscar Texto")
+        actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
+        menu.addSeparator()
+
+        menu.setStyleSheet("QMenu { color: black; }"
+                        "QMenu::item:selected { background-color: #33bdef; }"
+                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+
+        if column_index not in self.column_filters:
+            self.column_filters[column_index] = set()
+
+        scroll_menu = QtWidgets.QScrollArea()
+        scroll_menu.setWidgetResizable(True)
+        scroll_widget = QtWidgets.QWidget(scroll_menu)
+        scroll_menu.setWidget(scroll_widget)
+        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+
+        checkboxes = []
+
+        select_all_checkbox = QtWidgets.QCheckBox("Seleccionar todo")
+        if column_index in self.checkbox_states:
+            select_all_checkbox.setCheckState(QtCore.Qt.CheckState(self.checkbox_states[column_index].get("Seleccionar todo", QtCore.Qt.CheckState(2))))
+        else:
+            select_all_checkbox.setCheckState(QtCore.Qt.CheckState(2))
+        scroll_layout.addWidget(select_all_checkbox)
+        checkboxes.append(select_all_checkbox)
+
+        unique_values = self.get_unique_values(column_index)
+        filtered_values = self.get_filtered_values()
+
+        for value in sorted(unique_values):
+            checkbox = QtWidgets.QCheckBox(value)
+            if select_all_checkbox.isChecked(): 
+                checkbox.setCheckState(QtCore.Qt.CheckState(2))
+            else:
+                if column_index in self.checkbox_states and value in self.checkbox_states[column_index]:
+                    checkbox.setCheckState(QtCore.Qt.CheckState(self.checkbox_states[column_index][value]))
+                elif filtered_values is None or value in filtered_values[column_index]:
+                    checkbox.setCheckState(QtCore.Qt.CheckState(2))
+                else:
+                    checkbox.setCheckState(QtCore.Qt.CheckState(0))
+            scroll_layout.addWidget(checkbox)
+            checkboxes.append(checkbox)
+
+        select_all_checkbox.stateChanged.connect(lambda state: self.set_all_checkboxes_state(checkboxes, state, column_index))
+
+        for value, checkbox in zip(sorted(unique_values), checkboxes[1:]):
+            checkbox.stateChanged.connect(lambda checked, value=value, checkbox=checkbox: self.apply_filter(column_index, value, checked))
+
+    # Action for drop down menu and adding scroll area as widget
+        action_scroll_menu = QtWidgets.QWidgetAction(menu)
+        action_scroll_menu.setDefaultWidget(scroll_menu)
+        menu.addAction(action_scroll_menu)
+
+        menu.exec(header_pos - QtCore.QPoint(0, header_height))
+
+
+# Function to delete filter on selected column
+    def delete_filter(self,column_index):
+        if column_index in self.column_filters:
+            del self.column_filters[column_index]
+        if column_index in self.checkbox_states:
+            del self.checkbox_states[column_index]
+        if column_index in self.rows_hidden:
+            for item in self.rows_hidden[column_index]:
+                self.setRowHidden(item, False)
+                if item in self.general_rows_to_hide:
+                    self.general_rows_to_hide.remove(item)
+            del self.rows_hidden[column_index]
+        header_item = self.horizontalHeaderItem(column_index)
+        header_item.setIcon(QtGui.QIcon())
+
+
+# Function to set all checkboxes state
+    def set_all_checkboxes_state(self, checkboxes, state, column_index):
+        if column_index not in self.checkbox_states:
+            self.checkbox_states[column_index] = {}
+
+        for checkbox in checkboxes:
+            checkbox.setCheckState(QtCore.Qt.CheckState(state))
+
+        self.checkbox_states[column_index]["Seleccionar todo"] = state
+
+
+# Function to apply filters to table
+    def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
+        if column_index not in self.column_filters:
+            self.column_filters[column_index] = set()
+
+        if text_filter is None:
+            if value is None:
+                self.column_filters[column_index] = set()
+            elif checked:
+                self.column_filters[column_index].add(value)
+            elif value in self.column_filters[column_index]:
+                self.column_filters[column_index].remove(value)
+
+        rows_to_hide = set()
+        for row in range(self.rowCount()):
+            show_row = True
+
+            # Check filters for all columns
+            for col, filters in self.column_filters.items():
+                item = self.item(row, col)
+                if item:
+                    item_value = item.text()
+                    if text_filter is None:
+                        if filters and item_value not in filters:
+                            show_row = False
+                            break
+
+        # Filtering by text
+            if text_filter is not None:
+                filter_dialog.accept()
+                item = self.item(row, column_index)
+                if item:
+                    if text_filter.upper() in item.text().upper():
+                        self.column_filters[column_index].add(item.text())
+                    else:
+                        show_row = False
+
+            if not show_row:
+                if row not in self.general_rows_to_hide:
+                    self.general_rows_to_hide.add(row)
+                    rows_to_hide.add(row)
+            else:
+                if row in self.general_rows_to_hide:
+                    self.general_rows_to_hide.remove(row)
+
+        # Update hidden rows for this column depending on checkboxes
+        if checked and text_filter is None:
+            if column_index not in self.rows_hidden:
+                self.rows_hidden[column_index] = set(rows_to_hide)
+            else:
+                self.rows_hidden[column_index].update(rows_to_hide)
+
+        # Update hidden rows for this column depending on filtered text
+        if text_filter is not None and value is None:
+            if column_index not in self.rows_hidden:
+                self.rows_hidden[column_index] = set(rows_to_hide)
+            else:
+                self.rows_hidden[column_index].update(rows_to_hide)
+
+        # Iterate over all rows to hide them as necessary
+        for row in range(self.rowCount()):
+            self.setRowHidden(row, row in self.general_rows_to_hide)
+
+        header_item = self.horizontalHeaderItem(column_index)
+        if len(self.general_rows_to_hide) > 0:
+            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+        else:
+            header_item.setIcon(QtGui.QIcon())
+
+
+    def filter_by_text(self, column_index):
+        filter_dialog = QtWidgets.QDialog(self)
+        filter_dialog.setWindowTitle("Filtrar por texto")
+        
+        label = QtWidgets.QLabel("Texto a filtrar:")
+        text_input = QtWidgets.QLineEdit()
+        
+        filter_button = QtWidgets.QPushButton("Filtrar")
+        filter_button.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 2px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        filter_button.clicked.connect(lambda: self.apply_filter(column_index, None, False, text_input.text(), filter_dialog))
+
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(label)
+        layout.addWidget(text_input)
+        layout.addWidget(filter_button)
+
+        filter_dialog.setLayout(layout)
+        filter_dialog.exec()
+
+
+# Function to obtain the unique matching applied filters 
+    def get_unique_values(self, column_index):
+        unique_values = set()
+        for row in range(self.rowCount()):
+            show_row = True
+            for col, filters in self.column_filters.items():
+                if col != column_index:
+                    item = self.item(row, col)
+                    if item:
+                        item_value = item.text()
+                        if filters and item_value not in filters:
+                            show_row = False
+                            break
+            if show_row:
+                item = self.item(row, column_index)
+                if item:
+                    unique_values.add(item.text())
+        return unique_values
+
+# Function to get values filtered by all columns
+    def get_filtered_values(self):
+        filtered_values = {}
+        for col, filters in self.column_filters.items():
+            filtered_values[col] = filters
+        return filtered_values
+
+# Function to sort column
+    def sort_column(self, column_index, sortOrder):
+        if column_index in [3]:
+            self.custom_sort(column_index, sortOrder)
+        else:
+            self.sortByColumn(column_index, sortOrder)
+
+
+    def custom_sort(self, column, order):
+    # Obtén la cantidad de filas en la tabla
+        row_count = self.rowCount()
+
+        # Crea una lista de índices ordenados según las fechas
+        indexes = list(range(row_count))
+        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd/MM/yyyy"))
+
+        # Si el orden es descendente, invierte la lista
+        if order == QtCore.Qt.SortOrder.DescendingOrder:
+            indexes.reverse()
+
+        # Guarda el estado actual de las filas ocultas
+        hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
+
+        # Actualiza las filas en la tabla en el orden ordenado
+        rows = self.rowCount()
+        for i in range(rows):
+            self.insertRow(i)
+
+        for new_row, old_row in enumerate(indexes):
+            for col in range(self.columnCount()):
+                item = self.takeItem(old_row + rows, col)
+                self.setItem(new_row, col, item)
+
+        for i in range(rows):
+            self.removeRow(rows)
+
+        for row in hidden_rows:
+            self.setRowHidden(row, True)
+
+# Function with the menu configuration
+    def contextMenuEvent(self, event):
+        if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
+            logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
+            header_pos = self.mapToGlobal(self.horizontalHeader().pos())
+            header_height = self.horizontalHeader().height()
+            self.show_unique_values_menu(logical_index, header_pos, header_height)
+        else:
+            super().contextMenuEvent(event)
+
+
 class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
@@ -98,104 +396,30 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
         self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
         self.gridLayout_2.setVerticalSpacing(10)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        spacerItem1 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem1, 0, 0, 1, 1)
-        self.gridLayout_3 = QtWidgets.QGridLayout()
-        self.gridLayout_3.setObjectName("gridLayout_3")
-        self.gridLayout_3.setVerticalSpacing(10)
-        self.gridLayout_3.setHorizontalSpacing(6)
-        self.label_NumOrder = QtWidgets.QLabel(parent=self.frame)
-        self.label_NumOrder.setMinimumSize(QtCore.QSize(80, 25))
-        self.label_NumOrder.setMaximumSize(QtCore.QSize(80, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_NumOrder.setFont(font)
-        self.label_NumOrder.setObjectName("label_NumOrder")
-        self.gridLayout_3.addWidget(self.label_NumOrder, 0, 0, 1, 1)
-        self.Numorder_QueryOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.Numorder_QueryOrder.setMinimumSize(QtCore.QSize(350, 25))
-        self.Numorder_QueryOrder.setMaximumSize(QtCore.QSize(350, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Numorder_QueryOrder.setFont(font)
-        self.Numorder_QueryOrder.setObjectName("Numorder_QueryOrder")
-        self.gridLayout_3.addWidget(self.Numorder_QueryOrder, 0, 1, 1, 1)
-        self.label_FinalClient = QtWidgets.QLabel(parent=self.frame)
-        self.label_FinalClient.setMinimumSize(QtCore.QSize(90, 25))
-        self.label_FinalClient.setMaximumSize(QtCore.QSize(90, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_FinalClient.setFont(font)
-        self.label_FinalClient.setObjectName("label_FinalClient")
-        self.gridLayout_3.addWidget(self.label_FinalClient, 0, 2, 1, 1)
-        self.Finalclient_QueryOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.Finalclient_QueryOrder.setMinimumSize(QtCore.QSize(250, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Finalclient_QueryOrder.setFont(font)
-        self.Finalclient_QueryOrder.setObjectName("Finalclient_QueryOrder")
-        self.gridLayout_3.addWidget(self.Finalclient_QueryOrder, 0, 3, 1, 3)
-        self.label_NumOffer = QtWidgets.QLabel(parent=self.frame)
-        self.label_NumOffer.setMinimumSize(QtCore.QSize(80, 25))
-        self.label_NumOffer.setMaximumSize(QtCore.QSize(80, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_NumOffer.setFont(font)
-        self.label_NumOffer.setObjectName("label_NumOffer")
-        self.gridLayout_3.addWidget(self.label_NumOffer, 1, 0, 1, 1)
-        self.Numoffer_QueryOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.Numoffer_QueryOrder.setMinimumSize(QtCore.QSize(350, 25))
-        self.Numoffer_QueryOrder.setMaximumSize(QtCore.QSize(350, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Numoffer_QueryOrder.setFont(font)
-        self.Numoffer_QueryOrder.setObjectName("Numoffer_QueryOrder")
-        self.gridLayout_3.addWidget(self.Numoffer_QueryOrder, 1, 1, 1, 1)
-        self.label_EqType = QtWidgets.QLabel(parent=self.frame)
-        self.label_EqType.setMinimumSize(QtCore.QSize(90, 25))
-        self.label_EqType.setMaximumSize(QtCore.QSize(90, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_EqType.setFont(font)
-        self.label_EqType.setObjectName("label_EqType")
-        self.gridLayout_3.addWidget(self.label_EqType, 1, 2, 1, 1)
-        self.EqType_QueryOrder = QtWidgets.QComboBox(parent=self.frame)
-        self.EqType_QueryOrder.setMinimumSize(QtCore.QSize(250, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.EqType_QueryOrder.setFont(font)
-        self.EqType_QueryOrder.setObjectName("EqType_QueryOrder")
-        self.gridLayout_3.addWidget(self.EqType_QueryOrder, 1, 3, 1, 3)
-        self.label_RefNum = QtWidgets.QLabel(parent=self.frame)
-        self.label_RefNum.setMinimumSize(QtCore.QSize(80, 25))
-        self.label_RefNum.setMaximumSize(QtCore.QSize(80, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_RefNum.setFont(font)
-        self.label_RefNum.setObjectName("label_RefNum")
-        self.gridLayout_3.addWidget(self.label_RefNum, 2, 0, 1, 1)
-        self.Ref_QueryOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.Ref_QueryOrder.setMinimumSize(QtCore.QSize(350, 25))
-        self.Ref_QueryOrder.setMaximumSize(QtCore.QSize(350, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Ref_QueryOrder.setFont(font)
-        self.Ref_QueryOrder.setObjectName("Ref_QueryOrder")
-        self.gridLayout_3.addWidget(self.Ref_QueryOrder, 2, 1, 1, 1)
+        self.toolDeleteFilter = QtWidgets.QToolButton(self.frame)
+        self.toolDeleteFilter.setObjectName("Save_Button")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolDeleteFilter.setIcon(icon)
+        self.toolDeleteFilter.setIconSize(QtCore.QSize(25, 25))
+        self.gridLayout_2.addWidget(self.toolDeleteFilter, 0, 0, 1, 1)
+        self.toolExpExcel = QtWidgets.QToolButton(self.frame)
+        self.toolExpExcel.setObjectName("ExpExcel_Button")
+        self.toolExpExcel.setToolTip("Exportar a Excel")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolExpExcel.setIcon(icon)
+        self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
+        self.gridLayout_2.addWidget(self.toolExpExcel, 0, 1, 1, 1)
         self.label_Months= QtWidgets.QLabel(parent=self.frame)
         self.label_Months.setMinimumSize(QtCore.QSize(90, 25))
-        self.label_Months.setMaximumSize(QtCore.QSize(90, 25))
+        # self.label_Months.setMaximumSize(QtCore.QSize(90, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
         self.label_Months.setFont(font)
         self.label_Months.setObjectName("label_Months")
-        self.gridLayout_3.addWidget(self.label_Months, 2, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.label_Months, 1, 0, 1, 2)
         self.Month1_QueryOrder = QtWidgets.QComboBox(parent=self.frame)
         self.Month1_QueryOrder.setMinimumSize(QtCore.QSize(120, 25))
         self.Month1_QueryOrder.setMaximumSize(QtCore.QSize(120, 25))
@@ -203,7 +427,7 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
         font.setPointSize(10)
         self.Month1_QueryOrder.setFont(font)
         self.Month1_QueryOrder.setObjectName("Month1_QueryOrder")
-        self.gridLayout_3.addWidget(self.Month1_QueryOrder, 2, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.Month1_QueryOrder, 1, 2, 1, 1)
         self.Month2_QueryOrder = QtWidgets.QComboBox(parent=self.frame)
         self.Month2_QueryOrder.setMinimumSize(QtCore.QSize(120, 25))
         self.Month2_QueryOrder.setMaximumSize(QtCore.QSize(120, 25))
@@ -211,7 +435,7 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
         font.setPointSize(10)
         self.Month2_QueryOrder.setFont(font)
         self.Month2_QueryOrder.setObjectName("Month2_QueryOrder")
-        self.gridLayout_3.addWidget(self.Month2_QueryOrder, 2, 4, 1, 1)
+        self.gridLayout_2.addWidget(self.Month2_QueryOrder, 1, 3, 1, 1)
         self.Year_QueryOrder = QtWidgets.QLineEdit(parent=self.frame)
         self.Year_QueryOrder.setMinimumSize(QtCore.QSize(120, 25))
         self.Year_QueryOrder.setMaximumSize(QtCore.QSize(120, 25))
@@ -219,68 +443,10 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
         font.setPointSize(10)
         self.Year_QueryOrder.setFont(font)
         self.Year_QueryOrder.setObjectName("Year_QueryOrder")
-        self.gridLayout_3.addWidget(self.Year_QueryOrder, 2, 5, 1, 1)
-        self.label_Client = QtWidgets.QLabel(parent=self.frame)
-        self.label_Client.setMinimumSize(QtCore.QSize(80, 25))
-        self.label_Client.setMaximumSize(QtCore.QSize(80, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_Client.setFont(font)
-        self.label_Client.setObjectName("label_Client")
-        self.gridLayout_3.addWidget(self.label_Client, 3, 0, 1, 1)
-        self.Client_QueryOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.Client_QueryOrder.setMinimumSize(QtCore.QSize(350, 25))
-        self.Client_QueryOrder.setMaximumSize(QtCore.QSize(350, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Client_QueryOrder.setFont(font)
-        self.Client_QueryOrder.setObjectName("Client_QueryOrder")
-        self.gridLayout_3.addWidget(self.Client_QueryOrder, 3, 1, 1, 1)
-        self.label_Amount = QtWidgets.QLabel(parent=self.frame)
-        self.label_Amount.setMinimumSize(QtCore.QSize(90, 25))
-        self.label_Amount.setMaximumSize(QtCore.QSize(90, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_Amount.setFont(font)
-        self.label_Amount.setObjectName("label_Amount")
-        self.gridLayout_3.addWidget(self.label_Amount, 3, 2, 1, 1)
-        self.Amount_QueryOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.Amount_QueryOrder.setMinimumSize(QtCore.QSize(250, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Amount_QueryOrder.setFont(font)
-        self.Amount_QueryOrder.setObjectName("Amount_QueryOrder")
-        self.gridLayout_3.addWidget(self.Amount_QueryOrder, 3, 3, 1, 3)
-        self.gridLayout_2.addLayout(self.gridLayout_3, 2, 0, 1, 1)
-        spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem, 3, 0, 1, 1)
-        self.hLayout5 = QtWidgets.QHBoxLayout()
-        self.hLayout5.setObjectName("hLayout5")
-        self.Button_Clean = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Clean.setMinimumSize(QtCore.QSize(150, 30))
-        self.Button_Clean.setMaximumSize(QtCore.QSize(150, 30))
-        self.Button_Clean.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.Button_Clean.setObjectName("Button_Clean")
-        self.hLayout5.addWidget(self.Button_Clean)
-        self.Button_Query = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Query.setMinimumSize(QtCore.QSize(150, 30))
-        self.Button_Query.setMaximumSize(QtCore.QSize(150, 30))
-        self.Button_Query.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.Button_Query.setObjectName("Button_Query")
-        self.hLayout5.addWidget(self.Button_Query)
-        self.Button_Export = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Export.setMinimumSize(QtCore.QSize(150, 30))
-        self.Button_Export.setMaximumSize(QtCore.QSize(150, 30))
-        self.Button_Export.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.Button_Export.setObjectName("Button_Export")
-        self.hLayout5.addWidget(self.Button_Export)
-        self.gridLayout_2.addLayout(self.hLayout5, 4, 0, 1, 1)
-        spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem2, 5, 0, 1, 1)
-        self.tableQueryOrder = QtWidgets.QTableWidget(parent=self.frame)
-        self.tableQueryOrder.setAlternatingRowColors(False)
+        self.gridLayout_2.addWidget(self.Year_QueryOrder, 1, 4, 1, 1)
+        spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.gridLayout_2.addItem(spacerItem, 2, 0, 1, 1)
+        self.tableQueryOrder = CustomTableWidget()
         self.tableQueryOrder.setObjectName("tableQueryOrder")
         self.tableQueryOrder.setColumnCount(16)
         self.tableQueryOrder.setRowCount(0)
@@ -293,36 +459,31 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
             self.tableQueryOrder.setHorizontalHeaderItem(i, item)
         self.tableQueryOrder.setSortingEnabled(True)
         self.tableQueryOrder.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
-        self.gridLayout_2.addWidget(self.tableQueryOrder, 5, 0, 1, 1)
-        self.hLayout6 = QtWidgets.QHBoxLayout()
-        self.hLayout6.setObjectName("hLayout6")
-        spacerItem3 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.hLayout6.addItem(spacerItem3)
+        self.gridLayout_2.addWidget(self.tableQueryOrder, 3, 0, 1, 11)
         self.label_SumItems = QtWidgets.QLabel(parent=self.frame)
         self.label_SumItems.setMinimumSize(QtCore.QSize(40, 10))
         self.label_SumItems.setMaximumSize(QtCore.QSize(40, 10))
         self.label_SumItems.setText("")
         self.label_SumItems.setObjectName("label_SumItems")
-        self.hLayout6.addWidget(self.label_SumItems)
+        self.gridLayout_2.addWidget(self.label_SumItems, 4, 7, 1, 1)
         self.label_SumValue = QtWidgets.QLabel(parent=self.frame)
         self.label_SumValue.setMinimumSize(QtCore.QSize(80, 20))
         self.label_SumValue.setMaximumSize(QtCore.QSize(80, 20))
         self.label_SumValue.setText("")
         self.label_SumValue.setObjectName("label_SumValue")
-        self.hLayout6.addWidget(self.label_SumValue)
+        self.gridLayout_2.addWidget(self.label_SumValue, 4, 8, 1, 1)
         self.label_CountItems = QtWidgets.QLabel(parent=self.frame)
         self.label_CountItems.setMinimumSize(QtCore.QSize(60, 10))
         self.label_CountItems.setMaximumSize(QtCore.QSize(60, 10))
         self.label_CountItems.setText("")
         self.label_CountItems.setObjectName("label_CountItems")
-        self.hLayout6.addWidget(self.label_CountItems)
+        self.gridLayout_2.addWidget(self.label_CountItems, 4, 9, 1, 1)
         self.label_CountValue = QtWidgets.QLabel(parent=self.frame)
         self.label_CountValue.setMinimumSize(QtCore.QSize(80, 10))
         self.label_CountValue.setMaximumSize(QtCore.QSize(80, 10))
         self.label_CountValue.setText("")
         self.label_CountValue.setObjectName("label_CountValue")
-        self.hLayout6.addWidget(self.label_CountValue)
-        self.gridLayout_2.addLayout(self.hLayout6, 6, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_CountValue, 4, 10, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         QueryOrder_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=QueryOrder_Window)
@@ -334,69 +495,28 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
         QueryOrder_Window.setStatusBar(self.statusbar)
         self.tableQueryOrder.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
-        commands_comboboxes1queryoffer = ("""
-                        SELECT *
-                        FROM product_type
-                        """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_comboboxes1queryoffer)
-            results1=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-        list_material=[''] + list(set([x[1] for x in results1]))
-        self.EqType_QueryOrder.addItems(sorted(list_material))
-
         list_months = [''] + [str(x) for x in range(1,13)]
         self.Month1_QueryOrder.addItems(list_months)
         self.Month2_QueryOrder.addItems(list_months)
 
         self.retranslateUi(QueryOrder_Window)
         QtCore.QMetaObject.connectSlotsByName(QueryOrder_Window)
-        self.Button_Clean.clicked.connect(self.clean_boxes) # type: ignore
-        self.Button_Query.clicked.connect(self.query_order) # type: ignore
-        self.Button_Export.clicked.connect(self.export_data)  # type: ignore
-        self.Numorder_QueryOrder.returnPressed.connect(self.query_order)
-        self.Numoffer_QueryOrder.returnPressed.connect(self.query_order)
-        self.Ref_QueryOrder.returnPressed.connect(self.query_order)
-        self.Client_QueryOrder.returnPressed.connect(self.query_order)
-        self.Finalclient_QueryOrder.returnPressed.connect(self.query_order)
-        self.Amount_QueryOrder.returnPressed.connect(self.query_order)
-        self.EqType_QueryOrder.currentIndexChanged.connect(self.query_order)
-        self.Month1_QueryOrder.currentIndexChanged.connect(self.query_order)
-        self.Month2_QueryOrder.currentIndexChanged.connect(self.query_order)
-        self.Year_QueryOrder.returnPressed.connect(self.query_order)
+        self.toolDeleteFilter.clicked.connect(self.delete_all_filters) # type: ignore
+        self.toolExpExcel.clicked.connect(self.export_data)  # type: ignore
+        self.Month1_QueryOrder.currentIndexChanged.connect(self.query_order_filtered)
+        self.Month2_QueryOrder.currentIndexChanged.connect(self.query_order_filtered)
+        self.Year_QueryOrder.returnPressed.connect(self.query_order_filtered)
         self.tableQueryOrder.itemSelectionChanged.connect(self.countSelectedCells)
-        self.tableQueryOrder.itemDoubleClicked.connect(self.expand_cell)
+        self.tableQueryOrder.itemDoubleClicked.connect(self.on_item_double_clicked)
+        self.tableQueryOrder.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
+
+        self.query_all_order()
 
 
     def retranslateUi(self, QueryOrder_Window):
         _translate = QtCore.QCoreApplication.translate
         QueryOrder_Window.setWindowTitle(_translate("QueryOrder_Window", "Consultar Pedido"))
-        self.tableQueryOrder.setSortingEnabled(True)
+        self.tableQueryOrder.setSortingEnabled(False)
         item = self.tableQueryOrder.horizontalHeaderItem(0)
         item.setText(_translate("QueryOrder_Window", "Nº Pedido"))
         item = self.tableQueryOrder.horizontalHeaderItem(1)
@@ -429,56 +549,96 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
         item.setText(_translate("QueryOrderTechnical_Window", "% Montaje"))
         item = self.tableQueryOrder.horizontalHeaderItem(15)
         item.setText(_translate("QueryOrderTechnical_Window", "% Envío"))
-        self.label_EqType.setText(_translate("QueryOrder_Window", "Tipo Equipo:"))
-        self.label_NumOffer.setText(_translate("QueryOrder_Window", "Nº Oferta:"))
-        self.label_FinalClient.setText(_translate("QueryOrder_Window", "Cliente Final:"))
-        self.label_NumOrder.setText(_translate("QueryOrder_Window", "Nº Pedido:"))
-        self.label_Client.setText(_translate("QueryOrder_Window", "Cliente:"))
-        self.Button_Clean.setText(_translate("QueryOrder_Window", "Limpiar Filtros"))
-        self.Button_Query.setText(_translate("QueryOrder_Window", "Buscar"))
-        self.Button_Export.setText(_translate("QueryOrder_Window", "Exportar Excel"))
-        self.label_RefNum.setText(_translate("QueryOrder_Window", "Referencia:"))
         self.label_Months.setText(_translate("QueryOrder_Window", "Meses / Año:"))
-        self.label_Amount.setText(_translate("QueryOrder_Window", "Importe (€):"))
 
 
-    def clean_boxes(self):
-        self.Numorder_QueryOrder.setText("")
-        self.Numoffer_QueryOrder.setText("")
-        self.Client_QueryOrder.setText("")
-        self.Finalclient_QueryOrder.setText("")
-        self.Ref_QueryOrder.setText("")
-        self.Amount_QueryOrder.setText("")
-        self.EqType_QueryOrder.setCurrentText("")
-        self.Month1_QueryOrder.setCurrentText("")
-        self.Month2_QueryOrder.setCurrentText("")
-        self.Year_QueryOrder.setText("")
+    def delete_all_filters(self):
+        for column in range(self.tableQueryOrder.columnCount()):
+            if column in self.tableQueryOrder.rows_hidden:
+                for item in self.tableQueryOrder.rows_hidden[column]:
+                    self.tableQueryOrder.setRowHidden(item, False)
+            header_item = self.tableQueryOrder.horizontalHeaderItem(column)
+            header_item.setIcon(QtGui.QIcon())
+
+        self.tableQueryOrder.list_filters=[]
+        self.tableQueryOrder.column_filters = {}
+        self.tableQueryOrder.column_actions = {}
+        self.tableQueryOrder.checkbox_states = {}
+        self.tableQueryOrder.rows_hidden = {}
+        self.tableQueryOrder.general_rows_to_hide = set()
 
 
-    def query_order(self):
-        numorder=self.Numorder_QueryOrder.text()
-        numoffer=self.Numoffer_QueryOrder.text()
-        client=self.Client_QueryOrder.text()
-        finalclient=self.Finalclient_QueryOrder.text()
-        ref=self.Ref_QueryOrder.text()
-        amount=self.Amount_QueryOrder.text()
-        amount=amount.replace(".",",")
-        eqtype=self.EqType_QueryOrder.currentText()
+    def query_all_order(self):
+        self.tableQueryOrder.setRowCount(0)
+        commands_queryorder = ("""
+                    SELECT orders."num_order", orders."num_offer", users_data.initials."initials", TO_CHAR(orders."order_date", 'DD/MM/YYYY'),
+                    orders."num_ref_order", offers."client", offers."final_client", product_type."variable", orders."items_number", orders."notes",
+                    offers."important", orders."order_amount", offers."offer_amount", orders."porc_workshop", orders."porc_assembly", orders."porc_deliveries"
+                    FROM offers
+                    INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
+                    INNER JOIN product_type ON (offers."material"=product_type."material")
+                    INNER JOIN users_data.initials ON (offers."responsible"=users_data.initials."username")
+                    ORDER BY orders."num_order"
+                    """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(commands_queryorder)
+            results=cur.fetchall()
+
+            self.tableQueryOrder.setRowCount(len(results))
+            tablerow=0
+
+        # fill the Qt Table with the query results
+            for row in results:
+                for column in range(16):
+                    value = row[column]
+                    if value is None:
+                        value = ''
+                    it = QtWidgets.QTableWidgetItem(str(value))
+                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                    self.tableQueryOrder.setItem(tablerow, column, it)
+
+                tablerow+=1
+
+            # self.tableQueryOrder.verticalHeader().hide()
+            self.tableQueryOrder.setItemDelegate(AlignDelegate(self.tableQueryOrder))
+            self.tableQueryOrder.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableQueryOrder.horizontalHeader().setSectionResizeMode(4,QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableQueryOrder.horizontalHeader().setSectionResizeMode(9,QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableQueryOrder.horizontalHeader().setSectionResizeMode(10,QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableQueryOrder.horizontalHeader().setSectionResizeMode(15,QtWidgets.QHeaderView.ResizeMode.Stretch)
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+
+    def query_order_filtered(self):
+        self.tableQueryOrder.setRowCount(0)
         month1 = self.Month1_QueryOrder.currentText()
         month2 = self.Month2_QueryOrder.currentText()
         year = int(self.Year_QueryOrder.text()) if self.Year_QueryOrder.text() != '' else None
-
-        # if ((numorder=="" or numorder==" ") and (numoffer=="" or numoffer==" ") and (client=="" or client==" ") 
-        # and (finalclient=="" or finalclient==" ") and (ref=="" or ref==" ")
-        # and (amount=="" or amount==" ") and (eqtype=="" or eqtype==" ")):
-        #     dlg = QtWidgets.QMessageBox()
-        #     new_icon = QtGui.QIcon()
-        #     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        #     dlg.setWindowIcon(new_icon)
-        #     dlg.setWindowTitle("Consultar Pedido")
-        #     dlg.setText("Introduce un filtro en alguno de los campos")
-        #     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-        #     dlg.exec()
 
         if month1=='' and month2!='':
             dlg = QtWidgets.QMessageBox()
@@ -493,79 +653,40 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
         else:
             self.tableQueryOrder.setRowCount(0)
             commands_queryorder = ("""
-                        SELECT orders."num_order",orders."num_offer",users_data.initials."initials",TO_CHAR(orders."order_date", 'DD/MM/YYYY'),orders."num_ref_order",offers."client",offers."final_client",product_type."variable",orders."items_number",orders."notes",offers."important",orders."order_amount",offers."offer_amount", orders."porc_workshop", orders."porc_assembly", orders."porc_deliveries"
+                        SELECT orders."num_order", orders."num_offer", users_data.initials."initials", TO_CHAR(orders."order_date", 'DD/MM/YYYY'), orders."num_ref_order",
+                        offers."client", offers."final_client", product_type."variable", orders."items_number", orders."notes", offers."important", orders."order_amount",
+                        offers."offer_amount", orders."porc_workshop", orders."porc_assembly", orders."porc_deliveries"
                         FROM offers
                         INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                         INNER JOIN product_type ON (offers."material"=product_type."material")
                         INNER JOIN users_data.initials ON (offers."responsible"=users_data.initials."username")
-                        WHERE (UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        UPPER(orders."num_offer") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        UPPER(orders."num_ref_order") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        UPPER(offers."client") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        UPPER(offers."final_client") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        product_type."variable" LIKE '%%'||%s||'%%'
-                        AND
-                        orders."order_amount"::text LIKE '%%'||%s||'%%'
-                        AND
-                        (orders."order_year" = %s OR %s IS NULL)
-                        )
+                        WHERE (orders."order_year" = %s OR %s IS NULL)
                         ORDER BY orders."num_order"
                         """)
             commands_queryorder_dates1 = ("""
-                        SELECT orders."num_order",orders."num_offer",users_data.initials."initials",TO_CHAR(orders."order_date", 'DD/MM/YYYY'),orders."num_ref_order",offers."client",offers."final_client",product_type."variable",orders."notes",offers."important",orders."order_amount",offers."offer_amount", orders."porc_workshop", orders."porc_assembly", orders."porc_deliveries"
+                        SELECT orders."num_order", orders."num_offer", users_data.initials."initials", TO_CHAR(orders."order_date", 'DD/MM/YYYY'), orders."num_ref_order",
+                        offers."client", offers."final_client", product_type."variable", orders."items_number", orders."notes", offers."important", orders."order_amount",
+                        offers."offer_amount", orders."porc_workshop", orders."porc_assembly", orders."porc_deliveries"
                         FROM offers
                         INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                         INNER JOIN product_type ON (offers."material"=product_type."material")
                         INNER JOIN users_data.initials ON (offers."responsible"=users_data.initials."username")
-                        WHERE (UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        UPPER(orders."num_offer") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        UPPER(orders."num_ref_order") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        UPPER(offers."client") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        UPPER(offers."final_client") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        product_type."variable" LIKE '%%'||%s||'%%'
-                        AND
-                        orders."order_amount"::text LIKE '%%'||%s||'%%'
-                        AND
-                        orders."order_month" = %s
+                        WHERE orders."order_month" = %s
                         AND
                         (orders."order_year" = %s OR %s IS NULL)
-                        )
                         ORDER BY orders."num_order"
                         """)
             commands_queryorder_dates2 = ("""
-                        SELECT orders."num_order",orders."num_offer",users_data.initials."initials",TO_CHAR(orders."order_date", 'DD/MM/YYYY'),orders."num_ref_order",offers."client",offers."final_client",product_type."variable",orders."notes",offers."important",orders."order_amount",offers."offer_amount", orders."porc_workshop", orders."porc_assembly", orders."porc_deliveries"
+                        SELECT orders."num_order", orders."num_offer", users_data.initials."initials", TO_CHAR(orders."order_date", 'DD/MM/YYYY'), orders."num_ref_order",
+                        offers."client", offers."final_client",product_type."variable", orders."items_number", orders."notes", offers."important", orders."order_amount",
+                        offers."offer_amount", orders."porc_workshop", orders."porc_assembly", orders."porc_deliveries"
                         FROM offers
                         INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                         INNER JOIN product_type ON (offers."material"=product_type."material")
                         INNER JOIN users_data.initials ON (offers."responsible"=users_data.initials."username")
-                        WHERE (UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        UPPER(orders."num_offer") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        UPPER(orders."num_ref_order") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        UPPER(offers."client") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        UPPER(offers."final_client") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        product_type."variable" LIKE '%%'||%s||'%%'
-                        AND
-                        orders."order_amount"::text LIKE '%%'||%s||'%%'
-                        AND
-                        orders."order_month" BETWEEN %s AND %s
+                        WHERE orders."order_month" BETWEEN %s AND %s
                         AND
                         (orders."order_year" = %s OR %s IS NULL)
-                        )
                         ORDER BY orders."num_order"
                         """)
             conn = None
@@ -577,16 +698,16 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
                 cur = conn.cursor()
             # execution of commands
                 if month1 == '' and month2 == '':
-                    data=(numorder,numoffer,ref,client,finalclient,eqtype,amount,year,year)
+                    data=(year,year)
                     cur.execute(commands_queryorder, data)
                 elif month1 != '' and month2 == '':
-                    data=(numorder,numoffer,ref,client,finalclient,eqtype,amount,month1,year,year)
+                    data=(month1,year,year)
                     cur.execute(commands_queryorder_dates1, data)
                 elif month1 != '' and month2 != '':
-                    data=(numorder,numoffer,ref,client,finalclient,eqtype,amount,month1,month2,year,year)
+                    data=(month1,month2,year,year)
                     cur.execute(commands_queryorder_dates2, data)
                 results=cur.fetchall()
-                self.tableQueryOrder.setRowCount(0)
+                
                 self.tableQueryOrder.setRowCount(len(results))
                 tablerow=0
 
@@ -606,9 +727,9 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
                 self.tableQueryOrder.setItemDelegate(AlignDelegate(self.tableQueryOrder))
                 self.tableQueryOrder.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
                 self.tableQueryOrder.horizontalHeader().setSectionResizeMode(4,QtWidgets.QHeaderView.ResizeMode.Interactive)
-                self.tableQueryOrder.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Interactive)
                 self.tableQueryOrder.horizontalHeader().setSectionResizeMode(9,QtWidgets.QHeaderView.ResizeMode.Interactive)
-                self.tableQueryOrder.horizontalHeader().setSectionResizeMode(14,QtWidgets.QHeaderView.ResizeMode.Stretch)
+                self.tableQueryOrder.horizontalHeader().setSectionResizeMode(10,QtWidgets.QHeaderView.ResizeMode.Interactive)
+                self.tableQueryOrder.horizontalHeader().setSectionResizeMode(15,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -652,6 +773,7 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
             self.label_CountItems.setText("")
             self.label_CountValue.setText("")
 
+
     def euro_string_to_float(self, euro_str):
         match = re.match(r'^([\d.,]+)\s€$', euro_str)
         if match:
@@ -662,53 +784,45 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
             return 0.0
 
 
-    def expand_cell(self, item):
-        if item.column() in [9,10]:
-            cell_content = item.text()
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Pedidos")
-            dlg.setText(cell_content)
-            dlg.exec()
-
     def export_data(self):
-        num_rows = self.tableQueryOrder.rowCount()
-        if num_rows > 0:
-            num_columns = 12
-
-            column_names = [self.tableQueryOrder.horizontalHeaderItem(col).text() for col in range(num_columns)]
-
-            df = pd.DataFrame(columns=column_names)
-
-            for row in range(num_rows):
-                row_data = []
-                for col in range(num_columns):
-                    item = self.tableQueryOrder.item(row,col)
-                    if item is not None:
-                        if col == 3:  # date column
-                            date_str = item.text()
-                            if date_str:  
-                                date_obj = datetime.strptime(date_str, "%d/%m/%Y")
-                                row_data.append(date_obj)
+        if self.tableQueryOrder.rowCount() > 0:
+            df = pd.DataFrame()
+            for col in range(self.tableQueryOrder.columnCount()):
+                header = self.tableQueryOrder.horizontalHeaderItem(col).text()
+                column_data = []
+                for row in range(self.tableQueryOrder.rowCount()):
+                    if not self.tableQueryOrder.isRowHidden(row):
+                        item = self.tableQueryOrder.item(row,col)
+                        if item is not None:
+                            if col in [3]:  # date column
+                                date_str = item.text()
+                                if date_str:  
+                                    date_obj = datetime.strptime(date_str, "%d/%m/%Y")
+                                    column_data.append(date_obj)
+                                else:
+                                    column_data.append('')
+                            elif col in [11, 12]:  # currency columns
+                                currency_str = item.text()
+                                if currency_str:
+                                    currency_str=currency_str.replace(".","")
+                                    currency_str=currency_str.replace(",",".")
+                                    currency_str=currency_str[:currency_str.find(" €")]
+                                    currency_value = float(currency_str)
+                                    column_data.append(currency_value)
+                                else:
+                                    column_data.append('')
+                            elif col in [8, 13, 14, 15]:  # integer columns
+                                integer_str = item.text()
+                                if integer_str:
+                                    integer_value = int(integer_str)
+                                    column_data.append(integer_value)
+                                else:
+                                    column_data.append('')
                             else:
-                                row_data.append('')
-                        elif col in [11,12]:  # currency columns
-                            currency_str = item.text()
-                            if currency_str:
-                                currency_str=currency_str.replace(".","")
-                                currency_str=currency_str.replace(",",".")
-                                currency_str=currency_str[:currency_str.find(" €")]
-                                currency_value = float(currency_str)
-                                row_data.append(currency_value)
-                            else:
-                                row_data.append('')
+                                column_data.append(item.text())
                         else:
-                            row_data.append(item.text())
-                    else:
-                        row_data.append('')
-                df.loc[row] = row_data
+                            column_data.append('')
+                df[header] = column_data
 
             root = tk.Tk()
             root.withdraw()
@@ -723,18 +837,73 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
                 # Set date format
                 date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
                 currency_style  = NamedStyle(name='currency_style ', number_format='#,##0.00" €"')
-                for col_num in range(1, num_columns + 1):
-                    if col_num == 4:  
-                        for row_num in range(2, num_rows + 2):
+                for col_num in range(1, self.tableQueryOrder.columnCount() + 1):
+                    if col_num in [4]:  
+                        for row_num in range(2, self.tableQueryOrder.rowCount() + 2):
                             cell = writer.sheets['Sheet1'].cell(row=row_num, column=col_num)
                             cell.style = date_style
 
-                    elif col_num in [12,13]:  
-                        for row_num in range(2, num_rows + 2):
+                    elif col_num in [12, 13]:  
+                        for row_num in range(2, self.tableQueryOrder.rowCount() + 2):
                             cell = writer.sheets['Sheet1'].cell(row=row_num, column=col_num)
                             cell.style = currency_style
 
                 writer._save()
+
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Consultar Pedido")
+            dlg.setText("Datos exportados con éxito")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+            dlg.exec()
+            del dlg,new_icon
+
+        else:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Consultar Pedido")
+            dlg.setText("No hay datos para exportar")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+
+
+# Function to check if column index of double clicked cell is equal to first column index
+    def on_item_double_clicked(self, item):
+        if item.column() == 0:
+            self.order_deliveries(item)
+
+        elif item.column() in [9,10]:
+            cell_content = item.text()
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Pedidos")
+            dlg.setText(cell_content)
+            dlg.exec()
+
+
+# Function when double clicked cell is in first column
+    def order_deliveries(self, item):
+        from OrderDeliveries_Window import Ui_DeliveriesOrder_Window
+        order_num = item.text()[:8] if item.text()[:2] == 'P-' else item.text()[:9]
+        self.order_deliveries_window=QtWidgets.QMainWindow()
+        self.ui=Ui_DeliveriesOrder_Window(order_num)
+        self.ui.setupUi(self.order_deliveries_window)
+        self.order_deliveries_window.show()
+
+
+#Function when clicking on table header
+    def on_header_section_clicked(self, logical_index):
+        header_pos = self.tableQueryOrder.horizontalHeader().sectionViewportPosition(logical_index)
+        header_height = self.tableQueryOrder.horizontalHeader().height()
+        popup_pos = self.tableQueryOrder.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
+        self.tableQueryOrder.show_unique_values_menu(logical_index, popup_pos, header_height)
 
 
 if __name__ == "__main__":

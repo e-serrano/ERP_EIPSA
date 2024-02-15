@@ -9,11 +9,9 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import QtSql
 from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import Qt, QDate
+from PyQt6.QtCore import Qt, QDate, QMimeData
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
-import configparser
-from Database_Connection import createConnection
 from config import config
 import psycopg2
 import locale
@@ -21,7 +19,6 @@ import os
 from datetime import *
 import pandas as pd
 from tkinter.filedialog import asksaveasfilename
-from tkinter.filedialog import askopenfilename
 from tkinter import filedialog
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -160,7 +157,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
 
 class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
-    def __init__(self, db):
+    def __init__(self, db, username):
         super().__init__()
         self.model = EditableTableModel()
         self.proxy = CustomProxyModel()
@@ -172,6 +169,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.variable = ''
         self.action_checkbox_map = {}
         self.checkbox_filters = {}
+        self.username = username
         self.setupUi(self)
         self.model.dataChanged.connect(self.saveChanges)
 
@@ -198,12 +196,21 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         CalibrationThermoElements_Window.setWindowIcon(icon)
-        CalibrationThermoElements_Window.setStyleSheet(
+        if self.username == 'm.gil':
+            CalibrationThermoElements_Window.setStyleSheet(
+".QFrame {\n"
+"    border: 2px solid white;\n"
+"}")
+        else:
+            CalibrationThermoElements_Window.setStyleSheet(
 ".QFrame {\n"
 "    border: 2px solid black;\n"
 "}")
         self.centralwidget = QtWidgets.QWidget(parent=CalibrationThermoElements_Window)
-        self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
+        if self.username == 'm.gil':
+            self.centralwidget.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255);")
+        else:
+            self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -219,6 +226,8 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter = QtWidgets.QToolButton(self.frame)
         self.toolDeleteFilter.setObjectName("DeleteFilter_Button")
         self.toolDeleteFilter.setToolTip("Borrar filtros")
+        if self.username == 'm.gil':
+            self.toolDeleteFilter.setStyleSheet("border: 1px solid white;")
         self.toolDeleteFilter.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolDeleteFilter)
         icon = QtGui.QIcon()
@@ -229,21 +238,25 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.toolShow = QtWidgets.QToolButton(self.frame)
         self.toolShow.setObjectName("Show_Button")
         self.toolShow.setToolTip("Mostrar columnas")
-        self.hcab.addWidget(self.toolShow)
+        if self.username == 'm.gil':
+            self.toolShow.setStyleSheet("border: 1px solid white;")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolShow.setIcon(icon)
         self.toolShow.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolShow)
         self.hcabspacer5=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer5)
         self.toolExpExcel = QtWidgets.QToolButton(self.frame)
         self.toolExpExcel.setObjectName("ExpExcel_Button")
         self.toolExpExcel.setToolTip("Exportar a Excel")
-        self.hcab.addWidget(self.toolExpExcel)
+        if self.username == 'm.gil':
+            self.toolExpExcel.setStyleSheet("border: 1px solid white;")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolExpExcel.setIcon(icon)
         self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolExpExcel)
 
         self.hcabspacer2=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer2)
@@ -384,10 +397,19 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.statusbar.setObjectName("statusbar")
         CalibrationThermoElements_Window.setStatusBar(self.statusbar)
 
+        delete_action = QtGui.QAction("Eliminar Fila", self)
+        delete_action.triggered.connect(self.delete_register)
+
+        self.context_menu_row = QtWidgets.QMenu(self)
+        self.context_menu_row.addAction(delete_action)
+
+        self.tableEditCalibration.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
+        self.tableEditCalibration.addActions([delete_action])
+
         self.retranslateUi(CalibrationThermoElements_Window)
         QtCore.QMetaObject.connectSlotsByName(CalibrationThermoElements_Window)
         self.Button_Import.clicked.connect(self.import_data)
-        # self.Button_Print.clicked.connect(self.print_certificate)
+        self.Button_Print.clicked.connect(self.print_certificate)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolShow.clicked.connect(self.show_columns)
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
@@ -403,11 +425,12 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.Button_Print.setText(_translate("CalibrationThermoElements_Window", "Imprimir"))
         self.Button_Import.setText(_translate("CalibrationThermoElements_Window", "Importar Datos"))
 
+
 # Function to import data to database
     def import_data(self):
-        ruta_carpeta = filedialog.askdirectory(title="Selecciona una carpeta")
+        folder_path = filedialog.askdirectory(title="Selecciona una carpeta")
 
-        if ruta_carpeta:
+        if folder_path:
             try:
                 conn = None
             # read the connection parameters
@@ -416,18 +439,18 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
 
-                for subcarpeta in os.listdir(ruta_carpeta):
-                    subcarpeta_path = os.path.join(ruta_carpeta, subcarpeta)
+                for subfolder in os.listdir(folder_path):
+                    subfolder_path = os.path.join(folder_path, subfolder)
 
-                    if os.path.isdir(subcarpeta_path):
-                        for archivo_csv in os.listdir(subcarpeta_path):
-                            if archivo_csv.endswith('setup.csv'):
-                                df_date = pd.read_csv(os.path.join(subcarpeta_path, archivo_csv), nrows=3)
+                    if os.path.isdir(subfolder_path):
+                        for csv_file in os.listdir(subfolder_path):
+                            if csv_file.endswith('setup.csv'):
+                                df_date = pd.read_csv(os.path.join(subfolder_path, csv_file), nrows=3)
                                 user = 'Jose Alberto Sanz' if df_date.iloc[1, 1] in ['USER1', 'GUEST'] else('Emilio Munez' if df_date.iloc[1, 1] == 'USER2' else 'Alberto Segura')
                                 fecha_str = df_date.iloc[0, 1].split()[0]
                                 import_date = pd.to_datetime(fecha_str).date()
 
-                                df_setup = pd.read_csv(os.path.join(subcarpeta_path, archivo_csv), skiprows=11, index_col=False)
+                                df_setup = pd.read_csv(os.path.join(subfolder_path, csv_file), skiprows=11, index_col=False)
                                 df_setup.drop(columns=['Function', 'Channel Delay', 'Rate of Change', 'Range' ,'Probe ID', 'Open Detect', 'Cold Junction',
                                 'Fixed', 'Display As', 'C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'Scaling', 'Gain', 'Offset', 'Unit', 'Alarm1 Type',
                                 'Alarm1 Limit', 'Alarm1 Output', 'Alarm2 Type', 'Alarm2 Limit', 'Alarm2 Output'], inplace=True)
@@ -436,8 +459,8 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                                 df_setup.rename(columns={"Label": "label", "Wire": "wire", "Sensor Type": "sensor"}, inplace=True)
                                 df_setup.set_index('Channel', inplace=True)
 
-                            if archivo_csv.endswith('dat00001.csv'):
-                                df_dat = pd.read_csv(os.path.join(subcarpeta_path, archivo_csv))
+                            if csv_file.endswith('dat00001.csv'):
+                                df_dat = pd.read_csv(os.path.join(subfolder_path, csv_file))
                                 df_dat.drop(columns=['Record #', 'Time', 'Alarm Output', 'Signature'], inplace=True)
                                 df_dat.columns = map(lambda col: col.replace(' (C)', ''), df_dat.columns)
                                 df_dat.columns = map(lambda col: col.replace(' ', ''), df_dat.columns)
@@ -453,7 +476,10 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                                 df_dat.index.name = 'Channel'
 
                         df_final = pd.concat([df_setup, df_dat], axis=1)
-                        df_master = pd.DataFrame([df_final.loc['Ch001']])
+                        df_master = pd.DataFrame([df_final.iloc[0]])
+
+                        dict_master = {'20':'EIPSA-020', '24': 'EIPSA-024',
+                                        '35': 'EIPSA-035', '01': 'EIPSA-TE-01', '02': 'EIPSA-TE-02'}
 
                         df_master.rename(columns={"element_1": "master_1"}, inplace=True)
                         if 'element_2' in df_master.columns.to_list():
@@ -463,7 +489,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                         if 'element_4' in df_master.columns.to_list():
                             df_master.rename(columns={"element_4": "master_4"}, inplace=True)
 
-                        master = df_master['label'][0]
+                        master = dict_master[df_master['label'][0]]
                         if 'master_1' in df_master.columns.to_list():
                             master_1 = df_master['master_1'][0]
                         else:
@@ -493,7 +519,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
 
                         df_elements['sensor'] = df_elements['sensor'].replace('A385', 'PT100')
                         df_elements['num_order'] = df_elements['label'].apply(lambda x: 'P-' + x[1:3] + '/' + x[3:6] if x[0] == 'P' else ('PA-' + x[1:3] + '/' + x[3:6] if x[0] == 'A' else 'NO PEDIDO'))
-                        df_elements['tag'] = df_elements['label'].apply(lambda x: x[7:] if x[0] == 'P' else (x[7:] if x[0] == 'A' else 'NO TAG'))
+                        df_elements['tag'] = df_elements.index
 
                         #Reading each row and inserting data in table
                         for index, row in df_elements.iterrows():
@@ -539,7 +565,6 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
             finally:
                 if conn is not None:
                     conn.close()
-
 
 # Function to delete all filters when tool button is clicked
     def delete_allFilters(self):
@@ -619,7 +644,12 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.tableEditCalibration.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableEditCalibration.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditCalibration.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableEditCalibration.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        if self.username == 'm.gil':
+            self.tableEditCalibration.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableEditCalibration.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
+            self.tableEditCalibration.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+        else:
+            self.tableEditCalibration.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
         self.tableEditCalibration.setObjectName("tableEditCalibration")
         self.gridLayout_2.addWidget(self.tableEditCalibration, 3, 0, 1, 1)
         self.tableEditCalibration.setSortingEnabled(False)
@@ -631,8 +661,9 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
     # Change all column names
         headers_names = ["ID", "Pedido", "Tag", "Label", "Sensor", "Wire", "Patrón", "Fecha",
                     "User", "Clase", "N.C. Bobina", "N.C. Bulbo", "CA", "Aisl. Caliente", "Cant. Prueba",
-                    "Cant. Pedido", "Notas", "Patrón 1", "Elemento 1", "Patrón 2",
-                    "Elemento 2", "Patrón 3", "Elemento 3", "Patrón 4", "Elemento 4"]
+                    "Cant. Pedido", "Notas", "Patrón 1", "Elemento 1", "Error 1", "Tolerancia 1", "Patrón 2",
+                    "Elemento 2", "Error 2", "Tolerancia 2", "Patrón 3", "Elemento 3", "Error 3", "Tolerancia 3", 
+                    "Patrón 4", "Elemento 4", "Error 4", "Tolerancia 4"]
 
         self.model.setAllColumnHeaders(headers_names)
 
@@ -689,7 +720,10 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.menuValues.addSeparator()
 
         scroll_menu = QtWidgets.QScrollArea()
-        scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
+        if self.username == 'm.gil':
+            scroll_menu.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255)")
+        else:
+            scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
         scroll_menu.setWidgetResizable(True)
         scroll_widget = QtWidgets.QWidget(scroll_menu)
         scroll_menu.setWidget(scroll_widget)
@@ -742,10 +776,16 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(accept_button)
         self.menuValues.addAction(cancel_button)
 
-        self.menuValues.setStyleSheet("QMenu { color: black; }"
-                                        "QMenu { background-color: rgb(255, 255, 255); }"
-                                        "QMenu::item:selected { background-color: #33bdef; }"
-                                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        if self.username == 'm.gil':
+            self.menuValues.setStyleSheet("QMenu { color: white; }"
+                                            "QMenu { background-color: #121212; }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
+                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        else:
+            self.menuValues.setStyleSheet("QMenu { color: black; }"
+                                            "QMenu { background-color: rgb(255, 255, 255); }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
+                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         headerPos = self.tableEditCalibration.mapToGlobal(self.tableEditCalibration.horizontalHeader().pos())        
 
@@ -876,12 +916,24 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             self.model.setIconColumnHeader(filterColumn, icono)
 
-
 # Function to hide column when action clicked
     def hide_column(self):
         filterColumn = self.logicalIndex
         self.tableEditCalibration.setColumnHidden(filterColumn, True)
         self.hiddencolumns.append(filterColumn)
+
+# Function to hide selected columns
+    def hideSelectedColumns(self):
+        selected_columns = set()
+        header = self.tableEditCalibration.horizontalHeader()
+        for index in header.selectionModel().selectedColumns():
+            selected_columns.add(index.column())
+
+        for column in selected_columns:
+            self.tableEditCalibration.setColumnHidden(column, True)
+            self.hiddencolumns.append(column)
+
+        self.context_menu.close()
 
 # Function to show all hidden columns
     def show_columns(self):
@@ -927,32 +979,52 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
 # Function to enable copy and paste cells
     def keyPressEvent(self, event):
         if event.matches(QKeySequence.StandardKey.Copy):
-            if self.tableEditCalibration.selectionModel() != None:
-                selected_indexes = self.tableEditCalibration.selectionModel().selectedIndexes()
-                if selected_indexes:
-                    clipboard = QApplication.clipboard()
-                    text = self.get_selected_text(selected_indexes)
-                    clipboard.setText(str(text))
+            selected_indexes = self.tableEditCalibration.selectionModel().selectedIndexes()
+            if not selected_indexes:
+                return
+            
+            model = self.tableEditCalibration.model()
+            model_indexes = [model.mapToSource(index) for index in selected_indexes]
+
+            mime_data = QMimeData()
+            data = bytearray()
+
+            for index in model_indexes:
+                data += str(self.model.data(index)).encode('utf-8') + b'\t'
+
+            mime_data.setData("text/plain", data)
+
+            clipboard = QApplication.clipboard()
+            clipboard.setMimeData(mime_data)
 
         elif event.matches(QKeySequence.StandardKey.Paste):
             if self.tableEditCalibration.selectionModel() != None:
+
+                clipboard = QApplication.clipboard()
+                mime_data = clipboard.mimeData()
+
+                if not mime_data.hasFormat("text/plain"):
+                    return
+
+                data = mime_data.data("text/plain").data()
+                values = data.split(b'\t')
+
                 selected_indexes = self.tableEditCalibration.selectionModel().selectedIndexes()
-                if selected_indexes:
-                    clipboard = QApplication.clipboard()
-                    text = clipboard.text()
-                    for index in selected_indexes:
-                        current_row = index.row()
-                        current_column = index.column()
-                        first_column_value = self.proxy.data(self.proxy.index(current_row, 0))
-                        target_row = None
-                        for row in range(self.model.rowCount()):
-                            if self.model.data(self.model.index(row, 0)) == first_column_value:
-                                target_row = row
-                                break
-                        if target_row is not None:
-                            target_index = self.model.index(target_row, current_column)
-                            self.model.setData(target_index, text, Qt.ItemDataRole.EditRole)
-                    self.model.submitAll()
+                if not selected_indexes:
+                    return
+                
+                model = self.tableEditCalibration.model()
+                model_indexes = [model.mapToSource(index) for index in selected_indexes]
+
+                if len(values) == 2:
+                    for index in model_indexes:
+                        self.model.setData(index, values[0].decode('utf-8'))
+                else:
+                    for index, value in zip(model_indexes, values):
+                        self.model.setData(index, value.decode('utf-8'))
+
+                self.model.submitAll()
+
 
         super().keyPressEvent(event)
 
@@ -1015,46 +1087,127 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         else:
             return 0.0
 
-# Function for creating context menu
+# Function for creating context menu for hiding columns
     def createContextMenu(self):
         self.context_menu = QtWidgets.QMenu(self)
         hide_columns_action = self.context_menu.addAction("Ocultar Columnas")
         hide_columns_action.triggered.connect(self.hideSelectedColumns)
+        if self.username == 'm.gil':
+            self.context_menu.setStyleSheet("QMenu { color: white; }"
+                                            "QMenu { background-color: #121212; }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
+                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        else:
+            self.context_menu.setStyleSheet("QMenu { color: black; }"
+                                            "QMenu { background-color: rgb(255, 255, 255); }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
+                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
-# Function to show context menu when right-click
+# Function to show context menu when right-click for hiding columns
     def showColumnContextMenu(self, pos):
         header = self.tableEditCalibration.horizontalHeader()
         column = header.logicalIndexAt(pos)
         self.context_menu.exec(self.tableEditCalibration.mapToGlobal(pos))
 
-# Function to hide selected columns
-    def hideSelectedColumns(self):
-        selected_columns = set()
-        header = self.tableEditCalibration.horizontalHeader()
-        for index in header.selectionModel().selectedColumns():
-            selected_columns.add(index.column())
+# Function to delete register of database
+    def delete_register(self):
+        selection_model = self.tableEditCalibration.selectionModel()
 
-        for column in selected_columns:
-            self.tableEditCalibration.setColumnHidden(column, True)
-            self.hiddencolumns.append(column)
+        if not selection_model.hasSelection():
+            return
 
-        self.context_menu.close()
+        model = self.tableEditCalibration.model()
 
+        id_values = []
+        selected_indexes = selection_model.selectedRows()
+        for index in selected_indexes:
+            # Obtaining first columns values
+            item_index = model.index(index.row(), 0)
+            if item_index.isValid():
+                value = model.data(item_index)
+                id_values.append(value)
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    config_obj = configparser.ConfigParser()
-    config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-    dbparam = config_obj["postgresql"]
-    # set your parameters for the database connection URI using the keys from the configfile.ini
-    user_database = dbparam["user"]
-    password_database = dbparam["password"]
+        if len(id_values) != 0:
+            dlg_yes_no = QtWidgets.QMessageBox()
+            new_icon_yes_no = QtGui.QIcon()
+            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+            dlg_yes_no.setWindowTitle("ERP EIPSA")
+            dlg_yes_no.setText("¿Estás seguro de que deseas eliminar los registros?\n")
+            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            result = dlg_yes_no.exec()
+            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    commands_delete = ("""DELETE FROM verification.calibration_thermoelements
+                                        WHERE id = %s""")
+                    for id_value in id_values:
+                        data = (id_value,)
+                        cur.execute(commands_delete, data)
 
-    db = createConnection(user_database, password_database)
-    if not db:
-        sys.exit()
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
 
-    CalibrationThermoElements_Window = Ui_Calibration_ThermoElements_Window(db)
-    CalibrationThermoElements_Window.show()
-    sys.exit(app.exec())
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Caibraciones")
+                    dlg.setText("Registros eliminados con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg,new_icon
+
+                    self.query_calibration()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+            del dlg_yes_no, new_icon_yes_no
+
+# Function to print certificate
+    def print_certificate(self):
+        from CalibrationPrintCertificate_Window import Ui_CalibrationPrintCertificate_Window
+        self.CalibrationPrintCertificate_Window=QtWidgets.QMainWindow()
+        self.ui=Ui_CalibrationPrintCertificate_Window(self.username)
+        self.ui.setupUi(self.CalibrationPrintCertificate_Window)
+        self.CalibrationPrintCertificate_Window.show()
+
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     config_obj = configparser.ConfigParser()
+#     config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+#     dbparam = config_obj["postgresql"]
+#     # set your parameters for the database connection URI using the keys from the configfile.ini
+#     user_database = dbparam["user"]
+#     password_database = dbparam["password"]
+
+#     db = createConnection(user_database, password_database)
+#     if not db:
+#         sys.exit()
+
+#     CalibrationThermoElements_Window = Ui_Calibration_ThermoElements_Window(db, 'm.gil')
+#     CalibrationThermoElements_Window.show()
+#     sys.exit(app.exec())

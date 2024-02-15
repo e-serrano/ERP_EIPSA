@@ -9,6 +9,8 @@ UI_Files/
 
 Resources/
 
+.env
+
 PDF_Styles.py
 
 Email_Styles.py
@@ -19,13 +21,7 @@ icon.ico
 
 setup.ico
 
-exportar_df_a_excel.py
-
-tableExcel_to_database.py
-
 import_tables.py
-
-exp_to_excel_template.py
 
 zz test1.py
 
@@ -37,6 +33,17 @@ zz test4.py
 
 zz test5.py
 
+zz test6.py
+
+zz test7.py
+
+zz test8.py
+
+zz test9.py
+
+zz test10.py
+
 MoneyChange.py
 
 frozencolumn.py
+

@@ -962,36 +962,36 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 target_row = row
                 break
         if target_row is not None:
-            code_body = model.data(model.index(target_row, 61))
-            codefab_body = model.data(model.index(target_row, 62))
-            code_cover = model.data(model.index(target_row, 64))
-            codefab_cover = model.data(model.index(target_row, 65))
-            code_bolts = model.data(model.index(target_row, 67))
-            codefab_bolts = model.data(model.index(target_row, 68))
-            code_nipplehex = model.data(model.index(target_row, 70))
-            codefab_nipplehex = model.data(model.index(target_row, 71))
-            code_valve = model.data(model.index(target_row, 73))
-            codefab_valve = model.data(model.index(target_row, 74))
-            code_flangevalve = model.data(model.index(target_row, 76))
-            codefab_flangevalve = model.data(model.index(target_row, 77))
-            code_dv = model.data(model.index(target_row, 79))
-            codefab_dv = model.data(model.index(target_row, 80))
-            code_scale = model.data(model.index(target_row, 82))
-            code_fab_scale = model.data(model.index(target_row, 83))
-            code_illuminator = model.data(model.index(target_row, 85))
-            codefab_illuminator = model.data(model.index(target_row, 86))
-            code_gasket = model.data(model.index(target_row, 88))
-            codefab_gasket = model.data(model.index(target_row, 89))
-            code_glass = model.data(model.index(target_row, 91))
-            codefab_glass = model.data(model.index(target_row, 92))
-            code_float = model.data(model.index(target_row, 94))
-            codefab_float = model.data(model.index(target_row, 95))
-            code_mica = model.data(model.index(target_row, 97))
-            codefab_mica = model.data(model.index(target_row, 98))
-            code_nippletube = model.data(model.index(target_row, 106))
-            codefab_nippletube = model.data(model.index(target_row, 107))
-            code_antifrost = model.data(model.index(target_row, 109))
-            codefab_antifrost = model.data(model.index(target_row, 110))
+            code_body = model.data(model.index(target_row, 67))
+            codefab_body = model.data(model.index(target_row, 68))
+            code_cover = model.data(model.index(target_row, 70))
+            codefab_cover = model.data(model.index(target_row, 71))
+            code_bolts = model.data(model.index(target_row, 73))
+            codefab_bolts = model.data(model.index(target_row, 74))
+            code_nipplehex = model.data(model.index(target_row, 76))
+            codefab_nipplehex = model.data(model.index(target_row, 77))
+            code_valve = model.data(model.index(target_row, 79))
+            codefab_valve = model.data(model.index(target_row, 80))
+            code_flangevalve = model.data(model.index(target_row, 82))
+            codefab_flangevalve = model.data(model.index(target_row, 83))
+            code_dv = model.data(model.index(target_row, 85))
+            codefab_dv = model.data(model.index(target_row, 86))
+            code_scale = model.data(model.index(target_row, 88))
+            code_fab_scale = model.data(model.index(target_row, 89))
+            code_illuminator = model.data(model.index(target_row, 91))
+            codefab_illuminator = model.data(model.index(target_row, 92))
+            code_gasket = model.data(model.index(target_row, 94))
+            codefab_gasket = model.data(model.index(target_row, 95))
+            code_glass = model.data(model.index(target_row, 97))
+            codefab_glass = model.data(model.index(target_row, 98))
+            code_float = model.data(model.index(target_row, 100))
+            codefab_float = model.data(model.index(target_row, 101))
+            code_mica = model.data(model.index(target_row, 103))
+            codefab_mica = model.data(model.index(target_row, 104))
+            code_nippletube = model.data(model.index(target_row, 112))
+            codefab_nippletube = model.data(model.index(target_row, 113))
+            code_antifrost = model.data(model.index(target_row, 115))
+            codefab_antifrost = model.data(model.index(target_row, 116))
             all_list_parts = []
 
             model_num = model.data(model.index(target_row, 9))[:6]
@@ -1002,12 +1002,12 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
             cc_length = int(model.data(model.index(target_row, 17)))
 
             if code_body != '':
-                tradcodbody = model.data(model.index(target_row, 113))
+                tradcodbody = model.data(model.index(target_row, 119))
                 modelbody = nipplehexdim
                 designbody = '40x40'
                 processbody = (nipplehexdim + '-M')
                 materialbody = model.data(model.index(target_row, 10))
-                qtybody = model.data(model.index(target_row, 63))
+                qtybody = model.data(model.index(target_row, 69))
                 body_list.append([code_body,codefab_body,tradcodbody,modelbody,designbody,processbody,materialbody,qtybody])
                 all_list_parts.append(body_list)
 
@@ -1050,92 +1050,92 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
                     if conn is not None:
                         conn.close()
 
-                tradcodcover = model.data(model.index(target_row, 114))
+                tradcodcover = model.data(model.index(target_row, 120))
                 modelcover = ('L=' + str(length))
                 designcover = '80x30'
                 processcover = (str(bores) + ' taladros')
                 materialcover = model.data(model.index(target_row, 10))
-                qtycover = model.data(model.index(target_row, 66))
+                qtycover = model.data(model.index(target_row, 72))
                 cover_list.append([code_cover,codefab_cover,tradcodcover,modelcover,designcover,processcover,materialcover,qtycover])
                 all_list_parts.append(cover_list)
 
             if code_glass != '':
-                tradcodglass = model.data(model.index(target_row, 123))
+                tradcodglass = model.data(model.index(target_row, 129))
                 modelglass = 'TRANSPARENCIA' if level_type == 'Transparent' else 'REFLEXIÓN'
                 designglass = ''
                 processglass = ''
                 materialglass ='BOROSILICATO'
-                qtyglass = model.data(model.index(target_row, 93))
+                qtyglass = model.data(model.index(target_row, 99))
                 glass_list.append([code_glass,codefab_glass,tradcodglass,modelglass,designglass,processglass,materialglass,qtyglass])
                 all_list_parts.append(glass_list)
 
             if code_gasket != '':
-                tradcodgasket = model.data(model.index(target_row, 122))
+                tradcodgasket = model.data(model.index(target_row, 128))
                 modelgasket = 'TRANSPARENCIA' if level_type == 'Transparent' else 'REFLEXIÓN'
                 designgasket = ''
                 processgasket = ''
                 materialgasket ='GRAFOIL'
-                qtygasket = model.data(model.index(target_row, 90))
+                qtygasket = model.data(model.index(target_row, 96))
                 gasket_list.append([code_gasket,codefab_gasket,tradcodgasket,modelgasket,designgasket,processgasket,materialgasket,qtygasket])
                 all_list_parts.append(gasket_list)
 
             if code_mica != '':
-                tradcodmica = model.data(model.index(target_row, 125))
+                tradcodmica = model.data(model.index(target_row, 131))
                 modelmica = 'TRANSPARENCIA'
                 designmica = ''
                 processmica = ''
                 materialmica ='MICA'
-                qtymica = model.data(model.index(target_row, 99))
+                qtymica = model.data(model.index(target_row, 105))
                 mica_list.append([code_mica,codefab_mica,tradcodmica,modelmica,designmica,processmica,materialmica,qtymica])
                 all_list_parts.append(mica_list)
 
             if code_bolts != '':
-                tradcodbolts = model.data(model.index(target_row, 115))
+                tradcodbolts = model.data(model.index(target_row, 121))
                 modelbolts = 'TRANSPARENCIA' if level_type == 'Transparent' else 'REFLEXIÓN'
                 designbolts = 'M10x132 mm' if level_type == 'Transparent' else ''
                 processbolts = 'cabeza exag 17 e/c' if level_type == 'Transparent' else ''
                 materialbolts = 'B7/2H' if level_type in ['Transparent','Reflex'] else model.data(model.index(target_row, 24))
-                qtybolts = model.data(model.index(target_row, 69))
+                qtybolts = model.data(model.index(target_row, 75))
                 bolts_list.append([code_bolts,codefab_bolts,tradcodbolts,modelbolts,designbolts,processbolts,materialbolts,qtybolts])
                 all_list_parts.append(bolts_list)
 
             if code_nipplehex != '':
-                tradcodnipplehex = model.data(model.index(target_row, 116))
+                tradcodnipplehex = model.data(model.index(target_row, 122))
                 modelnipplehex = (str(cc_length-length-72+20) + ' mm')
                 designnipplehex = ''
                 processnipplehex = ''
                 materialnipplehex = model.data(model.index(target_row, 10))
-                qtynipplehex = model.data(model.index(target_row, 72))
+                qtynipplehex = model.data(model.index(target_row, 78))
                 nipplehex_list.append([code_nipplehex,codefab_nipplehex,tradcodnipplehex,modelnipplehex,designnipplehex,processnipplehex,materialnipplehex,qtynipplehex])
                 all_list_parts.append(nipplehex_list)
 
             if code_valve != '':
-                tradcodvalve = model.data(model.index(target_row, 117))
+                tradcodvalve = model.data(model.index(target_row, 123))
                 modelvalve = nipplehexdim[:4] + ' x ' + nipplehexdim[:4]
                 designvalve = nipplehexdim[-3:] + '-H'
                 processvalve = ''
                 materialvalve = 'A-105' if model.data(model.index(target_row, 18))[-2:] == 'NB' else '316 SS'
-                qtyvalve = model.data(model.index(target_row, 75))
+                qtyvalve = model.data(model.index(target_row, 81))
                 valve_list.append([code_valve,codefab_valve,tradcodvalve,modelvalve,designvalve,processvalve,materialvalve,qtyvalve])
                 all_list_parts.append(valve_list)
 
             if code_flangevalve != '':
-                tradcodflangevalve = model.data(model.index(target_row, 118))
+                tradcodflangevalve = model.data(model.index(target_row, 124))
                 modelflangevalve = ''
                 designflangevalve = ''
                 processflangevalve = ''
                 materialflangevalve = model.data(model.index(target_row, 10))
-                qtyflangevalve = model.data(model.index(target_row, 78))
+                qtyflangevalve = model.data(model.index(target_row, 82))
                 flangevalve_list.append([code_flangevalve,codefab_flangevalve,tradcodflangevalve,modelflangevalve,designflangevalve,processflangevalve,materialflangevalve,qtyflangevalve])
                 all_list_parts.append(flangevalve_list)
 
             if code_dv != '':
-                tradcoddv = model.data(model.index(target_row, 119))
+                tradcoddv = model.data(model.index(target_row, 125))
                 modeldv = ''
                 designdv = ''
                 processdv = ''
                 materialdv = model.data(model.index(target_row, 10))
-                qtydv = model.data(model.index(target_row, 81))
+                qtydv = model.data(model.index(target_row, 87))
                 dv_list.append([code_dv,codefab_dv,tradcoddv,modeldv,designdv,processdv,materialdv,qtydv])
                 all_list_parts.append(dv_list)
 
@@ -1149,32 +1149,32 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 plug_list.append([tradcodplug,modelplug,designplug,processplug,materialplug,qtyplug])
 
             if code_nippletube != '':
-                tradcodnippletube = model.data(model.index(target_row, 128))
+                tradcodnippletube = model.data(model.index(target_row, 134))
                 modelnippletube = '80 mm'
                 designnippletube = ''
                 processnippletube = ''
                 materialnippletube = 'A-106' if model.data(model.index(target_row, 10)) in ['Carbon Steel','ASTM A350 LF2 CL2'] else model.data(model.index(target_row, 10))
-                qtynippletube = model.data(model.index(target_row, 108))
+                qtynippletube = model.data(model.index(target_row, 114))
                 nippletube_list.append([code_nippletube,codefab_nippletube,tradcodnippletube,modelnippletube,designnippletube,processnippletube,materialnippletube,qtynippletube])
                 all_list_parts.append(nippletube_list)
 
             if code_illuminator != '':
-                tradcodilluminator = model.data(model.index(target_row, 121))
+                tradcodilluminator = model.data(model.index(target_row, 127))
                 modelilluminator = model_num[:6].replace('S','I')
                 designilluminator = ''
                 processilluminator = ''
                 materialilluminator = 'HIERRO'
-                qtyilluminator = model.data(model.index(target_row, 87))
+                qtyilluminator = model.data(model.index(target_row, 93))
                 illuminator_list.append([code_illuminator,codefab_illuminator,tradcodilluminator,modelilluminator,designilluminator,processilluminator,materialilluminator,qtyilluminator])
                 all_list_parts.append(illuminator_list)
 
             if code_antifrost != '':
-                tradcodantifrost = model.data(model.index(target_row, 129))
+                tradcodantifrost = model.data(model.index(target_row, 135))
                 modelantifrost = ''
                 designantifrost = ''
                 processantifrost = ''
                 materialantifrost = 'METACRILATO'
-                qtyantifrost = model.data(model.index(target_row, 111))
+                qtyantifrost = model.data(model.index(target_row, 117))
                 antifrost_list.append([code_antifrost,codefab_antifrost,tradcodantifrost,modelantifrost,designantifrost,processantifrost,materialantifrost,qtyantifrost])
                 all_list_parts.append(antifrost_list)
 
@@ -1190,8 +1190,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
                                             "l_antifrost", "qty_l_antifrost"]
             columns_parts = ["code_part", "code_fab_part", "code_element", "model", "design", "process", "material", "section_type"]
             columns_tags = ["code", "equipment", "num_order","order_material","contractual_date","inspection"]
-            values_equipments = [model.data(model.index(target_row, 58)), model.data(model.index(target_row, 59)), model.data(model.index(target_row, 60)), "N-Niveles",
-                                model.data(model.index(target_row, 61)), model.data(model.index(target_row, 63)), model.data(model.index(target_row, 64)), model.data(model.index(target_row, 66)),
+            values_equipments = [model.data(model.index(target_row, 64)), model.data(model.index(target_row, 65)), model.data(model.index(target_row, 66)), "N-Niveles",
                                 model.data(model.index(target_row, 67)), model.data(model.index(target_row, 69)), model.data(model.index(target_row, 70)), model.data(model.index(target_row, 72)),
                                 model.data(model.index(target_row, 73)), model.data(model.index(target_row, 75)), model.data(model.index(target_row, 76)), model.data(model.index(target_row, 78)),
                                 model.data(model.index(target_row, 79)), model.data(model.index(target_row, 81)), model.data(model.index(target_row, 82)), model.data(model.index(target_row, 84)),
@@ -1199,10 +1198,11 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
                                 model.data(model.index(target_row, 91)), model.data(model.index(target_row, 93)), model.data(model.index(target_row, 94)), model.data(model.index(target_row, 96)),
                                 model.data(model.index(target_row, 97)), model.data(model.index(target_row, 99)), model.data(model.index(target_row, 100)), model.data(model.index(target_row, 102)),
                                 model.data(model.index(target_row, 103)), model.data(model.index(target_row, 105)), model.data(model.index(target_row, 106)), model.data(model.index(target_row, 108)),
-                                model.data(model.index(target_row, 109)), model.data(model.index(target_row, 111))]
+                                model.data(model.index(target_row, 109)), model.data(model.index(target_row, 111)), model.data(model.index(target_row, 112)), model.data(model.index(target_row, 114)),
+                                model.data(model.index(target_row, 115)), model.data(model.index(target_row, 117))]
             values_tags = [model.data(model.index(target_row, 4)) + "-" + model.data(model.index(target_row, 8)) + "-" + model.data(model.index(target_row, 1)), 
-                            model.data(model.index(target_row, 58)), model.data(model.index(target_row, 4)), model.data(model.index(target_row, 48)),
-                            model.data(model.index(target_row, 39)), model.data(model.index(target_row, 56))]
+                            model.data(model.index(target_row, 64)), model.data(model.index(target_row, 4)), model.data(model.index(target_row, 48)),
+                            model.data(model.index(target_row, 39)), model.data(model.index(target_row, 62))]
 
             columns_equipments  = ", ".join([f'"{column}"' for column in columns_equipments])
             values_equipments =  ", ".join(['NULL' if value == '' or value == 0 else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in values_equipments])
@@ -1215,7 +1215,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
             commands_equipments = f"INSERT INTO fabrication.equipments ({columns_equipments}) VALUES ({values_equipments})"
             commands_tags = f"INSERT INTO fabrication.tags ({columns_tags}) VALUES ({values_tags})"
 
-            check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{model.data(model.index(target_row, 58))}'"
+            check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{model.data(model.index(target_row, 64))}'"
 
             conn = None
             try:
@@ -1231,7 +1231,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
                     cur.execute(commands_equipments)
                 else:
                     set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_equipments.split(", ")[1:], values_equipments.split(", ")[1:])])
-                    update_equipments = f"UPDATE fabrication.equipments SET {set_clause} WHERE code_equipment = '{model.data(model.index(target_row, 58))}'"
+                    update_equipments = f"UPDATE fabrication.equipments SET {set_clause} WHERE code_equipment = '{model.data(model.index(target_row, 64))}'"
                     cur.execute(update_equipments)
 
                 for list_part in all_list_parts:

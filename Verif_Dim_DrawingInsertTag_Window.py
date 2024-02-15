@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'Verif_OF_DrawingInsert_Window.ui'
+# Form implementation generated from reading ui file 'Verif_Dim_DrawingInsertTag_Window.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -43,6 +43,9 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         actionOrderAsc.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.AscendingOrder))
         actionOrderDesc = menu.addAction("Ordenar Descendente")
         actionOrderDesc.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.DescendingOrder))
+        menu.addSeparator()
+        actionFilterByText = menu.addAction("Buscar Texto")
+        actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
         menu.addSeparator()
 
         menu.setStyleSheet("QMenu { color: black; }"
@@ -97,6 +100,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         menu.exec(header_pos - QtCore.QPoint(0, header_height))
 
+
 # Function to delete filter on selected column
     def delete_filter(self,column_index):
         if column_index in self.column_filters:
@@ -112,6 +116,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         header_item = self.horizontalHeaderItem(column_index)
         header_item.setIcon(QtGui.QIcon())
 
+
 # Function to set all checkboxes state
     def set_all_checkboxes_state(self, checkboxes, state, column_index):
         if column_index not in self.checkbox_states:
@@ -122,28 +127,43 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         self.checkbox_states[column_index]["Seleccionar todo"] = state
 
+
 # Function to apply filters to table
-    def apply_filter(self, column_index, value, checked):
+    def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
 
-        if value is None:
-            self.column_filters[column_index] = set()
-        elif checked:
-            self.column_filters[column_index].add(value)
-        elif value in self.column_filters[column_index]:
-            self.column_filters[column_index].remove(value)
+        if text_filter is None:
+            if value is None:
+                self.column_filters[column_index] = set()
+            elif checked:
+                self.column_filters[column_index].add(value)
+            elif value in self.column_filters[column_index]:
+                self.column_filters[column_index].remove(value)
 
         rows_to_hide = set()
         for row in range(self.rowCount()):
             show_row = True
+
+            # Check filters for all columns
             for col, filters in self.column_filters.items():
                 item = self.item(row, col)
                 if item:
                     item_value = item.text()
-                    if filters and item_value not in filters:
+                    if text_filter is None:
+                        if filters and item_value not in filters:
+                            show_row = False
+                            break
+
+        # Filtering by text
+            if text_filter is not None:
+                filter_dialog.accept()
+                item = self.item(row, column_index)
+                if item:
+                    if text_filter.upper() in item.text().upper():
+                        self.column_filters[column_index].add(item.text())
+                    else:
                         show_row = False
-                        break
 
             if not show_row:
                 if row not in self.general_rows_to_hide:
@@ -153,20 +173,76 @@ class CustomTableWidget(QtWidgets.QTableWidget):
                 if row in self.general_rows_to_hide:
                     self.general_rows_to_hide.remove(row)
 
-    # Update hidden rows for this column
-        if checked:
+        # Update hidden rows for this column depending on checkboxes
+        if checked and text_filter is None:
             if column_index not in self.rows_hidden:
                 self.rows_hidden[column_index] = set(rows_to_hide)
             else:
                 self.rows_hidden[column_index].update(rows_to_hide)
 
-    # Iterate over all rows to hide them as necessary
+        # Update hidden rows for this column depending on filtered text
+        if text_filter is not None and value is None:
+            if column_index not in self.rows_hidden:
+                self.rows_hidden[column_index] = set(rows_to_hide)
+            else:
+                self.rows_hidden[column_index].update(rows_to_hide)
+
+        # Iterate over all rows to hide them as necessary
         for row in range(self.rowCount()):
             self.setRowHidden(row, row in self.general_rows_to_hide)
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
             header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+        else:
+            header_item.setIcon(QtGui.QIcon())
+
+
+    def filter_by_text(self, column_index):
+        filter_dialog = QtWidgets.QDialog(self)
+        filter_dialog.setWindowTitle("Filtrar por texto")
+        
+        label = QtWidgets.QLabel("Texto a filtrar:")
+        text_input = QtWidgets.QLineEdit()
+        
+        filter_button = QtWidgets.QPushButton("Filtrar")
+        filter_button.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 2px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        filter_button.clicked.connect(lambda: self.apply_filter(column_index, None, False, text_input.text(), filter_dialog))
+
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(label)
+        layout.addWidget(text_input)
+        layout.addWidget(filter_button)
+
+        filter_dialog.setLayout(layout)
+        filter_dialog.exec()
+
 
 # Function to obtain the unique matching applied filters 
     def get_unique_values(self, column_index):
@@ -198,6 +274,38 @@ class CustomTableWidget(QtWidgets.QTableWidget):
     def sort_column(self, column_index, sortOrder):
         self.sortByColumn(column_index, sortOrder)
 
+
+    def custom_sort(self, column, order):
+    # Obtén la cantidad de filas en la tabla
+        row_count = self.rowCount()
+
+        # Crea una lista de índices ordenados según las fechas
+        indexes = list(range(row_count))
+        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd-MM-yyyy"))
+
+        # Si el orden es descendente, invierte la lista
+        if order == QtCore.Qt.SortOrder.DescendingOrder:
+            indexes.reverse()
+
+        # Guarda el estado actual de las filas ocultas
+        hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
+
+        # Actualiza las filas en la tabla en el orden ordenado
+        rows = self.rowCount()
+        for i in range(rows):
+            self.insertRow(i)
+
+        for new_row, old_row in enumerate(indexes):
+            for col in range(self.columnCount()):
+                item = self.takeItem(old_row + rows, col)
+                self.setItem(new_row, col, item)
+
+        for i in range(rows):
+            self.removeRow(rows)
+
+        for row in hidden_rows:
+            self.setRowHidden(row, True)
+
 # Function with the menu configuration
     def contextMenuEvent(self, event):
         if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
@@ -209,57 +317,95 @@ class CustomTableWidget(QtWidgets.QTableWidget):
             super().contextMenuEvent(event)
 
 
-class Ui_Verif_OF_DrawingInsert_Window(QtWidgets.QMainWindow):
-    def __init__(self, numorder):
+class Ui_Verif_Dim_DrawingInsertTag_Window(QtWidgets.QMainWindow):
+    def __init__(self, numorder, username):
         super().__init__()
         self.numorder = numorder
+        self.username = username
         self.setupUi(self)
 
 
-    def setupUi(self, Verif_OF_DrawingInsert_Window):
-        Verif_OF_DrawingInsert_Window.setObjectName("Verif_OF_DrawingInsert_Window")
-        Verif_OF_DrawingInsert_Window.resize(400, 561)
-        Verif_OF_DrawingInsert_Window.setMinimumSize(QtCore.QSize(1000, 675))
-        # Verif_OF_DrawingInsert_Window.setMaximumSize(QtCore.QSize(800, 675))
+    def setupUi(self, Verif_Dim_DrawingInsertTag_Window):
+        Verif_Dim_DrawingInsertTag_Window.setObjectName("Verif_Dim_DrawingInsertTag_Window")
+        Verif_Dim_DrawingInsertTag_Window.resize(400, 561)
+        Verif_Dim_DrawingInsertTag_Window.setMinimumSize(QtCore.QSize(1000, 675))
+        # Verif_Dim_DrawingInsertTag_Window.setMaximumSize(QtCore.QSize(800, 675))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        Verif_OF_DrawingInsert_Window.setWindowIcon(icon)
-        Verif_OF_DrawingInsert_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
-"QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 2px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
-        self.centralwidget = QtWidgets.QWidget(parent=Verif_OF_DrawingInsert_Window)
+        Verif_Dim_DrawingInsertTag_Window.setWindowIcon(icon)
+        if self.username == 'm.gil':
+            Verif_Dim_DrawingInsertTag_Window.setStyleSheet("QWidget {\n"
+    "background-color: #121212; color: rgb(255, 255, 255);\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid black;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 2px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
+        else:
+            Verif_Dim_DrawingInsertTag_Window.setStyleSheet("QWidget {\n"
+    "background-color: rgb(255, 255, 255);\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid black;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 2px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
+        self.centralwidget = QtWidgets.QWidget(parent=Verif_Dim_DrawingInsertTag_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -296,45 +442,24 @@ class Ui_Verif_OF_DrawingInsert_Window(QtWidgets.QMainWindow):
         self.tableTags.setColumnCount(0)
         self.tableTags.setRowCount(0)
         self.gridLayout_2.addWidget(self.tableTags, 3, 0, 1, 6)
-        self.label_of_eq = QtWidgets.QLabel(parent=self.frame)
-        self.label_of_eq.setMinimumSize(QtCore.QSize(120, 25))
-        self.label_of_eq.setMaximumSize(QtCore.QSize(120, 25))
+        self.label_dim_eq = QtWidgets.QLabel(parent=self.frame)
+        self.label_dim_eq.setMinimumSize(QtCore.QSize(150, 25))
+        self.label_dim_eq.setMaximumSize(QtCore.QSize(150, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
-        self.label_of_eq.setFont(font)
-        self.label_of_eq.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_of_eq.setObjectName("label_of_eq")
-        self.gridLayout_2.addWidget(self.label_of_eq, 4, 0, 1, 1)
-        self.of_eq = QtWidgets.QLineEdit(parent=self.frame)
-        self.of_eq.setMinimumSize(QtCore.QSize(105, 25))
+        self.label_dim_eq.setFont(font)
+        self.label_dim_eq.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_dim_eq.setObjectName("label_dim_eq")
+        self.gridLayout_2.addWidget(self.label_dim_eq, 4, 0, 1, 1)
+        self.dim_eq = QtWidgets.QLineEdit(parent=self.frame)
+        self.dim_eq.setMinimumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.of_eq.setFont(font)
-        self.of_eq.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.of_eq.setObjectName("of_eq")
-        self.gridLayout_2.addWidget(self.of_eq, 4, 1, 1, 1)
-        self.label_of_sensor = QtWidgets.QLabel(parent=self.frame)
-        self.label_of_sensor.setMinimumSize(QtCore.QSize(120, 25))
-        self.label_of_sensor.setMaximumSize(QtCore.QSize(120, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_of_sensor.setFont(font)
-        self.label_of_sensor.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_of_sensor.setObjectName("label_of_sensor")
-        self.label_of_sensor.setVisible(False)
-        self.gridLayout_2.addWidget(self.label_of_sensor, 4, 4, 1, 1)
-        self.of_sensor = QtWidgets.QLineEdit(parent=self.frame)
-        self.of_sensor.setMinimumSize(QtCore.QSize(105, 25))
-        self.of_sensor.setMaximumSize(QtCore.QSize(16777215, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.of_sensor.setFont(font)
-        self.of_sensor.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.of_sensor.setObjectName("of_sensor")
-        self.of_sensor.setVisible(False)
-        self.gridLayout_2.addWidget(self.of_sensor, 4, 5, 1, 1)
+        self.dim_eq.setFont(font)
+        self.dim_eq.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.dim_eq.setObjectName("dim_eq")
+        self.gridLayout_2.addWidget(self.dim_eq, 4, 1, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.gridLayout_2.addItem(spacerItem1, 5, 2, 1, 1)
         self.Button_Insert = QtWidgets.QPushButton(parent=self.frame)
@@ -348,26 +473,30 @@ class Ui_Verif_OF_DrawingInsert_Window(QtWidgets.QMainWindow):
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.gridLayout_2.addWidget(self.Button_Cancel, 6, 4, 1, 2)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
-        Verif_OF_DrawingInsert_Window.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=Verif_OF_DrawingInsert_Window)
+        Verif_Dim_DrawingInsertTag_Window.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=Verif_Dim_DrawingInsertTag_Window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 400, 22))
         self.menubar.setObjectName("menubar")
-        Verif_OF_DrawingInsert_Window.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=Verif_OF_DrawingInsert_Window)
+        Verif_Dim_DrawingInsertTag_Window.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=Verif_Dim_DrawingInsertTag_Window)
         self.statusbar.setObjectName("statusbar")
-        Verif_OF_DrawingInsert_Window.setStatusBar(self.statusbar)
+        Verif_Dim_DrawingInsertTag_Window.setStatusBar(self.statusbar)
         self.tableTags.verticalHeader().setVisible(True)
         self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableTags.setSortingEnabled(False)
-        self.tableTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
-        Verif_OF_DrawingInsert_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
+        if self.username == 'm.gil':
+            self.tableTags.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+        else:
+            self.tableTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+        Verif_Dim_DrawingInsertTag_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
-        self.retranslateUi(Verif_OF_DrawingInsert_Window)
-        QtCore.QMetaObject.connectSlotsByName(Verif_OF_DrawingInsert_Window)
+        self.retranslateUi(Verif_Dim_DrawingInsertTag_Window)
+        QtCore.QMetaObject.connectSlotsByName(Verif_Dim_DrawingInsertTag_Window)
 
         self.num_order.setText(self.numorder)
 
-        self.Button_Cancel.clicked.connect(Verif_OF_DrawingInsert_Window.close)
+        self.Button_Cancel.clicked.connect(Verif_Dim_DrawingInsertTag_Window.close)
         self.num_order.returnPressed.connect(self.querytags)
         self.Button_Insert.clicked.connect(self.insert)
         self.tableTags.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
@@ -376,14 +505,13 @@ class Ui_Verif_OF_DrawingInsert_Window(QtWidgets.QMainWindow):
         self.querytags()
 
 
-    def retranslateUi(self, Verif_OF_DrawingInsert_Window):
+    def retranslateUi(self, Verif_Dim_DrawingInsertTag_Window):
         _translate = QtCore.QCoreApplication.translate
-        Verif_OF_DrawingInsert_Window.setWindowTitle(_translate("Verif_OF_DrawingInsert_Window", "Planos OF"))
-        self.label_order.setText(_translate("Verif_OF_DrawingInsert_Window", "Nº Pedido:"))
-        self.label_of_eq.setText(_translate("Verif_OF_DrawingInsert_Window", "Plano OF Equipo:"))
-        self.label_of_sensor.setText(_translate("Verif_OF_DrawingInsert_Window", "Plano OF Sensor:"))
-        self.Button_Cancel.setText(_translate("Verif_OF_DrawingInsert_Window", "Cancelar"))
-        self.Button_Insert.setText(_translate("Verif_OF_DrawingInsert_Window", "Insertar"))
+        Verif_Dim_DrawingInsertTag_Window.setWindowTitle(_translate("Verif_Dim_DrawingInsertTag_Window", "Planos Dim"))
+        self.label_order.setText(_translate("Verif_Dim_DrawingInsertTag_Window", "Nº Pedido:"))
+        self.label_dim_eq.setText(_translate("Verif_Dim_DrawingInsertTag_Window", "Plano Dim Equipo:"))
+        self.Button_Cancel.setText(_translate("Verif_Dim_DrawingInsertTag_Window", "Cancelar"))
+        self.Button_Insert.setText(_translate("Verif_Dim_DrawingInsertTag_Window", "Insertar"))
 
 
     def querytags(self):
@@ -414,29 +542,19 @@ class Ui_Verif_OF_DrawingInsert_Window(QtWidgets.QMainWindow):
                 if material == 'Caudal':
                     self.table_name = "tags_data.tags_flow"
                     self.column_id = "id_tag_flow"
-                    commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, of_drawing FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
-                    self.num_columns = 6
-                    column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'OF Equipo','']
-                    self.label_of_sensor.setVisible(False)
-                    self.of_sensor.setVisible(False)
-                    self.of_sensor.setText('')
+                    commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, dim_drawing FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
                 elif material == 'Temperatura':
                     self.table_name = "tags_data.tags_temp"
                     self.column_id = "id_tag_temp"
-                    commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, of_sensor_drawing, of_drawing FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
-                    self.num_columns = 7
-                    column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'OF Sensor', 'OF Equipo','']
-                    self.label_of_sensor.setVisible(True)
-                    self.of_sensor.setVisible(True)
+                    commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, dim_drawing FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
                 elif material == 'Nivel':
                     self.table_name = "tags_data.tags_level"
                     self.column_id = "id_tag_level"
-                    commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, of_drawing FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
-                    self.num_columns = 6
-                    column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'OF Equipo','']
-                    self.label_of_sensor.setVisible(False)
-                    self.of_sensor.setVisible(False)
-                    self.of_sensor.setText('')
+                    commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, dim_drawing FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
+                
+
+                self.num_columns = 6
+                column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Dim Equipo','']
 
                 cur.execute(commands_tags)
                 results=cur.fetchall()
@@ -502,10 +620,9 @@ class Ui_Verif_OF_DrawingInsert_Window(QtWidgets.QMainWindow):
 
     def insert(self):
         num_order = self.num_order.text().upper()
-        of_eq = self.of_eq.text()
-        of_sensor = self.of_sensor.text()
+        dim_eq = self.dim_eq.text()
 
-        if num_order == '' or of_eq == '':
+        if num_order == '' or dim_eq == '':
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -544,14 +661,9 @@ class Ui_Verif_OF_DrawingInsert_Window(QtWidgets.QMainWindow):
                         conn = psycopg2.connect(**params)
                         cur = conn.cursor()
                     # execution of commands
-                        if of_sensor == '':
-                            for id_value in id_list:
-                                commands_liquidtest = f"UPDATE {self.table_name} SET of_drawing = '{of_eq}' WHERE {self.column_id} = {id_value}"
-                                cur.execute(commands_liquidtest)
-                        else:
-                            for id_value in id_list:
-                                commands_liquidtest = f"UPDATE {self.table_name} SET of_drawing = '{of_eq}', of_sensor_drawing = '{of_sensor}' WHERE {self.column_id} = {id_value}"
-                                cur.execute(commands_liquidtest)
+                        for id_value in id_list:
+                            commands_dimdrawing = f"UPDATE {self.table_name} SET dim_drawing = '{dim_eq}' WHERE {self.column_id} = {id_value}"
+                            cur.execute(commands_dimdrawing)
 
                     # close communication with the PostgreSQL database server
                         cur.close()
@@ -594,9 +706,9 @@ class Ui_Verif_OF_DrawingInsert_Window(QtWidgets.QMainWindow):
         self.tableTags.show_unique_values_menu(logical_index, popup_pos, header_height)
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Verif_OF_DrawingInsert_Window = Ui_Verif_OF_DrawingInsert_Window('P-23/001-S00')
-    Verif_OF_DrawingInsert_Window.show()
-    sys.exit(app.exec())
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     Verif_Dim_DrawingInsertTag_Window = Ui_Verif_Dim_DrawingInsertTag_Window('P-23/001-S00')
+#     Verif_Dim_DrawingInsertTag_Window.show()
+#     sys.exit(app.exec())

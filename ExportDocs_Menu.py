@@ -159,10 +159,10 @@ class Ui_ExportDocs_Menu(object):
         self.orderaccept_window.show()
 
 
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    ExportDocs_Menu = QtWidgets.QMainWindow()
-    ui = Ui_ExportDocs_Menu()
-    ui.setupUi(ExportDocs_Menu)
-    ExportDocs_Menu.show()
-    sys.exit(app.exec())
+# if __name__ == "__main__":
+#     app = QtWidgets.QApplication(sys.argv)
+#     ExportDocs_Menu = QtWidgets.QMainWindow()
+#     ui = Ui_ExportDocs_Menu()
+#     ui.setupUi(ExportDocs_Menu)
+#     ExportDocs_Menu.show()
+#     sys.exit(app.exec())

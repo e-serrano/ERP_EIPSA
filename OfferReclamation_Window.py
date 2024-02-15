@@ -211,7 +211,7 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
             for row in results:
                 for column in range(10):
                     if column in [8,9]:
-                        radio_button = QtWidgets.QRadioButton()
+                        radio_button = QtWidgets.QCheckBox()
                         self.tableReclamation.setCellWidget(tablerow, column, radio_button)
                     else:
                         value = row[column]
@@ -268,12 +268,12 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         for row in range(self.tableReclamation.rowCount()):
             offer = self.tableReclamation.item(row, 0).text()
             reclamation = None
-            radio_button1  = self.tableReclamation.cellWidget(row, 8)
-            radio_button2  = self.tableReclamation.cellWidget(row, 9)
+            checkbox1  = self.tableReclamation.cellWidget(row, 8)
+            checkbox2  = self.tableReclamation.cellWidget(row, 9)
 
-            if radio_button1 and radio_button1.isChecked():
+            if checkbox1 and checkbox1.isChecked():
                 reclamation = 'Rec1'
-            elif radio_button2 and radio_button2.isChecked():
+            elif checkbox2 and checkbox2.isChecked():
                 reclamation = 'Rec2'
             offers_reclamation.append([offer,reclamation])
 
@@ -308,12 +308,12 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                 else:
                     if offer[1] == 'Rec1':
                         mail=email_offer1(results_offers[0][0], results_offers[0][1], results_offers[0][2], email, results_offers[0][3])
-                        # mail.send_email()
+                        mail.send_email()
                         data = (actual_date,offer[1],offer[0])
                         cur.execute(commands_insertdataoffer,data)
                     elif offer[1] == 'Rec2':
                         mail=email_offer2(results_offers[0][0], results_offers[0][1], results_offers[0][2], email, results_offers[0][3])
-                        # mail.send_email()
+                        mail.send_email()
                         data = (actual_date,offer[1],offer[0])
                         cur.execute(commands_insertdataoffer,data)
 
@@ -351,6 +351,6 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    ReclamationOffer_Window = Ui_ReclamationOffer_Window('Carlos Crespo', 'c.crespo')
+    ReclamationOffer_Window = Ui_ReclamationOffer_Window('Sandra Sanz', 's.sanz')
     ReclamationOffer_Window.show()
     sys.exit(app.exec())

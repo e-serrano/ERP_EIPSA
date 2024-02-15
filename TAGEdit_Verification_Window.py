@@ -200,8 +200,8 @@ class EditableTableModel(QtSql.QSqlTableModel):
         return column_headers
 
 
-class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
-    def __init__(self,name,db):
+class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
+    def __init__(self,name,db,username):
         super().__init__()
         self.model = EditableTableModel()
         self.proxy = CustomProxyModel()
@@ -212,9 +212,10 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
         self.hiddencolumns = []
         self.action_checkbox_map = {}
         self.checkbox_filters = {}
-        self.setupUi(self)
         self.name = name
         self.variable = ''
+        self.username=username
+        self.setupUi(self)
 
     def closeEvent(self, event):
     # Closing database connection
@@ -239,12 +240,21 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         EditTags_Window.setWindowIcon(icon)
-        EditTags_Window.setStyleSheet(
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}")
+        if self.username == 'm.gil':
+            EditTags_Window.setStyleSheet(
+    ".QFrame {\n"
+    "    border: 2px solid white;\n"
+    "}")
+        else:
+            EditTags_Window.setStyleSheet(
+    ".QFrame {\n"
+    "    border: 2px solid black;\n"
+    "}")
         self.centralwidget = QtWidgets.QWidget(parent=EditTags_Window)
-        self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
+        if self.username == 'm.gil':
+            self.centralwidget.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255)")
+        else:
+            self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -258,33 +268,38 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
         self.hcab=QtWidgets.QHBoxLayout()
         self.hcab.setObjectName("hcab")
         self.toolDeleteFilter = QtWidgets.QToolButton(self.frame)
-        self.toolDeleteFilter.setObjectName("Save_Button")
-        self.hcab.addWidget(self.toolDeleteFilter)
+        self.toolDeleteFilter.setObjectName("DeleteFilter_Button")
+        if self.username == 'm.gil':
+            self.toolDeleteFilter.setStyleSheet("border: 1px solid white;")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolDeleteFilter.setIcon(icon)
         self.toolDeleteFilter.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolDeleteFilter)
         self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer1)
         self.toolShow = QtWidgets.QToolButton(self.frame)
         self.toolShow.setObjectName("Show_Button")
         self.toolShow.setToolTip("Mostrar columnas")
-        self.hcab.addWidget(self.toolShow)
+        if self.username == 'm.gil':
+            self.toolShow.setStyleSheet("border: 1px solid white;")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolShow.setIcon(icon)
         self.toolShow.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolShow)
         self.hcabspacer2=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer2)
         self.toolExpExcel = QtWidgets.QToolButton(self.frame)
         self.toolExpExcel.setObjectName("ExpExcel_Button")
         self.toolExpExcel.setToolTip("Exportar a Excel")
-        self.hcab.addWidget(self.toolExpExcel)
+        if self.username == 'm.gil':
+            self.toolExpExcel.setStyleSheet("border: 1px solid white;")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolExpExcel.setIcon(icon)
         self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
-
+        self.hcab.addWidget(self.toolExpExcel)
         self.hcabspacer=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer)
         self.gridLayout_2.addLayout(self.hcab, 0, 0, 1, 1)
@@ -407,124 +422,6 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
         self.Numorder_EditTags.returnPressed.connect(self.query_tags)
         self.createContextMenu()
 
-        commands_comboboxes_flow = [
-            "SELECT item_type FROM validation_data.flow_item_type",
-            "SELECT line_size FROM validation_data.flow_line_size",
-            "SELECT rating FROM validation_data.flow_rating",
-            "SELECT facing FROM validation_data.flow_facing",
-            "SELECT schedule FROM validation_data.flow_schedule",
-            "SELECT flange_material FROM validation_data.flow_flange_material",
-            "SELECT flange_type FROM validation_data.flow_flange_type",
-            "SELECT element_material FROM validation_data.flow_element_material",
-            "SELECT tapping FROM validation_data.flow_tapping",
-            "SELECT element_material FROM validation_data.flow_element_material",
-            "SELECT plate_type FROM validation_data.flow_plate_type",
-            "SELECT plate_thk FROM validation_data.flow_plate_thk",
-            "SELECT plate_std FROM validation_data.flow_plate_std",
-            "SELECT gasket_material FROM validation_data.flow_gasket_material",
-            "SELECT bolts_nuts_material FROM validation_data.flow_bolts_nuts_material",
-            "SELECT nace FROM validation_data.flow_nace"
-            ]
-
-        commands_comboboxes_temp = [
-            "SELECT item_type FROM validation_data.temp_item_type",
-            "SELECT tw_type FROM validation_data.temp_tw_type",
-            "SELECT flange_size FROM validation_data.temp_flange_size",
-            "SELECT flange_rating FROM validation_data.temp_flange_rating",
-            "SELECT flange_facing FROM validation_data.temp_flange_facing",
-            "SELECT tw_material FROM validation_data.temp_tw_material",
-            "SELECT root_diam FROM validation_data.temp_root_diam",
-            "SELECT tip_diam FROM validation_data.temp_tip_diam",
-            "SELECT sensor_element FROM validation_data.temp_sensor_element",
-            "SELECT sheath_stem_material FROM validation_data.temp_sheath_stem_material",
-            "SELECT sheath_stem_diam FROM validation_data.temp_sheath_stem_diam",
-            "SELECT insulation FROM validation_data.temp_insulation",
-            "SELECT temp_inf FROM validation_data.temp_temp_inf",
-            "SELECT temp_sup FROM validation_data.temp_temp_sup",
-            "SELECT nipple_ext_material FROM validation_data.temp_nipple_ext_material",
-            "SELECT nipple_ext_length FROM validation_data.temp_nipple_ext_length",
-            "SELECT head_case_material FROM validation_data.temp_head_case_material",
-            "SELECT head_conn_case_diam FROM validation_data.temp_head_conn_case_diam",
-            "SELECT tttb FROM validation_data.temp_tttb",
-            "SELECT flange_material_lapjoint FROM validation_data.temp_flange_material_lapjoint",
-            "SELECT gasket_material FROM validation_data.temp_gasket_material",
-            "SELECT puntal FROM validation_data.temp_puntal",
-            "SELECT tube_t FROM validation_data.temp_tube_t",
-            "SELECT nace FROM validation_data.temp_nace",
-            "SELECT plug FROM validation_data.temp_plug"
-            ]
-
-        commands_comboboxes_level = [
-            "SELECT item_type FROM validation_data.level_item_type",
-            "SELECT model_num FROM validation_data.level_model_num",
-            "SELECT body_mat FROM validation_data.level_body_mat",
-            "SELECT proc_conn_type FROM validation_data.level_proc_conn_type",
-            "SELECT proc_conn_size FROM validation_data.level_proc_conn_size",
-            "SELECT proc_conn_rating FROM validation_data.level_proc_conn_rating",
-            "SELECT proc_conn_facing FROM validation_data.level_proc_conn_facing",
-            "SELECT conn_type FROM validation_data.level_conn_type",
-            "SELECT valve_type FROM validation_data.level_valve_type",
-            "SELECT dv_conn FROM validation_data.level_dv_conn",
-            "SELECT dv_size FROM validation_data.level_dv_size",
-            "SELECT dv_rating FROM validation_data.level_dv_rating",
-            "SELECT dv_facing FROM validation_data.level_dv_facing",
-            "SELECT gasket FROM validation_data.level_gasket",
-            "SELECT stud_nuts FROM validation_data.level_stud_nuts",
-            "SELECT illuminator FROM validation_data.level_illuminator",
-            "SELECT float_mat FROM validation_data.level_float_mat",
-            "SELECT case_cover_mat FROM validation_data.level_case_cover_mat",
-            "SELECT scale_type FROM validation_data.level_scale",
-            "SELECT flags_color_mat FROM validation_data.level_flags_color_mat",
-            "SELECT ip_code FROM validation_data.level_ip_code",
-            "SELECT flange_type FROM validation_data.level_flange_type",
-            "SELECT nipple FROM validation_data.level_nipple",
-            "SELECT nipple FROM validation_data.level_nipple",
-            "SELECT antifrost FROM validation_data.level_antifrost",
-            "SELECT nace FROM validation_data.level_nace",
-            ]
-
-        self.all_results_flow = []
-        self.all_results_temp = []
-        self.all_results_level = []
-
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            for query in commands_comboboxes_flow:
-                cur.execute(query)
-                results_flow=cur.fetchall()
-                self.all_results_flow.append(results_flow)
-            for query in commands_comboboxes_temp:
-                cur.execute(query)
-                results_temp=cur.fetchall()
-                self.all_results_temp.append(results_temp)
-            for query in commands_comboboxes_level:
-                cur.execute(query)
-                results_level=cur.fetchall()
-                self.all_results_level.append(results_level)
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
 
     def retranslateUi(self, EditTags_Window):
         _translate = QtCore.QCoreApplication.translate
@@ -539,42 +436,42 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
 
 # Function to delete all filters when tool button is clicked
     def delete_allFilters(self):
-        columns_number=self.model.columnCount()
-        for index in range(columns_number):
-            if index in self.proxy.filters:
-                del self.proxy.filters[index]
-            self.model.setIconColumnHeader(index, '')
+        if self.proxy.rowCount() != 0:
+            columns_number=self.model.columnCount()
+            for index in range(columns_number):
+                if index in self.proxy.filters:
+                    del self.proxy.filters[index]
+                self.model.setIconColumnHeader(index, '')
 
-        self.checkbox_states = {}
-        self.dict_valuesuniques = {}
-        self.dict_ordersort = {}
-        self.checkbox_filters = {}
+            self.checkbox_states = {}
+            self.dict_valuesuniques = {}
+            self.dict_ordersort = {}
+            self.checkbox_filters = {}
 
-        self.proxy.invalidateFilter()
-        # self.tableEditTags.setModel(None)
-        # self.tableEditTags.setModel(self.proxy)
-        self.proxy.setSourceModel(self.model)
-        self.tableEditTags=FreezeTableWidget(self.proxy)
+            self.proxy.invalidateFilter()
+            # self.tableEditTags.setModel(None)
+            # self.tableEditTags.setModel(self.proxy)
+            self.proxy.setSourceModel(self.model)
+            self.tableEditTags=FreezeTableWidget(self.proxy)
 
-        # Getting the unique values for each column of the model
-        for column in range(self.model.columnCount()):
-            list_valuesUnique = []
-            if column not in self.checkbox_states:
-                self.checkbox_states[column] = {}
-                self.checkbox_states[column]['Seleccionar todo'] = True
-                for row in range(self.model.rowCount()):
-                    value = self.model.record(row).value(column)
-                    if value not in list_valuesUnique:
-                        if isinstance(value, QtCore.QDate):
-                            value=value.toString("dd/MM/yyyy")
-                        list_valuesUnique.append(str(value))
-                        self.checkbox_states[column][value] = True
-                self.dict_valuesuniques[column] = list_valuesUnique
+            # Getting the unique values for each column of the model
+            for column in range(self.model.columnCount()):
+                list_valuesUnique = []
+                if column not in self.checkbox_states:
+                    self.checkbox_states[column] = {}
+                    self.checkbox_states[column]['Seleccionar todo'] = True
+                    for row in range(self.model.rowCount()):
+                        value = self.model.record(row).value(column)
+                        if value not in list_valuesUnique:
+                            if isinstance(value, QtCore.QDate):
+                                value=value.toString("dd/MM/yyyy")
+                            list_valuesUnique.append(str(value))
+                            self.checkbox_states[column][value] = True
+                    self.dict_valuesuniques[column] = list_valuesUnique
 
-        self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableEditTags.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableEditTags.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
-
+            self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableEditTags.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableEditTags.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
 # Function to load table and setting in the window
     def query_tags(self):
@@ -609,66 +506,72 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                 del dlg, new_icon
 
             else:
-                query = ('''
-                        SELECT num_order, product_type."variable"
-                        FROM orders
-                        INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
-                        INNER JOIN product_type ON (product_type."material" = offers."material")
-                        WHERE
-                        UPPER (orders."num_order") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query,(self.numorder,))
-                    results_variable=cur.fetchone()
-                    self.variable = results_variable[1] if results_variable != None else ''
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-                if results_variable == None:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("EL número de pedido no existe")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                    del dlg, new_icon
-
+                if self.numorder[:2]=='PA':
+                    self.variable = 'Otros'
                 else:
-                    if self.variable == 'Caudal':
-                        self.model.setTable("tags_data.tags_flow")
-                        self.initial_column = 30
-                    elif self.variable == 'Temperatura':
-                        self.model.setTable("tags_data.tags_temp")
-                        self.initial_column = 35
-                    elif self.variable == 'Nivel':
-                        self.model.setTable("tags_data.tags_level")
-                        self.initial_column = 36
-                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
+                    query = ('''
+                            SELECT num_order, product_type."variable"
+                            FROM orders
+                            INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
+                            INNER JOIN product_type ON (product_type."material" = offers."material")
+                            WHERE
+                            UPPER (orders."num_order") LIKE UPPER('%%'||%s||'%%')
+                            ''')
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query,(self.numorder,))
+                        results_variable=cur.fetchone()
+                        self.variable = results_variable[1] if results_variable != None else ''
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+                    if results_variable == None:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("EL número de pedido no existe")
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                        dlg.exec()
+                        del dlg, new_icon
+
+                    else:
+                        if self.variable == 'Caudal':
+                            self.model.setTable("tags_data.tags_flow")
+                            self.initial_column = 30
+                        elif self.variable == 'Temperatura':
+                            self.model.setTable("tags_data.tags_temp")
+                            self.initial_column = 35
+                        elif self.variable == 'Nivel':
+                            self.model.setTable("tags_data.tags_level")
+                            self.initial_column = 36
+                        elif self.variable == 'Otros':
+                            self.model.setTable("tags_data.tags_others")
+                            self.initial_column = 11
+                        self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
 
         if self.variable != '':
             self.tableEditTags.setModel(None)
@@ -682,25 +585,56 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
             columns_number=self.model.columnCount()
             for column in range(columns_number):
                 self.tableEditTags.setItemDelegateForColumn(column, None)
-            self.model.column_range = range(self.initial_column,self.initial_column + 4)
 
             if self.variable == 'Caudal':
-                for i in range(68,columns_number):
+                for i in range(2,4):
                     self.tableEditTags.hideColumn(i)
-            elif self.variable == 'Temperatura':
-                for i in range(73,columns_number):
+                for i in range(5,8):
                     self.tableEditTags.hideColumn(i)
-            elif self.variable == 'Nivel':
-                for i in range(56,columns_number):
+                for i in range(27,33):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(36,47):
+                    self.tableEditTags.hideColumn(i)
+                self.tableEditTags.hideColumn(50)
+                for i in range(69,123):
                     self.tableEditTags.hideColumn(i)
 
-            if self.name != 'Jesús Martínez':
-                if self.variable == 'Caudal':
-                    self.tableEditTags.hideColumn(30)
-                elif self.variable == 'Temperatura':
-                    self.tableEditTags.hideColumn(35)
-                elif self.variable == 'Nivel':
-                    self.tableEditTags.hideColumn(36)
+            elif self.variable == 'Temperatura':
+                for i in range(2,4):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(5,8):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(34,38):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(44,57):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(60,62):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(64,66):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(77,130):
+                    self.tableEditTags.hideColumn(i)
+
+            elif self.variable == 'Nivel':
+                for i in range(2,4):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(5,8):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(35,39):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(42,51):
+                    self.tableEditTags.hideColumn(i)
+                self.tableEditTags.hideColumn(54)
+                for i in range(63,136):
+                    self.tableEditTags.hideColumn(i)
+
+            elif self.variable == 'Otros':
+                for i in range(2,4):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(5,8):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(10,14):
+                    self.tableEditTags.hideColumn(i)
 
             # self.tableEditTags.verticalHeader().hide()
             self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
@@ -716,34 +650,71 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
             self.tableEditTags.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
         # Change all column names
-            headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
-                        "Tipo", "Tamaño Línea", "Rating", "Facing", "Schedule", "Material Brida", "Tipo Brida",
-                        "Material Tubo", "Tamaño Tomas (Nº)", "Material Elemento", "Tipo Placa", "Espesor Placa",
-                        "Estándar Placa", "Material Junta", "Material Tornillería", "Con. Válvula", "Material Cuerpo Vlv.", "Nº Saltos", "Pipe Spec.",
-                        "Peso Aprox. (kg)", "Long. Aprox. (mm)", "NACE", "Precio (€)", "Notas Oferta",
-                        "Cambios Comercial", "Fecha Contractual", "Ø Orif. (mm)", "Ø D/V (mm)", "Cambios Técnicos",
-                        "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo", "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano",
-                        "Estado Plano", "Fecha Estado Plano", "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra",
-                        "Fecha OF Placa", "Plano OF Placa", "Colada Placa", "Fecha OF Brida", "Plano OF Brida",
-                        "Colada Brida", "Nº Tapones", "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material",
-                        "RTJ Espesor", "RTJ Dim", "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos",
-                        "Cantidad Espárragos", "Tamaño Extractor", "Cantidad Extractor", "Estado Fabricación", "Inspección",
-                        "Envío RN"]
+            headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
+                            "PO", "Posición", "Subposición", "Tipo", "Tamaño Línea",
+                            "Rating", "Facing", "Schedule", "Material Brida", "Tipo Brida",
+                            "Material Tubo", "Tamaño Tomas (Nº)", "Material Elemento", "Tipo Placa", "Espesor Placa",
+                            "Estándar Placa", "Material Junta", "Material Tornillería", "Con. Válvula", "Material Cuerpo Vlv.",
+                            "Nº Saltos", "Pipe Spec.", "Peso Aprox. (kg)", "Long. Aprox. (mm)", "NACE",
+                            "Precio (€)", "Notas Oferta", "Cambios Comercial", "Fecha Contractual", "Ø Orif. (mm)",
+                            "Ø D/V (mm)", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo",
+                            "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Orden de Compra",
+                            "Fecha Orden Compra", "Notas Orden Compra", 'Plano Dimensional', "Plano OF", "Fecha OF",
+                            "Notas Equipo", "Colada Placa", "Cert. Placa", "Colada Brida", "Cert. Brida", "Nº Tapones",
+                            "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material", "RTJ Espesor", "RTJ Dim",
+                            "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos", "Cantidad Espárragos", "Tamaño Extractor",
+                            "Cantidad Extractor", "Estado Fabricación", "Inspección", "Envío RN", "Cod. Equipo",
+                            "Cod. Fab. Equipo", "Trad. Equipo", "Cod. Brida Orif.", "Cod. Fab. Brida Orif.", "Cant. Brida Orif.",
+                            "Cod. Brida Línea", "Cod. Fab. Brida Línea", "Cant. Brida Línea", "Cod. Junta", "Cod. Fab. Junta",
+                            "Cant. Junta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería", "Cod. Tapones",
+                            "Cod. Fab. Tapones", "Cant. Tapones", "Cod. Extractor", "Cod. Fab. Extractor", "Cant. Extractor",
+                            "Cod. Placa", "Cod. Fab. Placa", "Cant. Placa", "Cod. Niplo", "Cod. Fab. Niplo",
+                            "Cant. Niplo", "Cod. Mango", "Cod. Fab. Mango", "Cant. Mango", "Cod. Ch. Ring",
+                            "Cod. Fab. Ch. Ring", "Cant. Ch. Ring", "Cod. Tubo", "Cod. Fab. Tubo", "Cant. Tubo",
+                            "Cod. Pieza2", "Cod. Fab. Pieza2", "Cant. Pieza2", "Diam. Int", "Pedido Tipo Tag",
+                            "Trad. Brida. Orif", "Trad. Brida Línea", "Trad. Junta", "Trad. Tornillería", "Trad. Tapones",
+                            "Trad. Extractor", "Trad. Placa", "Trad. Niplo", "Trad. Mango", "Trad. Ch. Ring",
+                            "Trad. Tubo", "Trad. Pieza2", "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
+                            "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
+                            "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
+                            "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
+                            "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
+                            "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
+                            "Estado Verif. OF", "Notas Verif. OF", "Fotos"]
 
-            headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido", "PO", "Posición", "Subposición",
-                        "Tipo", "Tipo TW", "Tamaño Brida", "Rating Brida", "Facing Brida", "Standard TW",
-                        "Material TW", "Long. STD (mm)", "Long. Ins. (mm)", "Ø Raíz (mm)", "Ø Punta (mm)",
-                        "Sensor", "Material Sheath/Stem", "Ø Sheath/Stem (mm)", "Insulation", "Temp Inf (ºC)",
-                        "Temp Sup ºC", "Material Nipple Ext.", "Long. Nipple Ext. (mm)", "Material Head/Case", "Con. Elec./Diam. Case",
-                        "TT/Terminal Insulation", "Material Brida LapJoint", "Material Junta", "Puntal", "Tubo",
-                        "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
-                        "Stress", "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Ø Picaje (mm)",
-                        "Notas Cálculo", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo",
-                        "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Planos",
-                        "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Fecha OF Sensor", "Plano OF Sensor", 
-                        "Notas Sensor", "Estado Fabricación Sensor", "Fecha OF TW", "Plano OF TW", "Notas TW",
-                        "Estado Fabricación TW", "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)",
-                        "Tapón", "Estado Fabricación", "Inspección", "Envío RN"]
+            headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
+                            "PO", "Posición", "Subposición", "Tipo", "Tipo TW",
+                            "Tamaño Brida", "Rating Brida", "Facing Brida", "Standard TW", "Material TW",
+                            "Long. STD (mm)", "Long. Ins. (mm)", "Ø Raíz (mm)", "Ø Punta (mm)", "Sensor",
+                            "Material Sheath/Stem", "Ø Sheath/Stem (mm)", "Insulation", "Temp Inf (ºC)", "Temp Sup ºC",
+                            "Material Nipple Ext.", "Long. Nipple Ext. (mm)", "Material Head/Case", "Con. Elec./Diam. Case", "TT/Terminal Insulation",
+                            "Material Brida LapJoint", "Material Junta", "Puntal", "Tubo", "NACE",
+                            "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual", "Stress",
+                            "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Ø Picaje (mm)", "Notas Cálculo",
+                            "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo", "Fecha Estado Cálculo",
+                            "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Planos", "Orden de Compra",
+                            "Fecha Orden Compra", "Notas Orden Compra", "Plano Dimensional", "Plano OF Sensor", "Fecha OF Sensor", 
+                            "Notas Sensor", "Estado Fabricación Sensor", "Plano OF TW", "Fecha OF TW", "Notas TW",
+                            "Estado Fabricación TW", "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
+                            "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)", "Tapón",
+                            "Estado Fabricación", "Inspección", "Envío RN", "Cod. Equipo", "Cod. Fab. Equipo",
+                            "Trad. Equipo", "Cod. Barra", "Cod. Fab. Barra", "Cant. Barra", "Cod. Tubo",
+                            "Cod. Fab. Tubo", "Cant. Tubo", "Cod. Brida", "Cod. Fab. Brida", "Cant. Brida",
+                            "Cod. Sensor", "Cod. Fab. Sensor", "Cant. Sensor", "Cod. Cabeza", "Cod. Fab. Cabeza",
+                            "Cant. Cabeza", "Cod. BTB", "Cod. Fab. BTB", "Cant. BTB", "Cod. Niplo Ext.",
+                            "Cod. Fab. Niplo Ext.", "Cant. Niplo Ext.", "Cod. Muelle", "Cod. Fab. Muelle", "Cant. Muelle",
+                            "Cod. Puntal", "Cod. Fab. Puntal", "Cant. Puntal", "Cod. Tapón", "Cod. Fab. Tapón", "Cant. Tapón",
+                            "Cod. TW", "Cod. Fab. TW", "Cant. TW", "Cod. Adit.", "Cod. Fab. Adit.",
+                            "Cant. Adit", "Pedido Tipo Tag", "Trad. Barra", "Trad. Tubo", "Trad. Brida",
+                            "Trad. Sensor", "Trad. Cabeza", "Trad. BTB", "Trad. Niplo Ext.", "Trad. Muelle",
+                            "Trad. Puntal", "Trad. Tapón", "Trad. TW", "Trad. Adit.", "Fecha PMI", "Fecha PH1",
+                            "Manómetro PH1", "Presión PH1", "Estado PH1", "Notas PH1", "Fecha PH2",
+                            "Manómetro PH2", "Presión PH2", "Estado PH2", "Notas PH2", "Fecha LP",
+                            "LP Colada 9PR5", "LP Colada 9D1B", "LP Colada 996PB", "Estado LP", "Notas LP",
+                            "Fecha Dureza", "Dureza", "Dureza HB", "Bola", "Carga",
+                            "Colada Dureza", "Estado Dureza", "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.",
+                            "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF.", "Notas Verif. OF", "Fecha Verif. OF Sensor",
+                            "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos"]
 
             headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Modelo",
@@ -754,8 +725,43 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                             "Cod. IP", "Tipo Brida", "Niplo Hex.", "Niplo Tubo", "Antifrost",
                             "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
                             "Dim. Flotador", "Junta Bridas", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Plano",
-                            "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Fecha OF", "Plano OF",
-                            "Orden de Compra", "Fecha Orden Compra", "Notas Orden Compra", "Estado Fabricación", "Inspección", "Envío RN"]
+                            "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Orden de Compra", "Fecha Orden Compra",
+                            "Notas Orden Compra", "Plano Dimensional", "Plano OF", "Fecha OF", "Notas Equipo",
+                            "Colada Cuerpo", "Cert. Cuerpo", "Colada Cuerpo Vlv", "Cert. Cuerpo Vlv", "Colada Brida Vlv", "Cert. Brida Vlv"
+                            "Estado Fabricación", "Inspección", "Envío RN", "Cod. Equipo", "Cod. Fab. Equipo",
+                            "Trad. Equipo", "Cod. Cuerpo", "Cod. Fab. Cuerpo", "Cant. Cuerpo", "Cod. Cubierta",
+                            "Cod. Fab. Cubierta", "Cant. Cubierta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería",
+                            "Cdo. Niplo Hex.", "Cod. Fab. Niplo Hex.", "Cant. Niplo Hex.", "Cod. Válv.", "Cod. Fab. Válv.",
+                            "Cant. Válv.", "Cod. Brida", "Cod. Fab. Brida", "Cant. Brida", "Cod. DV",
+                            "Cod. Fab. DV", "Cant. DV", "Cod. Escala", "Cod. Fab. Escala", "Cant. Escala",
+                            "Cod. Ilum.", "Cod. Fab. Ilum", "Cant. Ilum", "Cod. Junta Vidrio", "Cod. Fab. Junta Vidrio",
+                            "Cant. Junta Vidrio", "Cod. Vidrio", "Cod. Fab. Vidrio", "Cant. Vidrio", "Cod. Flotador",
+                            "Cod. Fab. Flotador", "Cant. Flotador", "Cod. Mica", "Cod. Fab. Mica", "Cant. Mica",
+                            "Cod. Flags", "Cod. Fab. Flags", "Cant. Flags", "Cod. Junta Brida", "Cod. Fab. Junta Brida",
+                            "Cant. Junta Brida", "Cod. Niplo Tubo", "Cod. Fab. Niplo Tubo", "Cant. Niplo Tubo", "Cod. Antifrost",
+                            "Cod. Fab. Antifrost", "Cant. Antifrost", "Pedido Tipo Tag", "Trad. Cuerpo", "Trad. Cubierta",
+                            "Trad. Tornillería", "Trad. Niplo Hex.", "Trad. Válv", "Trad. Brida", "Trad. DV",
+                            "Trad. Escala", "Trad. Ilum.", "Trad. Junta Vidrio", "Trad. Vidrio", "Trad. Flotador",
+                            "Trad. Mica", "Trad. Flags", "Trad. Junta Brida", "Trad. Niplo Tubo", "Trad. Antifrost",
+                            "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
+                            "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
+                            "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
+                            "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
+                            "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
+                            "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
+                            "Estado Verif. OF", "Notas Verif. OF", "Fotos"]
+
+            headers_others = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
+                            "PO", "Posición", "Subposición", "Descripción", "Código Equipo",
+                            "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
+                            "Plano Dimensional", "Plano OF", "Fecha OF", "Colada", "Cert. Colada", "Estado Fabricación", "Inspección", "Envío RN",
+                            "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
+                            "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
+                            "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
+                            "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
+                            "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
+                            "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
+                            "Estado Verif. OF", "Notas Verif. OF", "Fotos"]
 
             if self.variable == 'Caudal':
                 self.model.setAllColumnHeaders(headers_flow)
@@ -763,6 +769,8 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                 self.model.setAllColumnHeaders(headers_temp)
             elif self.variable == 'Nivel':
                 self.model.setAllColumnHeaders(headers_level)
+            elif self.variable == 'Otros':
+                self.model.setAllColumnHeaders(headers_others)
 
         # Getting the unique values for each column of the model
             for column in range(self.model.columnCount()):
@@ -816,7 +824,10 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
         self.menuValues.addSeparator()
 
         scroll_menu = QtWidgets.QScrollArea()
-        scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
+        if self.username == 'm.gil':
+            scroll_menu.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255)")
+        else:
+            scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
         scroll_menu.setWidgetResizable(True)
         scroll_widget = QtWidgets.QWidget(scroll_menu)
         scroll_menu.setWidget(scroll_widget)
@@ -869,10 +880,16 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(accept_button)
         self.menuValues.addAction(cancel_button)
 
-        self.menuValues.setStyleSheet("QMenu { color: black; }"
-                                        "QMenu { background-color: rgb(255, 255, 255); }"
-                                        "QMenu::item:selected { background-color: #33bdef; }"
-                                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        if self.username == 'm.gil':
+            self.menuValues.setStyleSheet("QMenu { color: white; }"
+                                            "QMenu { background-color: #121212; }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
+                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        else:
+            self.menuValues.setStyleSheet("QMenu { color: black; }"
+                                            "QMenu { background-color: rgb(255, 255, 255); }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
+                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         headerPos = self.tableEditTags.mapToGlobal(self.tableEditTags.horizontalHeader().pos())        
 
@@ -1147,11 +1164,23 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
         self.context_menu = QtWidgets.QMenu(self)
         hide_columns_action = self.context_menu.addAction("Ocultar Columnas")
         hide_columns_action.triggered.connect(self.hideSelectedColumns)
+        if self.username == 'm.gil':
+            self.context_menu.setStyleSheet("QMenu { color: white; }"
+                                            "QMenu { background-color: #121212; }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
+                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        else:
+            self.context_menu.setStyleSheet("QMenu { color: black; }"
+                                            "QMenu { background-color: rgb(255, 255, 255); }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
+                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+
 
     def showColumnContextMenu(self, pos):
         header = self.tableEditTags.horizontalHeader()
         column = header.logicalIndexAt(pos)
         self.context_menu.exec(self.tableEditTags.mapToGlobal(pos))
+
 
     def hideSelectedColumns(self):
         selected_columns = set()
@@ -1180,6 +1209,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    EditTags_Window = Ui_EditTags_Workshop_Window('Julio Zofio',db)
+    EditTags_Window = Ui_EditTags_Verification_Window('Julio Zofio',db)
     EditTags_Window.show()
     sys.exit(app.exec())

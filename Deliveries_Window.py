@@ -249,9 +249,10 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
         for i in range(1,21):
             self.tableDeliveries.hideColumn(i)
         self.tableDeliveries.hideColumn(26)
+        self.tableDeliveries.hideColumn(27)
 
         headers=['Nº Pedido', '','','','','','','','','','','','','','','','','','','','',
-                '% Real Envío', 'Fecha Último Envío', 'Fecha Entregas Parciales', 'Observaciones','OK','']
+                '% Real Envío', 'Fecha Último Envío', 'Fecha Entregas Parciales', 'Observaciones','OK', '', '']
 
         self.tableDeliveries.setItemDelegate(AlignDelegate(self.tableDeliveries))
         self.tableDeliveries.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -304,9 +305,11 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
 
         for i in range(1,21):
             self.tableDeliveries.hideColumn(i)
+        self.tableDeliveries.hideColumn(26)
+        self.tableDeliveries.hideColumn(27)
 
         headers=['Nº Pedido', '','','','','','','','','','','','','','','','','','','','',
-                '% Real Envío', 'Fecha Último Envío', 'Fecha Entregas Parciales', 'Observaciones','OK']
+                '% Real Envío', 'Fecha Último Envío', 'Fecha Entregas Parciales', 'Observaciones','OK', '', '']
 
         self.tableDeliveries.setItemDelegate(AlignDelegate(self.tableDeliveries))
         self.tableDeliveries.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)

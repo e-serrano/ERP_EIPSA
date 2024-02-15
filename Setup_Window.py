@@ -12,6 +12,7 @@ import ctypes
 import sys
 import psycopg2
 import os
+from config import config
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -236,7 +237,7 @@ class Ui_SetupWindow(object):
         base_dir = r"C:\Program Files\ERP EIPSA"
 
         # Full path of .ini file
-        ini_file_path = os.path.abspath(os.path.join(base_dir, "database.ini")
+        ini_file_path = os.path.abspath(os.path.join(base_dir, "database.ini"))
 
         # Check if path exists. If not, create it
         if not os.path.exists(base_dir):
@@ -267,13 +268,7 @@ class Ui_SetupWindow(object):
             # Setting the "hidden" attribute
             ctypes.windll.kernel32.SetFileAttributesW(ini_file_path, file_attributes + 2)
 
-            params = {
-            "host": '10.1.20.252',
-            "port": 5432,
-            "database": 'ERP_EIPSA',
-            "user": 'postgres',
-            "password": 'EIPS@0545$@!'
-            }
+            params = config()
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
 
