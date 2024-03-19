@@ -674,7 +674,7 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Consultar Documentación")
                 dlg.setText("Datos exportados con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                 dlg.exec()
                 del dlg,new_icon
 

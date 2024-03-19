@@ -211,7 +211,17 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         # Iterate over all rows to hide them as necessary
         for row in range(self.rowCount()):
-            self.setRowHidden(row, row in self.general_rows_to_hide)
+            hidden = False
+
+            for col, filters in self.column_filters.items():
+                if filters:
+                    item = self.item(row, col)
+                    item_value = item.text() if item else ""
+                    if item_value not in filters:
+                        hidden = True
+                        break
+
+            self.setRowHidden(row, hidden)
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:

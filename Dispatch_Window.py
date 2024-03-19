@@ -76,12 +76,12 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                 elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
-                    regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
                         break
 
                 else:
-                    regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
                         break
             else:

@@ -858,7 +858,7 @@ class Ui_Suppliers_Window(object):
         #SQL Query for checking if document number exists in database
             commands_checksupplier = ("""
                         SELECT * 
-                        FROM purch_fact.suppliers_test
+                        FROM purch_fact.suppliers
                         WHERE "name" = %s
                         """)
             conn = None
@@ -906,7 +906,7 @@ class Ui_Suppliers_Window(object):
 
             else:
                 commands_newsupplier = ("""
-                            INSERT INTO purch_fact.suppliers_test (
+                            INSERT INTO purch_fact.suppliers (
                             name,cif,address,phone_number,fax,city,province,country,zip_code,
                             pay_way_id,vto_prog1,vto_prog2,iva_id,notes
                             )
@@ -996,7 +996,7 @@ class Ui_Suppliers_Window(object):
 
         else:
             commands_modifysupplier = ("""
-                            UPDATE purch_fact.suppliers_test
+                            UPDATE purch_fact.suppliers
                             SET "name" = %s, "cif" = %s, "address" = %s, "phone_number" = %s, "city" = %s, "province" = %s, "country" = %s,
                             "zip_code" = %s, "pay_way_id" = %s, "vto_prog1" = %s, "vto_prog2" = %s, "iva_id" = %s, "notes" = %s
                             WHERE "id" = %s
@@ -1071,7 +1071,7 @@ class Ui_Suppliers_Window(object):
 
         else:
             commands_deletesupplier = ("""
-                            DELETE FROM purch_fact.suppliers_test
+                            DELETE FROM purch_fact.suppliers
                             WHERE "id" = %s
                             """)
             conn = None
@@ -1144,19 +1144,19 @@ class Ui_Suppliers_Window(object):
 # Function to load data of suppliers in table
     def loadtablesuppliers(self):
         commands_querysuppliers = ("""
-                        SELECT purch_fact.suppliers_test.id,purch_fact.suppliers_test.name,
-                        purch_fact.suppliers_test.cif,purch_fact.suppliers_test.address,
-                        purch_fact.suppliers_test.phone_number,purch_fact.suppliers_test.fax,
-                        purch_fact.suppliers_test.city,purch_fact.suppliers_test.province,
-                        purch_fact.suppliers_test.country,purch_fact.suppliers_test.zip_code,
+                        SELECT purch_fact.suppliers.id,purch_fact.suppliers.name,
+                        purch_fact.suppliers.cif,purch_fact.suppliers.address,
+                        purch_fact.suppliers.phone_number,purch_fact.suppliers.fax,
+                        purch_fact.suppliers.city,purch_fact.suppliers.province,
+                        purch_fact.suppliers.country,purch_fact.suppliers.zip_code,
                         purch_fact.pay_way."pay_way_type",
-                        purch_fact.suppliers_test.vto_prog1,purch_fact.suppliers_test.vto_prog2,
+                        purch_fact.suppliers.vto_prog1,purch_fact.suppliers.vto_prog2,
                         purch_fact.iva."iva_type",
-                        purch_fact.suppliers_test.notes
-                        FROM purch_fact.suppliers_test
-                        LEFT JOIN purch_fact.pay_way ON (purch_fact.pay_way."id" = purch_fact.suppliers_test."pay_way_id")
-                        LEFT JOIN purch_fact.iva ON (purch_fact.iva."id" = purch_fact.suppliers_test."iva_id")
-                        ORDER BY purch_fact.suppliers_test.id
+                        purch_fact.suppliers.notes
+                        FROM purch_fact.suppliers
+                        LEFT JOIN purch_fact.pay_way ON (purch_fact.pay_way."id" = purch_fact.suppliers."pay_way_id")
+                        LEFT JOIN purch_fact.iva ON (purch_fact.iva."id" = purch_fact.suppliers."iva_id")
+                        ORDER BY purch_fact.suppliers.id
                         """)
         conn = None
         try:

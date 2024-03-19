@@ -13,7 +13,7 @@ from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
 import configparser
-from Database_Connection import createConnection
+from Database_Connection import createConnection_name
 from config import config
 import psycopg2
 import locale
@@ -44,7 +44,911 @@ class CheckboxWidget(QtWidgets.QWidget):
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
-        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter
+
+    def paint(self, painter, option, index):
+        super().paint(painter, option, index)
+
+        if index.column() == 2:  # Column to paint
+            state_column_index = index.sibling(index.row(), 4)  # Index for column to check text
+            original_text = str(index.data())  # Text of cell to be painted
+            value_check = str(state_column_index.data()).upper()  # Text for checking
+            text_color = QtGui.QColor(0, 0, 0)
+
+            if "STELLITE" in value_check:
+                start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif any(item in value_check for item in ['316H', '316TI']):
+                start_color = QtGui.QColor(92, 197, 229)  # Blue
+                end_color = QtGui.QColor(92, 197, 229)  # Blue
+                border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+                painter.setPen(QtGui.QPen(border_color, 3))
+                painter.drawRect(option.rect)
+                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+            elif '304H' in value_check:
+                start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                end_color = QtGui.QColor(255, 255, 0)  # Yellow
+                border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+                painter.setPen(QtGui.QPen(border_color, 3))
+                painter.drawRect(option.rect)
+                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+            elif '321H' in value_check:
+                start_color = QtGui.QColor(251, 131, 179)  # Pink
+                end_color = QtGui.QColor(251, 131, 179)  # Pink
+                border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+                painter.setPen(QtGui.QPen(border_color, 3))
+                painter.drawRect(option.rect)
+                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+            elif '310H' in value_check:
+                start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+                painter.setPen(QtGui.QPen(border_color, 3))
+                painter.drawRect(option.rect)
+                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+            elif '347H' in value_check:
+                start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                end_color = QtGui.QColor(251, 131, 179)  # Pink
+                border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+                painter.setPen(QtGui.QPen(border_color, 3))
+                painter.drawRect(option.rect)
+                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+            elif '317H' in value_check:
+                start_color = QtGui.QColor(92, 197, 229)  # Blue
+                end_color = QtGui.QColor(251, 131, 179)  # Pink
+                border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+                painter.setPen(QtGui.QPen(border_color, 3))
+                painter.drawRect(option.rect)
+                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+            elif 'F9' in value_check:
+                start_color = QtGui.QColor(255, 157, 59)  # Orange
+                end_color = QtGui.QColor(244, 71, 209) # Pink
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'A707' in value_check:
+                start_color = QtGui.QColor(255, 157, 59)  # Orange
+                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '316' in value_check:
+                start_color = QtGui.QColor(92, 197, 229)  # Blue
+                end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '304' in value_check:
+                start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '446' in value_check:
+                start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'MONEL' in value_check:
+                start_color = QtGui.QColor(160, 120, 182)  # Purple
+                end_color = QtGui.QColor(160, 120, 182)  # Purple
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'HASTELLOY' in value_check:
+                start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '321' in value_check:
+                start_color = QtGui.QColor(251, 131, 179)  # Pink
+                end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'TANTALO' in value_check:
+                text_color = QtGui.QColor(255, 255, 255)
+                start_color = QtGui.QColor(0, 0, 0)  # Black
+                end_color = QtGui.QColor(0, 0, 0)  # Black
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'F11' in value_check:
+                start_color = QtGui.QColor(255, 157, 59)  # Orange
+                end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'F22' in value_check:
+                start_color = QtGui.QColor(255, 157, 59)  # Orange
+                end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'LF2' in value_check:
+                start_color = QtGui.QColor(255, 157, 59)  # Orange
+                end_color = QtGui.QColor(255, 157, 59)  # Orange
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '310' in value_check:
+                start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'ALLOY 20' in value_check:
+                start_color = QtGui.QColor(160, 120, 182)  # Purple
+                end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'INCONEL 600' in value_check:
+                start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'N08904' in value_check:
+                start_color = QtGui.QColor(160, 120, 182)  # Purple
+                end_color = QtGui.QColor(255, 157, 59)  # Orange
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif any(item in value_check for item in ['F60', '32205', 'SAF 2205']):
+                start_color = QtGui.QColor(160, 120, 182)  # Purple
+                end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif any(item in value_check for item in ['F44', '31254']):
+                start_color = QtGui.QColor(160, 120, 182)  # Purple
+                end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '825' in value_check:
+                start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                end_color = QtGui.QColor(255, 87, 87)  # Red
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '601' in value_check:
+                start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '625' in value_check:
+                start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                end_color = QtGui.QColor(255, 87, 87)  # Red
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '800' in value_check:
+                start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif any(item in value_check for item in ['F53', '32750', 'SAF 2507']):
+                start_color = QtGui.QColor(160, 120, 182)  # Purple
+                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif any(item in value_check for item in ['F51', '31803']):
+                start_color = QtGui.QColor(160, 120, 182)  # Purple
+                end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif any(item in value_check for item in ['F55', '32760']):
+                start_color = QtGui.QColor(160, 120, 182)  # Purple
+                end_color = QtGui.QColor(255, 87, 87)  # Red
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif any(item in value_check for item in ['C70610', 'CUNI 90-10', 'C70690']):
+                start_color = QtGui.QColor(255, 87, 87)  # Red
+                end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '347' in value_check:
+                start_color = QtGui.QColor(251, 131, 179)  # Pink
+                end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '317' in value_check:
+                start_color = QtGui.QColor(92, 197, 229)  # Blue
+                end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'TITANIO' in value_check:
+                start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'ALLOY 699XA' in value_check:
+                start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif any(item in value_check for item in ['HR160', '50CR-50NI']):
+                start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif any(item in value_check for item in ['F5', '5CR-1/2MO']):
+                start_color = QtGui.QColor(255, 157, 59)  # Orange
+                end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            else:
+                start_color = QtGui.QColor(255, 255, 255)  # White
+                end_color = QtGui.QColor(255, 255, 255)  # White
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            textRect = painter.boundingRect(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2), QtCore.Qt.TextFlag.TextDontClip | QtCore.Qt.AlignmentFlag.AlignCenter, original_text,)
+            verticalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).y() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).height() + textRect.height() + 8) / 2)
+            horizontalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).x() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).width() - textRect.width()) / 2)
+
+            painter.setPen(QtGui.QPen(text_color))
+            painter.drawText(horizontalPosition, verticalPosition, original_text)
+
+
+class AlignDelegate_M(QtWidgets.QStyledItemDelegate):
+    def initStyleOption(self, option, index):
+        super(AlignDelegate_M, self).initStyleOption(option, index)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter
+
+    def paint(self, painter, option, index):
+        super().paint(painter, option, index)
+
+        if index.column() == 2:  # Column to paint
+            state_column_index = index.sibling(index.row(), 7)  # Index for column to check text
+            original_text = str(index.data())  # Text of cell to be painted
+            value_check = str(state_column_index.data()).upper()  # Text for checking
+            text_color = QtGui.QColor(0, 0, 0)
+
+            if "STELLITE" in value_check:
+                start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif any(item in value_check for item in ['316H', '316TI']):
+                start_color = QtGui.QColor(92, 197, 229)  # Blue
+                end_color = QtGui.QColor(92, 197, 229)  # Blue
+                border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+                painter.setPen(QtGui.QPen(border_color, 3))
+                painter.drawRect(option.rect)
+                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+            elif '304H' in value_check:
+                start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                end_color = QtGui.QColor(255, 255, 0)  # Yellow
+                border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+                painter.setPen(QtGui.QPen(border_color, 3))
+                painter.drawRect(option.rect)
+                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+            elif '321H' in value_check:
+                start_color = QtGui.QColor(251, 131, 179)  # Pink
+                end_color = QtGui.QColor(251, 131, 179)  # Pink
+                border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+                painter.setPen(QtGui.QPen(border_color, 3))
+                painter.drawRect(option.rect)
+                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+            elif '310H' in value_check:
+                start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+                painter.setPen(QtGui.QPen(border_color, 3))
+                painter.drawRect(option.rect)
+                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+            elif '347H' in value_check:
+                start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                end_color = QtGui.QColor(251, 131, 179)  # Pink
+                border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+                painter.setPen(QtGui.QPen(border_color, 3))
+                painter.drawRect(option.rect)
+                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+            elif '317H' in value_check:
+                start_color = QtGui.QColor(92, 197, 229)  # Blue
+                end_color = QtGui.QColor(251, 131, 179)  # Pink
+                border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+                painter.setPen(QtGui.QPen(border_color, 3))
+                painter.drawRect(option.rect)
+                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+            elif 'F9' in value_check:
+                start_color = QtGui.QColor(255, 157, 59)  # Orange
+                end_color = QtGui.QColor(244, 71, 209) # Pink
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'A707' in value_check:
+                start_color = QtGui.QColor(255, 157, 59)  # Orange
+                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '316' in value_check:
+                start_color = QtGui.QColor(92, 197, 229)  # Blue
+                end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '304' in value_check:
+                start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '446' in value_check:
+                start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'MONEL' in value_check:
+                start_color = QtGui.QColor(160, 120, 182)  # Purple
+                end_color = QtGui.QColor(160, 120, 182)  # Purple
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'HASTELLOY' in value_check:
+                start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '321' in value_check:
+                start_color = QtGui.QColor(251, 131, 179)  # Pink
+                end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'TANTALO' in value_check:
+                text_color = QtGui.QColor(255, 255, 255)
+                start_color = QtGui.QColor(0, 0, 0)  # Black
+                end_color = QtGui.QColor(0, 0, 0)  # Black
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'F11' in value_check:
+                start_color = QtGui.QColor(255, 157, 59)  # Orange
+                end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'F22' in value_check:
+                start_color = QtGui.QColor(255, 157, 59)  # Orange
+                end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'LF2' in value_check:
+                start_color = QtGui.QColor(255, 157, 59)  # Orange
+                end_color = QtGui.QColor(255, 157, 59)  # Orange
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '310' in value_check:
+                start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'ALLOY 20' in value_check:
+                start_color = QtGui.QColor(160, 120, 182)  # Purple
+                end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'INCONEL 600' in value_check:
+                start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'N08904' in value_check:
+                start_color = QtGui.QColor(160, 120, 182)  # Purple
+                end_color = QtGui.QColor(255, 157, 59)  # Orange
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif any(item in value_check for item in ['F60', '32205', 'SAF 2205']):
+                start_color = QtGui.QColor(160, 120, 182)  # Purple
+                end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif any(item in value_check for item in ['F44', '31254']):
+                start_color = QtGui.QColor(160, 120, 182)  # Purple
+                end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '825' in value_check:
+                start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                end_color = QtGui.QColor(255, 87, 87)  # Red
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '601' in value_check:
+                start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '625' in value_check:
+                start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                end_color = QtGui.QColor(255, 87, 87)  # Red
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '800' in value_check:
+                start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif any(item in value_check for item in ['F53', '32750', 'SAF 2507']):
+                start_color = QtGui.QColor(160, 120, 182)  # Purple
+                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif any(item in value_check for item in ['F51', '31803']):
+                start_color = QtGui.QColor(160, 120, 182)  # Purple
+                end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif any(item in value_check for item in ['F55', '32760']):
+                start_color = QtGui.QColor(160, 120, 182)  # Purple
+                end_color = QtGui.QColor(255, 87, 87)  # Red
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif any(item in value_check for item in ['C70610', 'CUNI 90-10', 'C70690']):
+                start_color = QtGui.QColor(255, 87, 87)  # Red
+                end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '347' in value_check:
+                start_color = QtGui.QColor(251, 131, 179)  # Pink
+                end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif '317' in value_check:
+                start_color = QtGui.QColor(92, 197, 229)  # Blue
+                end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'TITANIO' in value_check:
+                start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif 'ALLOY 699XA' in value_check:
+                start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif any(item in value_check for item in ['HR160', '50CR-50NI']):
+                start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            elif any(item in value_check for item in ['F5', '5CR-1/2MO']):
+                start_color = QtGui.QColor(255, 157, 59)  # Orange
+                end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            else:
+                start_color = QtGui.QColor(255, 255, 255)  # White
+                end_color = QtGui.QColor(255, 255, 255)  # White
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+            textRect = painter.boundingRect(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2), QtCore.Qt.TextFlag.TextDontClip | QtCore.Qt.AlignmentFlag.AlignCenter, original_text,)
+            verticalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).y() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).height() + textRect.height() + 8) / 2)
+            horizontalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).x() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).width() - textRect.width()) / 2)
+
+            painter.setPen(QtGui.QPen(text_color))
+            painter.drawText(horizontalPosition, verticalPosition, original_text)
 
 
 class CustomProxyModelDim(QtCore.QSortFilterProxyModel):
@@ -58,16 +962,16 @@ class CustomProxyModelDim(QtCore.QSortFilterProxyModel):
         return self._filters
 
     def setFilter(self, expresion, column, action_name=None):
-        if expresion or expresion == '':
+        if expresion or expresion == "":
             if column in self.filters:
-                if action_name or action_name == '':
+                if action_name or action_name == "":
                     self.filters[column].remove(expresion)
                 else:
                     self.filters[column].append(expresion)
             else:
                 self.filters[column] = [expresion]
         elif column in self.filters:
-            if action_name or action_name == '':
+            if action_name or action_name == "":
                 self.filters[column].remove(expresion)
                 if not self.filters[column]:
                     del self.filters[column]
@@ -79,23 +983,24 @@ class CustomProxyModelDim(QtCore.QSortFilterProxyModel):
         for column, expresions in self.filters.items():
             text = self.sourceModel().index(source_row, column, source_parent).data()
 
-            if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
+            if isinstance(text, QtCore.QDate):  # Check if filters are QDate. If True, convert to text
                 text = text.toString("yyyy-MM-dd")
 
             for expresion in expresions[0]:
-                if expresion == '':  # If expression is empty, match empty cells
-                    if text == '':
+                if expresion == "":  # If expression is empty, match empty cells
+                    if text == "":
                         break
 
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
+                elif re.fullmatch(r"^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$", expresion):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
-                    regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
                         break
 
                 else:
-                    regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
                         break
             else:
@@ -106,8 +1011,8 @@ class CustomProxyModelDim(QtCore.QSortFilterProxyModel):
 class EditableTableModelDim(QtSql.QSqlTableModel):
     updateFailed = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent=None, column_range=None):
-        super().__init__(parent)
+    def __init__(self, parent=None, column_range=None, database=None):
+        super().__init__(parent, database)
         self.column_range = column_range
 
     def setQuery(self, query):
@@ -148,16 +1053,16 @@ class CustomProxyModelOf(QtCore.QSortFilterProxyModel):
         return self._filters
 
     def setFilter(self, expresion, column, action_name=None):
-        if expresion or expresion == '':
+        if expresion or expresion == "":
             if column in self.filters:
-                if action_name or action_name == '':
+                if action_name or action_name == "":
                     self.filters[column].remove(expresion)
                 else:
                     self.filters[column].append(expresion)
             else:
                 self.filters[column] = [expresion]
         elif column in self.filters:
-            if action_name or action_name == '':
+            if action_name or action_name == "":
                 self.filters[column].remove(expresion)
                 if not self.filters[column]:
                     del self.filters[column]
@@ -169,23 +1074,24 @@ class CustomProxyModelOf(QtCore.QSortFilterProxyModel):
         for column, expresions in self.filters.items():
             text = self.sourceModel().index(source_row, column, source_parent).data()
 
-            if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
+            if isinstance(text, QtCore.QDate):  # Check if filters are QDate. If True, convert to text
                 text = text.toString("yyyy-MM-dd")
 
             for expresion in expresions[0]:
-                if expresion == '':  # If expression is empty, match empty cells
-                    if text == '':
+                if expresion == "":  # If expression is empty, match empty cells
+                    if text == "":
                         break
 
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
+                elif re.fullmatch(r"^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$", expresion):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
-                    regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
                         break
 
                 else:
-                    regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
                         break
             else:
@@ -196,8 +1102,8 @@ class CustomProxyModelOf(QtCore.QSortFilterProxyModel):
 class EditableTableModelOf(QtSql.QSqlTableModel):
     updateFailed = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent=None, column_range=None):
-        super().__init__(parent)
+    def __init__(self, parent=None, column_range=None, database=None):
+        super().__init__(parent, database)
         self.column_range = column_range
 
     def setQuery(self, query):
@@ -238,16 +1144,16 @@ class CustomProxyModelM(QtCore.QSortFilterProxyModel):
         return self._filters
 
     def setFilter(self, expresion, column, action_name=None):
-        if expresion or expresion == '':
+        if expresion or expresion == "":
             if column in self.filters:
-                if action_name or action_name == '':
+                if action_name or action_name == "":
                     self.filters[column].remove(expresion)
                 else:
                     self.filters[column].append(expresion)
             else:
                 self.filters[column] = [expresion]
         elif column in self.filters:
-            if action_name or action_name == '':
+            if action_name or action_name == "":
                 self.filters[column].remove(expresion)
                 if not self.filters[column]:
                     del self.filters[column]
@@ -259,23 +1165,24 @@ class CustomProxyModelM(QtCore.QSortFilterProxyModel):
         for column, expresions in self.filters.items():
             text = self.sourceModel().index(source_row, column, source_parent).data()
 
-            if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
+            if isinstance(text, QtCore.QDate):  # Check if filters are QDate. If True, convert to text
                 text = text.toString("yyyy-MM-dd")
 
             for expresion in expresions[0]:
-                if expresion == '':  # If expression is empty, match empty cells
-                    if text == '':
+                if expresion == "":  # If expression is empty, match empty cells
+                    if text == "":
                         break
 
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
+                elif re.fullmatch(r"^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$", expresion):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
-                    regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
                         break
 
                 else:
-                    regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
                         break
             else:
@@ -286,8 +1193,8 @@ class CustomProxyModelM(QtCore.QSortFilterProxyModel):
 class EditableTableModelM(QtSql.QSqlTableModel):
     updateFailed = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent=None, column_range=None):
-        super().__init__(parent)
+    def __init__(self, parent=None, column_range=None, database=None):
+        super().__init__(parent, database)
         self.column_range = column_range
 
     def setQuery(self, query):
@@ -317,30 +1224,31 @@ class EditableTableModelM(QtSql.QSqlTableModel):
         return column_headers
 
 
-
 class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
-    def __init__(self, db):
-        super().__init__()
-        self.modelDim = EditableTableModelDim()
+    def __init__(self, db, username=None, num_order=None):
+        super(Ui_WorkshopDrawingIndex_Window, self).__init__()
+        self.modelDim = EditableTableModelDim(database=db)
         self.proxyDim = CustomProxyModelDim()
-        self.modelOf = EditableTableModelOf()
+        self.modelOf = EditableTableModelOf(database=db)
         self.proxyOf = CustomProxyModelOf()
-        self.modelM = EditableTableModelM()
+        self.modelM = EditableTableModelM(database=db)
         self.proxyM = CustomProxyModelM()
         self.db = db
+        self.username = username
         self.checkbox_states = {}
         self.dict_valuesuniques = {}
         self.dict_ordersort = {}
         self.hiddencolumns = []
         self.action_checkbox_map = {}
         self.checkbox_filters = {}
+        self.num_order = num_order
         self.setupUi(self)
         self.modelDim.dataChanged.connect(self.saveChanges)
         self.modelOf.dataChanged.connect(self.saveChanges)
         self.modelM.dataChanged.connect(self.saveChanges)
 
     def closeEvent(self, event):
-    # Closing database connection
+        # Closing database connection
         if self.modelDim:
             self.modelDim.clear()
         if self.modelOf:
@@ -350,7 +1258,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.closeConnection()
 
     def closeConnection(self):
-    # Closing database connection
+        # Closing database connection
         self.tableDimDwg.setModel(None)
         del self.modelDim
         self.tableOfDwg.setModel(None)
@@ -360,8 +1268,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         if self.db:
             self.db.close()
             del self.db
-            if QtSql.QSqlDatabase.contains("qt_sql_default_connection"):
-                QtSql.QSqlDatabase.removeDatabase("qt_sql_default_connection")
+            if QtSql.QSqlDatabase.contains("drawing_index"):
+                QtSql.QSqlDatabase.removeDatabase("drawing_index")
+
 
     def setupUi(self, WorkshopDrawingIndex_Window):
         WorkshopDrawingIndex_Window.setObjectName("WorkshopDrawingIndex_Window")
@@ -370,12 +1279,21 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         WorkshopDrawingIndex_Window.setWindowIcon(icon)
-        WorkshopDrawingIndex_Window.setStyleSheet(
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}")
+        if self.username == 'm.gil':
+            WorkshopDrawingIndex_Window.setStyleSheet(
+            ".QFrame {border: 2px solid white;\n"
+            "}\n"
+            "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
+        else:
+            WorkshopDrawingIndex_Window.setStyleSheet(
+            ".QFrame {border: 2px solid black;\n"
+            "}\n"
+            "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         self.centralwidget = QtWidgets.QWidget(parent=WorkshopDrawingIndex_Window)
-        self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
+        if self.username == 'm.gil':
+            self.centralwidget.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255);")
+        else:
+            self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -387,8 +1305,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.setVerticalSpacing(10)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.label_NumOrder = QtWidgets.QLabel(parent=self.frame)
-        self.label_NumOrder.setMinimumSize(QtCore.QSize(150, 25))
-        self.label_NumOrder.setMaximumSize(QtCore.QSize(150, 25))
+        self.label_NumOrder.setMinimumSize(QtCore.QSize(100, 25))
+        self.label_NumOrder.setMaximumSize(QtCore.QSize(100, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
@@ -396,8 +1314,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.label_NumOrder.setObjectName("label_NumOrder")
         self.gridLayout_2.addWidget(self.label_NumOrder, 1, 0, 1, 1)
         self.Numorder_IndexDwg = QtWidgets.QLineEdit(parent=self.frame)
-        self.Numorder_IndexDwg.setMinimumSize(QtCore.QSize(250, 25))
-        self.Numorder_IndexDwg.setMaximumSize(QtCore.QSize(250, 25))
+        self.Numorder_IndexDwg.setMinimumSize(QtCore.QSize(200, 25))
+        self.Numorder_IndexDwg.setMaximumSize(QtCore.QSize(200, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Numorder_IndexDwg.setFont(font)
@@ -413,8 +1331,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.label_Responsible.setObjectName("label_Responsible")
         self.gridLayout_2.addWidget(self.label_Responsible, 1, 2, 1, 1)
         self.Responsible_IndexDwg = QtWidgets.QLineEdit(parent=self.frame)
-        self.Responsible_IndexDwg.setMinimumSize(QtCore.QSize(250, 25))
-        self.Responsible_IndexDwg.setMaximumSize(QtCore.QSize(250, 25))
+        self.Responsible_IndexDwg.setMinimumSize(QtCore.QSize(200, 25))
+        self.Responsible_IndexDwg.setMaximumSize(QtCore.QSize(200, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Responsible_IndexDwg.setFont(font)
@@ -431,17 +1349,122 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.label_ExpDate.setObjectName("label_ExpDate")
         self.gridLayout_2.addWidget(self.label_ExpDate, 1, 4, 1, 1)
         self.ExpDate_IndexDwg = QtWidgets.QLineEdit(parent=self.frame)
-        self.ExpDate_IndexDwg.setMinimumSize(QtCore.QSize(250, 25))
-        self.ExpDate_IndexDwg.setMaximumSize(QtCore.QSize(250, 25))
+        self.ExpDate_IndexDwg.setMinimumSize(QtCore.QSize(200, 25))
+        self.ExpDate_IndexDwg.setMaximumSize(QtCore.QSize(200, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.ExpDate_IndexDwg.setFont(font)
         self.ExpDate_IndexDwg.setEnabled(False)
         self.ExpDate_IndexDwg.setObjectName("ExpDate_IndexDwg")
         self.gridLayout_2.addWidget(self.ExpDate_IndexDwg, 1, 5, 1, 1)
+        self.Button_AddLines = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_AddLines.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_AddLines.setMaximumSize(QtCore.QSize(50, 16777215))
+        self.Button_AddLines.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_AddLines.setStyleSheet(
+            "QPushButton{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(3, 174, 236);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:hover{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:pressed{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(200, 200, 200);\n"
+            "    border-radius: 10px;\n"
+            "}"
+        )
+        self.Button_AddLines.setText("")
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Add_Lines.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_AddLines.setIcon(icon1)
+        self.Button_AddLines.setIconSize(QtCore.QSize(40, 40))
+        self.Button_AddLines.setObjectName("Button_AddLines")
+        self.gridLayout_2.addWidget(self.Button_AddLines, 1, 6, 2, 1)
+        self.Button_PaletteM = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_PaletteM.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_PaletteM.setMaximumSize(QtCore.QSize(50, 16777215))
+        self.Button_PaletteM.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_PaletteM.setStyleSheet(
+            "QPushButton{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(3, 174, 236);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:hover{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:pressed{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(200, 200, 200);\n"
+            "    border-radius: 10px;\n"
+            "}"
+        )
+        self.Button_PaletteM.setText("")
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Colour_Palette_M.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_PaletteM.setIcon(icon2)
+        self.Button_PaletteM.setIconSize(QtCore.QSize(40, 40))
+        self.Button_PaletteM.setObjectName("Button_PaletteM")
+        self.gridLayout_2.addWidget(self.Button_PaletteM, 1, 7, 2, 1)
+        self.Button_PaletteT = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_PaletteT.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_PaletteT.setMaximumSize(QtCore.QSize(50, 16777215))
+        self.Button_PaletteT.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_PaletteT.setStyleSheet(
+            "QPushButton{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(3, 174, 236);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:hover{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:pressed{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(200, 200, 200);\n"
+            "    border-radius: 10px;\n"
+            "}"
+        )
+        self.Button_PaletteT.setText("")
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Colour_Palette_T.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_PaletteT.setIcon(icon3)
+        self.Button_PaletteT.setIconSize(QtCore.QSize(40, 40))
+        self.Button_PaletteT.setObjectName("Button_PaletteT")
+        self.gridLayout_2.addWidget(self.Button_PaletteT, 1, 8, 2, 1)
         self.label_Type = QtWidgets.QLabel(parent=self.frame)
-        self.label_Type.setMinimumSize(QtCore.QSize(150, 25))
-        self.label_Type.setMaximumSize(QtCore.QSize(150, 25))
+        self.label_Type.setMinimumSize(QtCore.QSize(100, 25))
+        self.label_Type.setMaximumSize(QtCore.QSize(100, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
@@ -449,8 +1472,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.label_Type.setObjectName("label_Type")
         self.gridLayout_2.addWidget(self.label_Type, 2, 0, 1, 1)
         self.Type_IndexDwg = QtWidgets.QLineEdit(parent=self.frame)
-        self.Type_IndexDwg.setMinimumSize(QtCore.QSize(250, 25))
-        self.Type_IndexDwg.setMaximumSize(QtCore.QSize(250, 25))
+        self.Type_IndexDwg.setMinimumSize(QtCore.QSize(200, 25))
+        self.Type_IndexDwg.setMaximumSize(QtCore.QSize(200, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Type_IndexDwg.setFont(font)
@@ -467,8 +1490,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.label_DateWorkshop.setObjectName("label_DateWorkshop")
         self.gridLayout_2.addWidget(self.label_DateWorkshop, 2, 2, 1, 1)
         self.DateWorkshop_IndexDwg = QtWidgets.QLineEdit(parent=self.frame)
-        self.DateWorkshop_IndexDwg.setMinimumSize(QtCore.QSize(250, 25))
-        self.DateWorkshop_IndexDwg.setMaximumSize(QtCore.QSize(250, 25))
+        self.DateWorkshop_IndexDwg.setMinimumSize(QtCore.QSize(200, 25))
+        self.DateWorkshop_IndexDwg.setMaximumSize(QtCore.QSize(200, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.DateWorkshop_IndexDwg.setFont(font)
@@ -485,26 +1508,30 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.label_DateAssembly.setObjectName("label_DateAssembly")
         self.gridLayout_2.addWidget(self.label_DateAssembly, 2, 4, 1, 1)
         self.DateAssembly_IndexDwg = QtWidgets.QLineEdit(parent=self.frame)
-        self.DateAssembly_IndexDwg.setMinimumSize(QtCore.QSize(250, 25))
-        self.DateAssembly_IndexDwg.setMaximumSize(QtCore.QSize(250, 25))
+        self.DateAssembly_IndexDwg.setMinimumSize(QtCore.QSize(200, 25))
+        self.DateAssembly_IndexDwg.setMaximumSize(QtCore.QSize(200, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.DateAssembly_IndexDwg.setFont(font)
         self.DateAssembly_IndexDwg.setEnabled(False)
         self.DateAssembly_IndexDwg.setObjectName("DateAssembly_IndexDwg")
         self.gridLayout_2.addWidget(self.DateAssembly_IndexDwg, 2, 5, 1, 1)
-        self.tableDimDwg=QtWidgets.QTableView(parent=self.frame)
-        self.modelDimDwg = EditableTableModelDim()
+        self.layout_vertical = QtWidgets.QVBoxLayout()
+        self.splitter = QtWidgets.QSplitter(QtCore.Qt.Orientation.Vertical)
+        self.tableDimDwg = QtWidgets.QTableView(parent=self.frame)
+        self.modelDim = EditableTableModelDim(database=self.db)
         self.tableDimDwg.setObjectName("tableDimDwg")
-        self.gridLayout_2.addWidget(self.tableDimDwg, 4, 0, 1, 7)
-        self.tableOfDwg=QtWidgets.QTableView(parent=self.frame)
-        self.modelOfDwg = EditableTableModelOf()
+        self.splitter.addWidget(self.tableDimDwg)
+        self.tableOfDwg = QtWidgets.QTableView(parent=self.frame)
+        self.modelOf = EditableTableModelOf(database=self.db)
         self.tableOfDwg.setObjectName("tableOfDwg")
-        self.gridLayout_2.addWidget(self.tableOfDwg, 5, 0, 1, 7)
-        self.tableMDwg=QtWidgets.QTableView(parent=self.frame)
-        self.modelMDwg = EditableTableModelM()
+        self.splitter.addWidget(self.tableOfDwg)
+        self.tableMDwg = QtWidgets.QTableView(parent=self.frame)
+        self.modelM = EditableTableModelM(database=self.db)
         self.tableMDwg.setObjectName("tableMDwg")
-        self.gridLayout_2.addWidget(self.tableMDwg, 6, 0, 1, 7)
+        self.splitter.addWidget(self.tableMDwg)
+        self.layout_vertical.addWidget(self.splitter)
+        self.gridLayout_2.addLayout(self.layout_vertical, 4, 0, 1, 10)
         self.hLayout3 = QtWidgets.QHBoxLayout()
         self.hLayout3.setObjectName("hLayout3")
         spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -533,7 +1560,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.label_CountValue.setText("")
         self.label_CountValue.setObjectName("label_CountValue")
         self.hLayout3.addWidget(self.label_CountValue)
-        self.gridLayout_2.addLayout(self.hLayout3, 8, 0, 1, 6)
+        self.gridLayout_2.addLayout(self.hLayout3, 8, 0, 1, 8)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
@@ -549,11 +1576,48 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.retranslateUi(WorkshopDrawingIndex_Window)
         QtCore.QMetaObject.connectSlotsByName(WorkshopDrawingIndex_Window)
 
-        self.Numorder_IndexDwg.returnPressed.connect(self.query_tags)
+        if self.num_order is not None:
+            self.modelDim.dataChanged.connect(self.saveChanges)
+            self.modelOf.dataChanged.connect(self.saveChanges)
+            self.modelM.dataChanged.connect(self.saveChanges)
+            self.Numorder_IndexDwg.setText(self.num_order)
+            self.query_drawings()
+
+        self.Numorder_IndexDwg.returnPressed.connect(self.query_drawings)
         self.modelDim.dataChanged.connect(self.saveChanges)
         self.modelOf.dataChanged.connect(self.saveChanges)
         self.modelM.dataChanged.connect(self.saveChanges)
-        self.createContextMenu()
+        # self.createContextMenu()
+        self.Button_AddLines.clicked.connect(self.add_lines)
+        self.Button_PaletteM.clicked.connect(self.colour_palette_M)
+        self.Button_PaletteT.clicked.connect(self.colour_palette_T)
+
+        delete_action_dim = QtGui.QAction("Eliminar Fila", self)
+        delete_action_dim.triggered.connect(lambda: self.delete_register(self.tableDimDwg, "verification.workshop_dim_drawings"))
+
+        self.context_menu_row = QtWidgets.QMenu(self)
+        self.context_menu_row.addAction(delete_action_dim)
+
+        self.tableDimDwg.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
+        self.tableDimDwg.addActions([delete_action_dim])
+
+        delete_action_of = QtGui.QAction("Eliminar Fila", self)
+        delete_action_of.triggered.connect(lambda: self.delete_register(self.tableOfDwg, "verification.workshop_of_drawings"))
+
+        self.context_menu_row = QtWidgets.QMenu(self)
+        self.context_menu_row.addAction(delete_action_of)
+
+        self.tableOfDwg.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
+        self.tableOfDwg.addActions([delete_action_of])
+
+        delete_action_m = QtGui.QAction("Eliminar Fila", self)
+        delete_action_m.triggered.connect(lambda: self.delete_register(self.tableMDwg, "verification.m_drawing_verification"))
+
+        self.context_menu_row = QtWidgets.QMenu(self)
+        self.context_menu_row.addAction(delete_action_m)
+
+        self.tableMDwg.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
+        self.tableMDwg.addActions([delete_action_m])
 
 
     def retranslateUi(self, WorkshopDrawingIndex_Window):
@@ -578,7 +1642,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 value = self.modelDim.record(row).value(column)
                 if value not in list_valuesUnique:
                     if isinstance(value, QtCore.QDate):
-                        value=value.toString("dd/MM/yyyy")
+                        value = value.toString("dd/MM/yyyy")
                     list_valuesUnique.append(str(value))
                     if value not in self.checkbox_states[column]:
                         self.checkbox_states[column][value] = True
@@ -592,7 +1656,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 value = self.modelOf.record(row).value(column)
                 if value not in list_valuesUnique:
                     if isinstance(value, QtCore.QDate):
-                        value=value.toString("dd/MM/yyyy")
+                        value = value.toString("dd/MM/yyyy")
                     list_valuesUnique.append(str(value))
                     if value not in self.checkbox_states[column]:
                         self.checkbox_states[column][value] = True
@@ -606,39 +1670,39 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 value = self.modelM.record(row).value(column)
                 if value not in list_valuesUnique:
                     if isinstance(value, QtCore.QDate):
-                        value=value.toString("dd/MM/yyyy")
+                        value = value.toString("dd/MM/yyyy")
                     list_valuesUnique.append(str(value))
                     if value not in self.checkbox_states[column]:
                         self.checkbox_states[column][value] = True
             self.dict_valuesuniques[column] = list_valuesUnique
 
 # Function to load table and setting in the window
-    def query_tags(self):
-        num_order = self.Numorder_IndexDwg.text()
+    def query_drawings(self):
+        num_order = self.Numorder_IndexDwg.text().upper()
 
-        commands_queryorder = ("""
+        commands_queryorder = """
                             SELECT orders."num_order", registration."name", registration."surname", TO_CHAR(orders."expected_date",'dd/MM/yyyy'), offers."material", orders."recep_date_workshop", orders."recep_date_assembly"
                             FROM offers
                             INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                             INNER JOIN users_data.registration AS registration ON (offers."responsible"=registration."username")
                             WHERE UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
                             ORDER BY orders."num_order"
-                            """)
+                            """
         conn = None
         try:
-        # read the connection parameters
+            # read the connection parameters
             params = config()
-        # connect to the PostgreSQL server
+            # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
-        # execution of commands one by one
+            # execution of commands one by one
             data = (num_order,)
             cur.execute(commands_queryorder, data)
-            results_queryorder=cur.fetchall()
+            results_queryorder = cur.fetchall()
 
-        # close communication with the PostgreSQL database server
+            # close communication with the PostgreSQL database server
             cur.close()
-        # commit the changes
+            # commit the changes
             conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -646,8 +1710,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
+            dlg.setText("Ha ocurrido el siguiente error:\n" + str(error))
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
             del dlg, new_icon
@@ -655,7 +1718,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-        self.Responsible_IndexDwg.setText(results_queryorder[0][1] + ' ' + results_queryorder[0][2])
+        self.Responsible_IndexDwg.setText(results_queryorder[0][1] + " " + results_queryorder[0][2])
         self.ExpDate_IndexDwg.setText(results_queryorder[0][3])
         self.Type_IndexDwg.setText(results_queryorder[0][4])
         self.DateWorkshop_IndexDwg.setText(results_queryorder[0][5])
@@ -670,31 +1733,38 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.modelDim.dataChanged.disconnect(self.saveChanges)
 
         self.modelDim.setTable("verification.workshop_dim_drawings")
+
         self.tableDimDwg.setModel(None)
         self.tableDimDwg.setModel(self.proxyDim)
         self.modelDim.setFilter(f"num_order LIKE '{num_order}'")
-        self.modelDim.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
+        self.modelDim.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
         self.modelDim.select()
         self.proxyDim.setSourceModel(self.modelDim)
         self.tableDimDwg.setModel(self.proxyDim)
 
-        columns_number=self.modelDim.columnCount()
+        columns_number = self.modelDim.columnCount()
         for column in range(columns_number):
             self.tableDimDwg.setItemDelegateForColumn(column, None)
 
         self.tableDimDwg.setItemDelegate(AlignDelegate(self.tableDimDwg))
         self.tableDimDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableDimDwg.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableDimDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableDimDwg.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        if self.username == 'm.gil':
+            self.tableDimDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableDimDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
+            self.tableDimDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+        else:
+            self.tableDimDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
         self.tableDimDwg.setObjectName("tableDimDwg")
         self.tableDimDwg.setSortingEnabled(False)
         # self.tableDimDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableDimDwg, self.modelDim, self.proxyDim))
-        self.tableDimDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-        self.tableDimDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.gridLayout_2.addWidget(self.tableDimDwg, 3, 0, 1, 7)
+        # self.tableDimDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+        # self.tableDimDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.splitter.addWidget(self.tableDimDwg)
+        # self.gridLayout_2.addWidget(self.tableDimDwg, 3, 0, 1, 7)
 
     # Change all column names
-        headers = ["ID", "Nº Pedido", "Nº Plano Dim.", "Descripción"]
+        headers = ["ID", "Nº Pedido", "Nº Plano Dim.", "Observaciones", "Descripción"]
         self.modelDim.setAllColumnHeaders(headers)
 
         self.tableDimDwg.hideColumn(0)
@@ -704,12 +1774,12 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             list_valuesUnique = []
             if column not in self.checkbox_states:
                 self.checkbox_states[column] = {}
-                self.checkbox_states[column]['Seleccionar todo'] = True
+                self.checkbox_states[column]["Seleccionar todo"] = True
                 for row in range(self.modelDim.rowCount()):
                     value = self.modelDim.record(row).value(column)
                     if value not in list_valuesUnique:
                         if isinstance(value, QtCore.QDate):
-                            value=value.toString("dd/MM/yyyy")
+                            value = value.toString("dd/MM/yyyy")
                         list_valuesUnique.append(str(value))
                         self.checkbox_states[column][value] = True
                 self.dict_valuesuniques[column] = list_valuesUnique
@@ -724,28 +1794,34 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.tableOfDwg.setModel(None)
         self.tableOfDwg.setModel(self.proxyOf)
         self.modelOf.setFilter(f"num_order LIKE '{num_order}'")
-        self.modelOf.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
+        self.modelOf.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
         self.modelOf.select()
         self.proxyOf.setSourceModel(self.modelOf)
         self.tableOfDwg.setModel(self.proxyOf)
 
-        columns_number=self.modelOf.columnCount()
+        columns_number = self.modelOf.columnCount()
         for column in range(columns_number):
             self.tableOfDwg.setItemDelegateForColumn(column, None)
 
         self.tableOfDwg.setItemDelegate(AlignDelegate(self.tableOfDwg))
         self.tableOfDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableOfDwg.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableOfDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableOfDwg.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        if self.username == 'm.gil':
+            self.tableOfDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableOfDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
+            self.tableOfDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+        else:
+            self.tableOfDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
         self.tableOfDwg.setObjectName("tableOfDwg")
         self.tableOfDwg.setSortingEnabled(False)
         # self.tableOfDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableOfDwg, self.modelOf, self.proxyOf))
-        self.tableOfDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-        self.tableOfDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.gridLayout_2.addWidget(self.tableOfDwg, 4, 0, 1, 7)
+        # self.tableOfDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+        # self.tableOfDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.splitter.addWidget(self.tableOfDwg)
+        # self.gridLayout_2.addWidget(self.tableOfDwg, 4, 0, 1, 7)
 
     # Change all column names
-        headers = ["ID", "Nº Pedido", "Nº Plano OF", "Descripción"]
+        headers = ["ID", "Nº Pedido", "Nº Plano OF", "Observaciones", "Descripción"]
         self.modelOf.setAllColumnHeaders(headers)
 
         self.tableOfDwg.hideColumn(0)
@@ -755,12 +1831,12 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             list_valuesUnique = []
             if column not in self.checkbox_states:
                 self.checkbox_states[column] = {}
-                self.checkbox_states[column]['Seleccionar todo'] = True
+                self.checkbox_states[column]["Seleccionar todo"] = True
                 for row in range(self.modelOf.rowCount()):
                     value = self.modelOf.record(row).value(column)
                     if value not in list_valuesUnique:
                         if isinstance(value, QtCore.QDate):
-                            value=value.toString("dd/MM/yyyy")
+                            value = value.toString("dd/MM/yyyy")
                         list_valuesUnique.append(str(value))
                         self.checkbox_states[column][value] = True
                 self.dict_valuesuniques[column] = list_valuesUnique
@@ -774,29 +1850,44 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
         self.tableMDwg.setModel(None)
         self.tableMDwg.setModel(self.proxyM)
-        self.modelM.setFilter(f"num_order LIKE '{num_order}%'")
-        self.modelM.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
+        self.modelM.setFilter(f"num_order LIKE '{num_order}'")
+        self.modelM.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
         self.modelM.select()
         self.proxyM.setSourceModel(self.modelM)
         self.tableMDwg.setModel(self.proxyM)
 
-        columns_number=self.modelM.columnCount()
+        columns_number = self.modelM.columnCount()
         for column in range(columns_number):
             self.tableMDwg.setItemDelegateForColumn(column, None)
 
-        self.tableMDwg.setItemDelegate(AlignDelegate(self.tableMDwg))
+        self.tableMDwg.setItemDelegate(AlignDelegate_M(self.tableMDwg))
         self.tableMDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableMDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableMDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableMDwg.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        if self.username == 'm.gil':
+            self.tableMDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableMDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
+            self.tableMDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+        else:
+            self.tableMDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
         self.tableMDwg.setObjectName("tableMDwg")
         self.tableMDwg.setSortingEnabled(False)
         # self.tableMDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableMDwg, self.modelMDwg, self.proxyM))
-        self.tableMDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-        self.tableMDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.gridLayout_2.addWidget(self.tableMDwg, 5, 0, 1, 7)
+        # self.tableMDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+        # self.tableMDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.splitter.addWidget(self.tableMDwg)
+        # self.gridLayout_2.addWidget(self.tableMDwg, 5, 0, 1, 7)
 
     # Change all column names
-        headers = ["ID", "Nº Pedido", "Nº Plano M", "Fecha Plano", "Estado Plano", "Notas", "Descripción"]
+        headers = [
+            "ID",
+            "Nº Pedido",
+            "Nº Plano M",
+            "Fecha Plano",
+            "Estado Plano",
+            "Notas",
+            "Observaciones",
+            "Descripción",
+        ]
         self.modelM.setAllColumnHeaders(headers)
 
         self.tableMDwg.hideColumn(0)
@@ -809,24 +1900,24 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             list_valuesUnique = []
             if column not in self.checkbox_states:
                 self.checkbox_states[column] = {}
-                self.checkbox_states[column]['Seleccionar todo'] = True
+                self.checkbox_states[column]["Seleccionar todo"] = True
                 for row in range(self.modelM.rowCount()):
                     value = self.modelM.record(row).value(column)
                     if value not in list_valuesUnique:
                         if isinstance(value, QtCore.QDate):
-                            value=value.toString("dd/MM/yyyy")
+                            value = value.toString("dd/MM/yyyy")
                         list_valuesUnique.append(str(value))
                         self.checkbox_states[column][value] = True
                 self.dict_valuesuniques[column] = list_valuesUnique
 
         self.modelM.dataChanged.connect(self.saveChanges)
 
-
-
-
-
         # self.selection_model = self.tableDimDwg.selectionModel()
         # self.selection_model.selectionChanged.connect(self.countSelectedCells)
+
+        self.tableDimDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableDimDwg, self.modelDim, self.proxyDim)
+        self.tableOfDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableOfDwg, self.modelOf, self.proxyOf)
+        self.tableMDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableMDwg, self.modelM, self.proxyM)
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex, table, model, proxy):
@@ -840,7 +1931,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             value = index.data(Qt.ItemDataRole.DisplayRole)
             if value not in valuesUnique_view:
                 if isinstance(value, QtCore.QDate):
-                    value=value.toString("dd/MM/yyyy")
+                    value = value.toString("dd/MM/yyyy")
                 valuesUnique_view.append(value)
 
         actionSortAscending = QtGui.QAction("Ordenar Ascendente", table)
@@ -862,23 +1953,26 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.menuValues.addSeparator()
 
         scroll_menu = QtWidgets.QScrollArea()
-        scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
+        if self.username == 'm.gil':
+            scroll_menu.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255)")
+        else:
+            scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
         scroll_menu.setWidgetResizable(True)
         scroll_widget = QtWidgets.QWidget(scroll_menu)
         scroll_menu.setWidget(scroll_widget)
         scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
 
-        checkbox_all_widget = QtWidgets.QCheckBox('Seleccionar todo')
+        checkbox_all_widget = QtWidgets.QCheckBox("Seleccionar todo")
 
-        if not self.checkbox_states[self.logicalIndex]['Seleccionar todo'] == True:
+        if not self.checkbox_states[self.logicalIndex]["Seleccionar todo"] == True:
             checkbox_all_widget.setChecked(False)
         else:
             checkbox_all_widget.setChecked(True)
-        
+
         checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled(checked, name, model))
 
         scroll_layout.addWidget(checkbox_all_widget)
-        self.action_checkbox_map['Seleccionar todo'] = checkbox_all_widget
+        self.action_checkbox_map["Seleccionar todo"] = checkbox_all_widget
 
         if len(self.dict_ordersort) != 0 and self.logicalIndex in self.dict_ordersort:
             list_uniquevalues = sorted(list(set(self.dict_valuesuniques[self.logicalIndex])))
@@ -915,12 +2009,18 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(accept_button)
         self.menuValues.addAction(cancel_button)
 
-        self.menuValues.setStyleSheet("QMenu { color: black; }"
-                                        "QMenu { background-color: rgb(255, 255, 255); }"
-                                        "QMenu::item:selected { background-color: #33bdef; }"
-                                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        if self.username == 'm.gil':
+            self.menuValues.setStyleSheet("QMenu { color: white; }"
+                                            "QMenu { background-color: #121212; }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
+                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        else:
+            self.menuValues.setStyleSheet("QMenu { color: black; }"
+                                            "QMenu { background-color: rgb(255, 255, 255); }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
+                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
-        headerPos = table.mapToGlobal(table.horizontalHeader().pos())        
+        headerPos = table.mapToGlobal(table.horizontalHeader().pos())
 
         posY = headerPos.y() + table.horizontalHeader().height()
         scrollX = table.horizontalScrollBar().value()
@@ -957,8 +2057,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map.values()):
                 model.setIconColumnHeader(filterColumn, icono)
             else:
-                model.setIconColumnHeader(filterColumn, '')
-        
+                model.setIconColumnHeader(filterColumn, "")
+
         else:
             for checkbox_name, checkbox_widget in self.action_checkbox_map.items():
                 checkbox_widget.setChecked(checked)
@@ -989,8 +2089,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
     def on_actionDeleteFilterColumn_triggered(self, table, model, proxy):
         filterColumn = self.logicalIndex
         if filterColumn in proxy.filters:
-                del proxy.filters[filterColumn]
-        model.setIconColumnHeader(filterColumn, '')
+            del proxy.filters[filterColumn]
+        model.setIconColumnHeader(filterColumn, "")
         proxy.invalidateFilter()
 
         table.setModel(None)
@@ -1000,11 +2100,11 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             del self.checkbox_filters[filterColumn]
 
         self.checkbox_states[self.logicalIndex].clear()
-        self.checkbox_states[self.logicalIndex]['Seleccionar todo'] = True
+        self.checkbox_states[self.logicalIndex]["Seleccionar todo"] = True
         for row in range(table.model().rowCount()):
             value = model.record(row).value(filterColumn)
             if isinstance(value, QtCore.QDate):
-                    value=value.toString("dd/MM/yyyy")
+                value = value.toString("dd/MM/yyyy")
             self.checkbox_states[self.logicalIndex][str(value)] = True
 
         table.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
@@ -1028,8 +2128,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         new_icon = QtGui.QIcon()
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle('Buscar')
-        clickedButton=dlg.exec()
+        dlg.setWindowTitle("Buscar")
+        clickedButton = dlg.exec()
 
         if clickedButton == 1:
             stringAction = dlg.textValue()
@@ -1068,7 +2168,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             dlg.setText("No hay datos cargados")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
-            del dlg,new_icon
+            del dlg, new_icon
         else:
             final_data = []
 
@@ -1088,39 +2188,99 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             df.columns = df.iloc[0]
             df = df[1:]
 
-            output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
+            output_path = asksaveasfilename(
+                defaultextension=".xlsx",
+                filetypes=[("Archivos de Excel", "*.xlsx")],
+                title="Guardar archivo de Excel",
+            )
             if output_path:
                 df.to_excel(output_path, index=False, header=True)
 
 # Function to enable copy and paste cells
-    def keyPressEvent(self, event):
-        if event.matches(QKeySequence.StandardKey.Copy):
-            if self.tableDimDwg.selectionModel() != None:
-                selected_indexes = self.tableDimDwg.selectionModel().selectedIndexes()
+    def custom_keyPressEvent(self, event, table, model, proxy):
+        if event.matches(QKeySequence.StandardKey.MoveToNextLine):
+            if table.selectionModel() != None:
+                selected_indexes = table.selectionModel().selectedIndexes()
+                if len(selected_indexes) == 1:
+                    for index in selected_indexes:
+                        current_row = index.row()
+                        current_column = index.column()
+
+                    new_row = current_row + 1 if current_row < model.rowCount() - 1 else current_row
+
+                    table.selectionModel().clearSelection()
+                    new_selection = QtCore.QItemSelection(QtCore.QModelIndex(model.index(new_row, current_column)), QtCore.QModelIndex(model.index(new_row, current_column)))
+                    table.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
+
+        elif event.matches(QKeySequence.StandardKey.MoveToPreviousLine):
+            if table.selectionModel() != None:
+                selected_indexes = table.selectionModel().selectedIndexes()
+                if len(selected_indexes) == 1:
+                    for index in selected_indexes:
+                        current_row = index.row()
+                        current_column = index.column()
+
+                    new_row = current_row - 1 if current_row > 0 else 0
+
+                    table.selectionModel().clearSelection()
+                    new_selection = QtCore.QItemSelection(QtCore.QModelIndex(model.index(new_row, current_column)), QtCore.QModelIndex(model.index(new_row, current_column)))
+                    table.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
+
+        elif event.matches(QKeySequence.StandardKey.MoveToNextChar):
+            if table.selectionModel() != None:
+                selected_indexes = table.selectionModel().selectedIndexes()
+                if len(selected_indexes) == 1:
+                    for index in selected_indexes:
+                        current_row = index.row()
+                        current_column = index.column()
+
+                    new_column = current_column + 1 if current_column < model.columnCount() - 1 else current_column
+
+                    table.selectionModel().clearSelection()
+                    new_selection = QtCore.QItemSelection(QtCore.QModelIndex(model.index(current_row, new_column)), QtCore.QModelIndex(model.index(current_row, new_column)))
+                    table.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
+
+        elif event.matches(QKeySequence.StandardKey.MoveToPreviousChar):
+            if table.selectionModel() != None:
+                selected_indexes = table.selectionModel().selectedIndexes()
+                if len(selected_indexes) == 1:
+                    for index in selected_indexes:
+                        current_row = index.row()
+                        current_column = index.column()
+
+                    new_column = current_column - 1 if current_column > 1 else 1
+
+                    table.selectionModel().clearSelection()
+                    new_selection = QtCore.QItemSelection(QtCore.QModelIndex(model.index(current_row, new_column)), QtCore.QModelIndex(model.index(current_row, new_column)))
+                    table.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
+
+        elif event.matches(QKeySequence.StandardKey.Copy):
+            if table.selectionModel() != None:
+                selected_indexes = table.selectionModel().selectedIndexes()
                 if selected_indexes:
                     clipboard = QApplication.clipboard()
                     text = self.get_selected_text(selected_indexes)
                     clipboard.setText(text)
 
         elif event.matches(QKeySequence.StandardKey.Paste):
-            if self.tableDimDwg.selectionModel() != None:
-                selected_indexes = self.tableDimDwg.selectionModel().selectedIndexes()
+            if table.selectionModel() != None:
+                selected_indexes = table.selectionModel().selectedIndexes()
                 if selected_indexes:
                     clipboard = QApplication.clipboard()
                     text = clipboard.text()
                     for index in selected_indexes:
                         current_row = index.row()
                         current_column = index.column()
-                        first_column_value = self.proxy.data(self.proxy.index(current_row, 0))
+                        first_column_value = proxy.data(proxy.index(current_row, 0))
                         target_row = None
-                        for row in range(self.model.rowCount()):
-                            if self.model.data(self.model.index(row, 0)) == first_column_value:
+                        for row in range(model.rowCount()):
+                            if model.data(model.index(row, 0)) == first_column_value:
                                 target_row = row
                                 break
                         if target_row is not None:
-                            target_index = self.model.index(target_row, current_column)
-                            self.model.setData(target_index, text, Qt.ItemDataRole.EditRole)
-                    self.model.submitAll()
+                            target_index = model.index(target_row, current_column)
+                            model.setData(target_index, text, Qt.ItemDataRole.EditRole)
+                    model.submitAll()
 
         super().keyPressEvent(event)
 
@@ -1142,18 +2302,18 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
             for row in sorted(rows):
                 for col in sorted(cols):
-                    index = self.model.index(row, col)  
+                    index = self.model.index(row, col)
                     cell_data = index.data(Qt.ItemDataRole.DisplayRole)
                     cursor.insertText(str(cell_data))
-                    cursor.insertText('\t')
-                cursor.insertText('\n')
+                    cursor.insertText("\t")
+                cursor.insertText("\n")
 
             return text_doc.toPlainText()
 
 # Function to count selected cells and sum its values
     def countSelectedCells(self):
         if len(self.tableDimDwg.selectedIndexes()) > 1:
-            locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+            locale.setlocale(locale.LC_ALL, "es_ES.UTF-8")
             self.label_SumItems.setText("")
             self.label_SumValue.setText("")
             self.label_CountItems.setText("")
@@ -1175,10 +2335,10 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function to format money string values
     def euro_string_to_float(self, euro_str):
-        match = re.match(r'^([\d.,]+)\s€$', euro_str)
+        match = re.match(r"^([\d.,]+)\s€$", euro_str)
         if match:
             number_str = match.group(1)
-            number_str = number_str.replace('.', '').replace(',', '.')
+            number_str = number_str.replace(".", "").replace(",", ".")
             return float(number_str)
         else:
             return 0.0
@@ -1208,9 +2368,286 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
         self.context_menu.close()
 
+# Function to add lines on tables
+    def add_lines(self):
+        if self.username == 'm.gil':
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Indice Planos")
+            dlg.setText("Este módulo no esta disponible para tí corazón ❤️")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+
+        else:
+            num_order = self.Numorder_IndexDwg.text().upper()
+            if num_order == '':
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Indice Planos")
+                dlg.setText("Introduce un número de pedido")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg,new_icon
+
+            elif not re.match(r'^(P-\d{2}/\d{3}-S\d{2}|PA-\d{2}/\d{3})$', num_order):
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Indice Planos")
+                dlg.setText("El número de pedido debe tener el siguiente formato\n" +
+                            "- P-XX/YYY-SZZ\n" + 
+                            "- PA-XX/YYY")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg,new_icon
+
+            else:
+                commands_checkorder = ("""
+                                SELECT *
+                                FROM orders
+                                WHERE "num_order" = %s
+                                """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands one by one
+                    cur.execute(commands_checkorder,(num_order,))
+                    results=cur.fetchall()
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+                if len(results) == 0:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Planos")
+                        dlg.setText("El número de pedido introducido no existe. Introduce un pedido válido o pon 'ALMACÉN'")
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                        dlg.exec()
+                        del dlg, new_icon
+
+                else:
+                    dlg3 = QtWidgets.QInputDialog()
+                    new_icon3 = QtGui.QIcon()
+                    new_icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg3.setWindowIcon(new_icon3)
+                    dlg3.setWindowTitle('Indice de planos')
+                    dlg3.setLabelText('Introduce cuantos planos quieres introducir:')
+
+                    while True:
+                        item, ok = QtWidgets.QInputDialog.getItem(self, "Indice Planos", "Seleccióna un tipo de plano:", ['Dimensional', 'OF', 'M'], 0, False)
+                        if ok and item:
+                            item_type = item
+                            if item_type != '':
+                                if item_type == 'OF':
+                                    table_name = 'verification."workshop_of_drawings"'
+                                elif item_type == 'M':
+                                    table_name = 'verification."m_drawing_verification"'
+                                else:
+                                    table_name = 'verification."workshop_dim_drawings"'
+                                while True:
+                                    clickedButton3 = dlg3.exec()
+                                    if clickedButton3 == 1:
+                                        qty = dlg3.textValue()
+                                        if qty != '' and (qty.isdigit() and int(qty) > 0):
+                                            conn = None
+                                            try:
+                                            # read the connection parameters
+                                                params = config()
+                                            # connect to the PostgreSQL server
+                                                conn = psycopg2.connect(**params)
+                                                cur = conn.cursor()
+
+                                            # execution of commands
+                                                for i in range(int(qty)):
+                                                    commands_insert_drawing = f"""INSERT INTO {table_name} ("num_order") VALUES ('{num_order}')"""
+                                                    cur.execute(commands_insert_drawing)
+
+                                            # close communication with the PostgreSQL database server
+                                                cur.close()
+                                            # commit the changes
+                                                conn.commit()
+
+                                                dlg = QtWidgets.QMessageBox()
+                                                new_icon = QtGui.QIcon()
+                                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                                dlg.setWindowIcon(new_icon)
+                                                dlg.setWindowTitle("Indice Planos")
+                                                dlg.setText("Datos insertados con éxito")
+                                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                                                dlg.exec()
+                                                del dlg,new_icon
+
+                                            except (Exception, psycopg2.DatabaseError) as error:
+                                                dlg = QtWidgets.QMessageBox()
+                                                new_icon = QtGui.QIcon()
+                                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                                dlg.setWindowIcon(new_icon)
+                                                dlg.setWindowTitle("ERP EIPSA")
+                                                dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                            + str(error))
+                                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                                dlg.exec()
+                                                del dlg, new_icon
+                                            finally:
+                                                if conn is not None:
+                                                    conn.close()
+                                            break
+                                        dlg_error = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg_error.setWindowIcon(new_icon)
+                                        dlg_error.setWindowTitle("Indice Planos")
+                                        dlg_error.setText("La cantidad no puede estar vacía o no es un valor válido")
+                                        dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                        dlg_error.exec()
+                                        del dlg_error,new_icon
+                                    else:
+                                        break
+                                break
+                            dlg_error = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg_error.setWindowIcon(new_icon)
+                            dlg_error.setWindowTitle("Indice Planos")
+                            dlg_error.setText("La descripción no puede estar vacía.")
+                            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg_error.exec()
+                            del dlg_error,new_icon
+                        else:
+                            break
+
+                    self.query_drawings()
+
+# Function to open material colour palette table
+    def colour_palette_M(self):
+        from ColourPaletteM_Window import Ui_PaletteColourM_Window
+
+        self.palettecolourm_window = QtWidgets.QMainWindow()
+        self.ui = Ui_PaletteColourM_Window()
+        self.ui.setupUi(self.palettecolourm_window)
+        self.palettecolourm_window.show()
+
+# Function to open bolts colour palette table
+    def colour_palette_T(self):
+        from ColourPaletteT_Window import Ui_PaletteColourT_Window
+
+        self.palettecolourt_window = QtWidgets.QMainWindow()
+        self.ui = Ui_PaletteColourT_Window()
+        self.ui.setupUi(self.palettecolourt_window)
+        self.palettecolourt_window.show()
+
+# Function to delete register of database
+    def delete_register(self, table, name):
+        selection_model = table.selectionModel()
+
+        if not selection_model.hasSelection():
+            return
+
+        model = table.model()
+
+        id_values = []
+        selected_indexes = selection_model.selectedRows()
+        for index in selected_indexes:
+            # Obtaining first columns values
+            item_index = model.index(index.row(), 0)
+            if item_index.isValid():
+                value = model.data(item_index)
+                id_values.append(value)
+
+
+        if len(id_values) != 0:
+            dlg_yes_no = QtWidgets.QMessageBox()
+            new_icon_yes_no = QtGui.QIcon()
+            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+            dlg_yes_no.setWindowTitle("ERP EIPSA")
+            dlg_yes_no.setText("¿Estás seguro de que deseas eliminar los registros?\n")
+            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            result = dlg_yes_no.exec()
+            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    for id_value in id_values:
+                        commands_delete = f"""DELETE FROM {name} WHERE id = '{id_value}'"""
+                        cur.execute(commands_delete)
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Indice Planos")
+                    dlg.setText("Registros eliminados con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg,new_icon
+
+                    self.query_drawings()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+            del dlg_yes_no, new_icon_yes_no
+
+
+
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     config_obj = configparser.ConfigParser()
     config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -1219,10 +2656,10 @@ if __name__ == "__main__":
     user_database = dbparam["user"]
     password_database = dbparam["password"]
 
-    db = createConnection(user_database, password_database)
+    db = createConnection_name(user_database, password_database, 'drawing_index')
     if not db:
         sys.exit()
 
-    WorkshopDrawingIndex_Window = Ui_WorkshopDrawingIndex_Window(db)
+    WorkshopDrawingIndex_Window = Ui_WorkshopDrawingIndex_Window(db, 'm.gil')
     WorkshopDrawingIndex_Window.show()
     sys.exit(app.exec())

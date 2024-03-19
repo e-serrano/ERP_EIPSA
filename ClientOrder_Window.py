@@ -1307,12 +1307,12 @@ class Ui_ClientOrder_Window(object):
 
         commands_clients = ("""
                         SELECT * 
-                        FROM purch_fact.clients_test
-                        ORDER BY purch_fact.clients_test.name
+                        FROM purch_fact.clients
+                        ORDER BY purch_fact.clients.name
                         """)
         commands_supplies = ("""
                         SELECT * 
-                        FROM purch_fact.supplies_test
+                        FROM purch_fact.supplies
                         """)
         conn = None
         try:
@@ -1461,7 +1461,7 @@ class Ui_ClientOrder_Window(object):
 
         else:
             commands_neworder=("""
-                            INSERT INTO purch_fact.client_ord_header_test (
+                            INSERT INTO purch_fact.client_ord_header (
                             client_id, order_date, delivery_date, client_order_num, notes
                             )
                             VALUES(%s,%s,%s,%s,%s)
@@ -1474,7 +1474,7 @@ class Ui_ClientOrder_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                query_client = "SELECT id FROM purch_fact.clients_test WHERE name = %s"
+                query_client = "SELECT id FROM purch_fact.clients WHERE name = %s"
                 cur.execute(query_client, (client_name,))
                 result_client = cur.fetchone()
 
@@ -1524,7 +1524,7 @@ class Ui_ClientOrder_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                query_idorder = "SELECT id FROM purch_fact.client_ord_header_test ORDER BY id"
+                query_idorder = "SELECT id FROM purch_fact.client_ord_header ORDER BY id"
                 cur.execute(query_idorder)
                 result_idorder = cur.fetchall()
 
@@ -1586,7 +1586,7 @@ class Ui_ClientOrder_Window(object):
         else:
             #SQL Query for updating values in database
             commands_updateorder = ("""
-                        UPDATE purch_fact.client_ord_header_test
+                        UPDATE purch_fact.client_ord_header
                         SET "client_id" = %s, "order_date" = %s, "delivery_date" = %s,
                         "client_order_num" = %s, "notes" = %s
                         WHERE "id" = %s
@@ -1599,7 +1599,7 @@ class Ui_ClientOrder_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                query_client = "SELECT id FROM purch_fact.clients_test WHERE name = %s"
+                query_client = "SELECT id FROM purch_fact.clients WHERE name = %s"
                 cur.execute(query_client, (client_name,))
                 result_client = cur.fetchone()
 
@@ -1675,8 +1675,8 @@ class Ui_ClientOrder_Window(object):
 
         else:
             commands_newrecord = ("""
-                                INSERT INTO purch_fact.client_ord_detail_test (
-                                client_ord_header_test_id,supply_id,quantity,deliv_quant_1,deliv_quant_2,deliv_quant_3
+                                INSERT INTO purch_fact.client_ord_detail (
+                                client_ord_header_id,supply_id,quantity,deliv_quant_1,deliv_quant_2,deliv_quant_3
                                 )
                                 VALUES (%s,%s,%s,%s,%s,%s)
                                 """)
@@ -1688,7 +1688,7 @@ class Ui_ClientOrder_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                query_supplyid = "SELECT id, available_stock FROM purch_fact.supplies_test WHERE reference = %s"
+                query_supplyid = "SELECT id, available_stock FROM purch_fact.supplies WHERE reference = %s"
                 cur.execute(query_supplyid, (supply_name,))
                 result_supplyid = cur.fetchone()
 
@@ -1697,7 +1697,7 @@ class Ui_ClientOrder_Window(object):
                 available_stock = result_supplyid[1]
                 new_available_stock = str(float(available_stock) - float(quantity))
 
-                query_available_stock = ("""UPDATE purch_fact.supplies_test
+                query_available_stock = ("""UPDATE purch_fact.supplies
                                         SET "available_stock" = %s 
                                         WHERE "reference" = %s""")
                 cur.execute(query_available_stock, (new_available_stock,supply_name,))
@@ -1751,7 +1751,7 @@ class Ui_ClientOrder_Window(object):
 
         else:
             commands_modifyrecord = ("""
-                        UPDATE purch_fact.client_ord_detail_test
+                        UPDATE purch_fact.client_ord_detail
                         SET "supply_id" = %s, "quantity" = %s, "deliv_quant_1" = %s,
                         "deliv_quant_2" = %s, "deliv_quant_3" = %s
                         WHERE "id" = %s
@@ -1764,11 +1764,11 @@ class Ui_ClientOrder_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                query_supplyid = "SELECT id, available_stock FROM purch_fact.supplies_test WHERE reference = %s"
+                query_supplyid = "SELECT id, available_stock FROM purch_fact.supplies WHERE reference = %s"
                 cur.execute(query_supplyid, (supply_name,))
                 result_supplyid = cur.fetchone()
 
-                query_quantitysupply = "SELECT quantity FROM purch_fact.client_ord_detail_test WHERE id = %s"
+                query_quantitysupply = "SELECT quantity FROM purch_fact.client_ord_detail WHERE id = %s"
                 cur.execute(query_quantitysupply, (record_id,))
                 result_quantity = cur.fetchone()
             # get id from table
@@ -1777,7 +1777,7 @@ class Ui_ClientOrder_Window(object):
                 old_quantity = result_quantity[0]
                 new_available_stock = str(float(available_stock) + float(old_quantity) - float(quantity))
 
-                query_available_stock = ("""UPDATE purch_fact.supplies_test
+                query_available_stock = ("""UPDATE purch_fact.supplies
                                         SET "available_stock" = %s 
                                         WHERE "reference" = %s""")
                 cur.execute(query_available_stock, (new_available_stock,supply_name,))
@@ -1829,8 +1829,8 @@ class Ui_ClientOrder_Window(object):
 
         else:
             commands_deleterecord = ("""
-                                DELETE FROM purch_fact.client_ord_detail_test
-                                WHERE purch_fact.client_ord_detail_test.id = %s
+                                DELETE FROM purch_fact.client_ord_detail
+                                WHERE purch_fact.client_ord_detail.id = %s
                                 """)
             conn = None
             try:
@@ -1840,7 +1840,7 @@ class Ui_ClientOrder_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                query_supplyid = "SELECT id, available_stock FROM purch_fact.supplies_test WHERE reference = %s"
+                query_supplyid = "SELECT id, available_stock FROM purch_fact.supplies WHERE reference = %s"
                 cur.execute(query_supplyid, (supply_name,))
                 result_supplyid = cur.fetchone()
 
@@ -1849,7 +1849,7 @@ class Ui_ClientOrder_Window(object):
                 available_stock = result_supplyid[1]
                 new_available_stock = str(float(available_stock) + float(quantity))
 
-                query_available_stock = ("""UPDATE purch_fact.supplies_test
+                query_available_stock = ("""UPDATE purch_fact.supplies
                                         SET "available_stock" = %s 
                                         WHERE "reference" = %s""")
                 cur.execute(query_available_stock, (new_available_stock,supply_name,))
@@ -1908,15 +1908,15 @@ class Ui_ClientOrder_Window(object):
         self.loadtablerecords()
 
         commands_querydeliveries = ("""
-                        SELECT TO_CHAR(purch_fact.client_ord_header_test.deliv_date_1,'DD-MM-YYYY'),
-                        purch_fact.client_ord_header_test.deliv_note_1,
-                        TO_CHAR(purch_fact.client_ord_header_test.deliv_date_2,'DD-MM-YYYY'),
-                        purch_fact.client_ord_header_test.deliv_note_2,
-                        TO_CHAR(purch_fact.client_ord_header_test.deliv_date_3,'DD-MM-YYYY'),
-                        purch_fact.client_ord_header_test.deliv_note_3
-                        FROM purch_fact.client_ord_header_test
-                        WHERE purch_fact.client_ord_header_test.id = %s
-                        ORDER BY purch_fact.client_ord_header_test.id
+                        SELECT TO_CHAR(purch_fact.client_ord_header.deliv_date_1,'DD-MM-YYYY'),
+                        purch_fact.client_ord_header.deliv_note_1,
+                        TO_CHAR(purch_fact.client_ord_header.deliv_date_2,'DD-MM-YYYY'),
+                        purch_fact.client_ord_header.deliv_note_2,
+                        TO_CHAR(purch_fact.client_ord_header.deliv_date_3,'DD-MM-YYYY'),
+                        purch_fact.client_ord_header.deliv_note_3
+                        FROM purch_fact.client_ord_header
+                        WHERE purch_fact.client_ord_header.id = %s
+                        ORDER BY purch_fact.client_ord_header.id
                         """)
         conn = None
         try:
@@ -1981,7 +1981,7 @@ class Ui_ClientOrder_Window(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            query_stocks = "SELECT pending_stock FROM purch_fact.supplies_test WHERE reference = %s"
+            query_stocks = "SELECT pending_stock FROM purch_fact.supplies WHERE reference = %s"
             cur.execute(query_stocks, (data_supply[1],))
             result_stocks = cur.fetchone()
 
@@ -2014,15 +2014,15 @@ class Ui_ClientOrder_Window(object):
 # Function to load table of orders
     def loadtableorders(self):
         commands_querytableorders = ("""
-                        SELECT purch_fact.client_ord_header_test.id,
-                        purch_fact.client_ord_header_test.client_order_num,
-                        purch_fact.clients_test."name",
-                        TO_CHAR(purch_fact.client_ord_header_test."order_date",'DD-MM-YYYY'),
-                        purch_fact.client_ord_header_test.delivery_date,
-                        purch_fact.client_ord_header_test.notes
-                        FROM purch_fact.client_ord_header_test
-                        LEFT JOIN purch_fact.clients_test ON (purch_fact.clients_test."id" = purch_fact.client_ord_header_test."client_id")
-                        ORDER BY purch_fact.client_ord_header_test.id
+                        SELECT purch_fact.client_ord_header.id,
+                        purch_fact.client_ord_header.client_order_num,
+                        purch_fact.clients."name",
+                        TO_CHAR(purch_fact.client_ord_header."order_date",'DD-MM-YYYY'),
+                        purch_fact.client_ord_header.delivery_date,
+                        purch_fact.client_ord_header.notes
+                        FROM purch_fact.client_ord_header
+                        LEFT JOIN purch_fact.clients ON (purch_fact.clients."id" = purch_fact.client_ord_header."client_id")
+                        ORDER BY purch_fact.client_ord_header.id
                         """)
         conn = None
         try:
@@ -2082,16 +2082,16 @@ class Ui_ClientOrder_Window(object):
     def loadtablerecords(self):
         order_id=self.label_IDOrder.text()
         commands_querytablerecords = ("""
-                        SELECT purch_fact.client_ord_detail_test.id,
-                        purch_fact.supplies_test."reference", purch_fact.supplies_test."description",
-                        purch_fact.supplies_test."physical_stock", purch_fact.supplies_test."available_stock",
-                        purch_fact.client_ord_detail_test.quantity, purch_fact.client_ord_detail_test.pending,
-                        purch_fact.client_ord_detail_test.deliv_quant_1, purch_fact.client_ord_detail_test.deliv_quant_2,
-                        purch_fact.client_ord_detail_test.deliv_quant_3
-                        FROM purch_fact.client_ord_detail_test
-                        LEFT JOIN purch_fact.supplies_test ON (purch_fact.supplies_test."id" = purch_fact.client_ord_detail_test."supply_id")
-                        WHERE client_ord_header_test_id = %s
-                        ORDER BY purch_fact.client_ord_detail_test.id
+                        SELECT purch_fact.client_ord_detail.id,
+                        purch_fact.supplies."reference", purch_fact.supplies."description",
+                        purch_fact.supplies."physical_stock", purch_fact.supplies."available_stock",
+                        purch_fact.client_ord_detail.quantity, purch_fact.client_ord_detail.pending,
+                        purch_fact.client_ord_detail.deliv_quant_1, purch_fact.client_ord_detail.deliv_quant_2,
+                        purch_fact.client_ord_detail.deliv_quant_3
+                        FROM purch_fact.client_ord_detail
+                        LEFT JOIN purch_fact.supplies ON (purch_fact.supplies."id" = purch_fact.client_ord_detail."supply_id")
+                        WHERE client_ord_header_id = %s
+                        ORDER BY purch_fact.client_ord_detail.id
                         """)
         conn = None
         try:
@@ -2191,7 +2191,7 @@ class Ui_ClientOrder_Window(object):
         else:
             commands_deliv1_check = ("""
                         SELECT deliv_date_1, deliv_note_1
-                        FROM purch_fact.client_ord_header_test
+                        FROM purch_fact.client_ord_header
                         WHERE id = %s
                         """)
             conn = None
@@ -2239,14 +2239,14 @@ class Ui_ClientOrder_Window(object):
 
             else:
                 commands_deliv1_header = ("""
-                            UPDATE purch_fact.client_ord_header_test
+                            UPDATE purch_fact.client_ord_header
                             SET "deliv_date_1" = %s, "deliv_note_1" = %s
                             WHERE "id" = %s
                             """)
                 commands_deliv1_detail = ("""
-                            UPDATE purch_fact.client_ord_detail_test
+                            UPDATE purch_fact.client_ord_detail
                             SET "deliv_date_1" = %s, "deliv_note_1" = %s
-                            WHERE "client_ord_header_test_id" = %s
+                            WHERE "client_ord_header_id" = %s
                             """)
                 conn = None
                 try:
@@ -2273,16 +2273,16 @@ class Ui_ClientOrder_Window(object):
                         #         break
 
                         commands_add_deliv_quant_1 = ("""
-                            UPDATE purch_fact.client_ord_detail_test
+                            UPDATE purch_fact.client_ord_detail
                             SET "deliv_quant_1" = %s
                             WHERE "id" = %s
                             """)
                         query_stock = ("""
-                                        SELECT physical_stock FROM purch_fact.supplies_test
+                                        SELECT physical_stock FROM purch_fact.supplies
                                         WHERE "reference" = %s
                                         """)
                         query_updatestock = ("""
-                                            UPDATE purch_fact.supplies_test 
+                                            UPDATE purch_fact.supplies 
                                             SET "physical_stock" = %s
                                             WHERE "reference" = %s
                                             """)
@@ -2374,7 +2374,7 @@ class Ui_ClientOrder_Window(object):
         else:
             commands_deliv2_check = ("""
                 SELECT deliv_date_2, deliv_note_2
-                FROM purch_fact.client_ord_header_test
+                FROM purch_fact.client_ord_header
                 WHERE id = %s
                 """)
             conn = None
@@ -2422,14 +2422,14 @@ class Ui_ClientOrder_Window(object):
 
             else:
                 commands_deliv2_header = ("""
-                            UPDATE purch_fact.client_ord_header_test
+                            UPDATE purch_fact.client_ord_header
                             SET "deliv_date_2" = %s, "deliv_note_2" = %s
                             WHERE "id" = %s
                             """)
                 commands_deliv2_detail = ("""
-                            UPDATE purch_fact.client_ord_detail_test
+                            UPDATE purch_fact.client_ord_detail
                             SET "deliv_date_2" = %s, "deliv_note_2" = %s
-                            WHERE "client_ord_header_test_id" = %s
+                            WHERE "client_ord_header_id" = %s
                             """)
                 conn = None
                 try:
@@ -2456,16 +2456,16 @@ class Ui_ClientOrder_Window(object):
                         #         break
 
                         commands_add_deliv_quant_2 = ("""
-                            UPDATE purch_fact.client_ord_detail_test
+                            UPDATE purch_fact.client_ord_detail
                             SET "deliv_quant_2" = %s
                             WHERE "id" = %s
                             """)
                         query_stock = ("""
-                                        SELECT physical_stock FROM purch_fact.supplies_test
+                                        SELECT physical_stock FROM purch_fact.supplies
                                         WHERE "reference" = %s
                                         """)
                         query_updatestock = ("""
-                                            UPDATE purch_fact.supplies_test 
+                                            UPDATE purch_fact.supplies 
                                             SET "physical_stock" = %s
                                             WHERE "reference" = %s
                                             """)
@@ -2557,7 +2557,7 @@ class Ui_ClientOrder_Window(object):
         else:
             commands_deliv3_check = ("""
                             SELECT deliv_date_3, deliv_note_3
-                            FROM purch_fact.client_ord_header_test
+                            FROM purch_fact.client_ord_header
                             WHERE id = %s
                             """)
             conn = None
@@ -2605,14 +2605,14 @@ class Ui_ClientOrder_Window(object):
 
             else:
                 commands_deliv3_header = ("""
-                            UPDATE purch_fact.client_ord_header_test
+                            UPDATE purch_fact.client_ord_header
                             SET "deliv_date_3" = %s, "deliv_note_3" = %s
                             WHERE "id" = %s
                             """)
                 commands_deliv3_detail = ("""
-                            UPDATE purch_fact.client_ord_detail_test
+                            UPDATE purch_fact.client_ord_detail
                             SET "deliv_date_3" = %s, "deliv_note_3" = %s
-                            WHERE "client_ord_header_test_id" = %s
+                            WHERE "client_ord_header_id" = %s
                             """)
                 conn = None
                 try:
@@ -2639,16 +2639,16 @@ class Ui_ClientOrder_Window(object):
                         #         break
 
                         commands_add_deliv_quant_3 = ("""
-                            UPDATE purch_fact.client_ord_detail_test
+                            UPDATE purch_fact.client_ord_detail
                             SET "deliv_quant_3" = %s
                             WHERE "id" = %s
                             """)
                         query_stock = ("""
-                                        SELECT physical_stock FROM purch_fact.supplies_test
+                                        SELECT physical_stock FROM purch_fact.supplies
                                         WHERE "reference" = %s
                                         """)
                         query_updatestock = ("""
-                                            UPDATE purch_fact.supplies_test 
+                                            UPDATE purch_fact.supplies 
                                             SET "physical_stock" = %s
                                             WHERE "reference" = %s
                                             """)
@@ -2709,7 +2709,7 @@ class Ui_ClientOrder_Window(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            query_stocks = "SELECT physical_stock, available_stock, pending_stock FROM purch_fact.supplies_test WHERE reference = %s"
+            query_stocks = "SELECT physical_stock, available_stock, pending_stock FROM purch_fact.supplies WHERE reference = %s"
             cur.execute(query_stocks, (supply_name,))
             result_stocks = cur.fetchone()
 

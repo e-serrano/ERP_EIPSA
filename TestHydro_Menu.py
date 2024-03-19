@@ -173,8 +173,6 @@ class Ui_TestHydro_Menu(object):
     def insert_hydro(self,TestHydro_Menu):
         self.hydroinsert_window=Ui_TestHydroInsert_Window(self.username)
         self.hydroinsert_window.show()
-        TestHydro_Menu.hide()
-        self.hydroinsert_window.Button_Cancel.clicked.connect(TestHydro_Menu.show)
 
 
     def query_hydro(self,TestHydro_Menu):
@@ -182,8 +180,6 @@ class Ui_TestHydro_Menu(object):
         self.ui=Ui_TestHydroQuery_Window(self.username)
         self.ui.setupUi(self.hydroquery_window)
         self.hydroquery_window.showMaximized()
-        TestHydro_Menu.hide()
-        self.ui.Button_Cancel.clicked.connect(TestHydro_Menu.show)
 
 
 # if __name__ == "__main__":

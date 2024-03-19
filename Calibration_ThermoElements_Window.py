@@ -20,6 +20,7 @@ from datetime import *
 import pandas as pd
 from tkinter.filedialog import asksaveasfilename
 from tkinter import filedialog
+import shutil
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -108,12 +109,12 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                 elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
-                    regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
                         break
 
                 else:
-                    regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
                         break
             else:
@@ -171,7 +172,6 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.checkbox_filters = {}
         self.username = username
         self.setupUi(self)
-        self.model.dataChanged.connect(self.saveChanges)
 
     def closeEvent(self, event):
     # Closing database connection
@@ -198,14 +198,14 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         CalibrationThermoElements_Window.setWindowIcon(icon)
         if self.username == 'm.gil':
             CalibrationThermoElements_Window.setStyleSheet(
-".QFrame {\n"
-"    border: 2px solid white;\n"
-"}")
+            ".QFrame {border: 2px solid white;\n"
+            "}\n"
+            "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         else:
             CalibrationThermoElements_Window.setStyleSheet(
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}")
+            ".QFrame {border: 2px solid black;\n"
+            "}\n"
+            "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         self.centralwidget = QtWidgets.QWidget(parent=CalibrationThermoElements_Window)
         if self.username == 'm.gil':
             self.centralwidget.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255);")
@@ -223,6 +223,18 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.hcab=QtWidgets.QHBoxLayout()
         self.hcab.setObjectName("hcab")
+        self.toolSaveChanges = QtWidgets.QToolButton(self.frame)
+        self.toolSaveChanges.setObjectName("SaveChanges_Button")
+        self.toolSaveChanges.setToolTip("Guardar")
+        if self.username == 'm.gil':
+            self.toolSaveChanges.setStyleSheet("border: 1px solid white;")
+        self.toolSaveChanges.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolSaveChanges)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Save.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolSaveChanges.setIcon(icon)
+        self.hcabspacer0=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer0)
         self.toolDeleteFilter = QtWidgets.QToolButton(self.frame)
         self.toolDeleteFilter.setObjectName("DeleteFilter_Button")
         self.toolDeleteFilter.setToolTip("Borrar filtros")
@@ -410,10 +422,10 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(CalibrationThermoElements_Window)
         self.Button_Import.clicked.connect(self.import_data)
         self.Button_Print.clicked.connect(self.print_certificate)
+        self.toolSaveChanges.clicked.connect(self.saveChanges)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolShow.clicked.connect(self.show_columns)
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
-        self.model.dataChanged.connect(self.saveChanges)
         self.createContextMenu()
         self.query_calibration()
 
@@ -428,19 +440,19 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
 
 # Function to import data to database
     def import_data(self):
-        folder_path = filedialog.askdirectory(title="Selecciona una carpeta")
+        folder_path = "//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CARPETAS IMPORTACIONES CALIBRACION"
 
         if folder_path:
-            try:
-                conn = None
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
+            for subfolder in os.listdir(folder_path):
+                subfolder_path = os.path.join(folder_path, subfolder)
 
-                for subfolder in os.listdir(folder_path):
-                    subfolder_path = os.path.join(folder_path, subfolder)
+                try:
+                    conn = None
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
 
                     if os.path.isdir(subfolder_path):
                         for csv_file in os.listdir(subfolder_path):
@@ -520,6 +532,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                         df_elements['sensor'] = df_elements['sensor'].replace('A385', 'PT100')
                         df_elements['num_order'] = df_elements['label'].apply(lambda x: 'P-' + x[1:3] + '/' + x[3:6] if x[0] == 'P' else ('PA-' + x[1:3] + '/' + x[3:6] if x[0] == 'A' else 'NO PEDIDO'))
                         df_elements['tag'] = df_elements.index
+                        df_elements['folder_data'] = subfolder
 
                         #Reading each row and inserting data in table
                         for index, row in df_elements.iterrows():
@@ -534,37 +547,39 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                             sql_insertion = f"INSERT INTO verification.calibration_thermoelements ({columns}) VALUES ({values})"
                             cur.execute(sql_insertion)
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Importar Calibraciones")
-                dlg.setText("Importación completada")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
+                    shutil.rmtree(subfolder_path)
 
-                self.query_calibration()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error en la carpeta " + subfolder + ":\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
 
-            except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Importar Calibraciones")
+            dlg.setText("Importación completada")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+            dlg.exec()
+            del dlg, new_icon
+
+            self.query_calibration()
 
 # Function to delete all filters when tool button is clicked
     def delete_allFilters(self):
@@ -625,8 +640,6 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.dict_ordersort = {}
         self.hiddencolumns = []
 
-        self.model.dataChanged.disconnect(self.saveChanges)
-
         self.model.setTable("verification.calibration_thermoelements")
 
         self.tableEditCalibration.setModel(None)
@@ -663,7 +676,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                     "User", "Clase", "N.C. Bobina", "N.C. Bulbo", "CA", "Aisl. Caliente", "Cant. Prueba",
                     "Cant. Pedido", "Notas", "Patrón 1", "Elemento 1", "Error 1", "Tolerancia 1", "Patrón 2",
                     "Elemento 2", "Error 2", "Tolerancia 2", "Patrón 3", "Elemento 3", "Error 3", "Tolerancia 3", 
-                    "Patrón 4", "Elemento 4", "Error 4", "Tolerancia 4"]
+                    "Patrón 4", "Elemento 4", "Error 4", "Tolerancia 4", "Carpeta"]
 
         self.model.setAllColumnHeaders(headers_names)
 
@@ -682,9 +695,10 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                         self.checkbox_states[column][value] = True
                 self.dict_valuesuniques[column] = list_valuesUnique
 
-        self.model.dataChanged.connect(self.saveChanges)
         self.selection_model = self.tableEditCalibration.selectionModel()
         self.selection_model.selectionChanged.connect(self.countSelectedCells)
+
+        self.tableEditCalibration.sortByColumn(7, Qt.SortOrder.DescendingOrder)
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
@@ -978,7 +992,18 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
 
 # Function to enable copy and paste cells
     def keyPressEvent(self, event):
-        if event.matches(QKeySequence.StandardKey.Copy):
+        if event.key() == QtCore.Qt.Key.Key_Delete:
+            selected_indexes = self.tableEditCalibration.selectionModel().selectedIndexes()
+            if not selected_indexes:
+                return
+            
+            model = self.tableEditCalibration.model()
+            model_indexes = [model.mapToSource(index) for index in selected_indexes]
+
+            for index in model_indexes:
+                self.model.setData(index, None)
+
+        elif event.matches(QKeySequence.StandardKey.Copy):
             selected_indexes = self.tableEditCalibration.selectionModel().selectedIndexes()
             if not selected_indexes:
                 return
@@ -1022,9 +1047,6 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                 else:
                     for index, value in zip(model_indexes, values):
                         self.model.setData(index, value.decode('utf-8'))
-
-                self.model.submitAll()
-
 
         super().keyPressEvent(event)
 
@@ -1188,6 +1210,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
 
 # Function to print certificate
     def print_certificate(self):
+        self.saveChanges()
         from CalibrationPrintCertificate_Window import Ui_CalibrationPrintCertificate_Window
         self.CalibrationPrintCertificate_Window=QtWidgets.QMainWindow()
         self.ui=Ui_CalibrationPrintCertificate_Window(self.username)

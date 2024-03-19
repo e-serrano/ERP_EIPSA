@@ -20,13 +20,13 @@ def inspection(proxy, model, variable):
                 break
         if target_row is not None:
             if variable == 'Caudal':
-                ped_type_tag = model.data(model.index(target_row, 110))
+                ped_type_tag = model.data(model.index(target_row, 112))
                 inspection = model.data(model.index(target_row, 68))
             elif variable == 'Temperatura':
-                ped_type_tag = model.data(model.index(target_row, 117))
+                ped_type_tag = model.data(model.index(target_row, 119))
                 inspection = model.data(model.index(target_row, 76))
             elif variable == 'Nivel':
-                ped_type_tag = model.data(model.index(target_row, 118))
+                ped_type_tag = model.data(model.index(target_row, 120))
                 inspection = model.data(model.index(target_row, 62))
 
             conn = None

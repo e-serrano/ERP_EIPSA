@@ -10,6 +10,8 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from config import config
 import psycopg2
 import os
+import locale
+import re
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -73,7 +75,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
             if value in self.colors_dict:
                 text_color = self.colors_dict[value]
             else:
-                text_color = QtGui.QColor(0, 0, 0, 0)
+                text_color = QtGui.QColor(255, 255, 255)
 
             option.palette.setBrush(QtGui.QPalette.ColorRole.Text, text_color)
 
@@ -327,19 +329,52 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to sort column
     def sort_column(self, column_index, sortOrder):
-        if column_index == 5:
-            self.custom_sort(column_index, sortOrder)
+        if self.horizontalHeaderItem(column_index).text() == 'Fecha':
+            self.custom_sort_date(column_index, sortOrder)
+        elif self.horizontalHeaderItem(column_index).text() == 'Cantidad':
+            self.custom_sort_int(column_index, sortOrder)
         else:
             self.sortByColumn(column_index, sortOrder)
 
 
-    def custom_sort(self, column, order):
+    def custom_sort_date(self, column, order):
     # Obtén la cantidad de filas en la tabla
         row_count = self.rowCount()
 
         # Crea una lista de índices ordenados según las fechas
         indexes = list(range(row_count))
-        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd-MM-yyyy"))
+        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd/MM/yyyy"))
+
+        # Si el orden es descendente, invierte la lista
+        if order == QtCore.Qt.SortOrder.DescendingOrder:
+            indexes.reverse()
+
+        # Guarda el estado actual de las filas ocultas
+        hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
+
+        # Actualiza las filas en la tabla en el orden ordenado
+        rows = self.rowCount()
+        for i in range(rows):
+            self.insertRow(i)
+
+        for new_row, old_row in enumerate(indexes):
+            for col in range(self.columnCount()):
+                item = self.takeItem(old_row + rows, col)
+                self.setItem(new_row, col, item)
+
+        for i in range(rows):
+            self.removeRow(rows)
+
+        for row in hidden_rows:
+            self.setRowHidden(row, True)
+
+    def custom_sort_int(self, column, order):
+    # Obtén la cantidad de filas en la tabla
+        row_count = self.rowCount()
+
+        # Crea una lista de índices ordenados según las fechas
+        indexes = list(range(row_count))
+        indexes.sort(key=lambda i: int(self.item(i, column).text()))
 
         # Si el orden es descendente, invierte la lista
         if order == QtCore.Qt.SortOrder.DescendingOrder:
@@ -491,7 +526,31 @@ class Ui_TestLiquidQuery_Window(QtWidgets.QMainWindow):
             font.setBold(True)
             item.setFont(font)
             self.tableTags.setHorizontalHeaderItem(i, item)
-        self.gridLayout_2.addWidget(self.tableTags, 2, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.tableTags, 2, 0, 1, 8)
+        self.label_SumItems = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumItems.setMinimumSize(QtCore.QSize(40, 10))
+        self.label_SumItems.setMaximumSize(QtCore.QSize(40, 10))
+        self.label_SumItems.setText("")
+        self.label_SumItems.setObjectName("label_SumItems")
+        self.gridLayout_2.addWidget(self.label_SumItems, 3, 4, 1, 1)
+        self.label_SumValue = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumValue.setMinimumSize(QtCore.QSize(80, 20))
+        self.label_SumValue.setMaximumSize(QtCore.QSize(80, 20))
+        self.label_SumValue.setText("")
+        self.label_SumValue.setObjectName("label_SumValue")
+        self.gridLayout_2.addWidget(self.label_SumValue, 3, 5, 1, 1)
+        self.label_CountItems = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountItems.setMinimumSize(QtCore.QSize(60, 10))
+        self.label_CountItems.setMaximumSize(QtCore.QSize(60, 10))
+        self.label_CountItems.setText("")
+        self.label_CountItems.setObjectName("label_CountItems")
+        self.gridLayout_2.addWidget(self.label_CountItems, 3, 6, 1, 1)
+        self.label_CountValue = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountValue.setMinimumSize(QtCore.QSize(80, 10))
+        self.label_CountValue.setMaximumSize(QtCore.QSize(80, 10))
+        self.label_CountValue.setText("")
+        self.label_CountValue.setObjectName("label_CountValue")
+        self.gridLayout_2.addWidget(self.label_CountValue, 3, 7, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         TestLiquidQuery_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=TestLiquidQuery_Window)
@@ -516,7 +575,8 @@ class Ui_TestLiquidQuery_Window(QtWidgets.QMainWindow):
 
         self.Button_Cancel.clicked.connect(TestLiquidQuery_Window.close)
         self.tableTags.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
-        self.tableTags.itemDoubleClicked.connect(self.edit_data)
+        self.tableTags.itemSelectionChanged.connect(self.countSelectedCells)
+        self.tableTags.itemDoubleClicked.connect(self.double_click)
         self.querytags()
 
 
@@ -597,9 +657,13 @@ class Ui_TestLiquidQuery_Window(QtWidgets.QMainWindow):
 
             self.tableTags.verticalHeader().hide()
             self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
-            self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableTags.horizontalHeader().setMinimumSectionSize(120)
+            self.tableTags.horizontalHeader().setSectionResizeMode(12, QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableTags.setColumnWidth(2, 200)
             self.tableTags.setSortingEnabled(False)
             self.tableTags.hideColumn(0)
+            self.tableTags.custom_sort_date(6, QtCore.Qt.SortOrder.DescendingOrder)
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -623,6 +687,12 @@ class Ui_TestLiquidQuery_Window(QtWidgets.QMainWindow):
         header_height = self.tableTags.horizontalHeader().height()
         popup_pos = self.tableTags.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableTags.show_unique_values_menu(logical_index, popup_pos, header_height)
+
+    def double_click(self, item):
+        if item.column() in [2]:
+            self.expand_cell(item)
+        else:
+            self.edit_data(item)
 
 
     def edit_data(self, item):
@@ -650,9 +720,43 @@ class Ui_TestLiquidQuery_Window(QtWidgets.QMainWindow):
             self.ui.Button_Cancel.clicked.connect(self.querytags)
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    TestLiquidQuery_Window = Ui_TestLiquidQuery_Window()
-    TestLiquidQuery_Window.show()
-    sys.exit(app.exec())
+    def expand_cell(self, item):
+        cell_content = item.text()
+        dlg = QtWidgets.QMessageBox()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle("Pruebas")
+        dlg.setText(cell_content)
+        dlg.exec()
+
+    
+    def countSelectedCells(self):
+        if len(self.tableTags.selectedIndexes()) > 1:
+            locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+            self.label_SumItems.setText("")
+            self.label_SumValue.setText("")
+            self.label_CountItems.setText("")
+            self.label_CountValue.setText("")
+
+            sum_value = sum([(float(ix.data()) if (ix.data() is not None and ix.data().replace(',', '.', 1).replace('.', '', 1).isdigit() and ix.column() == 12) else 0) for ix in self.tableTags.selectedIndexes()])
+            count_value = len([ix for ix in self.tableTags.selectedIndexes() if ix.data() != ""])
+            if sum_value > 0:
+                self.label_SumItems.setText("Suma:")
+                self.label_SumValue.setText(locale.format_string("%.2f", sum_value, grouping=True))
+            if count_value > 0:
+                self.label_CountItems.setText("Recuento:")
+                self.label_CountValue.setText(str(count_value))
+        else:
+            self.label_SumItems.setText("")
+            self.label_SumValue.setText("")
+            self.label_CountItems.setText("")
+            self.label_CountValue.setText("")
+
+
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     TestLiquidQuery_Window = Ui_TestLiquidQuery_Window('m.gil')
+#     TestLiquidQuery_Window.show()
+#     sys.exit(app.exec())

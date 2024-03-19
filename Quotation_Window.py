@@ -969,12 +969,12 @@ class Ui_Quotation_Window(object):
 
         commands_suppliers = ("""
                         SELECT * 
-                        FROM purch_fact.suppliers_test
-                        ORDER BY purch_fact.suppliers_test.name
+                        FROM purch_fact.suppliers
+                        ORDER BY purch_fact.suppliers.name
                         """)
         commands_supplies = ("""
                         SELECT * 
-                        FROM purch_fact.supplies_test
+                        FROM purch_fact.supplies
                         """)
         commands_currency = ("""
                         SELECT * 
@@ -1110,7 +1110,7 @@ class Ui_Quotation_Window(object):
 
         else:
             commands_newquotation = ("""
-                                INSERT INTO purch_fact.quot_header_test (
+                                INSERT INTO purch_fact.quotation_header (
                                 supplier_id,quot_date,notes
                                 )
                                 VALUES (%s,%s,%s)
@@ -1123,7 +1123,7 @@ class Ui_Quotation_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                query_supplier = "SELECT id FROM purch_fact.suppliers_test WHERE name = %s"
+                query_supplier = "SELECT id FROM purch_fact.suppliers WHERE name = %s"
                 cur.execute(query_supplier, (supplier_name,))
                 result_supplier = cur.fetchone()
 
@@ -1173,7 +1173,7 @@ class Ui_Quotation_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                query_idquotation = "SELECT id FROM purch_fact.quot_header_test ORDER BY id"
+                query_idquotation = "SELECT id FROM purch_fact.quotation_header ORDER BY id"
                 cur.execute(query_idquotation)
                 result_idquotation = cur.fetchall()
 
@@ -1224,8 +1224,8 @@ class Ui_Quotation_Window(object):
 
         else:
             commands_newrecord = ("""
-                                INSERT INTO purch_fact.quot_det_test (
-                                quot_head_id,supply_id,quantity,currency_id,currency_value,value,notes
+                                INSERT INTO purch_fact.quotation_details (
+                                quot_header_id,supply_id,quantity,currency_id,currency_value,value,notes
                                 )
                                 VALUES (%s,%s,%s,%s,%s,%s,%s)
                                 """)
@@ -1237,7 +1237,7 @@ class Ui_Quotation_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                query_supplyid = "SELECT id FROM purch_fact.supplies_test WHERE reference = %s"
+                query_supplyid = "SELECT id FROM purch_fact.supplies WHERE reference = %s"
                 cur.execute(query_supplyid, (supply_name,))
                 result_supplyid = cur.fetchone()
 
@@ -1349,7 +1349,7 @@ class Ui_Quotation_Window(object):
         else:
             #SQL Query for updating values in database
             commands_updatequotation = ("""
-                        UPDATE purch_fact.quot_header_test
+                        UPDATE purch_fact.quotation_header
                         SET "supplier_id" = %s, "quot_date" = %s, "notes" = %s
                         WHERE "id" = %s
                         """)
@@ -1360,7 +1360,7 @@ class Ui_Quotation_Window(object):
             # connect to the PostgreSQL server
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
-                query_supplier = "SELECT id FROM purch_fact.suppliers_test WHERE name = %s"
+                query_supplier = "SELECT id FROM purch_fact.suppliers WHERE name = %s"
                 cur.execute(query_supplier, (supplier,))
                 result_supplier = cur.fetchone()
 
@@ -1426,7 +1426,7 @@ class Ui_Quotation_Window(object):
         else:
             #SQL Query for updating values in database
             commands_updaterecord = ("""
-                        UPDATE purch_fact.quot_det_test
+                        UPDATE purch_fact.quotation_details
                         SET "supply_id" = %s, "quantity" = %s, "currency_id" = %s,
                         "currency_value" = %s, "value" = %s, "notes" = %s
                         WHERE "id" = %s
@@ -1439,7 +1439,7 @@ class Ui_Quotation_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                query_supplyid = "SELECT id FROM purch_fact.supplies_test WHERE reference = %s"
+                query_supplyid = "SELECT id FROM purch_fact.supplies WHERE reference = %s"
                 cur.execute(query_supplyid, (supply_name,))
                 result_supplyid = cur.fetchone()
 
@@ -1483,16 +1483,16 @@ class Ui_Quotation_Window(object):
 # Function to load table of quotations
     def loadtablequotations(self):
         commands_querytablequotations = ("""
-                        SELECT purch_fact.quot_header_test.id,
-                        purch_fact.suppliers_test."name",
-                        TO_CHAR(purch_fact.quot_header_test."quot_date",'DD-MM-YYYY'),
-                        purch_fact.suppliers_test."phone_number",
+                        SELECT purch_fact.quotation_header.id,
+                        purch_fact.suppliers."name",
+                        TO_CHAR(purch_fact.quotation_header."quot_date",'DD-MM-YYYY'),
+                        purch_fact.suppliers."phone_number",
                         purch_fact.pay_way."pay_way_type",
-                        purch_fact.quot_header_test."notes"
-                        FROM purch_fact.quot_header_test
-                        LEFT JOIN purch_fact.suppliers_test ON (purch_fact.suppliers_test."id" = purch_fact.quot_header_test."supplier_id")
-                        LEFT JOIN purch_fact.pay_way ON (purch_fact.pay_way."id" = purch_fact.suppliers_test."pay_way_id")
-                        ORDER BY purch_fact.quot_header_test.id
+                        purch_fact.quotation_header."notes"
+                        FROM purch_fact.quotation_header
+                        LEFT JOIN purch_fact.suppliers ON (purch_fact.suppliers."id" = purch_fact.quotation_header."supplier_id")
+                        LEFT JOIN purch_fact.pay_way ON (purch_fact.pay_way."id" = purch_fact.suppliers."pay_way_id")
+                        ORDER BY purch_fact.quotation_header.id
                         """)
         conn = None
         try:
@@ -1552,17 +1552,17 @@ class Ui_Quotation_Window(object):
     def loadtablerecords(self):
         id_quoation=self.label_IDCot.text()
         commands_queryrecord = ("""
-                        SELECT purch_fact.quot_det_test."id",purch_fact.supplies_test."reference", purch_fact.supplies_test."description",
-                        purch_fact.quot_det_test."quantity",purch_fact.quot_det_test."currency_value",
+                        SELECT purch_fact.quotation_details."id",purch_fact.supplies."reference", purch_fact.supplies."description",
+                        purch_fact.quotation_details."quantity",purch_fact.quotation_details."currency_value",
                         purch_fact.currency."symbol_currency",
-                        purch_fact.quot_det_test."value",purch_fact.quot_det_test."notes"
-                        FROM purch_fact.quot_det_test
-                        LEFT JOIN purch_fact.currency ON (purch_fact.currency."id" = purch_fact.quot_det_test."currency_id")
-                        LEFT JOIN purch_fact.supplies_test ON (purch_fact.supplies_test."id" = purch_fact.quot_det_test."supply_id")
-                        LEFT JOIN purch_fact.quot_header_test ON (purch_fact.quot_header_test."id" = purch_fact.quot_det_test."quot_head_id")
-                        LEFT JOIN purch_fact.suppliers_test ON (purch_fact.suppliers_test."id" = purch_fact.quot_header_test."supplier_id")
-                        WHERE purch_fact.quot_det_test.quot_head_id = %s
-                        ORDER BY purch_fact.quot_det_test.id
+                        purch_fact.quotation_details."value",purch_fact.quotation_details."notes"
+                        FROM purch_fact.quotation_details
+                        LEFT JOIN purch_fact.currency ON (purch_fact.currency."id" = purch_fact.quotation_details."currency_id")
+                        LEFT JOIN purch_fact.supplies ON (purch_fact.supplies."id" = purch_fact.quotation_details."supply_id")
+                        LEFT JOIN purch_fact.quotation_header ON (purch_fact.quotation_header."id" = purch_fact.quotation_details."quot_header_id")
+                        LEFT JOIN purch_fact.suppliers ON (purch_fact.suppliers."id" = purch_fact.quotation_header."supplier_id")
+                        WHERE purch_fact.quotation_details.quot_header_id = %s
+                        ORDER BY purch_fact.quotation_details.id
                         """)
         conn = None
         try:

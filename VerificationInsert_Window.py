@@ -962,6 +962,8 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.update_ppi()
         self.update_exp()
         self.update_m_drawings()
+        self.update_of_drawings()
+        self.update_dim_drawings()
         self.query_tables()
 
 
@@ -969,16 +971,17 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
     def querytags(self):
         self.tableTags.setRowCount(0)
         self.num_order_value = self.num_order.text().upper()
-        if self.num_order_value not in ['ALMACÉN', 'ALMACEN', 'INTERNO', 'PROTOTIPOS'] and self.num_order_value[:2] != 'PA':
+
+        if self.num_order_value not in ['ALMACÉN', 'ALMACEN', 'INTERNO', 'PROTOTIPOS']:
             query_material = ("""
-                            SELECT orders."num_order",orders."num_offer",product_type."variable"
-                            FROM offers
-                            INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
-                            INNER JOIN product_type ON (offers."material"=product_type."material")
-                            WHERE (UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
-                            )
-                            ORDER BY orders."num_order"
-                            """)
+                                SELECT orders."num_order",orders."num_offer",product_type."variable"
+                                FROM offers
+                                INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
+                                INNER JOIN product_type ON (offers."material"=product_type."material")
+                                WHERE (UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
+                                )
+                                ORDER BY orders."num_order"
+                                """)
             conn = None
             try:
             # read the connection parameters
@@ -989,7 +992,27 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             # execution of commands
                 cur.execute(query_material,(self.num_order_value,))
                 results=cur.fetchall()
-                material = results[0][2]
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
+
+            if len(results) != 0:
+                if self.num_order_value[:2] == 'PA':
+                    material = 'Otros'
+                else:
+                    material = results[0][2]
 
                 if material == 'Caudal':
                     self.table_name = "tags_data.tags_flow"
@@ -1012,79 +1035,94 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     self.num_columns = 11
                     column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Plano Dim.', 'OF Equipo', 'Fecha Dim.', 'Obs. Dim', 'Fecha OF', 'Obs. OF','']
                     self.select_all_of_sensor.setVisible(False)
+                elif material == 'Otros':
+                    self.column_id = "id_tag_others"
+                    self.table_name = "tags_data.tags_others"
+                    commands_tags = f" SELECT {self.column_id}, tag, num_order, description, dim_drawing, of_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), final_verif_dim_obs, TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), final_verif_of_eq_obs FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
+                    self.num_columns = 11
+                    column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Plano Dim.', 'OF Equipo', 'Fecha Dim.', 'Obs. Dim', 'Fecha OF', 'Obs. OF','']
+                    self.select_all_of_sensor.setVisible(False)
 
-                cur.execute(commands_tags)
-                results=cur.fetchall()
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                    cur.execute(commands_tags)
+                    results=cur.fetchall()
 
-                self.tableTags.setRowCount(len(results))
-                self.tableTags.setColumnCount(self.num_columns)
-                tablerow=0
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
 
-            # fill the Qt Table with the query results
-                for row in results:
-                    for column in range(self.num_columns):
-                        if column == (self.num_columns - 1):
-                            checkbox = QtWidgets.QCheckBox(self)
-                            checkbox.setChecked(False)
-                            self.tableTags.setCellWidget(tablerow, column, checkbox)
-                        elif column in [4,5,6] and self.num_columns == 14:
-                            value = row[column]
-                            if value is None:
-                                value = ''
+                    self.tableTags.setRowCount(len(results))
+                    self.tableTags.setColumnCount(self.num_columns)
+                    tablerow=0
+
+                # fill the Qt Table with the query results
+                    for row in results:
+                        for column in range(self.num_columns):
+                            if column == (self.num_columns - 1):
+                                checkbox = QtWidgets.QCheckBox(self)
+                                checkbox.setChecked(False)
+                                self.tableTags.setCellWidget(tablerow, column, checkbox)
+                            elif column in [4,5,6] and self.num_columns == 14:
+                                value = row[column]
+                                if value is None:
+                                    value = ''
+                                    it = QtWidgets.QTableWidgetItem(str(value))
+                                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                                    self.tableTags.setItem(tablerow, column, it)
+                                else:
+                                    checkbox = QtWidgets.QCheckBox(value)
+                                    checkbox.setChecked(False)
+                                    self.tableTags.setCellWidget(tablerow, column, checkbox)
+                            elif column in [4,5] and self.num_columns == 11:
+                                value = row[column]
+                                if value is None:
+                                    value = ''
+                                    it = QtWidgets.QTableWidgetItem(str(value))
+                                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                                    self.tableTags.setItem(tablerow, column, it)
+                                else:
+                                    checkbox = QtWidgets.QCheckBox(value)
+                                    checkbox.setChecked(False)
+                                    self.tableTags.setCellWidget(tablerow, column, checkbox)
+                            else:
+                                value = row[column]
+                                if value is None:
+                                    value = ''
                                 it = QtWidgets.QTableWidgetItem(str(value))
                                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                                 self.tableTags.setItem(tablerow, column, it)
-                            else:
-                                checkbox = QtWidgets.QCheckBox(value)
-                                checkbox.setChecked(False)
-                                self.tableTags.setCellWidget(tablerow, column, checkbox)
-                        elif column in [4,5] and self.num_columns == 11:
-                            value = row[column]
-                            if value is None:
-                                value = ''
-                                it = QtWidgets.QTableWidgetItem(str(value))
-                                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                                self.tableTags.setItem(tablerow, column, it)
-                            else:
-                                checkbox = QtWidgets.QCheckBox(value)
-                                checkbox.setChecked(False)
-                                self.tableTags.setCellWidget(tablerow, column, checkbox)
-                        else:
-                            value = row[column]
-                            if value is None:
-                                value = ''
-                            it = QtWidgets.QTableWidgetItem(str(value))
-                            it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                            self.tableTags.setItem(tablerow, column, it)
 
-                    tablerow+=1
+                        tablerow+=1
 
-                self.tableTags.verticalHeader().hide()
-                self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
-                self.tableTags.setSortingEnabled(False)
-                self.tableTags.setHorizontalHeaderLabels(column_headers)
-                self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                self.tableTags.hideColumn(0)
+                    self.tableTags.verticalHeader().hide()
+                    self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
+                    self.tableTags.setSortingEnabled(False)
+                    self.tableTags.setHorizontalHeaderLabels(column_headers)
+                    self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                    self.tableTags.hideColumn(0)
 
-            except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
 
 
 # Function to update data of table others
@@ -1095,11 +1133,13 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         query_others = ("""
                         SELECT num_order, drawing_number, TO_CHAR(verif_m_drawing_date, 'DD/MM/YYYY'), verif_m_drawing_state, verif_m_drawing_obs, '' FROM verification.m_drawing_verification WHERE UPPER(verification.m_drawing_verification."num_order") LIKE UPPER('%%'||%s||'%%')
                         UNION
-                        SELECT num_order, 'PPI' as of_drawing, TO_CHAR(verif_ppi_date, 'DD/MM/YYYY'), verif_ppi_state, verif_ppi_obs, '' FROM verification.ppi_verification WHERE UPPER(verification.ppi_verification."num_order") LIKE UPPER('%%'||%s||'%%')
+                        SELECT num_order, 'PPI' as drawing_number, TO_CHAR(verif_ppi_date, 'DD/MM/YYYY'), verif_ppi_state, verif_ppi_obs, '' FROM verification.ppi_verification WHERE UPPER(verification.ppi_verification."num_order") LIKE UPPER('%%'||%s||'%%')
                         UNION
-                        SELECT num_order, 'EXP' as of_drawing, TO_CHAR(verif_exp_date, 'DD/MM/YYYY'), verif_exp_state, verif_exp_obs, '' FROM verification.exp_verification WHERE UPPER(verification.exp_verification."num_order") LIKE UPPER('%%'||%s||'%%')
+                        SELECT num_order, 'EXP' as drawing_number, TO_CHAR(verif_exp_date, 'DD/MM/YYYY'), verif_exp_state, verif_exp_obs, '' FROM verification.exp_verification WHERE UPPER(verification.exp_verification."num_order") LIKE UPPER('%%'||%s||'%%')
                         UNION
                         SELECT num_order, drawing_number, TO_CHAR(verif_of_drawing_date, 'DD/MM/YYYY'), verif_of_drawing_state, verif_of_drawing_obs, '' FROM verification.of_drawing_verification WHERE UPPER(verification.of_drawing_verification."num_order") LIKE UPPER('%%'||%s||'%%')
+                        UNION
+                        SELECT num_order, drawing_number, TO_CHAR(verif_dim_drawing_date, 'DD/MM/YYYY'), verif_dim_drawing_state, verif_dim_drawing_obs, '' FROM verification.dim_drawing_verification WHERE UPPER(verification.dim_drawing_verification."num_order") LIKE UPPER('%%'||%s||'%%')
                         """)
         conn = None
         try:
@@ -1109,7 +1149,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            cur.execute(query_others, (self.num_order_value, self.num_order_value, self.num_order_value, self.num_order_value,))
+            cur.execute(query_others, (self.num_order_value, self.num_order_value, self.num_order_value, self.num_order_value, self.num_order_value,))
             results=cur.fetchall()
 
             column_headers = ['Nº Pedido', 'Nº Plano', 'Fecha', 'Estado', 'Observaciones','']
@@ -1145,6 +1185,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             self.tableOthers.setSortingEnabled(False)
             self.tableOthers.setHorizontalHeaderLabels(column_headers)
             self.tableOthers.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableOthers.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
             self.tableOthers.hideColumn(0)
 
         except (Exception, psycopg2.DatabaseError) as error:
@@ -1409,9 +1450,6 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     finally:
                         if conn is not None:
                             conn.close()
-
-
-        self.load_values()
 
 
 # Function to update data for PPI
@@ -1813,7 +1851,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         conn.close()
 
 
-# Function to update data for M drawings
+# Function to update data for OF drawings
     def update_of_drawings(self):
         num_order = self.num_order.text()
         verif_date = self.date_test.text()
@@ -1937,6 +1975,141 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("Planos OF")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+
+# Function to update data for Dim. drawings
+    def update_dim_drawings(self):
+        num_order = self.num_order.text()
+        verif_date = self.date_test.text()
+        verif_state = self.state_test.currentText()
+        verif_notes = self.obs_test.toPlainText()
+
+        if num_order == "" or verif_date == "":
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Verificación Planos Dim.")
+            dlg.setText("Rellene todos los campos. Solo el campo de observaciones puede quedar vacío")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+
+        elif not re.match(r'^\d{2}[/\-]\d{2}[/\-]\d{4}$', verif_date):
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Verificación Planos Dim.")
+            dlg.setText("La fecha debe tener formato dd/mm/yyyy o dd-mm-yyyy")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
+
+        else:
+            row_list = []
+            for row in range(self.tableOthers.rowCount()):
+                item = self.tableOthers.cellWidget(row, (self.tableOthers.columnCount() - 1))
+                value_verif = self.tableOthers.item(row, 1).text()
+                if item is not None and value_verif[:2] == 'DIM-':
+                    if item.checkState() == QtCore.Qt.CheckState.Checked:
+                        row_list.append(row)
+            
+            for row_value in row_list:
+                num_order = self.tableOthers.item(row_value, 0).text()
+                dim_drawing = self.tableOthers.item(row_value, 1).text()
+                commands_select_dim_drawing = ("""
+                            SELECT verif_dim_drawing_date, id
+                            FROM verification."dim_drawing_verification"
+                            WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
+                            AND
+                            "drawing_number" = %s
+                            """)
+                commands_insert_dim_drawing = ("""
+                            UPDATE verification."dim_drawing_verification"
+                            SET "verif_dim_drawing_date" = %s, "verif_dim_drawing_state" = %s,"verif_dim_drawing_obs" = %s
+                            WHERE "id" = %s
+                            """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(commands_select_dim_drawing, (num_order, dim_drawing,))
+                    results = cur.fetchall()
+
+                    if len(results) != 0:
+                        if results[0][0] is None:
+                            cur.execute(commands_insert_dim_drawing, (verif_date, verif_state, verif_notes, results[0][1], ))
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("Planos Dim.")
+                            dlg.setText("Datos insertados con éxito")
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                            dlg.exec()
+                            del dlg, new_icon
+
+                        else:
+                            dlg_yes_no = QtWidgets.QMessageBox()
+                            new_icon_yes_no = QtGui.QIcon()
+                            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                            dlg_yes_no.setWindowTitle("ERP EIPSA")
+                            dlg_yes_no.setText(f"Ya ha datos existentes para el plano {dim_drawing}\n"
+                                                "¿Deseas sobreescribirlos?\n")
+                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                            result = dlg_yes_no.exec()
+                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                cur.execute(commands_insert_dim_drawing, (verif_date, verif_state, verif_notes, results[0][1], ))
+
+                                dlg = QtWidgets.QMessageBox()
+                                new_icon = QtGui.QIcon()
+                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                dlg.setWindowIcon(new_icon)
+                                dlg.setWindowTitle("Planos Dim.")
+                                dlg.setText("Datos insertados con éxito")
+                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                                dlg.exec()
+                                del dlg, new_icon
+
+                                self.obs_test.setText('')
+
+                            del dlg_yes_no, new_icon_yes_no
+
+                    else:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Planos Dim.")
+                        dlg.setText("No existe el plano dimensional")
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Planos Dim.")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
                                 + str(error))
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
@@ -2141,14 +2314,17 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-        text_color = colors_dict[text]
+        if text in colors_dict:
+            text_color = colors_dict[text]
+        else:
+            text_color = [255, 255, 255]
 
         self.state_test.setStyleSheet(f"color: rgb({text_color[0]}, {text_color[1]}, {text_color[2]})")
 
 
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     VerificationInsert_Window = Ui_VerificationInsert_Window()
-#     VerificationInsert_Window.show()
-#     sys.exit(app.exec())
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    VerificationInsert_Window = Ui_VerificationInsert_Window('m.gil')
+    VerificationInsert_Window.show()
+    sys.exit(app.exec())

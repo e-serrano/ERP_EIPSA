@@ -154,12 +154,12 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                 elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
-                    regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
                         break
 
                 else:
-                    regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
                         break
             else:
@@ -506,72 +506,73 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                 del dlg, new_icon
 
             else:
-                if self.numorder[:2]=='PA':
-                    self.variable = 'Otros'
+                query = ('''
+                        SELECT num_order, product_type."variable"
+                        FROM orders
+                        INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
+                        INNER JOIN product_type ON (product_type."material" = offers."material")
+                        WHERE
+                        UPPER (orders."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(query,(self.numorder,))
+                    results_variable=cur.fetchone()
+                    self.variable = results_variable[1] if results_variable != None else ''
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+                if results_variable == None:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("EL número de pedido no existe")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+                    del dlg, new_icon
+                    self.model.dataChanged.connect(self.saveChanges)
+
                 else:
-                    query = ('''
-                            SELECT num_order, product_type."variable"
-                            FROM orders
-                            INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
-                            INNER JOIN product_type ON (product_type."material" = offers."material")
-                            WHERE
-                            UPPER (orders."num_order") LIKE UPPER('%%'||%s||'%%')
-                            ''')
-                    conn = None
-                    try:
-                    # read the connection parameters
-                        params = config()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands
-                        cur.execute(query,(self.numorder,))
-                        results_variable=cur.fetchone()
-                        self.variable = results_variable[1] if results_variable != None else ''
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
-                    finally:
-                        if conn is not None:
-                            conn.close()
+                    if self.numorder[:2] == 'PA':
+                        self.variable = 'Otros'
 
-                    if results_variable == None:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("EL número de pedido no existe")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg.exec()
-                        del dlg, new_icon
-
-                    else:
-                        if self.variable == 'Caudal':
-                            self.model.setTable("tags_data.tags_flow")
-                            self.initial_column = 30
-                        elif self.variable == 'Temperatura':
-                            self.model.setTable("tags_data.tags_temp")
-                            self.initial_column = 35
-                        elif self.variable == 'Nivel':
-                            self.model.setTable("tags_data.tags_level")
-                            self.initial_column = 36
-                        elif self.variable == 'Otros':
-                            self.model.setTable("tags_data.tags_others")
-                            self.initial_column = 11
-                        self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
+                    if self.variable == 'Caudal':
+                        self.model.setTable("tags_data.tags_flow")
+                        self.initial_column = 30
+                    elif self.variable == 'Temperatura':
+                        self.model.setTable("tags_data.tags_temp")
+                        self.initial_column = 35
+                    elif self.variable == 'Nivel':
+                        self.model.setTable("tags_data.tags_level")
+                        self.initial_column = 36
+                    elif self.variable == 'Otros':
+                        self.model.setTable("tags_data.tags_others")
+                        self.initial_column = 11
+                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
 
         if self.variable != '':
             self.tableEditTags.setModel(None)
@@ -596,7 +597,9 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                 for i in range(36,47):
                     self.tableEditTags.hideColumn(i)
                 self.tableEditTags.hideColumn(50)
-                for i in range(69,123):
+                for i in range(72,125):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(157,columns_number):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Temperatura':
@@ -612,7 +615,9 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(64,66):
                     self.tableEditTags.hideColumn(i)
-                for i in range(77,130):
+                for i in range(80,132):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(167,columns_number):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Nivel':
@@ -625,7 +630,9 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                 for i in range(42,51):
                     self.tableEditTags.hideColumn(i)
                 self.tableEditTags.hideColumn(54)
-                for i in range(63,136):
+                for i in range(66,138):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(170,columns_number):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Otros':
@@ -634,6 +641,8 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                 for i in range(5,8):
                     self.tableEditTags.hideColumn(i)
                 for i in range(10,14):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(57,columns_number):
                     self.tableEditTags.hideColumn(i)
 
             # self.tableEditTags.verticalHeader().hide()
@@ -663,7 +672,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                             "Notas Equipo", "Colada Placa", "Cert. Placa", "Colada Brida", "Cert. Brida", "Nº Tapones",
                             "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material", "RTJ Espesor", "RTJ Dim",
                             "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos", "Cantidad Espárragos", "Tamaño Extractor",
-                            "Cantidad Extractor", "Estado Fabricación", "Inspección", "Envío RN", "Cod. Equipo",
+                            "Cantidad Extractor", "Estado Fabricación", "Inspección", "Fecha IRC", "Envío RN", "Fecha RN", "Cod. Equipo",
                             "Cod. Fab. Equipo", "Trad. Equipo", "Cod. Brida Orif.", "Cod. Fab. Brida Orif.", "Cant. Brida Orif.",
                             "Cod. Brida Línea", "Cod. Fab. Brida Línea", "Cant. Brida Línea", "Cod. Junta", "Cod. Fab. Junta",
                             "Cant. Junta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería", "Cod. Tapones",
@@ -680,7 +689,8 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                             "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
                             "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
-                            "Estado Verif. OF", "Notas Verif. OF", "Fotos"]
+                            "Estado Verif. OF", "Notas Verif. OF", "Fotos",
+                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
 
             headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Tipo TW",
@@ -697,7 +707,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                             "Notas Sensor", "Estado Fabricación Sensor", "Plano OF TW", "Fecha OF TW", "Notas TW",
                             "Estado Fabricación TW", "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
                             "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)", "Tapón",
-                            "Estado Fabricación", "Inspección", "Envío RN", "Cod. Equipo", "Cod. Fab. Equipo",
+                            "Estado Fabricación", "Inspección", "Fecha IRC", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
                             "Trad. Equipo", "Cod. Barra", "Cod. Fab. Barra", "Cant. Barra", "Cod. Tubo",
                             "Cod. Fab. Tubo", "Cant. Tubo", "Cod. Brida", "Cod. Fab. Brida", "Cant. Brida",
                             "Cod. Sensor", "Cod. Fab. Sensor", "Cant. Sensor", "Cod. Cabeza", "Cod. Fab. Cabeza",
@@ -714,7 +724,8 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                             "Fecha Dureza", "Dureza", "Dureza HB", "Bola", "Carga",
                             "Colada Dureza", "Estado Dureza", "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.",
                             "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF.", "Notas Verif. OF", "Fecha Verif. OF Sensor",
-                            "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos"]
+                            "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos",
+                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
 
             headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Modelo",
@@ -728,7 +739,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                             "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Orden de Compra", "Fecha Orden Compra",
                             "Notas Orden Compra", "Plano Dimensional", "Plano OF", "Fecha OF", "Notas Equipo",
                             "Colada Cuerpo", "Cert. Cuerpo", "Colada Cuerpo Vlv", "Cert. Cuerpo Vlv", "Colada Brida Vlv", "Cert. Brida Vlv"
-                            "Estado Fabricación", "Inspección", "Envío RN", "Cod. Equipo", "Cod. Fab. Equipo",
+                            "Estado Fabricación", "Inspección", "Fecha IRC", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
                             "Trad. Equipo", "Cod. Cuerpo", "Cod. Fab. Cuerpo", "Cant. Cuerpo", "Cod. Cubierta",
                             "Cod. Fab. Cubierta", "Cant. Cubierta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería",
                             "Cdo. Niplo Hex.", "Cod. Fab. Niplo Hex.", "Cant. Niplo Hex.", "Cod. Válv.", "Cod. Fab. Válv.",
@@ -749,19 +760,21 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                             "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
                             "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
-                            "Estado Verif. OF", "Notas Verif. OF", "Fotos"]
+                            "Estado Verif. OF", "Notas Verif. OF", "Fotos",
+                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
 
             headers_others = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Descripción", "Código Equipo",
                             "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
-                            "Plano Dimensional", "Plano OF", "Fecha OF", "Colada", "Cert. Colada", "Estado Fabricación", "Inspección", "Envío RN",
+                            "Plano Dimensional", "Plano OF", "Fecha OF", "Colada", "Cert. Colada", "Estado Fabricación", "Inspección", "Fecha IRC", "Envío RN", "Fecha RN",
                             "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
                             "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
                             "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
                             "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
                             "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
-                            "Estado Verif. OF", "Notas Verif. OF", "Fotos"]
+                            "Estado Verif. OF", "Notas Verif. OF", "Fotos",
+                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
 
             if self.variable == 'Caudal':
                 self.model.setAllColumnHeaders(headers_flow)

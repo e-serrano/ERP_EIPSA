@@ -874,11 +874,11 @@ class Ui_App_Comercial(object):
 
 
     def new_order(self):
-        from OrderNew_Window import Ui_New_Order_Window
-        self.new_order_window=QtWidgets.QMainWindow()
-        self.ui=Ui_New_Order_Window()
-        self.ui.setupUi(self.new_order_window)
-        self.new_order_window.show()
+        from OrderNewAddData_Window import Ui_New_OrderAddData_Window
+        self.new_orderAddData_window=QtWidgets.QMainWindow()
+        self.ui=Ui_New_OrderAddData_Window()
+        self.ui.setupUi(self.new_orderAddData_window)
+        self.new_orderAddData_window.show()
         self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
 
@@ -914,9 +914,9 @@ class Ui_App_Comercial(object):
 
 
     def query_tag(self):
-        from TAGQuery_Window import Ui_QueryTags_Window
+        from TAGQuery_Menu import Ui_TAGQuery_Menu
         self.querytag_window=QtWidgets.QMainWindow()
-        self.ui=Ui_QueryTags_Window('Comercial')
+        self.ui=Ui_TAGQuery_Menu('Comercial')
         self.ui.setupUi(self.querytag_window)
         self.querytag_window.show()
 

@@ -1467,8 +1467,8 @@ class Ui_SupplierOrder_Warehouse_Window(object):
         self.retranslateUi(SupplierOrder_Window)
         QtCore.QMetaObject.connectSlotsByName(SupplierOrder_Window)
 
-        commands_suppliers = "SELECT * FROM purch_fact.suppliers_test ORDER BY purch_fact.suppliers_test.name"
-        commands_supplies = "SELECT * FROM purch_fact.supplies_test"
+        commands_suppliers = "SELECT * FROM purch_fact.suppliers ORDER BY purch_fact.suppliers.name"
+        commands_supplies = "SELECT * FROM purch_fact.supplies"
         commands_currency = "SELECT * FROM purch_fact.currency ORDER BY id"
         conn = None
         try:
@@ -1678,7 +1678,7 @@ class Ui_SupplierOrder_Warehouse_Window(object):
 
 #         else:
 #             commands_neworder=("""
-#                             INSERT INTO purch_fact.supplier_ord_header_test (
+#                             INSERT INTO purch_fact.supplier_ord_header (
 #                             supplier_id, order_date, delivery_date, notes, supplier_order_num, their_ref,
 #                             delivery_way, pay_way, delivery_term, order_com, total_amount, final_comment, currency_id
 #                             )
@@ -1692,7 +1692,7 @@ class Ui_SupplierOrder_Warehouse_Window(object):
 #                 conn = psycopg2.connect(**params)
 #                 cur = conn.cursor()
 #             # execution of commands
-#                 query_supplier = "SELECT id FROM purch_fact.suppliers_test WHERE name = %s"
+#                 query_supplier = "SELECT id FROM purch_fact.suppliers WHERE name = %s"
 #                 cur.execute(query_supplier, (supplier_name,))
 #                 result_supplier = cur.fetchone()
 
@@ -1746,7 +1746,7 @@ class Ui_SupplierOrder_Warehouse_Window(object):
 #                 conn = psycopg2.connect(**params)
 #                 cur = conn.cursor()
 #             # execution of commands
-#                 query_idorder = "SELECT id FROM purch_fact.supplier_ord_header_test ORDER BY id"
+#                 query_idorder = "SELECT id FROM purch_fact.supplier_ord_header ORDER BY id"
 #                 cur.execute(query_idorder)
 #                 result_idorder = cur.fetchall()
 
@@ -1826,7 +1826,7 @@ class Ui_SupplierOrder_Warehouse_Window(object):
 
 #         else:
 #             commands_updateorder = ("""
-#                         UPDATE purch_fact.supplier_ord_header_test
+#                         UPDATE purch_fact.supplier_ord_header
 #                         SET "supplier_id" = %s, "order_date" = %s, "delivery_date" = %s, "notes" = %s, "supplier_order_num" = %s, "their_ref" = %s,
 #                         "delivery_way" = %s, "pay_way" = %s, "delivery_term" = %s, "order_com" = %s, "total_amount" = %s, "final_comment" = %s, "currency_id" = %s
 #                         WHERE "id" = %s
@@ -1839,7 +1839,7 @@ class Ui_SupplierOrder_Warehouse_Window(object):
 #                 conn = psycopg2.connect(**params)
 #                 cur = conn.cursor()
 #             # execution of commands
-#                 query_supplier = "SELECT id FROM purch_fact.suppliers_test WHERE name = %s"
+#                 query_supplier = "SELECT id FROM purch_fact.suppliers WHERE name = %s"
 #                 cur.execute(query_supplier, (supplier_name,))
 #                 result_supplier = cur.fetchone()
 
@@ -1908,7 +1908,7 @@ class Ui_SupplierOrder_Warehouse_Window(object):
 #             conn = psycopg2.connect(**params)
 #             cur = conn.cursor()
 #         # execution of commands
-#             query_checkposition = "SELECT * FROM purch_fact.supplier_ord_detail_test WHERE (position_supply = %s AND supplier_ord_header_id= %s)"
+#             query_checkposition = "SELECT * FROM purch_fact.supplier_ord_detail WHERE (position_supply = %s AND supplier_ord_header_id= %s)"
 #             cur.execute(query_checkposition, (position, order_id,))
 #             result_position = cur.fetchall()
 #         # close communication with the PostgreSQL database server
@@ -1966,7 +1966,7 @@ class Ui_SupplierOrder_Warehouse_Window(object):
 
 #         else:
 #             commands_newrecord = ("""
-#                                 INSERT INTO purch_fact.supplier_ord_detail_test (
+#                                 INSERT INTO purch_fact.supplier_ord_detail (
 #                                 supplier_ord_header_id,position_supply,supply_id,unit_value,
 #                                 discount,quantity,deliv_quant_1,deliv_quant_2,deliv_quant_3
 #                                 )
@@ -1980,7 +1980,7 @@ class Ui_SupplierOrder_Warehouse_Window(object):
 #                 conn = psycopg2.connect(**params)
 #                 cur = conn.cursor()
 #             # execution of commands
-#                 query_supplyid = "SELECT id, pending_stock FROM purch_fact.supplies_test WHERE reference = %s"
+#                 query_supplyid = "SELECT id, pending_stock FROM purch_fact.supplies WHERE reference = %s"
 #                 cur.execute(query_supplyid, (supply_name,))
 #                 result_supplyid = cur.fetchone()
 
@@ -1989,7 +1989,7 @@ class Ui_SupplierOrder_Warehouse_Window(object):
 #                 pending_stock = result_supplyid[1]
 #                 new_pending_stock = str(float(pending_stock) + float(quantity))
 
-#                 query_pending_stock = ("""UPDATE purch_fact.supplies_test
+#                 query_pending_stock = ("""UPDATE purch_fact.supplies
 #                                         SET "pending_stock" = %s 
 #                                         WHERE "reference" = %s""")
 #                 cur.execute(query_pending_stock, (new_pending_stock,supply_name,))
@@ -2059,7 +2059,7 @@ class Ui_SupplierOrder_Warehouse_Window(object):
 
     #     else:
     #         commands_modifyrecord = ("""
-    #                     UPDATE purch_fact.supplier_ord_detail_test
+    #                     UPDATE purch_fact.supplier_ord_detail
     #                     SET "position_supply" = %s, "supply_id" = %s, "unit_value" = %s, "discount" = %s,
     #                     "quantity" = %s, "deliv_quant_1" = %s, "deliv_quant_2" = %s, "deliv_quant_3" = %s
     #                     WHERE "id" = %s
@@ -2073,13 +2073,13 @@ class Ui_SupplierOrder_Warehouse_Window(object):
     #             cur = conn.cursor()
     #         # execution of commands
     #             query_supplyid = ("""SELECT id, physical_stock, pending_stock, available_stock
-    #                                 FROM purch_fact.supplies_test
+    #                                 FROM purch_fact.supplies
     #                                 WHERE reference = %s""")
     #             cur.execute(query_supplyid, (supply_name,))
     #             result_supplyid = cur.fetchone()
 
     #             query_quantitysupply = ("""SELECT pending, deliv_quant_1, deliv_quant_2, deliv_quant_3
-    #                                     FROM purch_fact.supplier_ord_detail_test
+    #                                     FROM purch_fact.supplier_ord_detail
     #                                     WHERE id = %s""")
     #             cur.execute(query_quantitysupply, (record_id,))
     #             result_quantity = cur.fetchone()
@@ -2103,7 +2103,7 @@ class Ui_SupplierOrder_Warehouse_Window(object):
     #             new_pending_stock = str(float(pending_stock) - float(old_pending) + float(new_pending))
     #             new_available_stock= str(float(available_stock) - old_quant_deliv + new_quant_deliv)
 
-    #             query_pending_stock = ("""UPDATE purch_fact.supplies_test
+    #             query_pending_stock = ("""UPDATE purch_fact.supplies
     #                                     SET "physical_stock" = %s, "pending_stock" = %s, "available_stock" = %s 
     #                                     WHERE "reference" = %s""")
     #             cur.execute(query_pending_stock, (new_stock,new_pending_stock,new_available_stock,supply_name,))
@@ -2206,7 +2206,7 @@ class Ui_SupplierOrder_Warehouse_Window(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            query_stocks = "SELECT physical_stock, available_stock, pending_stock FROM purch_fact.supplies_test WHERE reference = %s"
+            query_stocks = "SELECT physical_stock, available_stock, pending_stock FROM purch_fact.supplies WHERE reference = %s"
             cur.execute(query_stocks, (data_supply[2],))
             result_stocks = cur.fetchone()
 
@@ -2243,21 +2243,21 @@ class Ui_SupplierOrder_Warehouse_Window(object):
 # Function to load table of orders
     def loadtableorders(self):
         commands_querytableorders = ("""
-                        SELECT purch_fact.supplier_ord_header_test.id,
-                        purch_fact.supplier_ord_header_test.supplier_order_num,
-                        purch_fact.suppliers_test."name",
-                        TO_CHAR(purch_fact.supplier_ord_header_test."order_date",'DD-MM-YYYY'),
-                        TO_CHAR(purch_fact.supplier_ord_header_test.delivery_date,'DD-MM-YYYY'),
-                        purch_fact.supplier_ord_header_test.their_ref,
-                        purch_fact.supplier_ord_header_test.notes, purch_fact.supplier_ord_header_test.delivery_term,
-                        purch_fact.supplier_ord_header_test.delivery_way, purch_fact.supplier_ord_header_test.order_com,
-                        purch_fact.supplier_ord_header_test.final_comment, purch_fact.supplier_ord_header_test.pay_way,
-                        TO_CHAR(purch_fact.supplier_ord_header_test.deliv_date_1,'DD-MM-YYYY'), purch_fact.supplier_ord_header_test.deliv_note_1,
-                        TO_CHAR(purch_fact.supplier_ord_header_test.deliv_date_2,'DD-MM-YYYY'), purch_fact.supplier_ord_header_test.deliv_note_2,
-                        TO_CHAR(purch_fact.supplier_ord_header_test.deliv_date_3,'DD-MM-YYYY'), purch_fact.supplier_ord_header_test.deliv_note_3
-                        FROM purch_fact.supplier_ord_header_test
-                        LEFT JOIN purch_fact.suppliers_test ON (purch_fact.suppliers_test."id" = purch_fact.supplier_ord_header_test."supplier_id")
-                        ORDER BY purch_fact.supplier_ord_header_test.id
+                        SELECT purch_fact.supplier_ord_header.id,
+                        purch_fact.supplier_ord_header.supplier_order_num,
+                        purch_fact.suppliers."name",
+                        TO_CHAR(purch_fact.supplier_ord_header."order_date",'DD-MM-YYYY'),
+                        TO_CHAR(purch_fact.supplier_ord_header.delivery_date,'DD-MM-YYYY'),
+                        purch_fact.supplier_ord_header.their_ref,
+                        purch_fact.supplier_ord_header.notes, purch_fact.supplier_ord_header.delivery_term,
+                        purch_fact.supplier_ord_header.delivery_way, purch_fact.supplier_ord_header.order_com,
+                        purch_fact.supplier_ord_header.final_comment, purch_fact.supplier_ord_header.pay_way,
+                        TO_CHAR(purch_fact.supplier_ord_header.deliv_date_1,'DD-MM-YYYY'), purch_fact.supplier_ord_header.deliv_note_1,
+                        TO_CHAR(purch_fact.supplier_ord_header.deliv_date_2,'DD-MM-YYYY'), purch_fact.supplier_ord_header.deliv_note_2,
+                        TO_CHAR(purch_fact.supplier_ord_header.deliv_date_3,'DD-MM-YYYY'), purch_fact.supplier_ord_header.deliv_note_3
+                        FROM purch_fact.supplier_ord_header
+                        LEFT JOIN purch_fact.suppliers ON (purch_fact.suppliers."id" = purch_fact.supplier_ord_header."supplier_id")
+                        ORDER BY purch_fact.supplier_ord_header.id
                         """)
         conn = None
         try:
@@ -2314,16 +2314,16 @@ class Ui_SupplierOrder_Warehouse_Window(object):
         locale.setlocale(locale.LC_ALL, '')
         order_id=self.label_IDOrd.text()
         commands_querytablerecords = ("""
-                        SELECT purch_fact.supplier_ord_detail_test.id, purch_fact.supplier_ord_detail_test.position_supply,
-                        purch_fact.supplies_test."reference", purch_fact.supplies_test."description",
-                        purch_fact.supplier_ord_detail_test.quantity, purch_fact.supplier_ord_detail_test.unit_value, 
-                        purch_fact.supplier_ord_detail_test.discount,purch_fact.supplier_ord_detail_test.pending,
-                        purch_fact.supplier_ord_detail_test.deliv_quant_1, purch_fact.supplier_ord_detail_test.deliv_quant_2,
-                        purch_fact.supplier_ord_detail_test.deliv_quant_3
-                        FROM purch_fact.supplier_ord_detail_test
-                        LEFT JOIN purch_fact.supplies_test ON (purch_fact.supplies_test."id" = purch_fact.supplier_ord_detail_test."supply_id")
+                        SELECT purch_fact.supplier_ord_detail.id, purch_fact.supplier_ord_detail.position_supply,
+                        purch_fact.supplies."reference", purch_fact.supplies."description",
+                        purch_fact.supplier_ord_detail.quantity, purch_fact.supplier_ord_detail.unit_value, 
+                        purch_fact.supplier_ord_detail.discount,purch_fact.supplier_ord_detail.pending,
+                        purch_fact.supplier_ord_detail.deliv_quant_1, purch_fact.supplier_ord_detail.deliv_quant_2,
+                        purch_fact.supplier_ord_detail.deliv_quant_3
+                        FROM purch_fact.supplier_ord_detail
+                        LEFT JOIN purch_fact.supplies ON (purch_fact.supplies."id" = purch_fact.supplier_ord_detail."supply_id")
                         WHERE supplier_ord_header_id = %s
-                        ORDER BY purch_fact.supplier_ord_detail_test.id
+                        ORDER BY purch_fact.supplier_ord_detail.id
                         """)
         conn = None
         try:
@@ -2433,7 +2433,7 @@ class Ui_SupplierOrder_Warehouse_Window(object):
         else:
             commands_deliv1_check = ("""
                         SELECT deliv_date_1, deliv_note_1
-                        FROM purch_fact.supplier_ord_header_test
+                        FROM purch_fact.supplier_ord_header
                         WHERE id = %s
                         """)
             conn = None
@@ -2481,12 +2481,12 @@ class Ui_SupplierOrder_Warehouse_Window(object):
 
             else:
                 commands_deliv1_header = ("""
-                            UPDATE purch_fact.supplier_ord_header_test
+                            UPDATE purch_fact.supplier_ord_header
                             SET "deliv_date_1" = %s, "deliv_note_1" = %s
                             WHERE "id" = %s
                             """)
                 commands_deliv1_detail = ("""
-                            UPDATE purch_fact.supplier_ord_detail_test
+                            UPDATE purch_fact.supplier_ord_detail
                             SET "deliv_date_1" = %s, "deliv_note_1" = %s
                             WHERE "supplier_ord_header_id" = %s
                             """)
@@ -2514,16 +2514,16 @@ class Ui_SupplierOrder_Warehouse_Window(object):
                         #         break
 
                         commands_add_deliv_quant_1 = ("""
-                                                        UPDATE purch_fact.supplier_ord_detail_test
+                                                        UPDATE purch_fact.supplier_ord_detail
                                                         SET "deliv_quant_1" = %s
                                                         WHERE "id" = %s
                                                         """)
                         query_stock = ("""
-                                        SELECT physical_stock, pending_stock, available_stock FROM purch_fact.supplies_test
+                                        SELECT physical_stock, pending_stock, available_stock FROM purch_fact.supplies
                                         WHERE "reference" = %s
                                         """)
                         query_updatestock = ("""
-                                            UPDATE purch_fact.supplies_test 
+                                            UPDATE purch_fact.supplies 
                                             SET "physical_stock" = %s, "pending_stock" = %s, "available_stock" = %s
                                             WHERE "reference" = %s
                                             """)
@@ -2620,7 +2620,7 @@ class Ui_SupplierOrder_Warehouse_Window(object):
         else:
             commands_deliv2_check = ("""
                             SELECT deliv_date_2, deliv_note_2
-                            FROM purch_fact.supplier_ord_header_test
+                            FROM purch_fact.supplier_ord_header
                             WHERE id = %s
                             """)
             conn = None
@@ -2668,12 +2668,12 @@ class Ui_SupplierOrder_Warehouse_Window(object):
 
             else:
                 commands_deliv2_header = ("""
-                            UPDATE purch_fact.supplier_ord_header_test
+                            UPDATE purch_fact.supplier_ord_header
                             SET "deliv_date_2" = %s, "deliv_note_2" = %s
                             WHERE "id" = %s
                             """)
                 commands_deliv2_detail = ("""
-                            UPDATE purch_fact.supplier_ord_detail_test
+                            UPDATE purch_fact.supplier_ord_detail
                             SET "deliv_date_2" = %s, "deliv_note_2" = %s
                             WHERE "supplier_ord_header_id" = %s
                             """)
@@ -2701,16 +2701,16 @@ class Ui_SupplierOrder_Warehouse_Window(object):
                         #         break
 
                         commands_add_deliv_quant_2 = ("""
-                                                    UPDATE purch_fact.supplier_ord_detail_test
+                                                    UPDATE purch_fact.supplier_ord_detail
                                                     SET "deliv_quant_2" = %s
                                                     WHERE "id" = %s
                                                     """)
                         query_stock = ("""
-                                        SELECT physical_stock, pending_stock, available_stock FROM purch_fact.supplies_test
+                                        SELECT physical_stock, pending_stock, available_stock FROM purch_fact.supplies
                                         WHERE "reference" = %s
                                         """)
                         query_updatestock = ("""
-                                            UPDATE purch_fact.supplies_test 
+                                            UPDATE purch_fact.supplies 
                                             SET "physical_stock" = %s, "pending_stock" = %s, "available_stock" = %s
                                             WHERE "reference" = %s
                                             """)
@@ -2807,7 +2807,7 @@ class Ui_SupplierOrder_Warehouse_Window(object):
         else:
             commands_deliv3_check = ("""
                             SELECT deliv_date_3, deliv_note_3
-                            FROM purch_fact.supplier_ord_header_test
+                            FROM purch_fact.supplier_ord_header
                             WHERE id = %s
                             """)
             conn = None
@@ -2855,12 +2855,12 @@ class Ui_SupplierOrder_Warehouse_Window(object):
 
             else:
                 commands_deliv3_header = ("""
-                            UPDATE purch_fact.supplier_ord_header_test
+                            UPDATE purch_fact.supplier_ord_header
                             SET "deliv_date_3" = %s, "deliv_note_3" = %s
                             WHERE "id" = %s
                             """)
                 commands_deliv3_detail = ("""
-                            UPDATE purch_fact.supplier_ord_detail_test
+                            UPDATE purch_fact.supplier_ord_detail
                             SET "deliv_date_3" = %s, "deliv_note_3" = %s
                             WHERE "supplier_ord_header_id" = %s
                             """)
@@ -2888,16 +2888,16 @@ class Ui_SupplierOrder_Warehouse_Window(object):
                         #         break
 
                         commands_add_deliv_quant_3 = ("""
-                            UPDATE purch_fact.supplier_ord_detail_test
+                            UPDATE purch_fact.supplier_ord_detail
                             SET "deliv_quant_3" = %s
                             WHERE "id" = %s
                             """)
                         query_stock = ("""
-                                        SELECT physical_stock, pending_stock, available_stock FROM purch_fact.supplies_test
+                                        SELECT physical_stock, pending_stock, available_stock FROM purch_fact.supplies
                                         WHERE "reference" = %s
                                         """)
                         query_updatestock = ("""
-                                            UPDATE purch_fact.supplies_test 
+                                            UPDATE purch_fact.supplies 
                                             SET "physical_stock" = %s, "pending_stock" = %s, "available_stock" = %s
                                             WHERE "reference" = %s
                                             """)
@@ -2963,7 +2963,7 @@ class Ui_SupplierOrder_Warehouse_Window(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            query_stocks = "SELECT physical_stock, available_stock, pending_stock, unit_value FROM purch_fact.supplies_test WHERE reference = %s"
+            query_stocks = "SELECT physical_stock, available_stock, pending_stock, unit_value FROM purch_fact.supplies WHERE reference = %s"
             cur.execute(query_stocks, (supply_name,))
             result_stocks = cur.fetchone()
 

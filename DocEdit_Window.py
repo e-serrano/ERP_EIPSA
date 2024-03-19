@@ -120,7 +120,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                 elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', str(expresion)):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
-                    regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
                         break
 
@@ -401,6 +401,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addWidget(self.tableEditDocs, 3, 0, 1, 1)
         self.tableEditDocs.setSortingEnabled(False)
         self.tableEditDocs.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked)
+        self.tableEditDocs.hideColumn(9)
 
         # Change all column names
         headers = ["Nº Doc. EIPSA", "Nº Doc. Cliente", "Nº Pedido", "Título", "Crítico", "Nº Revisión", "Fecha Estado", "Estado", "Seguimiento"]
@@ -463,6 +464,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
 
         self.combo_itemtype = EditableComboBoxDelegate(self.tableEditDocs, sorted(['Aprobado','Comentado','Com. Mayores','Com. Menores','Eliminado','Enviado','Rechazado']))
         self.tableEditDocs.setItemDelegateForColumn(7, self.combo_itemtype)
+        self.tableEditDocs.hideColumn(9)
 
     # Getting the unique values for each column of the model
         for column in range(self.model.columnCount()):

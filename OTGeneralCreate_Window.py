@@ -646,8 +646,8 @@ class Ui_OTGeneralCreate_Window(object):
 
         else:
             commands_OTGeneralCreate = ("""
-                                        INSERT INTO fabrication.fab_order ("id","tag","element","qty_element","ot_num","qty_ot","start_date")
-                                        VALUES (%s,%s,%s,%s,%s,%s,%s)
+                                        INSERT INTO fabrication.fab_order ("id","tag","element","qty_element","ot_num","qty_ot","start_date","type_equipment")
+                                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
                                         """)
             conn = None
             try:
@@ -657,7 +657,7 @@ class Ui_OTGeneralCreate_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands one by one
-                data=(id, order, detail, qty_element, code, qty_ot, actual_date)
+                data=(id, order, detail, qty_element, code, qty_ot, actual_date, equipment)
                 cur.execute(commands_OTGeneralCreate,data)
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -683,7 +683,7 @@ class Ui_OTGeneralCreate_Window(object):
 
 
     def loadtable(self):
-        query_tablechanges = """SELECT id, ot_num, TO_CHAR(start_date, 'DD-MM-YYYY'), tag, qty_ot, type_equipment, element
+        query_tablechanges = """SELECT id, ot_num, TO_CHAR(start_date, 'DD/MM/YYYY'), tag, qty_ot, type_equipment, element
                                 FROM fabrication.fab_order
                                 WHERE "ot_num" LIKE '90%'
                                 ORDER BY "ot_num" DESC

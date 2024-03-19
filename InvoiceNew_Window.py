@@ -10,7 +10,9 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from config import config
 import psycopg2
 import os
-from tkinter.filedialog import asksaveasfilename
+from tkinter.filedialog import asksaveasfilename, askopenfilename
+import pandas as pd
+
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -1235,13 +1237,58 @@ class Ui_InvoiceNew_Window(object):
         self.label_IDRecord = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
         self.label_IDRecord.setObjectName("label_IDRecord")
         self.label_IDRecord.setStyleSheet("color: rgb(255, 255, 255);")
-        self.gridLayout_4.addWidget(self.label_IDRecord, 7, 4, 1, 1)
+        self.gridLayout_4.addWidget(self.label_IDRecord, 7, 1, 1, 1)
         self.label_IDInvoice = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
         self.label_IDInvoice.setMinimumSize(QtCore.QSize(150, 25))
         self.label_IDInvoice.setMaximumSize(QtCore.QSize(150, 16777215))
         self.label_IDInvoice.setObjectName("label_IDInvoice")
         self.label_IDInvoice.setStyleSheet("color: rgb(255, 255, 255);")
-        self.gridLayout_4.addWidget(self.label_IDInvoice, 7, 5, 1, 1)
+        self.gridLayout_4.addWidget(self.label_IDInvoice, 7, 2, 1, 1)
+        self.Button_ImportReg = QtWidgets.QPushButton(parent=self.scrollAreaWidgetContents)
+        self.Button_ImportReg.setMinimumSize(QtCore.QSize(150, 30))
+        self.Button_ImportReg.setMaximumSize(QtCore.QSize(16777215, 30))
+        self.Button_ImportReg.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_ImportReg.setAutoDefault(True)
+        self.Button_ImportReg.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 2px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}\n"
+"\n"
+"QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:focus:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        self.Button_ImportReg.setObjectName("Button_ImportReg")
+        self.Button_ImportReg.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.gridLayout_4.addWidget(self.Button_ImportReg, 7, 4, 1, 2)
         self.tableRecords = CustomTableWidgetRecord()
         self.tableRecords.setMinimumSize(QtCore.QSize(0, 300))
         self.tableRecords.setMaximumSize(QtCore.QSize(16777215, 300))
@@ -2174,7 +2221,7 @@ class Ui_InvoiceNew_Window(object):
         self.retranslateUi(Invoice_Window)
         QtCore.QMetaObject.connectSlotsByName(Invoice_Window)
 
-        commands_clients = "SELECT * FROM purch_fact.clients_test ORDER BY name"
+        commands_clients = "SELECT * FROM purch_fact.clients ORDER BY name"
         commands_destcountry = "SELECT * FROM purch_fact.destination_country ORDER BY id"
         conn = None
         try:
@@ -2235,6 +2282,7 @@ class Ui_InvoiceNew_Window(object):
         self.Filter_Invoice.returnPressed.connect(self.filterinvoicetable)
         self.Button_DeleteFilter.clicked.connect(self.loadinvoicetable)
         self.Button_SearchInvoice.clicked.connect(lambda: self.search_invoice(Invoice_Window))
+        self.Button_ImportReg.clicked.connect(self.import_tags)
     # Adding function when editing the value of currency change €/$
         self.ValCotDollar_Invoice.returnPressed.connect(self.calculate_totalorder)
         self.ValCotDollar_Invoice.editingFinished.connect(self.calculate_totalorder)
@@ -2356,6 +2404,7 @@ class Ui_InvoiceNew_Window(object):
         self.Button_AddReg.setText(_translate("Invoice_Window", "Agregar"))
         self.Button_EditReg.setText(_translate("Invoice_Window", "Editar"))
         self.Button_DeleteReg.setText(_translate("Invoice_Window", "Eliminar"))
+        self.Button_ImportReg.setText(_translate("Invoice_Window", "Importar"))
         self.Button_DelivNote.setText(_translate("Invoice_Window", "Albarán"))
         self.Button_FactDollar.setText(_translate("Invoice_Window", "Fact.$"))
         self.Button_FactEuro.setText(_translate("Invoice_Window", "Fact. €"))
@@ -2421,7 +2470,7 @@ class Ui_InvoiceNew_Window(object):
 
         commands_clientsid = ("""
                         SELECT clients.id
-                        FROM purch_fact.clients_test AS clients
+                        FROM purch_fact.clients AS clients
                         WHERE clients.name = %s
                         """)
         commands_destcountryid = ("""
@@ -2497,6 +2546,7 @@ class Ui_InvoiceNew_Window(object):
                 conn.close()
 
         self.loadinvoicetable()
+        self.loadrecordstable()
 
 
 # Function to modify invoice data
@@ -2548,8 +2598,8 @@ class Ui_InvoiceNew_Window(object):
             con5_dollar = self.Con5Dollar_Invoice.text().replace('.',',') if self.Con5Dollar_Invoice.text() != '' else None
             data_adic3 = self.AditData3_Invoice.text()
             data_adic4 = self.AditData4_Invoice.text()
-            tax_base_amount = self.TaxBase_Invoice.text().replace('.',',') if self.TaxBase_Invoice.text() != '' else None
-            iva = self.IVACL_Invoice.text() if self.IVACL_Invoice.text() != '' else None
+            tax_base_amount = self.TaxBase_Invoice.text().replace('.',',') if self.TaxBase_Invoice.text() != '' else 0
+            iva = self.IVACL_Invoice.text() if self.IVACL_Invoice.text() != '' else 0
             cl_delivnote = self.ClAlb_Invoice.text()
             date_delivnote = self.DateAlb_Invoice.text() if self.DateAlb_Invoice.text() != '' else None
             atte_delivnote = self.AtteAlb_Invoice.text()
@@ -2564,7 +2614,7 @@ class Ui_InvoiceNew_Window(object):
 
             commands_clientsid = ("""
                         SELECT clients.id
-                        FROM purch_fact.clients_test AS clients
+                        FROM purch_fact.clients AS clients
                         WHERE clients.name = %s
                         """)
             commands_destcountryid = ("""
@@ -3282,7 +3332,7 @@ class Ui_InvoiceNew_Window(object):
                         clients."name", invoice."our_ref", invoice."their_ref", invoice."obs_delivnote", TO_CHAR(invoice."date_delivnote",'DD-MM-YYYY'),
                         invoice."application", dest_country."name", TO_CHAR(invoice."pay_date",'DD-MM-YYYY'), invoice."client_group"
                         FROM purch_fact.invoice_header AS invoice
-                        JOIN purch_fact.clients_test AS clients ON invoice."id_client" = clients."id"
+                        JOIN purch_fact.clients AS clients ON invoice."id_client" = clients."id"
                         JOIN purch_fact.destination_country AS dest_country ON invoice."id_dest_country" = dest_country."id"
                         ORDER BY invoice."num_invoice"
                         """)
@@ -3350,7 +3400,7 @@ class Ui_InvoiceNew_Window(object):
                         clients."name", invoice."our_ref", invoice."their_ref", invoice."obs_delivnote", TO_CHAR(invoice."date_delivnote",'DD-MM-YYYY'),
                         invoice."application", dest_country."name", TO_CHAR(invoice."pay_date",'DD-MM-YYYY'), invoice."client_group"
                         FROM purch_fact.invoice_header AS invoice
-                        JOIN purch_fact.clients_test AS clients ON invoice."id_client" = clients."id"
+                        JOIN purch_fact.clients AS clients ON invoice."id_client" = clients."id"
                         JOIN purch_fact.destination_country AS dest_country ON invoice."id_dest_country" = dest_country."id"
                         WHERE invoice."num_invoice" LIKE ('%%'||%s||'%%')
                         ORDER BY invoice."id_invoice"
@@ -3504,7 +3554,7 @@ class Ui_InvoiceNew_Window(object):
                         """)
         commands_query_clients = ("""
                         SELECT clients.name
-                        FROM purch_fact.clients_test AS clients
+                        FROM purch_fact.clients AS clients
                         WHERE clients.id = %s
                         """)
         commands_query_destcountry = ("""
@@ -3898,7 +3948,7 @@ class Ui_InvoiceNew_Window(object):
 
         commands_clientsdata = ("""
                         SELECT clients.inter_agent, clients.group_client, iva.iva_value, banks.iban, banks.bic
-                        FROM purch_fact.clients_test AS clients
+                        FROM purch_fact.clients AS clients
                         JOIN purch_fact.iva ON (clients.iva_id = iva.id)
                         JOIN purch_fact.banks ON (clients.bank_id = banks.id)
                         WHERE clients.name = %s
@@ -4088,6 +4138,74 @@ class Ui_InvoiceNew_Window(object):
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                 dlg.exec()
                 del dlg,new_icon
+
+
+# Function to import data into and existing table from and Excel where first row is column name
+    def import_tags(self):
+        id_invoice = self.label_IDInvoice.text()
+        table_name='purch_fact.invoice_detail'
+
+        if id_invoice == "":
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Selecciona una factura para importar")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
+
+        else:
+            fname = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")],
+                                title="Seleccionar archivo Excel")
+            if fname:
+                params = config()
+                conn = psycopg2.connect(**params)
+                cursor = conn.cursor()
+
+            #Importing excel file into dataframe
+                df_table = pd.read_excel(fname, na_values=['N/A'], keep_default_na=False)
+                df_table.insert(0, 'inv_head_id', id_invoice)
+                df_table = df_table.astype(str)
+                df_table.replace('nan', 'N/A', inplace=True)
+
+                try:
+            # Loop through each row of the DataFrame and insert the data into the table
+                    for index, row in df_table.iterrows():
+                        # Create a list of pairs (column_name, column_value) for each column with value
+                            columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
+
+                        # Creating string for columns names
+                            columns = ', '.join([column for column, _ in columns_values])
+
+                        # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
+                            values = ', '.join(['NULL' if value == '' and column in ['price','price_usd'] else "'{}'".format(value.replace('\'', '\'\'')) for column, value in columns_values])
+
+                        # Creating insertion query and executing it
+                            sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+                            cursor.execute(sql_insertion)
+
+                    cursor.close()
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Datos importados con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                    self.loadrecordstable()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
+                finally:
+                    if conn is not None:
+                        conn.close()
 
 
 if __name__ == "__main__":

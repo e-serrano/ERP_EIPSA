@@ -782,7 +782,7 @@ class Ui_Supplies_Warehouse_Window(object):
 #         #SQL Query for checking if document number exists in database
 #             commands_checksupply = ("""
 #                         SELECT * 
-#                         FROM purch_fact.supplies_test
+#                         FROM purch_fact.supplies
 #                         WHERE "reference" = %s
 #                         """)
 #             conn = None
@@ -830,7 +830,7 @@ class Ui_Supplies_Warehouse_Window(object):
 
 #             else:
 #                 commands_newsupply = ("""
-#                             INSERT INTO purch_fact.supplies_test (
+#                             INSERT INTO purch_fact.supplies (
 #                             reference,description,dest_id,class_id,
 #                             m_unit_id,unit_value,notes,location,physical_stock,available_stock,pending_stock
 #                             )
@@ -921,7 +921,7 @@ class Ui_Supplies_Warehouse_Window(object):
 
 #         else:
 #             commands_modifysupply = ("""
-#                             UPDATE purch_fact.supplies_test
+#                             UPDATE purch_fact.supplies
 #                             SET "reference" = %s, "description" = %s, "dest_id" = %s, "class_id" = %s,
 #                             "m_unit_id" = %s, "unit_value" = %s, "notes" = %s, "location" = %s
 #                             WHERE "id" = %s
@@ -989,20 +989,20 @@ class Ui_Supplies_Warehouse_Window(object):
 # Function to load data of supplies in table
     def loadtablesupplies(self):
         commands_querysupplies = ("""
-                        SELECT purch_fact.supplies_test.id,
-                        purch_fact.supplies_test.reference,purch_fact.supplies_test.description,
+                        SELECT purch_fact.supplies.id,
+                        purch_fact.supplies.reference,purch_fact.supplies.description,
                         purch_fact.measure_units."measure_unit",
-                        purch_fact.supplies_test.unit_value,
-                        purch_fact.supplies_test.physical_stock,purch_fact.supplies_test.available_stock,
-                        purch_fact.supplies_test.pending_stock,purch_fact.supplies_test.location,
+                        purch_fact.supplies.unit_value,
+                        purch_fact.supplies.physical_stock,purch_fact.supplies.available_stock,
+                        purch_fact.supplies.pending_stock,purch_fact.supplies.location,
                         purch_fact.destination_supply."destination",
                         purch_fact.class_supply."class",
-                        purch_fact.supplies_test.notes
-                        FROM purch_fact.supplies_test
-                        LEFT JOIN purch_fact.measure_units ON (purch_fact.measure_units."id" = purch_fact.supplies_test."m_unit_id")
-                        LEFT JOIN purch_fact.destination_supply ON (purch_fact.destination_supply."id" = purch_fact.supplies_test."dest_id")
-                        LEFT JOIN purch_fact.class_supply ON (purch_fact.class_supply."id" = purch_fact.supplies_test."class_id")
-                        ORDER BY purch_fact.supplies_test.id
+                        purch_fact.supplies.notes
+                        FROM purch_fact.supplies
+                        LEFT JOIN purch_fact.measure_units ON (purch_fact.measure_units."id" = purch_fact.supplies."m_unit_id")
+                        LEFT JOIN purch_fact.destination_supply ON (purch_fact.destination_supply."id" = purch_fact.supplies."dest_id")
+                        LEFT JOIN purch_fact.class_supply ON (purch_fact.class_supply."id" = purch_fact.supplies."class_id")
+                        ORDER BY purch_fact.supplies.id
                         """)
         conn = None
         try:
@@ -1058,17 +1058,17 @@ class Ui_Supplies_Warehouse_Window(object):
     def loadquotations(self):
         id_supply=self.label_ID.text()
         commands_queryquotations = ("""
-                        SELECT purch_fact.suppliers_test."name",
-                        TO_CHAR(purch_fact.quot_header_test."quot_date",'DD-MM-YYYY'),
-                        purch_fact.supplies_test."reference",purch_fact.supplies_test."description",
-                        purch_fact.quot_det_test."quantity",purch_fact.quot_det_test."value",
-                        purch_fact.quot_det_test."notes"
-                        FROM purch_fact.quot_det_test
-                        LEFT JOIN purch_fact.supplies_test ON (purch_fact.supplies_test."id" = purch_fact.quot_det_test."supply_id")
-                        LEFT JOIN purch_fact.quot_header_test ON (purch_fact.quot_header_test."id" = purch_fact.quot_det_test."quot_head_id")
-                        LEFT JOIN purch_fact.suppliers_test ON (purch_fact.suppliers_test."id" = purch_fact.quot_header_test."supplier_id")
-                        WHERE purch_fact.quot_det_test.supply_id = %s
-                        ORDER BY purch_fact.quot_det_test.id
+                        SELECT purch_fact.suppliers."name",
+                        TO_CHAR(purch_fact.quotation_header."quot_date",'DD-MM-YYYY'),
+                        purch_fact.supplies."reference",purch_fact.supplies."description",
+                        purch_fact.quotation_details."quantity",purch_fact.quotation_details."value",
+                        purch_fact.quotation_details."notes"
+                        FROM purch_fact.quotation_details
+                        LEFT JOIN purch_fact.supplies ON (purch_fact.supplies."id" = purch_fact.quotation_details."supply_id")
+                        LEFT JOIN purch_fact.quotation_header ON (purch_fact.quotation_header."id" = purch_fact.quotation_details."quot_header_id")
+                        LEFT JOIN purch_fact.suppliers ON (purch_fact.suppliers."id" = purch_fact.quotation_header."supplier_id")
+                        WHERE purch_fact.quotation_details.supply_id = %s
+                        ORDER BY purch_fact.quotation_details.id
                         """)
         conn = None
         try:

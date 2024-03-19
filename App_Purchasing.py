@@ -8,7 +8,14 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QMenu
+from PyQt6.QtCore import QUrl
+from datetime import *
 import os
+from config import config
+import psycopg2
+import pandas as pd
+from PDF_Viewer import PDF_Viewer
+from PDF_Styles import welding_homologation
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -23,6 +30,7 @@ class Ui_App_Purchasing(object):
     def __init__(self, name, username):
         self.name=name
         self.username=username
+        self.pdf_viewer = PDF_Viewer()
 
 
     def setupUi(self, App_Purchasing):
@@ -58,6 +66,42 @@ class Ui_App_Purchasing(object):
         self.Header.addWidget(self.LogoIcon)
         spacerItem = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem)
+        self.Button_Welding = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Welding.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_Welding.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_Welding.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Welding.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
+        self.Button_Welding.setText("")
+        icon12 = QtGui.QIcon()
+        icon12.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Welding.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Welding.setIcon(icon12)
+        self.Button_Welding.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_Welding.setObjectName("Button_Welding")
+        self.Button_Welding.setToolTip("Homologación Soldadura")
+        self.Header.addWidget(self.Button_Welding)
+        spacerItem11 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem11)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -316,6 +360,7 @@ class Ui_App_Purchasing(object):
         self.Button_QueryOrder.clicked.connect(self.query_order)
         self.Button_QueryTag.clicked.connect(self.query_tag)
         self.Button_Profile.clicked.connect(self.showMenu)
+        self.Button_Welding.clicked.connect(self.welding_data)
 
 
     def retranslateUi(self, App_Purchasing):
@@ -379,3 +424,128 @@ class Ui_App_Purchasing(object):
         self.ui=Ui_EditPasswordWindow(self.username)
         self.ui.setupUi(self.edit_password_window)
         self.edit_password_window.show()
+
+
+    def welding_data(self):
+        commands_welding = ("""
+                        SELECT personal."name", TO_CHAR(Max(imp_ot."date_ot"), 'dd/mm/yyyy') as max_date, operations."name_eipsa",
+                        TO_CHAR(Max(imp_ot."date_ot") + INTERVAL '180 days', 'dd/mm/yyyy') AS hom_date,
+                        EXTRACT(DAY FROM ((Max(imp_ot."date_ot") + INTERVAL '180 days') - CURRENT_DATE)) as remaining_days,
+                        CASE WHEN ((Max(imp_ot."date_ot") + INTERVAL '180 days') - CURRENT_DATE) > INTERVAL '45 days' THEN '' ELSE 'Preveer Homolog.' END AS prev_hom
+                        FROM fabrication.personal AS personal
+                        RIGHT JOIN fabrication.imp_ot AS imp_ot ON personal."code" = imp_ot."personal_id"
+                        LEFT JOIN fabrication.operations AS operations ON imp_ot."operations_id" = operations."id"
+                        GROUP BY personal."name", operations."name_eipsa", personal."code", operations."name"
+                        HAVING operations."name_eipsa" <> 'Soldadura' AND personal."code" = 13 AND operations."name" = 'Soldado'
+                        ORDER BY personal."name", operations."name_eipsa", personal."code"
+                        """)
+        conn = None
+        try:
+            # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands_welding)
+            results = cur.fetchall()
+
+            df = pd.DataFrame(results, columns=["name", "max_date", "operation", "hom_date", "remaining_days", "prev_hom"])
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+
+        pdf = welding_homologation()
+        pdf.set_auto_page_break(auto=True, margin=1)
+        pdf.add_page()
+        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+        pdf.set_font('Helvetica', 'B', 10)
+        pdf.set_xy(16, 0.5)
+        pdf.cell(3, 0.5, self.format_date_spanish(date.today()))
+        pdf.ln(1)
+
+        pdf.set_font('Helvetica', 'B', 20)
+        pdf.cell(3, 0.5, 'Informe de estado de homologación de soldadores')
+        pdf.set_font('Helvetica', 'B', 8)
+
+        pdf.ln(2)
+
+        pdf.set_fill_color(121, 167, 227)
+        pdf.cell(3, 0.53, "Nombre", align='C', fill=True)
+        pdf.cell(0.2, 0.53, "")
+        pdf.cell(5, 0.53, "Proceso", align='C', fill=True)
+        pdf.cell(0.2, 0.53, "")
+        pdf.cell(3, 0.53, "Última Fecha", align='C', fill=True)
+        pdf.cell(0.2, 0.53, "")
+        pdf.cell(3, 0.53, "Fecha Homolog.", align='C', fill=True)
+        pdf.cell(0.2, 0.53, "")
+        pdf.cell(1, 0.53, "Días", align='C', fill=True)
+
+        pdf.ln(1)
+
+        for row in range(df.shape[0]):
+            pdf.cell(3, 0.53, df.iloc[row, 0], align='C')
+            pdf.cell(0.2, 0.53, "")
+            pdf.cell(5, 0.53, df.iloc[row, 2], align='C')
+            pdf.cell(0.2, 0.53, "")
+            pdf.cell(3, 0.53, df.iloc[row, 1], align='C')
+            pdf.cell(0.2, 0.53, "")
+            pdf.cell(3, 0.53, df.iloc[row, 3], align='C')
+            pdf.cell(0.2, 0.53, "")
+            pdf.cell(1, 0.53, str(int(df.iloc[row, 4])), align='C')
+            pdf.cell(0.2, 0.53, "")
+            pdf.cell(3, 0.53, df.iloc[row, 5], align='C')
+
+            pdf.ln(1)
+
+        pdf_buffer = pdf.output()
+
+        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
+
+        with open(temp_file_path, "wb") as temp_file:
+            temp_file.write(pdf_buffer)
+
+        pdf.close()
+
+        self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Abre el PDF en el visor
+        self.pdf_viewer.showMaximized()
+
+
+# Function to format date to long in spanish
+    def format_date_spanish(self, date_toformat):
+        months = ("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre")
+        day = date_toformat.day
+        month = months[date_toformat.month - 1]
+        year = date_toformat.year
+        messsage = "{} de {} de {}".format(day, month, year)
+
+        return messsage
+
+
+
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     App_Invoicing = QtWidgets.QMainWindow()
+#     ui = Ui_App_Purchasing('Javier Zofio', 'd.marquez')
+#     ui.setupUi(App_Invoicing)
+#     App_Invoicing.showMaximized()
+#     sys.exit(app.exec())

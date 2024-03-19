@@ -11,6 +11,8 @@ Resources/
 
 .env
 
+MoneyChange.py
+
 PDF_Styles.py
 
 Email_Styles.py
@@ -43,7 +45,6 @@ zz test9.py
 
 zz test10.py
 
-MoneyChange.py
 
-frozencolumn.py
+
 

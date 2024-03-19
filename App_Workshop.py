@@ -13,7 +13,9 @@ import os
 import configparser
 from config import config
 import psycopg2
-from Database_Connection import createConnection
+from Database_Connection import createConnection, createConnection_name
+import sys
+import uuid
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -133,6 +135,120 @@ class Ui_App_Workshop(object):
         self.Button_Index_Drawings.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_Index_Drawings.setObjectName("Button_Index_Drawings")
         self.Header.addWidget(self.Button_Index_Drawings)
+        spacerItem7 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem7)
+        self.Button_Palette_M = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Palette_M.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Palette_M.setMaximumSize(QtCore.QSize(50, 16777215))
+        self.Button_Palette_M.setToolTip('Colores Materiales')
+        self.Button_Palette_M.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Palette_M.setStyleSheet(
+            "QPushButton{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(3, 174, 236);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:hover{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:pressed{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(200, 200, 200);\n"
+            "    border-radius: 10px;\n"
+            "}"
+        )
+        self.Button_Palette_M.setText("")
+        icon7 = QtGui.QIcon()
+        icon7.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Colour_Palette_M.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Palette_M.setIcon(icon7)
+        self.Button_Palette_M.setIconSize(QtCore.QSize(40, 40))
+        self.Button_Palette_M.setObjectName("Button_Palette_M")
+        self.Header.addWidget(self.Button_Palette_M)
+        spacerItem8 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem8)
+        self.Button_Palette_T = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Palette_T.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Palette_T.setMaximumSize(QtCore.QSize(50, 16777215))
+        self.Button_Palette_T.setToolTip('Colores Tornillería')
+        self.Button_Palette_T.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Palette_T.setStyleSheet(
+            "QPushButton{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(3, 174, 236);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:hover{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:pressed{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(200, 200, 200);\n"
+            "    border-radius: 10px;\n"
+            "}"
+        )
+        self.Button_Palette_T.setText("")
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Colour_Palette_T.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Palette_T.setIcon(icon8)
+        self.Button_Palette_T.setIconSize(QtCore.QSize(40, 40))
+        self.Button_Palette_T.setObjectName("Button_Palette_T")
+        self.Header.addWidget(self.Button_Palette_T)
+        spacerItem9 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem9)
+        self.Button_Verification = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Verification.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Verification.setMaximumSize(QtCore.QSize(50, 16777215))
+        self.Button_Verification.setToolTip('Verificación')
+        self.Button_Verification.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Verification.setStyleSheet(
+            "QPushButton{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(3, 174, 236);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:hover{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:pressed{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(200, 200, 200);\n"
+            "    border-radius: 10px;\n"
+            "}"
+        )
+        self.Button_Verification.setText("")
+        icon9 = QtGui.QIcon()
+        icon9.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Verification.setIcon(icon9)
+        self.Button_Verification.setIconSize(QtCore.QSize(40, 40))
+        self.Button_Verification.setObjectName("Button_Verification")
+        self.Header.addWidget(self.Button_Verification)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -425,8 +541,12 @@ class Ui_App_Workshop(object):
         self.Button_Times.clicked.connect(self.times)
         self.Button_Notification.clicked.connect(self.notifications)
         self.Button_Profile.clicked.connect(self.showMenu)
-        self.Button_M_Drawings.clicked.connect(self.insert_m_drawings)
+        self.Button_M_Drawings.clicked.connect(self.insert_drawings)
         self.Button_Index_Drawings.clicked.connect(self.index_drawing)
+
+        self.Button_Palette_M.clicked.connect(self.colour_palette_M)
+        self.Button_Palette_T.clicked.connect(self.colour_palette_T)
+        self.Button_Verification.clicked.connect(self.verification)
 
         self.load_notifications()
 
@@ -442,13 +562,15 @@ class Ui_App_Workshop(object):
         self.Button_Times.setText(_translate("App_Workshop", "    Tiempos"))
         self.table.setSortingEnabled(True)
 
-
+# Function to open window to check notifications
     def notifications(self):
         from NotificationsHistory_Window import Ui_HistoryNotifications_Window
         self.notification_window=Ui_HistoryNotifications_Window(self.username)
         self.notification_window.show()
         self.notification_window.Button_Cancel.clicked.connect(self.load_notifications)
 
+
+# Function to open window to check tags
     def query_tag(self):
         from TAGEdit_Workshop_Window import Ui_EditTags_Workshop_Window
         config_obj = configparser.ConfigParser()
@@ -466,6 +588,7 @@ class Ui_App_Workshop(object):
         self.edit_tags_app.show()
 
 
+# Function to open window with manufacture table
     def manufacture(self):
         from Workshop_Window import Ui_Workshop_Window
         config_obj = configparser.ConfigParser()
@@ -475,13 +598,17 @@ class Ui_App_Workshop(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_manufacture = createConnection(user_database, password_database)
+        # Genera un nombre único para la conexión basado en el nombre de usuario y el contador
+        db_manufacture = createConnection_name(user_database, password_database, 'workshop_connection')
+
         if not db_manufacture:
             sys.exit()
 
         self.workshop_window = Ui_Workshop_Window(db_manufacture)
-        self.workshop_window.show()
+        self.workshop_window.showMaximized()
 
+
+# Function to open window with assembly table
     def assembly(self):
         from Assembly_Window import Ui_Assembly_Window
         config_obj = configparser.ConfigParser()
@@ -491,15 +618,15 @@ class Ui_App_Workshop(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_assembly = createConnection(user_database, password_database)
+        db_assembly = createConnection_name(user_database, password_database, 'assembly_connection')
         if not db_assembly:
             sys.exit()
 
         self.assembly_window = Ui_Assembly_Window(db_assembly)
-        self.assembly_window.show()
+        self.assembly_window.showMaximized()
 
 
-
+# Function to open window with dispatch table
     def dispatch(self):
         from Dispatch_Window import Ui_Dispatch_Window
         config_obj = configparser.ConfigParser()
@@ -517,10 +644,12 @@ class Ui_App_Workshop(object):
         self.dispatch_window.show()
 
 
+# Function to open window with manufacture times table
     def times(self):
         print('ordenes de compra')
 
 
+# Function to show menu when Profile button is clicked 
     def showMenu(self):
         menu = QMenu(self.centralwidget)
         menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; font: 10px}"
@@ -532,11 +661,13 @@ class Ui_App_Workshop(object):
         menu.exec(button.mapToGlobal(QtCore.QPoint(-75, 50)))
 
 
+# Function to open corresponding window when Edit Password option is clicked
     def editpassword(self):
         self.edit_password_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditPasswordWindow(self.username)
         self.ui.setupUi(self.edit_password_window)
         self.edit_password_window.show()
+
 
 # Function to load number of notifications
     def load_notifications(self):
@@ -594,15 +725,14 @@ class Ui_App_Workshop(object):
         self.Button_Notification.setIcon(icon13)
 
 
-    def insert_m_drawings(self):
-        from Workshop_M_DrawingInsert_Window import Ui_Workshop_M_DrawingInsert_Window
-        self.m_drawing_insert_window=QtWidgets.QMainWindow()
-        self.ui=Ui_Workshop_M_DrawingInsert_Window(self.username)
-        self.ui.setupUi(self.m_drawing_insert_window)
+# Function to open window to insert drawing
+    def insert_drawings(self):
+        from Workshop_DrawingInsert_Window import Ui_Workshop_DrawingInsert_Window
+        self.m_drawing_insert_window=Ui_Workshop_DrawingInsert_Window(self.username)
         self.m_drawing_insert_window.show()
 
 
-
+# Function to open window to check order drawings
     def index_drawing(self):
         from WorkshopDrawingIndex_Window import Ui_WorkshopDrawingIndex_Window
         config_obj = configparser.ConfigParser()
@@ -612,19 +742,49 @@ class Ui_App_Workshop(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_index = createConnection(user_database, password_database)
+        db_index = createConnection_name(user_database, password_database, 'drawing_index')
         if not db_index:
             sys.exit()
 
-        self.index_drawing_window = Ui_WorkshopDrawingIndex_Window(db_index)
+        self.index_drawing_window = Ui_WorkshopDrawingIndex_Window(db_index, self.username)
         self.index_drawing_window.showMaximized()
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    App_Workshop = QtWidgets.QMainWindow()
-    ui = Ui_App_Workshop()
-    ui.setupUi(App_Workshop)
-    App_Workshop.show()
-    sys.exit(app.exec())
+# Function to open colour palette table
+    def colour_palette_M(self):
+        from ColourPaletteM_Window import Ui_PaletteColourM_Window
+
+        self.palettecolourm_window = QtWidgets.QMainWindow()
+        self.ui = Ui_PaletteColourM_Window()
+        self.ui.setupUi(self.palettecolourm_window)
+        self.palettecolourm_window.show()
+
+
+# Function to open bolts colour palette table
+    def colour_palette_T(self):
+        from ColourPaletteT_Window import Ui_PaletteColourT_Window
+
+        self.palettecolourt_window = QtWidgets.QMainWindow()
+        self.ui = Ui_PaletteColourT_Window()
+        self.ui.setupUi(self.palettecolourt_window)
+        self.palettecolourt_window.show()
+
+
+# Function to open corresponding window when Verification button is clicked
+    def verification(self):
+        from VerificationQuery_Window import Ui_VerificationQuery_Window
+        self.Verificationquery_window=QtWidgets.QMainWindow()
+        self.ui=Ui_VerificationQuery_Window(self.username)
+        self.ui.setupUi(self.Verificationquery_window)
+        self.Verificationquery_window.showMaximized()
+
+
+
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     App_Workshop = QtWidgets.QMainWindow()
+#     ui = Ui_App_Workshop()
+#     ui.setupUi(App_Workshop)
+#     App_Workshop.show()
+#     sys.exit(app.exec())

@@ -663,8 +663,7 @@ class Ui_Clients_Window(object):
         self.label = QtWidgets.QLabel(parent=self.frame)
         self.label.setMinimumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
         self.label.setMaximumSize(QtCore.QSize(int(100//self.scale), int(25//self.scale)))
-        self.label.setText("aaa")
-        # self.label.setStyleSheet("color: rgb(255, 255, 255);")
+        self.label.setStyleSheet("color: rgb(255, 255, 255);")
         self.label.setObjectName("label")
         self.gridLayout_2.addWidget(self.label, 6, 4, 1, 1)
         self.Button_AddClient = QtWidgets.QPushButton(parent=self.frame)
@@ -1024,7 +1023,7 @@ class Ui_Clients_Window(object):
         #SQL Query for checking if document number exists in database
             commands_checkclient = ("""
                         SELECT * 
-                        FROM purch_fact.clients_test
+                        FROM purch_fact.clients
                         WHERE "name" = %s
                         """)
             conn = None
@@ -1072,7 +1071,7 @@ class Ui_Clients_Window(object):
 
             else:
                 commands_newclient = ("""
-                            INSERT INTO purch_fact.clients_test (
+                            INSERT INTO purch_fact.clients (
                             code,name,cif,address,phone_number,fax,city,province,country,
                             zip_code,pay_way_id,vto_prog1,vto_prog2,iva_id,notes,bank_id,group_client
                             )
@@ -1170,7 +1169,7 @@ class Ui_Clients_Window(object):
 
         else:
             commands_modifyclient = ("""
-                            UPDATE purch_fact.clients_test
+                            UPDATE purch_fact.clients
                             SET "code" = %s, "name" = %s, "cif" = %s, "address" = %s, "phone_number" = %s, "city" = %s, "province" = %s,
                             "country" = %s, "zip_code" = %s, "pay_way_id" = %s, "vto_prog1" = %s, "vto_prog2" = %s, "iva_id" = %s, "notes" = %s, "bank_id" = %s, "group_client" = %s
                             WHERE "id" = %s
@@ -1250,7 +1249,7 @@ class Ui_Clients_Window(object):
 
         else:
             commands_deleteclient = ("""
-                            DELETE FROM purch_fact.clients_test
+                            DELETE FROM purch_fact.clients
                             WHERE "id" = %s
                             """)
             conn = None
@@ -1326,22 +1325,22 @@ class Ui_Clients_Window(object):
 # Function to load data of clients in table
     def loadtableclients(self):
         commands_queryclients = ("""
-                        SELECT purch_fact.clients_test."id",purch_fact.clients_test."code",purch_fact.clients_test."name",
-                        purch_fact.clients_test."cif",purch_fact.clients_test."address",
-                        purch_fact.clients_test."phone_number",purch_fact.clients_test."fax",
-                        purch_fact.clients_test."city",purch_fact.clients_test."province",
-                        purch_fact.clients_test."country",purch_fact.clients_test."zip_code",
+                        SELECT purch_fact.clients."id",purch_fact.clients."code",purch_fact.clients."name",
+                        purch_fact.clients."cif",purch_fact.clients."address",
+                        purch_fact.clients."phone_number",purch_fact.clients."fax",
+                        purch_fact.clients."city",purch_fact.clients."province",
+                        purch_fact.clients."country",purch_fact.clients."zip_code",
                         purch_fact.pay_way."pay_way_type",
-                        purch_fact.clients_test."vto_prog1",purch_fact.clients_test."vto_prog2",
+                        purch_fact.clients."vto_prog1",purch_fact.clients."vto_prog2",
                         purch_fact.iva."iva_type",
-                        purch_fact.clients_test."notes",
+                        purch_fact.clients."notes",
                         purch_fact.banks."name",
-                        purch_fact.clients_test."group_client"
-                        FROM purch_fact.clients_test
-                        LEFT JOIN purch_fact.pay_way ON (purch_fact.pay_way."id" = purch_fact.clients_test."pay_way_id")
-                        LEFT JOIN purch_fact.iva ON (purch_fact.iva."id" = purch_fact.clients_test."iva_id")
-                        LEFT JOIN purch_fact.banks ON (purch_fact.banks."id" = purch_fact.clients_test."bank_id")
-                        ORDER BY purch_fact.clients_test.id
+                        purch_fact.clients."group_client"
+                        FROM purch_fact.clients
+                        LEFT JOIN purch_fact.pay_way ON (purch_fact.pay_way."id" = purch_fact.clients."pay_way_id")
+                        LEFT JOIN purch_fact.iva ON (purch_fact.iva."id" = purch_fact.clients."iva_id")
+                        LEFT JOIN purch_fact.banks ON (purch_fact.banks."id" = purch_fact.clients."bank_id")
+                        ORDER BY purch_fact.clients.id
                         """)
         conn = None
         try:

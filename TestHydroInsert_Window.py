@@ -22,6 +22,49 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
+class ColorDelegate(QtWidgets.QStyledItemDelegate):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.colors_dict = self.get_colors_from_database()
+
+    def get_colors_from_database(self):
+        colors_dict = {}
+
+        conn = None
+        try:
+            # read the connection parameters
+            params = config()
+            # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            # execution of commands
+            commands_colors = "SELECT id, r_channel, g_channel, b_channel FROM verification.states_verification"
+            cur.execute(commands_colors)
+            results = cur.fetchall()
+
+            for result in results:
+                id_color, red, green, blue = result
+                colors_dict[id_color] = QtGui.QColor(red, green, blue)
+
+            # close communication with the PostgreSQL database server
+            cur.close()
+            # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            # Handle the error appropriately
+            pass
+        finally:
+            if conn is not None:
+                conn.close()
+
+        return colors_dict
+
+    def initStyleOption(self, option, index):
+        super().initStyleOption(option, index)
+        color = self.colors_dict.get(index.row()+1, QtGui.QColor("white"))
+        option.palette.setColor(QtGui.QPalette.ColorGroup.All, QtGui.QPalette.ColorRole.Text, color)
+
+
 class CustomTableWidget(QtWidgets.QTableWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -673,6 +716,8 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.tableTags.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
         self.select_all.clicked.connect(self.toggle_checkboxes)
         self.tableTags.itemClicked.connect(self.loadform)
+        self.state_test1.currentTextChanged.connect(self.change_text_color_1)
+        self.state_test2.currentTextChanged.connect(self.change_text_color_2)
 
         self.load_values()
 
@@ -699,7 +744,7 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
     def querytags(self):
         self.tableTags.setRowCount(0)
         self.num_order_value = self.num_order.text().upper()
-        if self.num_order_value not in ['ALMACÉN', 'ALMACEN', 'INTERNO', 'PROTOTIPOS'] and self.num_order_value[:2] != 'PA':
+        if self.num_order_value[:5] == 'PA-24' or self.num_order_value[:4] == 'P-24':
             query_material = ("""
                             SELECT orders."num_order",orders."num_offer",product_type."variable"
                             FROM offers
@@ -719,63 +764,6 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
             # execution of commands
                 cur.execute(query_material,(self.num_order_value,))
                 results=cur.fetchall()
-                material = results[0][2]
-
-                if material == 'Caudal':
-                    self.table_name = "tags_data.tags_flow"
-                    self.column_id = "id_tag_flow"
-                    commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, of_drawing, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_state, ph1_obs, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_state, ph2_obs FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
-                    self.num_columns = 16
-                    column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'OF Equipo', 'Fecha P1', 'Manómetro P1', 'Presión P1', 'Estado P1', 'Observaciones P1', 'Fecha P2', 'Manómetro P2', 'Presión P2', 'Estado P2', 'Observaciones P2','']
-                elif material == 'Temperatura':
-                    self.table_name = "tags_data.tags_temp"
-                    self.column_id = "id_tag_temp"
-                    commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, of_sensor_drawing, of_drawing, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_state, ph1_obs, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_state, ph2_obs FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
-                    self.num_columns = 17
-                    column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'OF Sensor', 'OF Vaina', 'Fecha P1', 'Manómetro P1', 'Presión P1', 'Estado P1', 'Observaciones P1', 'Fecha P2', 'Manómetro P2', 'Presión P2', 'Estado P2', 'Observaciones P2','']
-                elif material == 'Nivel':
-                    self.table_name = "tags_data.tags_level"
-                    self.column_id = "id_tag_level"
-                    commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, of_drawing, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_state, ph1_obs, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_state, ph2_obs FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
-                    self.num_columns = 16
-                    column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'OF Equipo', 'Fecha P1', 'Manómetro P1', 'Presión P1', 'Estado P1', 'Observaciones P1', 'Fecha P2', 'Manómetro P2', 'Presión P2', 'Estado P2', 'Observaciones P2','']
-
-                cur.execute(commands_tags)
-                results=cur.fetchall()
-
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
-                self.tableTags.setRowCount(len(results))
-                self.tableTags.setColumnCount(self.num_columns)
-                tablerow=0
-
-            # fill the Qt Table with the query results
-                for row in results:
-                    for column in range(self.num_columns):
-                        if column == (self.num_columns - 1):
-                            checkbox = QtWidgets.QCheckBox(self)
-                            checkbox.setChecked(False)
-                            self.tableTags.setCellWidget(tablerow, column, checkbox)
-                        else:
-                            value = row[column]
-                            if value is None:
-                                value = ''
-                            it = QtWidgets.QTableWidgetItem(str(value))
-                            it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                            self.tableTags.setItem(tablerow, column, it)
-
-                    tablerow+=1
-
-                self.tableTags.verticalHeader().hide()
-                self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
-                self.tableTags.setSortingEnabled(False)
-                self.tableTags.setHorizontalHeaderLabels(column_headers)
-                self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                self.tableTags.hideColumn(0)
-
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
@@ -790,6 +778,95 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
             finally:
                 if conn is not None:
                     conn.close()
+
+            if len(results) != 0:
+                if self.num_order_value[:2] == 'PA':
+                    material = 'Otros'
+                else:
+                    material = results[0][2]
+
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                    if material == 'Caudal':
+                        self.table_name = "tags_data.tags_flow"
+                        self.column_id = "id_tag_flow"
+                        commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, of_drawing, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_state, ph1_obs, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_state, ph2_obs FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
+                        self.num_columns = 16
+                        column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'OF Equipo', 'Fecha P1', 'Manómetro P1', 'Presión P1', 'Estado P1', 'Observaciones P1', 'Fecha P2', 'Manómetro P2', 'Presión P2', 'Estado P2', 'Observaciones P2','']
+                    elif material == 'Temperatura':
+                        self.table_name = "tags_data.tags_temp"
+                        self.column_id = "id_tag_temp"
+                        commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, of_sensor_drawing, of_drawing, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_state, ph1_obs, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_state, ph2_obs FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
+                        self.num_columns = 17
+                        column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'OF Sensor', 'OF Vaina', 'Fecha P1', 'Manómetro P1', 'Presión P1', 'Estado P1', 'Observaciones P1', 'Fecha P2', 'Manómetro P2', 'Presión P2', 'Estado P2', 'Observaciones P2','']
+                    elif material == 'Nivel':
+                        self.table_name = "tags_data.tags_level"
+                        self.column_id = "id_tag_level"
+                        commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, of_drawing, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_state, ph1_obs, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_state, ph2_obs FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
+                        self.num_columns = 16
+                        column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'OF Equipo', 'Fecha P1', 'Manómetro P1', 'Presión P1', 'Estado P1', 'Observaciones P1', 'Fecha P2', 'Manómetro P2', 'Presión P2', 'Estado P2', 'Observaciones P2','']
+                    elif material == 'Otros':
+                        self.table_name = "tags_data.tags_others"
+                        self.column_id = "id_tag_others"
+                        commands_tags = f" SELECT {self.column_id}, tag, num_order, description, of_drawing, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_state, ph1_obs, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_state, ph2_obs FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
+                        self.num_columns = 16
+                        column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'OF Equipo', 'Fecha P1', 'Manómetro P1', 'Presión P1', 'Estado P1', 'Observaciones P1', 'Fecha P2', 'Manómetro P2', 'Presión P2', 'Estado P2', 'Observaciones P2','']
+
+                    cur.execute(commands_tags)
+                    results=cur.fetchall()
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    self.tableTags.setRowCount(len(results))
+                    self.tableTags.setColumnCount(self.num_columns)
+                    tablerow=0
+
+                # fill the Qt Table with the query results
+                    for row in results:
+                        for column in range(self.num_columns):
+                            if column == (self.num_columns - 1):
+                                checkbox = QtWidgets.QCheckBox(self)
+                                checkbox.setChecked(False)
+                                self.tableTags.setCellWidget(tablerow, column, checkbox)
+                            else:
+                                value = row[column]
+                                if value is None:
+                                    value = ''
+                                it = QtWidgets.QTableWidgetItem(str(value))
+                                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                                self.tableTags.setItem(tablerow, column, it)
+
+                        tablerow+=1
+
+                    self.tableTags.verticalHeader().hide()
+                    self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
+                    self.tableTags.setSortingEnabled(False)
+                    self.tableTags.setHorizontalHeaderLabels(column_headers)
+                    self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                    self.tableTags.hideColumn(0)
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
 
 
     def toggle_checkboxes(self, state):
@@ -840,7 +917,7 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
             del dlg, new_icon
 
         else:
-            if num_order not in ['ALMACÉN', 'ALMACEN', 'INTERNO', 'PROTOTIPOS'] and num_order[:2] != 'PA':
+            if num_order[:5] == 'PA-24' or num_order[:4] == 'P-24':
                 id_list =[]
                 for row in range(0, self.tableTags.rowCount() + 1):
                     item = self.tableTags.cellWidget(row, (self.num_columns - 1))
@@ -1132,6 +1209,9 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
 
         self.manometer_test1.addItems(list_manometers)
         self.manometer_test2.addItems([''] + list_manometers)
+
+        self.state_test1.setItemDelegate(ColorDelegate())
+        self.state_test2.setItemDelegate(ColorDelegate())
         self.state_test1.addItems(list_states)
         self.state_test2.addItems([''] + list_states)
 
@@ -1143,6 +1223,80 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         super().keyPressEvent(event)
 
 
+# Function to change combobox color when change value
+    def change_text_color_1(self, text):
+        colors_dict = {}
+        conn = None
+        try:
+            # read the connection parameters
+            params = config()
+            # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            # execution of commands
+            commands_colors = "SELECT state_verif, r_channel, g_channel, b_channel FROM verification.states_verification"
+            cur.execute(commands_colors)
+            results = cur.fetchall()
+
+            for result in results:
+                state, red, green, blue = result
+                colors_dict[state] = [red, green, blue]
+
+            # close communication with the PostgreSQL database server
+            cur.close()
+            # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            # Handle the error appropriately
+            pass
+        finally:
+            if conn is not None:
+                conn.close()
+
+        if text in colors_dict:
+            text_color = colors_dict[text]
+        else:
+            text_color = [255, 255, 255]
+
+        self.state_test1.setStyleSheet(f"color: rgb({text_color[0]}, {text_color[1]}, {text_color[2]})")
+
+
+# Function to change combobox color when change value
+    def change_text_color_2(self, text):
+        colors_dict = {}
+        conn = None
+        try:
+            # read the connection parameters
+            params = config()
+            # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            # execution of commands
+            commands_colors = "SELECT state_verif, r_channel, g_channel, b_channel FROM verification.states_verification"
+            cur.execute(commands_colors)
+            results = cur.fetchall()
+
+            for result in results:
+                state, red, green, blue = result
+                colors_dict[state] = [red, green, blue]
+
+            # close communication with the PostgreSQL database server
+            cur.close()
+            # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            # Handle the error appropriately
+            pass
+        finally:
+            if conn is not None:
+                conn.close()
+
+        if text in colors_dict:
+            text_color = colors_dict[text]
+        else:
+            text_color = [255, 255, 255]
+
+        self.state_test2.setStyleSheet(f"color: rgb({text_color[0]}, {text_color[1]}, {text_color[2]})")
 
 if __name__ == "__main__":
     import sys

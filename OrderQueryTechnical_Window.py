@@ -193,7 +193,17 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         # Iterate over all rows to hide them as necessary
         for row in range(self.rowCount()):
-            self.setRowHidden(row, row in self.general_rows_to_hide)
+            hidden = False
+
+            for col, filters in self.column_filters.items():
+                if filters:
+                    item = self.item(row, col)
+                    item_value = item.text() if item else ""
+                    if item_value not in filters:
+                        hidden = True
+                        break
+
+            self.setRowHidden(row, hidden)
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
@@ -444,9 +454,9 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addItem(spacerItem, 2, 0, 1, 1)
         self.tableQueryOrder = CustomTableWidget()
         self.tableQueryOrder.setObjectName("tableQueryOrder")
-        self.tableQueryOrder.setColumnCount(15)
+        self.tableQueryOrder.setColumnCount(23)
         self.tableQueryOrder.setRowCount(0)
-        for i in range(15):
+        for i in range(23):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -538,11 +548,27 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
         item = self.tableQueryOrder.horizontalHeaderItem(11)
         item.setText(_translate("QueryOrder_Window", "Importante Oferta"))
         item = self.tableQueryOrder.horizontalHeaderItem(12)
-        item.setText(_translate("QueryOrderTechnical_Window", "% Fabricación"))
+        item.setText(_translate("QueryOrderTechnical_Window", "F. Creación Líneas"))
         item = self.tableQueryOrder.horizontalHeaderItem(13)
-        item.setText(_translate("QueryOrderTechnical_Window", "% Montaje"))
+        item.setText(_translate("QueryOrderTechnical_Window", "F. Act. Líneas/Portal"))
         item = self.tableQueryOrder.horizontalHeaderItem(14)
+        item.setText(_translate("QueryOrderTechnical_Window", "Fecha Fabricación"))
+        item = self.tableQueryOrder.horizontalHeaderItem(15)
+        item.setText(_translate("QueryOrderTechnical_Window", "% Fabricación"))
+        item = self.tableQueryOrder.horizontalHeaderItem(16)
+        item.setText(_translate("QueryOrderTechnical_Window", "Obs. Fabricación"))
+        item = self.tableQueryOrder.horizontalHeaderItem(17)
+        item.setText(_translate("QueryOrderTechnical_Window", "Fecha Montaje"))
+        item = self.tableQueryOrder.horizontalHeaderItem(18)
+        item.setText(_translate("QueryOrderTechnical_Window", "% Montaje"))
+        item = self.tableQueryOrder.horizontalHeaderItem(19)
+        item.setText(_translate("QueryOrderTechnical_Window", "Obs. Montaje"))
+        item = self.tableQueryOrder.horizontalHeaderItem(20)
+        item.setText(_translate("QueryOrderTechnical_Window", "Fecha Envío"))
+        item = self.tableQueryOrder.horizontalHeaderItem(21)
         item.setText(_translate("QueryOrderTechnical_Window", "% Envío"))
+        item = self.tableQueryOrder.horizontalHeaderItem(22)
+        item.setText(_translate("QueryOrderTechnical_Window", "Obs. Envío"))
         self.label_Months.setText(_translate("QueryOrder_Window", "Meses / Año:"))
 
 
@@ -567,7 +593,10 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
         commands_queryorder = ("""
                     SELECT orders."num_order", orders."num_offer", users_data.initials."initials", TO_CHAR(orders."order_date", 'DD/MM/YYYY'), TO_CHAR(orders."expected_date", 'DD/MM/YYYY'),
                     orders."num_ref_order", offers."client", offers."final_client", product_type."variable", orders."items_number", orders."notes",
-                    offers."important", orders."porc_workshop", orders."porc_assembly", orders."porc_deliveries"
+                    offers."important", TO_CHAR(orders."lines_creation_date", 'DD/MM/YYYY'), TO_CHAR(orders."lines_activation_date", 'DD/MM/YYYY'),
+                    orders."recep_date_workshop", orders."porc_workshop", orders."obs_workshop",
+                    orders."recep_date_assembly", orders."porc_assembly", orders."obs_assembly",
+                    orders."last_date_deliveries", orders."porc_deliveries", orders."obs_deliveries"
                     FROM offers
                     INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                     INNER JOIN product_type ON (offers."material"=product_type."material")
@@ -590,7 +619,7 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(15):
+                for column in range(23):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -602,10 +631,11 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
 
             # self.tableQueryOrder.verticalHeader().hide()
             self.tableQueryOrder.setItemDelegate(AlignDelegate(self.tableQueryOrder))
-            self.tableQueryOrder.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-            self.tableQueryOrder.horizontalHeader().setSectionResizeMode(11,QtWidgets.QHeaderView.ResizeMode.Interactive)
-            self.tableQueryOrder.setColumnWidth(11, 150)
-            self.tableQueryOrder.horizontalHeader().setSectionResizeMode(14,QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableQueryOrder.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+            # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(9,QtWidgets.QHeaderView.ResizeMode.Interactive)
+            # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(10,QtWidgets.QHeaderView.ResizeMode.Interactive)
+            # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(17,QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableQueryOrder.horizontalHeader().setMinimumSectionSize(120)
 
         # close communication with the PostgreSQL database server
             cur.close()
@@ -646,9 +676,12 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
         else:
             self.tableQueryOrder.setRowCount(0)
             commands_queryorder = ("""
-                        SELECT orders."num_order", orders."num_offer", users_data.initials."initials", TO_CHAR(orders."order_date", 'DD/MM/YYYY'), TO_CHAR(orders."expected_date", 'DD/MM/YYYY'), orders."num_ref_order",
-                        offers."client", offers."final_client", product_type."variable", orders."items_number", orders."notes",offers."important", orders."porc_workshop",
-                        orders."porc_assembly", orders."porc_deliveries"
+                        SELECT orders."num_order", orders."num_offer", users_data.initials."initials", TO_CHAR(orders."order_date", 'DD/MM/YYYY'), TO_CHAR(orders."expected_date", 'DD/MM/YYYY'),
+                        orders."num_ref_order", offers."client", offers."final_client", product_type."variable", orders."items_number", orders."notes",
+                        offers."important", TO_CHAR(orders."lines_creation_date", 'DD/MM/YYYY'), TO_CHAR(orders."lines_activation_date", 'DD/MM/YYYY'),
+                        orders."recep_date_workshop", orders."porc_workshop", orders."obs_workshop",
+                        orders."recep_date_assembly", orders."porc_assembly", orders."obs_assembly",
+                        orders."last_date_deliveries", orders."porc_deliveries", orders."obs_deliveries"
                         FROM offers
                         INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                         INNER JOIN product_type ON (offers."material"=product_type."material")
@@ -657,9 +690,12 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
                         ORDER BY orders."num_order"
                         """)
             commands_queryorder_dates1 = ("""
-                        SELECT orders."num_order", orders."num_offer", users_data.initials."initials", TO_CHAR(orders."order_date", 'DD/MM/YYYY'), TO_CHAR(orders."expected_date", 'DD/MM/YYYY'), orders."num_ref_order",
-                        offers."client", offers."final_client", product_type."variable", orders."items_number", orders."notes", offers."important", orders."porc_workshop",
-                        orders."porc_assembly", orders."porc_deliveries"
+                        SELECT orders."num_order", orders."num_offer", users_data.initials."initials", TO_CHAR(orders."order_date", 'DD/MM/YYYY'), TO_CHAR(orders."expected_date", 'DD/MM/YYYY'),
+                        orders."num_ref_order", offers."client", offers."final_client", product_type."variable", orders."items_number", orders."notes",
+                        offers."important", TO_CHAR(orders."lines_creation_date", 'DD/MM/YYYY'), TO_CHAR(orders."lines_activation_date", 'DD/MM/YYYY'),
+                        orders."recep_date_workshop", orders."porc_workshop", orders."obs_workshop",
+                        orders."recep_date_assembly", orders."porc_assembly", orders."obs_assembly",
+                        orders."last_date_deliveries", orders."porc_deliveries", orders."obs_deliveries"
                         FROM offers
                         INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                         INNER JOIN product_type ON (offers."material"=product_type."material")
@@ -670,9 +706,12 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
                         ORDER BY orders."num_order"
                         """)
             commands_queryorder_dates2 = ("""
-                        SELECT orders."num_order", orders."num_offer", users_data.initials."initials", TO_CHAR(orders."order_date", 'DD/MM/YYYY'), TO_CHAR(orders."expected_date", 'DD/MM/YYYY'), orders."num_ref_order",
-                        offers."client", offers."final_client", product_type."variable", orders."items_number", orders."notes", offers."important", orders."porc_workshop",
-                        orders."porc_assembly", orders."porc_deliveries"
+                        SELECT orders."num_order", orders."num_offer", users_data.initials."initials", TO_CHAR(orders."order_date", 'DD/MM/YYYY'), TO_CHAR(orders."expected_date", 'DD/MM/YYYY'),
+                        orders."num_ref_order", offers."client", offers."final_client", product_type."variable", orders."items_number", orders."notes",
+                        offers."important", TO_CHAR(orders."lines_creation_date", 'DD/MM/YYYY'), TO_CHAR(orders."lines_activation_date", 'DD/MM/YYYY'),
+                        orders."recep_date_workshop", orders."porc_workshop", orders."obs_workshop",
+                        orders."recep_date_assembly", orders."porc_assembly", orders."obs_assembly",
+                        orders."last_date_deliveries", orders."porc_deliveries", orders."obs_deliveries"
                         FROM offers
                         INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                         INNER JOIN product_type ON (offers."material"=product_type."material")
@@ -706,7 +745,7 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
 
             # fill the Qt Table with the query results
                 for row in results:
-                    for column in range(15):
+                    for column in range(23):
                         value = row[column]
                         if value is None:
                             value = ''
@@ -717,11 +756,11 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
                     tablerow+=1
 
                 # self.tableQueryOrder.verticalHeader().hide()
-                self.tableQueryOrder.setItemDelegate(AlignDelegate(self.tableQueryOrder))
-                self.tableQueryOrder.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                self.tableQueryOrder.horizontalHeader().setSectionResizeMode(11,QtWidgets.QHeaderView.ResizeMode.Interactive)
-                self.tableQueryOrder.setColumnWidth(11, 150)
-                self.tableQueryOrder.horizontalHeader().setSectionResizeMode(14,QtWidgets.QHeaderView.ResizeMode.Stretch)
+                self.tableQueryOrder.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+                # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(9,QtWidgets.QHeaderView.ResizeMode.Interactive)
+                # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(10,QtWidgets.QHeaderView.ResizeMode.Interactive)
+                # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(17,QtWidgets.QHeaderView.ResizeMode.Interactive)
+                self.tableQueryOrder.horizontalHeader().setMinimumSectionSize(120)
 
             # close communication with the PostgreSQL database server
                 cur.close()

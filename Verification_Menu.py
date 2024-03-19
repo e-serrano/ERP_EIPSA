@@ -175,8 +175,6 @@ class Ui_Verification_Menu(object):
         self.ui=Ui_VerificationInsert_Window(self.username)
         self.ui.setupUi(self.Verificationinsert_window)
         self.Verificationinsert_window.show()
-        Verification_Menu.hide()
-        self.ui.Button_Cancel.clicked.connect(Verification_Menu.show)
 
 
     def query_Verification(self,Verification_Menu):
@@ -184,8 +182,6 @@ class Ui_Verification_Menu(object):
         self.ui=Ui_VerificationQuery_Window(self.username)
         self.ui.setupUi(self.Verificationquery_window)
         self.Verificationquery_window.showMaximized()
-        Verification_Menu.hide()
-        self.ui.Button_Cancel.clicked.connect(Verification_Menu.show)
 
 
 # if __name__ == "__main__":

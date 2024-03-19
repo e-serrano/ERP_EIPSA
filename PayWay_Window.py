@@ -448,7 +448,7 @@ class Ui_PayWay_Window(QtWidgets.QMainWindow):
         self.model.select()
         self.tablePayWay.setModel(self.model)
 
-        headers=['ID', 'Forma de Pago']
+        headers=['ID', 'Forma de Pago', 'Nº Días']
 
         # self.tablePayWay.verticalHeader().hide()
         self.tablePayWay.setItemDelegate(AlignDelegate(self.tablePayWay))

@@ -11,6 +11,7 @@ from PDFViewer_ui import Ui_MainWindow
 from tkinter.filedialog import asksaveasfilename
 from PDF_Styles import pruebas
 import os
+import win32api
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -186,7 +187,8 @@ class PDF_Viewer(QMainWindow):
 
     @pyqtSlot()
     def on_actionSave_triggered(self):
-        output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar Pedido Proveedor")
+        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
+        output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar PDF")
 
         if output_path:
             pdf.output(output_path)
@@ -201,20 +203,24 @@ class PDF_Viewer(QMainWindow):
             dlg.exec()
             del dlg,new_icon
 
+            os.remove(temp_file_path)
+
     @pyqtSlot()
     def on_actionPrint_triggered(self):
-        print('imprimir')
-        # try:
-        #     os.startfile(r'\\nas01\DATOS\Comunes\EIPSA-ERP\Resources\pdfviewer\temp\temp.pdf','print')
-        #     PRINTER_DEFAULTS = {"DesiredAccess":win32print.PRINTER_ALL_ACCESS}  
-        #     pHandle = win32print.OpenPrinter('300LN1', PRINTER_DEFAULTS)  
-        #     properties = win32print.GetPrinter(pHandle, 2)
-        #     pDevModeObj = properties["pDevMode"]
-        #     pDevModeObj.Orientation = 2  
-        #     win32print.SetPrinter(pHandle,2,properties,0)
-        #     win32print.ClosePrinter(pHandle)
-        # except Exception as e:
-        #     print(f"Error al imprimir el PDF: {e}")
+        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
+        try:
+            win32api.ShellExecute(0, "print", temp_file_path, None, ".", 0) # Printing the temp file
+            os.remove(temp_file_path) # Deleting the temp file
+        except Exception as e:
+            dlg = QMessageBox()
+            new_icon = QIcon()
+            new_icon.addPixmap(QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QIcon.Mode.Normal, QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Imprimir pedido")
+            dlg.setText("Ha ocurrido un error. No se pudo imprimir el PDF")
+            dlg.setIcon(QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
 
 
     def keyPressEvent(self, event):
@@ -242,7 +248,7 @@ if __name__ == "__main__":
     pdf.set_auto_page_break(auto=True, margin=1)
     pdf.add_page()
     pdf.set_font("Helvetica", size=12)
-    for i in range(1, 100):
+    for i in range(1, 50):
         pdf.cell(20, 1, f"This is line {i} of the PDF")
         pdf.ln(1)
 

@@ -18,7 +18,6 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from OfferQuery_Window import Ui_QueryOffer_Window
 from OrderQuery_Window import Ui_QueryOrder_Window
 from DocQuery_Window import Ui_QueryDoc_Window
-from TAGQuery_Window import Ui_QueryTags_Window
 # from TAGEdit_Commercial_Window import Ui_EditTags_Window
 from UserEdit_Menu import Ui_EditUser_Menu
 from QueryTableChanges_Window import Ui_QueryTableChanges_Window

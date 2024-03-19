@@ -95,7 +95,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                 # elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
                 #     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                 #     expresion = expresion.toString("yyyy-MM-dd")
-                #     regex = QtCore.QRegularExpression(f".*{re.escape(expresion)}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                #     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                 #     if regex.match(str(text)).hasMatch():
                 #         break
 
@@ -250,9 +250,11 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
             self.tableDeliveries.hideColumn(i)
         self.tableDeliveries.hideColumn(26)
         self.tableDeliveries.hideColumn(27)
+        self.tableDeliveries.hideColumn(28)
+        self.tableDeliveries.hideColumn(29)
 
         headers=['Nº Pedido', '','','','','','','','','','','','','','','','','','','','',
-                '% Real Envío', 'Fecha Último Envío', 'Fecha Entregas Parciales', 'Observaciones','OK', '', '']
+                '% Real Envío', 'Fecha Último Envío', 'Fecha Entregas Parciales', 'Observaciones','OK', '', '', '', '']
 
         self.tableDeliveries.setItemDelegate(AlignDelegate(self.tableDeliveries))
         self.tableDeliveries.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -307,9 +309,11 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
             self.tableDeliveries.hideColumn(i)
         self.tableDeliveries.hideColumn(26)
         self.tableDeliveries.hideColumn(27)
+        self.tableDeliveries.hideColumn(28)
+        self.tableDeliveries.hideColumn(29)
 
         headers=['Nº Pedido', '','','','','','','','','','','','','','','','','','','','',
-                '% Real Envío', 'Fecha Último Envío', 'Fecha Entregas Parciales', 'Observaciones','OK', '', '']
+                '% Real Envío', 'Fecha Último Envío', 'Fecha Entregas Parciales', 'Observaciones','OK', '', '', '', '']
 
         self.tableDeliveries.setItemDelegate(AlignDelegate(self.tableDeliveries))
         self.tableDeliveries.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)

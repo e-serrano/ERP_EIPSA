@@ -569,16 +569,45 @@ class Ui_Verif_Pics_InsertTag_Window(QtWidgets.QMainWindow):
     def querytags(self):
         self.tableTags.setRowCount(0)
         self.num_order_value = self.num_order.text().upper()
-        if self.num_order_value not in ['ALMACÉN', 'ALMACEN', 'INTERNO', 'PROTOTIPOS'] and self.num_order_value[:2] != 'PA':
-            query_material = ("""
-                            SELECT orders."num_order",orders."num_offer",product_type."variable"
-                            FROM offers
-                            INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
-                            INNER JOIN product_type ON (offers."material"=product_type."material")
-                            WHERE (UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
-                            )
-                            ORDER BY orders."num_order"
-                            """)
+        if self.num_order_value[:5] == 'PA-24' or self.num_order_value[:4] == 'P-24':
+            if self.num_order_value[:2] == 'PA':
+                material = 'Otros'
+            else:
+                query_material = ("""
+                                SELECT orders."num_order",orders."num_offer",product_type."variable"
+                                FROM offers
+                                INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
+                                INNER JOIN product_type ON (offers."material"=product_type."material")
+                                WHERE (UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
+                                )
+                                ORDER BY orders."num_order"
+                                """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(query_material,(self.num_order_value,))
+                    results=cur.fetchall()
+                    material = results[0][2]
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
             conn = None
             try:
             # read the connection parameters
@@ -586,11 +615,6 @@ class Ui_Verif_Pics_InsertTag_Window(QtWidgets.QMainWindow):
             # connect to the PostgreSQL server
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
-            # execution of commands
-                cur.execute(query_material,(self.num_order_value,))
-                results=cur.fetchall()
-                material = results[0][2]
-
                 if material == 'Caudal':
                     self.table_name = "tags_data.tags_flow"
                     self.column_id = "id_tag_flow"
@@ -695,7 +719,7 @@ class Ui_Verif_Pics_InsertTag_Window(QtWidgets.QMainWindow):
             del dlg, new_icon
 
         else:
-            if num_order not in ['ALMACÉN', 'ALMACEN', 'INTERNO', 'PROTOTIPOS'] and num_order[:2] != 'PA':
+            if num_order[:5] == 'PA-24' or num_order[:4] == 'P-24':
                 id_list =[]
                 for row in range(0, self.tableTags.rowCount() + 1):
                     item = self.tableTags.cellWidget(row, (self.num_columns - 1))

@@ -372,8 +372,14 @@ class Ui_Verif_OF_DrawingInsertComp_Window(object):
                                 """)
 
                     commands_insert_of_drawing = ("""
-                                INSERT INTO verification."of_drawing_verification" (num_order, drawing_number, verif_m_drawing_date, verif_m_drawing_state, verif_m_drawing_obs) 
+                                INSERT INTO verification."of_drawing_verification" (num_order, drawing_number, verif_of_drawing_date, verif_of_drawing_state, verif_of_drawing_obs) 
                                 VALUES(%s, %s, %s, %s, %s)
+                                """)
+
+                    commands_update_of_drawing = ("""
+                                UPDATE verification."of_drawing_verification"
+                                SET verif_of_drawing_date = %s, verif_of_drawing_state = %s, verif_of_drawing_obs = %s 
+                                WHERE num_order = %s AND drawing_number = %s
                                 """)
                     conn = None
                     try:
@@ -411,7 +417,7 @@ class Ui_Verif_OF_DrawingInsertComp_Window(object):
                                     dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
                                     result = dlg_yes_no.exec()
                                     if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                                        cur.execute(commands_insert_of_drawing, (num_order, drawing, verif_date, verif_state, notes, ))
+                                        cur.execute(commands_update_of_drawing, (verif_date, verif_state, notes, num_order, drawing,))
 
                                         dlg = QtWidgets.QMessageBox()
                                         new_icon = QtGui.QIcon()
@@ -423,7 +429,6 @@ class Ui_Verif_OF_DrawingInsertComp_Window(object):
                                         dlg.exec()
                                         del dlg, new_icon
 
-                                        self.num_order.setText('')
                                         self.notes.setText('')
 
                                     del dlg_yes_no, new_icon_yes_no
@@ -469,7 +474,7 @@ class Ui_Verif_OF_DrawingInsertComp_Window(object):
                             """)
 
                 commands_insert_of_drawing = ("""
-                            INSERT INTO verification."of_drawing_verification" (num_order, drawing_number, verif_m_drawing_date, verif_m_drawing_state, verif_m_drawing_obs) 
+                            INSERT INTO verification."of_drawing_verification" (num_order, drawing_number, verif_of_drawing_date, verif_of_drawing_state, verif_of_drawing_obs) 
                             VALUES(%s, %s, %s, %s, %s)
                             """)
                 conn = None

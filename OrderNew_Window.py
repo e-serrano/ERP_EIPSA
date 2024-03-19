@@ -19,6 +19,9 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_New_Order_Window(object):
+    def __init__(self, num_offer):
+        self.num_offer = num_offer
+
     def setupUi(self, New_Order):
         New_Order.setObjectName("New_Order")
         New_Order.resize(680, 425)
@@ -283,6 +286,8 @@ class Ui_New_Order_Window(object):
         New_Order.setStatusBar(self.statusbar)
         New_Order.setWindowFlags(QtCore.Qt.WindowType.WindowMinimizeButtonHint)
 
+        self.NumOffer_NewOrder.setText(self.num_offer)
+
         self.retranslateUi(New_Order)
         self.Button_Cancel.clicked.connect(New_Order.close) # type: ignore
         self.Button_NewOrder.clicked.connect(self.NewOrder)
@@ -444,17 +449,15 @@ class Ui_New_Order_Window(object):
                     data = (numorder, numoffer, numref, actual_date, expectdate, notes, amount, num_items, state, numoffer)
                     cur.execute(commands_neworder, data)
 
-                    numorder_verif = numorder if numorder[:2] == 'PA' else numorder.split('-S')[0]
-
-                    cur.execute(commands_select_ppi, (numorder_verif,))
+                    cur.execute(commands_select_ppi, (numorder,))
                     results_ppi = cur.fetchall()
                     if len(results_ppi) == 0:
-                        cur.execute(commands_insert_ppi, (numorder_verif,))
+                        cur.execute(commands_insert_ppi, (numorder,))
 
-                    cur.execute(commands_select_exp, (numorder_verif,))
+                    cur.execute(commands_select_exp, (numorder,))
                     results_exp = cur.fetchall()
                     if len(results_exp) == 0:
-                        cur.execute(commands_insert_exp, (numorder_verif,))
+                        cur.execute(commands_insert_exp, (numorder,))
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
@@ -501,10 +504,10 @@ class Ui_New_Order_Window(object):
         else:
             return None
 
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    New_Order = QtWidgets.QMainWindow()
-    ui = Ui_New_Order_Window()
-    ui.setupUi(New_Order)
-    New_Order.show()
-    sys.exit(app.exec())
+# if __name__ == "__main__":
+#     app = QtWidgets.QApplication(sys.argv)
+#     New_Order = QtWidgets.QMainWindow()
+#     ui = Ui_New_Order_Window('O-23/095')
+#     ui.setupUi(New_Order)
+#     New_Order.show()
+#     sys.exit(app.exec())

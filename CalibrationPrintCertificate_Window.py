@@ -232,7 +232,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
         sensor_type=self.Sensor.currentText()
         cert_date = self.Cert_Date.currentText()
 
-        numorder_check = numorder if numorder[:2] == 'PA' else numorder + '-S00'
+        numorder_check = numorder if numorder[:2] == 'PA' or len(numorder) > 8 else numorder + '-S00'
 
         if numorder=="":
             dlg = QtWidgets.QMessageBox()
@@ -245,7 +245,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
             dlg.exec()
 
         else:
-            commands_checkoffer = ("""
+            commands_checkorder = ("""
                         SELECT *
                         FROM orders
                         WHERE "num_order" = %s
@@ -258,7 +258,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands one by one
-                cur.execute(commands_checkoffer,(numorder_check,))
+                cur.execute(commands_checkorder,(numorder_check,))
                 results=cur.fetchall()
                 match=list(filter(lambda x:numorder_check in x, results))
             # close communication with the PostgreSQL database server
@@ -322,6 +322,8 @@ class Ui_CalibrationPrintCertificate_Window(object):
                                             "master_3", "element_3", "error_3", "tolerance_3",
                                             "master_4", "element_4", "error_4", "tolerance_4"])
 
+                    df.sort_values(by=['tag'])
+
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
@@ -363,28 +365,28 @@ class Ui_CalibrationPrintCertificate_Window(object):
                     pdf.cell(1.1, 0.8, str(self.calculate_element(df.iloc[row, 3], sensor_type)).replace('.',','), align='C', border=1)
                     pdf.cell(1, 0.8, str(round(df.iloc[row, 3], 3)).replace('.', ',') if df.iloc[row, 3] is not None else "N/A", align='C', border=1)
                     pdf.cell(1, 0.8, str(round(df.iloc[row, 4], 3)).replace('.', ',') if df.iloc[row, 4] is not None else "N/A", align='C', border=1)
-                    pdf.cell(1, 0.8, str(round(df.iloc[row, 5], 3)).replace('.', ',') if df.iloc[row, 5] is not None else "N/A", align='C', border=1)
+                    pdf.cell(1, 0.8, "± " + str(round(df.iloc[row, 5], 3)).replace('.', ',') if df.iloc[row, 5] is not None else "N/A", align='C', border=1)
 
                     pdf.cell(1.1, 0.8, str(self.calculate_master(df.iloc[row, 6], master_element)).replace('.',','), align='C', border=1)
                     pdf.cell(1, 0.8, str(round(df.iloc[row, 6], 3)).replace('.', ',') if df.iloc[row, 6] is not None else "N/A", align='C', border=1)
                     pdf.cell(1.1, 0.8, str(self.calculate_element(df.iloc[row, 7], sensor_type)).replace('.',','), align='C', border=1)
                     pdf.cell(1, 0.8, str(round(df.iloc[row, 7], 3)).replace('.', ',') if df.iloc[row, 7] is not None else "N/A", align='C', border=1)
                     pdf.cell(1, 0.8, str(round(df.iloc[row, 8], 3)).replace('.', ',') if df.iloc[row, 8] is not None else "N/A", align='C', border=1)
-                    pdf.cell(1, 0.8, str(round(df.iloc[row, 9], 3)).replace('.', ',') if df.iloc[row, 9] is not None else "N/A", align='C', border=1)
+                    pdf.cell(1, 0.8, "± " + str(round(df.iloc[row, 9], 3)).replace('.', ',') if df.iloc[row, 9] is not None else "N/A", align='C', border=1)
 
                     pdf.cell(1.1, 0.8, str(self.calculate_master(df.iloc[row, 10], master_element)).replace('.',','), align='C', border=1)
                     pdf.cell(1, 0.8, str(round(df.iloc[row, 10], 3)).replace('.', ',') if df.iloc[row, 10] is not None else "N/A", align='C', border=1)
                     pdf.cell(1.1, 0.8, str(self.calculate_element(df.iloc[row, 11], sensor_type)).replace('.',','), align='C', border=1)
                     pdf.cell(1, 0.8, str(round(df.iloc[row, 11], 3)).replace('.', ',') if df.iloc[row, 11] is not None else "N/A", align='C', border=1)
                     pdf.cell(1, 0.8, str(round(df.iloc[row, 12], 3)).replace('.', ',') if df.iloc[row, 12] is not None else "N/A", align='C', border=1)
-                    pdf.cell(1, 0.8, str(round(df.iloc[row, 13], 3)).replace('.', ',') if df.iloc[row, 13] is not None else "N/A", align='C', border=1)
+                    pdf.cell(1, 0.8, "± " + str(round(df.iloc[row, 13], 3)).replace('.', ',') if df.iloc[row, 13] is not None else "N/A", align='C', border=1)
 
                     pdf.cell(1.1, 0.8, str(self.calculate_master(df.iloc[row, 14], master_element)).replace('.',','), align='C', border=1)
                     pdf.cell(1, 0.8, str(round(df.iloc[row, 14], 3)).replace('.', ',') if df.iloc[row, 14] is not None else "N/A", align='C', border=1)
                     pdf.cell(1.1, 0.8, str(self.calculate_element(df.iloc[row, 15], sensor_type)).replace('.',','), align='C', border=1)
                     pdf.cell(1, 0.8, str(round(df.iloc[row, 15], 3)).replace('.', ',') if df.iloc[row, 15] is not None else "N/A", align='C', border=1)
                     pdf.cell(1, 0.8, str(round(df.iloc[row, 16], 3)).replace('.', ',') if df.iloc[row, 16] is not None else "N/A", align='C', border=1)
-                    pdf.cell(1, 0.8, str(round(df.iloc[row, 17], 3)).replace('.', ',') if df.iloc[row, 17] is not None else "N/A", align='C', border=1)
+                    pdf.cell(1, 0.8, "± " + str(round(df.iloc[row, 17], 3)).replace('.', ',') if df.iloc[row, 17] is not None else "N/A", align='C', border=1)
                     pdf.ln(0.8)
                     y_position = pdf.get_y()
 
@@ -403,12 +405,11 @@ class Ui_CalibrationPrintCertificate_Window(object):
                 pdf.set_line_width(0.05)
                 pdf.line(1, y_position, 28.8, y_position)
 
-                # output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar Certificado")
+                pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/QualityControlStamp.png")), 24, y_position + 2, 4.5, 3)
 
                 output_path = "//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS CALIBRACIÓN/" + numorder.replace('/','-') + '-' + sensor_type + ".pdf"
 
                 if output_path:
-                    # print(output_path)
                     try:
                         pdf.output(output_path)
 
@@ -436,7 +437,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
 
 
     def charge_dates(self):
-        numorder=self.num_order_print.text()
+        numorder=self.num_order_print.text().upper()
 
         if numorder=="":
             dlg = QtWidgets.QMessageBox()
@@ -452,7 +453,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
             commands_querydates = ("""
                         SELECT DISTINCT TO_CHAR(test_date, 'DD/MM/YYYY')
                         FROM verification.calibration_thermoelements
-                        WHERE "num_order" = %s
+                        WHERE UPPER("num_order") = UPPER(%s)
                         """)
             conn = None
             try:
@@ -467,6 +468,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                 
                 list_dates = [x[0] for x in results_dates]
 
+                self.Cert_Date.clear()
                 self.Cert_Date.addItems(list_dates)
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -489,9 +491,11 @@ class Ui_CalibrationPrintCertificate_Window(object):
                 if conn is not None:
                     conn.close()
 
+            self.num_order_print.setText(numorder)
+
 
     def charge_sensor(self):
-        numorder=self.num_order_print.text()
+        numorder=self.num_order_print.text().upper()
         date_test = self.Cert_Date.currentText()
 
         if numorder=="":
@@ -508,7 +512,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
             commands_querysensor = ("""
                         SELECT DISTINCT sensor
                         FROM verification.calibration_thermoelements
-                        WHERE "num_order" = %s AND "test_date" = %s
+                        WHERE UPPER("num_order") = UPPER(%s) AND "test_date" = %s
                         """)
             conn = None
             try:
@@ -520,9 +524,10 @@ class Ui_CalibrationPrintCertificate_Window(object):
             # execution of commands one by one
                 cur.execute(commands_querysensor, (numorder, date_test,))
                 results_dates=cur.fetchall()
-                
+
                 list_sensor = [x[0] for x in results_dates]
 
+                self.Sensor.clear()
                 self.Sensor.addItems(list_sensor)
             # close communication with the PostgreSQL database server
                 cur.close()

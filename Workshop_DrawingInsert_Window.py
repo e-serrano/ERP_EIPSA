@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'Workshop_M_DrawingInsert_Window.ui'
+# Form implementation generated from reading ui file 'Workshop_DrawingInsert_Window.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.1
 #
@@ -17,20 +17,22 @@ import re
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
-class Ui_Workshop_M_DrawingInsert_Window(object):
+class Ui_Workshop_DrawingInsert_Window(QtWidgets.QMainWindow):
     def __init__(self, username):
+        super().__init__()
         self.username = username
+        self.setupUi(self)
 
-    def setupUi(self, Workshop_M_DrawingInsert_Window):
-        Workshop_M_DrawingInsert_Window.setObjectName("Workshop_M_DrawingInsert_Window")
-        Workshop_M_DrawingInsert_Window.resize(450, 325)
-        Workshop_M_DrawingInsert_Window.setMinimumSize(QtCore.QSize(450, 325))
-        Workshop_M_DrawingInsert_Window.setMaximumSize(QtCore.QSize(450, 325))
+    def setupUi(self, Workshop_DrawingInsert_Window):
+        Workshop_DrawingInsert_Window.setObjectName("Workshop_DrawingInsert_Window")
+        Workshop_DrawingInsert_Window.resize(450, 325)
+        Workshop_DrawingInsert_Window.setMinimumSize(QtCore.QSize(450, 325))
+        Workshop_DrawingInsert_Window.setMaximumSize(QtCore.QSize(450, 325))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        Workshop_M_DrawingInsert_Window.setWindowIcon(icon)
+        Workshop_DrawingInsert_Window.setWindowIcon(icon)
         if self.username == 'm.gil':
-                Workshop_M_DrawingInsert_Window.setStyleSheet("QWidget {\n"
+                Workshop_DrawingInsert_Window.setStyleSheet("QWidget {\n"
     "background-color: #121212; color: rgb(255, 255, 255);\n"
     "}\n"
     "\n"
@@ -76,7 +78,7 @@ class Ui_Workshop_M_DrawingInsert_Window(object):
     "    border-color: rgb(255, 255, 255);\n"
     "}")
         else:
-            Workshop_M_DrawingInsert_Window.setStyleSheet("QWidget {\n"
+            Workshop_DrawingInsert_Window.setStyleSheet("QWidget {\n"
     "background-color: rgb(255, 255, 255);\n"
     "}\n"
     "\n"
@@ -121,7 +123,7 @@ class Ui_Workshop_M_DrawingInsert_Window(object):
     "    background-color: rgb(1, 140, 190);\n"
     "    border-color: rgb(255, 255, 255);\n"
     "}")
-        self.centralwidget = QtWidgets.QWidget(parent=Workshop_M_DrawingInsert_Window)
+        self.centralwidget = QtWidgets.QWidget(parent=Workshop_DrawingInsert_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
         self.frame.setGeometry(QtCore.QRect(20, 20, 400, 275))
@@ -218,35 +220,35 @@ class Ui_Workshop_M_DrawingInsert_Window(object):
         self.gridLayout_2.addLayout(self.horizontalLayout, 3, 0, 1, 1)
         spacerItem4 = QtWidgets.QSpacerItem(80, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.gridLayout_2.addItem(spacerItem4, 4, 0, 1, 1)
-        Workshop_M_DrawingInsert_Window.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=Workshop_M_DrawingInsert_Window)
+        Workshop_DrawingInsert_Window.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=Workshop_DrawingInsert_Window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 450, 22))
         self.menubar.setObjectName("menubar")
-        Workshop_M_DrawingInsert_Window.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=Workshop_M_DrawingInsert_Window)
+        Workshop_DrawingInsert_Window.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=Workshop_DrawingInsert_Window)
         self.statusbar.setObjectName("statusbar")
-        Workshop_M_DrawingInsert_Window.setStatusBar(self.statusbar)
-        Workshop_M_DrawingInsert_Window.setWindowFlags(QtCore.Qt.WindowType.WindowMinimizeButtonHint)
+        Workshop_DrawingInsert_Window.setStatusBar(self.statusbar)
+        Workshop_DrawingInsert_Window.setWindowFlags(QtCore.Qt.WindowType.WindowMinimizeButtonHint)
 
 
-        self.retranslateUi(Workshop_M_DrawingInsert_Window)
-        self.Button_Cancel.clicked.connect(Workshop_M_DrawingInsert_Window.close) # type: ignore
-        self.Button_Insert.clicked.connect(self.insert_m_drawing)
-        QtCore.QMetaObject.connectSlotsByName(Workshop_M_DrawingInsert_Window)
+        self.retranslateUi(Workshop_DrawingInsert_Window)
+        self.Button_Cancel.clicked.connect(Workshop_DrawingInsert_Window.close) # type: ignore
+        self.Button_Insert.clicked.connect(self.insert_drawing)
+        QtCore.QMetaObject.connectSlotsByName(Workshop_DrawingInsert_Window)
 
 
-    def retranslateUi(self, Workshop_M_DrawingInsert_Window):
+    def retranslateUi(self, Workshop_DrawingInsert_Window):
         _translate = QtCore.QCoreApplication.translate
-        Workshop_M_DrawingInsert_Window.setWindowTitle(_translate("Workshop_M_DrawingInsert_Window", "Planos M"))
-        self.Button_Insert.setText(_translate("Workshop_M_DrawingInsert_Window", "Insertar"))
-        self.Button_Cancel.setText(_translate("Workshop_M_DrawingInsert_Window", "Cancelar"))
-        self.label_num_order.setText(_translate("Workshop_M_DrawingInsert_Window", "Nº Pedido:"))
-        self.label_description.setText(_translate("Workshop_M_DrawingInsert_Window", "Detalle:"))
-        self.label_drawing.setText(_translate("Workshop_M_DrawingInsert_Window", "Nº Plano:"))
+        Workshop_DrawingInsert_Window.setWindowTitle(_translate("Workshop_DrawingInsert_Window", "Planos"))
+        self.Button_Insert.setText(_translate("Workshop_DrawingInsert_Window", "Insertar"))
+        self.Button_Cancel.setText(_translate("Workshop_DrawingInsert_Window", "Cancelar"))
+        self.label_num_order.setText(_translate("Workshop_DrawingInsert_Window", "Nº Pedido:"))
+        self.label_description.setText(_translate("Workshop_DrawingInsert_Window", "Detalle:"))
+        self.label_drawing.setText(_translate("Workshop_DrawingInsert_Window", "Nº Plano:"))
 
 
-    def insert_m_drawing(self):
-        num_order = self.num_order.text()
+    def insert_drawing(self):
+        num_order = self.num_order.text().upper()
         description = self.description.toPlainText()
         drawing = self.drawing.text()
 
@@ -255,17 +257,37 @@ class Ui_Workshop_M_DrawingInsert_Window(object):
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Planos M")
-            dlg.setText("Rellene todos los campos. Solo el campo de observaciones puede quedar vacío")
+            dlg.setWindowTitle("Planos")
+            dlg.setText("Rellene todos los campos. Solo el campo de detalle puede quedar vacío")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
 
+        elif not re.match(r'^(P-\d{2}/\d{3}-S\d{2}|PA-\d{2}/\d{3})$', num_order):
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Nuevo Pedido")
+            dlg.setText("El número de pedido debe tener el siguiente formato\n" +
+                        "- P-XX/YYY-SZZ\n" + 
+                        "- PA-XX/YYY")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+
         else:
+            if drawing[:2] == 'OF':
+                table_name = 'verification."workshop_of_drawings"'
+            elif drawing[:1] == 'M':
+                table_name = 'verification."m_drawing_verification"'
+            else:
+                table_name = 'verification."workshop_dim_drawings"'
+
             if num_order not in  ['ALMACÉN', 'ALMACEN']:
                 commands_checkorder = ("""
                             SELECT *
                             FROM orders
-                            WHERE UPPER("num_order") LIKE UPPER('%%'||%s||'%%')
+                            WHERE "num_order" = %s
                             """)
                 conn = None
                 try:
@@ -299,26 +321,21 @@ class Ui_Workshop_M_DrawingInsert_Window(object):
                         conn.close()
 
                 if len(results) == 0:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Planos M")
-                        dlg.setText("El número de pedido introducido no existe. Introduce un pedido válido o pon 'ALMACÉN'")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg.exec()
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Planos")
+                    dlg.setText("El número de pedido introducido no existe. Introduce un pedido válido o pon 'ALMACÉN'")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+                    del dlg, new_icon
 
                 else:
-                    commands_select_m_drawing = ("""
-                                SELECT verif_m_drawing_date
-                                FROM verification."m_drawing_verification"
-                                WHERE ("num_order" = %s AND "drawing_number" =%s)
-                                """)
+                    commands_select_drawing = f"""SELECT * FROM {table_name} WHERE ("num_order" = '{num_order}' AND "drawing_number" = '{drawing}')"""
+                    commands_insert_drawing = f"""INSERT INTO {table_name} ("num_order", "drawing_number", "drawing_description") VALUES ('{num_order}', '{drawing}','{description}')"""
+                    commands_update_drawing = f"""UPDATE {table_name} SET "drawing_description" ='{description}' WHERE ("num_order" = '{num_order}' AND "drawing_number" = '{drawing}')"""
 
-                    commands_insert_m_drawing = ("""
-                                INSERT INTO verification."m_drawing_verification" (num_order, drawing_number, verif_m_drawing_description) 
-                                VALUES(%s, %s, %s, %s, %s)
-                                """)
                     conn = None
                     try:
                     # read the connection parameters
@@ -327,17 +344,17 @@ class Ui_Workshop_M_DrawingInsert_Window(object):
                         conn = psycopg2.connect(**params)
                         cur = conn.cursor()
                     # execution of commands
-                        cur.execute(commands_select_m_drawing, (num_order, drawing, ))
+                        cur.execute(commands_select_drawing)
                         results = cur.fetchall()
 
                         if len(results) != 0:
                             if results[0][0] is None:
-                                cur.execute(commands_insert_m_drawing, (num_order, drawing, description, ))
+                                cur.execute(commands_insert_drawing)
                                 dlg = QtWidgets.QMessageBox()
                                 new_icon = QtGui.QIcon()
                                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                 dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("Workshopicación Planos M")
+                                dlg.setWindowTitle("Planos")
                                 dlg.setText("Datos insertados con éxito")
                                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                                 dlg.exec()
@@ -355,30 +372,27 @@ class Ui_Workshop_M_DrawingInsert_Window(object):
                                     dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
                                     result = dlg_yes_no.exec()
                                     if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                                        cur.execute(commands_insert_m_drawing, (num_order, drawing, description, ))
+                                        cur.execute(commands_update_drawing)
 
                                         dlg = QtWidgets.QMessageBox()
                                         new_icon = QtGui.QIcon()
                                         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                         dlg.setWindowIcon(new_icon)
-                                        dlg.setWindowTitle("Workshopicación Planos M")
+                                        dlg.setWindowTitle("Planos")
                                         dlg.setText("Datos insertados con éxito")
                                         dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                                         dlg.exec()
                                         del dlg, new_icon
 
-                                        self.num_order.setText('')
-                                        self.notes.setText('')
-
                                     del dlg_yes_no, new_icon_yes_no
 
                         else:
-                            cur.execute(commands_insert_m_drawing, (num_order, drawing, description, ))
+                            cur.execute(commands_insert_drawing)
                             dlg = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
                             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("Planos M")
+                            dlg.setWindowTitle("Planos")
                             dlg.setText("Datos insertados con éxito")
                             dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                             dlg.exec()
@@ -394,7 +408,7 @@ class Ui_Workshop_M_DrawingInsert_Window(object):
                         new_icon = QtGui.QIcon()
                         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Planos M")
+                        dlg.setWindowTitle("Planos")
                         dlg.setText("Ha ocurrido el siguiente error:\n"
                                     + str(error))
                         dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
@@ -406,16 +420,10 @@ class Ui_Workshop_M_DrawingInsert_Window(object):
                             conn.close()
 
             else:
-                commands_select_m_drawing = ("""
-                            SELECT verif_m_drawing_date
-                            FROM verification."m_drawing_verification"
-                            WHERE ("num_order" = %s AND "drawing_number" =%s)
-                            """)
+                commands_select_drawing = f"""SELECT * FROM {table_name} WHERE ("num_order" = '{num_order}' AND "drawing_number" = '{drawing}')"""
+                commands_insert_drawing = f"""INSERT INTO {table_name} ("num_order", "drawing_number", "drawing_description") VALUES ('{num_order}', '{drawing}','{description}')"""
+                commands_update_drawing = f"""UPDATE {table_name} SET "drawing_description" ='{description}' WHERE ("num_order" = '{num_order}' AND "drawing_number" = '{drawing}')"""
 
-                commands_insert_m_drawing = ("""
-                            INSERT INTO verification."m_drawing_verification" (num_order, drawing_number, verif_m_drawing_description) 
-                            VALUES(%s, %s, %s, %s, %s)
-                            """)
                 conn = None
                 try:
                 # read the connection parameters
@@ -424,17 +432,17 @@ class Ui_Workshop_M_DrawingInsert_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    cur.execute(commands_select_m_drawing, (num_order, drawing, ))
+                    cur.execute(commands_select_drawing)
                     results = cur.fetchall()
 
                     if len(results) != 0:
                         if results[0][0] is None:
-                            cur.execute(commands_insert_m_drawing, (num_order, drawing, description, ))
+                            cur.execute(commands_insert_drawing)
                             dlg = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
                             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                             dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("Planos M")
+                            dlg.setWindowTitle("Planos")
                             dlg.setText("Datos insertados con éxito")
                             dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                             dlg.exec()
@@ -452,30 +460,27 @@ class Ui_Workshop_M_DrawingInsert_Window(object):
                                 dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
                                 result = dlg_yes_no.exec()
                                 if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                                    cur.execute(commands_insert_m_drawing, (num_order, drawing, description, ))
+                                    cur.execute(commands_update_drawing)
 
                                     dlg = QtWidgets.QMessageBox()
                                     new_icon = QtGui.QIcon()
                                     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                     dlg.setWindowIcon(new_icon)
-                                    dlg.setWindowTitle("Planos M")
+                                    dlg.setWindowTitle("Planos")
                                     dlg.setText("Datos insertados con éxito")
                                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                                     dlg.exec()
                                     del dlg, new_icon
 
-                                    self.num_order.setText('')
-                                    self.notes.setText('')
-
                                 del dlg_yes_no, new_icon_yes_no
 
                     else:
-                        cur.execute(commands_insert_m_drawing, (num_order, drawing, description, ))
+                        cur.execute(commands_insert_drawing)
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
                         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Planos M")
+                        dlg.setWindowTitle("Planos")
                         dlg.setText("Datos insertados con éxito")
                         dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                         dlg.exec()
@@ -485,13 +490,12 @@ class Ui_Workshop_M_DrawingInsert_Window(object):
                 # commit the changes
                     conn.commit()
 
-
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
                     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Planos M")
+                    dlg.setWindowTitle("Planos")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
                                 + str(error))
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
@@ -504,10 +508,11 @@ class Ui_Workshop_M_DrawingInsert_Window(object):
 
 
 
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    Workshop_M_DrawingInsert_Window = QtWidgets.QMainWindow()
-    ui = Ui_Workshop_M_DrawingInsert_Window('P-23/001')
-    ui.setupUi(Workshop_M_DrawingInsert_Window)
-    Workshop_M_DrawingInsert_Window.show()
-    sys.exit(app.exec())
+
+# if __name__ == "__main__":
+#     app = QtWidgets.QApplication(sys.argv)
+#     Workshop_DrawingInsert_Window = QtWidgets.QMainWindow()
+#     ui = Ui_Workshop_DrawingInsert_Window('P-23/001')
+#     ui.setupUi(Workshop_DrawingInsert_Window)
+#     Workshop_DrawingInsert_Window.show()
+#     sys.exit(app.exec())

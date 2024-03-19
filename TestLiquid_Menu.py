@@ -173,8 +173,6 @@ class Ui_TestLiquid_Menu(object):
     def insert_Liquid(self,TestLiquid_Menu):
         self.Liquidinsert_window=Ui_TestLiquidInsert_Window(self.username)
         self.Liquidinsert_window.show()
-        TestLiquid_Menu.hide()
-        self.Liquidinsert_window.Button_Cancel.clicked.connect(TestLiquid_Menu.show)
 
 
     def query_Liquid(self,TestLiquid_Menu):
@@ -182,8 +180,6 @@ class Ui_TestLiquid_Menu(object):
         self.ui=Ui_TestLiquidQuery_Window(self.username)
         self.ui.setupUi(self.Liquidquery_window)
         self.Liquidquery_window.showMaximized()
-        TestLiquid_Menu.hide()
-        self.ui.Button_Cancel.clicked.connect(TestLiquid_Menu.show)
 
 
 # if __name__ == "__main__":

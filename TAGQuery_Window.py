@@ -569,7 +569,7 @@ class Ui_QueryTags_Window(object):
                         "Fecha OF Sensor", "Plano OF Sensor", "Notas Sensor", "Estado Fabricación Sensor", "Fecha OF TW",
                         "Plano OF TW", "Notas TW", "Estado Fabricación TW", "Orden de Compra", "Fecha Orden Compra",
                         "Notas Orden Compra", "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)",
-                        "Tapón", "Estado Fabricación", "Inspección", "Envío RN"]
+                        "Tapón", "Estado Fabricación", "Inspección", "Fecha IRC", "Envío RN", "Fecha RN"]
 
             headers_level = []
 

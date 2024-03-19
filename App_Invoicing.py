@@ -7,6 +7,7 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QMenu
+from PyQt6.QtCore import QUrl
 import sys
 from datetime import *
 import configparser
@@ -17,9 +18,17 @@ from Countries_Window import Ui_Countries_Window
 from PayWay_Window import Ui_PayWay_Window
 from PasswordEdit_Window import Ui_EditPasswordWindow
 import os
+from config import config
+import psycopg2
+import pandas as pd
+import re
+from PDF_Viewer import PDF_Viewer
+from PDF_Styles import pending_invoices, ag_int_liquid
+import math
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
+ZOOM_MULTIPLIER = math.sqrt(2.0)
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
@@ -53,6 +62,7 @@ class Ui_App_Invoicing(object):
     def __init__(self, name, username):
         self.name=name
         self.username=username
+        self.pdf_viewer = PDF_Viewer()
 
 
     def setupUi(self, App_Invoicing):
@@ -121,9 +131,44 @@ class Ui_App_Invoicing(object):
             self.Button_Sending.setObjectName("Button_Sending")
             self.Header.addWidget(self.Button_Sending)
             icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Invoice_Send.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/TAG_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Sending.setIcon(icon2)
             self.Button_Sending.clicked.connect(self.send_documents)
+            self.Button_Tags = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Tags.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Tags.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_Tags.setToolTip('Editar Tags')
+            self.Button_Tags.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Tags.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_Tags.setText("")
+            self.Button_Tags.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Tags.setObjectName("Button_Tags")
+            self.Header.addWidget(self.Button_Tags)
+            icon1 = QtGui.QIcon()
+            icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Invoice_Send.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Tags.setIcon(icon1)
+            self.Button_Tags.clicked.connect(self.edit_tag)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem2)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -305,6 +350,7 @@ class Ui_App_Invoicing(object):
             self.Button_PendInvoice.setIconSize(QtCore.QSize(40, 40))
             self.Button_PendInvoice.setObjectName("Button_PendInvoice")
             self.verticalLayout_3.addWidget(self.Button_PendInvoice)
+            self.Button_PendInvoice.clicked.connect(self.pending_invoice)
 
         if self.name in ['Miguel Sahuquillo']:
             self.Button_Countries = QtWidgets.QPushButton(parent=self.ButtonFrame)
@@ -339,6 +385,7 @@ class Ui_App_Invoicing(object):
             self.Button_Transactions.setIconSize(QtCore.QSize(40, 40))
             self.Button_Transactions.setObjectName("Button_Transactions")
             self.verticalLayout_3.addWidget(self.Button_Transactions)
+            self.Button_Transactions.clicked.connect(self.query_transactions)
 
         if self.name in ['Miguel Sahuquillo']:
             self.Button_PayWay = QtWidgets.QPushButton(parent=self.ButtonFrame)
@@ -358,21 +405,21 @@ class Ui_App_Invoicing(object):
             self.Button_PayWay.clicked.connect(self.payway)
             self.verticalLayout_3.addWidget(self.Button_PayWay)
         elif self.name in ['Javier Zofio']:
-            self.Button_PendInvoice = QtWidgets.QPushButton(parent=self.ButtonFrame)
-            self.Button_PendInvoice.setMinimumSize(QtCore.QSize(200, 50))
-            self.Button_PendInvoice.setMaximumSize(QtCore.QSize(200, 50))
+            self.Button_AgtInt = QtWidgets.QPushButton(parent=self.ButtonFrame)
+            self.Button_AgtInt.setMinimumSize(QtCore.QSize(200, 50))
+            self.Button_AgtInt.setMaximumSize(QtCore.QSize(200, 50))
             font = QtGui.QFont()
             font.setPointSize(12)
             font.setBold(True)
-            self.Button_PendInvoice.setFont(font)
-            self.Button_PendInvoice.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_PendInvoice.setText(("  Agt. Int. Liquid"))
+            self.Button_AgtInt.setFont(font)
+            self.Button_AgtInt.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_AgtInt.setText(("  Agt. Int. Liquid"))
             icon7 = QtGui.QIcon()
             icon7.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Agents.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_PendInvoice.setIcon(icon7)
-            self.Button_PendInvoice.setIconSize(QtCore.QSize(40, 40))
-            self.Button_PendInvoice.setObjectName("Button_PendInvoice")
-            self.verticalLayout_3.addWidget(self.Button_PendInvoice)
+            self.Button_AgtInt.setIcon(icon7)
+            self.Button_AgtInt.setIconSize(QtCore.QSize(40, 40))
+            self.Button_AgtInt.setObjectName("Button_AgtInt")
+            self.verticalLayout_3.addWidget(self.Button_AgtInt)
             self.Button_ExpExcel = QtWidgets.QPushButton(parent=self.ButtonFrame)
             self.Button_ExpExcel.setMinimumSize(QtCore.QSize(200, 50))
             self.Button_ExpExcel.setMaximumSize(QtCore.QSize(200, 50))
@@ -388,6 +435,7 @@ class Ui_App_Invoicing(object):
             self.Button_ExpExcel.setIconSize(QtCore.QSize(40, 40))
             self.Button_ExpExcel.setObjectName("Button_ExpExcel")
             self.verticalLayout_3.addWidget(self.Button_ExpExcel)
+            self.Button_AgtInt.clicked.connect(self.ag_int_liq)
         self.PrincipalScreen.addWidget(self.ButtonFrame)
         spacerItem5 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.PrincipalScreen.addItem(spacerItem5)
@@ -482,8 +530,10 @@ class Ui_App_Invoicing(object):
         self.retranslateUi(App_Invoicing)
         QtCore.QMetaObject.connectSlotsByName(App_Invoicing)
 
-        self.Button_Clients.clicked.connect(self.clients)
         self.Button_Invoice.clicked.connect(self.invoice)
+        self.Button_QueryInvoice.clicked.connect(self.query_invoice)
+        self.Button_ExpirationInvoice.clicked.connect(self.query_expiring_invoice)
+        self.Button_Clients.clicked.connect(self.clients)
         self.Button_Profile.clicked.connect(self.showMenu)
 
 
@@ -504,7 +554,7 @@ class Ui_App_Invoicing(object):
         self.ui.setupUi(self.send_invoice_menu)
         self.send_invoice_menu.show()
 
-
+# Function to open window for new invoices
     def invoice(self):
         from InvoiceNew_Window import Ui_InvoiceNew_Window
         self.invoice_window=QtWidgets.QMainWindow()
@@ -512,7 +562,31 @@ class Ui_App_Invoicing(object):
         self.ui.setupUi(self.invoice_window)
         self.invoice_window.showMaximized()
 
+# Function to open window for query all invoices
+    def query_invoice(self):
+        from InvoiceQuery_Window import Ui_QueryInvoice_Window
+        self.query_invoice_window=QtWidgets.QMainWindow()
+        self.ui=Ui_QueryInvoice_Window()
+        self.ui.setupUi(self.query_invoice_window)
+        self.query_invoice_window.showMaximized()
 
+# Function to open window for query expending invoices
+    def query_expiring_invoice(self):
+        from InvoiceExpiration_Window import Ui_ExpiringInvoice_Window
+        self.query_expiring_invoice_window=QtWidgets.QMainWindow()
+        self.ui=Ui_ExpiringInvoice_Window()
+        self.ui.setupUi(self.query_expiring_invoice_window)
+        self.query_expiring_invoice_window.showMaximized()
+
+# Function to open window for query transactions
+    def query_transactions(self):
+        from InvoiceTransactions_Window import Ui_TransactionsInvoice_Window
+        self.query_transactions_window=QtWidgets.QMainWindow()
+        self.ui=Ui_TransactionsInvoice_Window()
+        self.ui.setupUi(self.query_transactions_window)
+        self.query_transactions_window.showMaximized()
+
+# Function to open window for manage banks
     def banks(self):
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -528,6 +602,7 @@ class Ui_App_Invoicing(object):
         self.banks_window=Ui_Banks_Window(db_banks)
         self.banks_window.show()
 
+# Function to open window for manage payway
     def payway(self):
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -543,6 +618,7 @@ class Ui_App_Invoicing(object):
         self.payway_window=Ui_PayWay_Window(db_payway)
         self.payway_window.show()
 
+# Function to open window for manage countries
     def countries(self):
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -558,65 +634,265 @@ class Ui_App_Invoicing(object):
         self.countries_window=Ui_Countries_Window(db_countries)
         self.countries_window.show()
 
-
-    # def edit_offer(self):
-    #     self.edit_offer_window=QtWidgets.QMainWindow()
-    #     self.ui=Ui_EditOffer_Menu()
-    #     self.ui.setupUi(self.edit_offer_window)
-    #     self.edit_offer_window.show()
-    #     self.ui.Button_Cancel.clicked.connect(self.update_table)
-
-
-    # def query_offer(self):
-    #     self.query_offer_window=QtWidgets.QMainWindow()
-    #     self.ui=Ui_QueryOffer_Window()
-    #     self.ui.setupUi(self.query_offer_window)
-    #     self.query_offer_window.show()
-
-
+# Function to open window for manage clients
     def clients(self):
         self.clients_window=QtWidgets.QMainWindow()
         self.ui=Ui_Clients_Window(self.name)
         self.ui.setupUi(self.clients_window)
         self.clients_window.show()
 
+# Function to query pending invoices
+    def pending_invoice(self):
+        dlg = QtWidgets.QInputDialog()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle('Facturas Pendientes')
+        dlg.setLabelText('Fecha Desde (dd-mm-yyyy):')
 
-    # def edit_order(self):
-    #     self.edit_order_window=QtWidgets.QMainWindow()
-    #     self.ui=Ui_Edit_Order_Window()
-    #     self.ui.setupUi(self.edit_order_window)
-    #     self.edit_order_window.show()
-    #     self.ui.Button_Cancel.clicked.connect(self.update_table)
+        dlg2 = QtWidgets.QInputDialog()
+        new_icon2 = QtGui.QIcon()
+        new_icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg2.setWindowIcon(new_icon2)
+        dlg2.setWindowTitle('Facturas Pendientes')
+        dlg2.setLabelText('Fecha Hasta (dd-mm-yyyy):')
 
+        while True:
+            clickedButton = dlg.exec()
+            if clickedButton == 1:
+                date_1 = dlg.textValue()
+                if date_1 != '' and re.match(r'^\d{2}-\d{2}-\d{4}$', date_1):
+                    while True:
+                        clickedButton2 = dlg2.exec()
+                        if clickedButton2 == 1:
+                            date_2 = dlg2.textValue()
+                            if date_2 != '' and re.match(r'^\d{2}-\d{2}-\d{4}$', date_2):
+                                conn = None
+                                try:
+                                # read the connection parameters
+                                    params = config()
+                                # connect to the PostgreSQL server
+                                    conn = psycopg2.connect(**params)
+                                    cur = conn.cursor()
+                                # execution of commands
+                                    commands_pendinginvoices = (""" SELECT clients."code", clients."name", invoice."num_invoice", TO_CHAR(invoice."date_invoice",'dd/MM/yyyy'), 
+                                                                    TO_CHAR(DATE (
+                                                                        CASE
+                                                                            WHEN EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1 > 12 THEN EXTRACT(YEAR FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1
+                                                                            ELSE EXTRACT(YEAR FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days"))
+                                                                        END || '-' ||
+                                                                        CASE
+                                                                            WHEN EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1 > 12 THEN '01'
+                                                                            ELSE EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days"))
+                                                                        END || '-' ||
+                                                                        CASE
+                                                                            WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) < COALESCE(NULLIF(clients."vto_prog1",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog1",''), '1')
+                                                                            WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) < COALESCE(NULLIF(clients."vto_prog2",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog2",''), '1')
+                                                                            WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) > COALESCE(NULLIF(clients."vto_prog2",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog1",''), '1')
+                                                                            ELSE TO_CHAR(EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")),'FM00')
+                                                                        END
+                                                                    ),'dd/MM/yyyy') AS exp_date,
+                                                                    invoice."obs_delivnote",
+                                                                    CAST(invoice."tax_base_amount" + (invoice."tax_base_amount" * invoice."iva"/100) AS NUMERIC) AS total_fact,
+                                                                    CASE
+                                                                        WHEN invoice."pay_date" IS NOT NULL THEN DATE (
+                                                                            CASE
+                                                                                WHEN EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1 > 12 THEN EXTRACT(YEAR FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1
+                                                                                ELSE EXTRACT(YEAR FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days"))
+                                                                            END || '-' ||
+                                                                            CASE
+                                                                                WHEN EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1 > 12 THEN '01'
+                                                                                ELSE EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days"))
+                                                                            END || '-' ||
+                                                                            CASE
+                                                                                WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) < COALESCE(NULLIF(clients."vto_prog1",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog1",''), '1')
+                                                                                WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) < COALESCE(NULLIF(clients."vto_prog2",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog2",''), '1')
+                                                                                WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) > COALESCE(NULLIF(clients."vto_prog2",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog1",''), '1')
+                                                                                ELSE TO_CHAR(EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")),'FM00')
+                                                                            END
+                                                                            ) - invoice."pay_date"
+                                                                        ELSE DATE (
+                                                                            CASE
+                                                                                WHEN EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1 > 12 THEN EXTRACT(YEAR FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1
+                                                                                ELSE EXTRACT(YEAR FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days"))
+                                                                            END || '-' ||
+                                                                            CASE
+                                                                                WHEN EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) + 1 > 12 THEN '01'
+                                                                                ELSE EXTRACT(MONTH FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days"))
+                                                                            END || '-' ||
+                                                                            CASE
+                                                                                WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) < COALESCE(NULLIF(clients."vto_prog1",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog1",''), '1')
+                                                                                WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) < COALESCE(NULLIF(clients."vto_prog2",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog2",''), '1')
+                                                                                WHEN EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")) > COALESCE(NULLIF(clients."vto_prog2",''), '1')::numeric THEN COALESCE(NULLIF(clients."vto_prog1",''), '1')
+                                                                                ELSE TO_CHAR(EXTRACT(DAY FROM (invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days")),'FM00')
+                                                                            END
+                                                                            ) - CURRENT_DATE
+                                                                    END AS difference
+                                                                FROM 
+                                                                    purch_fact.invoice_header AS invoice
+                                                                    INNER JOIN purch_fact.clients_test AS clients ON (invoice."id_client" = clients."id")
+                                                                    INNER JOIN purch_fact.pay_way AS pay_way ON (clients."pay_way_id" = pay_way."id")
+                                                                WHERE 
+                                                                    invoice."pay_date" IS NULL 
+                                                                    AND invoice."date_invoice" BETWEEN %s AND %s
+                                                                """)
 
-    # def query_order(self):
-    #     self.query_order_window=QtWidgets.QMainWindow()
-    #     self.ui=Ui_QueryOrder_Window()
-    #     self.ui.setupUi(self.query_order_window)
-    #     self.query_order_window.show()
+                                    data = (date_1, date_2,)
+                                    cur.execute(commands_pendinginvoices, data)
 
+                                    results = cur.fetchall()
+                                    df = pd.DataFrame(results, columns=["code", "name", "num_invoice", "date_invoice", "exp_date", "obs_delivnote", "total_invoice", "difference"])
 
-    # def new_tag(self):
-    #     self.new_tag_window=QtWidgets.QMainWindow()
-    #     self.ui=Ui_CreateTag_Menu()
-    #     self.ui.setupUi(self.new_tag_window)
-    #     self.new_tag_window.show()
+                                # close communication with the PostgreSQL database server
+                                    cur.close()
+                                # commit the changes
+                                    conn.commit()
 
+                                    self.generate_pending_invoices_pdf(df)
 
-    # def edit_tag(self):
-    #     self.edittags_menu=QtWidgets.QMainWindow()
-    #     self.ui=Ui_EditTags_Menu()
-    #     self.ui.setupUi(self.edittags_menu)
-    #     self.edittags_menu.show()
+                                except (Exception, psycopg2.DatabaseError) as error:
+                                    dlg = QtWidgets.QMessageBox()
+                                    new_icon = QtGui.QIcon()
+                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg.setWindowIcon(new_icon)
+                                    dlg.setWindowTitle("ERP EIPSA")
+                                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                + str(error))
+                                    print(error)
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                    dlg.exec()
+                                    del dlg, new_icon
+                                finally:
+                                    if conn is not None:
+                                        conn.close()
+                                break
+                            dlg_error = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg_error.setWindowIcon(new_icon)
+                            dlg_error.setWindowTitle("Facturas Pendientes")
+                            dlg_error.setText("La fecha no puede estar vacío y debe tener un formato válido.")
+                            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg_error.exec()
+                            del dlg_error,new_icon
+                        else:
+                            break
+                    break
+                dlg_error = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg_error.setWindowIcon(new_icon)
+                dlg_error.setWindowTitle("Facturas Pendientes")
+                dlg_error.setText("La fecha no puede estar vacío y debe tener un formato válido.")
+                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg_error.exec()
+                del dlg_error,new_icon
+            else:
+                break
 
+# Function to query intermediate agent liquidation
+    def ag_int_liq(self):
+        dlg = QtWidgets.QInputDialog()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle('Agte. Interm. Liquidación')
+        dlg.setLabelText('Fecha Desde (dd-mm-yyyy):')
 
-    # def query_tag(self):
-    #     self.querytag_window=QtWidgets.QMainWindow()
-    #     self.ui=Ui_QueryTags_Window('Invoicing')
-    #     self.ui.setupUi(self.querytag_window)
-    #     self.querytag_window.show()
+        dlg2 = QtWidgets.QInputDialog()
+        new_icon2 = QtGui.QIcon()
+        new_icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg2.setWindowIcon(new_icon2)
+        dlg2.setWindowTitle('Agte. Interm. Liquidación')
+        dlg2.setLabelText('Fecha Hasta (dd-mm-yyyy):')
 
+        while True:
+            clickedButton = dlg.exec()
+            if clickedButton == 1:
+                date_1 = dlg.textValue()
+                if date_1 != '' and re.match(r'^\d{2}-\d{2}-\d{4}$', date_1):
+                    while True:
+                        clickedButton2 = dlg2.exec()
+                        if clickedButton2 == 1:
+                            date_2 = dlg2.textValue()
+                            if date_2 != '' and re.match(r'^\d{2}-\d{2}-\d{4}$', date_2):
+                                conn = None
+                                try:
+                                # read the connection parameters
+                                    params = config()
+                                # connect to the PostgreSQL server
+                                    conn = psycopg2.connect(**params)
+                                    cur = conn.cursor()
+                                # execution of commands
+                                    commands_ag_int = (""" SELECT invoice."num_invoice", TO_CHAR(invoice."date_invoice",'dd/MM/yyyy'), CAST(invoice."tax_base_amount" AS NUMERIC),
+                                                                    invoice."aginterm", invoice."aginterm_state",
+                                                                    CAST(country."porc" AS NUMERIC), clients."name"
+                                                                FROM 
+                                                                    purch_fact.invoice_header AS invoice
+                                                                    INNER JOIN purch_fact.destination_country AS country ON (invoice."id_dest_country" = country."id")
+                                                                    INNER JOIN purch_fact.clients_test AS clients ON (invoice."id_client" = clients."id")
+                                                                    INNER JOIN purch_fact.pay_way AS pay_way ON (clients."pay_way_id" = pay_way."id")
+                                                                WHERE 
+                                                                    invoice."pay_date" IS NULL 
+                                                                    AND invoice."date_invoice" BETWEEN %s AND %s
+                                                                    AND invoice."aginterm" <> ''
+                                                                ORDER BY clients."name"
+                                                                """)
 
+                                    data = (date_1, date_2,)
+                                    cur.execute(commands_ag_int, data)
+
+                                    results = cur.fetchall()
+                                    df = pd.DataFrame(results, columns=["num_invoice", "date_invoice", "tax_base", "agint", "agint_state", "porc", "name"])
+
+                                # close communication with the PostgreSQL database server
+                                    cur.close()
+                                # commit the changes
+                                    conn.commit()
+
+                                    self.generate_ag_int_pdf(df)
+
+                                except (Exception, psycopg2.DatabaseError) as error:
+                                    dlg = QtWidgets.QMessageBox()
+                                    new_icon = QtGui.QIcon()
+                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg.setWindowIcon(new_icon)
+                                    dlg.setWindowTitle("ERP EIPSA")
+                                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                + str(error))
+                                    print(error)
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                    dlg.exec()
+                                    del dlg, new_icon
+                                finally:
+                                    if conn is not None:
+                                        conn.close()
+                                break
+                            dlg_error = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg_error.setWindowIcon(new_icon)
+                            dlg_error.setWindowTitle("Agte. Interm. Liquidación")
+                            dlg_error.setText("La fecha no puede estar vacío y debe tener un formato válido.")
+                            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg_error.exec()
+                            del dlg_error,new_icon
+                        else:
+                            break
+                    break
+                dlg_error = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg_error.setWindowIcon(new_icon)
+                dlg_error.setWindowTitle("Agte. Interm. Liquidación")
+                dlg_error.setText("La fecha no puede estar vacío y debe tener un formato válido.")
+                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg_error.exec()
+                del dlg_error,new_icon
+            else:
+                break
+
+# Function to open the context menu when profile picture is clicked
     def showMenu(self):
         menu = QMenu(self.centralwidget)
         menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; }"
@@ -627,19 +903,265 @@ class Ui_App_Invoicing(object):
         button = self.Button_Profile
         menu.exec(button.mapToGlobal(QtCore.QPoint(-75, 50)))
 
-
+# Function to open window for editing password
     def editpassword(self):
         self.edit_password_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditPasswordWindow(self.username)
         self.ui.setupUi(self.edit_password_window)
         self.edit_password_window.show()
 
+# Function to generate pdf for pending invoices
+    def generate_pending_invoices_pdf(self, df):
+        list_clients = df['code'].unique().tolist()
+
+        pdf = pending_invoices()
+        pdf.set_auto_page_break(auto=True, margin=1)
+        pdf.add_page()
+        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+        pdf.set_font('Helvetica', 'B', 10)
+        pdf.cell(15, 0.5, self.format_date_spanish(date.today()))
+        pdf.ln(1)
+
+        for code in list_clients:
+            pdf.set_font('Helvetica', 'B', 10)
+            df_client = df[df['code'] == code]
+            pdf.set_fill_color(185, 205, 229)
+            pdf.cell(3, 0.5, code, align="R", fill=True,)
+            pdf.cell(0.2, 0.5, ' | ', align="C")
+            pdf.cell(15, 0.5, df_client.iloc[0, 1], fill=True, )
+            pdf.ln(0.5)
+
+            pdf.set_text_color(97,106,118)
+            pdf.cell(2, 1, 'Nº Factura')
+            pdf.cell(2, 1, 'Importe')
+            pdf.cell(2, 1, 'F. Factura')
+            pdf.cell(2, 1, 'F. Vto.')
+            pdf.cell(2, 1, 'Observaciones')
+            pdf.set_text_color(0,0,0)
+            pdf.ln(1)
+
+            for row in range(df_client.shape[0]):
+                pdf.set_font("DejaVuSansCondensed", size=10)
+                pdf.cell(2, 0.5, df_client.iloc[row, 2])
+                pdf.cell(2, 0.5, self.format_number(df_client.iloc[row, 6]))
+                pdf.cell(2, 0.5, df_client.iloc[row, 3])
+                if df_client.iloc[row, 7] > 0:
+                    pdf.set_fill_color(169, 208, 142)
+                elif df_client.iloc[row, 7] < 0 and df_client.iloc[row, 7] > -30:
+                    pdf.set_fill_color(255, 230, 153)
+                else:
+                    pdf.set_fill_color(217, 150, 148)
+                pdf.cell(2, 0.5, df_client.iloc[row, 4], fill=True,)
+                pdf.cell(2, 0.5, pdf.cell(3, 1, df_client.iloc[row, 5]))
+                pdf.ln(0.5)
+
+            pdf.ln(0.5)
+
+            pdf.set_text_color(144,60,57)
+            pdf.cell(2, 0.5, 'Total S/Cl.:', border=1)
+            pdf.set_font('DejaVuSansCondensed-Bold', size = 10)
+            pdf.cell(3.2, 0.5, self.format_number(df_client['total_invoice'].sum()), border=1)
+            pdf.set_text_color(0,0,0)
+            pdf.ln(1)
+
+        pdf_buffer = pdf.output()
+
+        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
+
+        with open(temp_file_path, "wb") as temp_file:
+            temp_file.write(pdf_buffer)
+
+        pdf.close()
+
+        self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Abre el PDF en el visor
+        self.pdf_viewer.showMaximized()
+
+# Function to generate pdf for pending invoices
+    def generate_ag_int_pdf(self, df):
+        list_ag = df['agint'].unique().tolist()
+
+        pdf = ag_int_liquid()
+        pdf.set_auto_page_break(auto=True, margin=1)
+        pdf.add_page()
+        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+
+        pdf.set_font('Helvetica', 'B', 20)
+        pdf.cell(12, 1, 'Estado Agentes Intermediarios')
+        pdf.set_font('Helvetica', 'B', 10)
+        pdf.cell(7, 1, self.format_date_spanish(date.today()), align='R')
+
+        y_position = pdf.get_y()
+
+        pdf.set_draw_color(47, 54, 153)
+        pdf.set_line_width(0.1)
+        pdf.line(1, y_position + 1, 20, y_position + 1)
+        pdf.set_line_width(0.01)
+        pdf.set_draw_color(0, 0, 0)
+
+        for code in list_ag:
+            pdf.set_font('Helvetica', 'B', 10)
+            df_agent = df[df['agint'] == code]
+            pdf.set_xy(1, y_position + 2)
+
+            pdf.cell(4.25, 0.5, 'Agente intermediario:', align='R')
+            pdf.set_fill_color(255, 255, 153)
+            pdf.set_text_color(186,20,25)
+            pdf.cell(4, 0.5, code, align="C", fill=True,)
+            pdf.set_text_color(0,0,0)
+            pdf.cell(5.5, 0.5, 'Comision:', align='R')
+            pdf.set_fill_color(255, 255, 153)
+            pdf.set_text_color(186,20,25)
+            pdf.cell(4, 0.5, '{:.2f}'.format(df_agent.iloc[0,5]) + ' %', align="C", fill=True,)
+            pdf.set_text_color(0,0,0)
+
+            pdf.ln(1)
+
+            pdf.cell(4.25, 0.5, 'Total Facturado s/Agte.:', align='R')
+            pdf.set_fill_color(255, 255, 153)
+            pdf.set_text_color(186,20,25)
+            pdf.set_font('DejaVuSansCondensed-Bold', size=10)
+            pdf.cell(4, 0.5, self.format_number(df_agent['tax_base'].sum()), align="C", fill=True,)
+            pdf.set_text_color(0,0,0)
+            pdf.cell(5.5, 0.5, 'Total asignado por comision:', align='R')
+            pdf.set_fill_color(255, 255, 153)
+            pdf.set_text_color(186,20,25)
+            pdf.set_font('DejaVuSansCondensed-Bold', size=10)
+            pdf.cell(4, 0.5, self.format_number(float(df_agent['tax_base'].sum()) * float(df_agent.iloc[0,5]) / 100), align="C", fill=True,)
+            pdf.set_text_color(0,0,0)
+
+            y_position = pdf.get_y()
+            pdf.line(1, y_position + 1, 20, y_position + 1)
+
+            list_states = df['agint_state'].unique().tolist()
+
+            for state in list_states:
+                y_position = pdf.get_y()
+                pdf.set_xy(7.5, y_position + 1.5)
+                pdf.set_text_color(0,0,0)
+                pdf.cell(2, 1, 'Estado:', align='C', border='LTB')
+                pdf.set_fill_color(255, 255, 153)
+                pdf.set_text_color(186,20,25)
+                pdf.set_font('Helvetica', 'B', 13)
+                pdf.cell(3.5, 1, state, align="C", border='RTB', fill=True)
+                pdf.set_text_color(0,0,0)
+
+                pdf.ln(1.5)
+
+                pdf.set_font('Helvetica', 'B', 10)
+                pdf.cell(2, 0.5, 'Nº Fact.:', align='C')
+                pdf.cell(10, 0.5, 'Cliente:', align='C')
+                pdf.cell(2, 0.5, 'Fecha:', align='C')
+                pdf.cell(3, 0.5, 'Base Fac.:', align='C')
+                pdf.cell(2, 0.5, 'Comisión:', align='C')
+                pdf.set_font('Helvetica', '', 10)
+
+                y_position = pdf.get_y()
+                pdf.line(1, y_position + 0.5, 20, y_position + 0.5)
+
+                pdf.ln(0.5)
+
+                df_state = df[df_agent['agint_state'] == state]
+                for row in range(df_state.shape[0]):
+                    pdf.cell(2, 0.5, df_state.iloc[row, 0], align='C')
+                    pdf.cell(10, 0.5, df_state.iloc[row, 6], align='C')
+                    pdf.cell(2, 0.5, df_state.iloc[row, 1], align='C')
+                    pdf.set_font('DejaVuSansCondensed', size=10)
+                    pdf.cell(3, 0.5, self.format_number(df_state.iloc[row, 2]), align='C')
+                    pdf.cell(2, 0.5, self.format_number(df_state.iloc[row, 2] * df_agent.iloc[row,5] / 100), align='C')
+                    pdf.set_font('Helvetica', '', 10)
+                    pdf.ln(0.5)
+
+                pdf.ln(0.5)
+
+                y_position = pdf.get_y()
+                pdf.set_xy(3.75,y_position)
+                pdf.set_text_color(0,114,188)
+                pdf.set_font('Helvetica', 'BU', 10)
+                pdf.cell(3, 1, 'Total Facturado:', align='C', border='LTB')
+                pdf.set_fill_color(255, 255, 153)
+                pdf.set_text_color(186,20,25)
+                pdf.set_font('DejaVuSansCondensed-Bold', size=13)
+                pdf.cell(3.5, 1, self.format_number(df_state['tax_base'].sum()), align="C", border='TB', fill=True)
+                pdf.set_text_color(0,114,188)
+                pdf.set_font('Helvetica', 'BU', 10)
+                pdf.cell(3, 1, 'Total estado:', align='C', border='TB')
+                pdf.set_fill_color(255, 255, 153)
+                pdf.set_text_color(186,20,25)
+                pdf.set_font('DejaVuSansCondensed-Bold', size=13)
+                pdf.cell(3.5, 1, self.format_number(df_state['tax_base'].sum() * df_agent.iloc[0,5] / 100), align="C", border='RTB', fill=True)
+                pdf.set_text_color(0,0,0)
+
+                y_position = pdf.get_y()
+                pdf.line(1, y_position + 1.5, 20, y_position + 1.5)
+
+                pdf.ln(0.5)
+
+        #     # pdf.add_page()
+
+        pdf_buffer = pdf.output()
+
+        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
+
+        with open(temp_file_path, "wb") as temp_file:
+            temp_file.write(pdf_buffer)
+
+        pdf.close()
+
+        self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
+        self.pdf_viewer.showMaximized()
+
+# Function to format amount values
+    def format_number(self, number):
+    # Convertir el número a una cadena con el formato deseado
+        formatted_number = '{:,.2f}'.format(number)
+
+        # Reemplazar el punto decimal por coma
+        formatted_number = formatted_number.replace('.', ':')
+        formatted_number = formatted_number.replace(',', '.')
+        formatted_number = formatted_number.replace(':', ',')
+
+        # Agregar el símbolo de euro al final
+        formatted_number += ' €'
+
+        return formatted_number
+
+# Function to format date to long in spanish
+    def format_date_spanish(self, date_toformat):
+        months = ("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre")
+        day = date_toformat.day
+        month = months[date_toformat.month - 1]
+        year = date_toformat.year
+        messsage = "{} de {} de {}".format(day, month, year)
+
+        return messsage
+
+# Function to open window for tag edition
+    def edit_tag(self):
+        from TAGEdit_Facturation_Window import Ui_EditTags_Facturation_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_tags_fact = createConnection(user_database, password_database)
+        if not db_tags_fact:
+            sys.exit()
+
+        self.edit_tags_app = Ui_EditTags_Facturation_Window(self.name, db_tags_fact)
+        self.edit_tags_app.show()
+
+
+
 
 # if __name__ == "__main__":
 #     import sys
 #     app = QtWidgets.QApplication(sys.argv)
 #     App_Invoicing = QtWidgets.QMainWindow()
-#     ui = Ui_App_Invoicing()
+#     ui = Ui_App_Invoicing('Javier Zofio', 'j.zofio')
 #     ui.setupUi(App_Invoicing)
 #     App_Invoicing.showMaximized()
 #     sys.exit(app.exec())

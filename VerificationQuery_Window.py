@@ -557,12 +557,20 @@ class Ui_VerificationQuery_Window(QtWidgets.QMainWindow):
                         UNION
                         SELECT DISTINCT ON (num_order, of_drawing) id_tag_level, 'tags_data.tags_level', num_order, tag, of_drawing, TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), final_verif_of_eq_state, final_verif_of_eq_obs FROM tags_data.tags_level WHERE tag_state = 'PURCHASED'
                         UNION
+                        SELECT DISTINCT ON (num_order, dim_drawing) id_tag_others, 'tags_data.tags_others', num_order, tag, dim_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), final_verif_dim_state, final_verif_dim_obs FROM tags_data.tags_others WHERE tag_state = 'PURCHASED'
+                        UNION
+                        SELECT DISTINCT ON (num_order, of_drawing) id_tag_others, 'tags_data.tags_others', num_order, tag, of_drawing, TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), final_verif_of_eq_state, final_verif_of_eq_obs FROM tags_data.tags_others WHERE tag_state = 'PURCHASED'
+                        UNION
+                        SELECT id, 'verification.dim_drawing_verification', num_order, 'Plano Dim.' as tag, drawing_number, TO_CHAR(verif_dim_drawing_date, 'DD/MM/YYYY'), verif_dim_drawing_state, verif_dim_drawing_obs FROM verification.dim_drawing_verification
+                        UNION
+                        SELECT id, 'verification.of_drawing_verification', num_order, 'Plano OF' as tag, drawing_number, TO_CHAR(verif_of_drawing_date, 'DD/MM/YYYY'), verif_of_drawing_state, verif_of_drawing_obs FROM verification.of_drawing_verification
+                        UNION
                         SELECT id, 'verification.m_drawing_verification', num_order, 'Plano M' as tag, drawing_number, TO_CHAR(verif_m_drawing_date, 'DD/MM/YYYY'), verif_m_drawing_state, verif_m_drawing_obs FROM verification.m_drawing_verification
                         UNION
                         SELECT id, 'verification.ppi_verification', num_order, 'PPI' as tag, 'PPI' as of_drawing, TO_CHAR(verif_ppi_date, 'DD/MM/YYYY'), verif_ppi_state, verif_ppi_obs FROM verification.ppi_verification
                         UNION
                         SELECT id, 'verification.exp_verification', num_order, 'EXP' as tag, 'EXP' as of_drawing, TO_CHAR(verif_exp_date, 'DD/MM/YYYY'), verif_exp_state, verif_exp_obs FROM verification.exp_verification
-                        ORDER BY num_order
+                        ORDER BY tag, num_order
                         """)
         conn = None
         try:
@@ -627,6 +635,6 @@ class Ui_VerificationQuery_Window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    VerificationQuery_Window = Ui_VerificationQuery_Window()
+    VerificationQuery_Window = Ui_VerificationQuery_Window('m.gil')
     VerificationQuery_Window.show()
     sys.exit(app.exec())

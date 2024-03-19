@@ -1,6 +1,6 @@
 import pandas as pd
 from openpyxl import load_workbook
-from openpyxl.styles import Font, Alignment, PatternFill
+from openpyxl.styles import Font, Alignment, PatternFill, NamedStyle
 from openpyxl.cell.rich_text import CellRichText, TextBlock
 from openpyxl.cell.text import InlineFont
 from openpyxl.utils import get_column_letter, get_column_letter
@@ -5935,6 +5935,249 @@ class offer_short_level_english:
         )
         if output_path_technical:
             self.wb_technical.save(output_path_technical)
+
+
+class order_ovr:
+    def __init__(self, num_order):
+        self.num_order = num_order
+        dict_orders ={}
+
+        if self.num_order[:2] == 'PA':
+                self.table_name = "tags_data.tags_others"
+
+        else:
+            query_material = ("""
+                            SELECT orders."num_order",orders."num_offer",product_type."variable",orders."order_date",orders."num_ref_order"
+                            FROM offers
+                            INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
+                            INNER JOIN product_type ON (offers."material"=product_type."material")
+                            WHERE (UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
+                            )
+                            ORDER BY orders."num_order"
+                            """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(query_material,(self.num_order,))
+                results_orders=cur.fetchall()
+                material = results_orders[0][2]
+
+                for result in results_orders:
+                    dict_orders[result[0]] = result[3]
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
+
+                if material == 'Caudal':
+                    self.table_name = "tags_data.tags_flow"
+                elif material == 'Temperatura':
+                    self.table_name = "tags_data.tags_temp"
+                elif material == 'Nivel':
+                    self.table_name = "tags_data.tags_level"
+
+        commands_tags = f" SELECT num_order, postion, subposition, tag, TO_CHAR(contractual_date, 'DD/MM/YYYY'), TO_CHAR(dwg_state_date, 'DD/MM/YYYY'), TO_CHAR(irc_date, 'DD/MM/YYYY'), TO_CHAR(rn_date, 'DD/MM/YYYY'), TO_CHAR(rn_date + INTERVAL '1 day' * 7, 'DD/MM/YYYY') AS rn_date_plus_7_days FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order}'||'%%') ORDER BY num_order"
+        self.num_columns = 10
+        column_headers = ['Sup.', 'Pos', 'SubPos.', 'TAG', 'DELIVERY DATE PO', 'DATE DRAWING APPROVAL', 'NOI', 'DATE IRC', 'DATE RN', 'NEW DELIVERY DATE']
+
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+
+            cur.execute(commands_tags)
+            results=cur.fetchall()
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+
+        data_tags = pd.DataFrame(data=results, columns=column_headers)
+
+        index_tags = data_tags.columns.get_loc('TAG')
+        data_tags.insert(index_tags + 1, 'PO DATE')
+
+        data_tags['PO DATE'] = data_tags['Sup.'].apply(lambda x: dict_orders[x])
+        data_tags['Sup.'] = data_tags['Sup.'].apply(lambda x: x[-1])
+
+        self.wb_ovr = load_workbook(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OVR.xlsx")
+
+        sheet_name = "ANNEX I"
+        ws = self.wb_ovr[sheet_name]
+
+        if len(dict_orders) > 0:
+            ws["A1"] = "ANNEX I - " + results_orders[0][4] + " " + results_orders[0][4][8] + " (S00 to S0" + str(len(dict_orders)) + ")"
+        else:
+            ws["A1"] = "ANNEX I - " + results_orders[0][4] + " " + results_orders[0][4][8] + " (S00)"
+
+        last_row = ws.max_row
+        
+        for index, row in data_tags.iterrows():  # Data in desired row
+            for col_num, value in enumerate(row, start=1):
+                cell = ws.cell(row=last_row + 1, column=col_num)
+                cell.value = value
+
+            last_row = ws.max_row
+
+    def save_excel_ovr(self):
+        # Dialog window to select folder and file name; if path is selected, excel file is saved
+        output_path = asksaveasfilename(
+            defaultextension=".xlsx",
+            filetypes=[("Archivos de Excel", "*.xlsx")],
+            title="Guardar OVR",
+        )
+        if output_path:
+            self.wb_ovr.save(output_path)
+            return output_path
+
+
+class doc_situation:
+    def __init__(self, num_ref, project):
+        self.num_ref = num_ref
+        self.project = project
+
+        commands_queryalldoc = ("""
+                    SELECT documentation."num_order",orders."num_ref_order",offers."client",TO_CHAR(orders."order_date", 'DD/MM/YYYY'),product_type."variable",
+                    documentation."num_doc_client",documentation."num_doc_eipsa",documentation."doc_title",document_type."doc_type",documentation."state",documentation."revision",
+                    TO_CHAR(documentation."state_date", 'DD/MM/YYYY'), TO_CHAR(documentation."date_first_rev", 'DD/MM/YYYY'),
+                    (documentation."state_date" - documentation."date_first_rev") AS difference,
+                    CAST(SUBSTRING(offers."delivery_time" FROM POSITION('-' IN offers."delivery_time") + 1) AS INTEGER) AS delivery_weeks,
+                    TO_CHAR((documentation."state_date" + INTERVAL '7 days' * CAST(SUBSTRING(offers."delivery_time" FROM POSITION('-' IN offers."delivery_time") + 1) AS INTEGER)), 'DD/MM/YYYY') AS new_date
+                    FROM documentation
+                    INNER JOIN orders ON (orders."num_order" = documentation."num_order")
+                    INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
+                    INNER JOIN document_type ON (document_type."id" = documentation."doc_type_id")
+                    INNER JOIN product_type ON (product_type."material" = offers."material")
+                    WHERE orders."num_ref_order" LIKE (%s||'%%')
+                    AND document_type."doc_type" IN ('Cálculo y plano', 'Cálculos', 'Planos', 'Soldadura', 'Pintura')
+                    ORDER BY documentation."num_order"
+                    """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(commands_queryalldoc,(self.num_ref,))
+            results_orders=cur.fetchall()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        column_headers = ['Nº Pedido', 'Nº PO', 'Cliente', 'Fecha Pedido', 'Material', 'Nº Doc. Cliente', 'Nº Doc. EIPSA', 'Título',
+                        'Tipo Doc.', 'Estado', 'Nº Rev.', 'Última Fecha', 'Fecha Rev. 0', 'Días', 'Plazo', 'Fecha Rev.']
+
+        self.data_docs = pd.DataFrame(data=results_orders, columns=column_headers)
+
+        self.wb_doc = load_workbook(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA SITUACIÓN DOCS.xlsx")
+
+        sheet_name = "Doc"
+        ws = self.wb_doc[sheet_name]
+
+        ws["B1"] = "PROYECTO: " + self.project + " (" + self.num_ref + ")" if self.project is not None else "PROYECTO: SIN PROYECTO (" + self.num_ref + ")"
+
+        ws["P1"] = date.today().strftime("%d/%m/%y")
+
+        last_row = ws.max_row
+        
+        for index, row in self.data_docs.iterrows():  # Data in desired row
+            for col_num, value in enumerate(row, start=1):
+                cell = ws.cell(row=last_row + 1, column=col_num)
+                if col_num in [4, 12, 13, 16]:
+                    cell.value = datetime.strptime(value, "%d/%m/%Y")
+                else:
+                    cell.value = value
+
+            last_row = ws.max_row
+
+    def save_excel_doc(self):
+        # Dialog window to select folder and file name; if path is selected, excel file is saved
+        output_path = asksaveasfilename(
+            defaultextension=".xlsx",
+            filetypes=[("Archivos de Excel", "*.xlsx")],
+            title="Guardar Situación Documentos",
+        )
+        if output_path:
+            self.wb_doc.save(output_path)
+            wb = load_workbook(output_path)
+
+            # Set date format
+            date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
+            for col_num in range(17):
+                if col_num in [4, 12, 13, 16]:  
+                    for row_num in range(3, self.data_docs.shape[0] + 5):
+                        cell = wb['Doc'].cell(row=row_num, column=col_num)
+                        cell.style = date_style
+
+            for row in wb['Doc'].iter_rows(min_row=3, max_row=wb['Doc'].max_row, min_col=10, max_col=10):
+                for cell in row:
+                    if cell.value == "Aprobado":
+                        cell.fill = PatternFill(start_color="00FF00", end_color="00FF00", fill_type="solid")
+                    elif cell.value == "Eliminado":
+                        cell.fill = PatternFill(start_color="FF0000", end_color="FF0000", fill_type="solid")
+                        cell.font = Font(color="FFFFFF", bold=True)
+
+            for row in wb['Doc'].iter_rows(min_row=3, max_row=wb['Doc'].max_row-2, min_col=12, max_col=12):
+                for cell in row:
+                    cell.fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+
+            for row in wb['Doc'].iter_rows(min_row=3, max_row=wb['Doc'].max_row-2, min_col=14, max_col=14):
+                for cell in row:
+                    cell.fill = PatternFill(start_color="DA9694", end_color="DA9694", fill_type="solid")
+
+            wb.save(output_path)
+            return output_path
+
 
 
 # offer_short_flow('O-22/032', 'l.bravo', '0', 'project', 'FCA', '10-12', '30', '90_10', '123', '', '')

@@ -375,6 +375,12 @@ class Ui_Verif_Dim_DrawingInsertComp_Window(object):
                                 INSERT INTO verification."dim_drawing_verification" (num_order, drawing_number, verif_dim_drawing_date, verif_dim_drawing_state, verif_dim_drawing_obs) 
                                 VALUES(%s, %s, %s, %s, %s)
                                 """)
+                    
+                    commands_update_dim_drawing = ("""
+                                UPDATE verification."dim_drawing_verification"
+                                SET verif_dim_drawing_date = %s, verif_dim_drawing_state = %s, verif_dim_drawing_obs = %s 
+                                WHERE num_order = %s AND drawing_number = %s
+                                """)
                     conn = None
                     try:
                     # read the connection parameters
@@ -411,7 +417,7 @@ class Ui_Verif_Dim_DrawingInsertComp_Window(object):
                                     dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
                                     result = dlg_yes_no.exec()
                                     if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                                        cur.execute(commands_insert_dim_drawing, (num_order, drawing, verif_date, verif_state, notes, ))
+                                        cur.execute(commands_update_dim_drawing, (verif_date, verif_state, notes, num_order, drawing, ))
 
                                         dlg = QtWidgets.QMessageBox()
                                         new_icon = QtGui.QIcon()
@@ -423,7 +429,6 @@ class Ui_Verif_Dim_DrawingInsertComp_Window(object):
                                         dlg.exec()
                                         del dlg, new_icon
 
-                                        self.num_order.setText('')
                                         self.notes.setText('')
 
                                     del dlg_yes_no, new_icon_yes_no

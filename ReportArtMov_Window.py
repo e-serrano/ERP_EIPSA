@@ -187,7 +187,7 @@ class Ui_ArtMov_Window(object):
         self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
 
-        commands_supplies = "SELECT * FROM purch_fact.supplies_test"
+        commands_supplies = "SELECT * FROM purch_fact.supplies"
         conn = None
         try:
         # read the connection parameters
@@ -250,20 +250,20 @@ class Ui_ArtMov_Window(object):
         
         query1 = """
                 SELECT co_header."id", co_header."client_id", co_header."client_order_num", clients."name", co_header."order_date"
-                FROM purch_fact.client_ord_header_test AS co_header
-                LEFT JOIN purch_fact.clients_test AS clients ON co_header."client_id" = clients."id"
+                FROM purch_fact.client_ord_header AS co_header
+                LEFT JOIN purch_fact.clients AS clients ON co_header."client_id" = clients."id"
                 ORDER BY co_header."client_id"
                 """
         query2 = """
-                SELECT co_det."client_ord_header_test_id", supplies."reference", supplies."description", co_det."quantity"
-                FROM purch_fact.supplies_test AS supplies
-                RIGHT JOIN purch_fact.client_ord_detail_test AS co_det ON supplies."id" = co_det."supply_id"
-                ORDER BY co_det."client_ord_header_test_id"
+                SELECT co_det."client_ord_header_id", supplies."reference", supplies."description", co_det."quantity"
+                FROM purch_fact.supplies AS supplies
+                RIGHT JOIN purch_fact.client_ord_detail AS co_det ON supplies."id" = co_det."supply_id"
+                ORDER BY co_det."client_ord_header_id"
                 """
         commands_supplies = f"""
                             SELECT query1."name", query1."client_order_num", TO_CHAR(query1."order_date", 'DD-MM-YYYY') as formatted_date, query2."quantity"
                             FROM ({query1}) AS query1
-                            INNER JOIN ({query2}) AS query2 ON query1."id" = query2."client_ord_header_test_id"
+                            INNER JOIN ({query2}) AS query2 ON query1."id" = query2."client_ord_header_id"
                             WHERE query2."reference" = '{supply_name}'
                             ORDER BY query1."name", query1."order_date"
                             """

@@ -22,6 +22,49 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
+class ColorDelegate(QtWidgets.QStyledItemDelegate):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.colors_dict = self.get_colors_from_database()
+
+    def get_colors_from_database(self):
+        colors_dict = {}
+
+        conn = None
+        try:
+            # read the connection parameters
+            params = config()
+            # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            # execution of commands
+            commands_colors = "SELECT id, r_channel, g_channel, b_channel FROM verification.states_verification"
+            cur.execute(commands_colors)
+            results = cur.fetchall()
+
+            for result in results:
+                id_color, red, green, blue = result
+                colors_dict[id_color] = QtGui.QColor(red, green, blue)
+
+            # close communication with the PostgreSQL database server
+            cur.close()
+            # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            # Handle the error appropriately
+            pass
+        finally:
+            if conn is not None:
+                conn.close()
+
+        return colors_dict
+
+    def initStyleOption(self, option, index):
+        super().initStyleOption(option, index)
+        color = self.colors_dict.get(index.row()+1, QtGui.QColor("white"))
+        option.palette.setColor(QtGui.QPalette.ColorGroup.All, QtGui.QPalette.ColorRole.Text, color)
+
+
 class CustomTableWidget(QtWidgets.QTableWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -701,6 +744,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.tableRecords.itemClicked.connect(self.loadform)
         self.Button_Search.clicked.connect(self.search_document)
         self.Button_AddSupplier.clicked.connect(self.add_supplier)
+        self.state.currentTextChanged.connect(self.change_text_color)
 
         self.load_values()
         self.query_values()
@@ -852,6 +896,10 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
                 cur.close()
             # commit the changes
                 conn.commit()
+
+                self.delivnote.setText("")
+                self.material.setText("")
+                self.obs.setText("")
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
@@ -1138,6 +1186,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
                 break
 
         self.load_values()
+        self.supplier.setCurrentText(supplier)
 
 
 #Function when clicking on table header
@@ -1198,6 +1247,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
+        self.state.setItemDelegate(ColorDelegate())
         self.state.addItems(list_states)
         self.supplier.addItems(list_suppliers)
 
@@ -1206,6 +1256,44 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key.Key_F5:
             self.load_values()
+
+
+# Function to change combobox color when change value
+    def change_text_color(self, text):
+        colors_dict = {}
+        conn = None
+        try:
+            # read the connection parameters
+            params = config()
+            # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            # execution of commands
+            commands_colors = "SELECT state_verif, r_channel, g_channel, b_channel FROM verification.states_verification"
+            cur.execute(commands_colors)
+            results = cur.fetchall()
+
+            for result in results:
+                state, red, green, blue = result
+                colors_dict[state] = [red, green, blue]
+
+            # close communication with the PostgreSQL database server
+            cur.close()
+            # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            # Handle the error appropriately
+            pass
+        finally:
+            if conn is not None:
+                conn.close()
+
+        if text in colors_dict:
+            text_color = colors_dict[text]
+        else:
+            text_color = [255, 255, 255]
+
+        self.state.setStyleSheet(f"color: rgb({text_color[0]}, {text_color[1]}, {text_color[2]})")
 
 
 if __name__ == "__main__":

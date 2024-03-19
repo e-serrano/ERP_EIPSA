@@ -157,25 +157,25 @@ class Ui_ClientsGeneralResume_Window(object):
                                     LEFT JOIN (
                                         SELECT "client", CAST(SUM("offer_amount") AS money) AS "sum(year-{date.today().year-3})"
                                         FROM offers
-                                        WHERE "offer_year" = {date.today().year-3}
+                                        WHERE "offer_year" = {date.today().year-3} AND "state" = 'Adjudicada'
                                         GROUP BY "client"
                                     ) AS a ON all_clients."client" = a."client"
                                     LEFT JOIN (
                                         SELECT "client", CAST(SUM("offer_amount") AS money) AS "sum(year-{date.today().year-2})"
                                         FROM offers
-                                        WHERE "offer_year" = {date.today().year-2}
+                                        WHERE "offer_year" = {date.today().year-2} AND "state" = 'Adjudicada'
                                         GROUP BY "client"
                                     ) AS b ON all_clients."client" = b."client"
                                     LEFT JOIN (
                                         SELECT "client", CAST(SUM("offer_amount") AS money) AS "sum(year-{date.today().year-1})"
                                         FROM offers
-                                        WHERE "offer_year" = {date.today().year-1}
+                                        WHERE "offer_year" = {date.today().year-1} AND "state" = 'Adjudicada'
                                         GROUP BY "client"
                                     ) AS c ON all_clients."client" = c."client"
                                     LEFT JOIN (
                                         SELECT "client", CAST(SUM("offer_amount") AS money) AS "sum(year-{date.today().year})"
                                         FROM offers
-                                        WHERE "offer_year" = {date.today().year}
+                                        WHERE "offer_year" = {date.today().year} AND "state" = 'Adjudicada'
                                         GROUP BY "client"
                                     ) AS d ON all_clients."client" = d."client"
                                     ORDER BY all_clients."client";
@@ -327,7 +327,7 @@ class Ui_ClientsGeneralResume_Window(object):
         self.client_resume_window=QtWidgets.QMainWindow()
         self.ui=Ui_ClientResume_Window(clientname)
         self.ui.setupUi(self.client_resume_window)
-        self.client_resume_window.show()
+        self.client_resume_window.showMaximized()
 
 
 if __name__ == "__main__":

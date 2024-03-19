@@ -10,7 +10,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QMenu
 import sys
 import configparser
-from Database_Connection import createConnection
+from Database_Connection import createConnection, createConnection_name
 from datetime import *
 import os
 import locale
@@ -118,7 +118,6 @@ class Ui_App_Verification(object):
         self.Button_DBEdit.setIconSize(QtCore.QSize(40, 40))
         self.Button_DBEdit.setObjectName("Button_DBEdit")
         self.Header.addWidget(self.Button_DBEdit)
-        self.Button_DBEdit.clicked.connect(self.editdb)
         spacerItem5 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem5)
         self.Button_Timer = QtWidgets.QPushButton(parent=self.frame)
@@ -178,7 +177,126 @@ class Ui_App_Verification(object):
         self.Button_Timer.setIconSize(QtCore.QSize(40, 40))
         self.Button_Timer.setObjectName("Button_Timer")
         self.Header.addWidget(self.Button_Timer)
-        self.Button_Timer.clicked.connect(self.timer)
+        spacerItem3 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem3)
+        self.Button_Verif_Order = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Verif_Order.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Verif_Order.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Verif_Order.setToolTip('Verificación Pedido')
+        self.Button_Verif_Order.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'm.gil':
+            self.Button_Verif_Order.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Verif_Order.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Verif_Order.setText("")
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Verification_Order.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Verif_Order.setIcon(icon8)
+        self.Button_Verif_Order.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Verif_Order.setObjectName("Button_Verif_Order")
+        self.Header.addWidget(self.Button_Verif_Order)
+        spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem2)
+        self.Button_Index_Drawings = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Index_Drawings.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Index_Drawings.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Index_Drawings.setToolTip('Índice Planos')
+        self.Button_Index_Drawings.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'm.gil':
+            self.Button_Index_Drawings.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Index_Drawings.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Index_Drawings.setText("")
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Drawing_Index.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Index_Drawings.setIcon(icon6)
+        self.Button_Index_Drawings.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Index_Drawings.setObjectName("Button_Index_Drawings")
+        self.Header.addWidget(self.Button_Index_Drawings)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -474,6 +592,10 @@ class Ui_App_Verification(object):
         self.Button_Hardness.clicked.connect(self.hardtest)
         self.Button_Calibration.clicked.connect(self.calibration)
         self.Button_Suppliers.clicked.connect(self.suppliers_delivnote)
+        self.Button_DBEdit.clicked.connect(self.editdb)
+        self.Button_Timer.clicked.connect(self.timer)
+        self.Button_Verif_Order.clicked.connect(self.verif_order)
+        self.Button_Index_Drawings.clicked.connect(self.index_drawing)
         self.Button_Profile.clicked.connect(self.showMenu)
 
 
@@ -624,10 +746,63 @@ class Ui_App_Verification(object):
         self.edit_password_window.show()
 
 
+# Function to open window with timer
     def timer(self):
         from TimerWindow import Ui_TimerWindow
         self.timerwindow=Ui_TimerWindow(self.username)
         self.timerwindow.show()
+
+
+# Function to open window to check order drawings
+    def index_drawing(self):
+        from WorkshopDrawingIndex_Window import Ui_WorkshopDrawingIndex_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_index = createConnection_name(user_database, password_database, 'drawing_index')
+        if not db_index:
+            sys.exit()
+
+        self.index_drawing_window = Ui_WorkshopDrawingIndex_Window(db_index, self.username)
+        self.index_drawing_window.showMaximized()
+
+
+# Function to open window to check order verification
+    def verif_order(self):
+        dlg = QtWidgets.QInputDialog()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle('Verificación')
+        dlg.setLabelText('Introduce un pedido:')
+
+        while True:
+            clickedButton = dlg.exec()
+            if clickedButton == 1:
+                numorder = dlg.textValue()
+                if numorder != '':
+                    from Verif_Order_Window import Ui_Verif_Order_Window
+                    self.testquery_window=QtWidgets.QMainWindow()
+                    self.ui=Ui_Verif_Order_Window(self.username, numorder)
+                    self.ui.setupUi(self.testquery_window)
+                    self.testquery_window.showMaximized()
+                    break
+                dlg_error = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg_error.setWindowIcon(new_icon)
+                dlg_error.setWindowTitle("Verificación")
+                dlg_error.setText("El pedido no puede estar vacío. Introduce un valor válido.")
+                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg_error.exec()
+                del dlg_error,new_icon
+            else:
+                break
+
 
 
 if __name__ == "__main__":

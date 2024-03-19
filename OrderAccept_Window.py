@@ -13,8 +13,6 @@ import os
 from docxtpl import DocxTemplate
 from tkinter.filedialog import asksaveasfilename
 from datetime import *
-import locale
-from babel.dates import format_date
 
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -311,96 +309,38 @@ class Ui_OrderAccept_Window(object):
         self.shortformat.setText(_translate("TAGOfferToOrder_Window", "Formato Corto"))
 
 
+# Function to generate the final document
     def generate_document(self, OrderAccept_Window):
-        numorder = self.numorder_orderaccept.text()
-        address_client = self.address_orderaccept.text()
-        zipcode_client = self.zipcode_orderaccept.text()
-        city_client = self.city_orderaccept.text()
-        country_client = self.country_orderaccept.text()
-        client_responsible = self.responsible_client_orderaccept.text()
-        actual_date=date.today()
-
-        locale.setlocale(locale.LC_TIME, '')
-
-        english_actual_date = format_date(actual_date, format='long', locale='en')
-        spanish_actual_date = format_date(actual_date, format='long', locale='es')
-
-        commands_checkorder = ("""
-                    SELECT * 
-                    FROM orders
-                    WHERE "num_order" = %s
-                    """)
-        conn = None
         try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_checkorder,(numorder,))
-            results=cur.fetchall()
-            match=list(filter(lambda x:numorder in x, results))
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            numorder = self.numorder_orderaccept.text()
+            address_client = self.address_orderaccept.text()
+            zipcode_client = self.zipcode_orderaccept.text()
+            city_client = self.city_orderaccept.text()
+            country_client = self.country_orderaccept.text()
+            client_responsible = self.responsible_client_orderaccept.text()
+            actual_date=date.today()
 
-        if numorder=="" or (numorder==" " or len(match)==0):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Generar Acuse Pedido")
-            dlg.setText("El número de pedido no se encuentra registrado")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+            english_actual_date = self.format_date_english(actual_date)
+            spanish_actual_date = self.format_date_spanish(actual_date)
 
-        elif address_client =="" or (zipcode_client =="" or (city_client =="" or (country_client =="" or client_responsible ==""))):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Generar Acuse Pedido")
-            dlg.setText("Por favor, rellena todos los campos")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
-
-        else:
-            commands_queryorder = ("""
-                                SELECT orders."num_order",offers."num_offer", orders."num_ref_order", offers."client", orders."expected_date", orders."order_amount", orders."order_date", offers."delivery_term", offers."delivery_time", offers."payment_term", offers."validity"
-                                FROM offers
-                                INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
-                                WHERE orders."num_order" = %s
-                                ORDER BY orders."num_order"
-                                """)
+            commands_checkorder = ("""
+                        SELECT * 
+                        FROM orders
+                        WHERE "num_order" = %s
+                        """)
             conn = None
             try:
             # read the connection parameters
                 params = config()
             # connect to the PostgreSQL server
                 conn = psycopg2.connect(**params)
-                cur=conn.cursor()
-                cur.execute(commands_queryorder,(numorder,))
-                results_queryorder=cur.fetchall()
-
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(commands_checkorder,(numorder,))
+                results=cur.fetchall()
+                match=list(filter(lambda x:numorder in x, results))
             # close communication with the PostgreSQL database server
+                cur.close()
             # commit the changes
                 conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
@@ -418,141 +358,220 @@ class Ui_OrderAccept_Window(object):
                 if conn is not None:
                     conn.close()
 
-            num_order = results_queryorder[0][0]
-            num_offer = results_queryorder[0][1]
-            num_ref_order = results_queryorder[0][2]
-            client = results_queryorder[0][3]
-            expected_date = results_queryorder[0][4]
-            order_amount = results_queryorder[0][5]
-            order_date = results_queryorder[0][6]
-            delivery_term = results_queryorder[0][7]
-            delivery_time = results_queryorder[0][8]
-            payment_term_db = results_queryorder[0][9]
-            # validity = int(results_queryorder[0][10])
-            validity = 30
-
-            if num_order[-1] != 'R':
-                expected_date = order_date + timedelta(days=(validity + 28))
-
-            if payment_term_db == "100_delivery":
-                payment_term_english = "100% of total amount of purchase order upon delivery of material according to Incoterms 2020"
-                payment_term_spanish = "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020"
-            elif payment_term_db == "100_order":
-                payment_term_english = "100% of the total amount of purchase order upon receipt of purchase order."
-                payment_term_spanish = "Pago del 100% del valor total de la orden de compra a la recepción de la orden."
-            elif payment_term_db == "90_10":
-                payment_term_english = "90% of the total amount of PO upon delivery of material according to Incoterms 2020 and 10% at take over certificate."
-                payment_term_spanish = "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020 y el 10% restante con la certificación final."
-            elif payment_term_db == "50_50":
-                payment_term_english = "50% of the total amount of purchase order upon receipt of purchase order. Remaining 50% before be delivered according to Incoterms 2020"
-                payment_term_spanish = "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020"
-            elif payment_term_db == "Others" or payment_term_db == None:
-                    payment_term_english = "PAYMENT TERMS TO BE DEFINED"
-                    payment_term_spanish = "TERMINOS DE PAGO POR DEFINIR"
-
-            english_estimated_date = format_date(expected_date, format='long', locale='en')
-            spanish_estimated_date = format_date(expected_date, format='long', locale='es')
-
-            english_order_date = format_date(order_date, format='long', locale='en')
-            spanish_order_date = format_date(order_date, format='long', locale='es')
-
-            if self.checkbox_bond.isChecked():
-                note_bond_english = "The text of warranty bond will be according to the usual document agreed with " + client + " for the last projects."
-                note_bond_spanish = "El texto del aval será de acuerdo al documento habitual acordado con " + client + " para los últimos proyectos"
-            else:
-                note_bond_english = "Note that for orders with an amount lower than 30.000,00 €, warranty bonds are not issued."
-                note_bond_spanish = "Les hacemos notar que para pedidos con importe inferior a 30.000,00 € no se emiten avales bancarios de garantía"
-
-            if self.longformat.isChecked()==True:
-                doc = DocxTemplate(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Pedido.docx")
-                context = {'english_actual_date': english_actual_date,
-                            'num_ref_order': num_ref_order,
-                            'num_order': num_order,
-                            'english_order_date': english_order_date,
-                            'spanish_order_date': spanish_order_date,
-                            'order_amount': order_amount,
-                            'delivery_term': delivery_term,
-                            'delivery_time': delivery_time,
-                            'payment_term_english': payment_term_english,
-                            'payment_term_spanish': payment_term_spanish,
-                            'english_estimated_date': english_estimated_date,
-                            'spanish_estimated_date': spanish_estimated_date,
-                            'num_offer': num_offer,
-                            'client': client,
-                            'note_bond_english': note_bond_english,
-                            'note_bond_spanish': note_bond_spanish,
-                            'address_client': address_client,
-                            'zipcode_client': zipcode_client,
-                            'city_client': city_client, 
-                            'country_client': country_client,
-                            'client_responsible': client_responsible}
-                doc.render(context)
-                self.save_document(doc)
-
+            if numorder=="" or (numorder==" " or len(match)==0):
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Generar Acuse")
-                dlg.setText("Acuse generado con éxito\n\n"
-                            "Revise los apartados de plazo de entrega, incoterms y aval")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
-
-                self.numorder_orderaccept.setText("")
-                self.address_orderaccept.setText("")
-                self.zipcode_orderaccept.setText("")
-                self.city_orderaccept.setText("")
-                self.country_orderaccept.setText("")
-                self.responsible_client_orderaccept.setText("")
-
-                # OrderAccept_Window.close()
-
-
-            elif self.shortformat.isChecked()==True:
-                doc = DocxTemplate(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Corto Pedido.docx")
-                context = {'client': client,
-                            'spanish_actual_date': spanish_actual_date,
-                            'num_ref_order': num_ref_order,
-                            'num_order': num_order,
-                            'spanish_order_date': spanish_order_date,
-                            'order_amount': order_amount,
-                            'delivery_term': delivery_term,
-                            'delivery_time': delivery_time,
-                            'note_bond_spanish': note_bond_spanish,
-                            'address_client': address_client,
-                            'zipcode_client': zipcode_client,
-                            'city_client': city_client, 
-                            'country_client': country_client,
-                            'client_responsible': client_responsible}
-                doc.render(context)
-                self.save_document(doc)
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Generar Acuse")
-                dlg.setText("Acuse generado con éxito\n\n"
-                            "Revise los apartados de plazo de entrega, incoterms y aval")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
-                OrderAccept_Window.close()
-
-            else:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Generar Acuse")
-                dlg.setText("Elige un formato")
+                dlg.setWindowTitle("Generar Acuse Pedido")
+                dlg.setText("El número de pedido no se encuentra registrado")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg.exec()
                 del dlg, new_icon
 
+            elif address_client =="" or (zipcode_client =="" or (city_client =="" or (country_client =="" or client_responsible ==""))):
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Generar Acuse Pedido")
+                dlg.setText("Por favor, rellena todos los campos")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg, new_icon
 
+            else:
+                commands_queryorder = ("""
+                                    SELECT orders."num_order",offers."num_offer", orders."num_ref_order", offers."client", orders."expected_date", orders."order_amount", orders."order_date", offers."delivery_term", offers."delivery_time", offers."payment_term", offers."validity"
+                                    FROM offers
+                                    INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
+                                    WHERE orders."num_order" = %s
+                                    ORDER BY orders."num_order"
+                                    """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur=conn.cursor()
+                    cur.execute(commands_queryorder,(numorder,))
+                    results_queryorder=cur.fetchall()
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+                num_order = results_queryorder[0][0]
+                num_offer = results_queryorder[0][1]
+                num_ref_order = results_queryorder[0][2]
+                client = results_queryorder[0][3]
+                expected_date = results_queryorder[0][4]
+                order_amount = results_queryorder[0][5]
+                order_date = results_queryorder[0][6]
+                delivery_term = results_queryorder[0][7]
+                delivery_time = results_queryorder[0][8]
+                payment_term_db = results_queryorder[0][9]
+                # validity = int(results_queryorder[0][10])
+                validity = 30
+
+                if num_order[-1] != 'R':
+                    expected_date = order_date + timedelta(days=(validity + 28))
+
+                if payment_term_db == "100_delivery":
+                    payment_term_english = "100% of total amount of purchase order upon delivery of material according to Incoterms 2020"
+                    payment_term_spanish = "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020"
+                elif payment_term_db == "100_order":
+                    payment_term_english = "100% of the total amount of purchase order upon receipt of purchase order."
+                    payment_term_spanish = "Pago del 100% del valor total de la orden de compra a la recepción de la orden."
+                elif payment_term_db == "90_10":
+                    payment_term_english = "90% of the total amount of PO upon delivery of material according to Incoterms 2020 and 10% at take over certificate."
+                    payment_term_spanish = "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020 y el 10% restante con la certificación final."
+                elif payment_term_db == "50_50":
+                    payment_term_english = "50% of the total amount of purchase order upon receipt of purchase order. Remaining 50% before be delivered according to Incoterms 2020"
+                    payment_term_spanish = "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020"
+                elif payment_term_db == "Others" or payment_term_db == None:
+                        payment_term_english = "PAYMENT TERMS TO BE DEFINED"
+                        payment_term_spanish = "TERMINOS DE PAGO POR DEFINIR"
+
+                english_estimated_date = self.format_date_english(expected_date)
+                spanish_estimated_date = self.format_date_spanish(expected_date)
+
+                english_order_date = self.format_date_english(order_date)
+                spanish_order_date = self.format_date_spanish(order_date)
+
+                if self.checkbox_bond.isChecked():
+                    note_bond_english = "The text of warranty bond will be according to the usual document agreed with " + client + " for the last projects."
+                    note_bond_spanish = "El texto del aval será de acuerdo al documento habitual acordado con " + client + " para los últimos proyectos"
+                else:
+                    note_bond_english = "Note that for orders with an amount lower than 30.000,00 €, warranty bonds are not issued."
+                    note_bond_spanish = "Les hacemos notar que para pedidos con importe inferior a 30.000,00 € no se emiten avales bancarios de garantía"
+
+                if self.longformat.isChecked()==True:
+                    doc = DocxTemplate(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Pedido.docx")
+                    context = {'english_actual_date': english_actual_date,
+                                'num_ref_order': num_ref_order,
+                                'num_order': num_order,
+                                'english_order_date': english_order_date,
+                                'spanish_order_date': spanish_order_date,
+                                'order_amount': order_amount,
+                                'delivery_term': delivery_term,
+                                'delivery_time': delivery_time,
+                                'payment_term_english': payment_term_english,
+                                'payment_term_spanish': payment_term_spanish,
+                                'english_estimated_date': english_estimated_date,
+                                'spanish_estimated_date': spanish_estimated_date,
+                                'num_offer': num_offer,
+                                'client': client,
+                                'note_bond_english': note_bond_english,
+                                'note_bond_spanish': note_bond_spanish,
+                                'address_client': address_client,
+                                'zipcode_client': zipcode_client,
+                                'city_client': city_client, 
+                                'country_client': country_client,
+                                'client_responsible': client_responsible}
+                    doc.render(context)
+                    self.save_document(doc)
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Generar Acuse")
+                    dlg.setText("Acuse generado con éxito\n\n"
+                                "Revise los apartados de plazo de entrega, incoterms y aval")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                    self.numorder_orderaccept.setText("")
+                    self.address_orderaccept.setText("")
+                    self.zipcode_orderaccept.setText("")
+                    self.city_orderaccept.setText("")
+                    self.country_orderaccept.setText("")
+                    self.responsible_client_orderaccept.setText("")
+
+                elif self.shortformat.isChecked()==True:
+                    doc = DocxTemplate(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Corto Pedido.docx")
+                    context = {'client': client,
+                                'spanish_actual_date': spanish_actual_date,
+                                'num_ref_order': num_ref_order,
+                                'num_order': num_order,
+                                'spanish_order_date': spanish_order_date,
+                                'order_amount': order_amount,
+                                'delivery_term': delivery_term,
+                                'delivery_time': delivery_time,
+                                'note_bond_spanish': note_bond_spanish,
+                                'address_client': address_client,
+                                'zipcode_client': zipcode_client,
+                                'city_client': city_client, 
+                                'country_client': country_client,
+                                'client_responsible': client_responsible}
+                    doc.render(context)
+                    self.save_document(doc)
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Generar Acuse")
+                    dlg.setText("Acuse generado con éxito\n\n"
+                                "Revise los apartados de plazo de entrega, incoterms y aval")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                    self.numorder_orderaccept.setText("")
+                    self.address_orderaccept.setText("")
+                    self.zipcode_orderaccept.setText("")
+                    self.city_orderaccept.setText("")
+                    self.country_orderaccept.setText("")
+                    self.responsible_client_orderaccept.setText("")
+
+                else:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Generar Acuse")
+                    dlg.setText("Elige un formato")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+                    del dlg, new_icon
+
+
+        except Exception as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+
+# Function to save the final document
     def save_document(self, document):
         output_path_accept = asksaveasfilename(
                 defaultextension=".docx",
@@ -561,6 +580,28 @@ class Ui_OrderAccept_Window(object):
             )
         if output_path_accept:
             document.save(output_path_accept)
+
+# Function to format date to long in spanish
+    def format_date_spanish(self, date_toformat):
+        months = ("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre")
+        day = date_toformat.day
+        month = months[date_toformat.month - 1]
+        year = date_toformat.year
+        messsage = "{} de {} de {}".format(day, month, year)
+
+        return messsage
+
+# Function to format date to long in english
+    def format_date_english(self, date_toformat):
+        months = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
+        day = date_toformat.day
+        month = months[date_toformat.month - 1]
+        year = date_toformat.year
+        messsage = "{} {}, {}".format(month, day, year)
+
+        return messsage
+
+
 
 
 if __name__ == "__main__":

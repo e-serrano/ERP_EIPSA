@@ -815,9 +815,10 @@ class Ui_New_Offer_Window(object):
                             INSERT INTO offers (
                             "num_offer","state","responsible","client","final_client",
                             "num_ref_offer","register_date","nac_ext","buyer","material",
-                            "notes","limit_date","rate_type","important","recep_date","mails", "portal", "items_number"
+                            "notes","limit_date","rate_type","important","recep_date",
+                            "mails", "portal", "items_number", "rec_times"
                             )
-                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                             """)
                 conn = None
                 try:
@@ -827,7 +828,7 @@ class Ui_New_Offer_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    data=(numoffer, state, self.username, client, finalclient, numref, actual_date, nacext, buyer, material, notes, limitdate, ratetype, important, recepdate, mails, portal, items_number)
+                    data=(numoffer, state, self.username, client, finalclient, numref, actual_date, nacext, buyer, material, notes, limitdate, ratetype, important, recepdate, mails, portal, items_number, 0)
                     cur.execute(commands_newoffer, data)
                 # close communication with the PostgreSQL database server
                     cur.close()

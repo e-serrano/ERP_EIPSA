@@ -14,9 +14,13 @@ import psycopg2
 import sys
 import configparser
 from Database_Connection import createConnection
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfilename, asksaveasfilename
 import pandas as pd
 import os
+import io
+from fpdf import FPDF
+from pypdf import PdfReader, PdfWriter
+
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -382,6 +386,42 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Header.addWidget(self.LogoIcon)
         spacerItem = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem)
+        self.Button_PortalDoc = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_PortalDoc.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_PortalDoc.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_PortalDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_PortalDoc.setStyleSheet("QPushButton{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid transparent;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
+        self.Button_PortalDoc.setText("")
+        icon12 = QtGui.QIcon()
+        icon12.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Portal.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_PortalDoc.setIcon(icon12)
+        self.Button_PortalDoc.setIconSize(QtCore.QSize(40, 40))
+        self.Button_PortalDoc.setObjectName("Button_PortalDoc")
+        self.Button_PortalDoc.setToolTip("Portal Documentación")
+        self.Header.addWidget(self.Button_PortalDoc)
+        spacerItem11 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem11)
         if self.name in ["Ernesto Carrillo","Enrique Serrano"]:
             self.Button_ImportTimes = QtWidgets.QPushButton(parent=self.frame)
             self.Button_ImportTimes.setMinimumSize(QtCore.QSize(50, 50))
@@ -419,6 +459,78 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Header.addWidget(self.Button_ImportTimes)
             spacerItem10 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
             self.Header.addItem(spacerItem10)
+            self.Button_CheckTimes = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_CheckTimes.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_CheckTimes.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_CheckTimes.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_CheckTimes.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_CheckTimes.setText("")
+            icon15 = QtGui.QIcon()
+            icon15.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Clock.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_CheckTimes.setIcon(icon15)
+            self.Button_CheckTimes.setIconSize(QtCore.QSize(40, 40))
+            self.Button_CheckTimes.setObjectName("Button_CheckTimes")
+            self.Button_CheckTimes.setToolTip("Tiempos")
+            self.Header.addWidget(self.Button_CheckTimes)
+            spacerItem7 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem7)
+            self.Button_DB_Manuf = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_DB_Manuf.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_DB_Manuf.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_DB_Manuf.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_DB_Manuf.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_DB_Manuf.setText("")
+            icon7 = QtGui.QIcon()
+            icon7.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Worker.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_DB_Manuf.setIcon(icon7)
+            self.Button_DB_Manuf.setIconSize(QtCore.QSize(40, 40))
+            self.Button_DB_Manuf.setObjectName("Button_DB_Manuf")
+            self.Button_DB_Manuf.setToolTip("Personal/Operaciones")
+            self.Header.addWidget(self.Button_DB_Manuf)
+            spacerItem6 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem6)
             self.Button_DBEdit = QtWidgets.QPushButton(parent=self.frame)
             self.Button_DBEdit.setMinimumSize(QtCore.QSize(50, 50))
             self.Button_DBEdit.setMaximumSize(QtCore.QSize(50, 50))
@@ -452,8 +564,46 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_DBEdit.setIconSize(QtCore.QSize(40, 40))
             self.Button_DBEdit.setObjectName("Button_DBEdit")
             self.Header.addWidget(self.Button_DBEdit)
+            spacerItem13 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem13)
+            self.Button_PDFEdit = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_PDFEdit.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_PDFEdit.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_PDFEdit.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_PDFEdit.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_PDFEdit.setText("")
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_PDFEdit.setIcon(icon2)
+            self.Button_PDFEdit.setIconSize(QtCore.QSize(40, 40))
+            self.Button_PDFEdit.setObjectName("Button_PDFEdit")
+            self.Header.addWidget(self.Button_PDFEdit)
             self.Button_DBEdit.clicked.connect(self.editdb)
             self.Button_ImportTimes.clicked.connect(self.importtimes)
+            self.Button_CheckTimes.clicked.connect(self.checktimes)
+            self.Button_PDFEdit.clicked.connect(self.editpdf)
+            self.Button_DB_Manuf.clicked.connect(self.dbmanufedit)
         elif self.name in ["Jorge Valtierra"]:
             self.Button_Deliveries = QtWidgets.QPushButton(parent=self.frame)
             self.Button_Deliveries.setMinimumSize(QtCore.QSize(50, 50))
@@ -561,9 +711,47 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_PMI.setObjectName("Button_PMI")
             self.Button_PMI.setToolTip("Insertar PMI")
             self.Header.addWidget(self.Button_PMI)
+
+            spacerItem16 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem16)
+            self.Button_Test = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Test.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Test.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_Test.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Test.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_Test.setText("")
+            icon14 = QtGui.QIcon()
+            icon14.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Tests.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Test.setIcon(icon14)
+            self.Button_Test.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Test.setObjectName("Button_Test")
+            self.Button_Test.setToolTip("Pruebas")
+            self.Header.addWidget(self.Button_Test)
             self.Button_Deliveries.clicked.connect(self.deliveries)
             self.Button_OT.clicked.connect(self.otorder)
             self.Button_PMI.clicked.connect(self.insert_pmi)
+            self.Button_Test.clicked.connect(self.query_test)
         elif self.name in ["Jesús Martínez"]:
             self.Button_Times = QtWidgets.QPushButton(parent=self.frame)
             self.Button_Times.setMinimumSize(QtCore.QSize(50, 50))
@@ -1168,12 +1356,13 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Button_QueryOrder.clicked.connect(self.query_order)
         self.Button_EditTag.clicked.connect(self.edit_tag)
         self.Button_QueryTag.clicked.connect(self.query_tag)
-        self.Button_NewDoc.clicked.connect(self.CreateDoc)
-        self.Button_ImportDoc.clicked.connect(self.ImportDoc)
-        self.Button_EditDoc.clicked.connect(self.EditDoc)
+        self.Button_NewDoc.clicked.connect(self.create_documents)
+        self.Button_ImportDoc.clicked.connect(self.import_documents)
+        self.Button_EditDoc.clicked.connect(self.edit_documents)
         self.Button_QueryDoc.clicked.connect(self.query_documents)
         self.Button_Profile.clicked.connect(self.showMenu)
         self.Button_Notification.clicked.connect(self.notifications)
+        self.Button_PortalDoc.clicked.connect(self.portal_doc)
         self.tableDocs.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
         QtCore.QMetaObject.connectSlotsByName(App_Technical)
 
@@ -1206,6 +1395,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         item.setText(_translate("App_Technical", "Seguimiento"))
 
 
+# Function to edit database tables of technical section
     def editdb(self):
         from DBEditReg_Window import Ui_DBEditReg_Window
         config_obj = configparser.ConfigParser()
@@ -1222,7 +1412,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.dbedit_window=Ui_DBEditReg_Window(db_validation)
         self.dbedit_window.show()
 
-
+# Function to open window with deliveries table
     def deliveries(self):
         from Deliveries_Window import Ui_Deliveries_Window
         config_obj = configparser.ConfigParser()
@@ -1243,7 +1433,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     def times(self):
         print('tiempos')
 
-
+# Function to open window with OT table
     def otorder(self):
         from OTGeneralCreate_Window import Ui_OTGeneralCreate_Window
         self.otgeneralcreate_window=QtWidgets.QMainWindow()
@@ -1251,12 +1441,13 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ui.setupUi(self.otgeneralcreate_window)
         self.otgeneralcreate_window.show()
 
+# Function to open window to insert pmi data
     def insert_pmi(self):
         from TestPmiInsert_Window import Ui_PmiInsert_Window
         self.Pmiinsert_window=Ui_PmiInsert_Window(self.username)
         self.Pmiinsert_window.show()
 
-
+# Function to open window with orders table for technical office data
     def techoffice(self):
         from TechOffice_Window import Ui_TechOffice_Window
         config_obj = configparser.ConfigParser()
@@ -1273,14 +1464,14 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.techoffice_window = Ui_TechOffice_Window(db_techoffice)
         self.techoffice_window.show()
 
-
+# Function to open window with notifications table
     def notifications(self):
         from NotificationsHistory_Window import Ui_HistoryNotifications_Window
         self.notification_window=Ui_HistoryNotifications_Window(self.username)
         self.notification_window.show()
         self.notification_window.Button_Cancel.clicked.connect(self.load_notifications)
 
-
+# Function to open window for order query
     def query_order(self):
         self.query_order_window=QtWidgets.QMainWindow()
         if self.name in ['Jesús Martínez']:
@@ -1292,7 +1483,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ui.setupUi(self.query_order_window)
         self.query_order_window.show()
 
-
+# Function to open window for tag edition
     def edit_tag(self):
         from TAGEdit_Technical_Window import Ui_EditTags_Technical_Window
         config_obj = configparser.ConfigParser()
@@ -1309,24 +1500,24 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.edit_tags_app = Ui_EditTags_Technical_Window(self.name, db_tags_tech)
         self.edit_tags_app.show()
 
-
+# Function to open window for tag query
     def query_tag(self):
-        from TAGQuery_Window import Ui_QueryTags_Window
+        from TAGQuery_Menu import Ui_TAGQuery_Menu
         self.querytag_window=QtWidgets.QMainWindow()
-        self.ui=Ui_QueryTags_Window('Técnico')
+        self.ui=Ui_TAGQuery_Menu('Técnico')
         self.ui.setupUi(self.querytag_window)
         self.querytag_window.show()
 
-
-    def CreateDoc(self):
+# Function to open window for documentation creation
+    def create_documents(self):
         from DocNew_Window import Ui_New_Doc_Window
         self.createdoc_window=QtWidgets.QMainWindow()
         self.ui=Ui_New_Doc_Window()
         self.ui.setupUi(self.createdoc_window)
         self.createdoc_window.show()
 
-
-    def ImportDoc(self):
+# Function to open window for documentation importation
+    def import_documents(self):
         # File dialog to select Excel file
         # Tk().withdraw()  # Ocultar la ventana principal de tkinter
             excel_file = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")],
@@ -1408,8 +1599,8 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                     if conn is not None:
                         conn.close()
 
-
-    def EditDoc(self):
+# Function to open window for documentation edition
+    def edit_documents(self):
         from DocEdit_Window import Ui_EditDoc_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -1427,13 +1618,13 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ui.setupUi(self.editdoc_window)
         self.editdoc_window.showMaximized()
 
-
+# Function to open window for documentation query
     def query_documents(self):
         from DocQuery_Window import Ui_QueryDoc_Window
         self.querydoc_menu=Ui_QueryDoc_Window()
         self.querydoc_menu.show()
 
-
+# Function to show contextual menu when profile image is clicked
     def showMenu(self):
         menu = QMenu(self.centralwidget)
         menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; }"
@@ -1444,7 +1635,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         button = self.Button_Profile
         menu.exec(button.mapToGlobal(QtCore.QPoint(-75, 50)))
 
-
+# Function to open window for password edition
     def editpassword(self):
         from PasswordEdit_Window import Ui_EditPasswordWindow
         self.edit_password_window=QtWidgets.QMainWindow()
@@ -1452,7 +1643,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ui.setupUi(self.edit_password_window)
         self.edit_password_window.show()
 
-
+# Function to update documentation table
     def update_table(self):
         self.tableDocs.setRowCount(0)
         delay_date=QtCore.QDate.currentDate().addDays(-10)
@@ -1512,14 +1703,12 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-
 #Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
         header_pos = self.tableDocs.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.tableDocs.horizontalHeader().height()
         popup_pos = self.tableDocs.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableDocs.show_unique_values_menu(logical_index, popup_pos, header_height)
-
 
 # Function to load number of notifications
     def load_notifications(self):
@@ -1576,7 +1765,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Notification.setIcon(icon13)
 
-
 # Function to import clock times
     def importtimes(self):
         fname = askopenfilename(filetypes=[("Archivos de texto", "*.txt")],
@@ -1625,7 +1813,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                 if conn is not None:
                     conn.close()
 
-
+# Function to edit database tables of manufacturing section
     def dbmanufedit(self):
         from DBManufEditReg_Window import Ui_DBManufEditReg_Window
         config_obj = configparser.ConfigParser()
@@ -1642,7 +1830,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.dbedit_window=Ui_DBManufEditReg_Window(db_manuf)
         self.dbedit_window.show()
 
-
+# Function to import clock-in hours
     def importclockin(self):
         fname = askopenfilename(filetypes=[("Archivos de Excel", "*.txt")],
                         title="Seleccionar archivo Excel")
@@ -1708,13 +1896,13 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                 if conn is not None:
                     conn.close()
 
-
+# Function to show calendar with clock-in hours
     def clockin(self):
         from ClockIn_Window import MyCalendarApp
         self.clockin_window = MyCalendarApp(self.username)
         self.clockin_window.showMaximized()
 
-
+# Function to allow copy function in documents table
     def keyPressEvent(self, event):
         super().keyPressEvent(event)
         if event.matches(QtGui.QKeySequence.StandardKey.Copy):
@@ -1724,7 +1912,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                 text = self.get_selected_text(selected_indexes)
                 clipboard.setText(text)
 
-
+# Function to get the copied text in the clipboard
     def get_selected_text(self, indexes):
         rows = set()
         cols = set()
@@ -1749,3 +1937,114 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             cursor.insertText('\n')  # Salto de línea al final de la fila
 
         return text_doc.toPlainText()
+
+# Function to open menu for document control
+    def portal_doc(self):
+        from DocPortal_Menu import Ui_PortalDoc_Menu
+        self.portaldoc_menu=QtWidgets.QMainWindow()
+        self.ui=Ui_PortalDoc_Menu()
+        self.ui.setupUi(self.portaldoc_menu)
+        self.portaldoc_menu.show()
+
+# Function to insert text on existing PDF
+    def editpdf(self):
+        pdf_file = askopenfilename(filetypes=[("Archivos PDF", "*.pdf")], title="Seleccionar archivo pdf")
+
+        if pdf_file:
+            excel_file = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Importación\Importar Tags Cálculos.xlsx"
+
+            try:
+                reader = PdfReader(pdf_file)
+
+                df_data = pd.read_excel(excel_file)
+
+                for row in range(df_data.shape[0]):
+                    page_overlay = PdfReader(self.new_content(df_data.iloc[row,1], df_data.iloc[row,2])).pages[0] # PdfReader(self.new_content(df_data.iloc[row,1], df_data.iloc[row,2], orientation)).pages[0]
+                    reader.pages[int(df_data.iloc[row,0]) - 1].merge_page(page2=page_overlay)
+
+                path_parts = pdf_file.rsplit('/', 1)
+                first_part = path_parts[0] + "/"
+                name, extension = path_parts[1].rsplit('.', 1)
+
+                output_path = first_part + name + ".pdf"
+
+                if output_path:
+
+                    writer = PdfWriter()
+                    writer.append_pages_from_reader(reader)
+                    writer.write(output_path)
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("PDF Generado con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+            except Exception as error:
+                print(error)
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+
+# Function to create PDF with specific text in a position
+    def new_content(self, value, type):
+        pdf = FPDF(unit='mm')
+        pdf.set_font("helvetica", "", 10)
+        pdf.set_text_color(0, 0, 0)
+
+        if type == 'RO':
+            pdf.add_page()
+            pdf.text(100, 10, value)
+
+        elif type == 'MUL':
+            pdf.add_page()
+            pdf.set_xy(43, 140)
+            with pdf.rotation(90):
+                pdf.cell(10, 10, value)
+
+        elif type == 'FC':
+            pdf.add_page()
+            pdf.text(20, 35, value)
+
+        elif type == 'VAINA':
+            pdf.add_page()
+            pdf.text(20, 17, value)
+
+        return io.BytesIO(pdf.output())
+
+# Function to show window with tables of all tests
+    def query_test(self):
+        from TestAllQuery_Window import Ui_TestAllQuery_Window
+        self.testquery_window=QtWidgets.QMainWindow()
+        self.ui=Ui_TestAllQuery_Window()
+        self.ui.setupUi(self.testquery_window)
+        self.testquery_window.showMaximized()
+
+
+    def checktimes(self):
+        from TimesQuery_Window import Ui_TimesQuery_Window
+        self.timesquery_window=QtWidgets.QMainWindow()
+        self.ui=Ui_TimesQuery_Window(self.username)
+        self.ui.setupUi(self.timesquery_window)
+        self.timesquery_window.showMaximized()
+
+
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     Login_Window = QtWidgets.QMainWindow()
+#     ui = Ui_App_Technical('Ernesto Carrillo','e.carrillo')
+#     ui.setupUi(Login_Window)
+#     Login_Window.show()
+#     sys.exit(app.exec())

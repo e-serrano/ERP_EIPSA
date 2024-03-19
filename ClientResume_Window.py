@@ -240,6 +240,16 @@ class Ui_ClientResume_Window(object):
                 self.gridLayout2.setObjectName("gridLayout2")
                 self.vLayout1 = QtWidgets.QVBoxLayout()
                 self.vLayout1.setObjectName("vLayout1")
+                self.label_Ofnumoffers = QtWidgets.QLabel(parent=self.frame)
+                self.label_Ofnumoffers.setMinimumSize(QtCore.QSize(120, 25))
+                self.label_Ofnumoffers.setMaximumSize(QtCore.QSize(120, 25))
+                font = QtGui.QFont()
+                font.setPointSize(11)
+                font.setBold(True)
+                self.label_Ofnumoffers.setFont(font)
+                self.label_Ofnumoffers.setObjectName("label_Ofnumoffers")
+                self.label_Ofnumoffers.setText("Ofertado:")
+                self.vLayout1.addWidget(self.label_Ofnumoffers)
                 self.label_Adjnumoffers = QtWidgets.QLabel(parent=self.frame)
                 self.label_Adjnumoffers.setMinimumSize(QtCore.QSize(120, 25))
                 self.label_Adjnumoffers.setMaximumSize(QtCore.QSize(120, 25))
@@ -258,11 +268,20 @@ class Ui_ClientResume_Window(object):
                 font.setBold(True)
                 self.label_Disnumoffers.setFont(font)
                 self.label_Disnumoffers.setObjectName("label_Disnumoffers")
-                self.label_Disnumoffers.setText("Desestimado:")
+                self.label_Disnumoffers.setText("Perdido:")
                 self.vLayout1.addWidget(self.label_Disnumoffers)
                 self.gridLayout2.addLayout(self.vLayout1, 0, 0, 1, 1)
                 self.vLayout2 = QtWidgets.QVBoxLayout()
                 self.vLayout2.setObjectName("vLayout2")
+                self.numoffers_of = QtWidgets.QLabel(parent=self.frame)
+                self.numoffers_of.setMinimumSize(QtCore.QSize(125, 25))
+                self.numoffers_of.setMaximumSize(QtCore.QSize(125, 25))
+                font = QtGui.QFont()
+                font.setPointSize(10)
+                self.numoffers_of.setFont(font)
+                self.numoffers_of.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+                self.numoffers_of.setObjectName("numoffers_of")
+                self.vLayout2.addWidget(self.numoffers_of)
                 self.numoffers_adj = QtWidgets.QLabel(parent=self.frame)
                 self.numoffers_adj.setMinimumSize(QtCore.QSize(125, 25))
                 self.numoffers_adj.setMaximumSize(QtCore.QSize(125, 25))
@@ -292,18 +311,28 @@ class Ui_ClientResume_Window(object):
                 self.ratio_numoffers.setFont(font)
                 self.ratio_numoffers.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
                 self.ratio_numoffers.setObjectName("ratio_numoffers")
-                self.gridLayout2.addWidget(self.ratio_numoffers, 0, 5, 1, 1)
+                self.gridLayout2.addWidget(self.ratio_numoffers, 0, 7, 1, 1)
                 spacerItem5 = QtWidgets.QSpacerItem(15, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-                self.gridLayout2.addItem(spacerItem5, 0, 6, 1, 1)
+                self.gridLayout2.addItem(spacerItem5, 0, 8, 1, 1)
                 self.line1 = QtWidgets.QFrame(parent=self.frame)
                 self.line1.setFrameShape(QtWidgets.QFrame.Shape.VLine)
                 self.line1.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
                 self.line1.setObjectName("line1")
-                self.gridLayout2.addWidget(self.line1, 0, 7, 1, 1)
+                self.gridLayout2.addWidget(self.line1, 0, 9, 1, 1)
                 spacerItem6 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-                self.gridLayout2.addItem(spacerItem6, 0, 8, 1, 1)
+                self.gridLayout2.addItem(spacerItem6, 0, 10, 1, 1)
                 self.vLayout3 = QtWidgets.QVBoxLayout()
                 self.vLayout3.setObjectName("vLayout3")
+                self.label_ofamount = QtWidgets.QLabel(parent=self.frame)
+                self.label_ofamount.setMinimumSize(QtCore.QSize(120, 25))
+                self.label_ofamount.setMaximumSize(QtCore.QSize(120, 25))
+                font = QtGui.QFont()
+                font.setPointSize(11)
+                font.setBold(True)
+                self.label_ofamount.setFont(font)
+                self.label_ofamount.setObjectName("label_ofamount")
+                self.label_ofamount.setText("Ofertado:")
+                self.vLayout3.addWidget(self.label_ofamount)
                 self.label_adjamount = QtWidgets.QLabel(parent=self.frame)
                 self.label_adjamount.setMinimumSize(QtCore.QSize(120, 25))
                 self.label_adjamount.setMaximumSize(QtCore.QSize(120, 25))
@@ -322,11 +351,20 @@ class Ui_ClientResume_Window(object):
                 font.setBold(True)
                 self.label_disamount.setFont(font)
                 self.label_disamount.setObjectName("label_disamount")
-                self.label_disamount.setText("Desestimado:")
+                self.label_disamount.setText("Perdido:")
                 self.vLayout3.addWidget(self.label_disamount)
-                self.gridLayout2.addLayout(self.vLayout3, 0, 10, 1, 1)
+                self.gridLayout2.addLayout(self.vLayout3, 0, 11, 1, 1)
                 self.vLayout4 = QtWidgets.QVBoxLayout()
                 self.vLayout4.setObjectName("vLayout4")
+                self.amount_of = QtWidgets.QLabel(parent=self.frame)
+                self.amount_of.setMinimumSize(QtCore.QSize(125, 25))
+                self.amount_of.setMaximumSize(QtCore.QSize(125, 25))
+                font = QtGui.QFont()
+                font.setPointSize(10)
+                self.amount_of.setFont(font)
+                self.amount_of.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+                self.amount_of.setObjectName("amount_of")
+                self.vLayout4.addWidget(self.amount_of)
                 self.amount_adj = QtWidgets.QLabel(parent=self.frame)
                 self.amount_adj.setMinimumSize(QtCore.QSize(125, 25))
                 self.amount_adj.setMaximumSize(QtCore.QSize(125, 25))
@@ -345,7 +383,7 @@ class Ui_ClientResume_Window(object):
                 self.amount_dis.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
                 self.amount_dis.setObjectName("amount_dis")
                 self.vLayout4.addWidget(self.amount_dis)
-                self.gridLayout2.addLayout(self.vLayout4, 0, 11, 1, 1)
+                self.gridLayout2.addLayout(self.vLayout4, 0, 12, 1, 1)
                 spacerItem7 = QtWidgets.QSpacerItem(30, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
                 self.gridLayout2.addItem(spacerItem7, 0, 12, 1, 1)
                 self.ratio_amount = QtWidgets.QLabel(parent=self.frame)
@@ -356,9 +394,20 @@ class Ui_ClientResume_Window(object):
                 self.ratio_amount.setFont(font)
                 self.ratio_amount.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
                 self.ratio_amount.setObjectName("ratio_amount")
-                self.gridLayout2.addWidget(self.ratio_amount, 0, 15, 1, 1)
+                self.gridLayout2.addWidget(self.ratio_amount, 0, 18, 1, 1)
                 spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
                 self.gridLayout2.addItem(spacerItem8, 1, 7, 1, 1)
+                self.label_Of1 = QtWidgets.QLabel(parent=self.frame)
+                self.label_Of1.setMinimumSize(QtCore.QSize(0, 25))
+                self.label_Of1.setMaximumSize(QtCore.QSize(16777215, 25))
+                font = QtGui.QFont()
+                font.setPointSize(11)
+                font.setBold(True)
+                self.label_Of1.setFont(font)
+                self.label_Of1.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+                self.label_Of1.setObjectName("label_Of1")
+                self.label_Of1.setText("Ofertado")
+                self.gridLayout2.addWidget(self.label_Of1, 3, 1, 1, 1)
                 self.label_Adj1 = QtWidgets.QLabel(parent=self.frame)
                 self.label_Adj1.setMinimumSize(QtCore.QSize(0, 25))
                 self.label_Adj1.setMaximumSize(QtCore.QSize(16777215, 25))
@@ -369,7 +418,7 @@ class Ui_ClientResume_Window(object):
                 self.label_Adj1.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
                 self.label_Adj1.setObjectName("label_Adj1")
                 self.label_Adj1.setText("Adjudicado")
-                self.gridLayout2.addWidget(self.label_Adj1, 3, 1, 1, 1)
+                self.gridLayout2.addWidget(self.label_Adj1, 3, 3, 1, 1)
                 self.label_Dis1 = QtWidgets.QLabel(parent=self.frame)
                 self.label_Dis1.setMinimumSize(QtCore.QSize(0, 25))
                 self.label_Dis1.setMaximumSize(QtCore.QSize(16777215, 25))
@@ -379,8 +428,8 @@ class Ui_ClientResume_Window(object):
                 self.label_Dis1.setFont(font)
                 self.label_Dis1.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
                 self.label_Dis1.setObjectName("label_Dis1")
-                self.label_Dis1.setText("Desestimado")
-                self.gridLayout2.addWidget(self.label_Dis1, 3, 3, 1, 1)
+                self.label_Dis1.setText("Perdido")
+                self.gridLayout2.addWidget(self.label_Dis1, 3, 5, 1, 1)
                 self.label_Ratio1 = QtWidgets.QLabel(parent=self.frame)
                 font = QtGui.QFont()
                 font.setPointSize(11)
@@ -389,7 +438,18 @@ class Ui_ClientResume_Window(object):
                 self.label_Ratio1.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
                 self.label_Ratio1.setObjectName("label_Ratio1")
                 self.label_Ratio1.setText("Ratio")
-                self.gridLayout2.addWidget(self.label_Ratio1, 3, 5, 1, 1)
+                self.gridLayout2.addWidget(self.label_Ratio1, 3, 7, 1, 1)
+                self.label_Of2 = QtWidgets.QLabel(parent=self.frame)
+                self.label_Of2.setMinimumSize(QtCore.QSize(0, 25))
+                self.label_Of2.setMaximumSize(QtCore.QSize(16777215, 25))
+                font = QtGui.QFont()
+                font.setPointSize(11)
+                font.setBold(True)
+                self.label_Of2.setFont(font)
+                self.label_Of2.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+                self.label_Of2.setObjectName("label_Of2")
+                self.label_Of2.setText("Ofertado")
+                self.gridLayout2.addWidget(self.label_Of2, 3, 12, 1, 1)
                 self.label_Adj2 = QtWidgets.QLabel(parent=self.frame)
                 self.label_Adj2.setMinimumSize(QtCore.QSize(0, 25))
                 self.label_Adj2.setMaximumSize(QtCore.QSize(16777215, 25))
@@ -400,7 +460,7 @@ class Ui_ClientResume_Window(object):
                 self.label_Adj2.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
                 self.label_Adj2.setObjectName("label_Adj2")
                 self.label_Adj2.setText("Adjudicado")
-                self.gridLayout2.addWidget(self.label_Adj2, 3, 11, 1, 1)
+                self.gridLayout2.addWidget(self.label_Adj2, 3, 14, 1, 1)
                 self.label_Dis2 = QtWidgets.QLabel(parent=self.frame)
                 self.label_Dis2.setMinimumSize(QtCore.QSize(0, 25))
                 self.label_Dis2.setMaximumSize(QtCore.QSize(16777215, 25))
@@ -410,8 +470,8 @@ class Ui_ClientResume_Window(object):
                 self.label_Dis2.setFont(font)
                 self.label_Dis2.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
                 self.label_Dis2.setObjectName("label_Dis2")
-                self.label_Dis2.setText("Desestimado")
-                self.gridLayout2.addWidget(self.label_Dis2, 3, 13, 1, 1)
+                self.label_Dis2.setText("Perdido")
+                self.gridLayout2.addWidget(self.label_Dis2, 3, 16, 1, 1)
                 self.label_Ratio2 = QtWidgets.QLabel(parent=self.frame)
                 self.label_Ratio2.setMinimumSize(QtCore.QSize(0, 25))
                 self.label_Ratio2.setMaximumSize(QtCore.QSize(16777215, 25))
@@ -422,16 +482,25 @@ class Ui_ClientResume_Window(object):
                 self.label_Ratio2.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
                 self.label_Ratio2.setObjectName("label_Ratio2")
                 self.label_Ratio2.setText("Ratio")
-                self.gridLayout2.addWidget(self.label_Ratio2, 3, 15, 1, 1)
+                self.gridLayout2.addWidget(self.label_Ratio2, 3, 18, 1, 1)
                 self.gridLayout_Frame.addLayout(self.gridLayout2, 3, 0, 1, 1)
 
                 row_grid = 4
-                sumofadj=0
-                sumofdis=0
+                sumof_of = 0
+                sumofadj = 0
+                sumofdis = 0
+                sumamountof = 0
                 sumamountadj=0
                 sumamountdis=0
 
                 for i in range(num_results + 1):
+                    commands_offered = f"""SELECT "client", COUNT("num_offer"), CAST(SUM("offer_amount") AS numeric)
+                        FROM offers
+                        WHERE ("client" = '{self.clientname}'
+                        AND
+                        "offer_year" = '{year1 + i}' )
+                        GROUP BY "client"
+                        """
                     commands_awarded = f"""SELECT "client", COUNT("num_offer"), CAST(SUM("offer_amount") AS numeric)
                         FROM offers
                         WHERE ("client" = '{self.clientname}'
@@ -458,6 +527,8 @@ class Ui_ClientResume_Window(object):
                         conn = psycopg2.connect(**params)
                         cur = conn.cursor()
                     # execution of commands
+                        cur.execute(commands_offered)
+                        results_offered=cur.fetchall()
                         cur.execute(commands_awarded)
                         results_awarded=cur.fetchall()
                         cur.execute(commands_dismissed)
@@ -481,9 +552,11 @@ class Ui_ClientResume_Window(object):
                         if conn is not None:
                             conn.close()
 
+                    of_of = results_offered[0][1] if not len(results_offered) == 0 else 0
                     ofadj = results_awarded[0][1] if not len(results_awarded) == 0 else 0
                     ofdis = results_dismissed[0][1] if not len(results_dismissed) == 0 else 0
                     ratioof = (ofadj / (ofadj + ofdis)) * 100 if not len(results_awarded) == 0 else 0
+                    amountof = float(results_offered[0][2] if not len(results_offered) == 0 else 0)
                     amountadj = float(results_awarded[0][2] if not len(results_awarded) == 0 else 0)
                     amountdis = float(results_dismissed[0][2] if not len(results_dismissed) == 0 else 0)
                     ratioamount = 0 if (amountadj + amountdis == 0) else ((amountadj / (amountadj + amountdis)) * 100 if not len(results_awarded)==0 else 0)
@@ -499,6 +572,24 @@ class Ui_ClientResume_Window(object):
                     self.label_yearof.setText(str(year1 + i))
                     self.gridLayout2.addWidget(self.label_yearof, row_grid, 0, 1, 1)
 
+                    self.label_of_of = QtWidgets.QLabel(parent=self.frame)
+                    self.label_of_of.setMinimumSize(QtCore.QSize(125, 0))
+                    self.label_of_of.setMaximumSize(QtCore.QSize(125, 16777215))
+                    font = QtGui.QFont()
+                    font.setPointSize(10)
+                    self.label_of_of.setFont(font)
+                    self.label_of_of.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+                    self.label_of_of.setObjectName("label_of_of")
+                    self.label_of_of.setText(str(of_of) + " ofertas")
+                    self.gridLayout2.addWidget(self.label_of_of, row_grid, 1, 1, 1)
+
+                    self.line_row_1 = QtWidgets.QFrame(parent=self.frame)
+                    self.line_row_1.setFrameShape(QtWidgets.QFrame.Shape.VLine)
+                    self.line_row_1.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
+                    self.line_row_1.setObjectName("line_row_1")
+                    self.line_row_1.setMaximumSize(QtCore.QSize(16777215, 25))
+                    self.gridLayout2.addWidget(self.line_row_1, row_grid, 2, 1, 1)
+
                     self.label_ofadj = QtWidgets.QLabel(parent=self.frame)
                     self.label_ofadj.setMinimumSize(QtCore.QSize(125, 0))
                     self.label_ofadj.setMaximumSize(QtCore.QSize(125, 16777215))
@@ -508,14 +599,14 @@ class Ui_ClientResume_Window(object):
                     self.label_ofadj.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
                     self.label_ofadj.setObjectName("label_ofadj")
                     self.label_ofadj.setText(str(ofadj) + " ofertas")
-                    self.gridLayout2.addWidget(self.label_ofadj, row_grid, 1, 1, 1)
+                    self.gridLayout2.addWidget(self.label_ofadj, row_grid, 3, 1, 1)
 
-                    self.line_row_1 = QtWidgets.QFrame(parent=self.frame)
-                    self.line_row_1.setFrameShape(QtWidgets.QFrame.Shape.VLine)
-                    self.line_row_1.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
-                    self.line_row_1.setObjectName("line_row_1")
-                    self.line_row_1.setMaximumSize(QtCore.QSize(16777215, 25))
-                    self.gridLayout2.addWidget(self.line_row_1, row_grid, 2, 1, 1)
+                    self.line_row_2 = QtWidgets.QFrame(parent=self.frame)
+                    self.line_row_2.setFrameShape(QtWidgets.QFrame.Shape.VLine)
+                    self.line_row_2.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
+                    self.line_row_2.setObjectName("line_row_2")
+                    self.line_row_2.setMaximumSize(QtCore.QSize(16777215, 25))
+                    self.gridLayout2.addWidget(self.line_row_2, row_grid, 4, 1, 1)
 
                     self.label_ofdis = QtWidgets.QLabel(parent=self.frame)
                     self.label_ofdis.setMinimumSize(QtCore.QSize(125, 0))
@@ -526,14 +617,14 @@ class Ui_ClientResume_Window(object):
                     self.label_ofdis.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
                     self.label_ofdis.setObjectName("label_ofdes")
                     self.label_ofdis.setText(str(ofdis) + " ofertas")
-                    self.gridLayout2.addWidget(self.label_ofdis, row_grid, 3, 1, 1)
+                    self.gridLayout2.addWidget(self.label_ofdis, row_grid, 5, 1, 1)
 
-                    self.line_row_2 = QtWidgets.QFrame(parent=self.frame)
-                    self.line_row_2.setFrameShape(QtWidgets.QFrame.Shape.VLine)
-                    self.line_row_2.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
-                    self.line_row_2.setObjectName("line_row_2")
-                    self.line_row_2.setMaximumSize(QtCore.QSize(16777215, 25))
-                    self.gridLayout2.addWidget(self.line_row_2, row_grid, 4, 1, 1)
+                    self.line_row_3 = QtWidgets.QFrame(parent=self.frame)
+                    self.line_row_3.setFrameShape(QtWidgets.QFrame.Shape.VLine)
+                    self.line_row_3.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
+                    self.line_row_3.setObjectName("line_row_3")
+                    self.line_row_3.setMaximumSize(QtCore.QSize(16777215, 25))
+                    self.gridLayout2.addWidget(self.line_row_3, row_grid, 6, 1, 1)
 
                     self.label_ofratio = QtWidgets.QLabel(parent=self.frame)
                     self.label_ofratio.setMinimumSize(QtCore.QSize(90, 25))
@@ -544,14 +635,14 @@ class Ui_ClientResume_Window(object):
                     self.label_ofratio.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
                     self.label_ofratio.setObjectName("label_ofratio")
                     self.label_ofratio.setText('{:,.2f}'.format(ratioof).replace(",", "X").replace(".", ",").replace("X", ".") + " %")
-                    self.gridLayout2.addWidget(self.label_ofratio, row_grid, 5, 1, 1)
+                    self.gridLayout2.addWidget(self.label_ofratio, row_grid, 7, 1, 1)
 
-                    self.line_row_3 = QtWidgets.QFrame(parent=self.frame)
-                    self.line_row_3.setFrameShape(QtWidgets.QFrame.Shape.VLine)
-                    self.line_row_3.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
-                    self.line_row_3.setObjectName("line_row_3")
-                    self.line_row_3.setMaximumSize(QtCore.QSize(16777215, 25))
-                    self.gridLayout2.addWidget(self.line_row_3, row_grid, 7, 1, 1)
+                    self.line_row_4 = QtWidgets.QFrame(parent=self.frame)
+                    self.line_row_4.setFrameShape(QtWidgets.QFrame.Shape.VLine)
+                    self.line_row_4.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
+                    self.line_row_4.setObjectName("line_row_4")
+                    self.line_row_4.setMaximumSize(QtCore.QSize(16777215, 25))
+                    self.gridLayout2.addWidget(self.line_row_4, row_grid, 9, 1, 1)
 
                     self.label_yearamount = QtWidgets.QLabel(parent=self.frame)
                     self.label_yearamount.setMinimumSize(QtCore.QSize(0, 25))
@@ -562,7 +653,25 @@ class Ui_ClientResume_Window(object):
                     self.label_yearamount.setFont(font)
                     self.label_yearamount.setObjectName("label_yearamount")
                     self.label_yearamount.setText(str(year1 + i))
-                    self.gridLayout2.addWidget(self.label_yearamount, row_grid, 10, 1, 1)
+                    self.gridLayout2.addWidget(self.label_yearamount, row_grid, 11, 1, 1)
+
+                    self.label_amountof = QtWidgets.QLabel(parent=self.frame)
+                    self.label_amountof.setMinimumSize(QtCore.QSize(125, 0))
+                    self.label_amountof.setMaximumSize(QtCore.QSize(125, 16777215))
+                    font = QtGui.QFont()
+                    font.setPointSize(10)
+                    self.label_amountof.setFont(font)
+                    self.label_amountof.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+                    self.label_amountof.setObjectName("label_amountof")
+                    self.label_amountof.setText("{:,.2f} €".format(amountof).replace(",", "X").replace(".", ",").replace("X", "."))
+                    self.gridLayout2.addWidget(self.label_amountof, row_grid, 12, 1, 1)
+
+                    self.line_row_5 = QtWidgets.QFrame(parent=self.frame)
+                    self.line_row_5.setFrameShape(QtWidgets.QFrame.Shape.VLine)
+                    self.line_row_5.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
+                    self.line_row_5.setObjectName("line_row_5")
+                    self.line_row_5.setMaximumSize(QtCore.QSize(16777215, 25))
+                    self.gridLayout2.addWidget(self.line_row_5, row_grid, 13, 1, 1)
 
                     self.label_amountadj = QtWidgets.QLabel(parent=self.frame)
                     self.label_amountadj.setMinimumSize(QtCore.QSize(125, 0))
@@ -573,14 +682,14 @@ class Ui_ClientResume_Window(object):
                     self.label_amountadj.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
                     self.label_amountadj.setObjectName("label_amountadj")
                     self.label_amountadj.setText("{:,.2f} €".format(amountadj).replace(",", "X").replace(".", ",").replace("X", "."))
-                    self.gridLayout2.addWidget(self.label_amountadj, row_grid, 11, 1, 1)
+                    self.gridLayout2.addWidget(self.label_amountadj, row_grid, 14, 1, 1)
 
-                    self.line_row_4 = QtWidgets.QFrame(parent=self.frame)
-                    self.line_row_4.setFrameShape(QtWidgets.QFrame.Shape.VLine)
-                    self.line_row_4.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
-                    self.line_row_4.setObjectName("line_row_4")
-                    self.line_row_4.setMaximumSize(QtCore.QSize(16777215, 25))
-                    self.gridLayout2.addWidget(self.line_row_4, row_grid, 12, 1, 1)
+                    self.line_row_6 = QtWidgets.QFrame(parent=self.frame)
+                    self.line_row_6.setFrameShape(QtWidgets.QFrame.Shape.VLine)
+                    self.line_row_6.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
+                    self.line_row_6.setObjectName("line_row_6")
+                    self.line_row_6.setMaximumSize(QtCore.QSize(16777215, 25))
+                    self.gridLayout2.addWidget(self.line_row_6, row_grid, 15, 1, 1)
 
                     self.label_amountdis = QtWidgets.QLabel(parent=self.frame)
                     self.label_amountdis.setMinimumSize(QtCore.QSize(125, 0))
@@ -591,14 +700,14 @@ class Ui_ClientResume_Window(object):
                     self.label_amountdis.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
                     self.label_amountdis.setObjectName("label_amountdes")
                     self.label_amountdis.setText("{:,.2f} €".format(amountdis).replace(",", "X").replace(".", ",").replace("X", "."))
-                    self.gridLayout2.addWidget(self.label_amountdis, row_grid, 13, 1, 1)
+                    self.gridLayout2.addWidget(self.label_amountdis, row_grid, 16, 1, 1)
 
-                    self.line_row_5 = QtWidgets.QFrame(parent=self.frame)
-                    self.line_row_5.setFrameShape(QtWidgets.QFrame.Shape.VLine)
-                    self.line_row_5.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
-                    self.line_row_5.setObjectName("line_row_5")
-                    self.line_row_5.setMaximumSize(QtCore.QSize(16777215, 25))
-                    self.gridLayout2.addWidget(self.line_row_5, row_grid, 14, 1, 1)
+                    self.line_row_7 = QtWidgets.QFrame(parent=self.frame)
+                    self.line_row_7.setFrameShape(QtWidgets.QFrame.Shape.VLine)
+                    self.line_row_7.setFrameShadow(QtWidgets.QFrame.Shadow.Sunken)
+                    self.line_row_7.setObjectName("line_row_7")
+                    self.line_row_7.setMaximumSize(QtCore.QSize(16777215, 25))
+                    self.gridLayout2.addWidget(self.line_row_7, row_grid, 17, 1, 1)
 
                     self.label_amountratio = QtWidgets.QLabel(parent=self.frame)
                     self.label_amountratio.setMinimumSize(QtCore.QSize(90, 25))
@@ -609,20 +718,24 @@ class Ui_ClientResume_Window(object):
                     self.label_amountratio.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
                     self.label_amountratio.setObjectName("label_amountratio")
                     self.label_amountratio.setText('{:,.2f}'.format(ratioamount).replace(",", "X").replace(".", ",").replace("X", ".") + " %")
-                    self.gridLayout2.addWidget(self.label_amountratio, row_grid, 15, 1, 1)
+                    self.gridLayout2.addWidget(self.label_amountratio, row_grid, 18, 1, 1)
 
                     row_grid += 1
+                    sumof_of += of_of
                     sumofadj += ofadj
                     sumofdis += ofdis
+                    sumamountof += amountof
                     sumamountadj += amountadj
                     sumamountdis += amountdis
 
-                sumofratio = (sumofadj / (sumofadj + sumofdis)) * 100
-                sumamountratio = (sumamountadj / (sumamountadj + sumamountdis)) * 100
+                sumofratio = (sumofadj / (sumofadj + sumofdis)) * 100 if sumofdis != 0 and sumofadj != 0 else 0
+                sumamountratio = (sumamountadj / (sumamountadj + sumamountdis)) * 100  if sumamountdis != 0 and sumamountadj != 0 else 0
 
+                self.numoffers_of.setText(str(sumof_of) + " ofertas")
                 self.numoffers_adj.setText(str(sumofadj) + " ofertas")
                 self.numoffers_dis.setText(str(sumofdis) + " ofertas")
                 self.ratio_numoffers.setText('{:,.2f}'.format(sumofratio).replace(",", "X").replace(".", ",").replace("X", ".") + " %")
+                self.amount_of.setText("{:,.2f} €".format(sumamountof).replace(",", "X").replace(".", ",").replace("X", "."))
                 self.amount_adj.setText("{:,.2f} €".format(sumamountadj).replace(",", "X").replace(".", ",").replace("X", "."))
                 self.amount_dis.setText("{:,.2f} €".format(sumamountdis).replace(",", "X").replace(".", ",").replace("X", "."))
                 self.ratio_amount.setText('{:,.2f}'.format(sumamountratio).replace(",", "X").replace(".", ",").replace("X", ".") + " %")
@@ -666,6 +779,7 @@ class Ui_ClientResume_Window(object):
                     results_general_offered_year=cur.fetchall()
                     cur.execute(commands_sold_year)
                     results_general_sold_year=cur.fetchall()
+                    
                     results_offered_year=list(filter(lambda x:None not in x, results_general_offered_year))
                     results_sold_year=list(filter(lambda x:None not in x, results_general_sold_year))
                 # close communication with the PostgreSQL database server
@@ -702,7 +816,7 @@ class Ui_ClientResume_Window(object):
                 years_sold=[x[0] for x in results_sold_year]
                 amounts_sold_year=[float(x[1]) for x in results_sold_year]
                 dict_sold_year = dict(zip(years_sold, amounts_sold_year))
-                for i in (range(min(years_sold), max(years_sold)+1) if len(years_sold) != 0 else range(year1, year2+1)):
+                for i in range(year1, year2+1):
                     if i not in years_sold:
                         dict_sold_year[i] = 0
 

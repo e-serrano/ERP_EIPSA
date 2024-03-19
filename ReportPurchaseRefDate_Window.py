@@ -351,7 +351,7 @@ class Ui_ReportPurRefDate_Window(object):
         self.retranslateUi(ReportPurRefDate_Window)
         QtCore.QMetaObject.connectSlotsByName(ReportPurRefDate_Window)
 
-        commands_supplies = "SELECT * FROM purch_fact.supplies_test"
+        commands_supplies = "SELECT * FROM purch_fact.supplies"
         conn = None
         try:
         # read the connection parameters
@@ -418,8 +418,8 @@ class Ui_ReportPurRefDate_Window(object):
 
         query1 = """
                 SELECT so_header."order_date", suppliers."name", so_header."supplier_order_num", so_det."supplier_ord_header_id"
-                FROM purch_fact.suppliers_test AS suppliers
-                LEFT JOIN (purch_fact.supplier_ord_header_test AS so_header LEFT JOIN purch_fact."supplier_ord_detail_test" AS so_det ON so_header."id" = so_det."supplier_ord_header_id") ON suppliers."id" = so_header."supplier_id"
+                FROM purch_fact.suppliers AS suppliers
+                LEFT JOIN (purch_fact.supplier_ord_header AS so_header LEFT JOIN purch_fact."supplier_ord_detail" AS so_det ON so_header."id" = so_det."supplier_ord_header_id") ON suppliers."id" = so_header."supplier_id"
                 GROUP BY so_header."order_date", suppliers."name", so_header."supplier_order_num", so_det."supplier_ord_header_id"
                 HAVING (((so_det."supplier_ord_header_id") Is Not Null))
                 ORDER BY so_header."supplier_order_num"
@@ -427,8 +427,8 @@ class Ui_ReportPurRefDate_Window(object):
 
         query2 = """
                 SELECT so_det."supplier_ord_header_id", supplies."reference", supplies."description", so_det."quantity", so_det."unit_value", supplies."id"
-                FROM purch_fact.supplies_test AS supplies
-                LEFT JOIN purch_fact.supplier_ord_detail_test AS so_det ON supplies."id" = so_det."supply_id"
+                FROM purch_fact.supplies AS supplies
+                LEFT JOIN purch_fact.supplier_ord_detail AS so_det ON supplies."id" = so_det."supply_id"
                 WHERE (((so_det."supplier_ord_header_id") Is Not Null))
                 ORDER BY supplies."reference"
                 """
