@@ -684,7 +684,7 @@ class Ui_Edit_Offer_Window(object):
         self.Button_EditOffer.setText(_translate("Edit_Offer_Window", "Editar Oferta"))
         self.Button_Cancel.setText(_translate("Edit_Offer_Window", "Cancelar"))
 
-
+# Function to edit offer information
     def editoffer(self):
         numoffer=self.NumOffer_EditOffer.text()
         client=self.Client_EditOffer.currentText()
@@ -703,8 +703,8 @@ class Ui_Edit_Offer_Window(object):
         important_issues=self.ImportantIssues_EditOffer.toPlainText()
         tracking=self.Tracking_EditOffer.toPlainText()
         mails=self.Mails_EditOffer.toPlainText()
-        last_update = self.LastUpdate_EditOffer.text() if self.NumItems_EditOffer.text() != 'None' else None
-        presentation_date = self.PresDate_EditOffer.text() if self.NumItems_EditOffer.text() != 'None' else None
+        last_update = self.LastUpdate_EditOffer.text() if self.LastUpdate_EditOffer.text() not in ['None', ''] else None
+        presentation_date = self.PresDate_EditOffer.text() if self.PresDate_EditOffer.text() not in ['None', ''] else None
         portal = self.Portal_EditOffer.currentText()
         numitems = self.NumItems_EditOffer.text() if self.NumItems_EditOffer.text() != 'None' else None
         project = self.Project_EditOffer.text()
@@ -798,7 +798,7 @@ class Ui_Edit_Offer_Window(object):
                 dlg.exec()
                 del dlg, new_icon
 
-            elif numoffer=="" or (client=="" or (finalclient=="" or (numref=="" or (state=="" or (nacext=="" or (buyer=="" or (material=="" or (amount=="" or (limit_date=="" or (mails=="" or (rate_type=="" or numitems==''))))))))))):
+            elif numoffer=="" or (client=="" or (numref=="" or (state=="" or (nacext=="" or (material=="" or (amount=="" or (limit_date=="" or (mails=="" or numitems=='')))))))):
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -887,7 +887,7 @@ class Ui_Edit_Offer_Window(object):
                     if conn is not None:
                         conn.close()
 
-
+# Function to load offer information
     def queryofferdata(self):
         numoffer=self.NumOffer_EditOffer.text()
     #SQL Query for loading existing data in database
@@ -957,8 +957,8 @@ class Ui_Edit_Offer_Window(object):
             self.Tracking_EditOffer.setText(str(results[0][13]) if str(results[0][13]) != 'None' else '')
             self.RecepDate_EditOffer.setText(str(results[0][14]) if str(results[0][14]) != 'None' else '')
             self.Mails_EditOffer.setText(str(results[0][15]) if str(results[0][15]) != 'None' else '')
-            self.LastUpdate_EditOffer.setText(str(results[0][16]))
-            self.PresDate_EditOffer.setText(str(results[0][17]))
+            self.LastUpdate_EditOffer.setText(str(results[0][16]) if str(results[0][16]) != 'None' else '')
+            self.PresDate_EditOffer.setText(str(results[0][17]) if str(results[0][17]) != 'None' else '')
             self.Portal_EditOffer.setCurrentText(str(results[0][18]))
             self.NumItems_EditOffer.setText(str(results[0][19]))
             self.Responsible_EditOffer.setText(str(results[0][20]))
@@ -975,7 +975,7 @@ class Ui_Edit_Offer_Window(object):
 
             self.PayTerm_EditOffer.setCurrentText(payterm_text if str(results[0][25]) != 'None' else '')
 
-
+# Function to load client list
     def load_clients(self):
         self.Client_EditOffer.clear()
         commands_clients = ("""
@@ -1014,6 +1014,9 @@ class Ui_Edit_Offer_Window(object):
         list_clients=[x[0] for x in results_clients]
         list_clients.sort()
         self.Client_EditOffer.addItems(list_clients)
+
+
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

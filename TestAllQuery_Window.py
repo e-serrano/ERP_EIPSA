@@ -28,7 +28,6 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
-
 class CustomTableWidget_Hydro(QtWidgets.QTableWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -357,7 +356,6 @@ class CustomTableWidget_Hydro(QtWidgets.QTableWidget):
             self.show_unique_values_menu(logical_index, header_pos, header_height)
         else:
             super().contextMenuEvent(event)
-
 
 class CustomTableWidget_Liquid(QtWidgets.QTableWidget):
     def __init__(self, parent=None):
@@ -688,7 +686,6 @@ class CustomTableWidget_Liquid(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-
 class CustomTableWidget_Hard(QtWidgets.QTableWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -1017,8 +1014,6 @@ class CustomTableWidget_Hard(QtWidgets.QTableWidget):
             self.show_unique_values_menu(logical_index, header_pos, header_height)
         else:
             super().contextMenuEvent(event)
-
-
 
 class Ui_TestAllQuery_Window(QtWidgets.QMainWindow):
     def __init__(self):

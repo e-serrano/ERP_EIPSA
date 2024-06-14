@@ -151,7 +151,7 @@ class Ui_UpdateTableExist_Window(object):
 
         query_databasetables = """SELECT table_name
                                 FROM information_schema.tables
-                                WHERE table_schema = 'public' AND table_type = 'BASE TABLE';"""
+                                WHERE table_schema = 'purch_fact' AND table_type = 'BASE TABLE';"""
 
         conn = None
         try:
@@ -201,7 +201,7 @@ class Ui_UpdateTableExist_Window(object):
 
 #Function to import data into and existing table from and Excel where first row is column name
     def importtableexist(self):
-        table_name=self.TableName_ImportTableExist.currentText()
+        table_name='purch_fact.' + self.TableName_ImportTableExist.currentText()
 
         if self.label_name_file.text() == "":
             dlg = QtWidgets.QMessageBox()
@@ -228,17 +228,18 @@ class Ui_UpdateTableExist_Window(object):
 
             try:
                 for index, row in df_table.iterrows():
-                    if "num_order" in row:
-                        id_value = row["num_order"]
+                    if "id" in row:
+                        id_value = row["id"]
+                        # id2_value = row["num_order"]
 
                     # Creating string for columns names and values
                         columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
                         columns = ', '.join([column for column, _ in columns_values])
-                        values = ', '.join([f"'{value.replace('.', ',')}'" if column in ['offer_amount','order_amount'] else ('NULL' if value == '' else f"'{value}'") for column, value in columns_values])
+                        values = ', '.join([f"'{value.replace('.', ',')}'" if column in ['offer_amount','order_amount'] else ('NULL' if value == '' and column in ['verification_date'] else f"'{value}'") for column, value in columns_values])
 
                     # Creating the SET  and WHERE clause with proper formatting
                         set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
-                        where_clause = f'"num_order" = \'{id_value}\''
+                        where_clause = f'"id" = \'{id_value}\''
 
                     # Creating the update query and executing it after checking existing tags and id
                         sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'

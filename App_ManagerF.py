@@ -335,6 +335,34 @@ class Ui_App_ManagerF(object):
         self.Button_QueryDoc.setIconSize(QtCore.QSize(40, 40))
         self.Button_QueryDoc.setObjectName("Button_QueryDoc")
         self.verticalLayout_3.addWidget(self.Button_QueryDoc)
+        self.Button_Purchasing = QtWidgets.QPushButton(parent=self.ButtonFrame)
+        self.Button_Purchasing.setMinimumSize(QtCore.QSize(200, 50))
+        self.Button_Purchasing.setMaximumSize(QtCore.QSize(200, 50))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.Button_Purchasing.setFont(font)
+        self.Button_Purchasing.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Purchasing.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Purchasing.setIcon(icon1)
+        self.Button_Purchasing.setIconSize(QtCore.QSize(40, 40))
+        self.Button_Purchasing.setObjectName("Button_Purchasing")
+        self.verticalLayout_3.addWidget(self.Button_Purchasing)
+        self.Button_Invoice = QtWidgets.QPushButton(parent=self.ButtonFrame)
+        self.Button_Invoice.setMinimumSize(QtCore.QSize(200, 50))
+        self.Button_Invoice.setMaximumSize(QtCore.QSize(200, 50))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.Button_Invoice.setFont(font)
+        self.Button_Invoice.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Invoice.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Invoice.setIcon(icon1)
+        self.Button_Invoice.setIconSize(QtCore.QSize(40, 40))
+        self.Button_Invoice.setObjectName("Button_Invoice")
+        self.verticalLayout_3.addWidget(self.Button_Invoice)
         self.PrincipalScreen.addWidget(self.ButtonFrame)
         spacerItem5 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.PrincipalScreen.addItem(spacerItem5)
@@ -443,6 +471,8 @@ class Ui_App_ManagerF(object):
         self.Button_QueryOrder.clicked.connect(self.query_order)
         self.Button_QueryTag.clicked.connect(self.query_tag)
         self.Button_QueryDoc.clicked.connect(self.query_documents)
+        self.Button_Purchasing.clicked.connect(self.query_purchase)
+        self.Button_Invoice.clicked.connect(self.query_invoice)
         self.Button_Graphs.clicked.connect(self.graphs)
         self.Button_ClientsResume.clicked.connect(self.clients_generalresume)
         self.Button_Profile.clicked.connect(self.showMenu)
@@ -511,20 +541,6 @@ class Ui_App_ManagerF(object):
                 conn.close()
 
 
-    def show_context_menu(self, point):
-        selected_date = self.Calendar.selectedDate()
-        menu = QMenu(self.centralwidget)
-
-        menu.setStyleSheet("QMenu { border: 1px solid black; width: 150px; right: -1px; }"
-        "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
-
-        action1 = menu.addAction("Agregar tareas")
-        action1.triggered.connect(lambda: self.newtask(selected_date))
-        action2 = menu.addAction("Editar tareas")
-        action2.triggered.connect(lambda: self.querytask(selected_date))
-
-        menu.exec(self.Calendar.mapToGlobal(point))
-
     def retranslateUi(self, App_ManagerF):
         _translate = QtCore.QCoreApplication.translate
         App_ManagerF.setWindowTitle(_translate("App_ManagerF", "ERP EIPSA - Dirección"))
@@ -533,6 +549,8 @@ class Ui_App_ManagerF(object):
         self.Button_QueryOrder.setText(_translate("App_ManagerF", "   Consultar Pedidos"))
         self.Button_QueryTag.setText(_translate("App_ManagerF", "    Consultar TAG(s)"))
         self.Button_QueryDoc.setText(_translate("App_ManagerF", "    Consultar Docs."))
+        self.Button_Purchasing.setText(_translate("App_ManagerF", "   Consultar Compras"))
+        self.Button_Invoice.setText(_translate("App_ManagerF", "   Consultar Facturas"))
         self.tableOffer.setSortingEnabled(True)
         item = self.tableOffer.horizontalHeaderItem(0)
         item.setText(_translate("App_ManagerF", "Nº Oferta"))
@@ -560,7 +578,7 @@ class Ui_App_ManagerF(object):
         self.tableOffer.setSortingEnabled(False)
         self.tableOffer.setSortingEnabled(__sortingEnabled)
 
-
+# Function to open window with offer query
     def query_offer(self):
         from OfferQuery_Window import Ui_QueryOffer_Window
         self.query_offer_window=QtWidgets.QMainWindow()
@@ -568,7 +586,7 @@ class Ui_App_ManagerF(object):
         self.ui.setupUi(self.query_offer_window)
         self.query_offer_window.show()
 
-
+# Function to open window with order query
     def query_order(self):
         from OrderQuery_Window import Ui_QueryOrder_Window
         self.query_order_window=QtWidgets.QMainWindow()
@@ -576,7 +594,7 @@ class Ui_App_ManagerF(object):
         self.ui.setupUi(self.query_order_window)
         self.query_order_window.show()
 
-
+# Function to open window with tags query
     def query_tag(self):
         from TAGQuery_Window import Ui_QueryTags_Window
         self.querytag_window=QtWidgets.QMainWindow()
@@ -584,7 +602,7 @@ class Ui_App_ManagerF(object):
         self.ui.setupUi(self.querytag_window)
         self.querytag_window.show()
 
-
+# Function to open window with documents query
     def query_documents(self):
         from DocQuery_Window import Ui_QueryDoc_Window
         self.querydoc_menu=QtWidgets.QMainWindow()
@@ -592,7 +610,23 @@ class Ui_App_ManagerF(object):
         self.ui.setupUi(self.querydoc_menu)
         self.querydoc_menu.show()
 
+# Function to open window with purchase query
+    def query_purchase(self):
+        from PurchasingGeneralQuery_Window import Ui_PurchasingGeneralQuery_Window
+        self.purchasegeneral_query_window=QtWidgets.QMainWindow()
+        self.ui=Ui_PurchasingGeneralQuery_Window()
+        self.ui.setupUi(self.purchasegeneral_query_window)
+        self.purchasegeneral_query_window.showMaximized()
 
+# Function to open window with invoice query
+    def query_invoice(self):
+        from InvoiceGeneralQuery_Window import Ui_InvoiceGeneralQuery_Window
+        self.invoice_query_window=QtWidgets.QMainWindow()
+        self.ui=Ui_InvoiceGeneralQuery_Window()
+        self.ui.setupUi(self.invoice_query_window)
+        self.invoice_query_window.showMaximized()
+
+# Function to open graphs window
     def graphs(self):
         from OfferGraphs_Window import Ui_GraphsOffer_Window
         self.graphswindow=QtWidgets.QMainWindow()
@@ -600,7 +634,7 @@ class Ui_App_ManagerF(object):
         self.ui.setupUi(self.graphswindow)
         self.graphswindow.show()
 
-
+# Function to open clien resume window
     def clients_generalresume(self):
         from ClientsGeneralResume_Window import Ui_ClientsGeneralResume_Window
         self.clients_general_resume_window=QtWidgets.QMainWindow()
@@ -608,14 +642,14 @@ class Ui_App_ManagerF(object):
         self.ui.setupUi(self.clients_general_resume_window)
         self.clients_general_resume_window.show()
 
-
+# Function to open window with tasks query
     def querytask(self, date=None):
         from TaskQuery_Window import Ui_QueryTask_Window
         self.querytaskwindow=Ui_QueryTask_Window(self.name, date)
         self.querytaskwindow.show()
         self.querytaskwindow.Button_Cancel.clicked.connect(self.setup_task_dates)
 
-
+# Function to add a new task
     def newtask(self, date):
         from TaskAdd_Window import Ui_AddTask_Window
         self.newtaskwindow=QtWidgets.QMainWindow()
@@ -624,7 +658,22 @@ class Ui_App_ManagerF(object):
         self.newtaskwindow.show()
         self.ui.Button_Cancel.clicked.connect(self.setup_task_dates)
 
+# Function to open calendar menu
+    def show_context_menu(self, point):
+        selected_date = self.Calendar.selectedDate()
+        menu = QMenu(self.centralwidget)
 
+        menu.setStyleSheet("QMenu { border: 1px solid black; width: 150px; right: -1px; }"
+        "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
+
+        action1 = menu.addAction("Agregar tareas")
+        action1.triggered.connect(lambda: self.newtask(selected_date))
+        action2 = menu.addAction("Editar tareas")
+        action2.triggered.connect(lambda: self.querytask(selected_date))
+
+        menu.exec(self.Calendar.mapToGlobal(point))
+
+# Function to open context menu when profile button is clicked
     def showMenu(self):
         menu = QMenu(self.centralwidget)
         menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; }"
@@ -635,7 +684,7 @@ class Ui_App_ManagerF(object):
         button = self.Button_Profile
         menu.exec(button.mapToGlobal(QtCore.QPoint(-75, 50)))
 
-
+# Function to open window for editing password
     def editpassword(self):
         from PasswordEdit_Window import Ui_EditPasswordWindow
         self.edit_password_window=QtWidgets.QMainWindow()
@@ -643,9 +692,7 @@ class Ui_App_ManagerF(object):
         self.ui.setupUi(self.edit_password_window)
         self.edit_password_window.show()
 
-
-
-#Function to update the table
+# Function to update the table
     def update_table(self):
         commands_appcomercial = ("""
                     SELECT "num_offer","state","responsible","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","notes","important","tracking"
@@ -708,7 +755,6 @@ class Ui_App_ManagerF(object):
             if conn is not None:
                 conn.close()
 
-
 # Function to check if column index of double clicked cell is equal to first column index
     def on_item_double_clicked(self, item):
         if item.column() == 2:
@@ -724,7 +770,6 @@ class Ui_App_ManagerF(object):
             dlg.setText(cell_content)
             dlg.exec()
 
-
 # Function when double clicked cell is in first column
     def clientresume(self, item):
         from ClientResume_Window import Ui_ClientResume_Window
@@ -733,7 +778,6 @@ class Ui_App_ManagerF(object):
         self.ui=Ui_ClientResume_Window(clientname)
         self.ui.setupUi(self.client_resume_window)
         self.client_resume_window.show()
-
 
 # Function to stablish dates with task assigned to put icon on calendar
     def setup_task_dates(self):
@@ -781,7 +825,7 @@ class Ui_App_ManagerF(object):
         task_dates = dates_with_tasks
         self.Calendar.set_task_dates(task_dates)
 
-
+# Function to show tasks of the selected date
     def show_selected_date_tasks(self):
         self.click_count = 0
         selected_date = self.Calendar.selectedDate()
@@ -809,7 +853,6 @@ class Ui_App_ManagerF(object):
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
             dlg.exec()
             del dlg, new_icon
-
 
 #Function to obtain tasks associated to a date
     def get_tasks_for_date(self, creator, date):
@@ -881,12 +924,11 @@ class Ui_App_ManagerF(object):
 
 
 
-
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     App_ManagerF = QtWidgets.QMainWindow()
-#     ui = Ui_App_ManagerF()
-#     ui.setupUi(App_ManagerF)
-#     App_ManagerF.showMaximized()
-#     sys.exit(app.exec())
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    App_ManagerF = QtWidgets.QMainWindow()
+    ui = Ui_App_ManagerF('Fernando Gallego','f.gallego')
+    ui.setupUi(App_ManagerF)
+    App_ManagerF.showMaximized()
+    sys.exit(app.exec())

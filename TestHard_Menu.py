@@ -173,6 +173,7 @@ class Ui_TestHard_Menu(object):
     def insert_Hard(self,TestHard_Menu):
         self.Hardinsert_window=Ui_TestHardInsert_Window(self.username)
         self.Hardinsert_window.show()
+        TestHard_Menu.close()
 
 
     def query_Hard(self,TestHard_Menu):
@@ -180,6 +181,7 @@ class Ui_TestHard_Menu(object):
         self.ui=Ui_TestHardQuery_Window(self.username)
         self.ui.setupUi(self.Hardquery_window)
         self.Hardquery_window.showMaximized()
+        TestHard_Menu.close()
 
 
 # if __name__ == "__main__":

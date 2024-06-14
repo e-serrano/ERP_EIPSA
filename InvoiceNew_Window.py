@@ -3314,7 +3314,6 @@ class Ui_InvoiceNew_Window(object):
 
             self.loadinvoicetable()
 
-
 # Function to search invoice
     def search_invoice(self, Invoice_Window):
         from InvoiceSearch_Window import Ui_InvoiceSearch_Window
@@ -3323,7 +3322,6 @@ class Ui_InvoiceNew_Window(object):
         self.ui.setupUi(self.invoicesearch_window)
         self.invoicesearch_window.show()
         Invoice_Window.close()
-
 
 # Function to load invoice table
     def loadinvoicetable(self):
@@ -3391,7 +3389,6 @@ class Ui_InvoiceNew_Window(object):
 
         self.calculate_totalorder()
 
-
 # Function to filter invoice table
     def filterinvoicetable(self):
         filter = self.Filter_Invoice.text()
@@ -3457,7 +3454,6 @@ class Ui_InvoiceNew_Window(object):
         self.tableInvoice.verticalHeader().hide()
         self.tableInvoice.setSortingEnabled(False)
         self.tableInvoice.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-
 
 # Function to load records table
     def loadrecordstable(self):
@@ -3528,7 +3524,6 @@ class Ui_InvoiceNew_Window(object):
 
         self.calculate_totalorder()
         self.calculate_elements()
-
 
 # Function to load invoice form
     def loadforminvoice(self, item=None, ID_invoice=None):
@@ -3658,7 +3653,6 @@ class Ui_InvoiceNew_Window(object):
 
         self.loadrecordstable()
 
-
 # Function to add record
     def addrecord(self):
         id_invoice = self.label_IDInvoice.text()
@@ -3740,7 +3734,6 @@ class Ui_InvoiceNew_Window(object):
 
             self.loadrecordstable()
 
-
 # Function to modify record
     def modifyrecord(self):
         id_record = self.label_IDRecord.text()
@@ -3808,7 +3801,6 @@ class Ui_InvoiceNew_Window(object):
                     conn.close()
 
             self.loadrecordstable()
-
 
 # Function to delete record
     def deleterecord(self):
@@ -3879,7 +3871,6 @@ class Ui_InvoiceNew_Window(object):
             self.UnitValueEur_Invoice.setText("")
             self.UnitValueDollar_Invoice.setText("")
 
-
 # Function to load invoice form
     def loadformrecords(self, item):
         data_order=[]
@@ -3894,7 +3885,6 @@ class Ui_InvoiceNew_Window(object):
         self.Description_Invoice.setText(data_order[3])
         self.UnitValueEur_Invoice.setText(data_order[4])
         self.UnitValueDollar_Invoice.setText(data_order[6])
-
 
 # Function to calculate the order total amount
     def calculate_totalorder(self):
@@ -3930,7 +3920,6 @@ class Ui_InvoiceNew_Window(object):
         total_tax_base =  total_tax_base_euro if float(self.TotalEur_Invoice.text()) != 0.00 else total_tax_base_dolar * float(self.ValCotDollar_Invoice.text() if self.ValCotDollar_Invoice.text() != '' else 0)
         self.TaxBase_Invoice.setText('{:.2f}'.format(total_tax_base))
 
-
 # Function to calculate the total number of elements
     def calculate_elements(self):
         total_elements = 0
@@ -3940,7 +3929,6 @@ class Ui_InvoiceNew_Window(object):
                 value = item.text()
                 total_elements += int(value)
         self.Qty_Elements.setText(str(total_elements))
-
 
 # Function when client combobox is changed
     def clientchange(self):
@@ -3989,7 +3977,6 @@ class Ui_InvoiceNew_Window(object):
             if conn is not None:
                 conn.close()
 
-
 # Function when destination country combobox is changed
     def destcountrychange(self):
         dest_country_name = self.DestCountry_Invoice.currentText()
@@ -4030,7 +4017,6 @@ class Ui_InvoiceNew_Window(object):
             if conn is not None:
                 conn.close()
 
-
 # Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
         header_pos = self.tableInvoice.horizontalHeader().sectionViewportPosition(logical_index)
@@ -4038,14 +4024,12 @@ class Ui_InvoiceNew_Window(object):
         popup_pos = self.tableInvoice.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableInvoice.show_unique_values_menu(logical_index, popup_pos, header_height)
 
-
 # Function when clicking on table header
     def on_headerrecords_section_clicked(self, logical_index):
         header_pos = self.tableRecords.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.tableRecords.horizontalHeader().height()
         popup_pos = self.tableRecords.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableRecords.show_unique_values_menu(logical_index, popup_pos, header_height)
-
 
 # Function to generate delivery note
     def generate_delivnote(self):
@@ -4138,7 +4122,6 @@ class Ui_InvoiceNew_Window(object):
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                 dlg.exec()
                 del dlg,new_icon
-
 
 # Function to import data into and existing table from and Excel where first row is column name
     def import_tags(self):

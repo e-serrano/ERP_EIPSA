@@ -145,7 +145,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
             elif 'F9' in value_check:
                 start_color = QtGui.QColor(255, 157, 59)  # Orange
-                end_color = QtGui.QColor(244, 71, 209) # Pink
+                end_color = QtGui.QColor(251, 131, 179)  # Pink
 
                 rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
                 rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
@@ -572,6 +572,21 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 painter.drawText(rect_top, QtCore.Qt.AlignmentFlag.AlignCenter, '672')
                 painter.drawText(rect_bottom, QtCore.Qt.AlignmentFlag.AlignCenter, '634')
 
+            elif 'ALUMINIO' in value_check:
+                start_color = QtGui.QColor(255, 87, 87)  # Red
+                end_color = QtGui.QColor(255, 87, 87)  # Red
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+                textRect = painter.boundingRect(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2), QtCore.Qt.TextFlag.TextDontClip | QtCore.Qt.AlignmentFlag.AlignCenter, '658',)
+                verticalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).y() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).height() + textRect.height() + 8) / 2)
+                horizontalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).x() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).width() - textRect.width()) / 2)
+                painter.drawText(horizontalPosition, verticalPosition, '658')
+
             else:
                 start_color = QtGui.QColor(255, 255, 255)  # White
                 end_color = QtGui.QColor(255, 255, 255)  # White
@@ -612,7 +627,7 @@ class Ui_PaletteColourM_Window(object):
                         "304", "", "304H", "", "310", "", "310H", "", "446", "",
                         "316", "", "316H", "", "316Ti", "", "317", "", "317H", "",
                         "321", "", "321H", "", "347", "", "347H", "",
-                        "TITANIO", "", "TANTALO", "", "C70610 / C70690 / CuNi 90-10",]
+                        "TITANIO", "", "TANTALO", "", "C70610 / C70690 / CuNi 90-10", "", "ALUMINIO"]
 
         self.populate_table()
 

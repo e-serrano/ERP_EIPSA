@@ -32,7 +32,6 @@ def imagen_to_base64(imagen):
     base64_data = buffer.data().toBase64().data().decode()
     return base64_data
 
-
 class CheckboxWidget(QtWidgets.QWidget):
     def __init__(self, text):
         super().__init__()
@@ -40,12 +39,73 @@ class CheckboxWidget(QtWidgets.QWidget):
         self.checkbox = QtWidgets.QCheckBox(text)
         layout.addWidget(self.checkbox)
 
-
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
+    def paint(self, painter, option, index):
+        super().paint(painter, option, index)
+        textRect = painter.boundingRect(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2), QtCore.Qt.TextFlag.TextDontClip | QtCore.Qt.AlignmentFlag.AlignCenter, str(index.data()),)
+        verticalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).y() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).height() + textRect.height() + 8) / 2)
+        horizontalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).x() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).width() - textRect.width()) / 2)
+        
+
+        if index.column() == 19:  # Column to paint
+            tolerance_index = index.sibling(index.row(), 20)  # Index for column to check text
+            error_value = float(str(index.data()).replace(',','.'))  # Text of cell to be painted
+            tolerance_value = float(str(tolerance_index.data()).replace(',','.'))   # Text for checking
+            painter.fillRect(option.rect, QtGui.QColor(18, 18, 18))
+
+            if abs(error_value) > tolerance_value:
+                text_color = QtGui.QColor(255, 0, 0)
+            else:
+                text_color = QtGui.QColor(255, 255, 255)
+
+            painter.setPen(QtGui.QPen(text_color))
+            painter.drawText(horizontalPosition, verticalPosition, str(index.data()).replace('.',',')) if index.data() != 0.0 else painter.drawText(horizontalPosition, verticalPosition, '')
+
+        if index.column() == 23:  # Column to paint
+            tolerance_index = index.sibling(index.row(), 24)  # Index for column to check text
+            error_value = float(str(index.data()).replace(',','.'))  # Text of cell to be painted
+            tolerance_value = float(str(tolerance_index.data()).replace(',','.'))   # Text for checking
+            painter.fillRect(option.rect, QtGui.QColor(18, 18, 18))
+
+            if abs(error_value) > tolerance_value:
+                text_color = QtGui.QColor(255, 0, 0)
+            else:
+                text_color = QtGui.QColor(255, 255, 255)
+
+            painter.setPen(QtGui.QPen(text_color))
+            painter.drawText(horizontalPosition, verticalPosition, str(index.data()).replace('.',',')) if index.data() != 0.0 else painter.drawText(horizontalPosition, verticalPosition, '')
+
+        if index.column() == 27:  # Column to paint
+            tolerance_index = index.sibling(index.row(), 28)  # Index for column to check text
+            error_value = float(str(index.data()).replace(',','.'))  # Text of cell to be painted
+            tolerance_value = float(str(tolerance_index.data()).replace(',','.'))   # Text for checking
+            painter.fillRect(option.rect, QtGui.QColor(18, 18, 18))
+
+            if abs(error_value) > tolerance_value:
+                text_color = QtGui.QColor(255, 0, 0)
+            else:
+                text_color = QtGui.QColor(255, 255, 255)
+
+            painter.setPen(QtGui.QPen(text_color))
+            painter.drawText(horizontalPosition, verticalPosition, str(index.data()).replace('.',',')) if index.data() != 0.0 else painter.drawText(horizontalPosition, verticalPosition, '')
+
+        if index.column() == 31:  # Column to paint
+            tolerance_index = index.sibling(index.row(), 32)  # Index for column to check text
+            error_value = float(str(index.data()).replace(',','.'))  # Text of cell to be painted
+            tolerance_value = float(str(tolerance_index.data()).replace(',','.'))   # Text for checking
+            painter.fillRect(option.rect, QtGui.QColor(18, 18, 18))
+
+            if abs(error_value) > tolerance_value:
+                text_color = QtGui.QColor(255, 0, 0)
+            else:
+                text_color = QtGui.QColor(255, 255, 255)
+
+            painter.setPen(QtGui.QPen(text_color))
+            painter.drawText(horizontalPosition, verticalPosition, str(index.data()).replace('.',',')) if index.data() != 0.0 else painter.drawText(horizontalPosition, verticalPosition, '')
 
 class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, parent=None, options=None):
@@ -64,7 +124,6 @@ class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
 
     def setModelData(self, editor, model, index):
         model.setData(index, editor.currentText(), Qt.ItemDataRole.EditRole)
-
 
 class CustomProxyModel(QtCore.QSortFilterProxyModel):
     def __init__(self, parent=None):
@@ -121,7 +180,6 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                 return False
         return True
 
-
 class EditableTableModel(QtSql.QSqlTableModel):
     updateFailed = QtCore.pyqtSignal(str)
 
@@ -155,7 +213,6 @@ class EditableTableModel(QtSql.QSqlTableModel):
     def getColumnHeaders(self, visible_columns):
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
-
 
 class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
     def __init__(self, db, username):
@@ -440,7 +497,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
 
 # Function to import data to database
     def import_data(self):
-        folder_path = "//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CARPETAS IMPORTACIONES CALIBRACION"
+        folder_path = "E:/Fluke/1586A/42280006/data/scan" # //nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CARPETAS IMPORTACIONES CALIBRACION"
 
         if folder_path:
             for subfolder in os.listdir(folder_path):
@@ -534,18 +591,28 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                         df_elements['tag'] = df_elements.index
                         df_elements['folder_data'] = subfolder
 
-                        #Reading each row and inserting data in table
-                        for index, row in df_elements.iterrows():
-                        # Creating SQL sentence
-                            columns_values = [(column, row[column]) for column in df_elements.columns if not pd.isnull(row[column])]
+                        list_folders = df_elements['folder_data'].unique().tolist()
 
-                        # Creating string for columns names and values
-                            columns = ', '.join([column for column, _ in columns_values])
-                            values = ', '.join([f"'{values}'" if column in ['master_1','master_2','master_3','master_4','element_1','element_2','element_3','element_4'] and values is not None else f"'{values}'" for column, values in columns_values])
+                    #Reading each row and inserting data in table
+                        for name_folder in list_folders:
+                            sql_check = f"SELECT * FROM verification.calibration_thermoelements WHERE folder_data = '{name_folder}'"
+                            cur.execute(sql_check)
+                            results = cur.fetchall()
 
-                        # Creating insertion query and executing it
-                            sql_insertion = f"INSERT INTO verification.calibration_thermoelements ({columns}) VALUES ({values})"
-                            cur.execute(sql_insertion)
+                            if len(results) == 0:
+                                df_filtrado = df_elements.loc[df_elements['folder_data'] == name_folder]
+                            # Creating SQL sentence
+                                for index, row in df_filtrado.iterrows():
+                                    name_folder = row['folder_data']
+                                    columns_values = [(column, row[column]) for column in df_filtrado.columns if not pd.isnull(row[column])]
+
+                                # Creating string for columns names and values
+                                    columns = ', '.join([column for column, _ in columns_values])
+                                    values = ', '.join([f"'{values}'" if column in ['master_1','master_2','master_3','master_4','element_1','element_2','element_3','element_4'] and values is not None else f"'{values}'" for column, values in columns_values])
+
+                                # Creating insertion query and executing it
+                                    sql_insertion = f"INSERT INTO verification.calibration_thermoelements ({columns}) VALUES ({values})"
+                                    cur.execute(sql_insertion)
 
                 # close communication with the PostgreSQL database server
                     cur.close()
@@ -1048,6 +1115,8 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                     for index, value in zip(model_indexes, values):
                         self.model.setData(index, value.decode('utf-8'))
 
+            self.saveChanges()
+
         super().keyPressEvent(event)
 
 # Function to get the text of the selected cells
@@ -1210,12 +1279,16 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
 
 # Function to print certificate
     def print_certificate(self):
+        self.model.submitAll()
         self.saveChanges()
         from CalibrationPrintCertificate_Window import Ui_CalibrationPrintCertificate_Window
         self.CalibrationPrintCertificate_Window=QtWidgets.QMainWindow()
         self.ui=Ui_CalibrationPrintCertificate_Window(self.username)
         self.ui.setupUi(self.CalibrationPrintCertificate_Window)
         self.CalibrationPrintCertificate_Window.show()
+
+
+
 
 # if __name__ == "__main__":
 #     import sys

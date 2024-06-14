@@ -2973,8 +2973,8 @@ class Ui_SupplierOrder_Warehouse_Window(object):
             pending = result_stocks[2]
             unit_value = result_stocks[3]
 
-            self.Stock_SupplierOrder.setText(str(stock))
-            self.StockDsp_SupplierOrder.setText(str(available_stock))
+            self.Stock_SupplierOrder.setText(str(round(stock,2)))
+            self.StockDsp_SupplierOrder.setText(str(round(available_stock,2)))
             self.StockVrt_SupplierOrder.setText(str(round(available_stock + pending,4)))
             self.UnitValue_SupplierOrder.setText(unit_value)
 

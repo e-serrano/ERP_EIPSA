@@ -713,32 +713,61 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
 # Function to enable copy and paste cells
     def keyPressEvent(self, event):
         if event.matches(QKeySequence.StandardKey.Copy):
-            if self.tableEditDocs.selectionModel() != None:
-                selected_indexes = self.tableEditDocs.selectionModel().selectedIndexes()
-                if selected_indexes:
-                    clipboard = QApplication.clipboard()
-                    text = self.get_selected_text(selected_indexes)
-                    clipboard.setText(text.toString("dd/MM/yyyy") if isinstance(text, QtCore.QDate) else str(text))
+            selected_indexes = self.tableEditDocs.selectionModel().selectedIndexes()
+            if not selected_indexes:
+                return
+
+            mime_data = QtCore.QMimeData()
+            data = bytearray()
+
+            if isinstance(self.model, QtCore.QSortFilterProxyModel):
+                for index in selected_indexes:
+                    source_index = self.proxy.mapToSource(index)
+                    print(self.model.sourceModel().data(source_index))
+                    data += str(self.model.sourceModel().data(source_index) if not isinstance(self.model.sourceModel().data(source_index), QtCore.QDate) else self.model.sourceModel().data(source_index).toString("dd/MM/yyyy")).encode('utf-8') + b'\t'
+            else:
+                for index in selected_indexes:
+                    print(self.model.data(index))
+                    data += str(self.model.data(index) if not isinstance(self.model.data(index), QtCore.QDate) else self.model.data(index).toString("dd/MM/yyyy")).encode('utf-8') + b'\t'
+
+            mime_data.setData("text/plain", data)
+
+            clipboard = QApplication.clipboard()
+            clipboard.setMimeData(mime_data)
 
         elif event.matches(QKeySequence.StandardKey.Paste):
             if self.tableEditDocs.selectionModel() != None:
+
+                clipboard = QApplication.clipboard()
+                mime_data = clipboard.mimeData()
+
+                if not mime_data.hasFormat("text/plain"):
+                    return
+
+                data = mime_data.data("text/plain").data()
+                values = data.split(b'\t')
+
                 selected_indexes = self.tableEditDocs.selectionModel().selectedIndexes()
-                if selected_indexes:
-                    clipboard = QApplication.clipboard()
-                    text = clipboard.text()
-                    for index in selected_indexes:
-                        current_row = index.row()
-                        current_column = index.column()
-                        first_column_value = self.proxy.data(self.proxy.index(current_row, 0))
-                        target_row = None
-                        for row in range(self.model.rowCount()):
-                            if self.model.data(self.model.index(row, 0)) == first_column_value:
-                                target_row = row
-                                break
-                        if target_row is not None:
-                            target_index = self.model.index(target_row, current_column)
-                            self.model.setData(target_index, text, Qt.ItemDataRole.EditRole)
-                    self.model.submitAll()
+                if not selected_indexes:
+                    return
+
+                if isinstance(self.model, QtCore.QSortFilterProxyModel):
+                    model_indexes = [self.proxy.mapToSource(index) for index in selected_indexes]
+                    if len(values) == 2:
+                        for index in model_indexes:
+                            self.model.sourceModel().setData(index, values[0].decode('utf-8'))
+                    else:
+                        for index, value in zip(model_indexes, values):
+                            self.model.sourceModel().setData(index, value.decode('utf-8'))
+                else:
+                    model_indexes = selected_indexes
+                    if len(values) == 2:
+                        for index in model_indexes:
+                            self.model.setData(index, values[0].decode('utf-8'))
+                    else:
+                        for index, value in zip(model_indexes, values):
+                            self.model.setData(index, value.decode('utf-8'))
+                self.model.submitAll()
 
         super().keyPressEvent(event)
 
@@ -801,6 +830,9 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
             return float(number_str)
         else:
             return 0.0
+
+
+
 
 if __name__ == "__main__":
     import sys

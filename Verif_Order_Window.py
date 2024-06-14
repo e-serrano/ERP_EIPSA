@@ -29,7 +29,6 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
-
 class CustomTableWidget_Tags(QtWidgets.QTableWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -358,7 +357,6 @@ class CustomTableWidget_Tags(QtWidgets.QTableWidget):
             self.show_unique_values_menu(logical_index, header_pos, header_height)
         else:
             super().contextMenuEvent(event)
-
 
 class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
     def __init__(self, parent=None):
@@ -689,7 +687,6 @@ class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-
 class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -1019,8 +1016,6 @@ class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-
-
 class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
     def __init__(self, username, numorder):
         super().__init__()
@@ -1039,13 +1034,11 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         if self.username == 'm.gil':
             Verif_Order_Window.setStyleSheet(
                 ".QFrame {\n" "    border: 2px solid white;\n" "}\n"
-                "QMenu::item:selected {background-color: rgb(3, 174, 236);}"
-            )
+                "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         else:
             Verif_Order_Window.setStyleSheet(
                 ".QFrame {\n" "    border: 2px solid black;\n" "}\n"
-                "QMenu::item:selected {background-color: rgb(3, 174, 236);}"
-            )
+                "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         self.centralwidget = QtWidgets.QWidget(parent=Verif_Order_Window)
         if self.username == 'm.gil':
             self.centralwidget.setStyleSheet("color: white; background-color: rgb(12, 12, 12);")
@@ -1075,9 +1068,9 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         self.label1.setFont(font)
         self.table_tags = CustomTableWidget_Tags()
         self.table_tags.setObjectName("table_tags")
-        self.table_tags.setColumnCount(13)
+        self.table_tags.setColumnCount(18)
         self.table_tags.setRowCount(0)
-        for i in range (13):
+        for i in range (18):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -1113,7 +1106,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         self.splitter.addWidget(self.frame1)
         self.gridLayout2 = QtWidgets.QGridLayout(self.frame2)
         self.label2 = QtWidgets.QLabel()
-        self.label2.setText('Planos, PPI y EXP')
+        self.label2.setText('Planos, Pruebas, PPI y EXP')
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -1205,6 +1198,38 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addLayout(self.layout_vertical, 0, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
+        self.Button_Insert = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Insert.setMinimumSize(QtCore.QSize(100, 35))
+        # self.Button_Insert.setMaximumSize(QtCore.QSize(100, 35))
+        self.Button_Insert.setObjectName("Button_Insert")
+        self.Button_Insert.setStyleSheet("QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 2px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
+        self.gridLayout_2.addWidget(self.Button_Insert, 1, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         Verif_Order_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=Verif_Order_Window)
@@ -1236,51 +1261,56 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         self.retranslateUi(Verif_Order_Window)
         QtCore.QMetaObject.connectSlotsByName(Verif_Order_Window)
 
-        self.table_tags.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked_hydro)
-        self.table_drawings.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked_liquid)
-        self.table_calibrations.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked_hard)
-
-        self.table_tags.itemDoubleClicked.connect(self.expand_cell)
-        self.table_drawings.itemDoubleClicked.connect(self.expand_cell)
-        self.table_calibrations.itemDoubleClicked.connect(self.expand_cell)
+        self.table_tags.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked_tags)
+        self.table_drawings.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked_drawings)
+        self.table_calibrations.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked_calibrations)
 
         self.table_tags.itemSelectionChanged.connect(self.countSelectedCells_tags)
         self.table_drawings.itemSelectionChanged.connect(self.countSelectedCells_drawings)
         self.table_calibrations.itemSelectionChanged.connect(self.countSelectedCells_calibration)
 
-        self.query_data()
+        self.table_tags.itemDoubleClicked.connect(self.item_double_click)
 
+        self.Button_Insert.clicked.connect(self.expedition)
+
+        self.query_data()
 
 
     def retranslateUi(self, Verif_Order_Window):
         _translate = QtCore.QCoreApplication.translate
         Verif_Order_Window.setWindowTitle(_translate("Verif_Order_Window", "Verificación Pedido"))
         item = self.table_tags.horizontalHeaderItem(0)
-        item.setText(_translate("TestHydroQuery_Window", "Nº Pedido"))
+        item.setText(_translate("TestHydroQuery_Window", "ID Tag"))
         item = self.table_tags.horizontalHeaderItem(1)
-        item.setText(_translate("TestHydroQuery_Window", "TAG"))
+        item.setText(_translate("TestHydroQuery_Window", "Nº Pedido"))
         item = self.table_tags.horizontalHeaderItem(2)
-        item.setText(_translate("TestHydroQuery_Window", "Descripción"))
+        item.setText(_translate("TestHydroQuery_Window", "TAG"))
         item = self.table_tags.horizontalHeaderItem(3)
-        item.setText(_translate("TestLiquidQuery_Window", "Plano Dim."))
+        item.setText(_translate("TestHydroQuery_Window", "Descripción"))
         item = self.table_tags.horizontalHeaderItem(4)
-        item.setText(_translate("TestLiquidQuery_Window", "OF Equipo"))
+        item.setText(_translate("TestLiquidQuery_Window", "Plano Dim."))
         item = self.table_tags.horizontalHeaderItem(5)
-        item.setText(_translate("TestLiquidQuery_Window", "OF Sensor"))
+        item.setText(_translate("TestLiquidQuery_Window", "OF Equipo"))
         item = self.table_tags.horizontalHeaderItem(6)
-        item.setText(_translate("TestHydroQuery_Window", "Fecha PH1"))
+        item.setText(_translate("TestLiquidQuery_Window", "OF Sensor"))
         item = self.table_tags.horizontalHeaderItem(7)
-        item.setText(_translate("TestHydroQuery_Window", "Fecha PH2"))
+        item.setText(_translate("TestHydroQuery_Window", "PMI"))
         item = self.table_tags.horizontalHeaderItem(8)
-        item.setText(_translate("TestHydroQuery_Window", "Fecha LP"))
+        item.setText(_translate("TestHydroQuery_Window", "PH1"))
         item = self.table_tags.horizontalHeaderItem(9)
-        item.setText(_translate("TestHydroQuery_Window", "Fecha Dureza"))
+        item.setText(_translate("TestHydroQuery_Window", "PH2"))
         item = self.table_tags.horizontalHeaderItem(10)
-        item.setText(_translate("TestHydroQuery_Window", "Fecha Dim."))
+        item.setText(_translate("TestHydroQuery_Window", "LP"))
         item = self.table_tags.horizontalHeaderItem(11)
-        item.setText(_translate("TestHydroQuery_Window", "Fecha OF Eq."))
+        item.setText(_translate("TestHydroQuery_Window", "Dureza"))
         item = self.table_tags.horizontalHeaderItem(12)
-        item.setText(_translate("TestHydroQuery_Window", "Fecha OF Sensor"))
+        item.setText(_translate("TestHydroQuery_Window", "Dim."))
+        item = self.table_tags.horizontalHeaderItem(13)
+        item.setText(_translate("TestHydroQuery_Window", "OF Eq."))
+        item = self.table_tags.horizontalHeaderItem(14)
+        item.setText(_translate("TestHydroQuery_Window", "OF Sensor"))
+        item = self.table_tags.horizontalHeaderItem(15)
+        item.setText(_translate("TestHydroQuery_Window", "Fotos"))
         item = self.table_drawings.horizontalHeaderItem(0)
         item.setText(_translate("TestLiquidQuery_Window", "Nº Pedido"))
         item = self.table_drawings.horizontalHeaderItem(1)
@@ -1295,18 +1325,19 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         item.setText(_translate("TestHardQuery_Window", "Label"))
         item = self.table_calibrations.horizontalHeaderItem(3)
         item.setText(_translate("TestHardQuery_Window", "Fecha"))
+        self.Button_Insert.setText(_translate("TestHardQuery_Window", "Expedir"))
 
 
 # Function to load table and setting in the window
     def query_data(self):
         query_tags = ("""
-                        SELECT num_order, tag, item_type, dim_drawing, of_drawing, NULL as of_sensor_drawing, TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), TO_CHAR(hard_date, 'DD/MM/YYYY'), final_verif_dim_date, final_verif_of_eq_date, NULL as final_verif_of_sensor_date FROM tags_data.tags_flow WHERE num_order LIKE ('%%'||%s||'%%')
+                        SELECT id_tag_flow, num_order, tag, item_type, dim_drawing, of_drawing, NULL as of_sensor_drawing, TO_CHAR(pmi_date, 'DD/MM/YYYY'), TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), TO_CHAR(hard_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), NULL as final_verif_of_sensor_date, tag_images, 'tags_data.tags_flow', 'id_tag_flow' FROM tags_data.tags_flow WHERE num_order LIKE ('%%'||%s||'%%')
                         UNION
-                        SELECT num_order, tag, item_type, dim_drawing, of_drawing, of_sensor_drawing, TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), TO_CHAR(hard_date, 'DD/MM/YYYY'), final_verif_dim_date, final_verif_of_eq_date, final_verif_of_sensor_date FROM tags_data.tags_temp WHERE num_order LIKE ('%%'||%s||'%%')
+                        SELECT id_tag_temp, num_order, tag, item_type, dim_drawing, of_drawing, of_sensor_drawing, TO_CHAR(pmi_date, 'DD/MM/YYYY'), TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), TO_CHAR(hard_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_sensor_date, 'DD/MM/YYYY'), tag_images, 'tags_data.tags_temp', 'id_tag_temp' FROM tags_data.tags_temp WHERE num_order LIKE ('%%'||%s||'%%')
                         UNION
-                        SELECT num_order, tag, item_type, dim_drawing, of_drawing, NULL as of_sensor_drawing, TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), TO_CHAR(hard_date, 'DD/MM/YYYY'), final_verif_dim_date, final_verif_of_eq_date, NULL as final_verif_of_sensor_date FROM tags_data.tags_level WHERE num_order LIKE ('%%'||%s||'%%')
+                        SELECT id_tag_level, num_order, tag, item_type, dim_drawing, of_drawing, NULL as of_sensor_drawing, TO_CHAR(pmi_date, 'DD/MM/YYYY'), TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), TO_CHAR(hard_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), NULL as final_verif_of_sensor_date, tag_images, 'tags_data.tags_level', 'id_tag_level' FROM tags_data.tags_level WHERE num_order LIKE ('%%'||%s||'%%')
                         UNION
-                        SELECT num_order, tag, description, dim_drawing, of_drawing, NULL as of_sensor_drawing, TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), TO_CHAR(hard_date, 'DD/MM/YYYY'), final_verif_dim_date, final_verif_of_eq_date, NULL as final_verif_of_sensor_date FROM tags_data.tags_others WHERE num_order LIKE ('%%'||%s||'%%')
+                        SELECT id_tag_others, num_order, tag, description, dim_drawing, of_drawing, NULL as of_sensor_drawing, TO_CHAR(pmi_date, 'DD/MM/YYYY'), TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), TO_CHAR(hard_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), NULL as final_verif_of_sensor_date, tag_images, 'tags_data.tags_others', 'id_tag_others' FROM tags_data.tags_others WHERE num_order LIKE ('%%'||%s||'%%')
                         """)
 
         query_drawings = ("""
@@ -1319,6 +1350,9 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                         SELECT num_order, 'PPI' as of_drawing, TO_CHAR(verif_ppi_date, 'DD/MM/YYYY') FROM verification.ppi_verification WHERE num_order LIKE ('%%'||%s||'%%')
                         UNION
                         SELECT num_order, 'EXP' as of_drawing, TO_CHAR(verif_exp_date, 'DD/MM/YYYY') FROM verification.exp_verification WHERE num_order LIKE ('%%'||%s||'%%')
+                        UNION
+                        SELECT num_order, test_type, TO_CHAR(test_date, 'DD/MM/YYYY') FROM verification.test_others WHERE num_order LIKE ('%%'||%s||'%%')
+                        ORDER BY drawing_number
                         """)
 
         query_calibration = ("""
@@ -1336,7 +1370,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
             cur.execute(query_tags, (self.numorder, self.numorder, self.numorder, self.numorder,))
             results_tags=cur.fetchall()
 
-            cur.execute(query_drawings, (self.numorder, self.numorder, self.numorder, self.numorder, self.numorder,))
+            cur.execute(query_drawings, (self.numorder, self.numorder, self.numorder, self.numorder, self.numorder, self.numorder,))
             results_drawings=cur.fetchall()
 
             cur.execute(query_calibration, (self.numorder,))
@@ -1352,7 +1386,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results_tags:
-                for column in range(13):
+                for column in range(18):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -1369,6 +1403,9 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
             self.table_tags.setSortingEnabled(False)
             # self.table_tags.hideColumn(0)
             self.table_tags.custom_sort_date(0, QtCore.Qt.SortOrder.AscendingOrder)
+            self.table_tags.hideColumn(0)
+            self.table_tags.hideColumn(16)
+            self.table_tags.hideColumn(17)
 
             self.table_drawings.setRowCount(len(results_drawings))
             tablerow=0
@@ -1433,42 +1470,27 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                 conn.close()
 
 
-# Function when header of hydro table is clicked
-    def on_header_section_clicked_hydro(self, logical_index):
+# Function when header of different tables is clicked
+    def on_header_section_clicked_tags(self, logical_index):
         header_pos = self.table_tags.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.table_tags.horizontalHeader().height()
         popup_pos = self.table_tags.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.table_tags.show_unique_values_menu(logical_index, popup_pos, header_height)
 
-
-# Function when header of liquid table is clicked
-    def on_header_section_clicked_liquid(self, logical_index):
+    def on_header_section_clicked_drawings(self, logical_index):
         header_pos = self.table_drawings.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.table_drawings.horizontalHeader().height()
         popup_pos = self.table_drawings.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.table_drawings.show_unique_values_menu(logical_index, popup_pos, header_height)
 
-
-# Function when header of hardness table is clicked
-    def on_header_section_clicked_hard(self, logical_index):
+    def on_header_section_clicked_calibrations(self, logical_index):
         header_pos = self.table_calibrations.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.table_calibrations.horizontalHeader().height()
         popup_pos = self.table_calibrations.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.table_calibrations.show_unique_values_menu(logical_index, popup_pos, header_height)
 
 
-    def expand_cell(self, item):
-        if item.column() in [2]:
-            cell_content = item.text()
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Pruebas")
-            dlg.setText(cell_content)
-            dlg.exec()
-
-
+# Functions to count selected cells of different tables
     def countSelectedCells_tags(self):
         if len(self.table_tags.selectedIndexes()) > 1:
             locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
@@ -1490,7 +1512,6 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
             self.label_SumValue_tags.setText("")
             self.label_CountItems_tags.setText("")
             self.label_CountValue_tags.setText("")
-
 
     def countSelectedCells_drawings(self):
         if len(self.table_drawings.selectedIndexes()) > 1:
@@ -1514,7 +1535,6 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
             self.label_CountItems_drawings.setText("")
             self.label_CountValue_drawings.setText("")
 
-
     def countSelectedCells_calibration(self):
         if len(self.table_calibrations.selectedIndexes()) > 1:
             locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
@@ -1537,10 +1557,301 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
             self.label_CountItems_calibration.setText("")
             self.label_CountValue_calibration.setText("")
 
+# Function to insert expedition data
+    def expedition(self):
+        num_order = self.numorder
+        verif_date = date.today().strftime("%d/%m/%Y")
+        verif_state = 'Realizado por Mario'
+
+        if num_order == "" or verif_date == "":
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Verificación EXP")
+            dlg.setText("Rellene todos los campos. Solo el campo de observaciones puede quedar vacío")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+
+        else:
+            commands_select_exp = ("""
+                        SELECT verif_exp_date, id
+                        FROM verification."exp_verification"
+                        WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
+                        """)
+            commands_insert_exp = ("""
+                        UPDATE verification."exp_verification"
+                        SET "verif_exp_date" = %s, "verif_exp_state" = %s
+                        WHERE "id" = %s
+                        """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(commands_select_exp, (num_order, ))
+                results = cur.fetchall()
+
+                if len(results) != 0:
+                    if results[0][0] is None:
+                        cur.execute(commands_insert_exp, (verif_date, verif_state, results[0][1], ))
+
+                    else:
+                        dlg_yes_no = QtWidgets.QMessageBox()
+                        new_icon_yes_no = QtGui.QIcon()
+                        new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                        dlg_yes_no.setWindowTitle("ERP EIPSA")
+                        dlg_yes_no.setText("Ya ha datos existentes en el aviso de expedición\n"
+                                            "¿Deseas sobreescribirlos?\n")
+                        dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                        dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                        result = dlg_yes_no.exec()
+                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            cur.execute(commands_insert_exp, (verif_date, verif_state, results[0][1], ))
+
+                        del dlg_yes_no, new_icon_yes_no
+
+                else:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("EXP")
+                    dlg.setText("No hay EXP creado para este pedido")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Verificación EXP")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+
+            finally:
+                if conn is not None:
+                    conn.close()
+
+        self.query_data()
+
+# Function when item of table is double clicked
+    def item_double_click(self, item):
+        if item.text() != '':
+            if item.column() == 15:
+                item_id = self.table_tags.item(item.row(), 0).text()
+                table_name = self.table_tags.item(item.row(), 16).text()
+                column_id = self.table_tags.item(item.row(), 17).text()
+
+                query_path =f"SELECT tag_images FROM {table_name} WHERE {column_id} = {item_id}"
+
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(query_path)
+                    results=cur.fetchall()
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    file_path = os.path.normpath(results[0][0])
+                    os.startfile(file_path)
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+            elif item.column() == 8:
+                item_id = self.table_tags.item(item.row(), 0).text()
+                table_name = self.table_tags.item(item.row(), 16).text()
+                column_id = self.table_tags.item(item.row(), 17).text()
+
+                query =f"SELECT tag, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure FROM {table_name} WHERE {column_id} = {item_id}"
+
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(query)
+                    results=cur.fetchall()
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Prueba Hidrostática 1")
+                    dlg.setText("TAG: " + results[0][0] + "\n"
+                                "Fecha: " + results[0][1] + "\n\n"
+                                "Manómetro: " + results[0][2] + "\n"
+                                "Presión: " + results[0][3])
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+            elif item.column() == 9:
+                item_id = self.table_tags.item(item.row(), 0).text()
+                table_name = self.table_tags.item(item.row(), 16).text()
+                column_id = self.table_tags.item(item.row(), 17).text()
+
+                query =f"SELECT tag, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure FROM {table_name} WHERE {column_id} = {item_id}"
+
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(query)
+                    results=cur.fetchall()
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Prueba Hidrostática 2")
+                    dlg.setText("TAG: " + results[0][0] + "\n"
+                                "Fecha: " + results[0][1] + "\n\n"
+                                "Manómetro: " + results[0][2] + "\n"
+                                "Presión: " + results[0][3])
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+            elif item.column() == 10:
+                item_id = self.table_tags.item(item.row(), 0).text()
+                table_name = self.table_tags.item(item.row(), 16).text()
+                column_id = self.table_tags.item(item.row(), 17).text()
+
+                query =f"SELECT tag, TO_CHAR(lp_date, 'DD/MM/YYYY'), lp_hn_liq1, lp_hn_liq2, lp_hn_liq3 FROM {table_name} WHERE {column_id} = {item_id}"
+
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(query)
+                    results=cur.fetchall()
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Líquidos Penetrantes")
+                    dlg.setText("TAG: " + results[0][0] + "\n"
+                                "Fecha: " + results[0][1] + "\n\n"
+                                "9PR5: " + results[0][2] + "\n"
+                                "9D1B: " + results[0][3] + "\n"
+                                "996PB: " + results[0][4])
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+
+
+
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    Verif_Order_Window = Ui_Verif_Order_Window('m.gil','P-24/007')
+    Verif_Order_Window = Ui_Verif_Order_Window('m.gil','PA-24/057')
     Verif_Order_Window.show()
     sys.exit(app.exec())

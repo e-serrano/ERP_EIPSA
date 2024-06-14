@@ -13,6 +13,9 @@ from datetime import *
 import os
 import pandas as pd
 from PDF_Styles import fab_order
+from openpyxl import Workbook
+from openpyxl.styles import NamedStyle
+from openpyxl.utils.dataframe import dataframe_to_rows
 from tkinter.filedialog import asksaveasfilename
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -185,6 +188,7 @@ class Ui_OTFabOrder_Window(object):
             cur.execute(commands_numot)
             results=cur.fetchall()
             num_ot=results[-1][0]
+            num_ot = '{:06}'.format(int(num_ot) + 1)
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
@@ -254,34 +258,33 @@ class Ui_OTFabOrder_Window(object):
                 ped_type_tag = self.model.data(self.model.index(target_row, 4)) + '-' + self.model.data(self.model.index(target_row, 8)) + '-' + self.model.data(self.model.index(target_row, 1))
                 if self.variable == 'Caudal':
                     num_of_plate = self.model.data(self.model.index(target_row, 48)) 
-                    num_of = self.model.data(self.model.index(target_row, 51))
-                    codefab_eq = self.model.data(self.model.index(target_row, 69))
-                    trad_eq = self.model.data(self.model.index(target_row, 70))
-                    codefab_orifice_flange = self.model.data(self.model.index(target_row, 72))
-                    trad_orifice_flange = self.model.data(self.model.index(target_row, 109))
-                    codefab_line_flange = self.model.data(self.model.index(target_row, 75))
-                    trad_line_flange = self.model.data(self.model.index(target_row, 110))
-                    codefab_gasket = self.model.data(self.model.index(target_row, 78))
-                    trad_gasket = self.model.data(self.model.index(target_row, 111))
-                    codefab_bolts = self.model.data(self.model.index(target_row, 81))
-                    trad_bolts = self.model.data(self.model.index(target_row, 112))
-                    codefab_plugs = self.model.data(self.model.index(target_row, 84))
-                    trad_plugs = self.model.data(self.model.index(target_row, 113))
-                    codefab_extractor = self.model.data(self.model.index(target_row, 86))
-                    trad_extractor = self.model.data(self.model.index(target_row, 114))
-                    codefab_plate = self.model.data(self.model.index(target_row, 90))
-                    trad_plate = self.model.data(self.model.index(target_row, 115))
-                    codefab_nipple = self.model.data(self.model.index(target_row, 93))
-                    trad_nipple = self.model.data(self.model.index(target_row, 116))
-                    codefab_handle = self.model.data(self.model.index(target_row, 96))
-                    trad_handle = self.model.data(self.model.index(target_row, 117))
-                    codefab_chring = self.model.data(self.model.index(target_row, 99))
-                    trad_chring = self.model.data(self.model.index(target_row, 118))
-                    codefab_tube = self.model.data(self.model.index(target_row, 102))
-                    trad_tube = self.model.data(self.model.index(target_row, 119))
-                    codefab_piece2 = self.model.data(self.model.index(target_row, 105))
-                    trad_piece2 = self.model.data(self.model.index(target_row, 120))
-                    list_of = [num_of, num_of_plate]
+                    codefab_eq = self.model.data(self.model.index(target_row, 73))
+                    trad_eq = self.model.data(self.model.index(target_row, 74))
+                    codefab_orifice_flange = self.model.data(self.model.index(target_row, 76))
+                    trad_orifice_flange = self.model.data(self.model.index(target_row, 113))
+                    codefab_line_flange = self.model.data(self.model.index(target_row, 79))
+                    trad_line_flange = self.model.data(self.model.index(target_row, 114))
+                    codefab_gasket = self.model.data(self.model.index(target_row, 82))
+                    trad_gasket = self.model.data(self.model.index(target_row, 115))
+                    codefab_bolts = self.model.data(self.model.index(target_row, 85))
+                    trad_bolts = self.model.data(self.model.index(target_row, 116))
+                    codefab_plugs = self.model.data(self.model.index(target_row, 88))
+                    trad_plugs = self.model.data(self.model.index(target_row, 117))
+                    codefab_extractor = self.model.data(self.model.index(target_row, 91))
+                    trad_extractor = self.model.data(self.model.index(target_row, 118))
+                    codefab_plate = self.model.data(self.model.index(target_row, 94))
+                    trad_plate = self.model.data(self.model.index(target_row, 119))
+                    codefab_nipple = self.model.data(self.model.index(target_row, 97))
+                    trad_nipple = self.model.data(self.model.index(target_row, 120))
+                    codefab_handle = self.model.data(self.model.index(target_row, 100))
+                    trad_handle = self.model.data(self.model.index(target_row, 121))
+                    codefab_chring = self.model.data(self.model.index(target_row, 104))
+                    trad_chring = self.model.data(self.model.index(target_row, 122))
+                    codefab_tube = self.model.data(self.model.index(target_row, 106))
+                    trad_tube = self.model.data(self.model.index(target_row, 123))
+                    codefab_piece2 = self.model.data(self.model.index(target_row, 109))
+                    trad_piece2 = self.model.data(self.model.index(target_row, 124))
+                    list_of = [num_of_plate]
                     list_trad = [codefab_eq, trad_eq, codefab_orifice_flange, trad_orifice_flange, codefab_line_flange,
                                         trad_line_flange, codefab_gasket, trad_gasket, codefab_bolts, trad_bolts,
                                         codefab_plugs, trad_plugs, codefab_extractor, trad_extractor, codefab_plate,
@@ -290,32 +293,32 @@ class Ui_OTFabOrder_Window(object):
                 elif self.variable == 'Temperatura':
                     num_of_sensor = self.model.data(self.model.index(target_row, 58))
                     num_of = self.model.data(self.model.index(target_row, 62))
-                    codefab_eq = self.model.data(self.model.index(target_row, 74))
-                    trad_eq = self.model.data(self.model.index(target_row, 75))
-                    codefab_bar = self.model.data(self.model.index(target_row, 77))
-                    trad_bar = self.model.data(self.model.index(target_row, 113))
-                    codefab_tube = self.model.data(self.model.index(target_row, 80))
-                    trad_tube = self.model.data(self.model.index(target_row, 114))
-                    codefab_flange = self.model.data(self.model.index(target_row, 83))
-                    trad_flange = self.model.data(self.model.index(target_row, 115))
-                    codefab_sensor = self.model.data(self.model.index(target_row, 86))
-                    trad_sensor = self.model.data(self.model.index(target_row, 116))
-                    codefab_head = self.model.data(self.model.index(target_row, 89))
-                    trad_head = self.model.data(self.model.index(target_row, 117))
-                    codefab_btb = self.model.data(self.model.index(target_row, 92))
-                    trad_btb = self.model.data(self.model.index(target_row, 118))
-                    codefab_nipple = self.model.data(self.model.index(target_row, 95))
-                    trad_nipple = self.model.data(self.model.index(target_row, 119))
-                    codefab_spring = self.model.data(self.model.index(target_row, 98))
-                    trad_spring = self.model.data(self.model.index(target_row, 120))
-                    codefab_puntal = self.model.data(self.model.index(target_row, 101))
-                    trad_puntal = self.model.data(self.model.index(target_row, 121))
-                    codefab_plug = self.model.data(self.model.index(target_row, 104))
-                    trad_plug = self.model.data(self.model.index(target_row, 122))
-                    codefab_tw = self.model.data(self.model.index(target_row, 107))
-                    trad_tw = self.model.data(self.model.index(target_row, 123))
-                    codefab_cable = self.model.data(self.model.index(target_row, 110))
-                    trad_cable = self.model.data(self.model.index(target_row, 124))
+                    codefab_eq = self.model.data(self.model.index(target_row, 81))
+                    trad_eq = self.model.data(self.model.index(target_row,82))
+                    codefab_bar = self.model.data(self.model.index(target_row, 84))
+                    trad_bar = self.model.data(self.model.index(target_row, 120))
+                    codefab_tube = self.model.data(self.model.index(target_row, 87))
+                    trad_tube = self.model.data(self.model.index(target_row, 121))
+                    codefab_flange = self.model.data(self.model.index(target_row, 90))
+                    trad_flange = self.model.data(self.model.index(target_row, 122))
+                    codefab_sensor = self.model.data(self.model.index(target_row, 93))
+                    trad_sensor = self.model.data(self.model.index(target_row, 123))
+                    codefab_head = self.model.data(self.model.index(target_row, 96))
+                    trad_head = self.model.data(self.model.index(target_row, 124))
+                    codefab_btb = self.model.data(self.model.index(target_row, 99))
+                    trad_btb = self.model.data(self.model.index(target_row, 125))
+                    codefab_nipple = self.model.data(self.model.index(target_row, 102))
+                    trad_nipple = self.model.data(self.model.index(target_row, 126))
+                    codefab_spring = self.model.data(self.model.index(target_row, 105))
+                    trad_spring = self.model.data(self.model.index(target_row, 127))
+                    codefab_puntal = self.model.data(self.model.index(target_row, 108))
+                    trad_puntal = self.model.data(self.model.index(target_row, 128))
+                    codefab_plug = self.model.data(self.model.index(target_row, 111))
+                    trad_plug = self.model.data(self.model.index(target_row, 129))
+                    codefab_tw = self.model.data(self.model.index(target_row, 114))
+                    trad_tw = self.model.data(self.model.index(target_row, 130))
+                    codefab_cable = self.model.data(self.model.index(target_row, 117))
+                    trad_cable = self.model.data(self.model.index(target_row, 131))
                     list_of = [num_of, num_of_sensor]
                     list_trad = [codefab_eq, trad_eq, codefab_bar, trad_bar, codefab_tube,
                                         trad_tube, codefab_flange, trad_flange, codefab_sensor, trad_sensor,
@@ -325,42 +328,42 @@ class Ui_OTFabOrder_Window(object):
 
                 elif self.variable == 'Nivel':
                     num_of = self.model.data(self.model.index(target_row, 52))
-                    codefab_eq = self.model.data(self.model.index(target_row, 57))
-                    trad_eq = self.model.data(self.model.index(target_row, 58))
-                    codefab_body = self.model.data(self.model.index(target_row, 60))
-                    trad_body = self.model.data(self.model.index(target_row, 111))
-                    codefab_cover = self.model.data(self.model.index(target_row, 63))
-                    trad_cover = self.model.data(self.model.index(target_row, 112))
-                    codefab_stud = self.model.data(self.model.index(target_row, 66))
-                    trad_stud = self.model.data(self.model.index(target_row, 113))
-                    codefab_niphex = self.model.data(self.model.index(target_row, 69))
-                    trad_niphex= self.model.data(self.model.index(target_row, 114))
-                    codefab_valve = self.model.data(self.model.index(target_row, 72))
-                    trad_valve = self.model.data(self.model.index(target_row, 115))
-                    codefab_flange = self.model.data(self.model.index(target_row, 75))
-                    trad_flange = self.model.data(self.model.index(target_row, 116))
-                    codefab_dv = self.model.data(self.model.index(target_row, 78))
-                    trad_dv = self.model.data(self.model.index(target_row, 117))
-                    codefab_scale = self.model.data(self.model.index(target_row, 81))
-                    trad_scale = self.model.data(self.model.index(target_row, 118))
-                    codefab_illum = self.model.data(self.model.index(target_row, 84))
-                    trad_illum = self.model.data(self.model.index(target_row, 119))
-                    codefab_gasketglass = self.model.data(self.model.index(target_row, 87))
-                    trad_gasketglass = self.model.data(self.model.index(target_row, 120))
-                    codefab_glass = self.model.data(self.model.index(target_row, 90))
-                    trad_glass = self.model.data(self.model.index(target_row, 121))
-                    codefab_float = self.model.data(self.model.index(target_row, 93))
-                    trad_float = self.model.data(self.model.index(target_row, 122))
-                    codefab_mica = self.model.data(self.model.index(target_row, 96))
-                    trad_mica = self.model.data(self.model.index(target_row, 123))
-                    codefab_flags = self.model.data(self.model.index(target_row, 99))
-                    trad_flags = self.model.data(self.model.index(target_row, 124))
-                    codefab_gasketflange = self.model.data(self.model.index(target_row, 102))
-                    trad_gasketflange = self.model.data(self.model.index(target_row, 125))
-                    codefab_niptub = self.model.data(self.model.index(target_row, 105))
-                    trad_niptub = self.model.data(self.model.index(target_row, 126))
-                    codefab_antifrost = self.model.data(self.model.index(target_row, 108))
-                    trad_antifrost = self.model.data(self.model.index(target_row, 127))
+                    codefab_eq = self.model.data(self.model.index(target_row, 67))
+                    trad_eq = self.model.data(self.model.index(target_row, 68))
+                    codefab_body = self.model.data(self.model.index(target_row, 70))
+                    trad_body = self.model.data(self.model.index(target_row, 121))
+                    codefab_cover = self.model.data(self.model.index(target_row, 73))
+                    trad_cover = self.model.data(self.model.index(target_row, 122))
+                    codefab_stud = self.model.data(self.model.index(target_row, 76))
+                    trad_stud = self.model.data(self.model.index(target_row, 123))
+                    codefab_niphex = self.model.data(self.model.index(target_row, 79))
+                    trad_niphex= self.model.data(self.model.index(target_row, 124))
+                    codefab_valve = self.model.data(self.model.index(target_row, 82))
+                    trad_valve = self.model.data(self.model.index(target_row, 125))
+                    codefab_flange = self.model.data(self.model.index(target_row, 85))
+                    trad_flange = self.model.data(self.model.index(target_row, 126))
+                    codefab_dv = self.model.data(self.model.index(target_row, 88))
+                    trad_dv = self.model.data(self.model.index(target_row, 127))
+                    codefab_scale = self.model.data(self.model.index(target_row, 91))
+                    trad_scale = self.model.data(self.model.index(target_row, 128))
+                    codefab_illum = self.model.data(self.model.index(target_row, 94))
+                    trad_illum = self.model.data(self.model.index(target_row, 129))
+                    codefab_gasketglass = self.model.data(self.model.index(target_row, 97))
+                    trad_gasketglass = self.model.data(self.model.index(target_row, 130))
+                    codefab_glass = self.model.data(self.model.index(target_row, 100))
+                    trad_glass = self.model.data(self.model.index(target_row, 131))
+                    codefab_float = self.model.data(self.model.index(target_row, 103))
+                    trad_float = self.model.data(self.model.index(target_row, 132))
+                    codefab_mica = self.model.data(self.model.index(target_row, 106))
+                    trad_mica = self.model.data(self.model.index(target_row, 133))
+                    codefab_flags = self.model.data(self.model.index(target_row, 109))
+                    trad_flags = self.model.data(self.model.index(target_row, 134))
+                    codefab_gasketflange = self.model.data(self.model.index(target_row, 112))
+                    trad_gasketflange = self.model.data(self.model.index(target_row, 135))
+                    codefab_niptub = self.model.data(self.model.index(target_row, 115))
+                    trad_niptub = self.model.data(self.model.index(target_row, 136))
+                    codefab_antifrost = self.model.data(self.model.index(target_row, 118))
+                    trad_antifrost = self.model.data(self.model.index(target_row, 137))
                     list_of = [num_of]
                     list_trad = [codefab_eq, trad_eq, codefab_body, trad_body, codefab_cover,
                                         trad_cover, codefab_stud, trad_stud, codefab_niphex, trad_niphex,
@@ -448,6 +451,47 @@ class Ui_OTFabOrder_Window(object):
             finally:
                 if conn is not None:
                     conn.close()
+
+        table_data = []
+
+        for row in range(self.tableOT.rowCountCount()):
+            row_data = []
+            for col in range(self.tableOT.columnCount()):
+                item = self.tableOT.item(row, col)
+                # Añadir los datos a la lista, manejar el caso donde el item puede ser None
+                row_data.append(item.text() if item is not None else "")
+            table_data.append(row_data)
+        
+        # Convertir la lista en un DataFrame de pandas
+        df_toexport = pd.DataFrame(table_data, columns=['TAG','ELEMENTO','CANT','OT','FECHA','CANTxOT','TRAD COD','OF'])
+        
+
+        # output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
+
+        # if output_path:
+        #     wb = Workbook()
+        #     ws = wb.active
+
+        #     # Add data to Excel
+        #     for index, row in df_toexport.iterrows():
+        #         fecha_str = row['FECHA']
+        #         if fecha_str is not None:
+        #             fecha_obj = datetime.strptime(fecha_str, '%d/%m/%Y').date()
+        #             df_toexport.at[index, 'FECHA'] = fecha_obj
+
+        #     for r_idx, row in enumerate(dataframe_to_rows(df_toexport, index=False, header=True), 1):
+        #         ws.append(row)
+
+        #     # Currency Style
+        #     currency_style = NamedStyle(name='currency', number_format='#,##0.00 €')
+        #     date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
+
+        #     # Apply Styles
+        #     for cell in ws['E']:
+        #         cell.style = date_style
+
+        #     wb.save(output_path)
+
 
         pdf = fab_order()
 

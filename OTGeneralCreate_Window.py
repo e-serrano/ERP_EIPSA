@@ -397,6 +397,14 @@ class Ui_OTGeneralCreate_Window(object):
         self.labelOrder.setFont(font)
         self.labelOrder.setObjectName("labelOrder")
         self.vLayout1.addWidget(self.labelOrder)
+        self.labelWarehouse = QtWidgets.QLabel(parent=self.frame)
+        self.labelWarehouse.setMinimumSize(QtCore.QSize(120, 25))
+        self.labelWarehouse.setMaximumSize(QtCore.QSize(120, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.labelWarehouse.setFont(font)
+        self.labelWarehouse.setObjectName("labelWarehouse")
+        self.vLayout1.addWidget(self.labelWarehouse)
         self.hLayout1.addLayout(self.vLayout1)
         self.vLayout2 = QtWidgets.QVBoxLayout()
         self.vLayout2.setObjectName("vLayout2")
@@ -416,6 +424,14 @@ class Ui_OTGeneralCreate_Window(object):
         self.lineEdit_Order.setFont(font)
         self.lineEdit_Order.setObjectName("lineEdit_Order")
         self.vLayout2.addWidget(self.lineEdit_Order)
+        self.labelWarehouse2 = QtWidgets.QLabel(parent=self.frame)
+        self.labelWarehouse2.setMinimumSize(QtCore.QSize(120, 25))
+        self.labelWarehouse2.setMaximumSize(QtCore.QSize(120, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.labelWarehouse2.setFont(font)
+        self.labelWarehouse2.setObjectName("labelWarehouse2")
+        self.vLayout2.addWidget(self.labelWarehouse2)
         self.hLayout1.addLayout(self.vLayout2)
         self.vLayout3 = QtWidgets.QVBoxLayout()
         self.vLayout3.setObjectName("vLayout3")
@@ -437,6 +453,14 @@ class Ui_OTGeneralCreate_Window(object):
         self.labelEquipment.setFont(font)
         self.labelEquipment.setObjectName("labelEquipment")
         self.vLayout3.addWidget(self.labelEquipment)
+        self.labelWarehouse3 = QtWidgets.QLabel(parent=self.frame)
+        self.labelWarehouse3.setMinimumSize(QtCore.QSize(120, 25))
+        self.labelWarehouse3.setMaximumSize(QtCore.QSize(120, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.labelWarehouse3.setFont(font)
+        self.labelWarehouse3.setObjectName("labelWarehouse3")
+        self.vLayout3.addWidget(self.labelWarehouse3)
         self.hLayout1.addLayout(self.vLayout3)
         self.vLayout4 = QtWidgets.QVBoxLayout()
         self.vLayout4.setObjectName("vLayout4")
@@ -456,6 +480,14 @@ class Ui_OTGeneralCreate_Window(object):
         self.lineEdit_Equipment.setFont(font)
         self.lineEdit_Equipment.setObjectName("lineEdit_Equipment")
         self.vLayout4.addWidget(self.lineEdit_Equipment)
+        self.labelWarehouse4 = QtWidgets.QLabel(parent=self.frame)
+        self.labelWarehouse4.setMinimumSize(QtCore.QSize(120, 25))
+        self.labelWarehouse4.setMaximumSize(QtCore.QSize(120, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.labelWarehouse4.setFont(font)
+        self.labelWarehouse4.setObjectName("labelWarehouse4")
+        self.vLayout4.addWidget(self.labelWarehouse4)
         self.hLayout1.addLayout(self.vLayout4)
         self.vLayout5 = QtWidgets.QVBoxLayout()
         self.vLayout5.setObjectName("vLayout5")
@@ -477,12 +509,20 @@ class Ui_OTGeneralCreate_Window(object):
         self.labelEmpty.setFont(font)
         self.labelEmpty.setObjectName("labelEmpty")
         self.vLayout5.addWidget(self.labelEmpty)
+        self.labelWarehouse5 = QtWidgets.QLabel(parent=self.frame)
+        self.labelWarehouse5.setMinimumSize(QtCore.QSize(120, 25))
+        self.labelWarehouse5.setMaximumSize(QtCore.QSize(120, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.labelWarehouse5.setFont(font)
+        self.labelWarehouse5.setObjectName("labelWarehouse5")
+        self.vLayout5.addWidget(self.labelWarehouse5)
         self.hLayout1.addLayout(self.vLayout5)
         self.vLayout6 = QtWidgets.QVBoxLayout()
         self.vLayout6.setObjectName("vLayout6")
         self.textEdit_Details = QtWidgets.QTextEdit(parent=self.frame)
-        self.textEdit_Details.setMinimumSize(QtCore.QSize(16777215, 56))
-        self.textEdit_Details.setMaximumSize(QtCore.QSize(16777215, 56))
+        self.textEdit_Details.setMinimumSize(QtCore.QSize(16777215, 81))
+        self.textEdit_Details.setMaximumSize(QtCore.QSize(16777215, 81))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.textEdit_Details.setFont(font)
@@ -604,6 +644,8 @@ class Ui_OTGeneralCreate_Window(object):
         self.labelQty.setText(_translate("OTGeneralCreate_Window", "Cantidad:"))
         self.labelEquipment.setText(_translate("OTGeneralCreate_Window", "Tipo Equipo:"))
         self.labelDetails.setText(_translate("OTGeneralCreate_Window", "Detalle:"))
+        self.labelWarehouse.setText(_translate("OTGeneralCreate_Window", "Prox. Almacén:"))
+        self.labelWarehouse3.setText(_translate("OTGeneralCreate_Window", "Prox. Nº Plano:"))
         self.Button_OTGeneralCreate.setText(_translate("OTGeneralCreate_Window", "Agregar"))
         self.Button_Cancel.setText(_translate("OTGeneralCreate_Window", "Cancelar"))
         item = self.tableWidget.horizontalHeaderItem(0)
@@ -621,7 +663,7 @@ class Ui_OTGeneralCreate_Window(object):
         item = self.tableWidget.horizontalHeaderItem(6)
         item.setText(_translate("OTGeneralCreate_Window", "Detalle"))
 
-
+# Function to create new OT
     def OTGeneralCreate(self):
         code = self.lineEdit_Code.text()
         order = self.lineEdit_Order.text()
@@ -681,12 +723,18 @@ class Ui_OTGeneralCreate_Window(object):
 
         self.loadtable()
 
-
+# Function to load data in table
     def loadtable(self):
         query_tablechanges = """SELECT id, ot_num, TO_CHAR(start_date, 'DD/MM/YYYY'), tag, qty_ot, type_equipment, element
                                 FROM fabrication.fab_order
                                 WHERE "ot_num" LIKE '90%'
                                 ORDER BY "ot_num" DESC
+                                """
+        
+        query_warehouse = """SELECT DISTINCT tag
+                                FROM fabrication.fab_order
+                                WHERE "tag" LIKE '%AL-%' AND TAG <> 'ALMACEN'
+                                ORDER BY "tag" DESC
                                 """
 
         conn = None
@@ -699,6 +747,9 @@ class Ui_OTGeneralCreate_Window(object):
         # execution of commands one by one
             cur.execute(query_tablechanges)
             results=cur.fetchall()
+
+            cur.execute(query_warehouse)
+            results_warehouse=cur.fetchall()
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
@@ -721,6 +772,9 @@ class Ui_OTGeneralCreate_Window(object):
 
             self.tableWidget.verticalHeader().hide()
             self.tableWidget.setItemDelegate(AlignDelegate(self.tableWidget))
+            self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableWidget.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableWidget.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -737,8 +791,16 @@ class Ui_OTGeneralCreate_Window(object):
             if conn is not None:
                 conn.close()
 
+        self.lineEdit_Code.setText(str(int(results[0][1]) + 1))
 
-#Function when clicking on table header
+        list_orders = sorted([x[0][-9:] for x in results_warehouse])
+        last_order = list_orders[-1]
+        final_value = '{:03d}'.format(int(last_order[-3:]) + 1)
+
+        self.labelWarehouse2.setText(last_order[:6] + final_value)
+        self.labelWarehouse4.setText(last_order[:6] + final_value)
+
+# Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
         header_pos = self.tableWidget.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.tableWidget.horizontalHeader().height()

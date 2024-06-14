@@ -77,7 +77,6 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
             option.palette.setBrush(QtGui.QPalette.ColorRole.Text, text_color)
 
-
 class CustomTableWidget(QtWidgets.QTableWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -373,7 +372,6 @@ class CustomTableWidget(QtWidgets.QTableWidget):
             self.show_unique_values_menu(logical_index, header_pos, header_height)
         else:
             super().contextMenuEvent(event)
-
 
 class Ui_VerificationQuery_Window(QtWidgets.QMainWindow):
     def __init__(self, username):

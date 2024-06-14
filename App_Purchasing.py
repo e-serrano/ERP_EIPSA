@@ -16,6 +16,9 @@ import psycopg2
 import pandas as pd
 from PDF_Viewer import PDF_Viewer
 from PDF_Styles import welding_homologation
+import configparser
+from Database_Connection import createConnection
+from TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -40,7 +43,10 @@ class Ui_App_Purchasing(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         App_Purchasing.setWindowIcon(icon)
-        App_Purchasing.setStyleSheet("background-color: rgb(255, 255, 255);")
+        if self.username == 'd.marquez':
+            App_Purchasing.setStyleSheet("background-color: rgb(38, 38, 38);")
+        else:
+            App_Purchasing.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget = QtWidgets.QWidget(parent=App_Purchasing)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
@@ -60,7 +66,7 @@ class Ui_App_Purchasing(object):
         self.LogoIcon.setMinimumSize(QtCore.QSize(int(220//1.5), int(52//1.5)))
         self.LogoIcon.setMaximumSize(QtCore.QSize(int(220//1.5), int(52//1.5)))
         self.LogoIcon.setText("")
-        self.LogoIcon.setPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Logo.ico"))))
+        self.LogoIcon.setPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Logo Nobg.ico"))))
         self.LogoIcon.setScaledContents(True)
         self.LogoIcon.setObjectName("LogoIcon")
         self.Header.addWidget(self.LogoIcon)
@@ -70,28 +76,52 @@ class Ui_App_Purchasing(object):
         self.Button_Welding.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_Welding.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_Welding.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_Welding.setStyleSheet("QPushButton{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border-radius: 10px;\n"
-"}\n"
-"\n"
-"QPushButton:hover{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"    color: rgb(0,0,0);\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border-radius: 10px;\n"
-"}\n"
-"\n"
-"QPushButton:pressed{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"    color: rgb(0,0,0);\n"
-"    background-color: rgb(200, 200, 200);\n"
-"    border-radius: 10px;\n"
-"}")
+        if self.username == 'd.marquez':
+            self.Button_Welding.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Welding.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
         self.Button_Welding.setText("")
         icon12 = QtGui.QIcon()
         icon12.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Welding.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -120,28 +150,52 @@ class Ui_App_Purchasing(object):
         self.Button_Profile.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_Profile.setToolTip('Configuración')
         self.Button_Profile.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_Profile.setStyleSheet("QPushButton{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border-radius: 10px;\n"
-"}\n"
-"\n"
-"QPushButton:hover{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"    color: rgb(0,0,0);\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border-radius: 10px;\n"
-"}\n"
-"\n"
-"QPushButton:pressed{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"    color: rgb(0,0,0);\n"
-"    background-color: rgb(200, 200, 200);\n"
-"    border-radius: 10px;\n"
-"}")
+        if self.username == 'd.marquez':
+            self.Button_Profile.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Profile.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
         self.Button_Profile.setText("")
         icon13 = QtGui.QIcon()
         icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -158,32 +212,60 @@ class Ui_App_Purchasing(object):
         self.ButtonFrame.setMinimumSize(QtCore.QSize(int(220//1.5), 0))
         self.ButtonFrame.setMaximumSize(QtCore.QSize(int(220//1.5), 16777215))
         self.ButtonFrame.setAutoFillBackground(False)
-        self.ButtonFrame.setStyleSheet("QFrame{\n"
-"    background-color: rgb(3, 174, 236);\n"
-"}\n"
-"\n"
-"QPushButton{\n"
-"    border: 1px solid transparent;\n"
-"    color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border-radius: 10px;\n"
-"}\n"
-"\n"
-"QPushButton:hover{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"    color: rgb(0,0,0);\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border-radius: 10px;\n"
-"}\n"
-"\n"
-"QPushButton:pressed{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"    color: rgb(0,0,0);\n"
-"    background-color: rgb(200, 200, 200);\n"
-"    border-radius: 10px;\n"
-"}")
+        if self.username == 'd.marquez':
+            self.ButtonFrame.setStyleSheet("QFrame{\n"
+    "    background-color: rgb(3, 174, 236);\n"
+    "}\n"
+    "\n"
+    "QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.ButtonFrame.setStyleSheet("QFrame{\n"
+    "    background-color: rgb(3, 174, 236);\n"
+    "}\n"
+    "\n"
+    "QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
         self.ButtonFrame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.ButtonFrame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.ButtonFrame.setObjectName("ButtonFrame")
@@ -278,66 +360,66 @@ class Ui_App_Purchasing(object):
         self.BottomLayout = QtWidgets.QHBoxLayout()
         self.BottomLayout.setContentsMargins(-1, 0, -1, -1)
         self.BottomLayout.setObjectName("BottomLayout")
-        self.Calendar = QtWidgets.QCalendarWidget(parent=self.frame)
-        self.Calendar.setEnabled(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Calendar.sizePolicy().hasHeightForWidth())
-        self.Calendar.setSizePolicy(sizePolicy)
-        self.Calendar.setMinimumSize(QtCore.QSize(int(200//1.5), int(400//1.5)))
-        self.Calendar.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        self.Calendar.setFont(font)
-        self.Calendar.setStyleSheet("QCalendarWidget QWidget{\n"
-"background-color: rgb(3, 174, 236);\n"
-"}\n"
-"\n"
-"QCalendarWidget QTableView{\n"
-"    background-color: white;\n"
-"}\n"
-"\n"
-"QCalendarWidget QToolButton {\n"
-"    color: white;\n"
-"    font-size:15px;\n"
-"    icon-size:20px 20px;\n"
-"    background-color:rgb(3, 174, 236);\n"
-"}\n"
-"\n"
-"QCalendarWidget QToolButton::hover {\n"
-"    background-color : #019ad2;\n"
-"}\n"
-"\n"
-"QCalendarWidget QToolButton::pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border: 3px solid;\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-"QCalendarWidget QSpinBox{\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border: 2px solid;\n"
-"    border-color: rgb(3,174, 236);\n"
-"}\n"
-"\n"
-"QCalendarWidget QAbstractItemView:enabled{\n"
-"    selection-background-color: rgb(3, 174, 236);\n"
-"    selection-color: white;\n"
-"}\n"
-"\n"
-"#qt_calendar_prevmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
-"}\n"
-"#qt_calendar_nextmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
-"}")
-        self.Calendar.setSelectedDate(QtCore.QDate.currentDate())
-        self.Calendar.setGridVisible(True)
-        self.Calendar.setNavigationBarVisible(True)
-        self.Calendar.setDateEditEnabled(True)
-        self.Calendar.setObjectName("Calendar")
-        self.BottomLayout.addWidget(self.Calendar)
+#         self.Calendar = QtWidgets.QCalendarWidget(parent=self.frame)
+#         self.Calendar.setEnabled(True)
+#         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
+#         sizePolicy.setHorizontalStretch(0)
+#         sizePolicy.setVerticalStretch(0)
+#         sizePolicy.setHeightForWidth(self.Calendar.sizePolicy().hasHeightForWidth())
+#         self.Calendar.setSizePolicy(sizePolicy)
+#         self.Calendar.setMinimumSize(QtCore.QSize(int(200//1.5), int(400//1.5)))
+#         self.Calendar.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
+#         font = QtGui.QFont()
+#         font.setPointSize(int(10//1.5))
+#         self.Calendar.setFont(font)
+#         self.Calendar.setStyleSheet("QCalendarWidget QWidget{\n"
+# "background-color: rgb(3, 174, 236);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QTableView{\n"
+# "    background-color: white;\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QToolButton {\n"
+# "    color: white;\n"
+# "    font-size:15px;\n"
+# "    icon-size:20px 20px;\n"
+# "    background-color:rgb(3, 174, 236);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QToolButton::hover {\n"
+# "    background-color : #019ad2;\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QToolButton::pressed {\n"
+# "    background-color: rgb(1, 140, 190);\n"
+# "    border: 3px solid;\n"
+# "    border-color: rgb(255, 255, 255);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QSpinBox{\n"
+# "    background-color: rgb(255, 255, 255);\n"
+# "    border: 2px solid;\n"
+# "    border-color: rgb(3,174, 236);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QAbstractItemView:enabled{\n"
+# "    selection-background-color: rgb(3, 174, 236);\n"
+# "    selection-color: white;\n"
+# "}\n"
+# "\n"
+# "#qt_calendar_prevmonth {\n"
+# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
+# "}\n"
+# "#qt_calendar_nextmonth {\n"
+# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
+# "}")
+#         self.Calendar.setSelectedDate(QtCore.QDate.currentDate())
+#         self.Calendar.setGridVisible(True)
+#         self.Calendar.setNavigationBarVisible(True)
+#         self.Calendar.setDateEditEnabled(True)
+#         self.Calendar.setObjectName("Calendar")
+#         self.BottomLayout.addWidget(self.Calendar)
         self.MainLayout.addLayout(self.BottomLayout)
         self.PrincipalScreen.addLayout(self.MainLayout)
         self.FrameApp.addLayout(self.PrincipalScreen)
@@ -378,7 +460,7 @@ class Ui_App_Purchasing(object):
     def purchase(self):
         from Purchasing_Menu import Ui_Purchasing_Menu
         self.purchasing_window=QtWidgets.QMainWindow()
-        self.ui=Ui_Purchasing_Menu(self.name)
+        self.ui=Ui_Purchasing_Menu(self.name, self.username)
         self.ui.setupUi(self.purchasing_window)
         self.purchasing_window.show()
 
@@ -400,11 +482,19 @@ class Ui_App_Purchasing(object):
 
 
     def query_tag(self):
-        from TAGQuery_Window import Ui_QueryTags_Window
-        self.querytag_window=QtWidgets.QMainWindow()
-        self.ui=Ui_QueryTags_Window('Comercial')
-        self.ui.setupUi(self.querytag_window)
-        self.querytag_window.show()
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_tag_com = createConnection(user_database, password_database)
+        if not db_tag_com:
+            sys.exit()
+
+        self.edit_tags_app = Ui_EditTags_Commercial_Window(db_tag_com)
+        self.edit_tags_app.showMaximized()
 
 
     def showMenu(self):
@@ -541,11 +631,11 @@ class Ui_App_Purchasing(object):
 
 
 
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     App_Invoicing = QtWidgets.QMainWindow()
-#     ui = Ui_App_Purchasing('Javier Zofio', 'd.marquez')
-#     ui.setupUi(App_Invoicing)
-#     App_Invoicing.showMaximized()
-#     sys.exit(app.exec())
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    App_Invoicing = QtWidgets.QMainWindow()
+    ui = Ui_App_Purchasing('Daniel Marquez', 'd.marquez')
+    ui.setupUi(App_Invoicing)
+    App_Invoicing.showMaximized()
+    sys.exit(app.exec())

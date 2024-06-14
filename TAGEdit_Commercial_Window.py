@@ -745,8 +745,72 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.model.dataChanged.connect(self.saveChanges)
 
                 else:
-                    if numorder[:2] == 'PA':
-                        self.variable = 'Otros'
+                    query_flow = ('''
+                        SELECT tags_data.tags_flow."num_order"
+                        FROM tags_data.tags_flow
+                        WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_temp = ('''
+                        SELECT tags_data.tags_temp."num_order"
+                        FROM tags_data.tags_temp
+                        WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_level = ('''
+                        SELECT tags_data.tags_level."num_order"
+                        FROM tags_data.tags_level
+                        WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_others = ('''
+                        SELECT tags_data.tags_others."num_order"
+                        FROM tags_data.tags_others
+                        WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query_flow,(numorder,))
+                        results_flow=cur.fetchall()
+                        cur.execute(query_temp,(numorder,))
+                        results_temp=cur.fetchall()
+                        cur.execute(query_level,(numorder,))
+                        results_level=cur.fetchall()
+                        cur.execute(query_others,(numorder,))
+                        results_others=cur.fetchall()
+
+                        if len(results_flow) != 0:
+                            self.variable = 'Caudal'
+                        elif len(results_temp) != 0:
+                            self.variable = 'Temperatura'
+                        elif len(results_level) != 0:
+                            self.variable = 'Nivel'
+                        elif len(results_others) != 0:
+                            self.variable = 'Otros'
+                        else:
+                            self.variable = ''
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
 
                     if self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
@@ -826,6 +890,73 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.model.dataChanged.connect(self.saveChanges)
 
                 else:
+                    query_flow = ('''
+                        SELECT tags_data.tags_flow."num_offer"
+                        FROM tags_data.tags_flow
+                        WHERE UPPER (tags_data.tags_flow."num_offer") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_temp = ('''
+                        SELECT tags_data.tags_temp."num_offer"
+                        FROM tags_data.tags_temp
+                        WHERE UPPER (tags_data.tags_temp."num_offer") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_level = ('''
+                        SELECT tags_data.tags_level."num_offer"
+                        FROM tags_data.tags_level
+                        WHERE UPPER (tags_data.tags_level."num_offer") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_others = ('''
+                        SELECT tags_data.tags_others."num_offer"
+                        FROM tags_data.tags_others
+                        WHERE UPPER (tags_data.tags_others."num_offer") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query_flow,(numoffer,))
+                        results_flow=cur.fetchall()
+                        cur.execute(query_temp,(numoffer,))
+                        results_temp=cur.fetchall()
+                        cur.execute(query_level,(numoffer,))
+                        results_level=cur.fetchall()
+                        cur.execute(query_others,(numoffer,))
+                        results_others=cur.fetchall()
+
+                        if len(results_flow) != 0:
+                            self.variable = 'Caudal'
+                        elif len(results_temp) != 0:
+                            self.variable = 'Temperatura'
+                        elif len(results_level) != 0:
+                            self.variable = 'Nivel'
+                        elif len(results_others) != 0:
+                            self.variable = 'Otros'
+                        else:
+                            self.variable = ''
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
                     if self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
                         self.initial_column = 34
@@ -855,16 +986,76 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 self.model.dataChanged.connect(self.saveChanges)
 
             else:
-                if numorder[:2]=='PA':
-                    self.variable = 'Otros'
+                query = ('''
+                        SELECT num_offer, product_type."variable"
+                        FROM offers
+                        INNER JOIN product_type ON (product_type."material" = offers."material")
+                        WHERE
+                        UPPER (offers."num_offer") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(query,(numoffer,))
+                    results_variable=cur.fetchone()
+                    self.variable = results_variable[1] if results_variable != None else ''
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+                if results_variable == None:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("EL número de oferta no existe")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+                    del dlg, new_icon
+                    self.model.dataChanged.connect(self.saveChanges)
+
                 else:
-                    query = ('''
-                            SELECT num_offer, product_type."variable"
-                            FROM offers
-                            INNER JOIN product_type ON (product_type."material" = offers."material")
-                            WHERE
-                            UPPER (offers."num_offer") LIKE UPPER('%%'||%s||'%%')
-                            ''')
+                    query_flow = ('''
+                        SELECT tags_data.tags_flow."num_offer"
+                        FROM tags_data.tags_flow
+                        WHERE UPPER (tags_data.tags_flow."num_offer") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_temp = ('''
+                        SELECT tags_data.tags_temp."num_offer"
+                        FROM tags_data.tags_temp
+                        WHERE UPPER (tags_data.tags_temp."num_offer") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_level = ('''
+                        SELECT tags_data.tags_level."num_offer"
+                        FROM tags_data.tags_level
+                        WHERE UPPER (tags_data.tags_level."num_offer") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_others = ('''
+                        SELECT tags_data.tags_others."num_offer"
+                        FROM tags_data.tags_others
+                        WHERE UPPER (tags_data.tags_others."num_offer") LIKE UPPER('%%'||%s||'%%')
+                        ''')
                     conn = None
                     try:
                     # read the connection parameters
@@ -873,9 +1064,26 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         conn = psycopg2.connect(**params)
                         cur = conn.cursor()
                     # execution of commands
-                        cur.execute(query,(numoffer,))
-                        results_variable=cur.fetchone()
-                        self.variable = results_variable[1] if results_variable != None else ''
+                        cur.execute(query_flow,(numoffer,))
+                        results_flow=cur.fetchall()
+                        cur.execute(query_temp,(numoffer,))
+                        results_temp=cur.fetchall()
+                        cur.execute(query_level,(numoffer,))
+                        results_level=cur.fetchall()
+                        cur.execute(query_others,(numoffer,))
+                        results_others=cur.fetchall()
+
+                        if len(results_flow) != 0:
+                            self.variable = 'Caudal'
+                        elif len(results_temp) != 0:
+                            self.variable = 'Temperatura'
+                        elif len(results_level) != 0:
+                            self.variable = 'Nivel'
+                        elif len(results_others) != 0:
+                            self.variable = 'Otros'
+                        else:
+                            self.variable = ''
+
                     # close communication with the PostgreSQL database server
                         cur.close()
                     # commit the changes
@@ -895,32 +1103,19 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         if conn is not None:
                             conn.close()
 
-                    if results_variable == None:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("EL número de oferta no existe")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg.exec()
-                        del dlg, new_icon
-                        self.model.dataChanged.connect(self.saveChanges)
-
-                    else:
-                        if self.variable == 'Caudal':
-                            self.model.setTable("tags_data.tags_flow")
-                            self.initial_column = 34
-                        elif self.variable == 'Temperatura':
-                            self.model.setTable("tags_data.tags_temp")
-                            self.initial_column = 39
-                        elif self.variable == 'Nivel':
-                            self.model.setTable("tags_data.tags_level")
-                            self.initial_column = 40
-                        elif self.variable == 'Otros':
-                            self.model.setTable("tags_data.tags_others")
-                            self.initial_column = 11
-                        self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{numorder.upper()}%' AND num_offer <>'' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
+                    if self.variable == 'Caudal':
+                        self.model.setTable("tags_data.tags_flow")
+                        self.initial_column = 34
+                    elif self.variable == 'Temperatura':
+                        self.model.setTable("tags_data.tags_temp")
+                        self.initial_column = 39
+                    elif self.variable == 'Nivel':
+                        self.model.setTable("tags_data.tags_level")
+                        self.initial_column = 40
+                    elif self.variable == 'Otros':
+                        self.model.setTable("tags_data.tags_others")
+                        self.initial_column = 11
+                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{numorder.upper()}%' AND num_offer <>'' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
 
         if self.variable != '':
             self.tableEditTags.setModel(None)
@@ -1135,7 +1330,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[5]]))
                 self.tableEditTags.setItemDelegateForColumn(14, self.combo_itemtype)
-                for i in range(6,25):
+                for i in range(6,24):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_temp[i]]))
                     self.tableEditTags.setItemDelegateForColumn(i+11, self.combo_itemtype)
             elif self.variable == 'Nivel':
@@ -1154,6 +1349,36 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             self.model.dataChanged.connect(self.saveChanges)
             self.selection_model = self.tableEditTags.selectionModel()
             self.selection_model.selectionChanged.connect(self.countSelectedCells)
+        else:
+            self.model.dataChanged.connect(self.saveChanges)
+
+
+        self.tableEditTags.doubleClicked.connect(lambda index: self.open_pics(index, self.variable))
+
+# Function to open equipment photos
+    def open_pics(self, index, variable):
+        if ((variable == 'Caudal' and index.column() == 156)
+        or (variable == 'Temperatura' and index.column() == 166)
+        or (variable == 'Nivel' and index.column() == 169)
+        or (variable == 'Otros' and index.column() == 56)):
+            value = index.data()
+
+            if value != '':
+                try:
+                    file_path = os.path.normpath(value)
+                    os.startfile(file_path)
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
@@ -1376,7 +1601,6 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             self.model.setIconColumnHeader(filterColumn, icono)
 
-
 # Function to hide column when action clicked
     def hide_column(self):
         filterColumn = self.logicalIndex
@@ -1432,6 +1656,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 if selected_indexes:
                     clipboard = QApplication.clipboard()
                     text = self.get_selected_text(selected_indexes)
+                    if isinstance(text, QtCore.QDate):
+                        text=text.toString("dd/MM/yyyy")
                     clipboard.setText(text)
 
         elif event.matches(QKeySequence.StandardKey.Paste):

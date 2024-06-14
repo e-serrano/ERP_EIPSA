@@ -271,7 +271,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to sort column
     def sort_column(self, column_index, sortOrder):
-        if self.horizontalHeaderItem(column_index).text() in ['Fecha PH1', 'Fecha PH2']:
+        if column_index in [4]:
             self.custom_sort(column_index, sortOrder)
         else:
             self.sortByColumn(column_index, sortOrder)
@@ -279,34 +279,35 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
     def custom_sort(self, column, order):
     # Obtén la cantidad de filas en la tabla
-        row_count = self.rowCount()
+        if column in [4]:
+            row_count = self.rowCount()
 
-        # Crea una lista de índices ordenados según las fechas
-        indexes = list(range(row_count))
-        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd/MM/yyyy"))
+            # Crea una lista de índices ordenados según las fechas
+            indexes = list(range(row_count))
+            indexes.sort(key=lambda i: float(self.item(i, column).text().replace(" €","").replace(".", "").replace(",", ".")) if self.item(i, column).text() else float('inf'))
 
-        # Si el orden es descendente, invierte la lista
-        if order == QtCore.Qt.SortOrder.DescendingOrder:
-            indexes.reverse()
+            # Si el orden es descendente, invierte la lista
+            if order == QtCore.Qt.SortOrder.DescendingOrder:
+                indexes.reverse()
 
-        # Guarda el estado actual de las filas ocultas
-        hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
+            # Guarda el estado actual de las filas ocultas
+            hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
 
-        # Actualiza las filas en la tabla en el orden ordenado
-        rows = self.rowCount()
-        for i in range(rows):
-            self.insertRow(i)
+            # Actualiza las filas en la tabla en el orden ordenado
+            rows = self.rowCount()
+            for i in range(rows):
+                self.insertRow(i)
 
-        for new_row, old_row in enumerate(indexes):
-            for col in range(self.columnCount()):
-                item = self.takeItem(old_row + rows, col)
-                self.setItem(new_row, col, item)
+            for new_row, old_row in enumerate(indexes):
+                for col in range(self.columnCount()):
+                    item = self.takeItem(old_row + rows, col)
+                    self.setItem(new_row, col, item)
 
-        for i in range(rows):
-            self.removeRow(rows)
+            for i in range(rows):
+                self.removeRow(rows)
 
-        for row in hidden_rows:
-            self.setRowHidden(row, True)
+            for row in hidden_rows:
+                self.setRowHidden(row, True)
 
 # Function with the menu configuration
     def contextMenuEvent(self, event):
@@ -476,12 +477,15 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
         self.label_model.setText(_translate("TAGQueryLevel_Window", "Modelo:"))
         self.label_material.setText(_translate("TAGQueryLevel_Window", "Material:"))
 
-
+# Function to query tags
     def querytags(self):
         self.tableTags.setRowCount(0)
         query_material = ("""
-                        SELECT tags."tag", tags."num_offer", tags."num_order", tags."amount", tags."dwg_num_doc_eipsa", tags."dim_drawing", tags."of_drawing"
+                        SELECT tags."tag", tags."num_offer", tags."num_order", offers."client", tags."amount",
+                        tags."model_num", tags."body_material",
+                        tags."dwg_num_doc_eipsa", tags."dim_drawing", tags."of_drawing"
                         FROM tags_data.tags_level AS tags
+                        JOIN offers ON (offers."num_offer" = tags."num_offer")
                         ORDER BY tags."tag"
                         """)
 
@@ -501,12 +505,12 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
             conn.commit()
 
             self.tableTags.setRowCount(len(results))
-            self.tableTags.setColumnCount(7)
+            self.tableTags.setColumnCount(10)
             tablerow=0
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(7):
+                for column in range(10):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -516,15 +520,15 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
 
                 tablerow+=1
 
-            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Precio', 'Nº Doc. Plano', 'Nº Plano Dim.', 'Nº Plano OF']
+            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Cliente', 'Precio', 'Modelo', 'Material', 'Nº Doc. Plano', 'Nº Plano Dim.', 'Nº Plano OF']
             
             self.tableTags.verticalHeader().hide()
             self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
             self.tableTags.setSortingEnabled(False)
             self.tableTags.setHorizontalHeaderLabels(column_headers)
             self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-            if self.role == 'Comercial':
-                self.tableTags.hideColumn(3)
+            if self.role != 'Comercial':
+                self.tableTags.hideColumn(4)
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -541,6 +545,7 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
+# Function to query tags when filters are applied
     def querytags_filtered(self):
         self.tableTags.setRowCount(0)
 
@@ -549,11 +554,14 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
         material = self.material.currentText()
 
         query_material = ("""
-                        SELECT tags."tag", tags."num_offer", tags."num_order", tags."amount", tags."dwg_num_doc_eipsa", tags."dim_drawing", tags."of_drawing"
+                        SELECT tags."tag", tags."num_offer", tags."num_order", offers."client", tags."amount",
+                        tags."model_num", tags."body_material",
+                        tags."dwg_num_doc_eipsa", tags."dim_drawing", tags."of_drawing"
                         FROM tags_data.tags_level AS tags
+                        JOIN offers ON (offers."num_offer" = tags."num_offer")
                         WHERE (UPPER(tags."tag") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        tags."model" LIKE ('%%'||%s||'%%')
+                        tags."model_num" LIKE ('%%'||%s||'%%')
                         AND
                         tags."body_material" LIKE ('%%'||%s||'%%'))
                         ORDER BY tags."tag"
@@ -576,12 +584,12 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
             conn.commit()
 
             self.tableTags.setRowCount(len(results))
-            self.tableTags.setColumnCount(7)
+            self.tableTags.setColumnCount(10)
             tablerow=0
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(7):
+                for column in range(10):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -591,15 +599,15 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
 
                 tablerow+=1
 
-            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Precio', 'Nº Doc. Plano', 'Nº Plano Dim.', 'Nº Plano OF']
+            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Cliente', 'Precio', 'Modelo', 'Material', 'Nº Doc. Plano', 'Nº Plano Dim.', 'Nº Plano OF']
             
             self.tableTags.verticalHeader().hide()
             self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
             self.tableTags.setSortingEnabled(False)
             self.tableTags.setHorizontalHeaderLabels(column_headers)
             self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-            if self.role == 'Comercial':
-                self.tableTags.hideColumn(3)
+            if self.role != 'Comercial':
+                self.tableTags.hideColumn(4)
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -623,6 +631,7 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
         popup_pos = self.tableTags.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableTags.show_unique_values_menu(logical_index, popup_pos, header_height)
 
+# Function to load values into comboboxes
     def load_values(self):
         query_model = ("""
                         SELECT type."model_num"

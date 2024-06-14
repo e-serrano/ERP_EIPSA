@@ -7,19 +7,33 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import QUrl
 from ReportArtMov_Window import Ui_ArtMov_Window
 from ReportPurchaseRefDate_Window import Ui_ReportPurRefDate_Window
-from Quotation_Window import Ui_Quotation_Window
-from Supplies_Window import Ui_Supplies_Window
-from Purchasing_DB_Menu import Ui_Purchasing_DB_Menu
+from ReportStockVal_Window import Ui_StockVal_Window
 import os
+from config import config
+import pandas as pd
+import psycopg2
+from PDF_Styles import pending_orders
+from datetime import *
+from PDF_Viewer import PDF_Viewer
+from tkinter.filedialog import asksaveasfilename
+from openpyxl import Workbook
+from openpyxl.styles import NamedStyle
+from openpyxl.utils.dataframe import dataframe_to_rows
+
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
-class Ui_Purchasing_Reports_Menu(object):
-    def __init__(self, name):
+class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
+    def __init__(self, name, username):
+        super().__init__() 
         self.name=name
+        self.username=username
+        self.pdf_viewer = PDF_Viewer()
+        self.setupUi(self)
 
     def setupUi(self, Purchasing_Reports_Menu):
         Purchasing_Reports_Menu.setObjectName("Purchasing_Reports_Menu")
@@ -30,41 +44,80 @@ class Ui_Purchasing_Reports_Menu(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Purchasing_Reports_Menu.setWindowIcon(icon)
-        Purchasing_Reports_Menu.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
-"QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        if self.username == 'd.marquez':
+            Purchasing_Reports_Menu.setStyleSheet("QWidget {\n"
+    "background-color: #121212; color: rgb(255, 255, 255)\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid white;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 12px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 2px .2em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}"
+    )
+        else:
+            Purchasing_Reports_Menu.setStyleSheet("QWidget {\n"
+    "background-color: rgb(255, 255, 255);\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid black;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 12px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 2px .2em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}"
+    )
         self.centralwidget = QtWidgets.QWidget(parent=Purchasing_Reports_Menu)
         self.centralwidget.setMinimumSize(QtCore.QSize(int(615//1.5), int(360//1.5)))
         self.centralwidget.setMaximumSize(QtCore.QSize(int(615//1.5), int(360//1.5)))
@@ -148,9 +201,9 @@ class Ui_Purchasing_Reports_Menu(object):
 
         self.retranslateUi(Purchasing_Reports_Menu)
         self.Button_ArtMov.clicked.connect(self.artmov)
-        self.Button_ArtPendClient.clicked.connect(self.artpendclient)
+        self.Button_ArtPendClient.clicked.connect(self.artpend_delivery_client)
         self.Button_PurchaseRefDate.clicked.connect(self.purchaserefdate)
-        self.Button_ArtPenSupplier.clicked.connect(self.artpendsupplier)
+        self.Button_ArtPenSupplier.clicked.connect(self.artpend_recep_supplier)
         self.Button_StockVal.clicked.connect(self.stockval)
         self.Button_Cancel.clicked.connect(Purchasing_Reports_Menu.close)
         QtCore.QMetaObject.connectSlotsByName(Purchasing_Reports_Menu)
@@ -174,11 +227,63 @@ class Ui_Purchasing_Reports_Menu(object):
         self.supplies_window.showMaximized()
 
 
-    def artpendclient(self):
-        self.clientorder_window=QtWidgets.QMainWindow()
-        self.ui=Ui_Quotation_Window()
-        self.ui.setupUi(self.clientorder_window)
-        self.clientorder_window.showMaximized()
+    def artpend_delivery_client(self):
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            commands_delivery_client = (""" SELECT supplies."reference", supplies."description", clients."name", client_ord_header."client_order_num",
+                                            TO_CHAR(client_ord_header."order_date",'DD/MM/YYYY'), ROUND(client_ord_detail."pending"::numeric, 2)
+                                        FROM 
+                                            purch_fact.client_ord_header AS client_ord_header
+                                            LEFT JOIN purch_fact.clients AS clients ON (client_ord_header."client_id" = clients."id")
+                                            JOIN purch_fact.client_ord_detail AS client_ord_detail ON (client_ord_header."id" = client_ord_detail."client_ord_header_id")
+                                            JOIN purch_fact.supplies AS supplies ON (client_ord_detail."supply_id" = supplies."id")
+                                        WHERE 
+                                            client_ord_detail."pending" > 0 
+                                        ORDER BY
+                                            clients."name"
+                                        """)
+            cur.execute(commands_delivery_client)
+
+            results = cur.fetchall()
+            df = pd.DataFrame(results, columns=["Referencia", "Descripción", "Cliente", "Nº Pedido", "Fecha Pedido", "Pendiente"])
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+            while True:
+                doc_type, ok = QtWidgets.QInputDialog.getItem(self, "Informe", "Seleccióna un tipo de documento:", ['Excel', 'PDF'], 0, False)
+                if ok and doc_type:
+                    if doc_type == 'Excel':
+                        self.pending_delivery_client_excel(df)
+                        break
+                    else:
+                        self.pending_delivery_client_pdf(df)
+                        break
+                else:
+                    break
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            print(error)
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
 
 
     def purchaserefdate(self):
@@ -188,18 +293,326 @@ class Ui_Purchasing_Reports_Menu(object):
         self.supplierorder_window.showMaximized()
 
 
-    def artpendsupplier(self):
-        self.quotation_window=QtWidgets.QMainWindow()
-        self.ui=Ui_Quotation_Window()
-        self.ui.setupUi(self.quotation_window)
-        self.quotation_window.showMaximized()
+    def artpend_recep_supplier(self):
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            commands_pending_client = ("""SELECT suppliers."name", supplies."reference", supplies."description", supplier_ord_header."supplier_order_num",
+                                            TO_CHAR(supplier_ord_header."order_date",'DD/MM/YYYY'), ROUND(supplier_ord_detail."quantity"::numeric, 2), ROUND(supplier_ord_detail."pending"::numeric, 2), supplies."unit_value",
+                                            supplier_ord_detail."pending" * supplies."unit_value" AS subtotal
+                                        FROM 
+                                            purch_fact.supplier_ord_header AS supplier_ord_header
+                                            INNER JOIN purch_fact.suppliers AS suppliers ON (supplier_ord_header."supplier_id" = suppliers."id")
+                                            INNER JOIN purch_fact.supplier_ord_detail AS supplier_ord_detail ON (supplier_ord_header."id" = supplier_ord_detail."supplier_ord_header_id")
+                                            INNER JOIN purch_fact.supplies AS supplies ON (supplier_ord_detail."supply_id" = supplies."id")
+                                        WHERE 
+                                            supplier_ord_detail."pending" > 0 
+                                        ORDER BY
+                                            suppliers."name"
+                                        """)
+            cur.execute(commands_pending_client)
+
+            results = cur.fetchall()
+            df = pd.DataFrame(results, columns=["Suministrador", "Referencia", "Descripción", "Nº Pedido", "Fecha Pedido", "Cantidad", "Pendiente", "Val. Un.", "Subtotal"])
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+            while True:
+                doc_type, ok = QtWidgets.QInputDialog.getItem(self, "Informe", "Seleccióna un tipo de documento:", ['Excel', 'PDF'], 0, False)
+                if ok and doc_type:
+                    if doc_type == 'Excel':
+                        self.pending_recep_supplier_excel(df)
+                        break
+                    else:
+                        self.pending_recep_supplier_pdf(df)
+                        break
+                else:
+                    break
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            print(error)
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
 
 
     def stockval(self):
         self.purchase_DB_window=QtWidgets.QMainWindow()
-        self.ui=Ui_Purchasing_DB_Menu(self.name)
+        self.ui=Ui_StockVal_Window()
         self.ui.setupUi(self.purchase_DB_window)
         self.purchase_DB_window.showMaximized()
+
+
+    def pending_delivery_client_pdf(self, df):
+        df = df.sort_values(by = ['Referencia', 'Cliente'])
+        list_references= df['Referencia'].unique().tolist()
+
+        pdf = pending_orders()
+        pdf.set_auto_page_break(auto=True, margin=1)
+        pdf.add_page()
+        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+        pdf.set_font('Helvetica', 'B', 20)
+        pdf.cell(9.5, 0.5, 'Artículos Pendientes De Entregar')
+        pdf.set_font('Helvetica', 'B', 10)
+        pdf.cell(9.5, 0.5, self.format_date_spanish(date.today()), align='R')
+        pdf.ln(1)
+
+        pdf.set_text_color(30,102,198)
+        pdf.set_font('Helvetica', 'B', 15)
+        pdf.cell(11, 1, 'Cliente', align="L")
+        pdf.cell(4, 1, 'Nº Pedido', align='C')
+        pdf.cell(2.5, 1, 'Fecha', align="C")
+        pdf.cell(1.5, 1, 'Pend.', align="C")
+        pdf.ln(1)
+
+        for code in list_references:
+            pdf.set_text_color(0,0,0)
+            pdf.set_font('DejaVuSansCondensed-Bold', size=8)
+            df_client = df[df['Referencia'] == code]
+            pdf.set_fill_color(216, 216, 216)
+            pdf.cell(8, 0.5, code, align="R", fill=True,)
+            pdf.cell(0.2, 0.5, ' | ', align="C")
+            pdf.cell(11, 0.5, df_client.iloc[0, 1], align="L", fill=True, )
+            pdf.ln(0.5)
+
+            for row in range(df_client.shape[0]):
+                pdf.set_font("DejaVuSansCondensed", size=8)
+                pdf.multi_cell(11, 0.5, str(df_client.iloc[row, 2]), max_line_height=pdf.font_size, align='L')
+                y_position=pdf.get_y()
+                pdf.set_xy(12, y_position - 0.5)
+                pdf.cell(4, 0.5, str(df_client.iloc[row, 3]), align="C")
+                pdf.set_xy(16, y_position - 0.5)
+                pdf.cell(2.5, 0.5, str(df_client.iloc[row, 4]), align="C")
+                pdf.set_xy(18.5, y_position - 0.5)
+                pdf.cell(1.5, 0.5, str(df_client.iloc[row, 5]), align="C")
+                pdf.ln(0.5)
+
+        pdf.ln(0.5)
+        pdf.set_text_color(0,0,0)
+        pdf.cell(11, 0.5, '')
+        pdf.cell(3, 0.5, 'Total Pendiente:', border=1)
+        pdf.set_font('DejaVuSansCondensed-Bold', size = 10)
+        pdf.cell(3, 0.5, self.format_number(df['Pendiente'].sum()), border=1)
+        pdf.set_text_color(0,0,0)
+        pdf.ln(1)
+
+        pdf_buffer = pdf.output()
+
+        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
+
+        with open(temp_file_path, "wb") as temp_file:
+            temp_file.write(pdf_buffer)
+
+        pdf.close()
+
+        self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Abre el PDF en el visor
+        self.pdf_viewer.showMaximized()
+
+    def pending_delivery_client_excel(self, df):
+        df = df.sort_values(by = ['Referencia', 'Cliente'])
+        output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
+
+        if output_path:
+            wb = Workbook()
+            ws = wb.active
+
+            for index, row in df.iterrows():
+                fecha_str = row['Fecha Pedido']
+                if fecha_str is not None:
+                    fecha_obj = datetime.strptime(fecha_str, '%d/%m/%Y').date()
+                    df.at[index, 'Fecha Pedido'] = fecha_obj
+
+            # Add data to Excel
+            for r_idx, row in enumerate(dataframe_to_rows(df, index=False, header=True), 1):
+                ws.append(row)
+
+            # Date Style
+            date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
+
+            # Apply Date Style
+            for cell in ws['E']:
+                cell.style = date_style
+
+            # Save Excel
+            wb.save(output_path)
+
+
+    def pending_recep_supplier_pdf(self, df):
+        list_references= df['Suministrador'].unique().tolist()
+
+        pdf = pending_orders()
+        pdf.set_auto_page_break(auto=True, margin=1)
+        pdf.add_page()
+        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+        pdf.set_font('Helvetica', 'B', 20)
+        pdf.cell(9.5, 0.5, 'Artículos Pendientes de Recibir')
+        pdf.set_font('Helvetica', 'B', 10)
+        pdf.cell(9.5, 0.5, self.format_date_spanish(date.today()), align='R')
+        pdf.ln(1)
+
+        pdf.set_text_color(30,102,198)
+        pdf.set_font('Helvetica', 'B', 12)
+        pdf.cell(3, 1, 'Referencia', align="C")
+        pdf.cell(5, 1, 'Descripción', align='C')
+        pdf.cell(2, 1, 'Nº Pedido', align="C")
+        pdf.cell(2, 1, 'Fecha', align="C")
+        pdf.cell(1.5, 1, 'Cant.', align="C")
+        pdf.cell(1.5, 1, 'Pend.', align='C')
+        pdf.cell(2, 1, 'Val. Un.', align="C")
+        pdf.cell(2, 1, 'Subtotal', align="C")
+        pdf.ln(1)
+
+        for code in list_references:
+            pdf.set_text_color(0,0,0)
+            pdf.set_font('DejaVuSansCondensed-Bold', size=10)
+            df_client = df[df['Suministrador'] == code]
+            pdf.set_fill_color(216, 216, 216)
+            pdf.cell(19, 0.5, code, align="C", fill=True,)
+            pdf.ln(0.5)
+
+            for row in range(df_client.shape[0]):
+                pdf.set_font("DejaVuSansCondensed", size=8)
+                pdf.multi_cell(3, 0.5, str(df_client.iloc[row, 1]), max_line_height=pdf.font_size, align='L')
+                y_position=pdf.get_y()
+                pdf.set_xy(4, y_position - 0.5)
+                pdf.multi_cell(5, 0.5, str(df_client.iloc[row, 2]), max_line_height=pdf.font_size, align='L')
+                pdf.set_xy(9, y_position - 0.5)
+                pdf.cell(2, 0.5, str(df_client.iloc[row, 3]), align="C")
+                pdf.cell(2, 0.5, str(df_client.iloc[row, 4]), align="C")
+                pdf.cell(1.5, 0.5, str(df_client.iloc[row, 5]), align="C")
+                pdf.cell(1.5, 0.5, str(df_client.iloc[row, 6]), align='C')
+                pdf.cell(2, 0.5, str(df_client.iloc[row, 7]), align="C")
+                pdf.cell(2, 0.5, str(df_client.iloc[row, 8]), align="C")
+                pdf.ln(0.75)
+
+            pdf.cell(16, 0.5, "Total Pendiente:", align="R")
+            pdf.cell(3, 0.5, self.format_value(df_client['Subtotal'].sum()), align="C")
+            pdf.ln(0.75)
+
+        pdf.set_text_color(0,0,0)
+        pdf.cell(2, 0.5, 'Total:', border=1)
+        pdf.set_font('DejaVuSansCondensed-Bold', size = 10)
+        pdf.cell(5, 0.5, self.format_value(df['Subtotal'].sum()), border=1)
+        pdf.ln(1)
+
+        pdf_buffer = pdf.output()
+
+        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
+
+        with open(temp_file_path, "wb") as temp_file:
+            temp_file.write(pdf_buffer)
+
+        pdf.close()
+
+        self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Abre el PDF en el visor
+        self.pdf_viewer.showMaximized()
+
+    def pending_recep_supplier_excel(self, df):
+        output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
+
+        df["Val. Un."] = df["Val. Un."].apply(self.euros_to_float)
+        df["Subtotal"] = df["Subtotal"].apply(self.euros_to_float)
+
+        if output_path:
+            wb = Workbook()
+            ws = wb.active
+
+            for index, row in df.iterrows():
+                fecha_str = row['Fecha Pedido']
+                if fecha_str is not None:
+                    fecha_obj = datetime.strptime(fecha_str, '%d/%m/%Y').date()
+                    df.at[index, 'Fecha Pedido'] = fecha_obj
+
+            # Add data to Excel
+            for r_idx, row in enumerate(dataframe_to_rows(df, index=False, header=True), 1):
+                ws.append(row)
+
+            # Currency and Date Style
+            currency_style = NamedStyle(name='currency', number_format='#,##0.00 €')
+            date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
+
+            # Apply Currency and Date Style
+            for cell in ws['H']:
+                cell.style = currency_style
+
+            for cell in ws['I']:
+                cell.style = currency_style
+
+            for cell in ws['E']:
+                cell.style = date_style
+
+            # Save Excel
+            wb.save(output_path)
+
+# Function to format date to long in spanish
+    def format_date_spanish(self, date_toformat):
+        months = ("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre")
+        day = date_toformat.day
+        month = months[date_toformat.month - 1]
+        year = date_toformat.year
+        messsage = "{} de {} de {}".format(day, month, year)
+
+        return messsage
+
+
+    def format_number(self, number):
+    # Convertir el número a una cadena con el formato deseado
+        formatted_number = '{:,.2f}'.format(number)
+
+        # Reemplazar el punto decimal por coma
+        formatted_number = formatted_number.replace('.', ':')
+        formatted_number = formatted_number.replace(',', '.')
+        formatted_number = formatted_number.replace(':', ',')
+
+        return formatted_number
+
+
+    def format_value(self, number):
+        values = number.replace("€", "").split()
+
+        total_euro = 0
+
+        for value in values:
+            value=value.replace(".","")
+            value=value.replace(",",".")
+            decimal = float(value)
+            total_euro += decimal
+
+        formatted_number = '{:,.2f}'.format(total_euro)
+
+        # Reemplazar el punto decimal por coma
+        formatted_number = formatted_number.replace('.', ':')
+        formatted_number = formatted_number.replace(',', '.')
+        formatted_number = formatted_number.replace(':', ',')
+        formatted_number = formatted_number + " €"
+
+        return formatted_number
+
+# Function to transform euros to float values
+    def euros_to_float(self, value):
+        value = value.replace(".", "")
+        value = value.replace(",", ".")
+        value = value[: value.find(" €")]
+        return float(value)
 
 
 
@@ -208,7 +621,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Purchasing_Reports_Menu = QtWidgets.QMainWindow()
-    ui = Ui_Purchasing_Reports_Menu()
+    ui = Ui_Purchasing_Reports_Menu('dani','d.marquez')
     ui.setupUi(Purchasing_Reports_Menu)
     Purchasing_Reports_Menu.show()
     sys.exit(app.exec())

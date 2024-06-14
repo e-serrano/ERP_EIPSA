@@ -15,8 +15,9 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Purchasing_DB_Menu(object):
-    def __init__(self, name):
+    def __init__(self, name, username):
         self.name=name
+        self.username = username
 
     def setupUi(self, Purchasing_DB_Menu):
         Purchasing_DB_Menu.setObjectName("Purchasing_DB_Menu")
@@ -26,41 +27,80 @@ class Ui_Purchasing_DB_Menu(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Purchasing_DB_Menu.setWindowIcon(icon)
-        Purchasing_DB_Menu.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
-"QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        if self.username == 'd.marquez':
+            Purchasing_DB_Menu.setStyleSheet("QWidget {\n"
+    "background-color: #121212; color: rgb(255, 255, 255)\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid white;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 14px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 2px .4em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}"
+    )
+        else:
+            Purchasing_DB_Menu.setStyleSheet("QWidget {\n"
+    "background-color: rgb(255, 255, 255);\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid black;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 14px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 2px .4em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}"
+    )
         self.centralwidget = QtWidgets.QWidget(parent=Purchasing_DB_Menu)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -128,7 +168,7 @@ class Ui_Purchasing_DB_Menu(object):
 
     def suppliers(self,Purchasing_DB_Menu):
         self.suppliers_window=QtWidgets.QMainWindow()
-        self.ui=Ui_Suppliers_Window()
+        self.ui=Ui_Suppliers_Window(self.username)
         self.ui.setupUi(self.suppliers_window)
         self.suppliers_window.showMaximized()
         Purchasing_DB_Menu.close()
@@ -137,7 +177,7 @@ class Ui_Purchasing_DB_Menu(object):
 
     def clients(self,Purchasing_DB_Menu):
         self.clients_window=QtWidgets.QMainWindow()
-        self.ui=Ui_Clients_Window(self.name)
+        self.ui=Ui_Clients_Window(self.name, self.username)
         self.ui.setupUi(self.clients_window)
         self.clients_window.showMaximized()
         Purchasing_DB_Menu.close()

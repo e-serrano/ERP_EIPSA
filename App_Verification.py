@@ -297,6 +297,68 @@ class Ui_App_Verification(object):
         self.Button_Index_Drawings.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_Index_Drawings.setObjectName("Button_Index_Drawings")
         self.Header.addWidget(self.Button_Index_Drawings)
+
+        spacerItem4 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem4)
+        self.Button_NCReports = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_NCReports.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_NCReports.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_NCReports.setToolTip('Informes NC')
+        self.Button_NCReports.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'm.gil':
+            self.Button_NCReports.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_NCReports.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_NCReports.setText("")
+        icon9 = QtGui.QIcon()
+        icon9.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/NC.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_NCReports.setIcon(icon9)
+        self.Button_NCReports.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_NCReports.setObjectName("Button_NCReports")
+        self.Header.addWidget(self.Button_NCReports)
+
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -596,6 +658,7 @@ class Ui_App_Verification(object):
         self.Button_Timer.clicked.connect(self.timer)
         self.Button_Verif_Order.clicked.connect(self.verif_order)
         self.Button_Index_Drawings.clicked.connect(self.index_drawing)
+        self.Button_NCReports.clicked.connect(self.nc_report)
         self.Button_Profile.clicked.connect(self.showMenu)
 
 
@@ -639,7 +702,6 @@ class Ui_App_Verification(object):
         self.dbedit_window=Ui_DBEditRegVerif_Window(db_validation, self.username)
         self.dbedit_window.show()
 
-
 # Function to open corresponding window when Query Tags button is clicked
     def query_tag(self):
         from TAGEdit_Verification_Window import Ui_EditTags_Verification_Window
@@ -657,7 +719,6 @@ class Ui_App_Verification(object):
         self.edit_tags_app = Ui_EditTags_Verification_Window(self.name, db_tags_tech, self.username)
         self.edit_tags_app.show()
 
-
 # Function to open corresponding window when Verification button is clicked
     def verification(self):
         from Verification_Menu import Ui_Verification_Menu
@@ -665,7 +726,6 @@ class Ui_App_Verification(object):
         self.ui=Ui_Verification_Menu(self.username)
         self.ui.setupUi(self.verif_menu)
         self.verif_menu.show()
-
 
 # Function to open corresponding window when Hydrostatic Test button is clicked
     def hydrotest(self):
@@ -675,7 +735,6 @@ class Ui_App_Verification(object):
         self.ui.setupUi(self.testhydro_menu)
         self.testhydro_menu.show()
 
-
 # Function to open corresponding window when Liquid Test button is clicked
     def liquidtest(self):
         from TestLiquid_Menu import Ui_TestLiquid_Menu
@@ -684,7 +743,6 @@ class Ui_App_Verification(object):
         self.ui.setupUi(self.testliquid_menu)
         self.testliquid_menu.show()
 
-
 # Function to open corresponding window when Hardness Test button is clicked
     def hardtest(self):
         from TestHard_Menu import Ui_TestHard_Menu
@@ -692,7 +750,6 @@ class Ui_App_Verification(object):
         self.ui=Ui_TestHard_Menu(self.username)
         self.ui.setupUi(self.testhard_menu)
         self.testhard_menu.show()
-
 
 # Function to open corresponding window when Calibration button is clicked
     def calibration(self):
@@ -711,7 +768,6 @@ class Ui_App_Verification(object):
         self.calibration_window = Ui_Calibration_ThermoElements_Window(db_calibration, self.username)
         self.calibration_window.showMaximized()
 
-
 # Function to open corresponding window when Suppliers button is clicked
     def suppliers_delivnote(self):
         from VerifSupplierInsert_Window import Ui_VerifSupplierInsert_Window
@@ -719,7 +775,6 @@ class Ui_App_Verification(object):
         self.ui=Ui_VerifSupplierInsert_Window(self.username)
         self.ui.setupUi(self.verifsupplier_window)
         self.verifsupplier_window.show()
-
 
 # Function to show menu when Profile button is clicked 
     def showMenu(self):
@@ -736,7 +791,6 @@ class Ui_App_Verification(object):
         button = self.Button_Profile
         menu.exec(button.mapToGlobal(QtCore.QPoint(-75, 50)))
 
-
 # Function to open corresponding window when Edit Password option is clicked
     def editpassword(self):
         from PasswordEdit_Window import Ui_EditPasswordWindow
@@ -745,13 +799,11 @@ class Ui_App_Verification(object):
         self.ui.setupUi(self.edit_password_window)
         self.edit_password_window.show()
 
-
 # Function to open window with timer
     def timer(self):
         from TimerWindow import Ui_TimerWindow
         self.timerwindow=Ui_TimerWindow(self.username)
         self.timerwindow.show()
-
 
 # Function to open window to check order drawings
     def index_drawing(self):
@@ -769,7 +821,6 @@ class Ui_App_Verification(object):
 
         self.index_drawing_window = Ui_WorkshopDrawingIndex_Window(db_index, self.username)
         self.index_drawing_window.showMaximized()
-
 
 # Function to open window to check order verification
     def verif_order(self):
@@ -803,6 +854,22 @@ class Ui_App_Verification(object):
             else:
                 break
 
+# Function to open window with nc reports
+    def nc_report(self):
+        from NC_Report_Window import Ui_NC_Report_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_nc = createConnection(user_database, password_database)
+        if not db_nc:
+            sys.exit()
+
+        self.nc_window = Ui_NC_Report_Window(db_nc, self.username)
+        self.nc_window.showMaximized()
 
 
 if __name__ == "__main__":

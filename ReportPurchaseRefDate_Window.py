@@ -11,6 +11,14 @@ from config import config
 import psycopg2
 import locale
 import os
+import pandas as pd
+from tkinter.filedialog import asksaveasfilename
+from openpyxl import Workbook
+from openpyxl.styles import NamedStyle
+from openpyxl.utils.dataframe import dataframe_to_rows
+from datetime import datetime
+
+
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
@@ -35,18 +43,26 @@ class Ui_ReportPurRefDate_Window(object):
 "    border: 2px solid black;\n"
 "}\n"
 "\n"
+"QComboBox QAbstractItemView{\n"
+    "min-width: 1200px;\n"
+    "}\n"
+    "\n"
+    "QComboBox QAbstractItemView::item {\n"
+    "min-height: 35px;\n"
+    "}\n"
+    "\n"
 "QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
 "  border-radius: 3px;\n"
 "  color: #fff;\n"
 "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
+"  font-size: 13px;\n"
 "  font-weight: 800;\n"
 "  line-height: 1.15385;\n"
 "  margin: 0;\n"
 "  outline: none;\n"
-"  padding: 8px .8em;\n"
+"  padding: 2px .2em;\n"
 "  text-align: center;\n"
 "  text-decoration: none;\n"
 "  vertical-align: baseline;\n"
@@ -58,17 +74,7 @@ class Ui_ReportPurRefDate_Window(object):
 "    border-color: rgb(0, 0, 0);\n"
 "}\n"
 "\n"
-"QPushButton:focus {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
 "QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255)\n"
-"}\n"
-"\n"
-"QPushButton:focus:pressed {\n"
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
 "}")
@@ -85,8 +91,8 @@ class Ui_ReportPurRefDate_Window(object):
         self.gridLayout1 = QtWidgets.QGridLayout()
         self.gridLayout1.setObjectName("gridLayout1")
         self.label_item = QtWidgets.QLabel(parent=self.frame)
-        self.label_item.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        self.label_item.setMaximumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
+        self.label_item.setMinimumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
+        self.label_item.setMaximumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
         font = QtGui.QFont()
         font.setPointSize(int(11//1.5))
         font.setBold(True)
@@ -94,8 +100,9 @@ class Ui_ReportPurRefDate_Window(object):
         self.label_item.setObjectName("label_item")
         self.gridLayout1.addWidget(self.label_item, 0, 0, 1, 1)
         self.ItemName = QtWidgets.QComboBox(parent=self.frame)
-        self.ItemName.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.ItemName.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.ItemName.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.ItemName.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
+        self.ItemName.setEditable(True)
         font = QtGui.QFont()
         font.setPointSize(int(10//1.5))
         self.ItemName.setFont(font)
@@ -104,200 +111,126 @@ class Ui_ReportPurRefDate_Window(object):
         self.Button_Export = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Export.setMinimumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
         self.Button_Export.setMaximumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
-        self.Button_Export.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:focus {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255)\n"
-"}\n"
-"\n"
-"QPushButton:focus:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
         self.Button_Export.setObjectName("Button_Export")
         self.gridLayout1.addWidget(self.Button_Export, 0, 3, 1, 1)
         spacerItem2 = QtWidgets.QSpacerItem(20, 15, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout1.addItem(spacerItem2, 1, 1, 1, 1)
-        self.label_dates = QtWidgets.QLabel(parent=self.frame)
-        self.label_dates.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        self.label_dates.setMaximumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
-        font.setBold(True)
-        self.label_dates.setFont(font)
-        self.label_dates.setObjectName("label_dates")
-        self.gridLayout1.addWidget(self.label_dates, 2, 0, 1, 1)
-        self.DateStart = QtWidgets.QDateEdit(calendarPopup=True)
-        self.DateStart.setMinimumSize(QtCore.QSize(int(300//1.5), int(25//1.5)))
-        self.DateStart.setMaximumSize(QtCore.QSize(int(300//1.5), int(25//1.5)))
-        self.DateStart.setDate(QtCore.QDate.currentDate())
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        self.DateStart.setFont(font)
-        self.DateStart.setObjectName("DateStart")
-        self.DateStart.setStyleSheet("QCalendarWidget QWidget{\n"
-"background-color: rgb(3, 174, 236);\n"
-"}\n"
-"\n"
-"QCalendarWidget QTableView{\n"
-"    background-color: white;\n"
-"}\n"
-"\n"
-"QCalendarWidget QToolButton {\n"
-"    color: white;\n"
-"    font-size:10px;\n"
-"    icon-size:20px 20px;\n"
-"    background-color:rgb(3, 174, 236);\n"
-"}\n"
-"\n"
-"QCalendarWidget QToolButton::hover {\n"
-"    background-color : #019ad2;\n"
-"}\n"
-"\n"
-"QCalendarWidget QToolButton::pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border: 3px solid;\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-"QCalendarWidget QSpinBox{\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border: 2px solid;\n"
-"    border-color: rgb(3,174, 236);\n"
-"}\n"
-"\n"
-"QCalendarWidget QAbstractItemView:enabled{\n"
-"    selection-background-color: rgb(3, 174, 236);\n"
-"    selection-color: white;\n"
-"}\n"
-"\n"
-"#qt_calendar_prevmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
-"}\n"
-"#qt_calendar_nextmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
-"}")
-        self.gridLayout1.addWidget(self.DateStart, 2, 1, 1, 1)
-        self.DateEnd = QtWidgets.QDateEdit(calendarPopup=True)
-        self.DateEnd.setMinimumSize(QtCore.QSize(int(300//1.5), int(25//1.5)))
-        self.DateEnd.setMaximumSize(QtCore.QSize(int(300//1.5), int(25//1.5)))
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        self.DateEnd.setFont(font)
-        self.DateEnd.setDate(QtCore.QDate.currentDate())
-        self.DateEnd.setObjectName("DateEnd")
-        self.DateEnd.setStyleSheet("QCalendarWidget QWidget{\n"
-"background-color: rgb(3, 174, 236);\n"
-"}\n"
-"\n"
-"QCalendarWidget QTableView{\n"
-"    background-color: white;\n"
-"}\n"
-"\n"
-"QCalendarWidget QToolButton {\n"
-"    color: white;\n"
-"    font-size:10px;\n"
-"    icon-size:20px 20px;\n"
-"    background-color:rgb(3, 174, 236);\n"
-"}\n"
-"\n"
-"QCalendarWidget QToolButton::hover {\n"
-"    background-color : #019ad2;\n"
-"}\n"
-"\n"
-"QCalendarWidget QToolButton::pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border: 3px solid;\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-"QCalendarWidget QSpinBox{\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border: 2px solid;\n"
-"    border-color: rgb(3,174, 236);\n"
-"}\n"
-"\n"
-"QCalendarWidget QAbstractItemView:enabled{\n"
-"    selection-background-color: rgb(3, 174, 236);\n"
-"    selection-color: white;\n"
-"}\n"
-"\n"
-"#qt_calendar_prevmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
-"}\n"
-"#qt_calendar_nextmonth {\n"
-"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
-"}")
-        self.gridLayout1.addWidget(self.DateEnd, 2, 2, 1, 1)
-        self.Button_Load = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Load.setMinimumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
-        self.Button_Load.setMaximumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
-        self.Button_Load.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:focus {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255)\n"
-"}\n"
-"\n"
-"QPushButton:focus:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
-        self.Button_Load.setObjectName("Button_Load")
-        self.gridLayout1.addWidget(self.Button_Load, 2, 3, 1, 1)
+#         self.label_dates = QtWidgets.QLabel(parent=self.frame)
+#         self.label_dates.setMinimumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
+#         self.label_dates.setMaximumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
+#         font = QtGui.QFont()
+#         font.setPointSize(int(11//1.5))
+#         font.setBold(True)
+#         self.label_dates.setFont(font)
+#         self.label_dates.setObjectName("label_dates")
+#         self.gridLayout1.addWidget(self.label_dates, 2, 0, 1, 1)
+#         self.DateStart = QtWidgets.QDateEdit(calendarPopup=True)
+#         self.DateStart.setMinimumSize(QtCore.QSize(int(300//1.5), int(35//1.5)))
+#         self.DateStart.setMaximumSize(QtCore.QSize(int(300//1.5), int(35//1.5)))
+#         self.DateStart.setDate(QtCore.QDate.currentDate())
+#         font = QtGui.QFont()
+#         font.setPointSize(int(10//1.5))
+#         self.DateStart.setFont(font)
+#         self.DateStart.setObjectName("DateStart")
+#         self.DateStart.setStyleSheet("QCalendarWidget QWidget{\n"
+# "background-color: rgb(3, 174, 236);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QTableView{\n"
+# "    background-color: white;\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QToolButton {\n"
+# "    color: white;\n"
+# "    font-size:10px;\n"
+# "    icon-size:20px 20px;\n"
+# "    background-color:rgb(3, 174, 236);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QToolButton::hover {\n"
+# "    background-color : #019ad2;\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QToolButton::pressed {\n"
+# "    background-color: rgb(1, 140, 190);\n"
+# "    border: 3px solid;\n"
+# "    border-color: rgb(255, 255, 255);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QSpinBox{\n"
+# "    background-color: rgb(255, 255, 255);\n"
+# "    border: 2px solid;\n"
+# "    border-color: rgb(3,174, 236);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QAbstractItemView:enabled{\n"
+# "    selection-background-color: rgb(3, 174, 236);\n"
+# "    selection-color: white;\n"
+# "}\n"
+# "\n"
+# "#qt_calendar_prevmonth {\n"
+# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
+# "}\n"
+# "#qt_calendar_nextmonth {\n"
+# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
+# "}")
+#         self.gridLayout1.addWidget(self.DateStart, 2, 1, 1, 1)
+#         self.DateEnd = QtWidgets.QDateEdit(calendarPopup=True)
+#         self.DateEnd.setMinimumSize(QtCore.QSize(int(300//1.5), int(35//1.5)))
+#         self.DateEnd.setMaximumSize(QtCore.QSize(int(300//1.5), int(35//1.5)))
+#         font = QtGui.QFont()
+#         font.setPointSize(int(10//1.5))
+#         self.DateEnd.setFont(font)
+#         self.DateEnd.setDate(QtCore.QDate.currentDate())
+#         self.DateEnd.setObjectName("DateEnd")
+#         self.DateEnd.setStyleSheet("QCalendarWidget QWidget{\n"
+# "background-color: rgb(3, 174, 236);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QTableView{\n"
+# "    background-color: white;\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QToolButton {\n"
+# "    color: white;\n"
+# "    font-size:10px;\n"
+# "    icon-size:20px 20px;\n"
+# "    background-color:rgb(3, 174, 236);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QToolButton::hover {\n"
+# "    background-color : #019ad2;\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QToolButton::pressed {\n"
+# "    background-color: rgb(1, 140, 190);\n"
+# "    border: 3px solid;\n"
+# "    border-color: rgb(255, 255, 255);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QSpinBox{\n"
+# "    background-color: rgb(255, 255, 255);\n"
+# "    border: 2px solid;\n"
+# "    border-color: rgb(3,174, 236);\n"
+# "}\n"
+# "\n"
+# "QCalendarWidget QAbstractItemView:enabled{\n"
+# "    selection-background-color: rgb(3, 174, 236);\n"
+# "    selection-color: white;\n"
+# "}\n"
+# "\n"
+# "#qt_calendar_prevmonth {\n"
+# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
+# "}\n"
+# "#qt_calendar_nextmonth {\n"
+# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
+# "}")
+#         self.gridLayout1.addWidget(self.DateEnd, 2, 2, 1, 1)
+#         self.Button_Load = QtWidgets.QPushButton(parent=self.frame)
+#         self.Button_Load.setMinimumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
+#         self.Button_Load.setMaximumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
+#         self.Button_Load.setObjectName("Button_Load")
+#         self.gridLayout1.addWidget(self.Button_Load, 2, 3, 1, 1)
         self.gridLayout_2.addLayout(self.gridLayout1, 1, 0, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(20, 30, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem1, 2, 0, 1, 1)
@@ -382,9 +315,10 @@ class Ui_ReportPurRefDate_Window(object):
                 conn.close()
 
         list_supplies=[x[3] + ' | ' + x[4] for x in results_supplies]
-        self.ItemName.addItems(sorted(list_supplies))
+        self.ItemName.addItems([''] + sorted(list_supplies))
 
-        self.Button_Load.clicked.connect(self.loaddata)
+        self.ItemName.currentIndexChanged.connect(self.loaddata)
+        self.Button_Export.clicked.connect(self.generate_excel)
 
     def retranslateUi(self, ReportPurRefDate_Window):
         _translate = QtCore.QCoreApplication.translate
@@ -402,9 +336,7 @@ class Ui_ReportPurRefDate_Window(object):
         item = self.tableWidget.horizontalHeaderItem(5)
         item.setText(_translate("ReportPurRefDate_Window", "Subtotal"))
         self.label_item.setText(_translate("ReportPurRefDate_Window", "Artículo"))
-        self.label_dates.setText(_translate("ReportPurRefDate_Window", "Fechas"))
         self.Button_Export.setText(_translate("ReportPurRefDate_Window", "Exportar"))
-        self.Button_Load.setText(_translate("ReportPurRefDate_Window", "Cargar Datos"))
         self.label_Total.setText(_translate("ReportPurRefDate_Window", "Total Comprado"))
         self.label_TotalValue.setText(_translate("ReportPurRefDate_Window", ""))
 
@@ -412,9 +344,6 @@ class Ui_ReportPurRefDate_Window(object):
     def loaddata(self):
         supply_name = self.ItemName.currentText()
         supply_name = supply_name[:supply_name.find(" |")]
-        start_date = self.DateStart.date().toString(QtCore.Qt.DateFormat.ISODate)
-        end_date = self.DateEnd.date().toString(QtCore.Qt.DateFormat.ISODate)
-
 
         query1 = """
                 SELECT so_header."order_date", suppliers."name", so_header."supplier_order_num", so_det."supplier_ord_header_id"
@@ -440,10 +369,10 @@ class Ui_ReportPurRefDate_Window(object):
                 ORDER BY query2."reference"
                 """
         commands_supplies = f"""
-                            SELECT query3."name", TO_CHAR(query3."order_date", 'DD-MM-YYYY') AS formatted_date, query3."supplier_order_num", query3."quantity", query3."unit_value", CAST(("quantity"*CAST(query3."unit_value" AS numeric)) AS money) AS SBTOT
+                            SELECT query3."name", TO_CHAR(query3."order_date", 'DD/MM/YYYY') AS formatted_date, query3."supplier_order_num", query3."quantity", query3."unit_value", CAST(("quantity"*CAST(query3."unit_value" AS numeric)) AS money) AS SBTOT
                             FROM ({query3}) AS query3
-                            WHERE (((query3."reference")='{supply_name}') AND ((query3."order_date") BETWEEN '{start_date}' And '{end_date}'))
-                            ORDER BY query3."reference"
+                            WHERE (query3."reference"='{supply_name}')
+                            ORDER BY query3."order_date" DESC
                             """
         conn = None
 
@@ -456,6 +385,8 @@ class Ui_ReportPurRefDate_Window(object):
         # execution of commands one by one
             cur.execute(commands_supplies)
             results=cur.fetchall()
+
+            self.df = pd.DataFrame(results, columns=["Nombre", "Fecha Pedido", "Nº Pedido", "Cantidad", "Total", "Subtotal"])
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
@@ -502,6 +433,43 @@ class Ui_ReportPurRefDate_Window(object):
         self.calculate_total()
 
 
+    def generate_excel(self):
+        output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
+
+        self.df["Total"] = self.df["Total"].apply(self.euros_to_float)
+        self.df["Subtotal"] = self.df["Subtotal"].apply(self.euros_to_float)
+
+        if output_path:
+            wb = Workbook()
+            ws = wb.active
+
+            # Add data to Excel
+            for index, row in self.df.iterrows():
+                fecha_str = row['Fecha Pedido']
+                if fecha_str is not None:
+                    fecha_obj = datetime.strptime(fecha_str, '%d/%m/%Y').date()
+                    self.df.at[index, 'Fecha Pedido'] = fecha_obj
+
+            for r_idx, row in enumerate(dataframe_to_rows(self.df, index=False, header=True), 1):
+                ws.append(row)
+
+            # Currency Style
+            currency_style = NamedStyle(name='currency', number_format='#,##0.00 €')
+            date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
+
+            # Apply Styles
+            for cell in ws['B']:
+                cell.style = date_style
+            
+            for cell in ws['E']:
+                cell.style = currency_style
+
+            for cell in ws['F']:
+                cell.style = currency_style
+
+            # Save Excel
+            wb.save(output_path)
+
 
 #  Function to calculate the total amount
     def calculate_total(self):
@@ -518,6 +486,15 @@ class Ui_ReportPurRefDate_Window(object):
             total = locale.format_string("%.2f", total, grouping=True)
             total = total + " €"
             self.label_TotalValue.setText(total)
+
+
+# Function to transform euros to float values
+    def euros_to_float(self, value):
+        value = value.replace(".", "")
+        value = value.replace(",", ".")
+        value = value[: value.find(" €")]
+        return float(value)
+
 
 if __name__ == "__main__":
     import sys

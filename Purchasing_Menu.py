@@ -19,8 +19,9 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Purchasing_Menu(object):
-    def __init__(self, name):
+    def __init__(self, name, username):
         self.name=name
+        self.username = username
 
     def setupUi(self, Purchasing_Menu):
         Purchasing_Menu.setObjectName("Purchasing_Menu")
@@ -31,41 +32,80 @@ class Ui_Purchasing_Menu(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Purchasing_Menu.setWindowIcon(icon)
-        Purchasing_Menu.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
-"QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        if self.username == 'd.marquez':
+            Purchasing_Menu.setStyleSheet("QWidget {\n"
+    "background-color: #121212; color: rgb(255, 255, 255)\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid white;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 14px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 2px .4em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}"
+    )
+        else:
+            Purchasing_Menu.setStyleSheet("QWidget {\n"
+    "background-color: rgb(255, 255, 255);\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid black;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 14px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 2px .4em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}"
+    )
         self.centralwidget = QtWidgets.QWidget(parent=Purchasing_Menu)
         self.centralwidget.setMinimumSize(QtCore.QSize(int(615//1.5), int(360//1.5)))
         self.centralwidget.setMaximumSize(QtCore.QSize(int(615//1.5), int(360//1.5)))
@@ -127,18 +167,6 @@ class Ui_Purchasing_Menu(object):
         self.Button_Reports.setObjectName("Button_Reports")
         self.hLayout3.addWidget(self.Button_Reports)
         self.gridLayout_2.addLayout(self.hLayout3, 10, 0, 1, 1)
-        self.hLayout4 = QtWidgets.QHBoxLayout()
-        self.hLayout4.setContentsMargins(-1, 0, -1, -1)
-        self.hLayout4.setObjectName("hLayout4")
-        spacerItem3 = QtWidgets.QSpacerItem(350, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.hLayout4.addItem(spacerItem3)
-        self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Cancel.setEnabled(True)
-        self.Button_Cancel.setMinimumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
-        self.Button_Cancel.setMaximumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
-        self.Button_Cancel.setObjectName("Button_Cancel")
-        self.hLayout4.addWidget(self.Button_Cancel)
-        self.gridLayout_2.addLayout(self.hLayout4, 11, 0, 1, 1)
         spacerItem5 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem5, 6, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
@@ -150,7 +178,6 @@ class Ui_Purchasing_Menu(object):
         self.statusbar = QtWidgets.QStatusBar(parent=Purchasing_Menu)
         self.statusbar.setObjectName("statusbar")
         Purchasing_Menu.setStatusBar(self.statusbar)
-        Purchasing_Menu.setWindowFlags(QtCore.Qt.WindowType.WindowMinimizeButtonHint)
 
         self.retranslateUi(Purchasing_Menu)
         self.Button_Supplies.clicked.connect(lambda: self.supplies(Purchasing_Menu))
@@ -159,7 +186,6 @@ class Ui_Purchasing_Menu(object):
         self.Button_Quotation.clicked.connect(lambda: self.quotation(Purchasing_Menu))
         self.Button_Databases.clicked.connect(lambda: self.databases(Purchasing_Menu))
         self.Button_Reports.clicked.connect(lambda: self.reports(Purchasing_Menu))
-        self.Button_Cancel.clicked.connect(Purchasing_Menu.close)
         QtCore.QMetaObject.connectSlotsByName(Purchasing_Menu)
 
 
@@ -172,40 +198,31 @@ class Ui_Purchasing_Menu(object):
         self.Button_Reports.setText(_translate("Purchasing_Menu", "Informes"))
         self.Button_Supplies.setText(_translate("Purchasing_Menu", "Suministros"))
         self.Button_ClientOrder.setText(_translate("Purchasing_Menu", "Pedido De Clientes"))
-        self.Button_Cancel.setText(_translate("Purchasing_Menu", "Cancelar"))
 
 
     def supplies(self,Purchasing_Menu):
-        self.supplies_window=QtWidgets.QMainWindow()
-        self.ui=Ui_Supplies_Window()
-        self.ui.setupUi(self.supplies_window)
-        self.supplies_window.showMaximized()
+        self.ui_supplies=Ui_Supplies_Window(self.username)
+        self.ui_supplies.showMaximized()
 
 
     def clientorder(self,Purchasing_Menu):
-        self.clientorder_window=QtWidgets.QMainWindow()
-        self.ui=Ui_ClientOrder_Window()
-        self.ui.setupUi(self.clientorder_window)
-        self.clientorder_window.showMaximized()
+        self.ui_clientorder=Ui_ClientOrder_Window(self.username)
+        self.ui_clientorder.showMaximized()
 
 
     def supplierorder(self,Purchasing_Menu):
-        self.supplierorder_window=QtWidgets.QMainWindow()
-        self.ui=Ui_SupplierOrder_Window()
-        self.ui.setupUi(self.supplierorder_window)
-        self.supplierorder_window.showMaximized()
+        self.ui_supplierorder=Ui_SupplierOrder_Window(self.username)
+        self.ui_supplierorder.showMaximized()
 
 
     def quotation(self,Purchasing_Menu):
-        self.quotation_window=QtWidgets.QMainWindow()
-        self.ui=Ui_Quotation_Window()
-        self.ui.setupUi(self.quotation_window)
-        self.quotation_window.showMaximized()
+        self.ui_quotation=Ui_Quotation_Window(self.username)
+        self.ui_quotation.showMaximized()
 
 
     def databases(self,Purchasing_Menu):
         self.purchase_DB_window=QtWidgets.QMainWindow()
-        self.ui=Ui_Purchasing_DB_Menu(self.name)
+        self.ui=Ui_Purchasing_DB_Menu(self.name, self.username)
         self.ui.setupUi(self.purchase_DB_window)
         self.purchase_DB_window.show()
         Purchasing_Menu.hide()
@@ -214,7 +231,7 @@ class Ui_Purchasing_Menu(object):
 
     def reports(self,Purchasing_Menu):
         self.purchasing_reports_window=QtWidgets.QMainWindow()
-        self.ui=Ui_Purchasing_Reports_Menu(self.name)
+        self.ui=Ui_Purchasing_Reports_Menu(self.name, self.username)
         self.ui.setupUi(self.purchasing_reports_window)
         self.purchasing_reports_window.show()
         Purchasing_Menu.hide()
@@ -226,7 +243,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Purchasing_Menu = QtWidgets.QMainWindow()
-    ui = Ui_Purchasing_Menu()
+    ui = Ui_Purchasing_Menu('daniel','d.marquez')
     ui.setupUi(Purchasing_Menu)
     Purchasing_Menu.show()
     sys.exit(app.exec())

@@ -20,12 +20,12 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
 
-        if index.column() == 13:
+        if index.column() == 15:
             option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignLeft
         else:
             option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
-        if index.column() == 9:  # Check column and paint when apply
+        if index.column() == 11:  # Check column and paint when apply
             value = index.data()
 
             if value == "Aprobado":  
@@ -415,9 +415,9 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addItem(spacerItem3, 1, 1, 1, 1)
         self.tableQueryDoc = CustomTableWidget()
         self.tableQueryDoc.setObjectName("tableQueryDoc")
-        self.tableQueryDoc.setColumnCount(14)
+        self.tableQueryDoc.setColumnCount(16)
         self.tableQueryDoc.setRowCount(0)
-        for i in range(14):
+        for i in range(16):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -452,30 +452,34 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
         item = self.tableQueryDoc.horizontalHeaderItem(0)
         item.setText(_translate("QueryDoc_Window", "Nº Pedido"))
         item = self.tableQueryDoc.horizontalHeaderItem(1)
-        item.setText(_translate("QueryDoc_Window", "Nº PO"))
+        item.setText(_translate("QueryDoc_Window", "Fecha Pedido"))
         item = self.tableQueryDoc.horizontalHeaderItem(2)
-        item.setText(_translate("QueryDoc_Window", "Cliente"))
+        item.setText(_translate("QueryDoc_Window", "Fecha Prevista"))
         item = self.tableQueryDoc.horizontalHeaderItem(3)
-        item.setText(_translate("QueryDoc_Window", "Material"))
+        item.setText(_translate("QueryDoc_Window", "Nº PO"))
         item = self.tableQueryDoc.horizontalHeaderItem(4)
-        item.setText(_translate("QueryDoc_Window", "Nº Doc. Cliente"))
+        item.setText(_translate("QueryDoc_Window", "Cliente"))
         item = self.tableQueryDoc.horizontalHeaderItem(5)
-        item.setText(_translate("QueryDoc_Window", "Nº Doc. EIPSA"))
+        item.setText(_translate("QueryDoc_Window", "Material"))
         item = self.tableQueryDoc.horizontalHeaderItem(6)
-        item.setText(_translate("QueryDoc_Window", "Título"))
+        item.setText(_translate("QueryDoc_Window", "Nº Doc. Cliente"))
         item = self.tableQueryDoc.horizontalHeaderItem(7)
-        item.setText(_translate("QueryDoc_Window", "Tipo Doc."))
+        item.setText(_translate("QueryDoc_Window", "Nº Doc. EIPSA"))
         item = self.tableQueryDoc.horizontalHeaderItem(8)
-        item.setText(_translate("QueryDoc_Window", "Crítico"))
+        item.setText(_translate("QueryDoc_Window", "Título"))
         item = self.tableQueryDoc.horizontalHeaderItem(9)
-        item.setText(_translate("QueryDoc_Window", "Estado"))
+        item.setText(_translate("QueryDoc_Window", "Tipo Doc."))
         item = self.tableQueryDoc.horizontalHeaderItem(10)
-        item.setText(_translate("QueryDoc_Window", "Nº Revisión"))
+        item.setText(_translate("QueryDoc_Window", "Crítico"))
         item = self.tableQueryDoc.horizontalHeaderItem(11)
-        item.setText(_translate("QueryDoc_Window", "Fecha"))
+        item.setText(_translate("QueryDoc_Window", "Estado"))
         item = self.tableQueryDoc.horizontalHeaderItem(12)
-        item.setText(_translate("QueryDoc_Window", "Seguimiento"))
+        item.setText(_translate("QueryDoc_Window", "Nº Revisión"))
         item = self.tableQueryDoc.horizontalHeaderItem(13)
+        item.setText(_translate("QueryDoc_Window", "Fecha"))
+        item = self.tableQueryDoc.horizontalHeaderItem(14)
+        item.setText(_translate("QueryDoc_Window", "Seguimiento"))
+        item = self.tableQueryDoc.horizontalHeaderItem(15)
         item.setText(_translate("QueryDoc_Window", "Historial Rev."))
         self.Button_Export.setText(_translate("QueryDoc_Window", "Exportar"))
 
@@ -483,7 +487,9 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
     def query_all_docs(self):
         self.tableQueryDoc.setRowCount(0)
         commands_queryalldoc = ("""
-                        SELECT documentation."num_order",orders."num_ref_order",offers."client",product_type."variable",documentation."num_doc_client",documentation."num_doc_eipsa",documentation."doc_title",document_type."doc_type",documentation."critical",documentation."state",documentation."revision",TO_CHAR(documentation."state_date", 'DD-MM-YYYY'),documentation."tracking",hist_doc."hist_rev_column"
+                        SELECT documentation."num_order", TO_CHAR(orders."order_date", 'DD-MM-YYYY'), TO_CHAR(orders."expected_date", 'DD-MM-YYYY'), orders."num_ref_order", offers."client", product_type."variable", documentation."num_doc_client",
+                        documentation."num_doc_eipsa", documentation."doc_title", document_type."doc_type", documentation."critical", documentation."state",
+                        documentation."revision", TO_CHAR(documentation."state_date", 'DD-MM-YYYY'), documentation."tracking", hist_doc."hist_rev_column"
                         FROM documentation
                         INNER JOIN orders ON (orders."num_order" = documentation."num_order")
                         INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
@@ -508,7 +514,7 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(14):
+                for column in range(16):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -523,7 +529,7 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
             self.tableQueryDoc.setItemDelegate(AlignDelegate(self.tableQueryDoc))
             self.tableQueryDoc.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
-            for i in range(1,13):
+            for i in range(1,15):
                 self.tableQueryDoc.horizontalHeader().setSectionResizeMode(i,QtWidgets.QHeaderView.ResizeMode.Interactive)
                 self.tableQueryDoc.setColumnWidth(i, 100)
 
@@ -549,98 +555,8 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
                 conn.close()
 
 
-    def query_doc(self):
-        self.tableQueryDoc.setRowCount(0)
-        numorder=self.NumOrder_QueryDoc.text()
-        numpo=self.NumPo_QueryDoc.text()
-
-        if ((numorder=="" or numorder==" ") and (numpo=="" or numpo==" ")):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Consultar Documentación")
-            dlg.setText("Introduce un filtro en alguno de los campos")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-
-        else:
-            commands = ("""
-                        SELECT documentation."num_order",orders."num_ref_order",offers."client",product_type."variable",documentation."num_doc_client",documentation."num_doc_eipsa",documentation."doc_title",document_type."doc_type",documentation."critical",documentation."state",documentation."revision",TO_CHAR(documentation."state_date", 'DD-MM-YYYY'),documentation."tracking",hist_doc."hist_rev_column"
-                        FROM documentation
-                        INNER JOIN orders ON (orders."num_order" = documentation."num_order")
-                        INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
-                        INNER JOIN document_type ON (document_type."id" = documentation."doc_type_id")
-                        LEFT JOIN hist_doc ON (hist_doc."num_doc_eipsa" = documentation."num_doc_eipsa")
-                        INNER JOIN product_type ON (product_type."material" = offers."material")
-                        WHERE
-                        (
-                        UPPER(documentation."num_order") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        UPPER(orders."num_ref_order") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        UPPER(offers."client") LIKE UPPER('%%'||%s||'%%')
-                        )
-                        ORDER BY documentation."num_order"
-                        """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                data=(numorder,numpo,)
-                cur.execute(commands, data)
-                results=cur.fetchall()
-
-                self.tableQueryDoc.setRowCount(len(results))
-                tablerow=0
-
-            # fill the Qt Table with the query results
-                for row in results:
-                    for column in range(14):
-                        value = row[column]
-                        if value is None:
-                            value = ''
-                        it = QtWidgets.QTableWidgetItem(str(value))
-                        it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                        self.tableQueryDoc.setItem(tablerow, column, it)
-
-                    tablerow+=1
-
-                self.tableQueryDoc.verticalHeader().hide()
-                self.tableQueryDoc.setSortingEnabled(False)
-                self.tableQueryDoc.setItemDelegate(AlignDelegate(self.tableQueryDoc))
-                self.tableQueryDoc.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                for i in range(1,13):
-                    self.tableQueryDoc.horizontalHeader().setSectionResizeMode(i,QtWidgets.QHeaderView.ResizeMode.Interactive)
-
-                self.tableQueryDoc.itemDoubleClicked.connect(self.expand_cell)
-
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-            except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
-
-
     def expand_cell(self, item):
-        if item.column() in [12, 13]:
+        if item.column() in [14, 15]:
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()

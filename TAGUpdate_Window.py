@@ -201,7 +201,7 @@ class Ui_TAGUpdate_Window(object):
             cursor = conn.cursor()
 
         #Importing excel file into dataframe
-            df_table = pd.read_excel(excel_file, na_values=['N/A'], keep_default_na=False, skiprows=7)
+            df_table = pd.read_excel(excel_file, na_values=['N/A'], keep_default_na=False, skiprows=7, dtype={'plate_thk': str})
             df_table = df_table.astype(str)
             df_table.replace('nan', 'N/A', inplace=True)
 
@@ -220,15 +220,17 @@ class Ui_TAGUpdate_Window(object):
                         # Creating string for columns names and values
                             columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
                             columns = ', '.join([column for column, _ in columns_values])
-                            values = ', '.join([f"'{values.replace('.', ',')}'" if column in ['amount','plate_thk'] else f"'{values}'" for column, values in columns_values])
+                            values = ', '.join([f"'{values.replace('.', ',')}'" if column in ['amount','plate_thk']
+                                                else ('NULL' if values == '' and column in ['num_order','contractual_date']
+                                                else f"'{values}'") for column, values in columns_values])
 
                         # Creating the SET  and WHERE clause with proper formatting
                             set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[2:], values.split(", ")[2:])])
-                            where_clause = f'"id_tag_flow" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+                            where_clause = f'"id_tag_flow" = \'{id_value}\''
 
                         # Creating the update query and executing it after checking existing tags and id
                             sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
-                            sql_check = f'SELECT * FROM {table_name} WHERE "id_tag_flow" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+                            sql_check = f'SELECT * FROM {table_name} WHERE "id_tag_flow" = \'{id_value}\''
                             cursor.execute(sql_check)
                             result_check=cursor.fetchall()
 
@@ -295,16 +297,17 @@ class Ui_TAGUpdate_Window(object):
                                                 f"'{int(float(values))}'" if column in ['flange_rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam'] and values.endswith('.0')
                                                 else f"'{values.replace('.', ',')}'" if column in ['amount', 'root_diam', 'tip_diam', 'sheath_stem_diam']
                                                 else ('NULL' if values == 'N/A' and column in ['std_length', 'ins_length']
-                                                else f"'{values}'") for column, values in columns_values
+                                                else ('NULL' if values == '' and column in ['num_order','contractual_date']
+                                                else f"'{values}'")) for column, values in columns_values
                                                 ])
 
                         # Creating the SET  and WHERE clause with proper formatting
                             set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[2:], values.split(", ")[2:])])
-                            where_clause = f'"id_tag_temp" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+                            where_clause = f'"id_tag_temp" = \'{id_value}\''
 
                         # Creating the update query and executing it after checking existing tags and id
                             sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
-                            sql_check = f'SELECT * FROM {table_name} WHERE "id_tag_temp" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+                            sql_check = f'SELECT * FROM {table_name} WHERE "id_tag_temp" = \'{id_value}\''
                             cursor.execute(sql_check)
                             result_check=cursor.fetchall()
 
@@ -371,16 +374,17 @@ class Ui_TAGUpdate_Window(object):
                                                 f"'{int(float(values))}'" if column in ['proc_conn_rating', 'dv_rating'] and values.endswith('.0')
                                                 else f"'{values.replace('.', ',')}'" if column in ['amount']
                                                 else ('NULL' if values == 'N/A' and column in ['visibility', 'cc_length']
-                                                else f"'{values}'") for column, values in columns_values
+                                                else ('NULL' if values == '' and column in ['num_order','contractual_date']
+                                                else f"'{values}'")) for column, values in columns_values
                                                 ])
 
                         # Creating the SET  and WHERE clause with proper formatting
                             set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[2:], values.split(", ")[2:])])
-                            where_clause = f'"id_tag_level" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+                            where_clause = f'"id_tag_level" = \'{id_value}\''
 
                         # Creating the update query and executing it after checking existing tags and id
                             sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
-                            sql_check = f'SELECT * FROM {table_name} WHERE "id_tag_level" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+                            sql_check = f'SELECT * FROM {table_name} WHERE "id_tag_level" = \'{id_value}\''
                             cursor.execute(sql_check)
                             result_check=cursor.fetchall()
 
@@ -450,11 +454,11 @@ class Ui_TAGUpdate_Window(object):
 
                         # Creating the SET  and WHERE clause with proper formatting
                             set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[2:], values.split(", ")[2:])])
-                            where_clause = f'"id_tag_others" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+                            where_clause = f'"id_tag_others" = \'{id_value}\''
 
                         # Creating the update query and executing it after checking existing tags and id
                             sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
-                            sql_check = f'SELECT * FROM {table_name} WHERE "id_tag_others" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+                            sql_check = f'SELECT * FROM {table_name} WHERE "id_tag_others" = \'{id_value}\''
                             cursor.execute(sql_check)
                             result_check=cursor.fetchall()
 

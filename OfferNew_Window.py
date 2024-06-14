@@ -697,9 +697,9 @@ class Ui_New_Offer_Window(object):
             if conn is not None:
                 conn.close()
 
-        self.Mails_NewOffer.setText("copia:" + user_email + ",fernando-gallego@eipsa.es")
+        self.Mails_NewOffer.setText("copia:fernando-gallego@eipsa.es")
 
-
+# Function to create a new offer
     def NewOffer(self):
         numoffer=self.NumOffer_NewOffer.text()
         client=self.Client_NewOffer.currentText()
@@ -870,13 +870,15 @@ class Ui_New_Offer_Window(object):
                     if conn is not None:
                         conn.close()
 
-
+# Function to open window to create a new client
     def NewClient(self):
         self.new_client_window=QtWidgets.QMainWindow()
         self.ui=Ui_OfferClientAdd_Window()
         self.ui.setupUi(self.new_client_window)
         self.new_client_window.show()
         self.ui.exit_OfferClientAdd.clicked.connect(self.load_clients)
+
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

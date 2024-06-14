@@ -157,12 +157,15 @@ class Ui_TechOffice_Window(QtWidgets.QMainWindow):
 
         for i in range(1,9):
             self.tableTechOf.hideColumn(i)
-        for i in range(11,23):
+        for i in range(11,25):
+            self.tableTechOf.hideColumn(i)
+        for i in range(26,30):
             self.tableTechOf.hideColumn(i)
 
         headers=['Nº Pedido', '','','','','','','','',
                 'Fecha Recepción','Observaciones',
-                '','','','', '','','','', '', '', '', '', 'OK']
+                '','','','','','','','','','','','','','',
+                'OK']
 
         self.tableTechOf.setItemDelegate(AlignDelegate(self.tableTechOf))
         self.tableTechOf.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)

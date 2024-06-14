@@ -286,42 +286,42 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to sort column
     def sort_column(self, column_index, sortOrder):
-        if column_index in [3]:
+        if column_index in [4, 5, 14, 15, 16, 19, 22]:
             self.custom_sort(column_index, sortOrder)
         else:
             self.sortByColumn(column_index, sortOrder)
 
 
     def custom_sort(self, column, order):
-    # Obtén la cantidad de filas en la tabla
-        row_count = self.rowCount()
+        if column in [4, 5, 14, 15, 16, 19, 22]:
+            row_count = self.rowCount()
 
-        # Crea una lista de índices ordenados según las fechas
-        indexes = list(range(row_count))
-        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd/MM/yyyy"))
+            # Crea una lista de índices ordenados según las fechas
+            indexes = list(range(row_count))
+            indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd/MM/yyyy"))
 
-        # Si el orden es descendente, invierte la lista
-        if order == QtCore.Qt.SortOrder.DescendingOrder:
-            indexes.reverse()
+            # Si el orden es descendente, invierte la lista
+            if order == QtCore.Qt.SortOrder.DescendingOrder:
+                indexes.reverse()
 
-        # Guarda el estado actual de las filas ocultas
-        hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
+            # Guarda el estado actual de las filas ocultas
+            hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
 
-        # Actualiza las filas en la tabla en el orden ordenado
-        rows = self.rowCount()
-        for i in range(rows):
-            self.insertRow(i)
+            # Actualiza las filas en la tabla en el orden ordenado
+            rows = self.rowCount()
+            for i in range(rows):
+                self.insertRow(i)
 
-        for new_row, old_row in enumerate(indexes):
-            for col in range(self.columnCount()):
-                item = self.takeItem(old_row + rows, col)
-                self.setItem(new_row, col, item)
+            for new_row, old_row in enumerate(indexes):
+                for col in range(self.columnCount()):
+                    item = self.takeItem(old_row + rows, col)
+                    self.setItem(new_row, col, item)
 
-        for i in range(rows):
-            self.removeRow(rows)
+            for i in range(rows):
+                self.removeRow(rows)
 
-        for row in hidden_rows:
-            self.setRowHidden(row, True)
+            for row in hidden_rows:
+                self.setRowHidden(row, True)
 
 # Function with the menu configuration
     def contextMenuEvent(self, event):
@@ -454,9 +454,9 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addItem(spacerItem, 2, 0, 1, 1)
         self.tableQueryOrder = CustomTableWidget()
         self.tableQueryOrder.setObjectName("tableQueryOrder")
-        self.tableQueryOrder.setColumnCount(23)
+        self.tableQueryOrder.setColumnCount(25)
         self.tableQueryOrder.setRowCount(0)
-        for i in range(23):
+        for i in range(25):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -514,7 +514,7 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
         self.Year_QueryOrder.returnPressed.connect(self.query_order_filtered)
         self.tableQueryOrder.itemSelectionChanged.connect(self.countSelectedCells)
         self.tableQueryOrder.itemDoubleClicked.connect(self.on_item_double_clicked)
-        self.tableQueryOrder.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
+        self.tableQueryOrder.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
 
         self.query_all_order()
 
@@ -528,46 +528,50 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
         item = self.tableQueryOrder.horizontalHeaderItem(1)
         item.setText(_translate("QueryOrder_Window", "Nº Oferta"))
         item = self.tableQueryOrder.horizontalHeaderItem(2)
-        item.setText(_translate("QueryOrder_Window", "Responsable"))
+        item.setText(_translate("QueryOrder_Window", "Año"))
         item = self.tableQueryOrder.horizontalHeaderItem(3)
-        item.setText(_translate("QueryOrder_Window", "Fecha Pedido"))
+        item.setText(_translate("QueryOrder_Window", "Responsable"))
         item = self.tableQueryOrder.horizontalHeaderItem(4)
-        item.setText(_translate("QueryOrder_Window", "Fecha Prevista"))
+        item.setText(_translate("QueryOrder_Window", "Fecha Pedido"))
         item = self.tableQueryOrder.horizontalHeaderItem(5)
-        item.setText(_translate("QueryOrder_Window", "Nº Referencia"))
+        item.setText(_translate("QueryOrder_Window", "Fecha Prevista"))
         item = self.tableQueryOrder.horizontalHeaderItem(6)
-        item.setText(_translate("QueryOrder_Window", "Cliente"))
+        item.setText(_translate("QueryOrder_Window", "Nº Referencia"))
         item = self.tableQueryOrder.horizontalHeaderItem(7)
-        item.setText(_translate("QueryOrder_Window", "Cliente Final"))
+        item.setText(_translate("QueryOrder_Window", "Cliente"))
         item = self.tableQueryOrder.horizontalHeaderItem(8)
-        item.setText(_translate("QueryOrder_Window", "Tipo Equipo"))
+        item.setText(_translate("QueryOrder_Window", "Cliente Final"))
         item = self.tableQueryOrder.horizontalHeaderItem(9)
-        item.setText(_translate("QueryOrder_Window", "Nº Equipos"))
+        item.setText(_translate("QueryOrder_Window", "Proyecto"))
         item = self.tableQueryOrder.horizontalHeaderItem(10)
-        item.setText(_translate("QueryOrder_Window", "Notas Pedido"))
+        item.setText(_translate("QueryOrder_Window", "Tipo Equipo"))
         item = self.tableQueryOrder.horizontalHeaderItem(11)
-        item.setText(_translate("QueryOrder_Window", "Importante Oferta"))
+        item.setText(_translate("QueryOrder_Window", "Nº Equipos"))
         item = self.tableQueryOrder.horizontalHeaderItem(12)
-        item.setText(_translate("QueryOrderTechnical_Window", "F. Creación Líneas"))
+        item.setText(_translate("QueryOrder_Window", "Notas Pedido"))
         item = self.tableQueryOrder.horizontalHeaderItem(13)
-        item.setText(_translate("QueryOrderTechnical_Window", "F. Act. Líneas/Portal"))
+        item.setText(_translate("QueryOrder_Window", "Importante Oferta"))
         item = self.tableQueryOrder.horizontalHeaderItem(14)
-        item.setText(_translate("QueryOrderTechnical_Window", "Fecha Fabricación"))
+        item.setText(_translate("QueryOrderTechnical_Window", "F. Creación Líneas"))
         item = self.tableQueryOrder.horizontalHeaderItem(15)
-        item.setText(_translate("QueryOrderTechnical_Window", "% Fabricación"))
+        item.setText(_translate("QueryOrderTechnical_Window", "F. Act. Líneas/Portal"))
         item = self.tableQueryOrder.horizontalHeaderItem(16)
-        item.setText(_translate("QueryOrderTechnical_Window", "Obs. Fabricación"))
+        item.setText(_translate("QueryOrderTechnical_Window", "Fecha Fabricación"))
         item = self.tableQueryOrder.horizontalHeaderItem(17)
-        item.setText(_translate("QueryOrderTechnical_Window", "Fecha Montaje"))
+        item.setText(_translate("QueryOrderTechnical_Window", "% Fabricación"))
         item = self.tableQueryOrder.horizontalHeaderItem(18)
-        item.setText(_translate("QueryOrderTechnical_Window", "% Montaje"))
+        item.setText(_translate("QueryOrderTechnical_Window", "Obs. Fabricación"))
         item = self.tableQueryOrder.horizontalHeaderItem(19)
-        item.setText(_translate("QueryOrderTechnical_Window", "Obs. Montaje"))
+        item.setText(_translate("QueryOrderTechnical_Window", "Fecha Montaje"))
         item = self.tableQueryOrder.horizontalHeaderItem(20)
-        item.setText(_translate("QueryOrderTechnical_Window", "Fecha Envío"))
+        item.setText(_translate("QueryOrderTechnical_Window", "% Montaje"))
         item = self.tableQueryOrder.horizontalHeaderItem(21)
-        item.setText(_translate("QueryOrderTechnical_Window", "% Envío"))
+        item.setText(_translate("QueryOrderTechnical_Window", "Obs. Montaje"))
         item = self.tableQueryOrder.horizontalHeaderItem(22)
+        item.setText(_translate("QueryOrderTechnical_Window", "Fecha Envío"))
+        item = self.tableQueryOrder.horizontalHeaderItem(23)
+        item.setText(_translate("QueryOrderTechnical_Window", "% Envío"))
+        item = self.tableQueryOrder.horizontalHeaderItem(24)
         item.setText(_translate("QueryOrderTechnical_Window", "Obs. Envío"))
         self.label_Months.setText(_translate("QueryOrder_Window", "Meses / Año:"))
 
@@ -591,8 +595,8 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
     def query_all_order(self):
         self.tableQueryOrder.setRowCount(0)
         commands_queryorder = ("""
-                    SELECT orders."num_order", orders."num_offer", users_data.initials."initials", TO_CHAR(orders."order_date", 'DD/MM/YYYY'), TO_CHAR(orders."expected_date", 'DD/MM/YYYY'),
-                    orders."num_ref_order", offers."client", offers."final_client", product_type."variable", orders."items_number", orders."notes",
+                    SELECT orders."num_order", orders."num_offer", EXTRACT(YEAR FROM (orders."order_date")) as year, users_data.initials."initials", TO_CHAR(orders."order_date", 'DD/MM/YYYY'), TO_CHAR(orders."expected_date", 'DD/MM/YYYY'),
+                    orders."num_ref_order", offers."client", offers."final_client", offers."project", offers."material", orders."items_number", orders."notes",
                     offers."important", TO_CHAR(orders."lines_creation_date", 'DD/MM/YYYY'), TO_CHAR(orders."lines_activation_date", 'DD/MM/YYYY'),
                     orders."recep_date_workshop", orders."porc_workshop", orders."obs_workshop",
                     orders."recep_date_assembly", orders."porc_assembly", orders."obs_assembly",
@@ -619,7 +623,7 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(23):
+                for column in range(25):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -676,8 +680,8 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
         else:
             self.tableQueryOrder.setRowCount(0)
             commands_queryorder = ("""
-                        SELECT orders."num_order", orders."num_offer", users_data.initials."initials", TO_CHAR(orders."order_date", 'DD/MM/YYYY'), TO_CHAR(orders."expected_date", 'DD/MM/YYYY'),
-                        orders."num_ref_order", offers."client", offers."final_client", product_type."variable", orders."items_number", orders."notes",
+                        SELECT orders."num_order", orders."num_offer", EXTRACT(YEAR FROM (orders."order_date")) as year,users_data.initials."initials", TO_CHAR(orders."order_date", 'DD/MM/YYYY'), TO_CHAR(orders."expected_date", 'DD/MM/YYYY'),
+                        orders."num_ref_order", offers."client", offers."final_client", offers."project", offers."material", orders."items_number", orders."notes",
                         offers."important", TO_CHAR(orders."lines_creation_date", 'DD/MM/YYYY'), TO_CHAR(orders."lines_activation_date", 'DD/MM/YYYY'),
                         orders."recep_date_workshop", orders."porc_workshop", orders."obs_workshop",
                         orders."recep_date_assembly", orders."porc_assembly", orders."obs_assembly",
@@ -690,8 +694,8 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
                         ORDER BY orders."num_order"
                         """)
             commands_queryorder_dates1 = ("""
-                        SELECT orders."num_order", orders."num_offer", users_data.initials."initials", TO_CHAR(orders."order_date", 'DD/MM/YYYY'), TO_CHAR(orders."expected_date", 'DD/MM/YYYY'),
-                        orders."num_ref_order", offers."client", offers."final_client", product_type."variable", orders."items_number", orders."notes",
+                        SELECT orders."num_order", orders."num_offer", EXTRACT(YEAR FROM (orders."order_date")) as year, users_data.initials."initials", TO_CHAR(orders."order_date", 'DD/MM/YYYY'), TO_CHAR(orders."expected_date", 'DD/MM/YYYY'),
+                        orders."num_ref_order", offers."client", offers."final_client", offers."project", product_type."variable", orders."items_number", orders."notes",
                         offers."important", TO_CHAR(orders."lines_creation_date", 'DD/MM/YYYY'), TO_CHAR(orders."lines_activation_date", 'DD/MM/YYYY'),
                         orders."recep_date_workshop", orders."porc_workshop", orders."obs_workshop",
                         orders."recep_date_assembly", orders."porc_assembly", orders."obs_assembly",
@@ -706,8 +710,8 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
                         ORDER BY orders."num_order"
                         """)
             commands_queryorder_dates2 = ("""
-                        SELECT orders."num_order", orders."num_offer", users_data.initials."initials", TO_CHAR(orders."order_date", 'DD/MM/YYYY'), TO_CHAR(orders."expected_date", 'DD/MM/YYYY'),
-                        orders."num_ref_order", offers."client", offers."final_client", product_type."variable", orders."items_number", orders."notes",
+                        SELECT orders."num_order", orders."num_offer", EXTRACT(YEAR FROM (orders."order_date")) as year, users_data.initials."initials", TO_CHAR(orders."order_date", 'DD/MM/YYYY'), TO_CHAR(orders."expected_date", 'DD/MM/YYYY'),
+                        orders."num_ref_order", offers."client", offers."final_client", offers."project", product_type."variable", orders."items_number", orders."notes",
                         offers."important", TO_CHAR(orders."lines_creation_date", 'DD/MM/YYYY'), TO_CHAR(orders."lines_activation_date", 'DD/MM/YYYY'),
                         orders."recep_date_workshop", orders."porc_workshop", orders."obs_workshop",
                         orders."recep_date_assembly", orders."porc_assembly", orders."obs_assembly",
@@ -745,7 +749,7 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
 
             # fill the Qt Table with the query results
                 for row in results:
-                    for column in range(23):
+                    for column in range(25):
                         value = row[column]
                         if value is None:
                             value = ''
@@ -825,14 +829,14 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
                     if not self.tableQueryOrder.isRowHidden(row):
                         item = self.tableQueryOrder.item(row,col)
                         if item is not None:
-                            if col in [3,4]:  # date column
+                            if col in [4, 5, 14, 15, 16, 19, 22]:  # date column
                                 date_str = item.text()
                                 if date_str:  
                                     date_obj = datetime.strptime(date_str, "%d/%m/%Y")
                                     column_data.append(date_obj)
                                 else:
                                     column_data.append('')
-                            elif col in [9, 12, 13, 14]:  # integer columns
+                            elif col in [11, 14, 15, 16]:  # integer columns
                                 integer_str = item.text()
                                 if integer_str:
                                     integer_value = int(integer_str)
@@ -859,7 +863,7 @@ class Ui_QueryOrderTechnical_Window(QtWidgets.QMainWindow):
                 date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
                 currency_style  = NamedStyle(name='currency_style ', number_format='#,##0.00" €"')
                 for col_num in range(1, self.tableQueryOrder.columnCount() + 1):
-                    if col_num in [4, 5]:  
+                    if col_num in [5, 6, 15, 16, 17, 20, 23]:  
                         for row_num in range(2, self.tableQueryOrder.rowCount() + 2):
                             cell = writer.sheets['Sheet1'].cell(row=row_num, column=col_num)
                             cell.style = date_style

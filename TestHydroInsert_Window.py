@@ -488,11 +488,14 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.label_types.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_types.setObjectName("label_types")
         self.gridLayout_2.addWidget(self.label_types, 2, 0, 1, 4)
+        self.lp_test = QtWidgets.QCheckBox('Líquidos Penetrantes')
+        self.lp_test.setLayoutDirection(QtCore.Qt.LayoutDirection.RightToLeft)
+        self.gridLayout_2.addWidget(self.lp_test, 2, 3, 1, 1)
         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.gridLayout_2.addItem(spacerItem3, 3, 1, 1, 1)
         self.select_all = QtWidgets.QCheckBox('Seleccionar todos')
         self.select_all.setLayoutDirection(QtCore.Qt.LayoutDirection.RightToLeft)
-        self.gridLayout_2.addWidget(self.select_all, 4, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.select_all, 4, 0, 1, 1)
         self.tableTags = CustomTableWidget()
         self.tableTags.setObjectName("tableWidget")
         self.tableTags.setColumnCount(0)
@@ -719,6 +722,8 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.state_test1.currentTextChanged.connect(self.change_text_color_1)
         self.state_test2.currentTextChanged.connect(self.change_text_color_2)
 
+        self.num_columns = 0
+
         self.load_values()
 
 
@@ -740,20 +745,78 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.Button_Cancel.setText(_translate("TestHydroInsert_Window", "Cancelar"))
         self.Button_Insert.setText(_translate("TestHydroInsert_Window", "Insertar"))
 
-
+# Function to query tags of order
     def querytags(self):
         self.tableTags.setRowCount(0)
+        self.tableTags.setColumnCount(0)
         self.num_order_value = self.num_order.text().upper()
-        if self.num_order_value[:5] == 'PA-24' or self.num_order_value[:4] == 'P-24':
-            query_material = ("""
-                            SELECT orders."num_order",orders."num_offer",product_type."variable"
-                            FROM offers
-                            INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
-                            INNER JOIN product_type ON (offers."material"=product_type."material")
-                            WHERE (UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
-                            )
-                            ORDER BY orders."num_order"
-                            """)
+
+        query_material = ("""
+                        SELECT orders."num_order",orders."num_offer",product_type."variable"
+                        FROM offers
+                        INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
+                        INNER JOIN product_type ON (offers."material"=product_type."material")
+                        WHERE (UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
+                        )
+                        ORDER BY orders."num_order"
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(query_material,(self.num_order_value,))
+            results=cur.fetchall()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        if len(results) == 0:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("EL número de pedido no existe")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
+
+        else:
+            query_flow = ('''
+                SELECT tags_data.tags_flow."num_order"
+                FROM tags_data.tags_flow
+                WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
+                ''')
+            query_temp = ('''
+                SELECT tags_data.tags_temp."num_order"
+                FROM tags_data.tags_temp
+                WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
+                ''')
+            query_level = ('''
+                SELECT tags_data.tags_level."num_order"
+                FROM tags_data.tags_level
+                WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
+                ''')
+            query_others = ('''
+                SELECT tags_data.tags_others."num_order"
+                FROM tags_data.tags_others
+                WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
+                ''')
             conn = None
             try:
             # read the connection parameters
@@ -762,8 +825,30 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                cur.execute(query_material,(self.num_order_value,))
-                results=cur.fetchall()
+                cur.execute(query_flow,(self.num_order_value,))
+                results_flow=cur.fetchall()
+                cur.execute(query_temp,(self.num_order_value,))
+                results_temp=cur.fetchall()
+                cur.execute(query_level,(self.num_order_value,))
+                results_level=cur.fetchall()
+                cur.execute(query_others,(self.num_order_value,))
+                results_others=cur.fetchall()
+
+                if len(results_flow) != 0:
+                    material = 'Caudal'
+                elif len(results_temp) != 0:
+                    material = 'Temperatura'
+                elif len(results_level) != 0:
+                    material = 'Nivel'
+                elif len(results_others) != 0:
+                    material = 'Otros'
+                else:
+                    material = ''
+
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
@@ -779,13 +864,8 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                 if conn is not None:
                     conn.close()
 
-            if len(results) != 0:
-                if self.num_order_value[:2] == 'PA':
-                    material = 'Otros'
-                else:
-                    material = results[0][2]
-
-                conn = None
+            conn = None
+            if material != '':
                 try:
                 # read the connection parameters
                     params = config()
@@ -795,27 +875,27 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                     if material == 'Caudal':
                         self.table_name = "tags_data.tags_flow"
                         self.column_id = "id_tag_flow"
-                        commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, of_drawing, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_state, ph1_obs, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_state, ph2_obs FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
-                        self.num_columns = 16
-                        column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'OF Equipo', 'Fecha P1', 'Manómetro P1', 'Presión P1', 'Estado P1', 'Observaciones P1', 'Fecha P2', 'Manómetro P2', 'Presión P2', 'Estado P2', 'Observaciones P2','']
+                        commands_tags = f" SELECT '', {self.column_id}, tag, num_order, item_type, dim_drawing, of_drawing, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_state, ph1_obs, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_state, ph2_obs FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
+                        self.num_columns = 17
+                        column_headers = ['', 'ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Dim.', 'OF Equipo', 'Fecha P1', 'Manómetro P1', 'Presión P1', 'Estado P1', 'Observaciones P1', 'Fecha P2', 'Manómetro P2', 'Presión P2', 'Estado P2', 'Observaciones P2']
                     elif material == 'Temperatura':
                         self.table_name = "tags_data.tags_temp"
                         self.column_id = "id_tag_temp"
-                        commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, of_sensor_drawing, of_drawing, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_state, ph1_obs, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_state, ph2_obs FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
-                        self.num_columns = 17
-                        column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'OF Sensor', 'OF Vaina', 'Fecha P1', 'Manómetro P1', 'Presión P1', 'Estado P1', 'Observaciones P1', 'Fecha P2', 'Manómetro P2', 'Presión P2', 'Estado P2', 'Observaciones P2','']
+                        commands_tags = f" SELECT '', {self.column_id}, tag, num_order, item_type, dim_drawing, of_sensor_drawing, of_drawing, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_state, ph1_obs, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_state, ph2_obs FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
+                        self.num_columns = 18
+                        column_headers = ['', 'ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Dim.', 'OF Sensor', 'OF Vaina', 'Fecha P1', 'Manómetro P1', 'Presión P1', 'Estado P1', 'Observaciones P1', 'Fecha P2', 'Manómetro P2', 'Presión P2', 'Estado P2', 'Observaciones P2']
                     elif material == 'Nivel':
                         self.table_name = "tags_data.tags_level"
                         self.column_id = "id_tag_level"
-                        commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, of_drawing, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_state, ph1_obs, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_state, ph2_obs FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
-                        self.num_columns = 16
-                        column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'OF Equipo', 'Fecha P1', 'Manómetro P1', 'Presión P1', 'Estado P1', 'Observaciones P1', 'Fecha P2', 'Manómetro P2', 'Presión P2', 'Estado P2', 'Observaciones P2','']
+                        commands_tags = f" SELECT '', {self.column_id}, tag, num_order, item_type, dim_drawing, of_drawing, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_state, ph1_obs, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_state, ph2_obs FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
+                        self.num_columns = 17
+                        column_headers = ['', 'ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Dim.', 'OF Equipo', 'Fecha P1', 'Manómetro P1', 'Presión P1', 'Estado P1', 'Observaciones P1', 'Fecha P2', 'Manómetro P2', 'Presión P2', 'Estado P2', 'Observaciones P2']
                     elif material == 'Otros':
                         self.table_name = "tags_data.tags_others"
                         self.column_id = "id_tag_others"
-                        commands_tags = f" SELECT {self.column_id}, tag, num_order, description, of_drawing, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_state, ph1_obs, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_state, ph2_obs FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
-                        self.num_columns = 16
-                        column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'OF Equipo', 'Fecha P1', 'Manómetro P1', 'Presión P1', 'Estado P1', 'Observaciones P1', 'Fecha P2', 'Manómetro P2', 'Presión P2', 'Estado P2', 'Observaciones P2','']
+                        commands_tags = f" SELECT '', {self.column_id}, tag, num_order, description, dim_drawing, of_drawing, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_state, ph1_obs, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_state, ph2_obs FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
+                        self.num_columns = 17
+                        column_headers = ['', 'ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Dim.', 'OF Equipo', 'Fecha P1', 'Manómetro P1', 'Presión P1', 'Estado P1', 'Observaciones P1', 'Fecha P2', 'Manómetro P2', 'Presión P2', 'Estado P2', 'Observaciones P2']
 
                     cur.execute(commands_tags)
                     results=cur.fetchall()
@@ -832,7 +912,7 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                 # fill the Qt Table with the query results
                     for row in results:
                         for column in range(self.num_columns):
-                            if column == (self.num_columns - 1):
+                            if column == 0:
                                 checkbox = QtWidgets.QCheckBox(self)
                                 checkbox.setChecked(False)
                                 self.tableTags.setCellWidget(tablerow, column, checkbox)
@@ -851,7 +931,7 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                     self.tableTags.setSortingEnabled(False)
                     self.tableTags.setHorizontalHeaderLabels(column_headers)
                     self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                    self.tableTags.hideColumn(0)
+                    self.tableTags.hideColumn(1)
 
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
@@ -868,19 +948,20 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                     if conn is not None:
                         conn.close()
 
-
+# Function to activate or deactivate all checkboxes in table
     def toggle_checkboxes(self, state):
         if state:
             for row in range(0, self.tableTags.rowCount()):
                 if not self.tableTags.isRowHidden(row):
-                    checkbox = self.tableTags.cellWidget(row, (self.num_columns - 1))
+                    checkbox = self.tableTags.cellWidget(row, 0)
                     checkbox.setChecked(True)
         else:
             for row in range(0, self.tableTags.rowCount()):
                 if not self.tableTags.isRowHidden(row):
-                    checkbox = self.tableTags.cellWidget(row, (self.num_columns - 1))
+                    checkbox = self.tableTags.cellWidget(row, 0)
                     checkbox.setChecked(False)
 
+# Function to insert data
     def insert(self):
         num_order = self.num_order.text().upper()
         test_date1 = self.date_test1.text()
@@ -917,14 +998,14 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
             del dlg, new_icon
 
         else:
-            if num_order[:5] == 'PA-24' or num_order[:4] == 'P-24':
+            if self.num_columns != 0:
                 id_list =[]
                 for row in range(0, self.tableTags.rowCount() + 1):
-                    item = self.tableTags.cellWidget(row, (self.num_columns - 1))
+                    item = self.tableTags.cellWidget(row, 0)
                     if item is not None:
                         if item.checkState() == QtCore.Qt.CheckState.Checked:
-                            date_test = self.tableTags.item(row, 6).text() if self.table_name == "tags_data.tags_temp" else self.tableTags.item(row, 5).text()
-                            id_list.append([int(self.tableTags.item(row, 0).text()), date_test, self.tableTags.item(row, 1).text()])
+                            date_test = self.tableTags.item(row, 8).text() if self.table_name == "tags_data.tags_temp" else self.tableTags.item(row, 7).text()
+                            id_list.append([int(self.tableTags.item(row, 1).text()), date_test, self.tableTags.item(row, 2).text()])
 
                 if len(id_list) == 0:
                     dlg = QtWidgets.QMessageBox()
@@ -950,6 +1031,22 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                                 commands_hydrotest = f"UPDATE {self.table_name} SET ph1_date = '{test_date1}', ph1_manometer = '{manometer1}', ph1_pressure = '{pressure1}', ph1_state = '{test_state1}', ph1_obs = '{notes1}', ph2_date = {test_date2}, ph2_manometer = '{manometer2}', ph2_pressure = '{pressure2}', ph2_state = '{test_state2}', ph2_obs = '{notes2}' WHERE {self.column_id} = {element[0]}"
                                 cur.execute(commands_hydrotest)
 
+                                if self.lp_test.checkState() == QtCore.Qt.CheckState.Checked:
+                                    query_hn_liq = ("""
+                                    SELECT liquid, heat_number FROM verification.liquid_heat_number
+                                    """)
+                                    cur.execute(query_hn_liq)
+                                    results_hn=cur.fetchall()
+                                    match_liq1 = list(filter(lambda x: x[0] == '9PR5', results_hn))
+                                    match_liq2 = list(filter(lambda x: x[0] == '9D1B', results_hn))
+                                    match_liq3 = list(filter(lambda x: x[0] == '996PB', results_hn))
+
+                                    hn_liq1=match_liq1[0][1]
+                                    hn_liq2=match_liq2[0][1]
+                                    hn_liq3=match_liq3[0][1]
+                                    commands_liquidtest = f"UPDATE {self.table_name} SET lp_date = '{test_date1}', lp_hn_liq1 = '{hn_liq1}', lp_hn_liq2 = '{hn_liq2}', lp_hn_liq3 = '{hn_liq3}', lp_state = '{test_state1}', lp_obs = '{notes1}' WHERE {self.column_id} = {element[0]}"
+                                    cur.execute(commands_liquidtest)
+
                                 dlg = QtWidgets.QMessageBox()
                                 new_icon = QtGui.QIcon()
                                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -974,6 +1071,23 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                                 if result == QtWidgets.QMessageBox.StandardButton.Yes:
                                     commands_hydrotest = f"UPDATE {self.table_name} SET ph1_date = '{test_date1}', ph1_manometer = '{manometer1}', ph1_pressure = '{pressure1}', ph1_state = '{test_state1}', ph1_obs = '{notes1}', ph2_date = {test_date2}, ph2_manometer = '{manometer2}', ph2_pressure = '{pressure2}', ph2_state = '{test_state2}', ph2_obs = '{notes2}' WHERE {self.column_id} = {element[0]}"
                                     cur.execute(commands_hydrotest)
+
+                                    if self.lp_test.checkState() == QtCore.Qt.CheckState.Checked:
+                                        query_hn_liq = ("""
+                                        SELECT liquid, heat_number FROM verification.liquid_heat_number
+                                        """)
+                                        cur.execute(query_hn_liq)
+                                        results_hn=cur.fetchall()
+                                        match_liq1 = list(filter(lambda x: x[0] == '9PR5', results_hn))
+                                        match_liq2 = list(filter(lambda x: x[0] == '9D1B', results_hn))
+                                        match_liq3 = list(filter(lambda x: x[0] == '996PB', results_hn))
+
+                                        hn_liq1=match_liq1[0][1]
+                                        hn_liq2=match_liq2[0][1]
+                                        hn_liq3=match_liq3[0][1]
+                                        commands_liquidtest = f"UPDATE {self.table_name} SET lp_date = '{test_date1}', lp_hn_liq1 = '{hn_liq1}', lp_hn_liq2 = '{hn_liq2}', lp_hn_liq3 = '{hn_liq3}', lp_state = '{test_state1}', lp_obs = '{notes1}' WHERE {self.column_id} = {element[0]}"
+                                        cur.execute(commands_liquidtest)
+
                                     dlg = QtWidgets.QMessageBox()
                                     new_icon = QtGui.QIcon()
                                     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -1005,7 +1119,6 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                     finally:
                         if conn is not None:
                             conn.close()
-
 
             else:
                 dlg = QtWidgets.QInputDialog()
@@ -1122,14 +1235,13 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                     else:
                         break
 
-
 # Function to load form
     def loadform(self,item):
         data_order=[]
-        if self.tableTags.columnCount() == 17:
-            list_columns = [6,7,8,9,10,11,12,13,14,15]
+        if self.tableTags.columnCount() == 18:
+            list_columns = [8,9,10,11,12,13,14,15,16,17]
         else:
-            list_columns = [5,6,7,8,9,10,11,12,13,14]
+            list_columns = [7,8,9,10,11,12,13,14,15,16]
 
         for column in list_columns:
             item_text=self.tableTags.item(item.row(), column).text() if self.tableTags.item(item.row(), column) is not None else ""
@@ -1146,14 +1258,14 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.state_test2.setCurrentText(data_order[8])
         self.obs_test2.setText(data_order[9])
 
-
-#Function when clicking on table header
+# Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
         header_pos = self.tableTags.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.tableTags.horizontalHeader().height()
         popup_pos = self.tableTags.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableTags.show_unique_values_menu(logical_index, popup_pos, header_height)
 
+# Function to load constant values
     def load_values(self):
         actual_date=date.today()
         actual_date=actual_date.strftime("%d/%m/%Y")
@@ -1215,13 +1327,12 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
         self.state_test1.addItems(list_states)
         self.state_test2.addItems([''] + list_states)
 
-
+# Function to execute other functions when event occurs
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key.Key_F5:
             self.load_values()
         
         super().keyPressEvent(event)
-
 
 # Function to change combobox color when change value
     def change_text_color_1(self, text):
@@ -1260,7 +1371,6 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
 
         self.state_test1.setStyleSheet(f"color: rgb({text_color[0]}, {text_color[1]}, {text_color[2]})")
 
-
 # Function to change combobox color when change value
     def change_text_color_2(self, text):
         colors_dict = {}
@@ -1298,9 +1408,10 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
 
         self.state_test2.setStyleSheet(f"color: rgb({text_color[0]}, {text_color[1]}, {text_color[2]})")
 
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    TestHydroInsert_Window = Ui_TestHydroInsert_Window()
+    TestHydroInsert_Window = Ui_TestHydroInsert_Window('m.gil')
     TestHydroInsert_Window.show()
     sys.exit(app.exec())

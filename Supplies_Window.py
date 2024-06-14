@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'Supplies_Window.ui'
+#☻ Form implementation generated from reading ui file 'Supplies_Window.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -40,8 +40,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
         menu.addSeparator()
 
-        menu.setStyleSheet("QMenu { color: black; }"
-                        "QMenu::item:selected { background-color: #33bdef; }"
+        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         if column_index not in self.column_filters:
@@ -315,48 +314,112 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
-class Ui_Supplies_Window(object):
+class Ui_Supplies_Window(QtWidgets.QMainWindow):
+    def __init__(self, username):
+        super().__init__()
+        self.username=username
+        self.setupUi(self)
+
     def setupUi(self, Supplies_Window):
         Supplies_Window.setObjectName("Supplies_Window")
         Supplies_Window.resize(int(1174//1.5), int(600//1.5))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Supplies_Window.setWindowIcon(icon)
-        Supplies_Window.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
-"QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        if self.username == 'd.marquez':
+            Supplies_Window.setStyleSheet("QWidget {\n"
+    "background-color: #121212; color: rgb(255, 255, 255)\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid white;\n"
+    "}\n"
+    "\n"
+    "QComboBox {\n"
+    "border: 1px solid white;\n"
+    "border-radius: 3px;\n"
+    "}\n"
+    "QComboBox QAbstractItemView{\n"
+    "min-width: 1200px;\n"
+    "}\n"
+    "\n"
+    "QComboBox QAbstractItemView::item {\n"
+    "min-height: 35px;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 8px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}"
+    )
+        else:
+            Supplies_Window.setStyleSheet("QWidget {\n"
+    "background-color: rgb(255, 255, 255);\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid black;\n"
+    "}\n"
+    "\n"
+    "QComboBox QAbstractItemView{\n"
+    "min-width: 1200px;\n"
+    "}\n"
+    "\n"
+    "QComboBox QAbstractItemView::item {\n"
+    "min-height: 35px;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 8px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}"
+    )
         self.centralwidget = QtWidgets.QWidget(parent=Supplies_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -370,172 +433,175 @@ class Ui_Supplies_Window(object):
         spacerItem = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 1, 1, 1)
         self.label_SupplyName = QtWidgets.QLabel(parent=self.frame)
-        self.label_SupplyName.setMinimumSize(QtCore.QSize(int(130//1.5), int(25//1.5)))
-        self.label_SupplyName.setMaximumSize(QtCore.QSize(int(130//1.5), int(25//1.5)))
+        self.label_SupplyName.setMinimumSize(QtCore.QSize(int(140//1.5), int(35//1.5)))
+        self.label_SupplyName.setMaximumSize(QtCore.QSize(int(140//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_SupplyName.setFont(font)
         self.label_SupplyName.setObjectName("label_SupplyName")
         self.gridLayout_2.addWidget(self.label_SupplyName, 1, 1, 1, 1)
         self.Name_Supplies = QtWidgets.QLineEdit(parent=self.frame)
-        self.Name_Supplies.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        self.Name_Supplies.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.Name_Supplies.setMinimumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
+        self.Name_Supplies.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Name_Supplies.setFont(font)
         self.Name_Supplies.setObjectName("Name_Supplies")
         self.gridLayout_2.addWidget(self.Name_Supplies, 1, 2, 1, 4)
         self.label_ID = QtWidgets.QLabel(parent=self.frame)
         self.label_ID.setText("")
-        self.label_ID.setStyleSheet("color: rgb(255, 255, 255);")
+        if self.username == 'd.marquez':
+            self.label_ID.setStyleSheet("color: rgb(255, 255, 255);")
+        else:
+            self.label_ID.setStyleSheet("color: #121212;")
         self.label_ID.setObjectName("label_ID")
         self.gridLayout_2.addWidget(self.label_ID, 1, 6, 1, 1)
         self.label_MeasureUnit = QtWidgets.QLabel(parent=self.frame)
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_MeasureUnit.setFont(font)
         self.label_MeasureUnit.setObjectName("label_MeasureUnit")
         self.gridLayout_2.addWidget(self.label_MeasureUnit, 1, 7, 1, 1)
         self.MeasureUnit_Supplies = QtWidgets.QComboBox(parent=self.frame)
-        self.MeasureUnit_Supplies.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.MeasureUnit_Supplies.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.MeasureUnit_Supplies.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.MeasureUnit_Supplies.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.MeasureUnit_Supplies.setFont(font)
         self.MeasureUnit_Supplies.setObjectName("MeasureUnit_Supplies")
         self.gridLayout_2.addWidget(self.MeasureUnit_Supplies, 1, 8, 1, 2)
         self.label_Description = QtWidgets.QLabel(parent=self.frame)
-        self.label_Description.setMinimumSize(QtCore.QSize(int(130//1.5), int(25//1.5)))
-        self.label_Description.setMaximumSize(QtCore.QSize(int(130//1.5), int(25//1.5)))
+        self.label_Description.setMinimumSize(QtCore.QSize(int(130//1.5), int(35//1.5)))
+        self.label_Description.setMaximumSize(QtCore.QSize(int(130//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Description.setFont(font)
         self.label_Description.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Description.setObjectName("label_Description")
         self.gridLayout_2.addWidget(self.label_Description, 2, 1, 1, 1)
         self.Description_Supplies = QtWidgets.QLineEdit(parent=self.frame)
-        self.Description_Supplies.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        self.Description_Supplies.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.Description_Supplies.setMinimumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
+        self.Description_Supplies.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Description_Supplies.setFont(font)
         self.Description_Supplies.setObjectName("Description_Supplies")
         self.gridLayout_2.addWidget(self.Description_Supplies, 2, 2, 1, 4)
         self.label_UnitValue = QtWidgets.QLabel(parent=self.frame)
-        self.label_UnitValue.setMinimumSize(QtCore.QSize(int(110//1.5), int(25//1.5)))
-        self.label_UnitValue.setMaximumSize(QtCore.QSize(int(110//1.5), int(25//1.5)))
+        self.label_UnitValue.setMinimumSize(QtCore.QSize(int(114//1.5), int(35//1.5)))
+        self.label_UnitValue.setMaximumSize(QtCore.QSize(int(114//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_UnitValue.setFont(font)
         self.label_UnitValue.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_UnitValue.setObjectName("label_UnitValue")
         self.gridLayout_2.addWidget(self.label_UnitValue, 2, 7, 1, 1)
         self.UnitValue_Supplies = QtWidgets.QLineEdit(parent=self.frame)
-        self.UnitValue_Supplies.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        self.UnitValue_Supplies.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.UnitValue_Supplies.setMinimumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
+        self.UnitValue_Supplies.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.UnitValue_Supplies.setFont(font)
         self.UnitValue_Supplies.setObjectName("UnitValue_Supplies")
         self.gridLayout_2.addWidget(self.UnitValue_Supplies, 2, 8, 1, 2)
         self.Destination_Supplies = QtWidgets.QComboBox(parent=self.frame)
-        self.Destination_Supplies.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.Destination_Supplies.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.Destination_Supplies.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.Destination_Supplies.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Destination_Supplies.setFont(font)
         self.Destination_Supplies.setObjectName("Destination_Supplies")
         self.gridLayout_2.addWidget(self.Destination_Supplies, 3, 1, 1, 3)
         self.label_Stock = QtWidgets.QLabel(parent=self.frame)
-        self.label_Stock.setMinimumSize(QtCore.QSize(int(125//1.5), int(25//1.5)))
-        self.label_Stock.setMaximumSize(QtCore.QSize(int(125//1.5), int(25//1.5)))
+        self.label_Stock.setMinimumSize(QtCore.QSize(int(135//1.5), int(35//1.5)))
+        self.label_Stock.setMaximumSize(QtCore.QSize(int(135//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Stock.setFont(font)
         self.label_Stock.setObjectName("label_Stock")
         self.gridLayout_2.addWidget(self.label_Stock, 3, 4, 1, 1)
         self.Stock_Supplies = QtWidgets.QLineEdit(parent=self.frame)
-        self.Stock_Supplies.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
-        self.Stock_Supplies.setMaximumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
+        self.Stock_Supplies.setMinimumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
+        self.Stock_Supplies.setMaximumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Stock_Supplies.setFont(font)
-        self.Stock_Supplies.setReadOnly(True)
+        # self.Stock_Supplies.setReadOnly(True)
         self.Stock_Supplies.setObjectName("Stock_Supplies")
         self.gridLayout_2.addWidget(self.Stock_Supplies, 3, 5, 1, 1)
         self.label_Pending = QtWidgets.QLabel(parent=self.frame)
-        self.label_Pending.setMinimumSize(QtCore.QSize(int(120//1.5), int(25//1.5)))
-        self.label_Pending.setMaximumSize(QtCore.QSize(int(120//1.5), int(25//1.5)))
+        self.label_Pending.setMinimumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
+        self.label_Pending.setMaximumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Pending.setFont(font)
         self.label_Pending.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Pending.setObjectName("label_Pending")
         self.gridLayout_2.addWidget(self.label_Pending, 3, 7, 1, 1)
         self.Pending_Supplies = QtWidgets.QLineEdit(parent=self.frame)
-        self.Pending_Supplies.setMinimumSize(QtCore.QSize(100, int(25//1.5)))
-        self.Pending_Supplies.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.Pending_Supplies.setMinimumSize(QtCore.QSize(100, int(35//1.5)))
+        self.Pending_Supplies.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Pending_Supplies.setFont(font)
-        self.Pending_Supplies.setReadOnly(True)
+        # self.Pending_Supplies.setReadOnly(True)
         self.Pending_Supplies.setObjectName("Pending_Supplies")
         self.gridLayout_2.addWidget(self.Pending_Supplies, 3, 8, 1, 2)
         self.Class_Supplies = QtWidgets.QComboBox(parent=self.frame)
-        self.Class_Supplies.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.Class_Supplies.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.Class_Supplies.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.Class_Supplies.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Class_Supplies.setFont(font)
         self.Class_Supplies.setObjectName("Class_Supplies")
         self.gridLayout_2.addWidget(self.Class_Supplies, 4, 1, 1, 3)
         self.label_StockAv = QtWidgets.QLabel(parent=self.frame)
-        self.label_StockAv.setMinimumSize(QtCore.QSize(int(125//1.5), int(25//1.5)))
-        self.label_StockAv.setMaximumSize(QtCore.QSize(int(125//1.5), int(25//1.5)))
+        self.label_StockAv.setMinimumSize(QtCore.QSize(int(135//1.5), int(35//1.5)))
+        self.label_StockAv.setMaximumSize(QtCore.QSize(int(135//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_StockAv.setFont(font)
         self.label_StockAv.setObjectName("label_StockAv")
         self.gridLayout_2.addWidget(self.label_StockAv, 4, 4, 1, 1)
         self.StockAv_Supplies = QtWidgets.QLineEdit(parent=self.frame)
-        self.StockAv_Supplies.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
-        self.StockAv_Supplies.setMaximumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
+        self.StockAv_Supplies.setMinimumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
+        self.StockAv_Supplies.setMaximumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.StockAv_Supplies.setFont(font)
-        self.StockAv_Supplies.setReadOnly(True)
+        # self.StockAv_Supplies.setReadOnly(True)
         self.StockAv_Supplies.setObjectName("StockAv_Supplies")
         self.gridLayout_2.addWidget(self.StockAv_Supplies, 4, 5, 1, 1)
         self.label_Location = QtWidgets.QLabel(parent=self.frame)
-        self.label_Location.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.label_Location.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.label_Location.setMinimumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
+        self.label_Location.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Location.setFont(font)
         self.label_Location.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Location.setObjectName("label_Location")
         self.gridLayout_2.addWidget(self.label_Location, 4, 7, 1, 1)
         self.Location_Supplies = QtWidgets.QLineEdit(parent=self.frame)
-        self.Location_Supplies.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.Location_Supplies.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.Location_Supplies.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.Location_Supplies.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Location_Supplies.setFont(font)
         self.Location_Supplies.setObjectName("Location_Supplies")
         self.gridLayout_2.addWidget(self.Location_Supplies, 4, 8, 1, 2)
         self.label_Obs = QtWidgets.QLabel(parent=self.frame)
-        self.label_Obs.setMinimumSize(QtCore.QSize(75, int(25//1.5)))
-        self.label_Obs.setMaximumSize(QtCore.QSize(75, int(25//1.5)))
+        self.label_Obs.setMinimumSize(QtCore.QSize(75, int(35//1.5)))
+        self.label_Obs.setMaximumSize(QtCore.QSize(75, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Obs.setFont(font)
         self.label_Obs.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTop|QtCore.Qt.AlignmentFlag.AlignTrailing)
@@ -544,15 +610,15 @@ class Ui_Supplies_Window(object):
         self.Obs_Supplies = QtWidgets.QTextEdit(parent=self.frame)
         self.Obs_Supplies.setMinimumSize(QtCore.QSize(0, int(100//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Obs_Supplies.setFont(font)
         self.Obs_Supplies.setObjectName("Obs_Supplies")
         self.gridLayout_2.addWidget(self.Obs_Supplies, 1, 12, 4, 2)
         self.label_Quotations = QtWidgets.QLabel(parent=self.frame)
-        self.label_Quotations.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.label_Quotations.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.label_Quotations.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.label_Quotations.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Quotations.setFont(font)
         self.label_Quotations.setObjectName("label_Quotations")
@@ -564,7 +630,7 @@ class Ui_Supplies_Window(object):
         for i in range(7):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
-            font.setPointSize(int(10//1.5))
+            font.setPointSize(int(14//1.5))
             font.setBold(True)
             item.setFont(font)
             self.tableQuotations.setHorizontalHeaderItem(i, item)
@@ -576,7 +642,7 @@ class Ui_Supplies_Window(object):
         for i in range(12):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
-            font.setPointSize(int(10//1.5))
+            font.setPointSize(int(14//1.5))
             font.setBold(True)
             item.setFont(font)
             self.tableSupplies.setHorizontalHeaderItem(i, item)
@@ -586,7 +652,18 @@ class Ui_Supplies_Window(object):
         self.gridLayout_2.addWidget(self.Button_AddSupply, 1, 15, 1, 1)
         self.Button_ModifySupply = QtWidgets.QPushButton(parent=self.frame)
         self.Button_ModifySupply.setObjectName("Button_ModifySupply")
-        self.gridLayout_2.addWidget(self.Button_ModifySupply, 4, 15, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_ModifySupply, 3, 15, 1, 1)
+        self.Button_ReloadTable = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_ReloadTable.setObjectName("Button_ReloadTable")
+        self.gridLayout_2.addWidget(self.Button_ReloadTable, 6, 15, 1, 1)
+        self.Position = QtWidgets.QLineEdit(parent=self.frame)
+        self.Position.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.Position.setMaximumSize(QtCore.QSize(500, int(35//1.5)))
+        font = QtGui.QFont()
+        font.setPointSize(int(14//1.5))
+        self.Position.setFont(font)
+        self.Position.setObjectName("Position")
+        self.gridLayout_2.addWidget(self.Position, 12, 1, 1, 2)
         self.gridLayout.addWidget(self.frame, 0, 1, 1, 1)
         Supplies_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=Supplies_Window)
@@ -660,23 +737,26 @@ class Ui_Supplies_Window(object):
         self.MeasureUnit_Supplies.addItems(sorted(list_measure))
 
         self.tableSupplies.itemClicked.connect(self.loadformsupplies)
+        self.tableQuotations.itemClicked.connect(self.loadprice)
         self.tableSupplies.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
         self.tableQuotations.horizontalHeader().sectionClicked.connect(self.on_header_sectionquot_clicked)
         self.Button_AddSupply.clicked.connect(self.addsupply)
         self.Button_ModifySupply.clicked.connect(self.modifysupply)
-        self.Name_Supplies.editingFinished.connect(self.loadquotations)
+        self.Button_ReloadTable.clicked.connect(self.loadtablesupplies)
+        # self.Name_Supplies.editingFinished.connect(self.loadquotations)
+        self.Position.textChanged.connect(self.position_table)
         self.loadtablesupplies()
 
 
     def retranslateUi(self, Supplies_Window):
         _translate = QtCore.QCoreApplication.translate
         Supplies_Window.setWindowTitle(_translate("Supplies_Window", "Suministros"))
-        self.label_StockAv.setText(_translate("Supplies_Window", "Stock Disponible:"))
-        self.label_ID.setText(_translate("Supplies_Window", "TextLabel"))
+        self.label_StockAv.setText(_translate("Supplies_Window", "Stock Disp.:"))
+        self.label_ID.setText(_translate("Supplies_Window", ""))
         self.label_UnitValue.setText(_translate("Supplies_Window", "Valor Unit.:"))
         self.label_MeasureUnit.setText(_translate("Supplies_Window", "Un. Med.:"))
         self.Button_AddSupply.setText(_translate("Supplies_Window", "Agregar"))
-        self.label_Pending.setText(_translate("Supplies_Window", "Pend. de recibir:"))
+        self.label_Pending.setText(_translate("Supplies_Window", "Pend. Rec.:"))
         item = self.tableSupplies.horizontalHeaderItem(0)
         item.setText(_translate("Supplies_Window", "ID"))
         item = self.tableSupplies.horizontalHeaderItem(1)
@@ -722,9 +802,10 @@ class Ui_Supplies_Window(object):
         self.label_Quotations.setText(_translate("Supplies_Window", "Cotizaciones:"))
         self.label_Stock.setText(_translate("Supplies_Window", "Stock:"))
         self.Button_ModifySupply.setText(_translate("Supplies_Window", "Modificar"))
+        self.Button_ReloadTable.setText(_translate("Supplies_Window", "Recargar Tabla"))
 
 
-#Function to add a new supply
+# Function to add a new supply
     def addsupply(self):
         name=self.Name_Supplies.text()
         description=self.Description_Supplies.text()
@@ -864,8 +945,7 @@ class Ui_Supplies_Window(object):
                     if conn is not None:
                         conn.close()
 
-                self.loadtablesupplies()
-
+        self.tableQuotations.setRowCount(0)
 
 # Function to modify data of supplies in database
     def modifysupply(self):
@@ -873,6 +953,8 @@ class Ui_Supplies_Window(object):
         name=self.Name_Supplies.text()
         description=self.Description_Supplies.text()
         m_unit=self.MeasureUnit_Supplies.currentText()
+        stock = self.Stock_Supplies.text()
+        stock_av = self.StockAv_Supplies.text()
         unit_value=self.UnitValue_Supplies.text()
         unit_value=unit_value.replace(".",",")
         location=self.Location_Supplies.text()
@@ -894,7 +976,7 @@ class Ui_Supplies_Window(object):
             commands_modifysupply = ("""
                             UPDATE purch_fact.supplies
                             SET "reference" = %s, "description" = %s, "dest_id" = %s, "class_id" = %s,
-                            "m_unit_id" = %s, "unit_value" = %s, "notes" = %s, "location" = %s
+                            "m_unit_id" = %s, "unit_value" = %s, "notes" = %s, "location" = %s, "physical_stock" = %s, "available_stock" = %s
                             WHERE "id" = %s
                             """)
             conn = None
@@ -921,7 +1003,7 @@ class Ui_Supplies_Window(object):
                 id_class = result_class[0] if result_class is not None else None
                 id_destination = result_destination[0] if result_destination is not None else None
             # execution of commands one by one
-                data=(name,description,id_destination,id_class,id_measureunit,unit_value,notes,location,id,)
+                data=(name,description,id_destination,id_class,id_measureunit,unit_value,notes,location,stock,stock_av,id,)
                 cur.execute(commands_modifysupply,data)
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -953,9 +1035,6 @@ class Ui_Supplies_Window(object):
                 if conn is not None:
                     conn.close()
 
-            self.loadtablesupplies()
-
-
 # Function to load data of clients in form fields
     def loadformsupplies(self,item):
         data_supply=[]
@@ -969,8 +1048,8 @@ class Ui_Supplies_Window(object):
         self.Description_Supplies.setText(data_supply[2])
         self.MeasureUnit_Supplies.setCurrentText(data_supply[3])
         self.UnitValue_Supplies.setText(data_supply[4])
-        self.Stock_Supplies.setText(data_supply[5])
-        self.StockAv_Supplies.setText(data_supply[6])
+        self.Stock_Supplies.setText(str(round(float(data_supply[5]),2)))
+        self.StockAv_Supplies.setText(str(round(float(data_supply[6]),2)))
         self.Pending_Supplies.setText(data_supply[7])
         self.Location_Supplies.setText(data_supply[8])
         self.Destination_Supplies.setCurrentText(data_supply[9] if data_supply[9] != "None" else "")
@@ -979,7 +1058,6 @@ class Ui_Supplies_Window(object):
 
         self.loadquotations()
 
-
 # Function to load data of supplies in table
     def loadtablesupplies(self):
         commands_querysupplies = ("""
@@ -987,8 +1065,8 @@ class Ui_Supplies_Window(object):
                         purch_fact.supplies.reference,purch_fact.supplies.description,
                         purch_fact.measure_units."measure_unit",
                         purch_fact.supplies.unit_value,
-                        purch_fact.supplies.physical_stock,purch_fact.supplies.available_stock,
-                        purch_fact.supplies.pending_stock,purch_fact.supplies.location,
+                        ROUND(purch_fact.supplies.physical_stock,2),ROUND(purch_fact.supplies.available_stock,2),
+                        ROUND(purch_fact.supplies.pending_stock,2),purch_fact.supplies.location,
                         purch_fact.destination_supply."destination",
                         purch_fact.class_supply."class",
                         purch_fact.supplies.notes
@@ -996,7 +1074,7 @@ class Ui_Supplies_Window(object):
                         LEFT JOIN purch_fact.measure_units ON (purch_fact.measure_units."id" = purch_fact.supplies."m_unit_id")
                         LEFT JOIN purch_fact.destination_supply ON (purch_fact.destination_supply."id" = purch_fact.supplies."dest_id")
                         LEFT JOIN purch_fact.class_supply ON (purch_fact.class_supply."id" = purch_fact.supplies."class_id")
-                        ORDER BY purch_fact.supplies.id
+                        ORDER BY purch_fact.supplies.reference ASC
                         """)
         conn = None
         try:
@@ -1031,7 +1109,7 @@ class Ui_Supplies_Window(object):
         tablerow=0
 
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
 
 
     # fill the Qt Table with the query results
@@ -1050,10 +1128,20 @@ class Ui_Supplies_Window(object):
 
         self.tableSupplies.verticalHeader().hide()
         self.tableSupplies.setSortingEnabled(False)
-        self.tableSupplies.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        if self.username == 'd.marquez':
+            self.tableSupplies.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableSupplies.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+        else:
+            self.tableSupplies.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+        for i in range(0,11):
+            self.tableSupplies.horizontalHeader().setSectionResizeMode(i,QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableSupplies.setColumnWidth(i, 100)
+        self.tableSupplies.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        # self.tableSupplies.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableSupplies.horizontalHeader().setSectionResizeMode(11, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableSupplies.hideColumn(0)
 
-
-#Function to load quotations
+# Function to load quotations
     def loadquotations(self):
         id_supply=self.label_ID.text()
         commands_queryquotations = ("""
@@ -1067,7 +1155,7 @@ class Ui_Supplies_Window(object):
                         LEFT JOIN purch_fact.quotation_header ON (purch_fact.quotation_header."id" = purch_fact.quotation_details."quot_header_id")
                         LEFT JOIN purch_fact.suppliers ON (purch_fact.suppliers."id" = purch_fact.quotation_header."supplier_id")
                         WHERE purch_fact.quotation_details.supply_id = %s
-                        ORDER BY purch_fact.quotation_details.id
+                        ORDER BY purch_fact.quotation_header.quot_date DESC
                         """)
         conn = None
         try:
@@ -1102,7 +1190,7 @@ class Ui_Supplies_Window(object):
         tablerow=0
 
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
 
 
     # fill the Qt Table with the query results
@@ -1121,27 +1209,70 @@ class Ui_Supplies_Window(object):
 
         self.tableQuotations.verticalHeader().hide()
         self.tableQuotations.setSortingEnabled(False)
-        self.tableQuotations.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        if self.username == 'd.marquez':
+            self.tableQuotations.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableQuotations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+        else:
+            self.tableQuotations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+        for i in range(0,6):
+            self.tableQuotations.horizontalHeader().setSectionResizeMode(i,QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableQuotations.setColumnWidth(i, 100)
+        self.tableQuotations.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableQuotations.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
 
-#Function when clicking on table header
+# Function to update price
+    def loadprice(self, item):
+        data_supply=[]
+
+        for column in range(7):
+            item_text=self.tableQuotations.item(item.row(), column).text()
+            data_supply.append(item_text)
+
+        self.UnitValue_Supplies.setText(str(data_supply[5]))
+
+# Function when clicking on supplies table header
     def on_header_section_clicked(self, logical_index):
         header_pos = self.tableSupplies.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.tableSupplies.horizontalHeader().height()
         popup_pos = self.tableSupplies.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableSupplies.show_unique_values_menu(logical_index, popup_pos, header_height)
 
+# Function when clicking on quotation table header
     def on_header_sectionquot_clicked(self, logical_index):
         header_pos = self.tableQuotations.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.tableQuotations.horizontalHeader().height()
         popup_pos = self.tableQuotations.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableQuotations.show_unique_values_menu(logical_index, popup_pos, header_height)
 
+# Function to move table to specific item by text search
+    def position_table(self):
+        text_position = self.Position.text()
+
+        self.tableSupplies.clearSelection()
+
+        for i in range(self.tableSupplies.rowCount()):
+            item = self.tableSupplies.item(i, 1)
+            if item is not None and text_position.upper() in item.text().upper():
+                item.setSelected(True)
+                self.tableSupplies.scrollToItem(item)
+                return
+
+# Function to events for keys
+    def keyPressEvent(self, event: QtGui.QKeyEvent):
+        if event.key() == QtCore.Qt.Key.Key_Escape:
+            focused_widget = QtWidgets.QApplication.focusWidget()
+            if isinstance(focused_widget, QtWidgets.QLineEdit) or isinstance(focused_widget, QtWidgets.QTextEdit):
+                focused_widget.clear()
+            elif isinstance(focused_widget, QtWidgets.QComboBox):
+                focused_widget.setCurrentIndex(0)
+
+
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Supplies_Window = QtWidgets.QMainWindow()
-    ui = Ui_Supplies_Window()
+    ui = Ui_Supplies_Window('d.marquez')
     ui.setupUi(Supplies_Window)
     Supplies_Window.showMaximized()
     sys.exit(app.exec())

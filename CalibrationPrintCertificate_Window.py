@@ -10,11 +10,14 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from datetime import *
 import psycopg2
 from config import config
-import os
+import os, io
 import pandas as pd
-from PDF_Styles import calibration_certificate_nuclear, calibration_certificate
+from PDF_Styles import calibration_certificate_nuclear, calibration_certificate, calibration_certificate_spanish
+from fpdf import FPDF
+from pypdf import PdfReader, PdfWriter
 from tkinter.filedialog import asksaveasfilename
 from math import exp
+import math
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -234,6 +237,16 @@ class Ui_CalibrationPrintCertificate_Window(object):
 
         numorder_check = numorder if numorder[:2] == 'PA' or len(numorder) > 8 else numorder + '-S00'
 
+        dict_sensor_tipes={'1E': 'THERMOCOUPLE TYPE E SINGLE', '1J': 'THERMOCOUPLE TYPE J SINGLE',
+                                '1K': 'THERMOCOUPLE TYPE K SINGLE', '1N': 'THERMOCOUPLE TYPE N SINGLE',
+                                '1R': 'THERMOCOUPLE TYPE R SINGLE', '1S': 'THERMOCOUPLE TYPE S SINGLE',
+                                '1T': 'THERMOCOUPLE TYPE T SINGLE', '2E': 'THERMOCOUPLE TYPE E DOUBLE',
+                                '2J': 'THERMOCOUPLE TYPE J DOUBLE', '2K': 'THERMOCOUPLE TYPE K DOUBLE',
+                                '2N': 'THERMOCOUPLE TYPE N DOUBLE', '2R': 'THERMOCOUPLE TYPE R DOUBLE',
+                                '2S': 'THERMOCOUPLE TYPE S DOUBLE', '2T': 'THERMOCOUPLE TYPE T DOUBLE',
+                                '3K': 'THERMOCOUPLE TYPE K TRIPLE', '3S': 'THERMOCOUPLE TYPE S TRIPLE',
+                                '1PT100': 'THERMORESISTANCE PT100 SINGLE', '2PT100': 'TERMORRESISTENCIA PT100 DOBLE'}
+
         if numorder=="":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
@@ -293,11 +306,15 @@ class Ui_CalibrationPrintCertificate_Window(object):
                     dlg.exec()
 
             else:
+                order_year = str(datetime.now().year)[:2] + numorder[numorder.rfind("/") - 2:numorder.rfind("/")]
+
                 commands_calib_data = ("""
-                        SELECT "tag", "master", "master_1", "element_1", "error_1", "tolerance_1",
+                        SELECT "tag", "master",
+                        "master_1", "element_1", "error_1", "tolerance_1",
                         "master_2", "element_2", "error_2", "tolerance_2",
                         "master_3", "element_3", "error_3", "tolerance_3",
-                        "master_4", "element_4", "error_4", "tolerance_4"
+                        "master_4", "element_4", "error_4", "tolerance_4",
+                        "ctrl_isolation", "hot_isolation"
                         FROM verification.calibration_thermoelements
                         WHERE "num_order" = %s
                         AND
@@ -317,12 +334,14 @@ class Ui_CalibrationPrintCertificate_Window(object):
                     cur.execute(commands_calib_data, (numorder, cert_date, sensor_type,))
                     results = cur.fetchall()
 
-                    df = pd.DataFrame(results, columns=["tag", "master", "master_1", "element_1", "error_1", "tolerance_1",
+                    df = pd.DataFrame(results, columns=["tag", "master",
+                                            "master_1", "element_1", "error_1", "tolerance_1",
                                             "master_2", "element_2", "error_2", "tolerance_2",
                                             "master_3", "element_3", "error_3", "tolerance_3",
-                                            "master_4", "element_4", "error_4", "tolerance_4"])
+                                            "master_4", "element_4", "error_4", "tolerance_4",
+                                            "cold", "hot"])
 
-                    df.sort_values(by=['tag'])
+                    df = df.sort_values(by=['tag'])
 
                 # close communication with the PostgreSQL database server
                     cur.close()
@@ -345,95 +364,219 @@ class Ui_CalibrationPrintCertificate_Window(object):
                     if conn is not None:
                         conn.close()
 
-                master_element = df.iloc[0,1]
+                if sensor_type not in dict_sensor_tipes:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Imprimir Certificado")
+                    dlg.setText("El sensor no es correcto")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+                    del dlg, new_icon
+                else:
+                    master_element = df.iloc[0,1]
+                    isolation = df.iloc[0,18] + "-" + df.iloc[0,19]
 
-                pdf = calibration_certificate(numorder, cert_date, sensor_type, master_element)
-                pdf.set_auto_page_break(auto=True, margin=2)
-                pdf.add_page()
-                pdf.alias_nb_pages()
+                    pdf = calibration_certificate(numorder, cert_date, sensor_type, master_element, isolation)
+                    # pdf = calibration_certificate_spanish(numorder, cert_date, sensor_type, master_element)
+                    pdf.set_auto_page_break(auto=True, margin=2)
+                    pdf.add_page()
+                    pdf.alias_nb_pages()
 
-                items = df.shape[0]
+                    items = df.shape[0]
 
-                for row in range(items):
-                    pdf.set_x(1)
-                    y_position = pdf.get_y()
-                    pdf.set_font('Helvetica', '', 8)
-                    pdf.cell(3, 0.8, str(df.iloc[row, 0]), align='L', border=1)
-                    pdf.set_font('Helvetica', '', 7)
-                    pdf.cell(1.1, 0.8, str(self.calculate_master(df.iloc[row, 2], master_element)).replace('.',','), align='C', border=1)
-                    pdf.cell(1, 0.8, str(round(df.iloc[row, 2], 3)).replace('.', ',') if df.iloc[row, 2] is not None else "N/A", align='C', border=1)
-                    pdf.cell(1.1, 0.8, str(self.calculate_element(df.iloc[row, 3], sensor_type)).replace('.',','), align='C', border=1)
-                    pdf.cell(1, 0.8, str(round(df.iloc[row, 3], 3)).replace('.', ',') if df.iloc[row, 3] is not None else "N/A", align='C', border=1)
-                    pdf.cell(1, 0.8, str(round(df.iloc[row, 4], 3)).replace('.', ',') if df.iloc[row, 4] is not None else "N/A", align='C', border=1)
-                    pdf.cell(1, 0.8, "± " + str(round(df.iloc[row, 5], 3)).replace('.', ',') if df.iloc[row, 5] is not None else "N/A", align='C', border=1)
+                    for row in range(items):
+                        pdf.set_x(1)
+                        y_position = pdf.get_y()
+                        pdf.set_font('Helvetica', '', 8)
+                        pdf.cell(3, 0.8, str(df.iloc[row, 0]), align='L', border=1)
+                        pdf.set_font('Helvetica', '', 7)
+                        pdf.cell(1.1, 0.8, str(self.calculate_master(df.iloc[row, 2], master_element)).replace('.',','), align='C', border=1)
+                        pdf.cell(1, 0.8, str(round(df.iloc[row, 2], 3)).replace('.', ',') if df.iloc[row, 2] is not None else "N/A", align='C', border=1)
+                        pdf.cell(1.1, 0.8, str(self.calculate_element(df.iloc[row, 3], sensor_type)).replace('.',','), align='C', border=1)
+                        pdf.cell(1, 0.8, str(round(df.iloc[row, 3], 3)).replace('.', ',') if df.iloc[row, 3] is not None else "N/A", align='C', border=1)
+                        pdf.cell(1, 0.8, str(round(df.iloc[row, 4], 3)).replace('.', ',') if df.iloc[row, 4] is not None else "N/A", align='C', border=1)
+                        pdf.cell(1, 0.8, "± " + str(round(df.iloc[row, 5], 3)).replace('.', ',') if df.iloc[row, 5] is not None else "N/A", align='C', border=1)
 
-                    pdf.cell(1.1, 0.8, str(self.calculate_master(df.iloc[row, 6], master_element)).replace('.',','), align='C', border=1)
-                    pdf.cell(1, 0.8, str(round(df.iloc[row, 6], 3)).replace('.', ',') if df.iloc[row, 6] is not None else "N/A", align='C', border=1)
-                    pdf.cell(1.1, 0.8, str(self.calculate_element(df.iloc[row, 7], sensor_type)).replace('.',','), align='C', border=1)
-                    pdf.cell(1, 0.8, str(round(df.iloc[row, 7], 3)).replace('.', ',') if df.iloc[row, 7] is not None else "N/A", align='C', border=1)
-                    pdf.cell(1, 0.8, str(round(df.iloc[row, 8], 3)).replace('.', ',') if df.iloc[row, 8] is not None else "N/A", align='C', border=1)
-                    pdf.cell(1, 0.8, "± " + str(round(df.iloc[row, 9], 3)).replace('.', ',') if df.iloc[row, 9] is not None else "N/A", align='C', border=1)
+                        pdf.cell(1.1, 0.8, str(self.calculate_master(df.iloc[row, 6], master_element)).replace('.',','), align='C', border=1)
+                        pdf.cell(1, 0.8, str(round(df.iloc[row, 6], 3)).replace('.', ',') if df.iloc[row, 6] is not None else "N/A", align='C', border=1)
+                        pdf.cell(1.1, 0.8, str(self.calculate_element(df.iloc[row, 7], sensor_type)).replace('.',','), align='C', border=1)
+                        pdf.cell(1, 0.8, str(round(df.iloc[row, 7], 3)).replace('.', ',') if df.iloc[row, 7] is not None else "N/A", align='C', border=1)
+                        pdf.cell(1, 0.8, str(round(df.iloc[row, 8], 3)).replace('.', ',') if df.iloc[row, 8] is not None else "N/A", align='C', border=1)
+                        pdf.cell(1, 0.8, "± " + str(round(df.iloc[row, 9], 3)).replace('.', ',') if df.iloc[row, 9] is not None else "N/A", align='C', border=1)
 
-                    pdf.cell(1.1, 0.8, str(self.calculate_master(df.iloc[row, 10], master_element)).replace('.',','), align='C', border=1)
-                    pdf.cell(1, 0.8, str(round(df.iloc[row, 10], 3)).replace('.', ',') if df.iloc[row, 10] is not None else "N/A", align='C', border=1)
-                    pdf.cell(1.1, 0.8, str(self.calculate_element(df.iloc[row, 11], sensor_type)).replace('.',','), align='C', border=1)
-                    pdf.cell(1, 0.8, str(round(df.iloc[row, 11], 3)).replace('.', ',') if df.iloc[row, 11] is not None else "N/A", align='C', border=1)
-                    pdf.cell(1, 0.8, str(round(df.iloc[row, 12], 3)).replace('.', ',') if df.iloc[row, 12] is not None else "N/A", align='C', border=1)
-                    pdf.cell(1, 0.8, "± " + str(round(df.iloc[row, 13], 3)).replace('.', ',') if df.iloc[row, 13] is not None else "N/A", align='C', border=1)
+                        pdf.cell(1.1, 0.8, str(self.calculate_master(df.iloc[row, 10], master_element)).replace('.',','), align='C', border=1)
+                        pdf.cell(1, 0.8, str(round(df.iloc[row, 10], 3)).replace('.', ',') if df.iloc[row, 10] is not None else "N/A", align='C', border=1)
+                        pdf.cell(1.1, 0.8, str(self.calculate_element(df.iloc[row, 11], sensor_type)).replace('.',','), align='C', border=1)
+                        pdf.cell(1, 0.8, str(round(df.iloc[row, 11], 3)).replace('.', ',') if df.iloc[row, 11] is not None else "N/A", align='C', border=1)
+                        pdf.cell(1, 0.8, str(round(df.iloc[row, 12], 3)).replace('.', ',') if df.iloc[row, 12] is not None else "N/A", align='C', border=1)
+                        pdf.cell(1, 0.8, "± " + str(round(df.iloc[row, 13], 3)).replace('.', ',') if df.iloc[row, 13] is not None else "N/A", align='C', border=1)
 
-                    pdf.cell(1.1, 0.8, str(self.calculate_master(df.iloc[row, 14], master_element)).replace('.',','), align='C', border=1)
-                    pdf.cell(1, 0.8, str(round(df.iloc[row, 14], 3)).replace('.', ',') if df.iloc[row, 14] is not None else "N/A", align='C', border=1)
-                    pdf.cell(1.1, 0.8, str(self.calculate_element(df.iloc[row, 15], sensor_type)).replace('.',','), align='C', border=1)
-                    pdf.cell(1, 0.8, str(round(df.iloc[row, 15], 3)).replace('.', ',') if df.iloc[row, 15] is not None else "N/A", align='C', border=1)
-                    pdf.cell(1, 0.8, str(round(df.iloc[row, 16], 3)).replace('.', ',') if df.iloc[row, 16] is not None else "N/A", align='C', border=1)
-                    pdf.cell(1, 0.8, "± " + str(round(df.iloc[row, 17], 3)).replace('.', ',') if df.iloc[row, 17] is not None else "N/A", align='C', border=1)
-                    pdf.ln(0.8)
-                    y_position = pdf.get_y()
+                        pdf.cell(1.1, 0.8, str(self.calculate_master(df.iloc[row, 14], master_element)).replace('.',','), align='C', border=1)
+                        pdf.cell(1, 0.8, str(round(df.iloc[row, 14], 3)).replace('.', ',') if df.iloc[row, 14] is not None else "N/A", align='C', border=1)
+                        pdf.cell(1.1, 0.8, str(self.calculate_element(df.iloc[row, 15], sensor_type)).replace('.',','), align='C', border=1)
+                        pdf.cell(1, 0.8, str(round(df.iloc[row, 15], 3)).replace('.', ',') if df.iloc[row, 15] is not None else "N/A", align='C', border=1)
+                        pdf.cell(1, 0.8, str(round(df.iloc[row, 16], 3)).replace('.', ',') if df.iloc[row, 16] is not None else "N/A", align='C', border=1)
+                        pdf.cell(1, 0.8, "± " + str(round(df.iloc[row, 17], 3)).replace('.', ',') if df.iloc[row, 17] is not None else "N/A", align='C', border=1)
+                        pdf.ln(0.8)
+                        y_position = pdf.get_y()
+
+                        pdf.set_line_width(0.05)
+                        marks_table=3.5
+                        pdf.line(1, y_position, 1, marks_table)
+
+                        mark0=3
+                        pdf.line(4, y_position, 4, mark0)
+                        pdf.line(10.2, y_position, 10.2, mark0)
+                        pdf.line(16.4, y_position, 16.4, mark0)
+                        pdf.line(22.6, y_position, 22.6, mark0)
+                        pdf.line(28.8, y_position, 28.8, mark0)
+                        pdf.set_line_width(0.01)
 
                     pdf.set_line_width(0.05)
-                    marks_table=3.5
-                    pdf.line(1, y_position, 1, marks_table)
-
-                    mark0=3
-                    pdf.line(4, y_position, 4, mark0)
-                    pdf.line(10.2, y_position, 10.2, mark0)
-                    pdf.line(16.4, y_position, 16.4, mark0)
-                    pdf.line(22.6, y_position, 22.6, mark0)
-                    pdf.line(28.8, y_position, 28.8, mark0)
+                    pdf.line(1, y_position, 28.8, y_position)
                     pdf.set_line_width(0.01)
 
-                pdf.set_line_width(0.05)
-                pdf.line(1, y_position, 28.8, y_position)
+                    if numorder[:2] == 'PA':
+                        if y_position < 14:
+                            num_blanks = math.ceil((14 - y_position) / 0.8)
 
-                pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/QualityControlStamp.png")), 24, y_position + 2, 4.5, 3)
+                            for i in range(num_blanks):
+                                pdf.cell(3, 0.8, border=1)
+                                for j in range(4):
+                                    pdf.cell(1.1, 0.8, border=1)
+                                    pdf.cell(1, 0.8, border=1)
+                                    pdf.cell(1.1, 0.8, border=1)
+                                    pdf.cell(1, 0.8, border=1)
+                                    pdf.cell(1, 0.8, border=1)
+                                    pdf.cell(1, 0.8, border=1)
+                                pdf.ln(0.8)
 
-                output_path = "//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS CALIBRACIÓN/" + numorder.replace('/','-') + '-' + sensor_type + ".pdf"
+                            pdf.set_line_width(0.05)
+                            pdf.line(1, y_position, 1, (y_position + 0.8 * num_blanks))
+                            pdf.line(4, y_position, 4, (y_position + 0.8 * num_blanks))
+                            pdf.line(10.2, y_position, 10.2, (y_position + 0.8 * num_blanks))
+                            pdf.line(16.4, y_position, 16.4, (y_position + 0.8 * num_blanks))
+                            pdf.line(22.6, y_position, 22.6, (y_position + 0.8 * num_blanks))
+                            pdf.line(28.8, y_position, 28.8, (y_position + 0.8 * num_blanks))
+                            pdf.line(1, (y_position + 0.8 * num_blanks), 28.8, (y_position + 0.8 * num_blanks))
+                            pdf.set_line_width(0.01)
 
-                if output_path:
-                    try:
-                        pdf.output(output_path)
+                        pdf.set_xy(25, pdf.get_y() + 2)
+                        pdf.cell(1, 0.8, 'QUALITY DEPARTMENT', align='C')
 
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Certificado Calibración")
-                        dlg.setText("PDF Generado con éxito")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg, new_icon
+                        path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
+                        for folder in os.listdir(path):
+                            if numorder.replace("/", "-") in folder:
+                                output_path2 = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/" + "Certificado Calibración " + sensor_type + ".pdf"
 
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
+                                if output_path2:
+                                    try:
+                                        pdf.output(output_path2)
+
+                                    except (Exception, psycopg2.DatabaseError) as error:
+                                        dlg = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg.setWindowIcon(new_icon)
+                                        dlg.setWindowTitle("ERP EIPSA")
+                                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                    + str(error))
+                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                        dlg.exec()
+                                        del dlg, new_icon
+
+                    else:
+                        if y_position < 14:
+                            num_blanks = math.ceil((14 - y_position) / 0.8)
+
+                            for i in range(num_blanks):
+                                pdf.cell(3, 0.8, border=1)
+                                for j in range(4):
+                                    pdf.cell(1.1, 0.8, border=1)
+                                    pdf.cell(1, 0.8, border=1)
+                                    pdf.cell(1.1, 0.8, border=1)
+                                    pdf.cell(1, 0.8, border=1)
+                                    pdf.cell(1, 0.8, border=1)
+                                    pdf.cell(1, 0.8, border=1)
+                                pdf.ln(0.8)
+
+                            pdf.set_line_width(0.05)
+                            pdf.line(1, y_position, 1, (y_position + 0.8 * num_blanks))
+                            pdf.line(4, y_position, 4, (y_position + 0.8 * num_blanks))
+                            pdf.line(10.2, y_position, 10.2, (y_position + 0.8 * num_blanks))
+                            pdf.line(16.4, y_position, 16.4, (y_position + 0.8 * num_blanks))
+                            pdf.line(22.6, y_position, 22.6, (y_position + 0.8 * num_blanks))
+                            pdf.line(28.8, y_position, 28.8, (y_position + 0.8 * num_blanks))
+                            pdf.line(1, (y_position + 0.8 * num_blanks), 28.8, (y_position + 0.8 * num_blanks))
+                            pdf.set_line_width(0.01)
+
+                        pdf.set_xy(25, pdf.get_y() + 2)
+                        pdf.cell(1, 0.8, 'QUALITY DEPARTMENT', align='C')
+
+                        path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
+                        for folder in sorted(os.listdir(path)):
+                            if numorder[:8].replace("/", "-") in folder:
+                                output_path2 = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/" + numorder.replace("/", "-") + " Certificado Calibración " + sensor_type + "-" + cert_date.replace("/","-") + ".pdf"
+
+                                if output_path2:
+                                    try:
+                                        pdf.output(output_path2)
+
+                                    except (Exception, psycopg2.DatabaseError) as error:
+                                        dlg = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg.setWindowIcon(new_icon)
+                                        dlg.setWindowTitle("ERP EIPSA")
+                                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                    + str(error))
+                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                        dlg.exec()
+                                        del dlg, new_icon
+
+                    output_path = "//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS CALIBRACIÓN/" + numorder.replace('/','-') + '-' + sensor_type + "-" + cert_date.replace("/","-") + "ESP.pdf"
+
+                    if output_path:
+                        try:
+                            reader = PdfReader(output_path2)
+                            page_overlay = PdfReader(self.new_content(pdf.get_y())).pages[0]
+
+                            reader.pages[len(reader.pages) - 1].merge_page(page2=page_overlay)
+                            writer = PdfWriter()
+                            writer.append_pages_from_reader(reader)
+                            writer.write(output_path)
+
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("Certificado Calibración")
+                            dlg.setText("PDF Generado con éxito")
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                            dlg.exec()
+                            del dlg, new_icon
+
+                        except (Exception, psycopg2.DatabaseError) as error:
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("ERP EIPSA")
+                            dlg.setText("Ha ocurrido el siguiente error:\n"
+                                        + str(error))
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                            dlg.exec()
+                            del dlg, new_icon
+
+
+    def new_content(self, y_position):
+        fpdf = FPDF('L', 'cm', 'A4')
+        fpdf.add_page()
+        fpdf.set_font("helvetica", size=36)
+        fpdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/QualityControlStamp.png")), 23, y_position + 0.5, 4.5, 3)
+        return io.BytesIO(fpdf.output())
 
 
     def charge_dates(self):

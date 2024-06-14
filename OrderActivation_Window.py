@@ -270,16 +270,12 @@ class Ui_OrderActivation_Window(object):
                     cur.execute(commands_mail_copy)
                     results_mailcopy=cur.fetchall()
                     mails_copy = [x[0] for x in results_mailcopy]
-                    mails_copy.append(email_responsible)
 
-                    mail = email_order_activation(numorder, num_ref_order, client, final_client, expected_date, name_responsible, mails_sendto, mails_copy, adit_info)
+                    mail = email_order_activation(numorder, num_ref_order, client, final_client, expected_date, name_responsible, mails_sendto, mails_copy, adit_info, email_responsible)
                     mail.send_email()
-                    
+
                     commands_usernames = ("""SELECT username FROM users_data.registration
-                        WHERE (profile = 'Técnico'
-                        OR
-                        profile = 'Compras'
-                        )
+                        WHERE profile IN ('Técnico', 'Compras','Taller')
                         """)
                     commands_notification_neworder = ("""INSERT INTO notifications.notifications_orders (
                                             "username","message","state","date_creation"

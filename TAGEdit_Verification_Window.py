@@ -35,7 +35,7 @@ def imagen_to_base64(imagen):
 
 
 class FreezeTableWidget(QtWidgets.QTableView):
-    def __init__(self, model):
+    def __init__(self, model, variable):
         super(FreezeTableWidget, self).__init__()
         self.setModel(model)
         self.frozenTableView = QtWidgets.QTableView(self)
@@ -46,6 +46,8 @@ class FreezeTableWidget(QtWidgets.QTableView):
             self.verticalScrollBar().setValue)
         self.verticalScrollBar().valueChanged.connect(
             self.frozenTableView.verticalScrollBar().setValue)
+        self.variable_table = variable
+        self.doubleClicked.connect(self.open_pics)
 
     def init(self):
         self.frozenTableView.setModel(self.model())
@@ -103,6 +105,30 @@ class FreezeTableWidget(QtWidgets.QTableView):
             self.verticalHeader().width() + self.frameWidth(),
             self.frameWidth(), self.columnWidth(0) + self.columnWidth(1),
             self.viewport().height() + self.horizontalHeader().height())
+
+    def open_pics(self, index):
+        if ((self.variable_table == 'Caudal' and index.column() == 156)
+        or (self.variable_table == 'Temperatura' and index.column() == 166)
+        or (self.variable_table == 'Nivel' and index.column() == 169)
+        or (self.variable_table == 'Otros' and index.column() == 56)):
+            value = index.data()
+
+            if value != '':
+                try:
+                    file_path = os.path.normpath(value)
+                    os.startfile(file_path)
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -242,14 +268,14 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
         EditTags_Window.setWindowIcon(icon)
         if self.username == 'm.gil':
             EditTags_Window.setStyleSheet(
-    ".QFrame {\n"
-    "    border: 2px solid white;\n"
-    "}")
+            ".QFrame {border: 2px solid white;\n"
+            "}\n"
+            "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         else:
             EditTags_Window.setStyleSheet(
-    ".QFrame {\n"
-    "    border: 2px solid black;\n"
-    "}")
+            ".QFrame {border: 2px solid black;\n"
+            "}\n"
+            "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         self.centralwidget = QtWidgets.QWidget(parent=EditTags_Window)
         if self.username == 'm.gil':
             self.centralwidget.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255)")
@@ -369,7 +395,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 3, 0, 1, 1)
         self.model = EditableTableModel()
-        self.tableEditTags=FreezeTableWidget(self.model)
+        self.tableEditTags=FreezeTableWidget(self.model, '')
         self.tableEditTags.setObjectName("tableEditTags")
         self.gridLayout_2.addWidget(self.tableEditTags, 4, 0, 1, 1)
         self.hLayout3 = QtWidgets.QHBoxLayout()
@@ -554,11 +580,74 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                     dlg.exec()
                     del dlg, new_icon
-                    self.model.dataChanged.connect(self.saveChanges)
 
                 else:
-                    if self.numorder[:2] == 'PA':
-                        self.variable = 'Otros'
+                    query_flow = ('''
+                        SELECT tags_data.tags_flow."num_order"
+                        FROM tags_data.tags_flow
+                        WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_temp = ('''
+                        SELECT tags_data.tags_temp."num_order"
+                        FROM tags_data.tags_temp
+                        WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_level = ('''
+                        SELECT tags_data.tags_level."num_order"
+                        FROM tags_data.tags_level
+                        WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_others = ('''
+                        SELECT tags_data.tags_others."num_order"
+                        FROM tags_data.tags_others
+                        WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query_flow,(self.numorder,))
+                        results_flow=cur.fetchall()
+                        cur.execute(query_temp,(self.numorder,))
+                        results_temp=cur.fetchall()
+                        cur.execute(query_level,(self.numorder,))
+                        results_level=cur.fetchall()
+                        cur.execute(query_others,(self.numorder,))
+                        results_others=cur.fetchall()
+
+                        if len(results_flow) != 0:
+                            self.variable = 'Caudal'
+                        elif len(results_temp) != 0:
+                            self.variable = 'Temperatura'
+                        elif len(results_level) != 0:
+                            self.variable = 'Nivel'
+                        elif len(results_others) != 0:
+                            self.variable = 'Otros'
+                        else:
+                            self.variable = ''
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
 
                     if self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
@@ -581,7 +670,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
 
             self.proxy.setSourceModel(self.model)
             # self.tableEditTags.setModel(self.proxy)
-            self.tableEditTags=FreezeTableWidget(self.proxy)
+            self.tableEditTags=FreezeTableWidget(self.proxy, self.variable)
 
             columns_number=self.model.columnCount()
             for column in range(columns_number):
@@ -650,7 +739,12 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
             self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-            self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+            if self.username == 'm.gil':
+                self.tableEditTags.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+                self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
+                self.tableEditTags.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+            else:
+                self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
             self.tableEditTags.setObjectName("tableEditTags")
             self.gridLayout_2.addWidget(self.tableEditTags, 4, 0, 1, 1)
             self.tableEditTags.setSortingEnabled(False)
@@ -1089,6 +1183,8 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
             if selected_indexes:
                 clipboard = QApplication.clipboard()
                 text = self.get_selected_text(selected_indexes)
+                if isinstance(text, QtCore.QDate):
+                    text=text.toString("dd/MM/yyyy")
                 clipboard.setText(text)
 
         elif event.matches(QKeySequence.StandardKey.Paste):
@@ -1208,6 +1304,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
         self.context_menu.close()
 
 
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -1222,6 +1319,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    EditTags_Window = Ui_EditTags_Verification_Window('Julio Zofio',db)
+    EditTags_Window = Ui_EditTags_Verification_Window('Julio Zofio',db,'m.gil')
     EditTags_Window.show()
     sys.exit(app.exec())

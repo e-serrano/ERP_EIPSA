@@ -399,6 +399,6 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    ReclamationOffer_Window = Ui_ReclamationOffer_Window('Sandra Sanz', 's.sanz')
+    ReclamationOffer_Window = Ui_ReclamationOffer_Window('Luis Bravo', 'l.bravo')
     ReclamationOffer_Window.show()
     sys.exit(app.exec())

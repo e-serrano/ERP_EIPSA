@@ -11,6 +11,7 @@ from config import config
 import psycopg2
 import datetime
 import os
+from datetime import *
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -41,8 +42,7 @@ class CustomTableWidgetQuotation(QtWidgets.QTableWidget):
         actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
         menu.addSeparator()
 
-        menu.setStyleSheet("QMenu { color: black; }"
-                        "QMenu::item:selected { background-color: #33bdef; }"
+        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         if column_index not in self.column_filters:
@@ -312,7 +312,6 @@ class CustomTableWidgetQuotation(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-
 class CustomTableWidgetRecord(QtWidgets.QTableWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -339,8 +338,7 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
         actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
         menu.addSeparator()
 
-        menu.setStyleSheet("QMenu { color: black; }"
-                        "QMenu::item:selected { background-color: #33bdef; }"
+        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         if column_index not in self.column_filters:
@@ -607,26 +605,115 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
-class Ui_Quotation_Window(object):
+class Ui_Quotation_Window(QtWidgets.QMainWindow):
+    def __init__(self, username):
+        super().__init__()
+        self.username=username
+        self.setupUi(self)
+
     def setupUi(self, Quotation_Window):
         Quotation_Window.setObjectName("Quotation_Window")
         Quotation_Window.resize(int(1174//1.5), int(604//1.5))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Quotation_Window.setWindowIcon(icon)
-        Quotation_Window.setStyleSheet("QWidget {\n"
+        if self.username == 'd.marquez':
+            Quotation_Window.setStyleSheet("QWidget {\n"
+    "background-color: #121212; color: rgb(255, 255, 255)\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid white;\n"
+    "}\n"
+    "\n"
+    "QComboBox {\n"
+    "border: 1px solid white;\n"
+    "border-radius: 3px;\n"
+    "}\n"
+    "QComboBox QAbstractItemView{\n"
+    "min-width: 1200px;\n"
+    "}\n"
+    "\n"
+    "QComboBox QAbstractItemView::item {\n"
+    "min-height: 35px;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 12px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 2px .2em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
+        else:
+            Quotation_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
 "}\n"
 "\n"
 ".QFrame {\n"
-"    border: 2px solid black;\n"
+"    border: 2px solid white;\n"
+"}\n"
+"\n"
+"QComboBox QAbstractItemView{\n"
+    "min-width: 1200px;\n"
+    "}\n"
+    "\n"
+    "QComboBox QAbstractItemView::item {\n"
+    "min-height: 35px;\n"
+    "}\n"
+    "\n"
+"QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 12px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 2px .2em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
 "}")
         self.centralwidget = QtWidgets.QWidget(parent=Quotation_Window)
         self.centralwidget.setObjectName("centralwidget")
@@ -641,157 +728,166 @@ class Ui_Quotation_Window(object):
         spacerItem = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 1, 1, 1)
         self.label_Date = QtWidgets.QLabel(parent=self.frame)
-        self.label_Date.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
-        self.label_Date.setMaximumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
+        self.label_Date.setMinimumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
+        self.label_Date.setMaximumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Date.setFont(font)
         self.label_Date.setObjectName("label_Date")
         self.gridLayout_2.addWidget(self.label_Date, 1, 1, 1, 1)
         self.Date_Quotation = QtWidgets.QLineEdit(parent=self.frame)
-        self.Date_Quotation.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        self.Date_Quotation.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.Date_Quotation.setMinimumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
+        self.Date_Quotation.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Date_Quotation.setFont(font)
         self.Date_Quotation.setObjectName("Date_Quotation")
         self.gridLayout_2.addWidget(self.Date_Quotation, 1, 2, 1, 4)
         self.label_Supplier = QtWidgets.QLabel(parent=self.frame)
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Supplier.setFont(font)
         self.label_Supplier.setObjectName("label_Supplier")
         self.gridLayout_2.addWidget(self.label_Supplier, 1, 6, 1, 1)
         self.Supplier_Quotation = QtWidgets.QComboBox(parent=self.frame)
-        self.Supplier_Quotation.setMinimumSize(QtCore.QSize(int(300//1.5), int(25//1.5)))
-        self.Supplier_Quotation.setMaximumSize(QtCore.QSize(int(300//1.5), int(25//1.5)))
+        self.Supplier_Quotation.setEditable(True)
+        self.Supplier_Quotation.setMinimumSize(QtCore.QSize(int(300//1.5), int(35//1.5)))
+        self.Supplier_Quotation.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Supplier_Quotation.setFont(font)
         self.Supplier_Quotation.setObjectName("Supplier_Quotation")
-        self.gridLayout_2.addWidget(self.Supplier_Quotation, 1, 7, 1, 4)
+        self.gridLayout_2.addWidget(self.Supplier_Quotation, 1, 7, 1, 7)
         self.label_Obs = QtWidgets.QLabel(parent=self.frame)
-        self.label_Obs.setMinimumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
-        self.label_Obs.setMaximumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
+        self.label_Obs.setMinimumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
+        self.label_Obs.setMaximumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Obs.setFont(font)
-        self.label_Obs.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTop|QtCore.Qt.AlignmentFlag.AlignTrailing)
+        self.label_Obs.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop|QtCore.Qt.AlignmentFlag.AlignTrailing)
         self.label_Obs.setObjectName("label_Obs")
-        self.gridLayout_2.addWidget(self.label_Obs, 1, 11, 1, 1)
+        self.gridLayout_2.addWidget(self.label_Obs, 2, 1, 1, 1)
         self.Notes_Quotation = QtWidgets.QTextEdit(parent=self.frame)
+        self.Notes_Quotation.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Notes_Quotation.setFont(font)
         self.Notes_Quotation.setObjectName("Notes_Quotation")
-        self.gridLayout_2.addWidget(self.Notes_Quotation, 1, 12, 2, 1)
+        self.gridLayout_2.addWidget(self.Notes_Quotation, 2, 2, 1, 12)
         self.label_IDCot = QtWidgets.QLabel(parent=self.frame)
-        self.label_IDCot.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.label_IDCot.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.label_IDCot.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.label_IDCot.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         self.label_IDCot.setObjectName("label_IDCot")
         self.label_IDCot.setText("")
-        self.label_IDCot.setStyleSheet("color: rgb(255, 255, 255);")
-        self.gridLayout_2.addWidget(self.label_IDCot, 2, 1, 1, 1)
+        if self.username == 'd.marquez':
+            self.label_IDCot.setStyleSheet("color: #121212")
+        else:
+            self.label_IDCot.setStyleSheet("color: white")
+        self.gridLayout_2.addWidget(self.label_IDCot, 8, 2, 1, 1)
         self.label_Supply = QtWidgets.QLabel(parent=self.frame)
-        self.label_Supply.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
-        self.label_Supply.setMaximumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
+        self.label_Supply.setMinimumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
+        self.label_Supply.setMaximumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Supply.setFont(font)
         self.label_Supply.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Supply.setObjectName("label_Supply")
-        self.gridLayout_2.addWidget(self.label_Supply, 3, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.label_Supply, 5, 1, 1, 1)
         self.Supply_Quotation = QtWidgets.QComboBox(parent=self.frame)
-        self.Supply_Quotation.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.Supply_Quotation.setMaximumSize(QtCore.QSize(int(500//1.5), int(25//1.5)))
+        self.Supply_Quotation.setEditable(True)
+        self.Supply_Quotation.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.Supply_Quotation.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Supply_Quotation.setFont(font)
         self.Supply_Quotation.setObjectName("Supply_Quotation")
-        self.gridLayout_2.addWidget(self.Supply_Quotation, 4, 1, 1, 8)
+        self.gridLayout_2.addWidget(self.Supply_Quotation, 6, 1, 1, 10)
         self.label_Quantity = QtWidgets.QLabel(parent=self.frame)
-        self.label_Quantity.setMinimumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
-        self.label_Quantity.setMaximumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
+        self.label_Quantity.setMinimumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
+        self.label_Quantity.setMaximumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Quantity.setFont(font)
         self.label_Quantity.setObjectName("label_Quantity")
-        self.gridLayout_2.addWidget(self.label_Quantity, 3, 9, 1, 1)
+        self.gridLayout_2.addWidget(self.label_Quantity, 5, 11, 1, 1)
         self.Quantity_Quotation = QtWidgets.QLineEdit(parent=self.frame)
-        self.Quantity_Quotation.setMinimumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
-        self.Quantity_Quotation.setMaximumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
+        self.Quantity_Quotation.setMinimumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
+        self.Quantity_Quotation.setMaximumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Quantity_Quotation.setFont(font)
         self.Quantity_Quotation.setObjectName("Quantity_Quotation")
-        self.gridLayout_2.addWidget(self.Quantity_Quotation, 4, 9, 1, 1)
+        self.gridLayout_2.addWidget(self.Quantity_Quotation, 6, 11, 1, 1)
         self.label_Value = QtWidgets.QLabel(parent=self.frame)
-        self.label_Value.setMinimumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
-        self.label_Value.setMaximumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
+        self.label_Value.setMinimumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
+        self.label_Value.setMaximumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Value.setFont(font)
         self.label_Value.setObjectName("label_Value")
-        self.gridLayout_2.addWidget(self.label_Value, 3, 10, 1, 1)
+        self.gridLayout_2.addWidget(self.label_Value, 5, 12, 1, 1)
         self.Value_Quotation = QtWidgets.QLineEdit(parent=self.frame)
-        self.Value_Quotation.setMinimumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
-        self.Value_Quotation.setMaximumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
+        self.Value_Quotation.setMinimumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
+        self.Value_Quotation.setMaximumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Value_Quotation.setFont(font)
         self.Value_Quotation.setObjectName("Value_Quotation")
-        self.gridLayout_2.addWidget(self.Value_Quotation, 4, 10, 1, 1)
+        self.gridLayout_2.addWidget(self.Value_Quotation, 6, 12, 1, 1)
         self.label_Currency = QtWidgets.QLabel(parent=self.frame)
-        self.label_Currency.setMinimumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
-        self.label_Currency.setMaximumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
+        self.label_Currency.setMinimumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
+        self.label_Currency.setMaximumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Currency.setFont(font)
         self.label_Currency.setObjectName("label_Currency")
-        self.gridLayout_2.addWidget(self.label_Currency, 3, 11, 1, 1)
+        self.gridLayout_2.addWidget(self.label_Currency, 5, 13, 1, 1)
         self.Currency_Quotation = QtWidgets.QComboBox(parent=self.frame)
-        self.Currency_Quotation.setMinimumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
-        self.Currency_Quotation.setMaximumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
+        self.Currency_Quotation.setMinimumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
+        self.Currency_Quotation.setMaximumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Currency_Quotation.setFont(font)
         self.Currency_Quotation.setObjectName("Currency_Quotation")
-        self.gridLayout_2.addWidget(self.Currency_Quotation, 4, 11, 1, 1)
+        self.gridLayout_2.addWidget(self.Currency_Quotation, 6, 13, 1, 1)
         self.label_ObsRecord = QtWidgets.QLabel(parent=self.frame)
-        self.label_ObsRecord.setMinimumSize(QtCore.QSize(int(50//1.5), int(25//1.5)))
-        self.label_ObsRecord.setMaximumSize(QtCore.QSize(int(50//1.5), int(25//1.5)))
+        self.label_ObsRecord.setMinimumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
+        self.label_ObsRecord.setMaximumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_ObsRecord.setFont(font)
         self.label_ObsRecord.setObjectName("label_ObsRecord")
-        self.gridLayout_2.addWidget(self.label_ObsRecord, 3, 12, 1, 1)
+        self.gridLayout_2.addWidget(self.label_ObsRecord, 7, 1, 1, 1)
         self.ObsRecord_Quotation = QtWidgets.QTextEdit(parent=self.frame)
-        self.ObsRecord_Quotation.setMaximumSize(QtCore.QSize(16777215, int(100//1.5)))
+        self.ObsRecord_Quotation.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.ObsRecord_Quotation.setFont(font)
         self.ObsRecord_Quotation.setObjectName("ObsRecord_Quotation")
-        self.gridLayout_2.addWidget(self.ObsRecord_Quotation, 4, 12, 2, 1)
+        self.gridLayout_2.addWidget(self.ObsRecord_Quotation, 7, 2, 1, 12)
         self.label_IDRecord = QtWidgets.QLabel(parent=self.frame)
-        self.label_IDRecord.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.label_IDRecord.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.label_IDRecord.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.label_IDRecord.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         self.label_IDRecord.setObjectName("label_IDRecord")
         self.label_IDRecord.setText("")
-        self.label_IDRecord.setStyleSheet("color: rgb(255, 255, 255);")
-        self.gridLayout_2.addWidget(self.label_IDRecord, 5, 1, 1, 1)
+        if self.username == 'd.marquez':
+            self.label_IDRecord.setStyleSheet("color: #121212")
+        else:
+            self.label_IDRecord.setStyleSheet("color: white")
+        self.gridLayout_2.addWidget(self.label_IDRecord, 8, 3, 1, 1)
         self.label_Details = QtWidgets.QLabel(parent=self.frame)
-        self.label_Details.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.label_Details.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.label_Details.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.label_Details.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Details.setFont(font)
         self.label_Details.setObjectName("label_Details")
@@ -803,7 +899,7 @@ class Ui_Quotation_Window(object):
         for i in range(8):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
-            font.setPointSize(int(10//1.5))
+            font.setPointSize(int(14//1.5))
             font.setBold(True)
             item.setFont(font)
             self.tableRecords.setHorizontalHeaderItem(i, item)
@@ -815,139 +911,49 @@ class Ui_Quotation_Window(object):
         for i in range(6):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
-            font.setPointSize(int(10//1.5))
+            font.setPointSize(int(14//1.5))
             font.setBold(True)
             item.setFont(font)
             self.tableQuotations.setHorizontalHeaderItem(i, item)
         self.gridLayout_2.addWidget(self.tableQuotations, 13, 1, 1, 17)
+        self.Position = QtWidgets.QLineEdit(parent=self.frame)
+        self.Position.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.Position.setMaximumSize(QtCore.QSize(500, int(35//1.5)))
+        font = QtGui.QFont()
+        font.setPointSize(int(14//1.5))
+        self.Position.setFont(font)
+        self.Position.setObjectName("Position")
+        self.gridLayout_2.addWidget(self.Position, 14, 1, 1, 2)
         self.Button_AddQuot = QtWidgets.QPushButton(parent=self.frame)
         self.Button_AddQuot.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
         self.Button_AddQuot.setMaximumSize(QtCore.QSize(int(130//1.5), int(35//1.5)))
-        self.Button_AddQuot.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
         self.Button_AddQuot.setObjectName("Button_AddQuot")
-        self.gridLayout_2.addWidget(self.Button_AddQuot, 1, 14, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_AddQuot, 1, 17, 1, 1)
         self.Button_ModifyQuot = QtWidgets.QPushButton(parent=self.frame)
         self.Button_ModifyQuot.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
         self.Button_ModifyQuot.setMaximumSize(QtCore.QSize(int(130//1.5), int(35//1.5)))
-        self.Button_ModifyQuot.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
         self.Button_ModifyQuot.setObjectName("Button_ModifyQuot")
-        self.gridLayout_2.addWidget(self.Button_ModifyQuot, 2, 14, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_ModifyQuot, 2, 17, 1, 1)
+        self.Button_Reload = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Reload.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.Button_Reload.setMaximumSize(QtCore.QSize(int(130//1.5), int(35//1.5)))
+        self.Button_Reload.setObjectName("Button_Reload")
+        self.gridLayout_2.addWidget(self.Button_Reload, 4, 17, 1, 1)
         self.Button_AddRecord = QtWidgets.QPushButton(parent=self.frame)
         self.Button_AddRecord.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
         self.Button_AddRecord.setMaximumSize(QtCore.QSize(int(130//1.5), int(35//1.5)))
-        self.Button_AddRecord.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
         self.Button_AddRecord.setObjectName("Button_AddRecord")
-        self.gridLayout_2.addWidget(self.Button_AddRecord, 4, 14, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_AddRecord, 6, 17, 1, 1)
         self.Button_ModifyRecord = QtWidgets.QPushButton(parent=self.frame)
         self.Button_ModifyRecord.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
         self.Button_ModifyRecord.setMaximumSize(QtCore.QSize(int(130//1.5), int(35//1.5)))
-        self.Button_ModifyRecord.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
         self.Button_ModifyRecord.setObjectName("Button_ModifyRecord")
-        self.gridLayout_2.addWidget(self.Button_ModifyRecord, 5, 14, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_ModifyRecord, 7, 17, 1, 1)
+        self.Button_DeleteRecord = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_DeleteRecord.setMinimumSize(QtCore.QSize(int(130//1.5), int(35//1.5)))
+        self.Button_DeleteRecord.setMaximumSize(QtCore.QSize(int(130//1.5), int(35//1.5)))
+        self.Button_DeleteRecord.setObjectName("Button_DeleteRecord")
+        self.gridLayout_2.addWidget(self.Button_DeleteRecord, 8, 17, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 1, 1, 1)
         Quotation_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=Quotation_Window)
@@ -973,7 +979,7 @@ class Ui_Quotation_Window(object):
                         ORDER BY purch_fact.suppliers.name
                         """)
         commands_supplies = ("""
-                        SELECT * 
+                        SELECT reference, description, ROUND(physical_stock,2), ROUND(available_stock,2), ROUND(pending_stock,2), id
                         FROM purch_fact.supplies
                         """)
         commands_currency = ("""
@@ -1015,13 +1021,16 @@ class Ui_Quotation_Window(object):
                 conn.close()
 
         list_suppliers=[x[1] for x in results_suppliers]
-        self.Supplier_Quotation.addItems(list_suppliers)
+        self.Supplier_Quotation.addItems([''] + list_suppliers)
 
-        list_supplies=[x[3] + ' | ' + x[4] for x in results_supplies]
-        self.Supply_Quotation.addItems(sorted(list_supplies))
+        self.list_supplies=[x[0] + ' | ' + x[1] + ' | ' + str(x[2]) + ' | ' + str(x[3]) + ' | ' + str(x[4])  + ' | ID:' + str(x[5]) for x in results_supplies]
+        # self.list_supplies=[x[0] + ' | ' + x[1] for x in results_supplies]
+        self.Supply_Quotation.addItems([''] + sorted(self.list_supplies))
 
         list_currency=[x[2] for x in results_currency]
         self.Currency_Quotation.addItems(list_currency)
+
+        self.Date_Quotation.setText(date.today().strftime("%d/%m/%Y"))
 
         self.tableQuotations.itemClicked.connect(self.loadformquotation)
         self.tableRecords.itemClicked.connect(self.loadformsupply)
@@ -1030,7 +1039,10 @@ class Ui_Quotation_Window(object):
         self.Button_AddQuot.clicked.connect(self.addquotation)
         self.Button_AddRecord.clicked.connect(self.addrecord)
         self.Button_ModifyQuot.clicked.connect(self.modifyquotation)
+        self.Button_Reload.clicked.connect(self.loadtablequotations)
         self.Button_ModifyRecord.clicked.connect(self.modifyrecord)
+        self.Button_DeleteRecord.clicked.connect(self.deleterecord)
+        self.Position.textChanged.connect(self.position_table)
         self.loadtablequotations()
 
 
@@ -1040,6 +1052,8 @@ class Ui_Quotation_Window(object):
         self.label_Quantity.setText(_translate("Quotation_Window", "Cantidad:"))
         self.Button_AddRecord.setText(_translate("Quotation_Window", "Agregar Reg."))
         self.Button_ModifyRecord.setText(_translate("Quotation_Window", "Modif. Reg."))
+        self.Button_Reload.setText(_translate("Quotation_Window", "Recargar Tabla"))
+        self.Button_DeleteRecord.setText(_translate("Quotation_Window", "Eliminar Reg."))
         self.label_ObsRecord.setText(_translate("Quotation_Window", "Obs:"))
         item = self.tableQuotations.horizontalHeaderItem(0)
         item.setText(_translate("Quotation_Window", "ID"))
@@ -1163,8 +1177,6 @@ class Ui_Quotation_Window(object):
                 if conn is not None:
                     conn.close()
 
-            self.loadtablequotations()
-
             conn = None
             try:
             # read the connection parameters
@@ -1200,6 +1212,7 @@ class Ui_Quotation_Window(object):
                 if conn is not None:
                     conn.close()
 
+        self.tableRecords.setRowCount(0)
 
 # Function to add quotation data to database
     def addrecord(self):
@@ -1210,6 +1223,7 @@ class Ui_Quotation_Window(object):
         currency_value=self.Value_Quotation.text()
         currency=self.Currency_Quotation.currentText()
         obsrecord=self.ObsRecord_Quotation.toPlainText()
+        supply_id=self.Supply_Quotation.currentText().split("|")[-1].strip().split(":")[1]
 
         if quotation_id == "":
             dlg = QtWidgets.QMessageBox()
@@ -1237,16 +1251,11 @@ class Ui_Quotation_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                query_supplyid = "SELECT id FROM purch_fact.supplies WHERE reference = %s"
-                cur.execute(query_supplyid, (supply_name,))
-                result_supplyid = cur.fetchone()
-
                 query_currencyid = "SELECT id,euro_value FROM purch_fact.currency WHERE symbol_currency = %s"
                 cur.execute(query_currencyid, (currency,))
                 result_currencyid = cur.fetchone()
 
             # get id from table
-                supply_id = result_supplyid[0]
                 currency_id = result_currencyid[0]
                 euro_value = result_currencyid[1]
                 euro_value=euro_value.replace(",",".")
@@ -1277,6 +1286,12 @@ class Ui_Quotation_Window(object):
 
             self.loadtablerecords()
 
+            self.Quantity_Quotation.setText("")
+            self.Value_Quotation.setText("")
+            self.ObsRecord_Quotation.setText("")
+            self.Supply_Quotation.setCurrentIndex(0)
+
+            self.Supply_Quotation.setFocus()
 
 # Function to load data of quotation in form fields
     def loadformquotation(self,item):
@@ -1292,14 +1307,13 @@ class Ui_Quotation_Window(object):
         self.Notes_Quotation.setPlainText(data_quotation[5])
 
         self.label_IDRecord.setText("")
-        self.Supply_Quotation.setCurrentText("- - - - - | - - - - -")
+        self.Supply_Quotation.setCurrentIndex(0)
         self.Quantity_Quotation.setText("")
         self.Value_Quotation.setText("")
         self.Currency_Quotation.setCurrentText("€")
         self.ObsRecord_Quotation.setText("")
 
         self.loadtablerecords()
-
 
 # Function to load data of supply in form fields
     def loadformsupply(self,item):
@@ -1315,7 +1329,6 @@ class Ui_Quotation_Window(object):
         self.Value_Quotation.setText(data_supply[4])
         self.Currency_Quotation.setCurrentText(data_supply[5])
         self.ObsRecord_Quotation.setText(data_supply[7])
-
 
 # Function to modify quotation data
     def modifyquotation(self):
@@ -1399,9 +1412,6 @@ class Ui_Quotation_Window(object):
                 if conn is not None:
                     conn.close()
 
-            self.loadtablequotations()
-
-
 # Function to modify records data
     def modifyrecord(self):
         id_record=self.label_IDRecord.text()
@@ -1477,8 +1487,66 @@ class Ui_Quotation_Window(object):
                 if conn is not None:
                     conn.close()
 
+            self.Quantity_Quotation.setText("")
+            self.Value_Quotation.setText("")
+            self.ObsRecord_Quotation.setText("")
+            self.Supply_Quotation.setCurrentIndex(0)
+            
             self.loadtablerecords()
 
+# Function to delete record data
+    def deleterecord(self):
+        record_id=self.label_IDRecord.text()
+
+        if record_id == "":
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Modificar Registros")
+            dlg.setText("Selecciona un registro existente")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+
+        else:
+            commands_deleterecord = ("""
+                                DELETE FROM purch_fact.quotation_details
+                                WHERE purch_fact.quotation_details.id = %s
+                                """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of principal command
+                data=(record_id,)
+                cur.execute(commands_deleterecord, data)
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
+
+            self.Supply_Quotation.setCurrentIndex(0)
+            
+            self.loadtablerecords()
 
 # Function to load table of quotations
     def loadtablequotations(self):
@@ -1492,7 +1560,7 @@ class Ui_Quotation_Window(object):
                         FROM purch_fact.quotation_header
                         LEFT JOIN purch_fact.suppliers ON (purch_fact.suppliers."id" = purch_fact.quotation_header."supplier_id")
                         LEFT JOIN purch_fact.pay_way ON (purch_fact.pay_way."id" = purch_fact.suppliers."pay_way_id")
-                        ORDER BY purch_fact.quotation_header.id
+                        ORDER BY purch_fact.quotation_header.id DESC
                         """)
         conn = None
         try:
@@ -1527,7 +1595,7 @@ class Ui_Quotation_Window(object):
         tablerow=0
 
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
 
     # fill the Qt Table with the query results
         for row in results_quotations:
@@ -1545,8 +1613,17 @@ class Ui_Quotation_Window(object):
 
         self.tableQuotations.verticalHeader().hide()
         self.tableQuotations.setSortingEnabled(False)
-        self.tableQuotations.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-
+        if self.username == 'd.marquez':
+            self.tableQuotations.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableQuotations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+        else:
+            self.tableQuotations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+        for i in range(6):
+            self.tableQuotations.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableQuotations.setColumnWidth(i, 100)
+        self.tableQuotations.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableQuotations.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableQuotations.hideColumn(0)
 
 # Function to load records
     def loadtablerecords(self):
@@ -1562,7 +1639,7 @@ class Ui_Quotation_Window(object):
                         LEFT JOIN purch_fact.quotation_header ON (purch_fact.quotation_header."id" = purch_fact.quotation_details."quot_header_id")
                         LEFT JOIN purch_fact.suppliers ON (purch_fact.suppliers."id" = purch_fact.quotation_header."supplier_id")
                         WHERE purch_fact.quotation_details.quot_header_id = %s
-                        ORDER BY purch_fact.quotation_details.id
+                        ORDER BY purch_fact.supplies.reference ASC
                         """)
         conn = None
         try:
@@ -1597,7 +1674,7 @@ class Ui_Quotation_Window(object):
         tablerow=0
 
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
 
     # fill the Qt Table with the query results
         for row in results_record:
@@ -1615,8 +1692,18 @@ class Ui_Quotation_Window(object):
 
         self.tableRecords.verticalHeader().hide()
         self.tableRecords.setSortingEnabled(False)
-        self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-
+        if self.username == 'd.marquez':
+            self.tableRecords.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+        else:
+            self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+        for i in range(8):
+            self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableRecords.setColumnWidth(i, 100)
+        self.tableRecords.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableRecords.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableRecords.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableRecords.hideColumn(0)
 
 # Function to check date format
     def is_valid_date(self, date_str):
@@ -1624,33 +1711,56 @@ class Ui_Quotation_Window(object):
         
         for fmt in formats:
             try:
-                datetime.datetime.strptime(date_str, fmt)
+                datetime.strptime(date_str, fmt)
                 return True
             except ValueError:
                 pass
             
         return False
 
-
-#Function when clicking on table header
+# Function when clicking on quotation table header
     def on_header_section_clicked(self, logical_index):
         header_pos = self.tableQuotations.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.tableQuotations.horizontalHeader().height()
         popup_pos = self.tableQuotations.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableQuotations.show_unique_values_menu(logical_index, popup_pos, header_height)
 
+# Function when clicking on records table header
     def on_header_sectionrecords_clicked(self, logical_index):
         header_pos = self.tableRecords.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.tableRecords.horizontalHeader().height()
         popup_pos = self.tableRecords.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableRecords.show_unique_values_menu(logical_index, popup_pos, header_height)
 
+# Function to move table to specific item by text search
+    def position_table(self):
+        text_position = self.Position.text()
+
+        self.tableQuotations.clearSelection()
+
+        for i in range(self.tableQuotations.rowCount()):
+            item = self.tableQuotations.item(i, 1)
+            if item is not None and text_position.upper() in item.text().upper():
+                item.setSelected(True)
+                self.tableQuotations.scrollToItem(item)
+                return
+
+# Function to events for keys
+    def keyPressEvent(self, event: QtGui.QKeyEvent):
+        if event.key() == QtCore.Qt.Key.Key_Escape:
+            focused_widget = QtWidgets.QApplication.focusWidget()
+            if isinstance(focused_widget, QtWidgets.QLineEdit) or isinstance(focused_widget, QtWidgets.QTextEdit):
+                focused_widget.clear()
+            elif isinstance(focused_widget, QtWidgets.QComboBox):
+                focused_widget.setCurrentIndex(0)
+
+
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Quotation_Window = QtWidgets.QMainWindow()
-    ui = Ui_Quotation_Window()
+    ui = Ui_Quotation_Window('d.marquez')
     ui.setupUi(Quotation_Window)
     Quotation_Window.showMaximized()
     sys.exit(app.exec())

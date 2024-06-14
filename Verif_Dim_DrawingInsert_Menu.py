@@ -174,8 +174,7 @@ class Ui_Verif_Dim_Drawing_Menu(object):
         self.ui=Ui_Verif_Dim_DrawingInsertTag_Window(self.numorder, self.username)
         self.ui.setupUi(self.of_drawing_insert_tag_window_menu)
         self.of_drawing_insert_tag_window_menu.show()
-        Verif_Dim_Drawing_Menu.hide()
-        self.ui.Button_Cancel.clicked.connect(Verif_Dim_Drawing_Menu.show)
+        Verif_Dim_Drawing_Menu.close()
 
 
     def of_components(self,Verif_Dim_Drawing_Menu):
@@ -184,8 +183,7 @@ class Ui_Verif_Dim_Drawing_Menu(object):
         self.ui=Ui_Verif_Dim_DrawingInsertComp_Window(self.numorder, self.username)
         self.ui.setupUi(self.of_drawing_insert_components_window_menu)
         self.of_drawing_insert_components_window_menu.show()
-        Verif_Dim_Drawing_Menu.hide()
-        self.ui.Button_Cancel.clicked.connect(Verif_Dim_Drawing_Menu.show)
+        Verif_Dim_Drawing_Menu.close()
 
 
 # if __name__ == "__main__":

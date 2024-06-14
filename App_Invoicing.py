@@ -131,7 +131,7 @@ class Ui_App_Invoicing(object):
             self.Button_Sending.setObjectName("Button_Sending")
             self.Header.addWidget(self.Button_Sending)
             icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/TAG_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Invoice_Send.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Sending.setIcon(icon2)
             self.Button_Sending.clicked.connect(self.send_documents)
             self.Button_Tags = QtWidgets.QPushButton(parent=self.frame)
@@ -166,7 +166,7 @@ class Ui_App_Invoicing(object):
             self.Button_Tags.setObjectName("Button_Tags")
             self.Header.addWidget(self.Button_Tags)
             icon1 = QtGui.QIcon()
-            icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Invoice_Send.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/TAG_Edit.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             self.Button_Tags.setIcon(icon1)
             self.Button_Tags.clicked.connect(self.edit_tag)
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -258,6 +258,20 @@ class Ui_App_Invoicing(object):
         self.verticalLayout_3.setContentsMargins(9, 0, -1, 0)
         self.verticalLayout_3.setSpacing(25)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.Button_QueryOrder = QtWidgets.QPushButton(parent=self.ButtonFrame)
+        self.Button_QueryOrder.setMinimumSize(QtCore.QSize(200, 50))
+        self.Button_QueryOrder.setMaximumSize(QtCore.QSize(200, 50))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.Button_QueryOrder.setFont(font)
+        self.Button_QueryOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Order_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_QueryOrder.setIcon(icon8)
+        self.Button_QueryOrder.setIconSize(QtCore.QSize(40, 40))
+        self.Button_QueryOrder.setObjectName("Button_QueryOrder")
+        self.verticalLayout_3.addWidget(self.Button_QueryOrder)
         self.Button_Invoice = QtWidgets.QPushButton(parent=self.ButtonFrame)
         self.Button_Invoice.setMinimumSize(QtCore.QSize(200, 50))
         self.Button_Invoice.setMaximumSize(QtCore.QSize(200, 50))
@@ -535,6 +549,7 @@ class Ui_App_Invoicing(object):
         self.Button_ExpirationInvoice.clicked.connect(self.query_expiring_invoice)
         self.Button_Clients.clicked.connect(self.clients)
         self.Button_Profile.clicked.connect(self.showMenu)
+        self.Button_QueryOrder.clicked.connect(self.query_order)
 
 
     def retranslateUi(self, App_Invoicing):
@@ -545,6 +560,7 @@ class Ui_App_Invoicing(object):
         self.Button_QueryInvoice.setText(_translate("App_Invoicing", "    Ver Facturación"))
         self.Button_ExpirationInvoice.setText(_translate("App_Invoicing", "    Venc. Facturas"))
         self.Button_Clients.setText(_translate("App_Invoicing", "    Clientes"))
+        self.Button_QueryOrder.setText(_translate("App_Invoicing", "   Consultar Pedidos"))
 
 
     def send_documents(self):
@@ -1154,14 +1170,18 @@ class Ui_App_Invoicing(object):
         self.edit_tags_app = Ui_EditTags_Facturation_Window(self.name, db_tags_fact)
         self.edit_tags_app.show()
 
+# Function to open window to query orders
+    def query_order(self):
+        from OrderQuery_Window import Ui_QueryOrder_Window
+        self.query_order_window=Ui_QueryOrder_Window()
+        self.query_order_window.show()
 
 
-
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     App_Invoicing = QtWidgets.QMainWindow()
-#     ui = Ui_App_Invoicing('Javier Zofio', 'j.zofio')
-#     ui.setupUi(App_Invoicing)
-#     App_Invoicing.showMaximized()
-#     sys.exit(app.exec())
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    App_Invoicing = QtWidgets.QMainWindow()
+    ui = Ui_App_Invoicing('Miguel Sahuquillo', 'm.sahuquillo')
+    ui.setupUi(App_Invoicing)
+    App_Invoicing.showMaximized()
+    sys.exit(app.exec())

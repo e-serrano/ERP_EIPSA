@@ -513,8 +513,13 @@ class Ui_TestLiquidQuery_Window(QtWidgets.QMainWindow):
         self.Button_Cancel.setMaximumSize(QtCore.QSize(100, 35))
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.gridLayout_2.addWidget(self.Button_Cancel, 1, 0, 1, 1)
+        self.Button_All = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_All.setMinimumSize(QtCore.QSize(120, 35))
+        self.Button_All.setMaximumSize(QtCore.QSize(120, 35))
+        self.Button_All.setObjectName("Button_All")
+        self.gridLayout_2.addWidget(self.Button_All, 1, 1, 1, 1)
         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.gridLayout_2.addItem(spacerItem3, 1, 0, 1, 1)
+        self.gridLayout_2.addItem(spacerItem3, 1, 2, 1, 1)
         self.tableTags = CustomTableWidget()
         self.tableTags.setObjectName("tableWidget")
         self.tableTags.setColumnCount(13)
@@ -574,6 +579,7 @@ class Ui_TestLiquidQuery_Window(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(TestLiquidQuery_Window)
 
         self.Button_Cancel.clicked.connect(TestLiquidQuery_Window.close)
+        self.Button_All.clicked.connect(self.querytags_all)
         self.tableTags.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
         self.tableTags.itemSelectionChanged.connect(self.countSelectedCells)
         self.tableTags.itemDoubleClicked.connect(self.double_click)
@@ -610,9 +616,81 @@ class Ui_TestLiquidQuery_Window(QtWidgets.QMainWindow):
         item = self.tableTags.horizontalHeaderItem(12)
         item.setText(_translate("TestLiquidQuery_Window", "Cantidad"))
         self.Button_Cancel.setText(_translate("TestLiquidQuery_Window", "Cancelar"))
+        self.Button_All.setText(_translate("TestLiquidQuery_Window", "Ver Todos"))
 
 
     def querytags(self):
+        self.tableTags.setRowCount(0)
+        query_tags = ("""
+                        SELECT id_tag_flow, num_order, tag, item_type, of_drawing, NULL as of_sensor_drawing, TO_CHAR(lp_date, 'DD/MM/YYYY'), lp_hn_liq1, lp_hn_liq2, lp_hn_liq3, lp_state, lp_obs, 1 FROM tags_data.tags_flow WHERE lp_date IS NOT NULL AND EXTRACT(YEAR FROM lp_date) IN (EXTRACT(YEAR FROM CURRENT_DATE), EXTRACT(YEAR FROM CURRENT_DATE) - 1)
+                        UNION
+                        SELECT id_tag_temp, num_order, tag, item_type, of_drawing, of_sensor_drawing, TO_CHAR(lp_date, 'DD/MM/YYYY'), lp_hn_liq1, lp_hn_liq2, lp_hn_liq3, lp_state, lp_obs, 1 FROM tags_data.tags_temp WHERE lp_date IS NOT NULL AND EXTRACT(YEAR FROM lp_date) IN (EXTRACT(YEAR FROM CURRENT_DATE), EXTRACT(YEAR FROM CURRENT_DATE) - 1)
+                        UNION
+                        SELECT id_tag_level, num_order, tag, item_type, of_drawing, NULL as of_sensor_drawing, TO_CHAR(lp_date, 'DD/MM/YYYY'), lp_hn_liq1, lp_hn_liq2, lp_hn_liq3, lp_state, lp_obs, 1 FROM tags_data.tags_level WHERE lp_date IS NOT NULL AND EXTRACT(YEAR FROM lp_date) IN (EXTRACT(YEAR FROM CURRENT_DATE), EXTRACT(YEAR FROM CURRENT_DATE) - 1)
+                        UNION
+                        SELECT id_tag_others, num_order, tag, description, of_drawing, NULL as of_sensor_drawing, TO_CHAR(lp_date, 'DD/MM/YYYY'), lp_hn_liq1, lp_hn_liq2, lp_hn_liq3, lp_state, lp_obs, 1 FROM tags_data.tags_others WHERE lp_date IS NOT NULL AND EXTRACT(YEAR FROM lp_date) IN (EXTRACT(YEAR FROM CURRENT_DATE), EXTRACT(YEAR FROM CURRENT_DATE) - 1)
+                        UNION
+                        SELECT id, num_order, tag, item_type, NULL as of_drawing, NULL as of_sensor_drawing, TO_CHAR(test_date, 'DD/MM/YYYY'), hn_liq1, hn_liq2, hn_liq3, test_state, obs, quantity FROM verification.test_liquid WHERE EXTRACT(YEAR FROM test_date) IN (EXTRACT(YEAR FROM CURRENT_DATE), EXTRACT(YEAR FROM CURRENT_DATE) - 1)
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(query_tags)
+            results=cur.fetchall()
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+            self.tableTags.setRowCount(len(results))
+            tablerow=0
+
+        # fill the Qt Table with the query results
+            for row in results:
+                for column in range(13):
+                    value = row[column]
+                    if value is None:
+                        value = ''
+                    it = QtWidgets.QTableWidgetItem(str(value))
+                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                    self.tableTags.setItem(tablerow, column, it)
+
+                tablerow+=1
+
+            self.tableTags.verticalHeader().hide()
+            self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
+            self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableTags.horizontalHeader().setMinimumSectionSize(120)
+            self.tableTags.horizontalHeader().setSectionResizeMode(12, QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableTags.setColumnWidth(2, 200)
+            self.tableTags.setSortingEnabled(False)
+            self.tableTags.hideColumn(0)
+            self.tableTags.custom_sort_date(6, QtCore.Qt.SortOrder.DescendingOrder)
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+
+    def querytags_all(self):
+        self.tableTags.setRowCount(0)
         query_tags = ("""
                         SELECT id_tag_flow, num_order, tag, item_type, of_drawing, NULL as of_sensor_drawing, TO_CHAR(lp_date, 'DD/MM/YYYY'), lp_hn_liq1, lp_hn_liq2, lp_hn_liq3, lp_state, lp_obs, 1 FROM tags_data.tags_flow WHERE lp_date IS NOT NULL
                         UNION
@@ -679,7 +757,6 @@ class Ui_TestLiquidQuery_Window(QtWidgets.QMainWindow):
         finally:
             if conn is not None:
                 conn.close()
-
 
 #Function when clicking on table header
     def on_header_section_clicked(self, logical_index):

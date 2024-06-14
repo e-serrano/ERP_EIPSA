@@ -562,7 +562,6 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         icon2 = QtGui.QIcon()
         icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Add_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_AddSupplier.setIcon(icon2)
-        self.Button_AddSupplier.setIconSize(QtCore.QSize(30, 30))
         self.Button_AddSupplier.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.gridLayout_2.addWidget(self.Button_AddSupplier, 2, 4, 1, 1)
         self.supplier = QtWidgets.QComboBox(parent=self.frame)
@@ -828,6 +827,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableRecords.horizontalHeader().setSectionResizeMode( QtWidgets.QHeaderView.ResizeMode.Stretch)
             self.tableRecords.hideColumn(0)
+            self.tableRecords.custom_sort(1, QtCore.Qt.SortOrder.DescendingOrder)
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -843,7 +843,6 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         finally:
             if conn is not None:
                 conn.close()
-
 
 # Function to insert data record
     def insert(self):
@@ -928,7 +927,6 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
                 if conn is not None:
                     conn.close()
 
-
 # Function to edit data recor
     def edit(self):
         id_record = self.label_id.text()
@@ -1008,7 +1006,6 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
                 if conn is not None:
                     conn.close()
 
-
 # Function to load file
     def item_double_clicked(self, item):
         if item.column() == 3:
@@ -1052,7 +1049,6 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             finally:
                 if conn is not None:
                     conn.close()
-
 
 # Function to load form when selecting recor
     def loadform(self, item):
@@ -1108,14 +1104,12 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-
 # Function to search pdf file
     def search_document(self):
-        self.fname = askopenfilename(filetypes=[("Archivos PDF", "*.pdf")],
+        self.fname = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES", filetypes=[("Archivos PDF", "*.pdf")],
                             title="Seleccionar archivo pdf")
         if self.fname:
             self.delivnote.setText(self.fname)
-
 
 # Function to add new supplier
     def add_supplier(self):
@@ -1188,14 +1182,12 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.load_values()
         self.supplier.setCurrentText(supplier)
 
-
 #Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
         header_pos = self.tableRecords.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.tableRecords.horizontalHeader().height()
         popup_pos = self.tableRecords.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableRecords.show_unique_values_menu(logical_index, popup_pos, header_height)
-
 
 # Function to update fixed values
     def load_values(self):
@@ -1251,12 +1243,10 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.state.addItems(list_states)
         self.supplier.addItems(list_suppliers)
 
-
 # Function for key events
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key.Key_F5:
             self.load_values()
-
 
 # Function to change combobox color when change value
     def change_text_color(self, text):
@@ -1296,9 +1286,11 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.state.setStyleSheet(f"color: rgb({text_color[0]}, {text_color[1]}, {text_color[2]})")
 
 
+
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    VerifSupplierInsert_Window = Ui_VerifSupplierInsert_Window()
+    VerifSupplierInsert_Window = Ui_VerifSupplierInsert_Window('m.gil')
     VerifSupplierInsert_Window.show()
     sys.exit(app.exec())

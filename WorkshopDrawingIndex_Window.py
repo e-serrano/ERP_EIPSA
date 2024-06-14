@@ -9,7 +9,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import QtSql
 from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import Qt, QDate
+from PyQt6.QtCore import Qt, QDate, QMimeData
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
 import configparser
@@ -40,7 +40,6 @@ class CheckboxWidget(QtWidgets.QWidget):
         self.checkbox = QtWidgets.QCheckBox(text)
         layout.addWidget(self.checkbox)
 
-
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
@@ -55,446 +54,457 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
             value_check = str(state_column_index.data()).upper()  # Text for checking
             text_color = QtGui.QColor(0, 0, 0)
 
-            if "STELLITE" in value_check:
-                start_color = QtGui.QColor(24, 146, 97)  # Dark Green
-                end_color = QtGui.QColor(92, 197, 229)  # Blue
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif any(item in value_check for item in ['316H', '316TI']):
-                start_color = QtGui.QColor(92, 197, 229)  # Blue
-                end_color = QtGui.QColor(92, 197, 229)  # Blue
-                border_color = QtGui.QColor(255, 0, 0)  # Red
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-                painter.setPen(QtGui.QPen(border_color, 3))
-                painter.drawRect(option.rect)
-                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
-
-            elif '304H' in value_check:
-                start_color = QtGui.QColor(255, 255, 0)  # Yellow
-                end_color = QtGui.QColor(255, 255, 0)  # Yellow
-                border_color = QtGui.QColor(255, 0, 0)  # Red
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-                painter.setPen(QtGui.QPen(border_color, 3))
-                painter.drawRect(option.rect)
-                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
-
-            elif '321H' in value_check:
-                start_color = QtGui.QColor(251, 131, 179)  # Pink
-                end_color = QtGui.QColor(251, 131, 179)  # Pink
-                border_color = QtGui.QColor(255, 0, 0)  # Red
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-                painter.setPen(QtGui.QPen(border_color, 3))
-                painter.drawRect(option.rect)
-                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
-
-            elif '310H' in value_check:
-                start_color = QtGui.QColor(255, 255, 0)  # Yellow
-                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
-                border_color = QtGui.QColor(255, 0, 0)  # Red
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-                painter.setPen(QtGui.QPen(border_color, 3))
-                painter.drawRect(option.rect)
-                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
-
-            elif '347H' in value_check:
-                start_color = QtGui.QColor(146, 208, 80)  # Light Green
-                end_color = QtGui.QColor(251, 131, 179)  # Pink
-                border_color = QtGui.QColor(255, 0, 0)  # Red
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-                painter.setPen(QtGui.QPen(border_color, 3))
-                painter.drawRect(option.rect)
-                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
-
-            elif '317H' in value_check:
-                start_color = QtGui.QColor(92, 197, 229)  # Blue
-                end_color = QtGui.QColor(251, 131, 179)  # Pink
-                border_color = QtGui.QColor(255, 0, 0)  # Red
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-                painter.setPen(QtGui.QPen(border_color, 3))
-                painter.drawRect(option.rect)
-                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
-
-            elif 'F9' in value_check:
-                start_color = QtGui.QColor(255, 157, 59)  # Orange
-                end_color = QtGui.QColor(244, 71, 209) # Pink
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'A707' in value_check:
-                start_color = QtGui.QColor(255, 157, 59)  # Orange
-                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '316' in value_check:
-                start_color = QtGui.QColor(92, 197, 229)  # Blue
-                end_color = QtGui.QColor(92, 197, 229)  # Blue
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '304' in value_check:
-                start_color = QtGui.QColor(255, 255, 0)  # Yellow
-                end_color = QtGui.QColor(255, 255, 0)  # Yellow
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '446' in value_check:
-                start_color = QtGui.QColor(255, 255, 0)  # Yellow
-                end_color = QtGui.QColor(92, 197, 229)  # Blue
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'MONEL' in value_check:
-                start_color = QtGui.QColor(160, 120, 182)  # Purple
-                end_color = QtGui.QColor(160, 120, 182)  # Purple
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'HASTELLOY' in value_check:
-                start_color = QtGui.QColor(146, 208, 80)  # Light Green
-                end_color = QtGui.QColor(255, 255, 0)  # Yellow
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '321' in value_check:
-                start_color = QtGui.QColor(251, 131, 179)  # Pink
-                end_color = QtGui.QColor(251, 131, 179)  # Pink
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'TANTALO' in value_check:
-                text_color = QtGui.QColor(255, 255, 255)
-                start_color = QtGui.QColor(0, 0, 0)  # Black
-                end_color = QtGui.QColor(0, 0, 0)  # Black
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'F11' in value_check:
-                start_color = QtGui.QColor(255, 157, 59)  # Orange
-                end_color = QtGui.QColor(255, 255, 0)  # Yellow
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'F22' in value_check:
-                start_color = QtGui.QColor(255, 157, 59)  # Orange
-                end_color = QtGui.QColor(146, 208, 80)  # Light Green
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'LF2' in value_check:
-                start_color = QtGui.QColor(255, 157, 59)  # Orange
-                end_color = QtGui.QColor(255, 157, 59)  # Orange
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '310' in value_check:
-                start_color = QtGui.QColor(255, 255, 0)  # Yellow
-                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'ALLOY 20' in value_check:
-                start_color = QtGui.QColor(160, 120, 182)  # Purple
-                end_color = QtGui.QColor(92, 197, 229)  # Blue
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'INCONEL 600' in value_check:
-                start_color = QtGui.QColor(146, 208, 80)  # Light Green
-                end_color = QtGui.QColor(146, 208, 80)  # Light Green
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'N08904' in value_check:
-                start_color = QtGui.QColor(160, 120, 182)  # Purple
-                end_color = QtGui.QColor(255, 157, 59)  # Orange
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif any(item in value_check for item in ['F60', '32205', 'SAF 2205']):
-                start_color = QtGui.QColor(160, 120, 182)  # Purple
-                end_color = QtGui.QColor(146, 208, 80)  # Light Green
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif any(item in value_check for item in ['F44', '31254']):
-                start_color = QtGui.QColor(160, 120, 182)  # Purple
-                end_color = QtGui.QColor(251, 131, 179)  # Pink
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '825' in value_check:
-                start_color = QtGui.QColor(24, 146, 97)  # Dark Green
-                end_color = QtGui.QColor(255, 87, 87)  # Red
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '601' in value_check:
-                start_color = QtGui.QColor(146, 208, 80)  # Light Green
-                end_color = QtGui.QColor(92, 197, 229)  # Blue
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '625' in value_check:
-                start_color = QtGui.QColor(146, 208, 80)  # Light Green
-                end_color = QtGui.QColor(255, 87, 87)  # Red
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '800' in value_check:
-                start_color = QtGui.QColor(24, 146, 97)  # Dark Green
-                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif any(item in value_check for item in ['F53', '32750', 'SAF 2507']):
-                start_color = QtGui.QColor(160, 120, 182)  # Purple
-                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif any(item in value_check for item in ['F51', '31803']):
-                start_color = QtGui.QColor(160, 120, 182)  # Purple
-                end_color = QtGui.QColor(255, 255, 0)  # Yellow
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif any(item in value_check for item in ['F55', '32760']):
-                start_color = QtGui.QColor(160, 120, 182)  # Purple
-                end_color = QtGui.QColor(255, 87, 87)  # Red
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif any(item in value_check for item in ['C70610', 'CUNI 90-10', 'C70690']):
-                start_color = QtGui.QColor(255, 87, 87)  # Red
-                end_color = QtGui.QColor(255, 255, 0)  # Yellow
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '347' in value_check:
-                start_color = QtGui.QColor(251, 131, 179)  # Pink
-                end_color = QtGui.QColor(146, 208, 80)  # Light Green
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '317' in value_check:
-                start_color = QtGui.QColor(92, 197, 229)  # Blue
-                end_color = QtGui.QColor(251, 131, 179)  # Pink
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'TITANIO' in value_check:
-                start_color = QtGui.QColor(255, 255, 0)  # Yellow
-                end_color = QtGui.QColor(251, 131, 179)  # Pink
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'ALLOY 699XA' in value_check:
-                start_color = QtGui.QColor(146, 208, 80)  # Light Green
-                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif any(item in value_check for item in ['HR160', '50CR-50NI']):
-                start_color = QtGui.QColor(24, 146, 97)  # Dark Green
-                end_color = QtGui.QColor(251, 131, 179)  # Pink
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif any(item in value_check for item in ['F5', '5CR-1/2MO']):
-                start_color = QtGui.QColor(255, 157, 59)  # Orange
-                end_color = QtGui.QColor(92, 197, 229)  # Blue
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
+            if option.state & QtWidgets.QStyle.StateFlag.State_Selected:
+                painter.setPen(option.palette.highlightedText().color())
+                painter.setBrush(option.palette.highlight())
             else:
-                start_color = QtGui.QColor(255, 255, 255)  # White
-                end_color = QtGui.QColor(255, 255, 255)  # White
 
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+                if "STELLITE" in value_check:
+                    start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
 
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
 
-            textRect = painter.boundingRect(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2), QtCore.Qt.TextFlag.TextDontClip | QtCore.Qt.AlignmentFlag.AlignCenter, original_text,)
-            verticalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).y() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).height() + textRect.height() + 8) / 2)
-            horizontalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).x() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).width() - textRect.width()) / 2)
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
 
-            painter.setPen(QtGui.QPen(text_color))
-            painter.drawText(horizontalPosition, verticalPosition, original_text)
+                elif any(item in value_check for item in ['316H', '316TI']):
+                    start_color = QtGui.QColor(92, 197, 229)  # Blue
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
+                    border_color = QtGui.QColor(255, 0, 0)  # Red
 
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+                elif '304H' in value_check:
+                    start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+                elif '321H' in value_check:
+                    start_color = QtGui.QColor(251, 131, 179)  # Pink
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+                    border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+                elif '310H' in value_check:
+                    start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                    border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+                elif '347H' in value_check:
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+                    border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+                elif '317H' in value_check:
+                    start_color = QtGui.QColor(92, 197, 229)  # Blue
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+                    border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+                elif 'F9' in value_check:
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'A707' in value_check:
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '316' in value_check:
+                    start_color = QtGui.QColor(92, 197, 229)  # Blue
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '304' in value_check:
+                    start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '446' in value_check:
+                    start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'MONEL' in value_check:
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(160, 120, 182)  # Purple
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'HASTELLOY' in value_check:
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '321' in value_check:
+                    start_color = QtGui.QColor(251, 131, 179)  # Pink
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'TANTALO' in value_check:
+                    text_color = QtGui.QColor(255, 255, 255)
+                    start_color = QtGui.QColor(0, 0, 0)  # Black
+                    end_color = QtGui.QColor(0, 0, 0)  # Black
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'F11' in value_check:
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'F22' in value_check:
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'LF2' in value_check:
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(255, 157, 59)  # Orange
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '310' in value_check:
+                    start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'ALLOY 20' in value_check:
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'INCONEL 600' in value_check:
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'N08904' in value_check:
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(255, 157, 59)  # Orange
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['F60', '32205', 'SAF 2205']):
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['F44', '31254']):
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '825' in value_check:
+                    start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                    end_color = QtGui.QColor(255, 87, 87)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '601' in value_check:
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '625' in value_check:
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    end_color = QtGui.QColor(255, 87, 87)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '800' in value_check:
+                    start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                    end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['F53', '32750', 'SAF 2507']):
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['F51', '31803']):
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['F55', '32760']):
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(255, 87, 87)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['C70610', 'CUNI 90-10', 'C70690']):
+                    start_color = QtGui.QColor(255, 87, 87)  # Red
+                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '347' in value_check:
+                    start_color = QtGui.QColor(251, 131, 179)  # Pink
+                    end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '317' in value_check:
+                    start_color = QtGui.QColor(92, 197, 229)  # Blue
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'TITANIO' in value_check:
+                    start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'ALLOY 699XA' in value_check:
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['HR160', '50CR-50NI']):
+                    start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['F5', '5CR-1/2MO']):
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'ALUMINIO' in value_check:
+                    start_color = QtGui.QColor(255, 87, 87)  # Red
+                    end_color = QtGui.QColor(255, 87, 87)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                else:
+                    start_color = QtGui.QColor(255, 255, 255)  # White
+                    end_color = QtGui.QColor(255, 255, 255)  # White
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                textRect = painter.boundingRect(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2), QtCore.Qt.TextFlag.TextDontClip | QtCore.Qt.AlignmentFlag.AlignCenter, original_text,)
+                verticalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).y() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).height() + textRect.height() + 8) / 2)
+                horizontalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).x() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).width() - textRect.width()) / 2)
+
+                painter.setPen(QtGui.QPen(text_color))
+                painter.drawText(horizontalPosition, verticalPosition, original_text)
 
 class AlignDelegate_M(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
@@ -505,451 +515,465 @@ class AlignDelegate_M(QtWidgets.QStyledItemDelegate):
         super().paint(painter, option, index)
 
         if index.column() == 2:  # Column to paint
-            state_column_index = index.sibling(index.row(), 7)  # Index for column to check text
+            state_column_index = index.sibling(index.row(), 4)  # Index for column to check text
             original_text = str(index.data())  # Text of cell to be painted
             value_check = str(state_column_index.data()).upper()  # Text for checking
             text_color = QtGui.QColor(0, 0, 0)
 
-            if "STELLITE" in value_check:
-                start_color = QtGui.QColor(24, 146, 97)  # Dark Green
-                end_color = QtGui.QColor(92, 197, 229)  # Blue
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif any(item in value_check for item in ['316H', '316TI']):
-                start_color = QtGui.QColor(92, 197, 229)  # Blue
-                end_color = QtGui.QColor(92, 197, 229)  # Blue
-                border_color = QtGui.QColor(255, 0, 0)  # Red
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-                painter.setPen(QtGui.QPen(border_color, 3))
-                painter.drawRect(option.rect)
-                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
-
-            elif '304H' in value_check:
-                start_color = QtGui.QColor(255, 255, 0)  # Yellow
-                end_color = QtGui.QColor(255, 255, 0)  # Yellow
-                border_color = QtGui.QColor(255, 0, 0)  # Red
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-                painter.setPen(QtGui.QPen(border_color, 3))
-                painter.drawRect(option.rect)
-                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
-
-            elif '321H' in value_check:
-                start_color = QtGui.QColor(251, 131, 179)  # Pink
-                end_color = QtGui.QColor(251, 131, 179)  # Pink
-                border_color = QtGui.QColor(255, 0, 0)  # Red
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-                painter.setPen(QtGui.QPen(border_color, 3))
-                painter.drawRect(option.rect)
-                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
-
-            elif '310H' in value_check:
-                start_color = QtGui.QColor(255, 255, 0)  # Yellow
-                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
-                border_color = QtGui.QColor(255, 0, 0)  # Red
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-                painter.setPen(QtGui.QPen(border_color, 3))
-                painter.drawRect(option.rect)
-                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
-
-            elif '347H' in value_check:
-                start_color = QtGui.QColor(146, 208, 80)  # Light Green
-                end_color = QtGui.QColor(251, 131, 179)  # Pink
-                border_color = QtGui.QColor(255, 0, 0)  # Red
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-                painter.setPen(QtGui.QPen(border_color, 3))
-                painter.drawRect(option.rect)
-                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
-
-            elif '317H' in value_check:
-                start_color = QtGui.QColor(92, 197, 229)  # Blue
-                end_color = QtGui.QColor(251, 131, 179)  # Pink
-                border_color = QtGui.QColor(255, 0, 0)  # Red
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-                painter.setPen(QtGui.QPen(border_color, 3))
-                painter.drawRect(option.rect)
-                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
-
-            elif 'F9' in value_check:
-                start_color = QtGui.QColor(255, 157, 59)  # Orange
-                end_color = QtGui.QColor(244, 71, 209) # Pink
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'A707' in value_check:
-                start_color = QtGui.QColor(255, 157, 59)  # Orange
-                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '316' in value_check:
-                start_color = QtGui.QColor(92, 197, 229)  # Blue
-                end_color = QtGui.QColor(92, 197, 229)  # Blue
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '304' in value_check:
-                start_color = QtGui.QColor(255, 255, 0)  # Yellow
-                end_color = QtGui.QColor(255, 255, 0)  # Yellow
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '446' in value_check:
-                start_color = QtGui.QColor(255, 255, 0)  # Yellow
-                end_color = QtGui.QColor(92, 197, 229)  # Blue
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'MONEL' in value_check:
-                start_color = QtGui.QColor(160, 120, 182)  # Purple
-                end_color = QtGui.QColor(160, 120, 182)  # Purple
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'HASTELLOY' in value_check:
-                start_color = QtGui.QColor(146, 208, 80)  # Light Green
-                end_color = QtGui.QColor(255, 255, 0)  # Yellow
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '321' in value_check:
-                start_color = QtGui.QColor(251, 131, 179)  # Pink
-                end_color = QtGui.QColor(251, 131, 179)  # Pink
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'TANTALO' in value_check:
-                text_color = QtGui.QColor(255, 255, 255)
-                start_color = QtGui.QColor(0, 0, 0)  # Black
-                end_color = QtGui.QColor(0, 0, 0)  # Black
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'F11' in value_check:
-                start_color = QtGui.QColor(255, 157, 59)  # Orange
-                end_color = QtGui.QColor(255, 255, 0)  # Yellow
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'F22' in value_check:
-                start_color = QtGui.QColor(255, 157, 59)  # Orange
-                end_color = QtGui.QColor(146, 208, 80)  # Light Green
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'LF2' in value_check:
-                start_color = QtGui.QColor(255, 157, 59)  # Orange
-                end_color = QtGui.QColor(255, 157, 59)  # Orange
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '310' in value_check:
-                start_color = QtGui.QColor(255, 255, 0)  # Yellow
-                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'ALLOY 20' in value_check:
-                start_color = QtGui.QColor(160, 120, 182)  # Purple
-                end_color = QtGui.QColor(92, 197, 229)  # Blue
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'INCONEL 600' in value_check:
-                start_color = QtGui.QColor(146, 208, 80)  # Light Green
-                end_color = QtGui.QColor(146, 208, 80)  # Light Green
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'N08904' in value_check:
-                start_color = QtGui.QColor(160, 120, 182)  # Purple
-                end_color = QtGui.QColor(255, 157, 59)  # Orange
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif any(item in value_check for item in ['F60', '32205', 'SAF 2205']):
-                start_color = QtGui.QColor(160, 120, 182)  # Purple
-                end_color = QtGui.QColor(146, 208, 80)  # Light Green
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif any(item in value_check for item in ['F44', '31254']):
-                start_color = QtGui.QColor(160, 120, 182)  # Purple
-                end_color = QtGui.QColor(251, 131, 179)  # Pink
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '825' in value_check:
-                start_color = QtGui.QColor(24, 146, 97)  # Dark Green
-                end_color = QtGui.QColor(255, 87, 87)  # Red
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '601' in value_check:
-                start_color = QtGui.QColor(146, 208, 80)  # Light Green
-                end_color = QtGui.QColor(92, 197, 229)  # Blue
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '625' in value_check:
-                start_color = QtGui.QColor(146, 208, 80)  # Light Green
-                end_color = QtGui.QColor(255, 87, 87)  # Red
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '800' in value_check:
-                start_color = QtGui.QColor(24, 146, 97)  # Dark Green
-                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif any(item in value_check for item in ['F53', '32750', 'SAF 2507']):
-                start_color = QtGui.QColor(160, 120, 182)  # Purple
-                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif any(item in value_check for item in ['F51', '31803']):
-                start_color = QtGui.QColor(160, 120, 182)  # Purple
-                end_color = QtGui.QColor(255, 255, 0)  # Yellow
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif any(item in value_check for item in ['F55', '32760']):
-                start_color = QtGui.QColor(160, 120, 182)  # Purple
-                end_color = QtGui.QColor(255, 87, 87)  # Red
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif any(item in value_check for item in ['C70610', 'CUNI 90-10', 'C70690']):
-                start_color = QtGui.QColor(255, 87, 87)  # Red
-                end_color = QtGui.QColor(255, 255, 0)  # Yellow
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '347' in value_check:
-                start_color = QtGui.QColor(251, 131, 179)  # Pink
-                end_color = QtGui.QColor(146, 208, 80)  # Light Green
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif '317' in value_check:
-                start_color = QtGui.QColor(92, 197, 229)  # Blue
-                end_color = QtGui.QColor(251, 131, 179)  # Pink
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'TITANIO' in value_check:
-                start_color = QtGui.QColor(255, 255, 0)  # Yellow
-                end_color = QtGui.QColor(251, 131, 179)  # Pink
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif 'ALLOY 699XA' in value_check:
-                start_color = QtGui.QColor(146, 208, 80)  # Light Green
-                end_color = QtGui.QColor(24, 146, 97)  # Dark Green
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif any(item in value_check for item in ['HR160', '50CR-50NI']):
-                start_color = QtGui.QColor(24, 146, 97)  # Dark Green
-                end_color = QtGui.QColor(251, 131, 179)  # Pink
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
-            elif any(item in value_check for item in ['F5', '5CR-1/2MO']):
-                start_color = QtGui.QColor(255, 157, 59)  # Orange
-                end_color = QtGui.QColor(92, 197, 229)  # Blue
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-
+            if option.state & QtWidgets.QStyle.StateFlag.State_Selected:
+                painter.setPen(option.palette.highlightedText().color())
+                painter.setBrush(option.palette.highlight())
             else:
-                start_color = QtGui.QColor(255, 255, 255)  # White
-                end_color = QtGui.QColor(255, 255, 255)  # White
 
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+                if "STELLITE" in value_check:
+                    start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
 
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
 
-            textRect = painter.boundingRect(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2), QtCore.Qt.TextFlag.TextDontClip | QtCore.Qt.AlignmentFlag.AlignCenter, original_text,)
-            verticalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).y() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).height() + textRect.height() + 8) / 2)
-            horizontalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).x() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).width() - textRect.width()) / 2)
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
 
-            painter.setPen(QtGui.QPen(text_color))
-            painter.drawText(horizontalPosition, verticalPosition, original_text)
+                elif any(item in value_check for item in ['316H', '316TI']):
+                    start_color = QtGui.QColor(92, 197, 229)  # Blue
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
+                    border_color = QtGui.QColor(255, 0, 0)  # Red
 
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+                elif '304H' in value_check:
+                    start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+                elif '321H' in value_check:
+                    start_color = QtGui.QColor(251, 131, 179)  # Pink
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+                    border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+                elif '310H' in value_check:
+                    start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                    border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+                elif '347H' in value_check:
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+                    border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+                elif '317H' in value_check:
+                    start_color = QtGui.QColor(92, 197, 229)  # Blue
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+                    border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+                elif 'F9' in value_check:
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'A707' in value_check:
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '316' in value_check:
+                    start_color = QtGui.QColor(92, 197, 229)  # Blue
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '304' in value_check:
+                    start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '446' in value_check:
+                    start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'MONEL' in value_check:
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(160, 120, 182)  # Purple
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'HASTELLOY' in value_check:
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '321' in value_check:
+                    start_color = QtGui.QColor(251, 131, 179)  # Pink
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'TANTALO' in value_check:
+                    text_color = QtGui.QColor(255, 255, 255)
+                    start_color = QtGui.QColor(0, 0, 0)  # Black
+                    end_color = QtGui.QColor(0, 0, 0)  # Black
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'F11' in value_check:
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'F22' in value_check:
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'LF2' in value_check:
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(255, 157, 59)  # Orange
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '310' in value_check:
+                    start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'ALLOY 20' in value_check:
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'INCONEL 600' in value_check:
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'N08904' in value_check:
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(255, 157, 59)  # Orange
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['F60', '32205', 'SAF 2205']):
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['F44', '31254']):
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '825' in value_check:
+                    start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                    end_color = QtGui.QColor(255, 87, 87)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '601' in value_check:
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '625' in value_check:
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    end_color = QtGui.QColor(255, 87, 87)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '800' in value_check:
+                    start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                    end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['F53', '32750', 'SAF 2507']):
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['F51', '31803']):
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['F55', '32760']):
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(255, 87, 87)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['C70610', 'CUNI 90-10', 'C70690']):
+                    start_color = QtGui.QColor(255, 87, 87)  # Red
+                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '347' in value_check:
+                    start_color = QtGui.QColor(251, 131, 179)  # Pink
+                    end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '317' in value_check:
+                    start_color = QtGui.QColor(92, 197, 229)  # Blue
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'TITANIO' in value_check:
+                    start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'ALLOY 699XA' in value_check:
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['HR160', '50CR-50NI']):
+                    start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['F5', '5CR-1/2MO']):
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'ALUMINIO' in value_check:
+                    start_color = QtGui.QColor(255, 87, 87)  # Red
+                    end_color = QtGui.QColor(255, 87, 87)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                else:
+                    start_color = QtGui.QColor(255, 255, 255)  # White
+                    end_color = QtGui.QColor(255, 255, 255)  # White
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                textRect = painter.boundingRect(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2), QtCore.Qt.TextFlag.TextDontClip | QtCore.Qt.AlignmentFlag.AlignCenter, original_text,)
+                verticalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).y() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).height() + textRect.height() + 8) / 2)
+                horizontalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).x() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).width() - textRect.width()) / 2)
+
+                painter.setPen(QtGui.QPen(text_color))
+                painter.drawText(horizontalPosition, verticalPosition, original_text)
 
 class CustomProxyModelDim(QtCore.QSortFilterProxyModel):
     def __init__(self, parent=None):
@@ -1007,7 +1031,6 @@ class CustomProxyModelDim(QtCore.QSortFilterProxyModel):
                 return False
         return True
 
-
 class EditableTableModelDim(QtSql.QSqlTableModel):
     updateFailed = QtCore.pyqtSignal(str)
 
@@ -1035,12 +1058,15 @@ class EditableTableModelDim(QtSql.QSqlTableModel):
 
     def flags(self, index):
         flags = super().flags(index)
-        return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+        if index.column() in [5,6]:
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        else:
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
     def getColumnHeaders(self, visible_columns):
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
-
 
 class CustomProxyModelOf(QtCore.QSortFilterProxyModel):
     def __init__(self, parent=None):
@@ -1098,7 +1124,6 @@ class CustomProxyModelOf(QtCore.QSortFilterProxyModel):
                 return False
         return True
 
-
 class EditableTableModelOf(QtSql.QSqlTableModel):
     updateFailed = QtCore.pyqtSignal(str)
 
@@ -1126,12 +1151,15 @@ class EditableTableModelOf(QtSql.QSqlTableModel):
 
     def flags(self, index):
         flags = super().flags(index)
-        return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+        if index.column() in [5,6]:
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        else:
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
     def getColumnHeaders(self, visible_columns):
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
-
 
 class CustomProxyModelM(QtCore.QSortFilterProxyModel):
     def __init__(self, parent=None):
@@ -1189,7 +1217,6 @@ class CustomProxyModelM(QtCore.QSortFilterProxyModel):
                 return False
         return True
 
-
 class EditableTableModelM(QtSql.QSqlTableModel):
     updateFailed = QtCore.pyqtSignal(str)
 
@@ -1217,7 +1244,11 @@ class EditableTableModelM(QtSql.QSqlTableModel):
 
     def flags(self, index):
         flags = super().flags(index)
-        return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+        if index.column() in [5,6]:
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        else:
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
     def getColumnHeaders(self, visible_columns):
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
@@ -1718,206 +1749,205 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-        self.Responsible_IndexDwg.setText(results_queryorder[0][1] + " " + results_queryorder[0][2])
-        self.ExpDate_IndexDwg.setText(results_queryorder[0][3])
-        self.Type_IndexDwg.setText(results_queryorder[0][4])
-        self.DateWorkshop_IndexDwg.setText(results_queryorder[0][5])
-        self.DateAssembly_IndexDwg.setText(results_queryorder[0][6])
+        if len(results_queryorder) > 0:
+            self.Responsible_IndexDwg.setText(results_queryorder[0][1] + " " + results_queryorder[0][2])
+            self.ExpDate_IndexDwg.setText(results_queryorder[0][3])
+            self.Type_IndexDwg.setText(results_queryorder[0][4])
+            self.DateWorkshop_IndexDwg.setText(results_queryorder[0][5])
+            self.DateAssembly_IndexDwg.setText(results_queryorder[0][6])
 
-        self.checkbox_states = {}
-        self.dict_valuesuniques = {}
-        self.dict_ordersort = {}
-        self.hiddencolumns = []
+            self.checkbox_states = {}
+            self.dict_valuesuniques = {}
+            self.dict_ordersort = {}
+            self.hiddencolumns = []
 
-    # Configuring the Dim Table
-        self.modelDim.dataChanged.disconnect(self.saveChanges)
+        # Configuring the Dim Table
+            self.modelDim.dataChanged.disconnect(self.saveChanges)
 
-        self.modelDim.setTable("verification.workshop_dim_drawings")
+            self.modelDim.setTable("verification.workshop_dim_drawings")
 
-        self.tableDimDwg.setModel(None)
-        self.tableDimDwg.setModel(self.proxyDim)
-        self.modelDim.setFilter(f"num_order LIKE '{num_order}'")
-        self.modelDim.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
-        self.modelDim.select()
-        self.proxyDim.setSourceModel(self.modelDim)
-        self.tableDimDwg.setModel(self.proxyDim)
+            self.tableDimDwg.setModel(None)
+            self.tableDimDwg.setModel(self.proxyDim)
+            self.modelDim.setFilter(f"num_order LIKE '{num_order}'")
+            self.modelDim.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
+            self.modelDim.select()
+            self.proxyDim.setSourceModel(self.modelDim)
+            self.tableDimDwg.setModel(self.proxyDim)
 
-        columns_number = self.modelDim.columnCount()
-        for column in range(columns_number):
-            self.tableDimDwg.setItemDelegateForColumn(column, None)
+            columns_number = self.modelDim.columnCount()
+            for column in range(columns_number):
+                self.tableDimDwg.setItemDelegateForColumn(column, None)
 
-        self.tableDimDwg.setItemDelegate(AlignDelegate(self.tableDimDwg))
-        self.tableDimDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableDimDwg.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
-        if self.username == 'm.gil':
-            self.tableDimDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableDimDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-            self.tableDimDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-        else:
-            self.tableDimDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
-        self.tableDimDwg.setObjectName("tableDimDwg")
-        self.tableDimDwg.setSortingEnabled(False)
-        # self.tableDimDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableDimDwg, self.modelDim, self.proxyDim))
-        # self.tableDimDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-        # self.tableDimDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.splitter.addWidget(self.tableDimDwg)
-        # self.gridLayout_2.addWidget(self.tableDimDwg, 3, 0, 1, 7)
+            self.tableDimDwg.setItemDelegate(AlignDelegate(self.tableDimDwg))
+            self.tableDimDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableDimDwg.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+            if self.username == 'm.gil':
+                self.tableDimDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+                self.tableDimDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
+                self.tableDimDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+            else:
+                self.tableDimDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+            self.tableDimDwg.setObjectName("tableDimDwg")
+            self.tableDimDwg.setSortingEnabled(False)
+            # self.tableDimDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableDimDwg, self.modelDim, self.proxyDim))
+            # self.tableDimDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+            # self.tableDimDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+            self.splitter.addWidget(self.tableDimDwg)
+            # self.gridLayout_2.addWidget(self.tableDimDwg, 3, 0, 1, 7)
 
-    # Change all column names
-        headers = ["ID", "Nº Pedido", "Nº Plano Dim.", "Observaciones", "Descripción"]
-        self.modelDim.setAllColumnHeaders(headers)
+        # Change all column names
+            headers = ["ID", "Nº Pedido", "Nº Plano Dim.", "Observaciones", "Descripción", "Fecha Verif.", "Estado Verif."]
+            self.modelDim.setAllColumnHeaders(headers)
 
-        self.tableDimDwg.hideColumn(0)
+            self.tableDimDwg.hideColumn(0)
 
-    # Getting the unique values for each column of the model
-        for column in range(self.modelDim.columnCount()):
-            list_valuesUnique = []
-            if column not in self.checkbox_states:
-                self.checkbox_states[column] = {}
-                self.checkbox_states[column]["Seleccionar todo"] = True
-                for row in range(self.modelDim.rowCount()):
-                    value = self.modelDim.record(row).value(column)
-                    if value not in list_valuesUnique:
-                        if isinstance(value, QtCore.QDate):
-                            value = value.toString("dd/MM/yyyy")
-                        list_valuesUnique.append(str(value))
-                        self.checkbox_states[column][value] = True
-                self.dict_valuesuniques[column] = list_valuesUnique
+        # Getting the unique values for each column of the model
+            for column in range(self.modelDim.columnCount()):
+                list_valuesUnique = []
+                if column not in self.checkbox_states:
+                    self.checkbox_states[column] = {}
+                    self.checkbox_states[column]["Seleccionar todo"] = True
+                    for row in range(self.modelDim.rowCount()):
+                        value = self.modelDim.record(row).value(column)
+                        if value not in list_valuesUnique:
+                            if isinstance(value, QtCore.QDate):
+                                value = value.toString("dd/MM/yyyy")
+                            list_valuesUnique.append(str(value))
+                            self.checkbox_states[column][value] = True
+                    self.dict_valuesuniques[column] = list_valuesUnique
 
-        self.modelDim.dataChanged.connect(self.saveChanges)
+            self.modelDim.dataChanged.connect(self.saveChanges)
 
-    # Configuring the OF Table
-        self.modelOf.dataChanged.disconnect(self.saveChanges)
+        # Configuring the OF Table
+            self.modelOf.dataChanged.disconnect(self.saveChanges)
 
-        self.modelOf.setTable("verification.workshop_of_drawings")
+            self.modelOf.setTable("verification.workshop_of_drawings")
 
-        self.tableOfDwg.setModel(None)
-        self.tableOfDwg.setModel(self.proxyOf)
-        self.modelOf.setFilter(f"num_order LIKE '{num_order}'")
-        self.modelOf.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
-        self.modelOf.select()
-        self.proxyOf.setSourceModel(self.modelOf)
-        self.tableOfDwg.setModel(self.proxyOf)
+            self.tableOfDwg.setModel(None)
+            self.tableOfDwg.setModel(self.proxyOf)
+            self.modelOf.setFilter(f"num_order LIKE '{num_order}'")
+            self.modelOf.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
+            self.modelOf.select()
+            self.proxyOf.setSourceModel(self.modelOf)
+            self.tableOfDwg.setModel(self.proxyOf)
 
-        columns_number = self.modelOf.columnCount()
-        for column in range(columns_number):
-            self.tableOfDwg.setItemDelegateForColumn(column, None)
+            columns_number = self.modelOf.columnCount()
+            for column in range(columns_number):
+                self.tableOfDwg.setItemDelegateForColumn(column, None)
 
-        self.tableOfDwg.setItemDelegate(AlignDelegate(self.tableOfDwg))
-        self.tableOfDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableOfDwg.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
-        if self.username == 'm.gil':
-            self.tableOfDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableOfDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-            self.tableOfDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-        else:
-            self.tableOfDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
-        self.tableOfDwg.setObjectName("tableOfDwg")
-        self.tableOfDwg.setSortingEnabled(False)
-        # self.tableOfDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableOfDwg, self.modelOf, self.proxyOf))
-        # self.tableOfDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-        # self.tableOfDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.splitter.addWidget(self.tableOfDwg)
-        # self.gridLayout_2.addWidget(self.tableOfDwg, 4, 0, 1, 7)
+            self.tableOfDwg.setItemDelegate(AlignDelegate(self.tableOfDwg))
+            self.tableOfDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableOfDwg.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+            if self.username == 'm.gil':
+                self.tableOfDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+                self.tableOfDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
+                self.tableOfDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+            else:
+                self.tableOfDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+            self.tableOfDwg.setObjectName("tableOfDwg")
+            self.tableOfDwg.setSortingEnabled(False)
+            # self.tableOfDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableOfDwg, self.modelOf, self.proxyOf))
+            # self.tableOfDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+            # self.tableOfDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+            self.splitter.addWidget(self.tableOfDwg)
+            # self.gridLayout_2.addWidget(self.tableOfDwg, 4, 0, 1, 7)
 
-    # Change all column names
-        headers = ["ID", "Nº Pedido", "Nº Plano OF", "Observaciones", "Descripción"]
-        self.modelOf.setAllColumnHeaders(headers)
+        # Change all column names
+            headers = ["ID", "Nº Pedido", "Nº Plano OF", "Observaciones", "Descripción", "Fecha Verif.", "Estado Verif."]
+            self.modelOf.setAllColumnHeaders(headers)
 
-        self.tableOfDwg.hideColumn(0)
+            self.tableOfDwg.hideColumn(0)
 
-    # Getting the unique values for each column of the model
-        for column in range(self.modelOf.columnCount()):
-            list_valuesUnique = []
-            if column not in self.checkbox_states:
-                self.checkbox_states[column] = {}
-                self.checkbox_states[column]["Seleccionar todo"] = True
-                for row in range(self.modelOf.rowCount()):
-                    value = self.modelOf.record(row).value(column)
-                    if value not in list_valuesUnique:
-                        if isinstance(value, QtCore.QDate):
-                            value = value.toString("dd/MM/yyyy")
-                        list_valuesUnique.append(str(value))
-                        self.checkbox_states[column][value] = True
-                self.dict_valuesuniques[column] = list_valuesUnique
+        # Getting the unique values for each column of the model
+            for column in range(self.modelOf.columnCount()):
+                list_valuesUnique = []
+                if column not in self.checkbox_states:
+                    self.checkbox_states[column] = {}
+                    self.checkbox_states[column]["Seleccionar todo"] = True
+                    for row in range(self.modelOf.rowCount()):
+                        value = self.modelOf.record(row).value(column)
+                        if value not in list_valuesUnique:
+                            if isinstance(value, QtCore.QDate):
+                                value = value.toString("dd/MM/yyyy")
+                            list_valuesUnique.append(str(value))
+                            self.checkbox_states[column][value] = True
+                    self.dict_valuesuniques[column] = list_valuesUnique
 
-        self.modelOf.dataChanged.connect(self.saveChanges)
+            self.modelOf.dataChanged.connect(self.saveChanges)
 
-    # Configuring the M Table
-        self.modelM.dataChanged.disconnect(self.saveChanges)
+        # Configuring the M Table
+            self.modelM.dataChanged.disconnect(self.saveChanges)
 
-        self.modelM.setTable("verification.m_drawing_verification")
+            self.modelM.setTable("verification.m_drawing_verification")
 
-        self.tableMDwg.setModel(None)
-        self.tableMDwg.setModel(self.proxyM)
-        self.modelM.setFilter(f"num_order LIKE '{num_order}'")
-        self.modelM.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
-        self.modelM.select()
-        self.proxyM.setSourceModel(self.modelM)
-        self.tableMDwg.setModel(self.proxyM)
+            self.tableMDwg.setModel(None)
+            self.tableMDwg.setModel(self.proxyM)
+            self.modelM.setFilter(f"num_order LIKE '{num_order}'")
+            self.modelM.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
+            self.modelM.select()
+            self.proxyM.setSourceModel(self.modelM)
+            self.tableMDwg.setModel(self.proxyM)
 
-        columns_number = self.modelM.columnCount()
-        for column in range(columns_number):
-            self.tableMDwg.setItemDelegateForColumn(column, None)
+            columns_number = self.modelM.columnCount()
+            for column in range(columns_number):
+                self.tableMDwg.setItemDelegateForColumn(column, None)
 
-        self.tableMDwg.setItemDelegate(AlignDelegate_M(self.tableMDwg))
-        self.tableMDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableMDwg.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.ResizeMode.Stretch)
-        if self.username == 'm.gil':
-            self.tableMDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableMDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-            self.tableMDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-        else:
-            self.tableMDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
-        self.tableMDwg.setObjectName("tableMDwg")
-        self.tableMDwg.setSortingEnabled(False)
-        # self.tableMDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableMDwg, self.modelMDwg, self.proxyM))
-        # self.tableMDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-        # self.tableMDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.splitter.addWidget(self.tableMDwg)
-        # self.gridLayout_2.addWidget(self.tableMDwg, 5, 0, 1, 7)
+            self.tableMDwg.setItemDelegate(AlignDelegate_M(self.tableMDwg))
+            self.tableMDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableMDwg.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+            if self.username == 'm.gil':
+                self.tableMDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+                self.tableMDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
+                self.tableMDwg.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+            else:
+                self.tableMDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+            self.tableMDwg.setObjectName("tableMDwg")
+            self.tableMDwg.setSortingEnabled(False)
+            # self.tableMDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableMDwg, self.modelMDwg, self.proxyM))
+            # self.tableMDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+            # self.tableMDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+            self.splitter.addWidget(self.tableMDwg)
+            # self.gridLayout_2.addWidget(self.tableMDwg, 5, 0, 1, 7)
 
-    # Change all column names
-        headers = [
-            "ID",
-            "Nº Pedido",
-            "Nº Plano M",
-            "Fecha Plano",
-            "Estado Plano",
-            "Notas",
-            "Observaciones",
-            "Descripción",
-        ]
-        self.modelM.setAllColumnHeaders(headers)
+        # Change all column names
+            headers = [
+                "ID",
+                "Nº Pedido",
+                "Nº Plano M",
+                "Observaciones",
+                "Descripción",
+                "Fecha Verif.",
+                "Estado Verif.",
+                "Observaciones Verif.",
+            ]
+            self.modelM.setAllColumnHeaders(headers)
 
-        self.tableMDwg.hideColumn(0)
-        self.tableMDwg.hideColumn(3)
-        self.tableMDwg.hideColumn(4)
-        self.tableMDwg.hideColumn(5)
+            self.tableMDwg.hideColumn(0)
+            self.tableMDwg.hideColumn(7)
 
-    # Getting the unique values for each column of the model
-        for column in range(self.modelM.columnCount()):
-            list_valuesUnique = []
-            if column not in self.checkbox_states:
-                self.checkbox_states[column] = {}
-                self.checkbox_states[column]["Seleccionar todo"] = True
-                for row in range(self.modelM.rowCount()):
-                    value = self.modelM.record(row).value(column)
-                    if value not in list_valuesUnique:
-                        if isinstance(value, QtCore.QDate):
-                            value = value.toString("dd/MM/yyyy")
-                        list_valuesUnique.append(str(value))
-                        self.checkbox_states[column][value] = True
-                self.dict_valuesuniques[column] = list_valuesUnique
+        # Getting the unique values for each column of the model
+            for column in range(self.modelM.columnCount()):
+                list_valuesUnique = []
+                if column not in self.checkbox_states:
+                    self.checkbox_states[column] = {}
+                    self.checkbox_states[column]["Seleccionar todo"] = True
+                    for row in range(self.modelM.rowCount()):
+                        value = self.modelM.record(row).value(column)
+                        if value not in list_valuesUnique:
+                            if isinstance(value, QtCore.QDate):
+                                value = value.toString("dd/MM/yyyy")
+                            list_valuesUnique.append(str(value))
+                            self.checkbox_states[column][value] = True
+                    self.dict_valuesuniques[column] = list_valuesUnique
 
-        self.modelM.dataChanged.connect(self.saveChanges)
+            self.modelM.dataChanged.connect(self.saveChanges)
 
-        # self.selection_model = self.tableDimDwg.selectionModel()
-        # self.selection_model.selectionChanged.connect(self.countSelectedCells)
+            # self.selection_model = self.tableDimDwg.selectionModel()
+            # self.selection_model.selectionChanged.connect(self.countSelectedCells)
 
-        self.tableDimDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableDimDwg, self.modelDim, self.proxyDim)
-        self.tableOfDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableOfDwg, self.modelOf, self.proxyOf)
-        self.tableMDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableMDwg, self.modelM, self.proxyM)
+            self.tableDimDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableDimDwg, self.modelDim, self.proxyDim)
+            self.tableOfDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableOfDwg, self.modelOf, self.proxyOf)
+            self.tableMDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableMDwg, self.modelM, self.proxyM)
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex, table, model, proxy):
@@ -2198,7 +2228,133 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function to enable copy and paste cells
     def custom_keyPressEvent(self, event, table, model, proxy):
-        if event.matches(QKeySequence.StandardKey.MoveToNextLine):
+        if event.key() == QtCore.Qt.Key.Key_Delete:
+            selected_indexes = table.selectionModel().selectedIndexes()
+            if not selected_indexes:
+                return
+            
+            model = table.model()
+            model_indexes = [model.mapToSource(index) for index in selected_indexes]
+
+            if isinstance(model, QtCore.QSortFilterProxyModel):
+                model_indexes = [model.mapToSource(index) for index in selected_indexes]
+                for index in model_indexes:
+                    model.sourceModel().setData(index, None)
+            else:
+                model_indexes = selected_indexes
+                for index in model_indexes:
+                    model.setData(index, None)
+
+        elif event.matches(QKeySequence.StandardKey.Copy):
+            selected_indexes = table.selectionModel().selectedIndexes()
+            if not selected_indexes:
+                return
+
+            mime_data = QMimeData()
+            data = bytearray()
+
+            if isinstance(model, QtCore.QSortFilterProxyModel):
+                for index in selected_indexes:
+                    source_index = proxy.mapToSource(index)
+                    data += str(model.sourceModel().data(source_index)).encode('utf-8') + b'\t'
+            else:
+                for index in selected_indexes:
+                    data += str(model.data(index)).encode('utf-8') + b'\t'
+
+            mime_data.setData("text/plain", data)
+
+            clipboard = QApplication.clipboard()
+            clipboard.setMimeData(mime_data)
+
+        elif event.matches(QKeySequence.StandardKey.Paste):
+            if table.selectionModel() != None:
+
+                clipboard = QApplication.clipboard()
+                mime_data = clipboard.mimeData()
+
+                if not mime_data.hasFormat("text/plain"):
+                    return
+
+                data = mime_data.data("text/plain").data()
+                values = data.split(b'\t')
+
+                selected_indexes = table.selectionModel().selectedIndexes()
+                if not selected_indexes:
+                    return
+
+                if isinstance(model, QtCore.QSortFilterProxyModel):
+                    model_indexes = [proxy.mapToSource(index) for index in selected_indexes]
+                    if len(values) == 2:
+                        for index in model_indexes:
+                            model.sourceModel().setData(index, values[0].decode('utf-8'))
+                    else:
+                        for index, value in zip(model_indexes, values):
+                            model.sourceModel().setData(index, value.decode('utf-8'))
+                else:
+                    model_indexes = selected_indexes
+                    if len(values) == 2:
+                        for index in model_indexes:
+                            model.setData(index, values[0].decode('utf-8'))
+                    else:
+                        for index, value in zip(model_indexes, values):
+                            model.setData(index, value.decode('utf-8'))
+
+        elif event.modifiers() and QtCore.Qt.KeyboardModifier.ControlModifier:
+            if event.key() == QtCore.Qt.Key.Key_Comma:
+                selected_indexes = table.selectionModel().selectedIndexes()
+                if not selected_indexes:
+                    return
+
+                model = table.model()
+
+                if isinstance(model, QtCore.QSortFilterProxyModel):
+                    model_indexes = [model.mapToSource(index) for index in selected_indexes]
+                    for index in model_indexes:
+                        model.sourceModel().setData(index, date.today().strftime("%d/%m/%Y"))
+                else:
+                    model_indexes = selected_indexes
+                    for index in model_indexes:
+                        model.setData(index, date.today().strftime("%d/%m/%Y"))
+
+            elif event.key() == QtCore.Qt.Key.Key_J:
+                if isinstance(model, EditableTableModelM) or isinstance(model, EditableTableModelOf):
+                    selected_indexes = table.selectionModel().selectedIndexes()
+                    if not selected_indexes:
+                        return
+
+                    if isinstance(model, QtCore.QSortFilterProxyModel):
+                        source_index = proxy.mapToSource(selected_indexes[0])
+                        first_value = str(model.sourceModel().data(source_index))
+                    else:
+                        first_value = str(model.data(selected_indexes[0]))
+
+                    del selected_indexes[0]
+                    if first_value[:2] == 'OF':
+                        number = int(first_value[3:5])
+                    elif first_value[0] == 'M':
+                        number = int(first_value[2:4])
+
+                    if isinstance(model, QtCore.QSortFilterProxyModel):
+                        model_indexes = [model.mapToSource(index) for index in selected_indexes]
+                        for index in model_indexes:
+                            number +=1
+                            if first_value[:2] == 'OF':
+                                dwg_number = first_value[:3]+str("{:02}".format(number))+first_value[-3:]
+                            elif first_value[0] == 'M':
+                                dwg_number = first_value[:2]+str("{:02}".format(number))+first_value[-3:]
+
+                            model.sourceModel().setData(index, dwg_number)
+                    else:
+                        model_indexes = selected_indexes
+                        for index in model_indexes:
+                            number +=1
+                            if first_value[:2] == 'OF':
+                                dwg_number = first_value[:3]+str("{:02}".format(number))+first_value[-3:]
+                            elif first_value[0] == 'M':
+                                dwg_number = first_value[:2]+str("{:02}".format(number))+first_value[-3:]
+                            model.setData(index, dwg_number)
+
+        elif event.matches(QKeySequence.StandardKey.MoveToNextLine):
             if table.selectionModel() != None:
                 selected_indexes = table.selectionModel().selectedIndexes()
                 if len(selected_indexes) == 1:
@@ -2254,38 +2410,15 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                     new_selection = QtCore.QItemSelection(QtCore.QModelIndex(model.index(current_row, new_column)), QtCore.QModelIndex(model.index(current_row, new_column)))
                     table.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
 
-        elif event.matches(QKeySequence.StandardKey.Copy):
-            if table.selectionModel() != None:
-                selected_indexes = table.selectionModel().selectedIndexes()
-                if selected_indexes:
-                    clipboard = QApplication.clipboard()
-                    text = self.get_selected_text(selected_indexes)
-                    clipboard.setText(text)
-
-        elif event.matches(QKeySequence.StandardKey.Paste):
-            if table.selectionModel() != None:
-                selected_indexes = table.selectionModel().selectedIndexes()
-                if selected_indexes:
-                    clipboard = QApplication.clipboard()
-                    text = clipboard.text()
-                    for index in selected_indexes:
-                        current_row = index.row()
-                        current_column = index.column()
-                        first_column_value = proxy.data(proxy.index(current_row, 0))
-                        target_row = None
-                        for row in range(model.rowCount()):
-                            if model.data(model.index(row, 0)) == first_column_value:
-                                target_row = row
-                                break
-                        if target_row is not None:
-                            target_index = model.index(target_row, current_column)
-                            model.setData(target_index, text, Qt.ItemDataRole.EditRole)
-                    model.submitAll()
+        elif event.matches(QKeySequence.StandardKey.InsertParagraphSeparator):
+            current_index = table.currentIndex()
+            if current_index.isValid() and not table.indexWidget(current_index):
+                table.edit(current_index)
 
         super().keyPressEvent(event)
 
 # Function to get the text of the selected cells
-    def get_selected_text(self, indexes):
+    def get_selected_text(self, indexes, model):
         if len(indexes) == 1:  # For only one cell selected
             index = indexes[0]
             cell_data = index.data(Qt.ItemDataRole.DisplayRole)
@@ -2302,7 +2435,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
             for row in sorted(rows):
                 for col in sorted(cols):
-                    index = self.model.index(row, col)
+                    index = model.index(row, col)
                     cell_data = index.data(Qt.ItemDataRole.DisplayRole)
                     cursor.insertText(str(cell_data))
                     cursor.insertText("\t")
@@ -2660,6 +2793,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    WorkshopDrawingIndex_Window = Ui_WorkshopDrawingIndex_Window(db, 'm.gil')
+    WorkshopDrawingIndex_Window = Ui_WorkshopDrawingIndex_Window(db, 'j.sanz')
     WorkshopDrawingIndex_Window.show()
     sys.exit(app.exec())

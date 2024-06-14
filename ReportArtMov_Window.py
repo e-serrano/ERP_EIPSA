@@ -11,6 +11,14 @@ from config import config
 import psycopg2
 import locale
 import os
+import pandas as pd
+from tkinter.filedialog import asksaveasfilename
+from openpyxl import Workbook
+from openpyxl.styles import NamedStyle
+from openpyxl.utils.dataframe import dataframe_to_rows
+from datetime import datetime
+
+
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
@@ -20,14 +28,14 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 class Ui_ArtMov_Window(object):
-    def setupUi(self, ReportPurRefDate_Window):
-        ReportPurRefDate_Window.setObjectName("ReportPurRefDate_Window")
-        ReportPurRefDate_Window.resize(1165, 945)
-        ReportPurRefDate_Window.setMinimumSize(QtCore.QSize(1165, 945))
+    def setupUi(self, ReportArtMov):
+        ReportArtMov.setObjectName("ReportArtMov")
+        ReportArtMov.resize(1165, 945)
+        ReportArtMov.setMinimumSize(QtCore.QSize(1165, 945))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        ReportPurRefDate_Window.setWindowIcon(icon)
-        ReportPurRefDate_Window.setStyleSheet("QWidget {\n"
+        ReportArtMov.setWindowIcon(icon)
+        ReportArtMov.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
 "}\n"
 "\n"
@@ -35,18 +43,26 @@ class Ui_ArtMov_Window(object):
 "    border: 2px solid black;\n"
 "}\n"
 "\n"
+"QComboBox QAbstractItemView{\n"
+    "min-width: 1200px;\n"
+    "}\n"
+    "\n"
+    "QComboBox QAbstractItemView::item {\n"
+    "min-height: 35px;\n"
+    "}\n"
+    "\n"
 "QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
 "  border-radius: 3px;\n"
 "  color: #fff;\n"
 "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
+"  font-size: 13px;\n"
 "  font-weight: 800;\n"
 "  line-height: 1.15385;\n"
 "  margin: 0;\n"
 "  outline: none;\n"
-"  padding: 8px .8em;\n"
+"  padding: 2px .2em;\n"
 "  text-align: center;\n"
 "  text-decoration: none;\n"
 "  vertical-align: baseline;\n"
@@ -58,26 +74,15 @@ class Ui_ArtMov_Window(object):
 "    border-color: rgb(0, 0, 0);\n"
 "}\n"
 "\n"
-"QPushButton:focus {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
 "QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255)\n"
-"}\n"
-"\n"
-"QPushButton:focus:pressed {\n"
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
 "}")
-        self.centralwidget = QtWidgets.QWidget(parent=ReportPurRefDate_Window)
+        self.centralwidget = QtWidgets.QWidget(parent=ReportArtMov)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame.setMinimumSize(QtCore.QSize(1145, 860))
         self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame.setObjectName("frame")
@@ -89,8 +94,8 @@ class Ui_ArtMov_Window(object):
         self.gridLayout1.setSpacing(0)
         self.gridLayout1.setObjectName("gridLayout1")
         self.label_item = QtWidgets.QLabel(parent=self.frame)
-        self.label_item.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        self.label_item.setMaximumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
+        self.label_item.setMinimumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
+        self.label_item.setMaximumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
         font = QtGui.QFont()
         font.setPointSize(int(11//1.5))
         font.setBold(True)
@@ -98,8 +103,9 @@ class Ui_ArtMov_Window(object):
         self.label_item.setObjectName("label_item")
         self.gridLayout1.addWidget(self.label_item, 0, 0, 1, 1)
         self.ItemName = QtWidgets.QComboBox(parent=self.frame)
-        self.ItemName.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.ItemName.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.ItemName.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.ItemName.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
+        self.ItemName.setEditable(True)
         font = QtGui.QFont()
         font.setPointSize(int(10//1.5))
         self.ItemName.setFont(font)
@@ -108,33 +114,6 @@ class Ui_ArtMov_Window(object):
         self.Button_Export = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Export.setMinimumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
         self.Button_Export.setMaximumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
-        self.Button_Export.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
         self.Button_Export.setObjectName("Button_Export")
         self.gridLayout1.addWidget(self.Button_Export, 0, 3, 1, 1)
         self.gridLayout_2.addLayout(self.gridLayout1, 1, 0, 1, 1)
@@ -175,14 +154,14 @@ class Ui_ArtMov_Window(object):
         self.horizontalLayout.addWidget(self.label_TotalValue)
         self.gridLayout_2.addLayout(self.horizontalLayout, 4, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
-        ReportPurRefDate_Window.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=ReportPurRefDate_Window)
+        ReportArtMov.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=ReportArtMov)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1165, 22))
         self.menubar.setObjectName("menubar")
-        ReportPurRefDate_Window.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=ReportPurRefDate_Window)
+        ReportArtMov.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=ReportArtMov)
         self.statusbar.setObjectName("statusbar")
-        ReportPurRefDate_Window.setStatusBar(self.statusbar)
+        ReportArtMov.setStatusBar(self.statusbar)
         self.tableWidget.verticalHeader().hide()
         self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
@@ -218,41 +197,40 @@ class Ui_ArtMov_Window(object):
                 conn.close()
 
         list_supplies=[x[3] + ' | ' + x[4] for x in results_supplies]
-        self.ItemName.addItems(sorted(list_supplies))
+        self.ItemName.addItems([''] + sorted(list_supplies))
 
-        self.retranslateUi(ReportPurRefDate_Window)
-        QtCore.QMetaObject.connectSlotsByName(ReportPurRefDate_Window)
+        self.retranslateUi(ReportArtMov)
+        QtCore.QMetaObject.connectSlotsByName(ReportArtMov)
 
         self.ItemName.currentIndexChanged.connect(self.loaddata)
+        self.Button_Export.clicked.connect(self.generate_excel)
 
-    def retranslateUi(self, ReportPurRefDate_Window):
+    def retranslateUi(self, ReportArtMov):
         _translate = QtCore.QCoreApplication.translate
-        ReportPurRefDate_Window.setWindowTitle(_translate("ReportPurRefDate_Window", "Resumen Cliente"))
+        ReportArtMov.setWindowTitle(_translate("ReportArtMov", "Mov. Artículo"))
         item = self.tableWidget.horizontalHeaderItem(0)
-        item.setText(_translate("ReportPurRefDate_Window", "Nombre"))
+        item.setText(_translate("ReportArtMov", "Nombre"))
         item = self.tableWidget.horizontalHeaderItem(1)
-        item.setText(_translate("ReportPurRefDate_Window", "Fecha Pedido"))
+        item.setText(_translate("ReportArtMov", "Nº Pedido"))
         item = self.tableWidget.horizontalHeaderItem(2)
-        item.setText(_translate("ReportPurRefDate_Window", "Nº Pedido"))
+        item.setText(_translate("ReportArtMov", "Fecha Pedido"))
         item = self.tableWidget.horizontalHeaderItem(3)
-        item.setText(_translate("ReportPurRefDate_Window", "Cantidad"))
-        self.label_item.setText(_translate("ReportPurRefDate_Window", "Artículo"))
-        self.label_Total.setText(_translate("ReportPurRefDate_Window", "Total Cantidad"))
-        self.Button_Export.setText(_translate("ReportPurRefDate_Window", "Exportar"))
+        item.setText(_translate("ReportArtMov", "Cantidad"))
+        self.label_item.setText(_translate("ReportArtMov", "Artículo"))
+        self.label_Total.setText(_translate("ReportArtMov", "Total Cantidad"))
+        self.Button_Export.setText(_translate("ReportArtMov", "Exportar"))
 
-
+# Function to load data in table
     def loaddata(self):
         supply_name=self.ItemName.currentText()
         supply_name=supply_name[:supply_name.find(" |")]
-
-        print(len(supply_name))
 
         
         query1 = """
                 SELECT co_header."id", co_header."client_id", co_header."client_order_num", clients."name", co_header."order_date"
                 FROM purch_fact.client_ord_header AS co_header
                 LEFT JOIN purch_fact.clients AS clients ON co_header."client_id" = clients."id"
-                ORDER BY co_header."client_id"
+                ORDER BY clients."name" ASC, co_header."order_date" DESC
                 """
         query2 = """
                 SELECT co_det."client_ord_header_id", supplies."reference", supplies."description", co_det."quantity"
@@ -261,11 +239,11 @@ class Ui_ArtMov_Window(object):
                 ORDER BY co_det."client_ord_header_id"
                 """
         commands_supplies = f"""
-                            SELECT query1."name", query1."client_order_num", TO_CHAR(query1."order_date", 'DD-MM-YYYY') as formatted_date, query2."quantity"
+                            SELECT query1."name", query1."client_order_num", TO_CHAR(query1."order_date", 'DD/MM/YYYY') as formatted_date, query2."quantity"
                             FROM ({query1}) AS query1
                             INNER JOIN ({query2}) AS query2 ON query1."id" = query2."client_ord_header_id"
                             WHERE query2."reference" = '{supply_name}'
-                            ORDER BY query1."name", query1."order_date"
+                            ORDER BY query1."order_date" DESC
                             """
         conn = None
 
@@ -278,6 +256,8 @@ class Ui_ArtMov_Window(object):
         # execution of commands one by one
             cur.execute(commands_supplies)
             results=cur.fetchall()
+
+            self.df = pd.DataFrame(results, columns=["Nombre", "Nº Pedido", "Fecha Pedido", "Cantidad"])
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
@@ -331,15 +311,43 @@ class Ui_ArtMov_Window(object):
                 item = self.tableWidget.item(row, 3)
                 if item is not None:
                     value = item.text()
-                    total += int(value)
-            total = locale.format_string("%.0f", total, grouping=True)
+                    total += float(value)
+            total = locale.format_string("%.2f", total, grouping=True)
             self.label_TotalValue.setText(total)
+
+# Function to generate excel
+    def generate_excel(self):
+        output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
+
+        if output_path:
+            wb = Workbook()
+            ws = wb.active
+
+            # Add data to Excel
+            for index, row in self.df.iterrows():
+                fecha_str = row['Fecha Pedido']
+                if fecha_str is not None:
+                    fecha_obj = datetime.strptime(fecha_str, '%d/%m/%Y').date()
+                    self.df.at[index, 'Fecha Pedido'] = fecha_obj
+
+            for r_idx, row in enumerate(dataframe_to_rows(self.df, index=False, header=True), 1):
+                ws.append(row)
+
+            date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
+
+            # Apply Styles
+            for cell in ws['C']:
+                cell.style = date_style
+
+            # Save Excel
+            wb.save(output_path)
+
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    ReportPurRefDate_Window = QtWidgets.QMainWindow()
+    ReportArtMov = QtWidgets.QMainWindow()
     ui = Ui_ArtMov_Window()
-    ui.setupUi(ReportPurRefDate_Window)
-    ReportPurRefDate_Window.show()
+    ui.setupUi(ReportArtMov)
+    ReportArtMov.show()
     sys.exit(app.exec())

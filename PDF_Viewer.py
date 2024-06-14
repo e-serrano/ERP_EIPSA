@@ -10,7 +10,7 @@ from PDFViewer_ZoomSelector import ZoomSelector
 from PDFViewer_ui import Ui_MainWindow
 from tkinter.filedialog import asksaveasfilename
 from PDF_Styles import pruebas
-import os
+import shutil
 import win32api
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -191,7 +191,7 @@ class PDF_Viewer(QMainWindow):
         output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar PDF")
 
         if output_path:
-            pdf.output(output_path)
+            shutil.copyfile(temp_file_path, output_path)
 
             dlg = QMessageBox()
             new_icon = QIcon()
@@ -203,14 +203,14 @@ class PDF_Viewer(QMainWindow):
             dlg.exec()
             del dlg,new_icon
 
-            os.remove(temp_file_path)
+            # os.remove(temp_file_path)
 
     @pyqtSlot()
     def on_actionPrint_triggered(self):
         temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
         try:
             win32api.ShellExecute(0, "print", temp_file_path, None, ".", 0) # Printing the temp file
-            os.remove(temp_file_path) # Deleting the temp file
+            # os.remove(temp_file_path) # Deleting the temp file
         except Exception as e:
             dlg = QMessageBox()
             new_icon = QIcon()

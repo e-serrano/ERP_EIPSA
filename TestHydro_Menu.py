@@ -173,6 +173,7 @@ class Ui_TestHydro_Menu(object):
     def insert_hydro(self,TestHydro_Menu):
         self.hydroinsert_window=Ui_TestHydroInsert_Window(self.username)
         self.hydroinsert_window.show()
+        TestHydro_Menu.close()
 
 
     def query_hydro(self,TestHydro_Menu):
@@ -180,12 +181,13 @@ class Ui_TestHydro_Menu(object):
         self.ui=Ui_TestHydroQuery_Window(self.username)
         self.ui.setupUi(self.hydroquery_window)
         self.hydroquery_window.showMaximized()
+        TestHydro_Menu.close()
 
 
 # if __name__ == "__main__":
 #     app = QtWidgets.QApplication(sys.argv)
 #     TestHydro_Menu = QtWidgets.QMainWindow()
-#     ui = Ui_TestHydro_Menu()
+#     ui = Ui_TestHydro_Menu('m.gil')
 #     ui.setupUi(TestHydro_Menu)
 #     TestHydro_Menu.show()
 #     sys.exit(app.exec())

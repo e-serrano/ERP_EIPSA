@@ -599,11 +599,48 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_PDFEdit.setIconSize(QtCore.QSize(40, 40))
             self.Button_PDFEdit.setObjectName("Button_PDFEdit")
             self.Header.addWidget(self.Button_PDFEdit)
+            spacerItem14 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem14)
+            self.Button_OT = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_OT.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_OT.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_OT.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_OT.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_OT.setText("")
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Barcode.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_OT.setIcon(icon2)
+            self.Button_OT.setIconSize(QtCore.QSize(40, 40))
+            self.Button_OT.setObjectName("Button_OT")
+            self.Button_OT.setToolTip("Ordenes de Trabajo 900")
+            self.Header.addWidget(self.Button_OT)
             self.Button_DBEdit.clicked.connect(self.editdb)
             self.Button_ImportTimes.clicked.connect(self.importtimes)
             self.Button_CheckTimes.clicked.connect(self.checktimes)
             self.Button_PDFEdit.clicked.connect(self.editpdf)
             self.Button_DB_Manuf.clicked.connect(self.dbmanufedit)
+            self.Button_OT.clicked.connect(self.otorder)
         elif self.name in ["Jorge Valtierra"]:
             self.Button_Deliveries = QtWidgets.QPushButton(parent=self.frame)
             self.Button_Deliveries.setMinimumSize(QtCore.QSize(50, 50))
@@ -677,11 +714,11 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Header.addWidget(self.Button_OT)
             spacerItem12 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
             self.Header.addItem(spacerItem12)
-            self.Button_PMI = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_PMI.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_PMI.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_PMI.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_PMI.setStyleSheet("QPushButton{\n"
+            self.Button_TestMenu = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_TestMenu.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_TestMenu.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_TestMenu.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_TestMenu.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
     "    background-color: rgb(255, 255, 255);\n"
@@ -703,14 +740,14 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "    background-color: rgb(200, 200, 200);\n"
     "    border-radius: 10px;\n"
     "}")
-            self.Button_PMI.setText("")
+            self.Button_TestMenu.setText("")
             icon9 = QtGui.QIcon()
-            icon9.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/pmi.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_PMI.setIcon(icon9)
-            self.Button_PMI.setIconSize(QtCore.QSize(40, 40))
-            self.Button_PMI.setObjectName("Button_PMI")
-            self.Button_PMI.setToolTip("Insertar PMI")
-            self.Header.addWidget(self.Button_PMI)
+            icon9.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Test_Menu.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_TestMenu.setIcon(icon9)
+            self.Button_TestMenu.setIconSize(QtCore.QSize(40, 40))
+            self.Button_TestMenu.setObjectName("Button_TestMenu")
+            self.Button_TestMenu.setToolTip("Insertar Pruebas")
+            self.Header.addWidget(self.Button_TestMenu)
 
             spacerItem16 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
             self.Header.addItem(spacerItem16)
@@ -748,10 +785,88 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_Test.setObjectName("Button_Test")
             self.Button_Test.setToolTip("Pruebas")
             self.Header.addWidget(self.Button_Test)
+            spacerItem9 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem9)
+            self.Button_Verification = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Verification.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Verification.setMaximumSize(QtCore.QSize(50, 16777215))
+            self.Button_Verification.setToolTip('Verificación')
+            self.Button_Verification.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Verification.setStyleSheet(
+                "QPushButton{\n"
+                "    border: 1px solid transparent;\n"
+                "    border-color: rgb(3, 174, 236);\n"
+                "    background-color: rgb(255, 255, 255);\n"
+                "    border-radius: 10px;\n"
+                "}\n"
+                "\n"
+                "QPushButton:hover{\n"
+                "    border: 1px solid transparent;\n"
+                "    border-color: rgb(0, 0, 0);\n"
+                "    color: rgb(0,0,0);\n"
+                "    background-color: rgb(255, 255, 255);\n"
+                "    border-radius: 10px;\n"
+                "}\n"
+                "\n"
+                "QPushButton:pressed{\n"
+                "    border: 1px solid transparent;\n"
+                "    border-color: rgb(0, 0, 0);\n"
+                "    color: rgb(0,0,0);\n"
+                "    background-color: rgb(200, 200, 200);\n"
+                "    border-radius: 10px;\n"
+                "}"
+            )
+            self.Button_Verification.setText("")
+            icon9 = QtGui.QIcon()
+            icon9.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Verification.setIcon(icon9)
+            self.Button_Verification.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Verification.setObjectName("Button_Verification")
+            self.Header.addWidget(self.Button_Verification)
+            spacerItem17 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem17)
+            self.Button_Nuclear = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Nuclear.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Nuclear.setMaximumSize(QtCore.QSize(50, 16777215))
+            self.Button_Nuclear.setToolTip('Anexos Nuclear')
+            self.Button_Nuclear.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Nuclear.setStyleSheet(
+                "QPushButton{\n"
+                "    border: 1px solid transparent;\n"
+                "    border-color: rgb(3, 174, 236);\n"
+                "    background-color: rgb(255, 255, 255);\n"
+                "    border-radius: 10px;\n"
+                "}\n"
+                "\n"
+                "QPushButton:hover{\n"
+                "    border: 1px solid transparent;\n"
+                "    border-color: rgb(0, 0, 0);\n"
+                "    color: rgb(0,0,0);\n"
+                "    background-color: rgb(255, 255, 255);\n"
+                "    border-radius: 10px;\n"
+                "}\n"
+                "\n"
+                "QPushButton:pressed{\n"
+                "    border: 1px solid transparent;\n"
+                "    border-color: rgb(0, 0, 0);\n"
+                "    color: rgb(0,0,0);\n"
+                "    background-color: rgb(200, 200, 200);\n"
+                "    border-radius: 10px;\n"
+                "}"
+            )
+            self.Button_Nuclear.setText("")
+            icon17 = QtGui.QIcon()
+            icon17.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Nuclear.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Nuclear.setIcon(icon17)
+            self.Button_Nuclear.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Nuclear.setObjectName("Button_Nuclear")
+            self.Header.addWidget(self.Button_Nuclear)
             self.Button_Deliveries.clicked.connect(self.deliveries)
             self.Button_OT.clicked.connect(self.otorder)
-            self.Button_PMI.clicked.connect(self.insert_pmi)
+            self.Button_TestMenu.clicked.connect(self.insert_test)
             self.Button_Test.clicked.connect(self.query_test)
+            self.Button_Verification.clicked.connect(self.verification)
+            self.Button_Nuclear.clicked.connect(self.nuclear_annex)
         elif self.name in ["Jesús Martínez"]:
             self.Button_Times = QtWidgets.QPushButton(parent=self.frame)
             self.Button_Times.setMinimumSize(QtCore.QSize(50, 50))
@@ -931,11 +1046,48 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_ClockIn.setIconSize(QtCore.QSize(40, 40))
             self.Button_ClockIn.setObjectName("Button_ClockIn")
             self.Header.addWidget(self.Button_ClockIn)
+            spacerItem19 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem19)
+            self.Button_NCReport = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_NCReport.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_NCReport.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_NCReport.setToolTip('Informes NC')
+            self.Button_NCReport.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_NCReport.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_NCReport.setText("")
+            icon19 = QtGui.QIcon()
+            icon19.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/NC.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_NCReport.setIcon(icon19)
+            self.Button_NCReport.setIconSize(QtCore.QSize(40, 40))
+            self.Button_NCReport.setObjectName("Button_NCReport")
+            self.Header.addWidget(self.Button_NCReport)
             self.Button_Times.clicked.connect(self.times)
             self.Button_OT.clicked.connect(self.otorder)
             self.Button_DB_Manuf.clicked.connect(self.dbmanufedit)
             self.Button_ClockIn_Import.clicked.connect(self.importclockin)
             self.Button_ClockIn.clicked.connect(self.clockin)
+            self.Button_NCReport.clicked.connect(self.nc_report)
         elif self.name in ["Santos Sánchez"]:
             self.Button_TechOffice = QtWidgets.QPushButton(parent=self.frame)
             self.Button_TechOffice.setMinimumSize(QtCore.QSize(50, 50))
@@ -1441,11 +1593,11 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ui.setupUi(self.otgeneralcreate_window)
         self.otgeneralcreate_window.show()
 
-# Function to open window to insert pmi data
-    def insert_pmi(self):
-        from TestPmiInsert_Window import Ui_PmiInsert_Window
-        self.Pmiinsert_window=Ui_PmiInsert_Window(self.username)
-        self.Pmiinsert_window.show()
+# Function to open window to insert test data
+    def insert_test(self):
+        from Tests_Menu import Ui_Tests_Menu
+        self.Testinsert_window=Ui_Tests_Menu(self.username)
+        self.Testinsert_window.show()
 
 # Function to open window with orders table for technical office data
     def techoffice(self):
@@ -1767,13 +1919,14 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to import clock times
     def importtimes(self):
-        fname = askopenfilename(filetypes=[("Archivos de texto", "*.txt")],
-                            title="Seleccionar archivo de texto de tiempos")
+        fname = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Tiempos\EXPSEM.txt"
+
         if fname:
-            df = pd.read_csv(fname, sep = "|", header=None, encoding="latin-1")
+            df = pd.read_csv(fname, sep = "|", header=None, encoding="latin-1", dtype={8: str})
             df = df.astype(str)
             final_df = df.iloc[:,[0, 2, 7, 8, 10]]
             final_df.columns = ['personal_id','date_ot','time_ot','number_ot','operations_id']
+            final_df['number_ot'] = final_df['number_ot'].str.replace(' ', '')
 
             params = config()
             conn = psycopg2.connect(**params)
@@ -1789,7 +1942,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                     columns = ', '.join([column for column, _ in columns_values])
 
                 # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
-                    values = ', '.join([f"'{values.replace(',', '.')}'" if column in ['time_ot'] else f"'{values}'" for column, values in columns_values])
+                    values = ', '.join([f"'{values.replace(':', '.')}'" if column in ['time_ot'] else f"'{values}'" for column, values in columns_values])
 
                     sql_insertion = f"INSERT INTO fabrication.imp_ot ({columns}) VALUES ({values})"
 
@@ -1797,6 +1950,22 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
                 conn.commit()
                 cursor.close()
+
+                new_fname = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Tiempos\EXPSEM.txt"
+
+                new_fname = "//nas01/DATOS/Comunes/EIPSA-ERP/Tiempos/EXPORTADOS/" + date.today().strftime("%Y") + "/EXPSEM " + date.today().strftime("%Y-%m-%d") + ".txt"
+
+                os.rename(fname, new_fname)
+
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("TXT importado con éxito")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+                del dlg, new_icon
 
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
@@ -2025,13 +2194,37 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to show window with tables of all tests
     def query_test(self):
-        from TestAllQuery_Window import Ui_TestAllQuery_Window
-        self.testquery_window=QtWidgets.QMainWindow()
-        self.ui=Ui_TestAllQuery_Window()
-        self.ui.setupUi(self.testquery_window)
-        self.testquery_window.showMaximized()
+        dlg = QtWidgets.QInputDialog()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle('Verificación')
+        dlg.setLabelText('Introduce un pedido:')
 
+        while True:
+            clickedButton = dlg.exec()
+            if clickedButton == 1:
+                numorder = dlg.textValue()
+                if numorder != '':
+                    from Verif_Order_Window import Ui_Verif_Order_Window
+                    self.testquery_window=QtWidgets.QMainWindow()
+                    self.ui=Ui_Verif_Order_Window(self.username, numorder)
+                    self.ui.setupUi(self.testquery_window)
+                    self.testquery_window.showMaximized()
+                    break
+                dlg_error = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg_error.setWindowIcon(new_icon)
+                dlg_error.setWindowTitle("Verificación")
+                dlg_error.setText("El pedido no puede estar vacío. Introduce un valor válido.")
+                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg_error.exec()
+                del dlg_error,new_icon
+            else:
+                break
 
+# Funtion to show window with manufacturing times
     def checktimes(self):
         from TimesQuery_Window import Ui_TimesQuery_Window
         self.timesquery_window=QtWidgets.QMainWindow()
@@ -2039,12 +2232,157 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ui.setupUi(self.timesquery_window)
         self.timesquery_window.showMaximized()
 
+# Function to open corresponding window when Verification button is clicked
+    def verification(self):
+        from VerificationQuery_Window import Ui_VerificationQuery_Window
+        self.Verificationquery_window=QtWidgets.QMainWindow()
+        self.ui=Ui_VerificationQuery_Window(self.username)
+        self.ui.setupUi(self.Verificationquery_window)
+        self.Verificationquery_window.showMaximized()
+
+# Function to generate nuclear annexes
+    def nuclear_annex(self):
+        dlg = QtWidgets.QInputDialog()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle('Anexos Nucleares')
+        dlg.setLabelText('Inserte pedido:')
+
+        dlg2 = QtWidgets.QInputDialog()
+        new_icon2 = QtGui.QIcon()
+        new_icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg2.setWindowIcon(new_icon2)
+        dlg2.setWindowTitle('Anexos Nucleares')
+        dlg2.setLabelText('CODIGO A.N.A.:')
+
+        dlg3 = QtWidgets.QInputDialog()
+        new_icon3 = QtGui.QIcon()
+        new_icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg3.setWindowIcon(new_icon3)
+        dlg3.setWindowTitle('Anexos Nucleares')
+        dlg3.setLabelText('PDO A.N.A.:')
+
+        dlg4 = QtWidgets.QInputDialog()
+        new_icon4 = QtGui.QIcon()
+        new_icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg4.setWindowIcon(new_icon4)
+        dlg4.setWindowTitle('Anexos Nucleares')
+        dlg4.setLabelText('Linea:')
+
+        while True:
+            annex, ok = QtWidgets.QInputDialog.getItem(self, "Anexos Nucleares", "Seleccióna un tipo de anexo:", ['Anexo A', 'Anexo B', 'Anexo C'], 0, False)
+            if ok and annex:
+                annex_type = annex
+                if annex_type != '':
+                    while True:
+                        clickedButton = dlg.exec()
+                        if clickedButton == 1:
+                            numorder = dlg.textValue()
+                            if numorder != '':
+                                while True:
+                                    clickedButton2 = dlg2.exec()
+                                    if clickedButton2 == 1:
+                                        ana_code = dlg2.textValue()
+                                        if ana_code != '':
+                                            while True:
+                                                clickedButton3 = dlg3.exec()
+                                                if clickedButton3 == 1:
+                                                    ana_order = dlg3.textValue()
+                                                    if ana_order != '':
+                                                        while True:
+                                                            clickedButton4 = dlg4.exec()
+                                                            if clickedButton4 == 1:
+                                                                line_number = dlg4.textValue()
+                                                                if line_number != '':
+                                                                    from Excel_Export_Templates import nuclear_annexes
+                                                                    excel_to_export = nuclear_annexes(annex_type, numorder, ana_code, ana_order, line_number)
+                                                                    excel_to_export.save_excel_doc()
+                                                                    break
+                                                                dlg_error = QtWidgets.QMessageBox()
+                                                                new_icon = QtGui.QIcon()
+                                                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                                                dlg_error.setWindowIcon(new_icon)
+                                                                dlg_error.setWindowTitle("Anexos Nucleares")
+                                                                dlg_error.setText("La línea no puede estar vacía")
+                                                                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                                                dlg_error.exec()
+                                                                del dlg_error,new_icon
+                                                            else:
+                                                                break
+                                                        break
+                                                    dlg_error = QtWidgets.QMessageBox()
+                                                    new_icon = QtGui.QIcon()
+                                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                                    dlg_error.setWindowIcon(new_icon)
+                                                    dlg_error.setWindowTitle("Anexos Nucleares")
+                                                    dlg_error.setText("El pedido A.N.A. no puede estar vacío")
+                                                    dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                                    dlg_error.exec()
+                                                    del dlg_error,new_icon
+                                                else:
+                                                    break
+                                            break
+                                        dlg_error = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg_error.setWindowIcon(new_icon)
+                                        dlg_error.setWindowTitle("Anexos Nucleares")
+                                        dlg_error.setText("El código A.N.A. no puede estar vacío")
+                                        dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                        dlg_error.exec()
+                                        del dlg_error,new_icon
+                                    else:
+                                        break
+                                break
+                            dlg_error = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg_error.setWindowIcon(new_icon)
+                            dlg_error.setWindowTitle("Anexos Nucleares")
+                            dlg_error.setText("El número de pedido no puede estar vacío")
+                            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg_error.exec()
+                            del dlg_error,new_icon
+                        else:
+                            break
+                    break
+                dlg_error = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg_error.setWindowIcon(new_icon)
+                dlg_error.setWindowTitle("Anexos Nucleares")
+                dlg_error.setText("Selecciona un anexo")
+                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg_error.exec()
+                del dlg_error,new_icon
+            else:
+                break
+
+# Function to open window of nc reports
+    def nc_report(self):
+        from NC_Report_Window import Ui_NC_Report_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_nc = createConnection(user_database, password_database)
+        if not db_nc:
+            sys.exit()
+
+        self.nc_window = Ui_NC_Report_Window(db_nc, self.username)
+        self.nc_window.showMaximized()
+
+
 
 # if __name__ == "__main__":
 #     import sys
 #     app = QtWidgets.QApplication(sys.argv)
 #     Login_Window = QtWidgets.QMainWindow()
-#     ui = Ui_App_Technical('Ernesto Carrillo','e.carrillo')
+#     ui = Ui_App_Technical('Jorge Valtierra','j.valtierra')
 #     ui.setupUi(Login_Window)
 #     Login_Window.show()
 #     sys.exit(app.exec())

@@ -192,10 +192,10 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         self.hiddencolumns = []
         self.action_checkbox_map = {}
         self.checkbox_filters = {}
-        self.setupUi(self)
         self.model.dataChanged.connect(self.saveChanges)
         self.name = name
         self.variable = ''
+        self.setupUi(self)
 
     def closeEvent(self, event):
     # Closing database connection
@@ -295,6 +295,18 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolExpExcel.setIcon(icon)
         self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
+        if self.name == 'Jesús Martínez':
+            self.hcabspacer6=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.hcab.addItem(self.hcabspacer6)
+            self.of_dwg = QtWidgets.QToolButton(self.frame)
+            self.of_dwg.setObjectName("Of_dwg_Button")
+            self.of_dwg.setToolTip("OF Componentes")
+            self.hcab.addWidget(self.of_dwg)
+            icon = QtGui.QIcon()
+            icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/M_Drawing.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.of_dwg.setIcon(icon)
+            self.of_dwg.setIconSize(QtCore.QSize(25, 25))
+            self.of_dwg.clicked.connect(lambda: self.insert_of(self.Numorder_EditTags.text().upper()))
 
         self.hcabspacer=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer)
@@ -845,8 +857,72 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     self.model.dataChanged.connect(self.saveChanges)
 
                 else:
-                    if self.numorder[:2] == 'PA':
-                        self.variable = 'Otros'
+                    query_flow = ('''
+                        SELECT tags_data.tags_flow."num_order"
+                        FROM tags_data.tags_flow
+                        WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_temp = ('''
+                        SELECT tags_data.tags_temp."num_order"
+                        FROM tags_data.tags_temp
+                        WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_level = ('''
+                        SELECT tags_data.tags_level."num_order"
+                        FROM tags_data.tags_level
+                        WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_others = ('''
+                        SELECT tags_data.tags_others."num_order"
+                        FROM tags_data.tags_others
+                        WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query_flow,(self.numorder,))
+                        results_flow=cur.fetchall()
+                        cur.execute(query_temp,(self.numorder,))
+                        results_temp=cur.fetchall()
+                        cur.execute(query_level,(self.numorder,))
+                        results_level=cur.fetchall()
+                        cur.execute(query_others,(self.numorder,))
+                        results_others=cur.fetchall()
+
+                        if len(results_flow) != 0:
+                            self.variable = 'Caudal'
+                        elif len(results_temp) != 0:
+                            self.variable = 'Temperatura'
+                        elif len(results_level) != 0:
+                            self.variable = 'Nivel'
+                        elif len(results_others) != 0:
+                            self.variable = 'Otros'
+                        else:
+                            self.variable = ''
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
 
                     if self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
@@ -938,7 +1014,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             elif self.variable == 'Otros':
                 for i in range(27,31):
                     self.tableEditTags.hideColumn(i)
-                for i in range(33,36):
+                for i in range(32,36):
                     self.tableEditTags.hideColumn(i)
                 for i in range(37,42):
                     self.tableEditTags.hideColumn(i)
@@ -1161,6 +1237,35 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             self.model.dataChanged.connect(self.saveChanges)
             self.selection_model = self.tableEditTags.selectionModel()
             self.selection_model.selectionChanged.connect(self.countSelectedCells)
+        else:
+            self.model.dataChanged.connect(self.saveChanges)
+
+        self.tableEditTags.doubleClicked.connect(lambda index: self.open_pics(index, self.variable))
+
+# Function to open equipment photos
+    def open_pics(self, index, variable):
+        if ((variable == 'Caudal' and index.column() == 156)
+        or (variable == 'Temperatura' and index.column() == 166)
+        or (variable == 'Nivel' and index.column() == 169)
+        or (variable == 'Otros' and index.column() == 56)):
+            value = index.data()
+
+            if value != '':
+                try:
+                    file_path = os.path.normpath(value)
+                    os.startfile(file_path)
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
@@ -1514,6 +1619,8 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             if selected_indexes:
                 clipboard = QApplication.clipboard()
                 text = self.get_selected_text(selected_indexes)
+                if isinstance(text, QtCore.QDate):
+                    text=text.toString("dd/MM/yyyy")
                 clipboard.setText(text)
 
         elif event.matches(QKeySequence.StandardKey.Paste):
@@ -1639,6 +1746,25 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
         self.context_menu.close()
 
+# Function to insert components OF drawings
+    def insert_of(self, numorder):
+        if numorder == '':
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Planos")
+            dlg.setText("Introduce un número de pedido")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+        else:
+            from OF_DrawingInsertComp_Window import Ui_OF_DrawingInsertComp_Window
+            self.of_drawing_insert_window_menu=QtWidgets.QMainWindow()
+            self.ui=Ui_OF_DrawingInsertComp_Window(numorder, self.name)
+            self.ui.setupUi(self.of_drawing_insert_window_menu)
+            self.of_drawing_insert_window_menu.show()
+
 
 if __name__ == "__main__":
     import sys
@@ -1654,6 +1780,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    EditTags_Window = Ui_EditTags_Technical_Window('Ernesto Carrillo',db)
+    EditTags_Window = Ui_EditTags_Technical_Window('Jesús Martínez',db)
     EditTags_Window.show()
     sys.exit(app.exec())

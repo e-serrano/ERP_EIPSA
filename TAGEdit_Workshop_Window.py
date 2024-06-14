@@ -21,6 +21,7 @@ from datetime import *
 import os
 import pandas as pd
 from tkinter.filedialog import asksaveasfilename
+from openpyxl import load_workbook
 
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -35,7 +36,7 @@ def imagen_to_base64(imagen):
 
 
 class FreezeTableWidget(QtWidgets.QTableView):
-    def __init__(self, model):
+    def __init__(self, model, variable):
         super(FreezeTableWidget, self).__init__()
         self.setModel(model)
         self.frozenTableView = QtWidgets.QTableView(self)
@@ -46,6 +47,8 @@ class FreezeTableWidget(QtWidgets.QTableView):
             self.verticalScrollBar().setValue)
         self.verticalScrollBar().valueChanged.connect(
             self.frozenTableView.verticalScrollBar().setValue)
+        self.variable_table = variable
+        self.doubleClicked.connect(self.open_pics)
 
     def init(self):
         self.frozenTableView.setModel(self.model())
@@ -103,6 +106,30 @@ class FreezeTableWidget(QtWidgets.QTableView):
             self.verticalHeader().width() + self.frameWidth(),
             self.frameWidth(), self.columnWidth(0) + self.columnWidth(1),
             self.viewport().height() + self.horizontalHeader().height())
+
+    def open_pics(self, index):
+        if ((self.variable_table == 'Caudal' and index.column() == 156)
+        or (self.variable_table == 'Temperatura' and index.column() == 166)
+        or (self.variable_table == 'Nivel' and index.column() == 169)
+        or (self.variable_table == 'Otros' and index.column() == 56)):
+            value = index.data()
+
+            if value != '':
+                try:
+                    file_path = os.path.normpath(value)
+                    os.startfile(file_path)
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
 
 
 class CheckboxWidget(QtWidgets.QWidget):
@@ -199,8 +226,11 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
     def flags(self, index):
         flags = super().flags(index)
-        flags &= ~Qt.ItemFlag.ItemIsEditable
-        return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        if index.column() in self.column_range:
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+        else:
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
 
     def getColumnHeaders(self, visible_columns):
@@ -220,9 +250,9 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
         self.hiddencolumns = []
         self.action_checkbox_map = {}
         self.checkbox_filters = {}
-        self.setupUi(self)
         self.name = name
         self.variable = ''
+        self.setupUi(self)
 
     def closeEvent(self, event):
     # Closing database connection
@@ -292,6 +322,16 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolExpExcel.setIcon(icon)
         self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
+        self.hcabspacer3=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer3)
+        self.toolStickers = QtWidgets.QToolButton(self.frame)
+        self.toolStickers.setObjectName("toolStickers")
+        self.toolStickers.setToolTip("Generar Pegatinas")
+        self.hcab.addWidget(self.toolStickers)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Sticker.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolStickers.setIcon(icon)
+        self.toolStickers.setIconSize(QtCore.QSize(25, 25))
 
         self.hcabspacer=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer)
@@ -362,7 +402,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 3, 0, 1, 1)
         self.model = EditableTableModel()
-        self.tableEditTags=FreezeTableWidget(self.model)
+        self.tableEditTags=FreezeTableWidget(self.model, '')
         self.tableEditTags.setObjectName("tableEditTags")
         self.gridLayout_2.addWidget(self.tableEditTags, 4, 0, 1, 1)
         self.hLayout3 = QtWidgets.QHBoxLayout()
@@ -412,6 +452,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolShow.clicked.connect(self.show_columns)
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
+        self.toolStickers.clicked.connect(self.stickerexcel)
         self.Numorder_EditTags.returnPressed.connect(self.query_tags)
         self.createContextMenu()
 
@@ -465,7 +506,6 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
             self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
-
 
 # Function to load table and setting in the window
     def query_tags(self):
@@ -548,24 +588,87 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                     dlg.exec()
                     del dlg, new_icon
-                    self.model.dataChanged.connect(self.saveChanges)
 
                 else:
-                    if self.numorder[:2] == 'PA':
-                        self.variable = 'Otros'
+                    query_flow = ('''
+                        SELECT tags_data.tags_flow."num_order"
+                        FROM tags_data.tags_flow
+                        WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_temp = ('''
+                        SELECT tags_data.tags_temp."num_order"
+                        FROM tags_data.tags_temp
+                        WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_level = ('''
+                        SELECT tags_data.tags_level."num_order"
+                        FROM tags_data.tags_level
+                        WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_others = ('''
+                        SELECT tags_data.tags_others."num_order"
+                        FROM tags_data.tags_others
+                        WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query_flow,(self.numorder,))
+                        results_flow=cur.fetchall()
+                        cur.execute(query_temp,(self.numorder,))
+                        results_temp=cur.fetchall()
+                        cur.execute(query_level,(self.numorder,))
+                        results_level=cur.fetchall()
+                        cur.execute(query_others,(self.numorder,))
+                        results_others=cur.fetchall()
+
+                        if len(results_flow) != 0:
+                            self.variable = 'Caudal'
+                        elif len(results_temp) != 0:
+                            self.variable = 'Temperatura'
+                        elif len(results_level) != 0:
+                            self.variable = 'Nivel'
+                        elif len(results_others) != 0:
+                            self.variable = 'Otros'
+                        else:
+                            self.variable = ''
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
 
                     if self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
-                        self.initial_column = 30
+                        self.variable_cells = [47,48]
                     elif self.variable == 'Temperatura':
                         self.model.setTable("tags_data.tags_temp")
-                        self.initial_column = 35
+                        self.variable_cells = [57,58,62]
                     elif self.variable == 'Nivel':
                         self.model.setTable("tags_data.tags_level")
-                        self.initial_column = 36
+                        self.variable_cells = [51,52]
                     elif self.variable == 'Otros':
                         self.model.setTable("tags_data.tags_others")
-                        self.initial_column = 11
+                        self.variable_cells = [15,16]
                     self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
 
         if self.variable != '':
@@ -575,12 +678,12 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
 
             self.proxy.setSourceModel(self.model)
             # self.tableEditTags.setModel(self.proxy)
-            self.tableEditTags=FreezeTableWidget(self.proxy)
+            self.tableEditTags=FreezeTableWidget(self.proxy, self.variable)
 
             columns_number=self.model.columnCount()
             for column in range(columns_number):
                 self.tableEditTags.setItemDelegateForColumn(column, None)
-            self.model.column_range = range(self.initial_column,self.initial_column + 4)
+            self.model.column_range = self.variable_cells
 
             if self.variable == 'Caudal':
                 for i in range(72,125):
@@ -1099,6 +1202,8 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
             if selected_indexes:
                 clipboard = QApplication.clipboard()
                 text = self.get_selected_text(selected_indexes)
+                if isinstance(text, QtCore.QDate):
+                    text=text.toString("dd/MM/yyyy")
                 clipboard.setText(text)
 
         elif event.matches(QKeySequence.StandardKey.Paste):
@@ -1204,6 +1309,59 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
             self.hiddencolumns.append(column)
 
         self.context_menu.close()
+
+    def stickerexcel(self):
+        if self.variable == 'Caudal':
+            id_list=[]
+            data = []
+
+            for row in range(self.proxy.rowCount()):
+                first_column_value = self.proxy.data(self.proxy.index(row, 0))
+                id_list.append(first_column_value)
+
+            if len(id_list) != 0:
+                for element in id_list:
+                    for row in range(self.model.rowCount()):
+                        if self.model.data(self.model.index(row, 0)) == element:
+                            target_row = row
+                            break
+                    if target_row is not None:
+                        tag = self.model.data(self.model.index(target_row, 1))
+                        size = self.model.data(self.model.index(target_row, 9)) + " " +self.model.data(self.model.index(target_row, 10)) + " " + self.model.data(self.model.index(target_row, 11))
+                        diameter = "ø = " + self.model.data(self.model.index(target_row, 34)) + " mm"
+                        eipsa = 'EIPSA. Made in Spain'
+
+                        data.append({
+                            'tag': tag,
+                            'size': size,
+                            'diameter': diameter,
+                            'eipsa': eipsa
+                        })
+
+                df = pd.concat([pd.DataFrame([item]) for item in data], ignore_index=True)
+                groups = [df.iloc[i:i + 4] for i in range(0, len(df), 4)]
+
+                self.wb = load_workbook(
+                    r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA PEGATINAS.xlsx"
+                )
+                sheet_name = "Hoja1"  # Selecting template sheet
+                ws = self.wb[sheet_name]
+
+                start_row = 1
+                for idx, group in enumerate(groups):
+                    group_transposed = group.T
+                    for r_idx, row in enumerate(group_transposed.iterrows(), start=start_row + idx * 4):
+                        for c_idx, value in enumerate(row[1], 1):
+                            ws.cell(row=r_idx, column=c_idx, value=value)
+
+
+                output_path = asksaveasfilename(
+                    defaultextension=".xlsx",
+                    filetypes=[("Archivos de Excel", "*.xlsx")],
+                    title="Guardar archivo de Excel",
+                )
+                if output_path:
+                    self.wb.save(output_path)
 
 
 if __name__ == "__main__":

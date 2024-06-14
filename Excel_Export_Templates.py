@@ -3,7 +3,7 @@ from openpyxl import load_workbook
 from openpyxl.styles import Font, Alignment, PatternFill, NamedStyle
 from openpyxl.cell.rich_text import CellRichText, TextBlock
 from openpyxl.cell.text import InlineFont
-from openpyxl.utils import get_column_letter, get_column_letter
+from openpyxl.utils import get_column_letter
 from copy import deepcopy
 from tkinter.filedialog import asksaveasfilename
 from tkinter import Tk
@@ -13,55 +13,18 @@ import psycopg2
 from openpyxl.drawing.spreadsheet_drawing import AnchorMarker, TwoCellAnchor
 from PyQt6 import QtGui, QtWidgets
 import os
+from math import exp
+
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
-class material_order:
-    def __init__(self, df, num_order, client, variable, num_ot):
-        # Loading Excel Template
-        self.wb = load_workbook(
-            r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Pedido Materia Prima.xlsx"
-        )
-        sheet_name = "Hoja1"  # Selecting template sheet
-        ws = self.wb[sheet_name]
-        start_row = 12  # Obtaining last row used
-        row_11_style = {}
-        for col_num in range(1, 15):
-            cell_11 = ws.cell(row=12, column=col_num)
-            row_11_style[col_num] = deepcopy(cell_11._style)
-
-        for index, row in df.iterrows():
-            for col_num, value in enumerate(row, start=4):
-                cell = ws.cell(row=start_row + index, column=col_num)
-                cell.value = value
-                for num in range(1, 15):
-                    cell = ws.cell(row=start_row + index, column=num)
-                    cell._style = deepcopy(row_11_style[num])
-
-        # Adding text in cell L4, C5, C6, H1 and H9
-        ws["L4"] = num_order
-        ws["C5"] = client
-        ws["C6"] = variable
-        ws["H1"] = int(num_ot)
-        ws["H9"] = date.today().strftime("%d/%m/%Y")
-
-        root = Tk()
-        root.withdraw()  # Hiding main window Tkinter
-
-    def save_excel(self):
-        # Dialog window to select folder and file name; if path is selected, excel file is saved
-        output_path = asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos de Excel", "*.xlsx")],
-            title="Guardar archivo de Excel",
-        )
-        if output_path:
-            self.wb.save(output_path)
-
+# Templates for orders
 
 class offer_flow:
     def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
+        notes = notes.split('\n')
+        
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
         offername_technical = numoffer + "-" + "Technical.Rev" + rev
@@ -82,7 +45,7 @@ class offer_flow:
                         WHERE (
                         UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        "tag_state" = 'QUOTED'
+                        "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
         conn = None
@@ -123,7 +86,7 @@ class offer_flow:
 
                 value_type_dict = {
                     "A. Chamber": 1,
-                    "C.RING": 1,
+                    "C. RING": 1,
                     "F": 1,
                     "F+C.RING": 1,
                     "F+P": 1,
@@ -166,7 +129,7 @@ class offer_flow:
                     axis=1,)
 
                 number_items = df.shape[0]
-                documentation = number_items * 30
+                documentation = number_items * 70
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
@@ -323,22 +286,30 @@ class offer_flow:
 
                         last_row = ws.max_row
 
-                    ws[f"A{last_row+3}"] = "Offer Validity: " + validity + " days"
-                    ws[f"A{last_row+3}"]._style = ws["Z1"]._style
-                    ws[f"A{last_row+4}"] = (
-                        "Delivery Time: "
-                        + delivery_time
-                        + " weeks since drawing / calculation approval (August and last two December weeks excluded)"
-                    )
+                    if eq_type == "VENTURI ELEMENTS DATA":
+                        ws[f"A{last_row+3}"] = "PRICES INCLUDE MACHINED INTEGRAL CENTRE SECTION AND ALL STRUCTURAL WELDS 100% RADIOGRAPHED"
+                        ws[f"A{last_row+3}"]._style = ws["Z2"]._style
+                    ws[f"A{last_row+4}"] = "OFFER VALIDITY: " + validity + " DAYS"
                     ws[f"A{last_row+4}"]._style = ws["Z1"]._style
+                    ws[f"A{last_row+5}"] = (
+                        "DELIVERY TIME: "
+                        + delivery_time
+                        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
+                    )
+                    ws[f"A{last_row+5}"]._style = ws["Z1"]._style
 
                     if notes != "":
-                        notes = notes.split("\n")
-                        line = last_row + 5
-                        for note in notes:
-                            ws[f"A{line}"] = note
+                        if isinstance(notes, list):
+                            line = last_row + 6
+                            for note in notes:
+                                ws[f"A{line}"] = note
+                                ws[f"A{line}"]._style = ws["Z1"]._style
+                                line += 1
+                        else:
+                            line = last_row + 6
+                            ws[f"A{line}"] = notes
                             ws[f"A{line}"]._style = ws["Z1"]._style
-                            line += 1
+
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
@@ -346,51 +317,27 @@ class offer_flow:
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
                 
-                row_amount = last_row + 3
+                row_amount = last_row + 4
                 for key, value in dict_sheets_data.items():
                     parts_key = key.split(" ")
-                    ws.cell(
-                    row=row_amount + 2, column=num_column_amount - 1
-                    ).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
-                    ws.cell(
-                    row=row_amount + 2, column=num_column_amount
-                    ).value = value[2]
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
+                    ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["R1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                     ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["T1"]._style
 
                     row_amount += 2
 
-                ws.cell(
-                    row=row_amount + 2, column=num_column_amount - 1
-                ).value = "TOTAL AMOUNT OF MATERIAL"
-                ws.cell(
-                    row=row_amount + 2, column=num_column_amount
-                ).value = total_amount_material
-                ws.cell(
-                    row=row_amount + 4, column=num_column_amount - 1
-                ).value = "PACKING AND TRANSPORT (FCA 2020)"
-                ws.cell(
-                    row=row_amount + 4, column=num_column_amount
-                ).value = (
-                    f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)"
-                )
-                ws.cell(
-                    row=row_amount + 5, column=num_column_amount - 1
-                ).value = "TESTS & INSPECTION"
-                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(
-                    testinspection
-                )
-                ws.cell(
-                    row=row_amount + 6, column=num_column_amount - 1
-                ).value = "DOCUMENTATION"
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
+                ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
+                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200 )
+                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
+                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
                 ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(
-                    row=row_amount + 8, column=num_column_amount - 1
-                ).value = "TOTAL AMOUNT OF BID"
-                ws.cell(
-                    row=row_amount + 8, column=num_column_amount
-                ).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
+                ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
                 ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["R1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
@@ -471,12 +418,12 @@ class offer_flow:
                 elif pay_term == "90_10":
                     ws["B45"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% at take over certificate. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B46"] = (
                         "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante con la certificación final.\n"
+                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
                         "Transferencia Bancaria: 60 días desde emision de factura."
                     )
                 elif pay_term == "50_50":
@@ -560,7 +507,21 @@ class offer_flow:
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
 
-                    self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
+                    # self.wb_technical[eq_type].delete_rows(last_row + 8, 20)
+                    ws[f"M{last_row+5}"] = ""
+                    ws[f"N{last_row+5}"] = ""
+
+                    ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
+
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
 
                 # Deleting "Amount" column
                     self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
@@ -662,12 +623,12 @@ class offer_flow:
                 elif pay_term == "90_10":
                     ws["B45"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% at take over certificate. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B46"] = (
                         "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante con la certificación final.\n"
+                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
                         "Transferencia Bancaria: 60 días desde emision de factura."
                     )
                 elif pay_term == "50_50":
@@ -760,9 +721,9 @@ class offer_flow:
         for image in sheet._images:
             image.width -= 22
 
-
 class offer_short_flow_spanish:
     def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
+        notes = notes.split('\n')
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
         offername_technical = numoffer + "-" + "Technical.Rev" + rev
@@ -783,7 +744,7 @@ class offer_short_flow_spanish:
                         WHERE (
                         UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        "tag_state" = 'QUOTED'
+                        "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
         conn = None
@@ -867,7 +828,7 @@ class offer_short_flow_spanish:
                     axis=1,)
 
                 number_items = df.shape[0]
-                documentation = number_items * 30
+                documentation = number_items * 70
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
@@ -1024,22 +985,29 @@ class offer_short_flow_spanish:
 
                         last_row = ws.max_row
 
-                    ws[f"A{last_row+3}"] = "Offer Validity: " + validity + " days"
-                    ws[f"A{last_row+3}"]._style = ws["Z1"]._style
-                    ws[f"A{last_row+4}"] = (
-                        "Delivery Time: "
-                        + delivery_time
-                        + " weeks since drawing / calculation approval (August and last two December weeks excluded)"
-                    )
+                    if eq_type == "VENTURI ELEMENTS DATA":
+                        ws[f"A{last_row+3}"] = "PRICES INCLUDE MACHINED INTEGRAL CENTRE SECTION AND ALL STRUCTURAL WELDS 100% RADIOGRAPHED"
+                        ws[f"A{last_row+3}"]._style = ws["Z2"]._style
+                    ws[f"A{last_row+4}"] = "OFFER VALIDITY: " + validity + " DAYS"
                     ws[f"A{last_row+4}"]._style = ws["Z1"]._style
+                    ws[f"A{last_row+5}"] = (
+                        "DELIVERY TIME: "
+                        + delivery_time
+                        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
+                    )
+                    ws[f"A{last_row+5}"]._style = ws["Z1"]._style
 
                     if notes != "":
-                        notes = notes.split("\n")
-                        line = last_row + 5
-                        for note in notes:
-                            ws[f"A{line}"] = note
+                        if isinstance(notes, list):
+                            line = last_row + 6
+                            for note in notes:
+                                ws[f"A{line}"] = note
+                                ws[f"A{line}"]._style = ws["Z1"]._style
+                                line += 1
+                        else:
+                            line = last_row + 6
+                            ws[f"A{line}"] = notes
                             ws[f"A{line}"]._style = ws["Z1"]._style
-                            line += 1
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
@@ -1047,51 +1015,27 @@ class offer_short_flow_spanish:
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
                 
-                row_amount = last_row + 3
+                row_amount = last_row + 4
                 for key, value in dict_sheets_data.items():
                     parts_key = key.split(" ")
-                    ws.cell(
-                    row=row_amount + 2, column=num_column_amount - 1
-                    ).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
-                    ws.cell(
-                    row=row_amount + 2, column=num_column_amount
-                    ).value = value[2]
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
+                    ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["R1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                     ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["T1"]._style
 
                     row_amount += 2
 
-                ws.cell(
-                    row=row_amount + 2, column=num_column_amount - 1
-                ).value = "TOTAL AMOUNT OF MATERIAL"
-                ws.cell(
-                    row=row_amount + 2, column=num_column_amount
-                ).value = total_amount_material
-                ws.cell(
-                    row=row_amount + 4, column=num_column_amount - 1
-                ).value = "PACKING AND TRANSPORT (FCA 2020)"
-                ws.cell(
-                    row=row_amount + 4, column=num_column_amount
-                ).value = (
-                    f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)"
-                )
-                ws.cell(
-                    row=row_amount + 5, column=num_column_amount - 1
-                ).value = "TESTS & INSPECTION"
-                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(
-                    testinspection
-                )
-                ws.cell(
-                    row=row_amount + 6, column=num_column_amount - 1
-                ).value = "DOCUMENTATION"
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
+                ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
+                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
+                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
+                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
                 ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(
-                    row=row_amount + 8, column=num_column_amount - 1
-                ).value = "TOTAL AMOUNT OF BID"
-                ws.cell(
-                    row=row_amount + 8, column=num_column_amount
-                ).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
+                ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
                 ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["R1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
@@ -1147,7 +1091,7 @@ class offer_short_flow_spanish:
                 elif pay_term == "90_10":
                     ws["B30"] = (
                         "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante con la certificación final.\n"
+                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
                         "Transferencia Bancaria: 60 días desde emision de factura."
                     )
                 elif pay_term == "50_50":
@@ -1220,7 +1164,19 @@ class offer_short_flow_spanish:
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
 
-                    self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
+                    # self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
+
+                    ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
+
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
 
                 # Deleting "Amount" column
                     self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
@@ -1297,7 +1253,7 @@ class offer_short_flow_spanish:
                 elif pay_term == "90_10":
                     ws["B30"] = (
                         "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante con la certificación final.\n"
+                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
                         "Transferencia Bancaria: 60 días desde emision de factura."
                     )
                 elif pay_term == "50_50":
@@ -1379,9 +1335,9 @@ class offer_short_flow_spanish:
         for image in sheet._images:
             image.width -= 22
 
-
 class offer_short_flow_english:
     def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
+        notes = notes.split('\n')
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
         offername_technical = numoffer + "-" + "Technical.Rev" + rev
@@ -1402,7 +1358,7 @@ class offer_short_flow_english:
                         WHERE (
                         UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        "tag_state" = 'QUOTED'
+                        "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
         conn = None
@@ -1486,7 +1442,7 @@ class offer_short_flow_english:
                     axis=1,)
 
                 number_items = df.shape[0]
-                documentation = number_items * 30
+                documentation = number_items * 70
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
@@ -1643,22 +1599,29 @@ class offer_short_flow_english:
 
                         last_row = ws.max_row
 
-                    ws[f"A{last_row+3}"] = "Offer Validity: " + validity + " days"
-                    ws[f"A{last_row+3}"]._style = ws["Z1"]._style
-                    ws[f"A{last_row+4}"] = (
-                        "Delivery Time: "
-                        + delivery_time
-                        + " weeks since drawing / calculation approval (August and last two December weeks excluded)"
-                    )
+                    if eq_type == "VENTURI ELEMENTS DATA":
+                        ws[f"A{last_row+3}"] = "PRICES INCLUDE MACHINED INTEGRAL CENTRE SECTION AND ALL STRUCTURAL WELDS 100% RADIOGRAPHED"
+                        ws[f"A{last_row+3}"]._style = ws["Z2"]._style
+                    ws[f"A{last_row+4}"] = "OFFER VALIDITY: " + validity + " DAYS"
                     ws[f"A{last_row+4}"]._style = ws["Z1"]._style
+                    ws[f"A{last_row+5}"] = (
+                        "DELIVERY TIME: "
+                        + delivery_time
+                        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
+                    )
+                    ws[f"A{last_row+5}"]._style = ws["Z1"]._style
 
                     if notes != "":
-                        notes = notes.split("\n")
-                        line = last_row + 5
-                        for note in notes:
-                            ws[f"A{line}"] = note
+                        if isinstance(notes, list):
+                            line = last_row + 6
+                            for note in notes:
+                                ws[f"A{line}"] = note
+                                ws[f"A{line}"]._style = ws["Z1"]._style
+                                line += 1
+                        else:
+                            line = last_row + 6
+                            ws[f"A{line}"] = notes
                             ws[f"A{line}"]._style = ws["Z1"]._style
-                            line += 1
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
@@ -1666,51 +1629,27 @@ class offer_short_flow_english:
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
                 
-                row_amount = last_row + 3
+                row_amount = last_row + 4
                 for key, value in dict_sheets_data.items():
                     parts_key = key.split(" ")
-                    ws.cell(
-                    row=row_amount + 2, column=num_column_amount - 1
-                    ).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
-                    ws.cell(
-                    row=row_amount + 2, column=num_column_amount
-                    ).value = value[2]
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
+                    ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["R1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                     ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["T1"]._style
 
                     row_amount += 2
 
-                ws.cell(
-                    row=row_amount + 2, column=num_column_amount - 1
-                ).value = "TOTAL AMOUNT OF MATERIAL"
-                ws.cell(
-                    row=row_amount + 2, column=num_column_amount
-                ).value = total_amount_material
-                ws.cell(
-                    row=row_amount + 4, column=num_column_amount - 1
-                ).value = "PACKING AND TRANSPORT (FCA 2020)"
-                ws.cell(
-                    row=row_amount + 4, column=num_column_amount
-                ).value = (
-                    f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)"
-                )
-                ws.cell(
-                    row=row_amount + 5, column=num_column_amount - 1
-                ).value = "TESTS & INSPECTION"
-                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(
-                    testinspection
-                )
-                ws.cell(
-                    row=row_amount + 6, column=num_column_amount - 1
-                ).value = "DOCUMENTATION"
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
+                ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
+                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
+                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
+                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
                 ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(
-                    row=row_amount + 8, column=num_column_amount - 1
-                ).value = "TOTAL AMOUNT OF BID"
-                ws.cell(
-                    row=row_amount + 8, column=num_column_amount
-                ).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
+                ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
                 ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["R1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
@@ -1791,12 +1730,12 @@ class offer_short_flow_english:
                 elif pay_term == "90_10":
                     ws["B45"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% at take over certificate. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B46"] = (
                         "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante con la certificación final.\n"
+                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
                         "Transferencia Bancaria: 60 días desde emision de factura."
                     )
                 elif pay_term == "50_50":
@@ -1880,7 +1819,21 @@ class offer_short_flow_english:
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
 
-                    self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
+                    # self.wb_technical[eq_type].delete_rows(last_row + 6, 20)
+                    ws[f"M{last_row+5}"] = ""
+                    ws[f"N{last_row+5}"] = ""
+
+                    ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
+
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
 
                 # Deleting "Amount" column
                     self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
@@ -1982,12 +1935,12 @@ class offer_short_flow_english:
                 elif pay_term == "90_10":
                     ws["B45"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% at take over certificate. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B46"] = (
                         "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante con la certificación final.\n"
+                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
                         "Transferencia Bancaria: 60 días desde emision de factura."
                     )
                 elif pay_term == "50_50":
@@ -2080,9 +2033,9 @@ class offer_short_flow_english:
         for image in sheet._images:
             image.width -= 22
 
-
 class offer_temp:
     def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
+        notes = notes.split('\n')
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
         offername_technical = numoffer + "-" + "Technical.Rev" + rev
@@ -2103,7 +2056,7 @@ class offer_temp:
                         WHERE (
                         UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        "tag_state" = 'QUOTED'
+                        "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
         conn = None
@@ -2151,7 +2104,7 @@ class offer_temp:
                     "BIM": 5,
                     "TIT": 6,
                     "SKIN+TT": 7,
-                    "SKIN-POINT": 7,
+                    "SKIN POINT": 7,
                     "Multi-T": 8
                 }
 
@@ -2176,7 +2129,7 @@ class offer_temp:
                     axis=1,)
 
                 number_items = df.shape[0]
-                documentation = number_items * 30
+                documentation = number_items * 70
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
@@ -2232,7 +2185,7 @@ class offer_temp:
                                             else (
                                                 "SKIN POINT ELEMENTS DATA"
                                                 if value_type == 7
-                                                else "MULTI-T RO ELEMENTS DATA"
+                                                else "MULTI-T ELEMENTS DATA"
                                             )
                                         )
                                     )
@@ -2394,74 +2347,53 @@ class offer_temp:
 
                         last_row = ws.max_row
 
-                    ws[f"A{last_row+3}"] = "Offer Validity: " + validity + " days"
+                    ws[f"A{last_row+3}"] = "OFFER VALIDITY: " + validity + " DAYS"
                     ws[f"A{last_row+3}"]._style = ws["AI1"]._style
                     ws[f"A{last_row+4}"] = (
-                        "Delivery Time: "
+                        "DELIVERY TIME: "
                         + delivery_time
-                        + " weeks since drawing / calculation approval (August and last two December weeks excluded)"
+                        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
                     )
                     ws[f"A{last_row+4}"]._style = ws["AI1"]._style
 
                     if notes != "":
-                        notes = notes.split("\n")
-                        line = last_row + 5
-                        for note in notes:
-                            ws[f"A{line}"] = note
+                        if isinstance(notes, list):
+                            line = last_row + 5
+                            for note in notes:
+                                ws[f"A{line}"] = note
+                                ws[f"A{line}"]._style = ws["AI1"]._style
+                                line += 1
+                        else:
+                            line = last_row + 5
+                            ws[f"A{line}"] = notes
                             ws[f"A{line}"]._style = ws["AI1"]._style
-                            line += 1
-
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "QTY. TOTAL"
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
                 
-                row_amount = last_row + 3
+                row_amount = last_row + 4
                 for key, value in dict_sheets_data.items():
                     parts_key = key.split(" ")
-                    ws.cell(
-                    row=row_amount + 2, column=num_column_amount - 1
-                    ).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
-                    ws.cell(
-                    row=row_amount + 2, column=num_column_amount
-                    ).value = value[2]
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
+                    ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                     ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
 
                     row_amount += 2
 
-                ws.cell(
-                    row=row_amount + 2, column=num_column_amount - 1
-                ).value = "TOTAL AMOUNT OF MATERIAL"
-                ws.cell(
-                    row=row_amount + 2, column=num_column_amount
-                ).value = total_amount_material
-                ws.cell(
-                    row=row_amount + 4, column=num_column_amount - 1
-                ).value = "PACKING AND TRANSPORT (FCA 2020)"
-                ws.cell(
-                    row=row_amount + 4, column=num_column_amount
-                ).value = (
-                    f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)"
-                )
-                ws.cell(
-                    row=row_amount + 5, column=num_column_amount - 1
-                ).value = "TESTS & INSPECTION"
-                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(
-                    testinspection
-                )
-                ws.cell(
-                    row=row_amount + 6, column=num_column_amount - 1
-                ).value = "DOCUMENTATION"
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
+                ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
+                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
+                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
+                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
                 ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(
-                    row=row_amount + 8, column=num_column_amount - 1
-                ).value = "TOTAL AMOUNT OF BID"
-                ws.cell(
-                    row=row_amount + 8, column=num_column_amount
-                ).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
+                ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
                 ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AA1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
@@ -2541,12 +2473,12 @@ class offer_temp:
                 elif pay_term == "90_10":
                     ws["B45"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% at take over certificate. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B46"] = (
                         "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante con la certificación final.\n"
+                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
                         "Transferencia Bancaria: 60 días desde emision de factura."
                     )
                 elif pay_term == "50_50":
@@ -2619,7 +2551,7 @@ class offer_temp:
                                             else (
                                                 "SKIN POINT ELEMENTS DATA"
                                                 if value_type == 7
-                                                else "MULTI-T RO ELEMENTS DATA"
+                                                else "MULTI-T ELEMENTS DATA"
                                             )
                                         )
                                     )
@@ -2634,7 +2566,19 @@ class offer_temp:
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
 
-                    self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
+                    # self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
+
+                    ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
+
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
 
                 # Deleting "Amount" column
                     self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
@@ -2736,12 +2680,12 @@ class offer_temp:
                 elif pay_term == "90_10":
                     ws["B45"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% at take over certificate. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B46"] = (
                         "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante con la certificación final.\n"
+                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
                         "Transferencia Bancaria: 60 días desde emision de factura."
                     )
                 elif pay_term == "50_50":
@@ -2830,7 +2774,6 @@ class offer_temp:
         if output_path_technical:
             self.wb_technical.save(output_path_technical)
 
-
 class offer_short_temp_spanish:
     def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
         date_offer = date.today().strftime("%d/%m/%Y")
@@ -2853,7 +2796,7 @@ class offer_short_temp_spanish:
                         WHERE (
                         UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        "tag_state" = 'QUOTED'
+                        "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
         conn = None
@@ -2901,7 +2844,7 @@ class offer_short_temp_spanish:
                     "BIM": 5,
                     "TIT": 6,
                     "SKIN+TT": 7,
-                    "SKIN-POINT": 7,
+                    "SKIN POINT": 7,
                     "Multi-T": 8
                 }
 
@@ -2926,7 +2869,7 @@ class offer_short_temp_spanish:
                     axis=1,)
 
                 number_items = df.shape[0]
-                documentation = number_items * 30
+                documentation = number_items * 70
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
@@ -3144,22 +3087,27 @@ class offer_short_temp_spanish:
 
                         last_row = ws.max_row
 
-                    ws[f"A{last_row+3}"] = "Offer Validity: " + validity + " days"
+                    ws[f"A{last_row+3}"] = "OFFER VALIDITY: " + validity + " DAYS"
                     ws[f"A{last_row+3}"]._style = ws["AI1"]._style
                     ws[f"A{last_row+4}"] = (
-                        "Delivery Time: "
+                        "DELIVERY TIME: "
                         + delivery_time
-                        + " weeks since drawing / calculation approval (August and last two December weeks excluded)"
+                        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
                     )
                     ws[f"A{last_row+4}"]._style = ws["AI1"]._style
 
+
                     if notes != "":
-                        notes = notes.split("\n")
-                        line = last_row + 5
-                        for note in notes:
-                            ws[f"A{line}"] = note
+                        if isinstance(notes, list):
+                            line = last_row + 5
+                            for note in notes:
+                                ws[f"A{line}"] = note
+                                ws[f"A{line}"]._style = ws["AI1"]._style
+                                line += 1
+                        else:
+                            line = last_row + 5
+                            ws[f"A{line}"] = notes
                             ws[f"A{line}"]._style = ws["AI1"]._style
-                            line += 1
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
@@ -3167,51 +3115,27 @@ class offer_short_temp_spanish:
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
                 
-                row_amount = last_row + 3
+                row_amount = last_row + 4
                 for key, value in dict_sheets_data.items():
                     parts_key = key.split(" ")
-                    ws.cell(
-                    row=row_amount + 2, column=num_column_amount - 1
-                    ).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
-                    ws.cell(
-                    row=row_amount + 2, column=num_column_amount
-                    ).value = value[2]
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
+                    ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                     ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
 
                     row_amount += 2
 
-                ws.cell(
-                    row=row_amount + 2, column=num_column_amount - 1
-                ).value = "TOTAL AMOUNT OF MATERIAL"
-                ws.cell(
-                    row=row_amount + 2, column=num_column_amount
-                ).value = total_amount_material
-                ws.cell(
-                    row=row_amount + 4, column=num_column_amount - 1
-                ).value = "PACKING AND TRANSPORT (FCA 2020)"
-                ws.cell(
-                    row=row_amount + 4, column=num_column_amount
-                ).value = (
-                    f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)"
-                )
-                ws.cell(
-                    row=row_amount + 5, column=num_column_amount - 1
-                ).value = "TESTS & INSPECTION"
-                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(
-                    testinspection
-                )
-                ws.cell(
-                    row=row_amount + 6, column=num_column_amount - 1
-                ).value = "DOCUMENTATION"
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
+                ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
+                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
+                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
+                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
                 ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(
-                    row=row_amount + 8, column=num_column_amount - 1
-                ).value = "TOTAL AMOUNT OF BID"
-                ws.cell(
-                    row=row_amount + 8, column=num_column_amount
-                ).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
+                ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
                 ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AA1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
@@ -3266,7 +3190,7 @@ class offer_short_temp_spanish:
                 elif pay_term == "90_10":
                     ws["B35"] = (
                         "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante con la certificación final.\n"
+                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
                         "Transferencia Bancaria: 60 días desde emision de factura."
                     )
                 elif pay_term == "50_50":
@@ -3343,7 +3267,19 @@ class offer_short_temp_spanish:
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
 
-                    self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
+                    # self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
+
+                    ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
+
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
 
                 # Deleting "Amount" column
                     self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
@@ -3420,7 +3356,7 @@ class offer_short_temp_spanish:
                 elif pay_term == "90_10":
                     ws["B35"] = (
                         "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante con la certificación final.\n"
+                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
                         "Transferencia Bancaria: 60 días desde emision de factura."
                     )
                 elif pay_term == "50_50":
@@ -3498,9 +3434,9 @@ class offer_short_temp_spanish:
         if output_path_technical:
             self.wb_technical.save(output_path_technical)
 
-
 class offer_short_temp_english:
     def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
+        notes = notes.split('\n')
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
         offername_technical = numoffer + "-" + "Technical.Rev" + rev
@@ -3521,7 +3457,7 @@ class offer_short_temp_english:
                         WHERE (
                         UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        "tag_state" = 'QUOTED'
+                        "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
         conn = None
@@ -3569,7 +3505,7 @@ class offer_short_temp_english:
                     "BIM": 5,
                     "TIT": 6,
                     "SKIN+TT": 7,
-                    "SKIN-POINT": 7,
+                    "SKIN POINT": 7,
                     "Multi-T": 8
                 }
 
@@ -3594,7 +3530,7 @@ class offer_short_temp_english:
                     axis=1,)
 
                 number_items = df.shape[0]
-                documentation = number_items * 30
+                documentation = number_items * 70
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
@@ -3812,22 +3748,26 @@ class offer_short_temp_english:
 
                         last_row = ws.max_row
 
-                    ws[f"A{last_row+3}"] = "Offer Validity: " + validity + " days"
+                    ws[f"A{last_row+3}"] = "OFFER VALIDITY: " + validity + " DAYS"
                     ws[f"A{last_row+3}"]._style = ws["AI1"]._style
                     ws[f"A{last_row+4}"] = (
-                        "Delivery Time: "
+                        "DELIVERY TIME: "
                         + delivery_time
-                        + " weeks since drawing / calculation approval (August and last two December weeks excluded)"
+                        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
                     )
                     ws[f"A{last_row+4}"]._style = ws["AI1"]._style
 
                     if notes != "":
-                        notes = notes.split("\n")
-                        line = last_row + 5
-                        for note in notes:
-                            ws[f"A{line}"] = note
+                        if isinstance(notes, list):
+                            line = last_row + 5
+                            for note in notes:
+                                ws[f"A{line}"] = note
+                                ws[f"A{line}"]._style = ws["AI1"]._style
+                                line += 1
+                        else:
+                            line = last_row + 5
+                            ws[f"A{line}"] = notes
                             ws[f"A{line}"]._style = ws["AI1"]._style
-                            line += 1
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
@@ -3835,51 +3775,27 @@ class offer_short_temp_english:
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
                 
-                row_amount = last_row + 3
+                row_amount = last_row + 4
                 for key, value in dict_sheets_data.items():
                     parts_key = key.split(" ")
-                    ws.cell(
-                    row=row_amount + 2, column=num_column_amount - 1
-                    ).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
-                    ws.cell(
-                    row=row_amount + 2, column=num_column_amount
-                    ).value = value[2]
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
+                    ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                     ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
 
                     row_amount += 2
 
-                ws.cell(
-                    row=row_amount + 2, column=num_column_amount - 1
-                ).value = "TOTAL AMOUNT OF MATERIAL"
-                ws.cell(
-                    row=row_amount + 2, column=num_column_amount
-                ).value = total_amount_material
-                ws.cell(
-                    row=row_amount + 4, column=num_column_amount - 1
-                ).value = "PACKING AND TRANSPORT (FCA 2020)"
-                ws.cell(
-                    row=row_amount + 4, column=num_column_amount
-                ).value = (
-                    f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)"
-                )
-                ws.cell(
-                    row=row_amount + 5, column=num_column_amount - 1
-                ).value = "TESTS & INSPECTION"
-                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(
-                    testinspection
-                )
-                ws.cell(
-                    row=row_amount + 6, column=num_column_amount - 1
-                ).value = "DOCUMENTATION"
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
+                ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
+                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
+                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
+                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
                 ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(
-                    row=row_amount + 8, column=num_column_amount - 1
-                ).value = "TOTAL AMOUNT OF BID"
-                ws.cell(
-                    row=row_amount + 8, column=num_column_amount
-                ).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
+                ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
                 ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AA1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
@@ -3959,12 +3875,12 @@ class offer_short_temp_english:
                 elif pay_term == "90_10":
                     ws["B48"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% at take over certificate. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B49"] = (
                         "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante con la certificación final.\n"
+                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
                         "Transferencia Bancaria: 60 días desde emision de factura."
                     )
                 elif pay_term == "50_50":
@@ -4052,7 +3968,19 @@ class offer_short_temp_english:
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
 
-                    self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
+                    # self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
+
+                    ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
+
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
 
                 # Deleting "Amount" column
                     self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
@@ -4154,12 +4082,12 @@ class offer_short_temp_english:
                 elif pay_term == "90_10":
                     ws["B48"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% at take over certificate. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B49"] = (
                         "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante con la certificación final.\n"
+                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
                         "Transferencia Bancaria: 60 días desde emision de factura."
                     )
                 elif pay_term == "50_50":
@@ -4248,9 +4176,9 @@ class offer_short_temp_english:
         if output_path_technical:
             self.wb_technical.save(output_path_technical)
 
-
 class offer_level:
     def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes,):
+        notes = notes.split('\n')
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
         offername_technical = numoffer + "-" + "Technical.Rev" + rev
@@ -4271,7 +4199,7 @@ class offer_level:
                         WHERE (
                         UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        "tag_state" = 'QUOTED'
+                        "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
         conn = None
@@ -4339,7 +4267,6 @@ class offer_level:
                     axis=1,)
 
                 number_items = df.shape[0]
-                documentation = number_items * 30
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
@@ -4426,22 +4353,26 @@ class offer_level:
 
                         last_row = ws.max_row
 
-                    ws[f"A{last_row+3}"] = "Offer Validity: " + validity + " days"
+                    ws[f"A{last_row+3}"] = "OFFER VALIDITY: " + validity + " DAYS"
                     ws[f"A{last_row+3}"]._style = ws["AI1"]._style
                     ws[f"A{last_row+4}"] = (
-                        "Delivery Time: "
+                        "DELIVERY TIME: "
                         + delivery_time
-                        + " weeks since drawing / calculation approval (August and last two December weeks excluded)"
+                        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
                     )
                     ws[f"A{last_row+4}"]._style = ws["AI1"]._style
 
                     if notes != "":
-                        notes = notes.split("\n")
-                        line = last_row + 5
-                        for note in notes:
-                            ws[f"A{line}"] = note
+                        if isinstance(notes, list):
+                            line = last_row + 5
+                            for note in notes:
+                                ws[f"A{line}"] = note
+                                ws[f"A{line}"]._style = ws["AI1"]._style
+                                line += 1
+                        else:
+                            line = last_row + 5
+                            ws[f"A{line}"] = notes
                             ws[f"A{line}"]._style = ws["AI1"]._style
-                            line += 1
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
@@ -4449,51 +4380,25 @@ class offer_level:
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
                 
-                row_amount = last_row + 3
+                row_amount = last_row + 4
                 for key, value in dict_sheets_data.items():
                     parts_key = key.split(" ")
-                    ws.cell(
-                    row=row_amount + 2, column=num_column_amount - 1
-                    ).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
-                    ws.cell(
-                    row=row_amount + 2, column=num_column_amount
-                    ).value = value[2]
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
+                    ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                     ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
 
                     row_amount += 2
 
-                ws.cell(
-                    row=row_amount + 2, column=num_column_amount - 1
-                ).value = "TOTAL AMOUNT OF MATERIAL"
-                ws.cell(
-                    row=row_amount + 2, column=num_column_amount
-                ).value = total_amount_material
-                ws.cell(
-                    row=row_amount + 4, column=num_column_amount - 1
-                ).value = "PACKING AND TRANSPORT (FCA 2020)"
-                ws.cell(
-                    row=row_amount + 4, column=num_column_amount
-                ).value = (
-                    f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)"
-                )
-                ws.cell(
-                    row=row_amount + 5, column=num_column_amount - 1
-                ).value = "TESTS & INSPECTION"
-                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(
-                    testinspection
-                )
-                ws.cell(
-                    row=row_amount + 6, column=num_column_amount - 1
-                ).value = "DOCUMENTATION"
-                ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(
-                    row=row_amount + 8, column=num_column_amount - 1
-                ).value = "TOTAL AMOUNT OF BID"
-                ws.cell(
-                    row=row_amount + 8, column=num_column_amount
-                ).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
+                ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
+                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
+                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
+                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
+                ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
                 ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AA1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
@@ -4573,12 +4478,12 @@ class offer_level:
                 elif pay_term == "90_10":
                     ws["B42"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% at take over certificate. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B43"] = (
                         "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante con la certificación final.\n"
+                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
                         "Transferencia Bancaria: 60 días desde emision de factura."
                     )
                 elif pay_term == "50_50":
@@ -4642,7 +4547,19 @@ class offer_level:
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
 
-                    self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
+                    # self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
+
+                    ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
+
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
 
                 # Deleting "Amount" column
                     self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
@@ -4744,12 +4661,12 @@ class offer_level:
                 elif pay_term == "90_10":
                     ws["B45"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% at take over certificate. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B46"] = (
                         "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante con la certificación final.\n"
+                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
                         "Transferencia Bancaria: 60 días desde emision de factura."
                     )
                 elif pay_term == "50_50":
@@ -4838,9 +4755,9 @@ class offer_level:
         if output_path_technical:
             self.wb_technical.save(output_path_technical)
 
-
 class offer_short_level_spanish:
     def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes,):
+        notes = notes.split('\n')
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
         offername_technical = numoffer + "-" + "Technical.Rev" + rev
@@ -4861,7 +4778,7 @@ class offer_short_level_spanish:
                         WHERE (
                         UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        "tag_state" = 'QUOTED'
+                        "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
         conn = None
@@ -4929,7 +4846,6 @@ class offer_short_level_spanish:
                     axis=1,)
 
                 number_items = df.shape[0]
-                documentation = number_items * 30
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
@@ -5016,22 +4932,26 @@ class offer_short_level_spanish:
 
                         last_row = ws.max_row
 
-                    ws[f"A{last_row+3}"] = "Offer Validity: " + validity + " days"
+                    ws[f"A{last_row+3}"] = "OFFER VALIDITY: " + validity + " DAYS"
                     ws[f"A{last_row+3}"]._style = ws["AI1"]._style
                     ws[f"A{last_row+4}"] = (
-                        "Delivery Time: "
+                        "DELIVERY TIME: "
                         + delivery_time
-                        + " weeks since drawing / calculation approval (August and last two December weeks excluded)"
+                        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
                     )
                     ws[f"A{last_row+4}"]._style = ws["AI1"]._style
 
                     if notes != "":
-                        notes = notes.split("\n")
-                        line = last_row + 5
-                        for note in notes:
-                            ws[f"A{line}"] = note
+                        if isinstance(notes, list):
+                            line = last_row + 5
+                            for note in notes:
+                                ws[f"A{line}"] = note
+                                ws[f"A{line}"]._style = ws["AI1"]._style
+                                line += 1
+                        else:
+                            line = last_row + 5
+                            ws[f"A{line}"] = notes
                             ws[f"A{line}"]._style = ws["AI1"]._style
-                            line += 1
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
@@ -5039,51 +4959,25 @@ class offer_short_level_spanish:
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
                 
-                row_amount = last_row + 3
+                row_amount = last_row + 4
                 for key, value in dict_sheets_data.items():
                     parts_key = key.split(" ")
-                    ws.cell(
-                    row=row_amount + 2, column=num_column_amount - 1
-                    ).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
-                    ws.cell(
-                    row=row_amount + 2, column=num_column_amount
-                    ).value = value[2]
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
+                    ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
 
                     row_amount += 2
 
-                ws.cell(
-                    row=row_amount + 2, column=num_column_amount - 1
-                ).value = "TOTAL AMOUNT OF MATERIAL"
-                ws.cell(
-                    row=row_amount + 2, column=num_column_amount
-                ).value = total_amount_material
-                ws.cell(
-                    row=row_amount + 4, column=num_column_amount - 1
-                ).value = "PACKING AND TRANSPORT (FCA 2020)"
-                ws.cell(
-                    row=row_amount + 4, column=num_column_amount
-                ).value = (
-                    f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)"
-                )
-                ws.cell(
-                    row=row_amount + 5, column=num_column_amount - 1
-                ).value = "TESTS & INSPECTION"
-                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(
-                    testinspection
-                )
-                ws.cell(
-                    row=row_amount + 6, column=num_column_amount - 1
-                ).value = "DOCUMENTATION"
-                ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(
-                    row=row_amount + 8, column=num_column_amount - 1
-                ).value = "TOTAL AMOUNT OF BID"
-                ws.cell(
-                    row=row_amount + 8, column=num_column_amount
-                ).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
+                ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
+                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)"  if total_amount_material > 6700 else 200)
+                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
+                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
+                ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
                 ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AA1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
@@ -5138,7 +5032,7 @@ class offer_short_level_spanish:
                 elif pay_term == "90_10":
                     ws["B29"] = (
                         "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante con la certificación final.\n"
+                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
                         "Transferencia Bancaria: 60 días desde emision de factura."
                     )
                 elif pay_term == "50_50":
@@ -5191,7 +5085,19 @@ class offer_short_level_spanish:
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
 
-                    self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
+                    # self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
+
+                    ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
+
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
 
                 # Deleting "Amount" column
                     self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
@@ -5268,7 +5174,7 @@ class offer_short_level_spanish:
                 elif pay_term == "90_10":
                     ws["B29"] = (
                         "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante con la certificación final.\n"
+                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
                         "Transferencia Bancaria: 60 días desde emision de factura."
                     )
                 elif pay_term == "50_50":
@@ -5346,9 +5252,9 @@ class offer_short_level_spanish:
         if output_path_technical:
             self.wb_technical.save(output_path_technical)
 
-
 class offer_short_level_english:
     def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes,):
+        notes = notes.split('\n')
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
         offername_technical = numoffer + "-" + "Technical.Rev" + rev
@@ -5369,7 +5275,7 @@ class offer_short_level_english:
                         WHERE (
                         UPPER ("num_offer") LIKE UPPER('%%'||%s||'%%')
                         AND
-                        "tag_state" = 'QUOTED'
+                        "tag_state" NOT IN ('PURCHASED','DELETED')
                         )
                         """
         conn = None
@@ -5437,7 +5343,6 @@ class offer_short_level_english:
                     axis=1,)
 
                 number_items = df.shape[0]
-                documentation = number_items * 30
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
@@ -5524,22 +5429,26 @@ class offer_short_level_english:
 
                         last_row = ws.max_row
 
-                    ws[f"A{last_row+3}"] = "Offer Validity: " + validity + " days"
+                    ws[f"A{last_row+3}"] = "OFFER VALIDITY: " + validity + " DAYS"
                     ws[f"A{last_row+3}"]._style = ws["AI1"]._style
                     ws[f"A{last_row+4}"] = (
-                        "Delivery Time: "
+                        "DELIVERY TIME: "
                         + delivery_time
-                        + " weeks since drawing / calculation approval (August and last two December weeks excluded)"
+                        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
                     )
                     ws[f"A{last_row+4}"]._style = ws["AI1"]._style
 
                     if notes != "":
-                        notes = notes.split("\n")
-                        line = last_row + 5
-                        for note in notes:
-                            ws[f"A{line}"] = note
+                        if isinstance(notes, list):
+                            line = last_row + 5
+                            for note in notes:
+                                ws[f"A{line}"] = note
+                                ws[f"A{line}"]._style = ws["AI1"]._style
+                                line += 1
+                        else:
+                            line = last_row + 5
+                            ws[f"A{line}"] = notes
                             ws[f"A{line}"]._style = ws["AI1"]._style
-                            line += 1
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
@@ -5547,51 +5456,25 @@ class offer_short_level_english:
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
                 
-                row_amount = last_row + 3
+                row_amount = last_row + 4
                 for key, value in dict_sheets_data.items():
                     parts_key = key.split(" ")
-                    ws.cell(
-                    row=row_amount + 2, column=num_column_amount - 1
-                    ).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
-                    ws.cell(
-                    row=row_amount + 2, column=num_column_amount
-                    ).value = value[2]
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
+                    ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
 
                     row_amount += 2
 
-                ws.cell(
-                    row=row_amount + 2, column=num_column_amount - 1
-                ).value = "TOTAL AMOUNT OF MATERIAL"
-                ws.cell(
-                    row=row_amount + 2, column=num_column_amount
-                ).value = total_amount_material
-                ws.cell(
-                    row=row_amount + 4, column=num_column_amount - 1
-                ).value = "PACKING AND TRANSPORT (FCA 2020)"
-                ws.cell(
-                    row=row_amount + 4, column=num_column_amount
-                ).value = (
-                    f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)"
-                )
-                ws.cell(
-                    row=row_amount + 5, column=num_column_amount - 1
-                ).value = "TESTS & INSPECTION"
-                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(
-                    testinspection
-                )
-                ws.cell(
-                    row=row_amount + 6, column=num_column_amount - 1
-                ).value = "DOCUMENTATION"
-                ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(
-                    row=row_amount + 8, column=num_column_amount - 1
-                ).value = "TOTAL AMOUNT OF BID"
-                ws.cell(
-                    row=row_amount + 8, column=num_column_amount
-                ).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
+                ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
+                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
+                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
+                ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
+                ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
                 ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AA1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
@@ -5671,12 +5554,12 @@ class offer_short_level_english:
                 elif pay_term == "90_10":
                     ws["B41"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% at take over certificate. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B42"] = (
                         "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante con la certificación final.\n"
+                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
                         "Transferencia Bancaria: 60 días desde emision de factura."
                     )
                 elif pay_term == "50_50":
@@ -5740,7 +5623,19 @@ class offer_short_level_english:
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
 
-                    self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
+                    # self.wb_technical[eq_type].delete_rows(last_row + 5, 20)
+
+                    ws.cell(row=row_amount + 2, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 4, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 5, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 6, column=num_column_amount).value = ""
+                    ws.cell(row=row_amount + 8, column=num_column_amount).value = ""
+
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = ""
+                    ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = ""
 
                 # Deleting "Amount" column
                     self.wb_technical[eq_type].delete_cols(num_column_amount, 1)
@@ -5842,12 +5737,12 @@ class offer_short_level_english:
                 elif pay_term == "90_10":
                     ws["B41"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% at take over certificate. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B42"] = (
                         "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante con la certificación final.\n"
+                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
                         "Transferencia Bancaria: 60 días desde emision de factura."
                     )
                 elif pay_term == "50_50":
@@ -5936,7 +5831,7 @@ class offer_short_level_english:
         if output_path_technical:
             self.wb_technical.save(output_path_technical)
 
-
+# Templates for commercials
 class order_ovr:
     def __init__(self, num_order):
         self.num_order = num_order
@@ -5992,7 +5887,7 @@ class order_ovr:
                 elif material == 'Nivel':
                     self.table_name = "tags_data.tags_level"
 
-        commands_tags = f" SELECT num_order, postion, subposition, tag, TO_CHAR(contractual_date, 'DD/MM/YYYY'), TO_CHAR(dwg_state_date, 'DD/MM/YYYY'), TO_CHAR(irc_date, 'DD/MM/YYYY'), TO_CHAR(rn_date, 'DD/MM/YYYY'), TO_CHAR(rn_date + INTERVAL '1 day' * 7, 'DD/MM/YYYY') AS rn_date_plus_7_days FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order}'||'%%') ORDER BY num_order"
+        commands_tags = f" SELECT num_order, position, subposition, tag, TO_CHAR(contractual_date, 'DD/MM/YYYY'), TO_CHAR(dwg_state_date, 'DD/MM/YYYY'), inspection, TO_CHAR(irc_date, 'DD/MM/YYYY'), TO_CHAR(rn_date, 'DD/MM/YYYY'), TO_CHAR(rn_date + INTERVAL '1 day' * 7, 'DD/MM/YYYY') AS rn_date_plus_7_days FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order}'||'%%') ORDER BY num_order"
         self.num_columns = 10
         column_headers = ['Sup.', 'Pos', 'SubPos.', 'TAG', 'DELIVERY DATE PO', 'DATE DRAWING APPROVAL', 'NOI', 'DATE IRC', 'DATE RN', 'NEW DELIVERY DATE']
 
@@ -6030,7 +5925,7 @@ class order_ovr:
         data_tags = pd.DataFrame(data=results, columns=column_headers)
 
         index_tags = data_tags.columns.get_loc('TAG')
-        data_tags.insert(index_tags + 1, 'PO DATE')
+        data_tags.insert(index_tags + 1, 'PO DATE',0)
 
         data_tags['PO DATE'] = data_tags['Sup.'].apply(lambda x: dict_orders[x])
         data_tags['Sup.'] = data_tags['Sup.'].apply(lambda x: x[-1])
@@ -6045,14 +5940,13 @@ class order_ovr:
         else:
             ws["A1"] = "ANNEX I - " + results_orders[0][4] + " " + results_orders[0][4][8] + " (S00)"
 
-        last_row = ws.max_row
-        
+        last_row = 4
         for index, row in data_tags.iterrows():  # Data in desired row
             for col_num, value in enumerate(row, start=1):
-                cell = ws.cell(row=last_row + 1, column=col_num)
+                cell = ws.cell(row=last_row, column=col_num)
                 cell.value = value
 
-            last_row = ws.max_row
+            last_row = last_row + 1
 
     def save_excel_ovr(self):
         # Dialog window to select folder and file name; if path is selected, excel file is saved
@@ -6065,7 +5959,6 @@ class order_ovr:
             self.wb_ovr.save(output_path)
             return output_path
 
-
 class doc_situation:
     def __init__(self, num_ref, project):
         self.num_ref = num_ref
@@ -6077,7 +5970,7 @@ class doc_situation:
                     TO_CHAR(documentation."state_date", 'DD/MM/YYYY'), TO_CHAR(documentation."date_first_rev", 'DD/MM/YYYY'),
                     (documentation."state_date" - documentation."date_first_rev") AS difference,
                     CAST(SUBSTRING(offers."delivery_time" FROM POSITION('-' IN offers."delivery_time") + 1) AS INTEGER) AS delivery_weeks,
-                    TO_CHAR((documentation."state_date" + INTERVAL '7 days' * CAST(SUBSTRING(offers."delivery_time" FROM POSITION('-' IN offers."delivery_time") + 1) AS INTEGER)), 'DD/MM/YYYY') AS new_date
+                    TO_CHAR((documentation."state_date" + INTERVAL '7 days' * CAST(SUBSTRING(offers."delivery_time" FROM POSITION('-' IN offers."delivery_time") + 1) AS INTEGER)), 'DD/MM/YYYY') AS new_date, documentation."tracking"
                     FROM documentation
                     INNER JOIN orders ON (orders."num_order" = documentation."num_order")
                     INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
@@ -6115,7 +6008,7 @@ class doc_situation:
                 conn.close()
 
         column_headers = ['Nº Pedido', 'Nº PO', 'Cliente', 'Fecha Pedido', 'Material', 'Nº Doc. Cliente', 'Nº Doc. EIPSA', 'Título',
-                        'Tipo Doc.', 'Estado', 'Nº Rev.', 'Última Fecha', 'Fecha Rev. 0', 'Días', 'Plazo', 'Fecha Rev.']
+                        'Tipo Doc.', 'Estado', 'Nº Rev.', 'Última Fecha', 'Fecha Rev. 0', 'Días', 'Plazo', 'Fecha Rev.','Seguimiento']
 
         self.data_docs = pd.DataFrame(data=results_orders, columns=column_headers)
 
@@ -6126,7 +6019,7 @@ class doc_situation:
 
         ws["B1"] = "PROYECTO: " + self.project + " (" + self.num_ref + ")" if self.project is not None else "PROYECTO: SIN PROYECTO (" + self.num_ref + ")"
 
-        ws["P1"] = date.today().strftime("%d/%m/%y")
+        ws["Q1"] = date.today().strftime("%d/%m/%y")
 
         last_row = ws.max_row
         
@@ -6134,7 +6027,10 @@ class doc_situation:
             for col_num, value in enumerate(row, start=1):
                 cell = ws.cell(row=last_row + 1, column=col_num)
                 if col_num in [4, 12, 13, 16]:
-                    cell.value = datetime.strptime(value, "%d/%m/%Y")
+                    if value is not None:
+                        cell.value = datetime.strptime(value, "%d/%m/%Y")
+                    else:
+                        cell.value = value
                 else:
                     cell.value = value
 
@@ -6178,6 +6074,436 @@ class doc_situation:
             wb.save(output_path)
             return output_path
 
+# Templates for technicals
+class nuclear_annexes:
+    def __init__(self, annex, numorder, ana_code, ana_order, line):
+        self.annex = annex
+        self.numorder = numorder
+        self.ana_code = ana_code
+        self.ana_order = ana_order
+        self.line = line
+
+        dict_sensor_types={'1E': 'TIPO E SIMPLE', '1J': 'TIPO J SIMPLE',
+        '1K': 'TIPO K SIMPLE', '1N': 'TIPO N SIMPLE',
+        '1R': 'TIPO R SIMPLE', '1S': 'TIPO S SIMPLE',
+        '1T': 'TIPO T SIMPLE', '2E': 'TIPO E DOBLE',
+        '2J': 'TIPO J DOBLE', '2K': 'TIPO K DOBLE',
+        '2N': 'TIPO N DOBLE', '2R': 'TIPO R DOBLE',
+        '2S': 'TIPO S DOBLE', '2T': 'TIPO T DOBLE',
+        '3K': 'TIPO K TRIPLE', '3S': 'TIPO S TRIPLE',
+        '1PT100': 'PT100 SIMPLE', '2PT100': 'PT100 DOBLE'}
+
+        commands_calib_data = ("""
+                SELECT "tag", "sensor", "master",
+                "master_1", "element_1", "error_1", "tolerance_1",
+                "master_2", "element_2", "error_2", "tolerance_2",
+                "master_3", "element_3", "error_3", "tolerance_3",
+                "master_4", "element_4", "error_4", "tolerance_4",
+                "notes"
+                FROM verification.calibration_thermoelements
+                WHERE "num_order" = %s
+                """)
+
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(commands_calib_data, (numorder,))
+            results = cur.fetchall()
+
+            df = pd.DataFrame(results, columns=["tag", "sensor", "master",
+                                    "master_1", "element_1", "error_1", "tolerance_1",
+                                    "master_2", "element_2", "error_2", "tolerance_2",
+                                    "master_3", "element_3", "error_3", "tolerance_3",
+                                    "master_4", "element_4", "error_4", "tolerance_4",
+                                    "notes"])
+
+            df.sort_values(by=['tag'])
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+
+        finally:
+            if conn is not None:
+                conn.close()
+
+        for i in range(1, 5):
+            df[f'master_value{i}'] = df.apply(lambda row: self.calculate_master(row[f'master_{i}'], row['master']), axis=1)
+
+        for i in range(1, 5):
+            df[f'element_value{i}'] = df.apply(lambda row: self.calculate_element(row[f'element_{i}'], row['sensor']), axis=1)
+
+        df['sensor'] = df['sensor'].map(dict_sensor_types)
+
+        if self.annex == 'Anexo A':
+            self.wb = load_workbook(r"\\nas01\DATOS\Comunes\NUCLEAR\FORMATOS ANEXOS\ANEXO A Termopar con union a masa.xlsx")
+        elif self.annex == 'Anexo B':
+            self.wb = load_workbook(r"\\nas01\DATOS\Comunes\NUCLEAR\FORMATOS ANEXOS\ANEXO B Termopar aislado de masa.xlsx")
+        elif self.annex == 'Anexo C':
+            self.wb = load_workbook(r"\\nas01\DATOS\Comunes\NUCLEAR\FORMATOS ANEXOS\ANEXO C RTD.xlsx")
+
+        ws_initial = self.wb["Hoja1"]
+
+        ws_initial["C4"] = self.ana_code
+        ws_initial["E4"] = self.ana_order
+        ws_initial["H4"] = self.line
+
+        df['tag_sliced'] = df['tag'].apply(lambda x: x[:-2])
+
+        unique_values = df['tag_sliced'].unique().tolist()
+
+        for item in unique_values:
+            self.wb.copy_worksheet(ws_initial)
+            ws_copy = self.wb["Hoja1 Copy"]
+            ws_copy.title = item
+
+            new_df = df[df['tag_sliced']==item]
+
+            ws_copy["D6"] = new_df.iloc[0,1]
+            ws_copy["H6"] = item
+
+            if self.annex in ['Anexo A', 'Anexo B']:
+                ws_copy["G9"] = "A: " + str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),19]).replace('.',',')[:4] if new_df.shape[0] == 2 else ""
+                ws_copy["G10"] = "B: " + str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_B'].index[0]),19]).replace('.',',')[:4] if new_df.shape[0] == 2 else str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),19]).replace('.',',')[:4]
+
+            ws_copy["C23"] = "A: " + str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),20]).replace('.',',') + " / " +  str(round(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),3],3)).replace('.',',') if new_df.shape[0] == 2 else ""
+            ws_copy["C24"] = "B: " + str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_B'].index[0]),20]).replace('.',',') + " / " +  str(round(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_B'].index[0]),3],3)).replace('.',',') if new_df.shape[0] == 2 else str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),20]).replace('.',',') + " / " +  str(round(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),3],3)).replace('.',',')
+            ws_copy["E23"] = "A: " + str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),24]).replace('.',',') + " / " +  str(round(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),4],3)).replace('.',',') if new_df.shape[0] == 2 else ""
+            ws_copy["E24"] = "B: " + str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_B'].index[0]),24]).replace('.',',') + " / " +  str(round(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_B'].index[0]),4],3)).replace('.',',') if new_df.shape[0] == 2 else str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_B'].index[0]), 24]).replace('.',',')
+            ws_copy["G23"] = ("" if 'TIPO E' in new_df.iloc[0,1] else ("" if 'TIPO J' in new_df.iloc[0,1] else ("" if 'TIPO K' in new_df.iloc[0,1] else str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),6]))))  if new_df.shape[0] == 2 else ""
+            ws_copy["G24"] = ("± 1,7" if 'TIPO E' in new_df.iloc[0,1] else ("± 2,2" if 'TIPO J' in new_df.iloc[0,1] else ("± 2,2" if 'TIPO K' in new_df.iloc[0,1] else str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_B'].index[0]),6]))))  if new_df.shape[0] == 2 else ("" if 'TIPO E' in new_df.iloc[0,1] else ("" if 'TIPO J' in new_df.iloc[0,1] else ("" if 'TIPO K' in new_df.iloc[0,1] else str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),6])))) 
+
+            ws_copy["C25"] = "A: " + str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),21]).replace('.',',') + " / " +  str(round(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),7],3)).replace('.',',') if new_df.shape[0] == 2 else ""
+            ws_copy["C26"] = "B: " + str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_B'].index[0]),21]).replace('.',',') + " / " +  str(round(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_B'].index[0]),7],3)).replace('.',',') if new_df.shape[0] == 2 else str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),21]).replace('.',',') + " / " +  str(round(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),7],3)).replace('.',',')
+            ws_copy["E25"] = "A: " + str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),25]).replace('.',',') + " / " +  str(round(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),8],3)).replace('.',',') if new_df.shape[0] == 2 else ""
+            ws_copy["E26"] = "B: " + str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_B'].index[0]),25]).replace('.',',') + " / " +  str(round(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_B'].index[0]),8],3)).replace('.',',') if new_df.shape[0] == 2 else str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_B'].index[0]), 25]).replace('.',',')
+            ws_copy["G25"] = ("" if 'TIPO E' in new_df.iloc[0,1] else ("" if 'TIPO J' in new_df.iloc[0,1] else ("" if 'TIPO K' in new_df.iloc[0,1] else str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),10]))))  if new_df.shape[0] == 2 else ""
+            ws_copy["G26"] = ("± 1,7" if 'TIPO E' in new_df.iloc[0,1] else ("± 2,2" if 'TIPO J' in new_df.iloc[0,1] else ("± 2,2" if 'TIPO K' in new_df.iloc[0,1] else str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_B'].index[0]),10]))))  if new_df.shape[0] == 2 else ("" if 'TIPO E' in new_df.iloc[0,1] else ("" if 'TIPO J' in new_df.iloc[0,1] else ("" if 'TIPO K' in new_df.iloc[0,1] else str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),10])))) 
+
+            ws_copy["C27"] = "A: " + str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),22]).replace('.',',') + " / " +  str(round(new_df.iloc[0,11],3)).replace('.',',') if new_df.shape[0] == 2 else ""
+            ws_copy["C28"] = "B: " + str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_B'].index[0]),22]).replace('.',',') + " / " +  str(round(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_B'].index[0]),11],3)).replace('.',',') if new_df.shape[0] == 2 else str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),22]).replace('.',',') + " / " +  str(round(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),11],3)).replace('.',',')
+            ws_copy["E27"] = "A: " + str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),26]).replace('.',',') + " / " +  str(round(new_df.iloc[0,12],3)).replace('.',',') if new_df.shape[0] == 2 else ""
+            ws_copy["E28"] = "B: " + str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_B'].index[0]),26]).replace('.',',') + " / " +  str(round(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_B'].index[0]),12],3)).replace('.',',') if new_df.shape[0] == 2 else str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_B'].index[0]), 26]).replace('.',',')
+            ws_copy["G27"] = ("" if 'TIPO E' in new_df.iloc[0,1] else ("" if 'TIPO J' in new_df.iloc[0,1] else ("" if 'TIPO K' in new_df.iloc[0,1] else str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),14]))))  if new_df.shape[0] == 2 else ""
+            ws_copy["G28"] = ("± 1,7" if 'TIPO E' in new_df.iloc[0,1] else ("± 2,2" if 'TIPO J' in new_df.iloc[0,1] else ("± 2,2" if 'TIPO K' in new_df.iloc[0,1] else str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_B'].index[0]),14]))))  if new_df.shape[0] == 2 else ("" if 'TIPO E' in new_df.iloc[0,1] else ("" if 'TIPO J' in new_df.iloc[0,1] else ("" if 'TIPO K' in new_df.iloc[0,1] else str(new_df.iloc[new_df.index.get_loc(new_df[new_df['tag'] == item + '_A'].index[0]),14])))) 
+
+            ws_copy["B40"] = "PATRÓN " + new_df.iloc[0,2] + ", FLUKE 8842A(030), MEGHOMETRO (022)"
+
+
+    def save_excel_doc(self):
+        # Dialog window to select folder and file name; if path is selected, excel file is saved
+        output_path = asksaveasfilename(
+            defaultextension=".xlsx",
+            filetypes=[("Archivos de Excel", "*.xlsx")],
+            title="Guardar Situación Documentos",
+        )
+        if output_path:
+            self.wb.save(output_path)
+
+            del self.wb['Hoja1']
+
+            self.wb.save(output_path)
+
+            return output_path
+
+
+    def calculate_master(self, temp, master):
+        if temp is not None:
+            if master in ['EIPSA-020', 'EIPSA-TE-01']:
+                column_select = 'inta_pt100_values.' + master.replace('-','_')
+                commands_intavalues = f"""
+                                    SELECT {column_select}
+                                    FROM verification.inta_pt100_values
+                                    ORDER BY variables
+                                    """
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(commands_intavalues)
+                    results = cur.fetchall()
+
+                    a_inta = results[0][0]
+                    b_inta = results[1][0]
+                    c_inta = results[2][0]
+                    r_zero = results[3][0]
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+                if temp < 0:
+                    final_value = round(r_zero * (1 + a_inta * temp + b_inta * temp**2 + c_inta* (temp - 100) * temp**3), 3)
+                else:
+                    final_value = round(r_zero * (1 + a_inta * temp + b_inta * temp**2), 3)
+
+            else:
+                column_select = 'inta_tc_values.' + master.replace('-','_')
+                commands_intavalues = f"""
+                                    SELECT {column_select}
+                                    FROM verification.inta_tc_values
+                                    ORDER BY variables
+                                    """
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(commands_intavalues)
+                    results = cur.fetchall()
+
+                    a_inta = results[0][0]
+                    b_inta = results[1][0]
+                    c_inta = results[2][0]
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    print(error)
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+                final_value = round((a_inta + b_inta * temp* + c_inta * temp**2)/1000, 3)
+
+        else:
+            final_value = 'N/A'
+
+        return final_value
+
+
+    def calculate_element(self, temp, sensor):
+        if temp is not None:
+            if 'PT100' in sensor:
+                commands_stdvalues = ("""
+                                    SELECT values
+                                    FROM verification.standard_pt100_values
+                                    ORDER BY variables
+                                    """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(commands_stdvalues)
+                    results = cur.fetchall()
+
+                    a_std = results[0][0]
+                    b_std = results[1][0]
+                    c_std = results[2][0]
+                    r_zero = results[3][0]
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+                if temp < 0:
+                    final_value = round(r_zero * (1 + a_std * temp + b_std * temp**2 + c_std* (temp - 100) * temp**3), 3)
+                else:
+                    final_value = round(r_zero * (1 + a_std * temp + b_std * temp**2), 3)
+
+            else:
+                if 'B' in sensor:
+                    table = 'verification.standard_tc_b_values'
+                    column = 'low' if temp <= 630.615 else 'high'
+                elif 'C' in sensor:
+                    table = 'verification.standard_tc_c_values'
+                    column = 'low' if temp <= 630.615 else 'high'
+                elif 'E' in sensor:
+                    table = 'verification.standard_tc_e_values'
+                    column = 'low' if temp <= 0 else 'high'
+                elif 'J' in sensor:
+                    table = 'verification.standard_tc_j_values'
+                    column = 'low' if temp <= 760 else 'high'
+                elif 'K' in sensor:
+                    table = 'verification.standard_tc_k_values'
+                    column = 'low' if temp <= 0 else 'high'
+                elif 'N' in sensor:
+                    table = 'verification.standard_tc_n_values'
+                    column = 'low' if temp <= 0 else 'high'
+                elif 'R' in sensor:
+                    table = 'verification.standard_tc_r_values'
+                    column = 'low' if temp <= 1064.18 else ('medium' if temp <= 1664.5 else 'high')
+                elif 'S' in sensor:
+                    table = 'verification.standard_tc_s_values'
+                    column = 'low' if temp <= 1064.18 else ('medium' if temp <= 1664.5 else 'high')
+                elif 'T' in sensor:
+                    table = 'verification.standard_tc_t_values'
+                    column = 'low' if temp <= 0 else 'high'
+
+                commands_stdvalues = f"""
+                                    SELECT {column}
+                                    FROM {table}
+                                    ORDER BY id
+                                    """
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(commands_stdvalues)
+                    results = cur.fetchall()
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+                final_value = 0
+
+                if 'K' in sensor:
+                    for i in range(len(results)-2):
+                        final_value += float(results[i][0]) * float(temp)**i
+
+                    final_value += float(results[11][0]) * exp(float(results[12][0]) * (float(temp) - 126.9686)**2)
+
+                else:
+                    for i in range(len(results)):
+                        final_value += results[i][0] * temp**i
+
+                final_value = round(final_value, 3)
+
+        else:
+            final_value = 'N/A'
+
+        return final_value
+
+class material_order:
+    def __init__(self, df, num_order, client, variable, num_ot):
+        # Loading Excel Template
+        self.wb = load_workbook(
+            r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Pedido Materia Prima.xlsx"
+        )
+        sheet_name = "Hoja1"  # Selecting template sheet
+        ws = self.wb[sheet_name]
+        start_row = 12  # Obtaining last row used
+        row_11_style = {}
+        for col_num in range(1, 15):
+            cell_11 = ws.cell(row=12, column=col_num)
+            row_11_style[col_num] = deepcopy(cell_11._style)
+
+        for index, row in df.iterrows():
+            for col_num, value in enumerate(row, start=4):
+                cell = ws.cell(row=start_row + index, column=col_num)
+                cell.value = value
+                for num in range(1, 15):
+                    cell = ws.cell(row=start_row + index, column=num)
+                    cell._style = deepcopy(row_11_style[num])
+
+        # Adding text in cell L4, C5, C6, H1 and H9
+        ws["L4"] = num_order
+        ws["C5"] = client
+        ws["C6"] = variable
+        ws["H1"] = int(num_ot)
+        ws["H9"] = date.today().strftime("%d/%m/%Y")
+
+        root = Tk()
+        root.withdraw()  # Hiding main window Tkinter
+
+    def save_excel(self):
+        # Dialog window to select folder and file name; if path is selected, excel file is saved
+        output_path = asksaveasfilename(
+            defaultextension=".xlsx",
+            filetypes=[("Archivos de Excel", "*.xlsx")],
+            title="Guardar archivo de Excel",
+        )
+        if output_path:
+            self.wb.save(output_path)
 
 
 # offer_short_flow('O-22/032', 'l.bravo', '0', 'project', 'FCA', '10-12', '30', '90_10', '123', '', '')

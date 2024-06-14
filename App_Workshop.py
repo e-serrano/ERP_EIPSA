@@ -772,11 +772,35 @@ class Ui_App_Workshop(object):
 
 # Function to open corresponding window when Verification button is clicked
     def verification(self):
-        from VerificationQuery_Window import Ui_VerificationQuery_Window
-        self.Verificationquery_window=QtWidgets.QMainWindow()
-        self.ui=Ui_VerificationQuery_Window(self.username)
-        self.ui.setupUi(self.Verificationquery_window)
-        self.Verificationquery_window.showMaximized()
+        dlg = QtWidgets.QInputDialog()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle('Verificación')
+        dlg.setLabelText('Introduce un pedido:')
+
+        while True:
+            clickedButton = dlg.exec()
+            if clickedButton == 1:
+                numorder = dlg.textValue()
+                if numorder != '':
+                    from Verif_Order_Window import Ui_Verif_Order_Window
+                    self.testquery_window=QtWidgets.QMainWindow()
+                    self.ui=Ui_Verif_Order_Window(self.username, numorder)
+                    self.ui.setupUi(self.testquery_window)
+                    self.testquery_window.showMaximized()
+                    break
+                dlg_error = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg_error.setWindowIcon(new_icon)
+                dlg_error.setWindowTitle("Verificación")
+                dlg_error.setText("El pedido no puede estar vacío. Introduce un valor válido.")
+                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg_error.exec()
+                del dlg_error,new_icon
+            else:
+                break
 
 
 

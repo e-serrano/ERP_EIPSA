@@ -206,7 +206,7 @@ class Ui_ImportTAG_Window(object):
                     cursor = conn.cursor()
 
                 #Importing excel file into dataframe
-                    df_table = pd.read_excel(excel_file, na_values=['N/A'], keep_default_na=False, skiprows=7)
+                    df_table = pd.read_excel(excel_file, na_values=['N/A'], keep_default_na=False, skiprows=7, dtype={'plate_thk': str})
                     df_table = df_table.astype(str)
                     df_table.replace('nan', 'N/A', inplace=True)
 
@@ -248,7 +248,7 @@ class Ui_ImportTAG_Window(object):
 
                                 # Creating string for columns names and values
                                     columns = ', '.join([column for column, _ in columns_values])
-                                    values = ', '.join([f"'{values.replace('.', ',')}'" if column in ['amount','plate_thk']
+                                    values = ', '.join([f"'{values.replace('.', ',')}'" if column in ['amount', 'plate_thk']
                                                         else ('NULL' if values == '' and column in ['num_order','contractual_date']
                                                         else f"'{values}'") for column, values in columns_values])
 
@@ -389,6 +389,7 @@ class Ui_ImportTAG_Window(object):
                                 del dlg, new_icon
 
                             except (Exception, psycopg2.DatabaseError) as error:
+                                print(error)
                                 dlg = QtWidgets.QMessageBox()
                                 new_icon = QtGui.QIcon()
                                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -489,6 +490,7 @@ class Ui_ImportTAG_Window(object):
                                 del dlg, new_icon
 
                             except (Exception, psycopg2.DatabaseError) as error:
+                                print(error)
                                 dlg = QtWidgets.QMessageBox()
                                 new_icon = QtGui.QIcon()
                                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -578,6 +580,7 @@ class Ui_ImportTAG_Window(object):
                                 del dlg, new_icon
 
                             except (Exception, psycopg2.DatabaseError) as error:
+                                print(error)
                                 dlg = QtWidgets.QMessageBox()
                                 new_icon = QtGui.QIcon()
                                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)

@@ -16,6 +16,8 @@ from matplotlib.figure import Figure
 from matplotlib import ticker
 import os
 from ExportDocs_Menu import Ui_ExportDocs_Menu
+from tkinter.filedialog import askopenfilename
+import pandas as pd
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -48,10 +50,12 @@ class ImageCalendarWidget(QtWidgets.QCalendarWidget):
                 painter.drawImage(image_rect, image_scaled)
 
 
-class Ui_App_Comercial(object):
+class Ui_App_Comercial(QtWidgets.QMainWindow):
     def __init__(self, name, username):
+        super(Ui_App_Comercial, self).__init__()
         self.name=name
         self.username=username
+        self.setupUi(self)
 
 
     def setupUi(self, App_Comercial):
@@ -375,8 +379,45 @@ class Ui_App_Comercial(object):
             self.Button_Users.setIcon(icon2)
             self.Button_Users.setIconSize(QtCore.QSize(40, 40))
             self.Button_Users.setObjectName("Button_Users")
-            self.Button_Users.clicked.connect(self.user_edition)
             self.Header.addWidget(self.Button_Users)
+            spacerItem16 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem16)
+            self.Button_Upload = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Upload.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Upload.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_Upload.setToolTip('Gestión Usuarios')
+            self.Button_Upload.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Upload.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_Upload.setText("")
+            icon18 = QtGui.QIcon()
+            icon18.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Upload_Arrow.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Upload.setIcon(icon18)
+            self.Button_Upload.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Upload.setObjectName("Button_Upload")
+            self.Button_Users.clicked.connect(self.user_edition)
+            self.Button_Upload.clicked.connect(self.upload_offer_order)
+            self.Header.addWidget(self.Button_Upload)
 
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem2)
@@ -775,7 +816,7 @@ class Ui_App_Comercial(object):
         self.Button_QueryTag.clicked.connect(self.query_tag)
         self.Button_ExpOffer.clicked.connect(self.export_menu)
         self.Button_Doc.clicked.connect(self.query_documents)
-        self.Button_Graphs.clicked.connect(self.graphs)
+        self.Button_Graphs.clicked.connect(self.stats_offers)
         self.Button_ClientsResume.clicked.connect(self.clients_generalresume)
         self.Button_QueryTask.clicked.connect(self.querytask)
         self.Button_RecOffer.clicked.connect(self.reclamation_offer)
@@ -848,7 +889,7 @@ class Ui_App_Comercial(object):
         self.tableOffer.setSortingEnabled(False)
         self.tableOffer.setSortingEnabled(__sortingEnabled)
 
-
+# Function to open window for create offers
     def new_offer(self):
         from OfferNew_Menu import Ui_NewOffer_Menu
         self.new_offer_menu=QtWidgets.QMainWindow()
@@ -857,7 +898,7 @@ class Ui_App_Comercial(object):
         self.new_offer_menu.show()
         self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
-
+# Function to open window for edit offers
     def edit_offer(self):
         from OfferEdit_Menu import Ui_EditOffer_Menu
         self.edit_offer_menu=QtWidgets.QMainWindow()
@@ -866,13 +907,13 @@ class Ui_App_Comercial(object):
         self.edit_offer_menu.show()
         self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
-
+# Function to open window for query offers
     def query_offer(self):
         from OfferQuery_Window import Ui_QueryOffer_Window
         self.query_offer_window=Ui_QueryOffer_Window()
         self.query_offer_window.show()
 
-
+# Function to open window for create orders
     def new_order(self):
         from OrderNewAddData_Window import Ui_New_OrderAddData_Window
         self.new_orderAddData_window=QtWidgets.QMainWindow()
@@ -881,7 +922,7 @@ class Ui_App_Comercial(object):
         self.new_orderAddData_window.show()
         self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
-
+# Function to open window for edit orders
     def edit_order(self):
         from OrderEdit_Menu import Ui_EditOrder_Menu
         self.edit_order_window=QtWidgets.QMainWindow()
@@ -890,13 +931,13 @@ class Ui_App_Comercial(object):
         self.edit_order_window.show()
         self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
-
+# Function to open window for query orders
     def query_order(self):
         from OrderQuery_Window import Ui_QueryOrder_Window
         self.query_order_window=Ui_QueryOrder_Window()
         self.query_order_window.show()
 
-
+# Function to open window for create tags
     def new_tag(self):
         from TAGCreate_Menu import Ui_CreateTag_Menu
         self.new_tag_window=QtWidgets.QMainWindow()
@@ -904,7 +945,7 @@ class Ui_App_Comercial(object):
         self.ui.setupUi(self.new_tag_window)
         self.new_tag_window.show()
 
-
+# Function to open window for edit tags
     def edit_tag(self):
         from TAGEdit_Menu import Ui_EditTags_Menu
         self.edittags_menu=QtWidgets.QMainWindow()
@@ -912,7 +953,7 @@ class Ui_App_Comercial(object):
         self.ui.setupUi(self.edittags_menu)
         self.edittags_menu.show()
 
-
+# Function to open window for query tags
     def query_tag(self):
         from TAGQuery_Menu import Ui_TAGQuery_Menu
         self.querytag_window=QtWidgets.QMainWindow()
@@ -920,28 +961,28 @@ class Ui_App_Comercial(object):
         self.ui.setupUi(self.querytag_window)
         self.querytag_window.show()
 
-
+# Function to open menu for export documents
     def export_menu(self):
         self.exportdocs_menu=QtWidgets.QMainWindow()
         self.ui=Ui_ExportDocs_Menu(self.username)
         self.ui.setupUi(self.exportdocs_menu)
         self.exportdocs_menu.show()
 
-
+# Function to open window for query documents
     def query_documents(self):
         from DocQuery_Window import Ui_QueryDoc_Window
         self.querydoc_menu=Ui_QueryDoc_Window()
         self.querydoc_menu.show()
 
+# Function to open menu of offer statistics
+    def stats_offers(self):
+        from OfferStats_Menu import Ui_StatsOffer_Menu
+        self.statswindow=QtWidgets.QMainWindow()
+        self.ui=Ui_StatsOffer_Menu()
+        self.ui.setupUi(self.statswindow)
+        self.statswindow.show()
 
-    def graphs(self):
-        from OfferGraphs_Window import Ui_GraphsOffer_Window
-        self.graphswindow=QtWidgets.QMainWindow()
-        self.ui=Ui_GraphsOffer_Window()
-        self.ui.setupUi(self.graphswindow)
-        self.graphswindow.show()
-
-
+# Function to open window with clients data resume
     def clients_generalresume(self):
         from ClientsGeneralResume_Window import Ui_ClientsGeneralResume_Window
         self.clients_general_resume_window=QtWidgets.QMainWindow()
@@ -949,14 +990,14 @@ class Ui_App_Comercial(object):
         self.ui.setupUi(self.clients_general_resume_window)
         self.clients_general_resume_window.show()
 
-
+# Function to open window for query tasks
     def querytask(self, date=None):
         from TaskQuery_Window import Ui_QueryTask_Window
         self.querytaskwindow=Ui_QueryTask_Window(self.name, date)
         self.querytaskwindow.show()
         self.querytaskwindow.Button_Cancel.clicked.connect(self.setup_task_dates)
 
-
+# Function to open window for create a new task
     def newtask(self, date):
         from TaskAdd_Window import Ui_AddTask_Window
         self.newtaskwindow=QtWidgets.QMainWindow()
@@ -965,7 +1006,7 @@ class Ui_App_Comercial(object):
         self.newtaskwindow.show()
         self.ui.Button_Cancel.clicked.connect(self.setup_task_dates)
 
-
+# Function to show menu when profile button is clicked
     def showMenu(self):
         menu = QMenu(self.centralwidget)
         menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; }"
@@ -976,7 +1017,7 @@ class Ui_App_Comercial(object):
         button = self.Button_Profile
         menu.exec(button.mapToGlobal(QtCore.QPoint(-75, 50)))
 
-
+# Function to open window for password edition
     def editpassword(self):
         from PasswordEdit_Window import Ui_EditPasswordWindow
         self.edit_password_window=QtWidgets.QMainWindow()
@@ -984,7 +1025,7 @@ class Ui_App_Comercial(object):
         self.ui.setupUi(self.edit_password_window)
         self.edit_password_window.show()
 
-
+# Function to open window for user edition
     def user_edition(self):
         from UserEdit_Menu import Ui_EditUser_Menu
         self.edit_user_menu=QtWidgets.QMainWindow()
@@ -992,19 +1033,17 @@ class Ui_App_Comercial(object):
         self.ui.setupUi(self.edit_user_menu)
         self.edit_user_menu.show()
 
-
+# Function to open window to show active notifications
     def notifications(self):
         from NotificationsHistory_Window import Ui_HistoryNotifications_Window
         self.notification_window=Ui_HistoryNotifications_Window(self.username)
         self.notification_window.show()
         self.notification_window.Button_Cancel.clicked.connect(self.load_notifications)
 
-
 # Function to update table and graphs at the same time
     def update_principal_screen(self):
         self.load_table()
         self.load_graphs()
-
 
 # Function to load values on graphs
     def load_graphs(self):
@@ -1145,8 +1184,7 @@ class Ui_App_Comercial(object):
         except:
             pass
 
-
-#Function to load values on table
+# Function to load values on table
     def load_table(self):
         self.tableOffer.setRowCount(0)
         commands_responsible = ("""
@@ -1217,7 +1255,6 @@ class Ui_App_Comercial(object):
 
         self.tableOffer.setSortingEnabled(False)
 
-
 # Function to stablish dates with task assigned to put icon on calendar
     def setup_task_dates(self):
         commands_loaddatestasks_LB = ("""
@@ -1275,7 +1312,7 @@ class Ui_App_Comercial(object):
         task_dates = dates_with_tasks
         self.Calendar.set_task_dates(task_dates)
 
-
+# Function to show task of the selected date
     def show_selected_date_tasks(self):
         self.click_count = 0
         selected_date = self.Calendar.selectedDate()
@@ -1303,7 +1340,6 @@ class Ui_App_Comercial(object):
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
             dlg.exec()
             del dlg, new_icon
-
 
 #Function to obtain tasks associated to a date
     def get_tasks_for_date(self, creator, date):
@@ -1386,7 +1422,6 @@ class Ui_App_Comercial(object):
             if conn is not None:
                 conn.close()
 
-
 #Function to show dialog showing delayed offers
     def alert_offers(self):
         delay_date=QtCore.QDate.currentDate().addDays(-10)
@@ -1454,7 +1489,6 @@ class Ui_App_Comercial(object):
             dlg.exec()
             del dlg, new_icon
 
-
 #Function to formatting y axis of graps
     def format_y_ticks(self, y, pos):
         if y >= 1e6:
@@ -1464,14 +1498,12 @@ class Ui_App_Comercial(object):
         else:
             return '{:d}'.format(int(y))
 
-
 # Function to check if column index of double clicked cell is equal to first column index
     def on_item_double_clicked(self, item):
         if item.column() == 2:
             self.clientresume(item)
         elif item.column() == 0:
             self.editofferform(item)
-
 
 # Function when double clicked cell is in client column
     def clientresume(self, item):
@@ -1481,7 +1513,6 @@ class Ui_App_Comercial(object):
         self.ui=Ui_ClientResume_Window(clientname)
         self.ui.setupUi(self.client_resume_window)
         self.client_resume_window.show()
-
 
 # Function when double clicked cell is in client column
     def editofferform(self, item):
@@ -1493,7 +1524,6 @@ class Ui_App_Comercial(object):
         self.edit_offer_window.show()
         self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
 
-
 # Function to open reclamation window
     def reclamation_offer(self):
         from OfferReclamation_Window import Ui_ReclamationOffer_Window
@@ -1501,7 +1531,6 @@ class Ui_App_Comercial(object):
         self.ui=Ui_ReclamationOffer_Window(self.name, self.username)
         self.ui.setupUi(self.reclamationoffer_window)
         self.reclamationoffer_window.show()
-
 
 # Function to show pop-up with offers to reclaim
     def alert_reclamation_offers(self):
@@ -1573,7 +1602,6 @@ class Ui_App_Comercial(object):
             if conn is not None:
                 conn.close()
 
-
 # Function to load number of notifications
     def load_notifications(self):
         query_tables_notifications = """SELECT table_name
@@ -1629,11 +1657,81 @@ class Ui_App_Comercial(object):
             icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Notification.setIcon(icon13)
 
-
+# Function to open window with clock-ins
     def clockin(self):
         from ClockIn_Window import MyCalendarApp
         self.clockin_window = MyCalendarApp(self.username)
         self.clockin_window.showMaximized()
+
+# Function to upload excel file with offer or order information
+    def upload_offer_order(self):
+        while True:
+            item, ok = QtWidgets.QInputDialog.getItem(self, "Cargar Info", "Selecciona que quieres cargar:", ['Ofertas', 'Pedidos'], 0, False)
+            if ok and item:
+                item_type = item
+                if item_type != '':
+                    if item_type == 'Ofertas':
+                        table_name = "offers"
+                    elif item_type == 'Pedidos':
+                        table_name = "orders"
+
+                    fname = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")],
+                            title="Seleccionar archivo Excel")
+
+                    if fname:
+                        params = config()
+                        conn = psycopg2.connect(**params)
+                        cursor = conn.cursor()
+
+                    #Importing excel file into dataframe
+                        df_table = pd.read_excel(fname, na_values=['N/A'], keep_default_na=False)
+                        df_table = df_table.astype(str)
+                        df_table.replace('nan', 'N/A', inplace=True)
+
+                        try:
+                    # Loop through each row of the DataFrame and insert the data into the table
+                            for index, row in df_table.iterrows():
+                                # Create a list of pairs (column_name, column_value) for each column with value
+                                    columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
+
+                                # Creating string for columns names
+                                    columns = ', '.join([column for column, _ in columns_values])
+
+                                # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
+                                    values = ', '.join([f"'{value.replace('.', ',')}'" if column in ['offer_amount','order_amount']
+                                                        else ('NULL' if value == '' and column in ['order_date','expected_date','register_date','recep_date','limit_date',
+                                                        'presentation_date', 'items_number']
+                                                        else "'{}'".format(value.replace('\'', '\'\''))) for column, value in columns_values])
+
+                                # Creating insertion query and executing it
+                                    sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+                                    cursor.execute(sql_insertion)
+
+                            cursor.close()
+                            conn.commit()
+
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("ERP EIPSA")
+                            dlg.setText("Datos importados con éxito")
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                            dlg.exec()
+                            del dlg, new_icon
+                            break
+
+                        except (Exception, psycopg2.DatabaseError) as error:
+                            print(error)
+                        finally:
+                            if conn is not None:
+                                conn.close()
+            else:
+                break
+
+
+
+
 
 # if __name__ == "__main__":
 #     import sys

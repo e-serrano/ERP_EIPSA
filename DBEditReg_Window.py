@@ -23,6 +23,27 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
+class RepeatedValuesDelegate(QtWidgets.QItemDelegate):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+    
+    def paint(self, painter, option, index):
+        # if index.column() == 1:  # Segunda columna (índice 1)
+        model = index.model()
+        value = model.data(index)
+        # Buscar valores repetidos en la columna
+        background_color = QtGui.QColor(255, 255, 255, 0)
+        for row in range(model.rowCount()):
+            if row != index.row():
+                other_index = model.index(row, index.column())
+                if model.data(other_index) == value:
+                    background_color = QtGui.QColor(255, 0, 0, 100)
+                    break
+        
+        painter.fillRect(option.rect, background_color)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+
+        super().paint(painter, option, index)
 
 class EditableTableModel(QtSql.QSqlTableModel):
     updateFailed = QtCore.pyqtSignal(str)
@@ -437,7 +458,7 @@ class Ui_DBEditReg_Window(QtWidgets.QMainWindow):
     def saveChanges(self):
         self.model.submitAll()
 
-
+# Function to add a new register
     def add_dbregister(self):
         table_name = "validation_data." + self.comboBox.currentText()
         code1 = self.code1_DBReg.text()
@@ -523,7 +544,7 @@ class Ui_DBEditReg_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-
+# Function to load values on table
     def loadtable(self):
         table_name = "validation_data." + self.comboBox.currentText()
 
@@ -534,6 +555,10 @@ class Ui_DBEditReg_Window(QtWidgets.QMainWindow):
 
         self.tableWidget.verticalHeader().hide()
         self.tableWidget.setItemDelegate(AlignDelegate(self.tableWidget))
+        
+        self.color_delegate = RepeatedValuesDelegate(self)
+        for column in range(self.model.columnCount()):
+            self.tableWidget.setItemDelegateForColumn(column, self.color_delegate)
         self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableWidget.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
         self.tableWidget.setObjectName("tableWidget")
@@ -651,19 +676,24 @@ class Ui_DBEditReg_Window(QtWidgets.QMainWindow):
             self.code7_DBReg.setVisible(False)
             self.code7_DBReg.setText('')
 
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     config_obj = configparser.ConfigParser()
-#     config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-#     dbparam = config_obj["postgresql"]
-#     # set your parameters for the database connection URI using the keys from the configfile.ini
-#     user_database = dbparam["user"]
-#     password_database = dbparam["password"]
 
-#     if not createConnection(user_database, password_database):
-#         sys.exit()
 
-#     EditReg_Window = Ui_DBEditReg_Window()
-#     EditReg_Window.show()
-#     sys.exit(app.exec())
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    config_obj = configparser.ConfigParser()
+    config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+    dbparam = config_obj["postgresql"]
+    # set your parameters for the database connection URI using the keys from the configfile.ini
+    user_database = dbparam["user"]
+    password_database = dbparam["password"]
+
+    db_manufacture =createConnection(user_database, password_database)
+
+    if not db_manufacture:
+        sys.exit()
+
+    EditReg_Window = Ui_DBEditReg_Window(db_manufacture)
+    EditReg_Window.show()
+    sys.exit(app.exec())

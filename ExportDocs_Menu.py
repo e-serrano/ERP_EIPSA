@@ -152,19 +152,21 @@ class Ui_ExportDocs_Menu(object):
         self.Button_DocSituation.setText(_translate("ExportDocs_Menu", "Situación Doc."))
         self.Button_Cancel.setText(_translate("ExportDocs_Menu", "Cancelar"))
 
-
+# Function to export offers in excel format
     def export_offer(self):
         self.exportoffer_window=QtWidgets.QMainWindow()
         self.ui=Ui_ExportOffer_Window(self.username)
         self.ui.setupUi(self.exportoffer_window)
         self.exportoffer_window.show()
 
+# Function to export order acceptation in word format
     def order_accept(self):
         self.orderaccept_window=QtWidgets.QMainWindow()
         self.ui=Ui_OrderAccept_Window(self.username)
         self.ui.setupUi(self.orderaccept_window)
         self.orderaccept_window.show()
 
+# Function to export order OVR in excel format
     def order_ovr(self):
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
@@ -242,7 +244,7 @@ class Ui_ExportDocs_Menu(object):
             else:
                 break
 
-
+# Function to export document situation of orders in excel format
     def doc_situation(self):
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()

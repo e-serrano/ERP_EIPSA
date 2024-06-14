@@ -15,6 +15,10 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Warehouse_Menu(object):
+    def __init__(self, name, username):
+        self.name=name
+        self.username=username
+
     def setupUi(self, Warehouse_Menu):
         Warehouse_Menu.setObjectName("Warehouse_Menu")
         Warehouse_Menu.setWindowModality(QtCore.Qt.WindowModality.WindowModal)
@@ -72,6 +76,14 @@ class Ui_Warehouse_Menu(object):
         self.frame.setObjectName("frame")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
         self.gridLayout_2.setObjectName("gridLayout_2")
+        self.hLayout1 = QtWidgets.QHBoxLayout()
+        self.hLayout1.setObjectName("hLayout1")
+        self.Button_Supplies = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Supplies.setMinimumSize(QtCore.QSize(250, 35))
+        self.Button_Supplies.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_Supplies.setObjectName("Button_Supplies")
+        self.hLayout1.addWidget(self.Button_Supplies)
+        self.gridLayout_2.addLayout(self.hLayout1, 0, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 2, 0, 1, 1)
         self.hLayout2 = QtWidgets.QHBoxLayout()
@@ -82,14 +94,14 @@ class Ui_Warehouse_Menu(object):
         self.Button_SupplierOrder.setObjectName("Button_SupplierOrder")
         self.hLayout2.addWidget(self.Button_SupplierOrder)
         self.gridLayout_2.addLayout(self.hLayout2, 3, 0, 1, 1)
-        self.hLayout1 = QtWidgets.QHBoxLayout()
-        self.hLayout1.setObjectName("hLayout1")
-        self.Button_Supplies = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Supplies.setMinimumSize(QtCore.QSize(250, 35))
-        self.Button_Supplies.setMaximumSize(QtCore.QSize(250, 35))
-        self.Button_Supplies.setObjectName("Button_Supplies")
-        self.hLayout1.addWidget(self.Button_Supplies)
-        self.gridLayout_2.addLayout(self.hLayout1, 0, 0, 1, 1)
+        self.hLayout3 = QtWidgets.QHBoxLayout()
+        self.hLayout3.setObjectName("hLayout2")
+        self.Button_SupplierNote = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_SupplierNote.setMinimumSize(QtCore.QSize(250, 35))
+        self.Button_SupplierNote.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_SupplierNote.setObjectName("Button_SupplierNote")
+        self.hLayout3.addWidget(self.Button_SupplierNote)
+        self.gridLayout_2.addLayout(self.hLayout3, 5, 0, 1, 1)
         self.hLayout4 = QtWidgets.QHBoxLayout()
         self.hLayout4.setContentsMargins(-1, 0, -1, -1)
         self.hLayout4.setObjectName("hLayout4")
@@ -117,14 +129,16 @@ class Ui_Warehouse_Menu(object):
         self.retranslateUi(Warehouse_Menu)
         self.Button_Supplies.clicked.connect(lambda: self.supplies(Warehouse_Menu))
         self.Button_SupplierOrder.clicked.connect(lambda: self.supplierorder(Warehouse_Menu))
+        self.Button_SupplierNote.clicked.connect(self.suppliers_delivnote)
         self.Button_Cancel.clicked.connect(Warehouse_Menu.close)
         QtCore.QMetaObject.connectSlotsByName(Warehouse_Menu)
 
 
     def retranslateUi(self, Warehouse_Menu):
         _translate = QtCore.QCoreApplication.translate
-        Warehouse_Menu.setWindowTitle(_translate("Warehouse_Menu", "ERP EIPSA - Compras"))
+        Warehouse_Menu.setWindowTitle(_translate("Warehouse_Menu", "ERP EIPSA - Almacén"))
         self.Button_SupplierOrder.setText(_translate("Warehouse_Menu", "Pedido A Proveedor"))
+        self.Button_SupplierNote.setText(_translate("Warehouse_Menu", "Albaranes Proveedor"))
         self.Button_Supplies.setText(_translate("Warehouse_Menu", "Suministros"))
         self.Button_Cancel.setText(_translate("Warehouse_Menu", "Salir"))
 
@@ -134,7 +148,6 @@ class Ui_Warehouse_Menu(object):
         self.ui=Ui_Supplies_Warehouse_Window()
         self.ui.setupUi(self.supplies_window)
         self.supplies_window.showMaximized()
-        Warehouse_Menu.close()
 
 
     def supplierorder(self,Warehouse_Menu):
@@ -142,4 +155,11 @@ class Ui_Warehouse_Menu(object):
         self.ui=Ui_SupplierOrder_Warehouse_Window()
         self.ui.setupUi(self.supplierorder_window)
         self.supplierorder_window.showMaximized()
-        Warehouse_Menu.close()
+
+# Function to open corresponding window when Suppliers button is clicked
+    def suppliers_delivnote(self):
+        from VerifSupplierInsert_Window import Ui_VerifSupplierInsert_Window
+        self.verifsupplier_window=QtWidgets.QMainWindow()
+        self.ui=Ui_VerifSupplierInsert_Window(self.username)
+        self.ui.setupUi(self.verifsupplier_window)
+        self.verifsupplier_window.showMaximized()

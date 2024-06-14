@@ -225,7 +225,7 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(Deliveries_Window)
 
         self.model.setTable("public.orders")
-        self.model.setFilter("num_order LIKE 'P-%' AND num_order NOT LIKE '%R%' AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)")
+        self.model.setFilter("num_order NOT LIKE '%R%' AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)")
         self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.model.select()
         self.proxy.setSourceModel(self.model)
@@ -284,7 +284,7 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
         self.model.dataChanged.disconnect(self.saveChanges)
         self.delete_allFilters()
         self.model.setTable("public.orders")
-        self.model.setFilter("num_order LIKE 'P-%' AND num_order NOT LIKE '%R%'")
+        self.model.setFilter("num_order NOT LIKE '%R%'")
         self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
         self.model.select()
         self.proxy.setSourceModel(self.model)

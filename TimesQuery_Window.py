@@ -58,29 +58,6 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
-        header_estado = "Estado"
-        state_column = -1
-
-        table_widget = option.widget
-
-        for column in range(table_widget.columnCount()):
-            header_item = table_widget.horizontalHeaderItem(column)
-            if header_item and header_item.text() == header_estado:
-                state_column = column
-                break
-
-        if index.column() == 2 and state_column != -1:
-            state_column_index = index.sibling(index.row(), state_column)
-            value = str(state_column_index.data())
-
-            if value in self.colors_dict:
-                text_color = self.colors_dict[value]
-            else:
-                text_color = QtGui.QColor(255, 255, 255)
-
-            option.palette.setBrush(QtGui.QPalette.ColorRole.Text, text_color)
-
-
 class CustomTableWidget(QtWidgets.QTableWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -445,7 +422,7 @@ class Ui_TimesQuery_Window(QtWidgets.QMainWindow):
 "  line-height: 1.15385;\n"
 "  margin: 0;\n"
 "  outline: none;\n"
-"  padding: 2px .8em;\n"
+"  padding: 2px .2em;\n"
 "  text-align: center;\n"
 "  text-decoration: none;\n"
 "  vertical-align: baseline;\n"
@@ -481,7 +458,7 @@ class Ui_TimesQuery_Window(QtWidgets.QMainWindow):
     "  line-height: 1.15385;\n"
     "  margin: 0;\n"
     "  outline: none;\n"
-    "  padding: 2px .8em;\n"
+    "  padding: 2px .2em;\n"
     "  text-align: center;\n"
     "  text-decoration: none;\n"
     "  vertical-align: baseline;\n"
@@ -514,6 +491,11 @@ class Ui_TimesQuery_Window(QtWidgets.QMainWindow):
         self.Button_Cancel.setMaximumSize(QtCore.QSize(100, 35))
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.gridLayout_2.addWidget(self.Button_Cancel, 1, 0, 1, 1)
+        self.Button_SeeAll = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_SeeAll.setMinimumSize(QtCore.QSize(100, 35))
+        self.Button_SeeAll.setMaximumSize(QtCore.QSize(100, 35))
+        self.Button_SeeAll.setObjectName("Button_SeeAll")
+        self.gridLayout_2.addWidget(self.Button_SeeAll, 1, 1, 1, 1)
         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.gridLayout_2.addItem(spacerItem3, 1, 0, 1, 1)
         self.tableTimes = CustomTableWidget()
@@ -575,7 +557,8 @@ class Ui_TimesQuery_Window(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(TimesQuery_Window)
 
         self.Button_Cancel.clicked.connect(TimesQuery_Window.close)
-        self.tableTimes.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
+        self.Button_SeeAll.clicked.connect(self.see_all)
+        self.tableTimes.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
         self.tableTimes.itemSelectionChanged.connect(self.countSelectedCells)
         self.querytimes()
 
@@ -598,16 +581,19 @@ class Ui_TimesQuery_Window(QtWidgets.QMainWindow):
         item = self.tableTimes.horizontalHeaderItem(6)
         item.setText(_translate("TimesQuery_Window", "Operación"))
         self.Button_Cancel.setText(_translate("TimesQuery_Window", "Cancelar"))
+        self.Button_SeeAll.setText(_translate("TimesQuery_Window", "Ver Todos"))
 
 
 
     def querytimes(self):
         query_times = ("""
-                        SELECT ot."id_ot", TO_CHAR(ot."date_ot", 'DD/MM/YYYY'), ot."number_ot", ot."time_ot", ot."cent_time_ot", personal."name", operations."name_eipsa"
+                        SELECT CAST(ot."id_ot" AS INTEGER), TO_CHAR(ot."date_ot", 'DD/MM/YYYY'), ot."number_ot", ot."time_ot", ot."cent_time_ot", personal."name", operations."name_eipsa"
                         FROM fabrication.imp_ot AS ot
                         LEFT JOIN fabrication.personal AS personal ON ot."personal_id" = personal."code"
                         LEFT JOIN fabrication.operations AS operations ON ot."operations_id" = operations."id"
-                        WHERE EXTRACT(YEAR FROM ot."date_ot") = %s
+                        WHERE ot."date_ot" >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '2 months'
+                                AND ot."date_ot" < DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month'
+                        ORDER BY ot."id_ot" DESC
                         """)
         conn = None
         try:
@@ -617,7 +603,7 @@ class Ui_TimesQuery_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            cur.execute(query_times, (datetime.now().year,))
+            cur.execute(query_times)
             results=cur.fetchall()
 
         # close communication with the PostgreSQL database server
@@ -644,7 +630,6 @@ class Ui_TimesQuery_Window(QtWidgets.QMainWindow):
             self.tableTimes.setItemDelegate(AlignDelegate(self.tableTimes))
             self.tableTimes.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
             self.tableTimes.setSortingEnabled(False)
-            self.tableTimes.custom_sort_date(1, QtCore.Qt.SortOrder.DescendingOrder)
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -661,6 +646,64 @@ class Ui_TimesQuery_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
+    def see_all(self):
+        query_times = ("""
+                        SELECT CAST(ot."id_ot" AS INTEGER), TO_CHAR(ot."date_ot", 'DD/MM/YYYY'), ot."number_ot", ot."time_ot", ot."cent_time_ot", personal."name", operations."name_eipsa"
+                        FROM fabrication.imp_ot AS ot
+                        LEFT JOIN fabrication.personal AS personal ON ot."personal_id" = personal."code"
+                        LEFT JOIN fabrication.operations AS operations ON ot."operations_id" = operations."id"
+                        ORDER BY ot."id_ot" DESC
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(query_times)
+            results=cur.fetchall()
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+            self.tableTimes.setRowCount(len(results))
+            tablerow=0
+
+        # fill the Qt Table with the query results
+            for row in results:
+                for column in range(7):
+                    value = row[column]
+                    if value is None:
+                        value = ''
+                    it = QtWidgets.QTableWidgetItem(str(value))
+                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                    self.tableTimes.setItem(tablerow, column, it)
+
+                tablerow+=1
+
+            self.tableTimes.verticalHeader().hide()
+            self.tableTimes.setItemDelegate(AlignDelegate(self.tableTimes))
+            self.tableTimes.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableTimes.setSortingEnabled(False)
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
 
 #Function when clicking on table header
     def on_header_section_clicked(self, logical_index):

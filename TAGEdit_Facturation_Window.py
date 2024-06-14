@@ -809,8 +809,72 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     self.model.dataChanged.connect(self.saveChanges)
 
                 else:
-                    if self.numorder[:2] == 'PA':
-                        self.variable = 'Otros'
+                    query_flow = ('''
+                        SELECT tags_data.tags_flow."num_order"
+                        FROM tags_data.tags_flow
+                        WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_temp = ('''
+                        SELECT tags_data.tags_temp."num_order"
+                        FROM tags_data.tags_temp
+                        WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_level = ('''
+                        SELECT tags_data.tags_level."num_order"
+                        FROM tags_data.tags_level
+                        WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_others = ('''
+                        SELECT tags_data.tags_others."num_order"
+                        FROM tags_data.tags_others
+                        WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query_flow,(self.numorder,))
+                        results_flow=cur.fetchall()
+                        cur.execute(query_temp,(self.numorder,))
+                        results_temp=cur.fetchall()
+                        cur.execute(query_level,(self.numorder,))
+                        results_level=cur.fetchall()
+                        cur.execute(query_others,(self.numorder,))
+                        results_others=cur.fetchall()
+
+                        if len(results_flow) != 0:
+                            self.variable = 'Caudal'
+                        elif len(results_temp) != 0:
+                            self.variable = 'Temperatura'
+                        elif len(results_level) != 0:
+                            self.variable = 'Nivel'
+                        elif len(results_others) != 0:
+                            self.variable = 'Otros'
+                        else:
+                            self.variable = ''
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
 
                     if self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
@@ -1096,6 +1160,8 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
             self.model.dataChanged.connect(self.saveChanges)
             self.selection_model = self.tableEditTags.selectionModel()
             self.selection_model.selectionChanged.connect(self.countSelectedCells)
+        else:
+            self.model.dataChanged.connect(self.saveChanges)
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
@@ -1372,6 +1438,8 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
             if selected_indexes:
                 clipboard = QApplication.clipboard()
                 text = self.get_selected_text(selected_indexes)
+                if isinstance(text, QtCore.QDate):
+                    text=text.toString("dd/MM/yyyy")
                 clipboard.setText(text)
 
         elif event.matches(QKeySequence.StandardKey.Paste):

@@ -316,8 +316,9 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
 
 class Ui_Clients_Window(object):
-    def __init__(self,name):
+    def __init__(self, name, username):
         self.name=name
+        self.username=username
 
     def setupUi(self, Clients_Window):
         if self.name in ['Daniel Márquez']:

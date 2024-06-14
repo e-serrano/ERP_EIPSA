@@ -143,7 +143,7 @@ class Ui_Login_Window(object):
         "    background-color: rgb(1, 140, 190);\n"
         "    border-color: rgb(255, 255, 255);\n"
         "}")
-        self.show_password.setObjectName("accept_login")
+        self.show_password.setObjectName("show_password")
         icon6 = QtGui.QIcon()
         icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.show_password.setIcon(icon6)
@@ -280,6 +280,7 @@ class Ui_Login_Window(object):
         self.accept_login.setText(_translate("Login_Window", "Acceder"))
         self.forgetpass_login.setText(_translate("Login_Window", "¿Olvidaste la contraseña?"))
 
+# Function to verify the login
     def verification_login(self):
         login_username = self.username_login.text().lower()
         login_password = self.password_login.text()
@@ -362,10 +363,8 @@ class Ui_Login_Window(object):
 
                 if rol_app == 'Comercial':
                     from App_Comercial import Ui_App_Comercial
-                    self.app_window = QtWidgets.QMainWindow()
                     self.ui_comercial = Ui_App_Comercial(match[0][1]+' '+match[0][2], login_username)
-                    self.ui_comercial.setupUi(self.app_window)
-                    self.app_window.showMaximized()
+                    self.ui_comercial.showMaximized()
                     self.Login_Window.close()
 
                 elif rol_app == "Compras":
@@ -393,7 +392,7 @@ class Ui_Login_Window(object):
                 elif rol_app == "Almacén":
                     from App_Warehouse import Ui_Warehouse_Menu
                     self.app_window = QtWidgets.QMainWindow()
-                    self.ui_warehouse = Ui_Warehouse_Menu()
+                    self.ui_warehouse = Ui_Warehouse_Menu(match[0][1]+' '+match[0][2], login_username)
                     self.ui_warehouse.setupUi(self.app_window)
                     self.app_window.show()
                     self.Login_Window.close()
@@ -455,6 +454,7 @@ class Ui_Login_Window(object):
                     dlg.exec()
                     del dlg, new_icon
 
+# Function when password has been forgotten
     def forgetpassword(self):
         from PasswordForget_Window import Ui_ForgetPass_Window
         self.forgetpass_window=QtWidgets.QMainWindow()
@@ -472,9 +472,11 @@ class Ui_Login_Window(object):
         # dlg.exec()
         # del dlg, new_icon
 
+# Function to start timer when password view button is clicked
     def start_show_timer(self):
         self.password_login.setEchoMode(QtWidgets.QLineEdit.EchoMode.Normal)
 
+# Function to stop timer when password view button is clicked
     def stop_show_timer(self):
         self.password_login.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
 

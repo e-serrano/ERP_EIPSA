@@ -545,7 +545,7 @@ class Ui_ExportOffer_Form(object):
                         msgbox.addButton('Español', QtWidgets.QMessageBox.ButtonRole.YesRole)
                         msgbox.addButton('Inglés', QtWidgets.QMessageBox.ButtonRole.NoRole)
                         bttn = msgbox.exec()
-                        if bttn:
+                        if bttn == 0:
                             offer_short_flow_spanish(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                         else:
                             offer_short_flow_english(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
@@ -556,7 +556,7 @@ class Ui_ExportOffer_Form(object):
                         msgbox.addButton('Español', QtWidgets.QMessageBox.ButtonRole.YesRole)
                         msgbox.addButton('Inglés', QtWidgets.QMessageBox.ButtonRole.NoRole)
                         bttn = msgbox.exec()
-                        if bttn:
+                        if bttn == 0:
                             offer_short_temp_spanish(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                         else:
                             offer_short_temp_english(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
@@ -567,7 +567,7 @@ class Ui_ExportOffer_Form(object):
                         msgbox.addButton('Español', QtWidgets.QMessageBox.ButtonRole.YesRole)
                         msgbox.addButton('Inglés', QtWidgets.QMessageBox.ButtonRole.NoRole)
                         bttn = msgbox.exec()
-                        if bttn:
+                        if bttn == 0:
                             offer_short_level_spanish(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                         else:
                             offer_short_level_english(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
@@ -578,7 +578,7 @@ class Ui_ExportOffer_Form(object):
                         msgbox.addButton('Español', QtWidgets.QMessageBox.ButtonRole.YesRole)
                         msgbox.addButton('Inglés', QtWidgets.QMessageBox.ButtonRole.NoRole)
                         bttn = msgbox.exec()
-                        if bttn:
+                        if bttn == 0:
                             offer_short_flow_spanish(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                             offer_short_temp_spanish(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                         else:

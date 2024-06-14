@@ -7,17 +7,42 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import QUrl
 from config import config
 import psycopg2
 import locale
 from PDF_Styles import supplier_order
-from tkinter.filedialog import asksaveasfilename
 import tkinter as tk
 import datetime
 import os
+from PDF_Viewer import PDF_Viewer
+from datetime import *
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
+class CustomComboBox(QtWidgets.QComboBox):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setEditable(True)
+        self.lineEdit().textEdited.connect(self.on_text_edited)
+
+    def showPopup(self):
+        super().showPopup()
+        self.adjust_scroll()
+
+    def on_text_edited(self):
+        completer = self.completer()
+        if completer:
+            completer.complete()
+            QtCore.QTimer.singleShot(0, self.adjust_scroll)
+
+    def adjust_scroll(self):
+        text = self.lineEdit().text().upper()
+        index = self.findText(text, QtCore.Qt.MatchFlag.MatchStartsWith | QtCore.Qt.MatchFlag.MatchCaseSensitive)
+        # Nos aseguramos de que el índice sea válido
+        if index >= 0:
+            model_index = self.model().index(index, 0)
+            self.view().scrollTo(model_index, hint=self.view().ScrollHint.PositionAtBottom)
 
 class CustomTableWidgetOrder(QtWidgets.QTableWidget):
     def __init__(self, parent=None):
@@ -45,8 +70,7 @@ class CustomTableWidgetOrder(QtWidgets.QTableWidget):
         actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
         menu.addSeparator()
 
-        menu.setStyleSheet("QMenu { color: black; }"
-                        "QMenu::item:selected { background-color: #33bdef; }"
+        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         if column_index not in self.column_filters:
@@ -274,6 +298,37 @@ class CustomTableWidgetOrder(QtWidgets.QTableWidget):
         else:
             self.sortByColumn(column_index, sortOrder)
 
+    def custom_sort_int(self, column, order):
+    # Obtén la cantidad de filas en la tabla
+        row_count = self.rowCount()
+
+        # Crea una lista de índices ordenados según las fechas
+        indexes = list(range(row_count))
+        indexes.sort(key=lambda i: int(self.item(i, column).text()))
+
+        # Si el orden es descendente, invierte la lista
+        if order == QtCore.Qt.SortOrder.DescendingOrder:
+            indexes.reverse()
+
+        # Guarda el estado actual de las filas ocultas
+        hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
+
+        # Actualiza las filas en la tabla en el orden ordenado
+        rows = self.rowCount()
+        for i in range(rows):
+            self.insertRow(i)
+
+        for new_row, old_row in enumerate(indexes):
+            for col in range(self.columnCount()):
+                item = self.takeItem(old_row + rows, col)
+                self.setItem(new_row, col, item)
+
+        for i in range(rows):
+            self.removeRow(rows)
+
+        for row in hidden_rows:
+            self.setRowHidden(row, True)
+
 
     def custom_sort(self, column, order):
     # Obtén la cantidad de filas en la tabla
@@ -316,7 +371,6 @@ class CustomTableWidgetOrder(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-
 class CustomTableWidgetRecord(QtWidgets.QTableWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -343,8 +397,7 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
         actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
         menu.addSeparator()
 
-        menu.setStyleSheet("QMenu { color: black; }"
-                        "QMenu::item:selected { background-color: #33bdef; }"
+        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         if column_index not in self.column_filters:
@@ -567,8 +620,41 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
 
 # Function to sort column
     def sort_column(self, column_index, sortOrder):
-        self.sortByColumn(column_index, sortOrder)
+        if column_index in [1]:
+            self.custom_sort_int(column_index, sortOrder)
+        else:
+            self.sortByColumn(column_index, sortOrder)
 
+    def custom_sort_int(self, column, order):
+    # Obtén la cantidad de filas en la tabla
+        row_count = self.rowCount()
+
+        # Crea una lista de índices ordenados según las fechas
+        indexes = list(range(row_count))
+        indexes.sort(key=lambda i: int(self.item(i, column).text()))
+
+        # Si el orden es descendente, invierte la lista
+        if order == QtCore.Qt.SortOrder.DescendingOrder:
+            indexes.reverse()
+
+        # Guarda el estado actual de las filas ocultas
+        hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
+
+        # Actualiza las filas en la tabla en el orden ordenado
+        rows = self.rowCount()
+        for i in range(rows):
+            self.insertRow(i)
+
+        for new_row, old_row in enumerate(indexes):
+            for col in range(self.columnCount()):
+                item = self.takeItem(old_row + rows, col)
+                self.setItem(new_row, col, item)
+
+        for i in range(rows):
+            self.removeRow(rows)
+
+        for row in hidden_rows:
+            self.setRowHidden(row, True)
 
     def custom_sort(self, column, order):
     # Obtén la cantidad de filas en la tabla
@@ -611,799 +697,727 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
-class Ui_SupplierOrder_Window(object):
+class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
+    def __init__(self, username):
+        super().__init__()
+        self.username=username
+        self.pdf_viewer = PDF_Viewer()
+        self.setupUi(self)
+
     def setupUi(self, SupplierOrder_Window):
         SupplierOrder_Window.setObjectName("SupplierOrder_Window")
         SupplierOrder_Window.resize(1534, 722)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         SupplierOrder_Window.setWindowIcon(icon)
-        SupplierOrder_Window.setStyleSheet("QWidget {\n"
+        if self.username == 'd.marquez':
+            SupplierOrder_Window.setStyleSheet("QWidget {\n"
+    "background-color: #121212; color: rgb(255, 255, 255)\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid white;\n"
+    "}\n"
+    "\n"
+    "QComboBox {\n"
+    "border: 1px solid white;\n"
+    "border-radius: 3px;\n"
+    "}\n"
+    "QComboBox QAbstractItemView{\n"
+    "min-width: 1200px;\n"
+    "}\n"
+    "\n"
+    "QComboBox QAbstractItemView::item {\n"
+    "min-height: 35px;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 13px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 2px .2em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
+        else:
+            SupplierOrder_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
 "}\n"
-"")
+"\n"
+".QFrame {\n"
+"    border: 2px solid white;\n"
+"}\n"
+"\n"
+"QComboBox QAbstractItemView{\n"
+    "min-width: 1200px;\n"
+    "}\n"
+    "\n"
+    "QComboBox QAbstractItemView::item {\n"
+    "min-height: 35px;\n"
+    "}\n"
+    "\n"
+"QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 13px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 2px .2em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
         self.centralwidget = QtWidgets.QWidget(parent=SupplierOrder_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame.setStyleSheet(".QFrame {\n"
-"    border: 2px solid black;\n"
-"}")
         self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame.setObjectName("frame")
-        self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.frame)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+
+        self.splitter = QtWidgets.QSplitter(QtCore.Qt.Orientation.Horizontal)
+
+
+
+        self.scrollArea = QtWidgets.QScrollArea(parent=self.frame)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setObjectName("scrollArea")
+        self.scrollAreaWidgetContents = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 500, 500))
+        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_2.setObjectName("gridLayout_2")
         spacerItem = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 1, 1, 1)
         self.label_NumOrder = QtWidgets.QLabel(parent=self.frame)
-        self.label_NumOrder.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
-        self.label_NumOrder.setMaximumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
+        self.label_NumOrder.setMinimumSize(QtCore.QSize(int(95//1.5), int(35//1.5)))
+        self.label_NumOrder.setMaximumSize(QtCore.QSize(int(95//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_NumOrder.setFont(font)
         self.label_NumOrder.setObjectName("label_NumOrder")
         self.gridLayout_2.addWidget(self.label_NumOrder, 1, 1, 1, 1)
         self.NumOrder_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.NumOrder_SupplierOrder.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        self.NumOrder_SupplierOrder.setMaximumSize(QtCore.QSize(int(170//1.5), int(25//1.5)))
+        self.NumOrder_SupplierOrder.setMinimumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
+        self.NumOrder_SupplierOrder.setMaximumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.NumOrder_SupplierOrder.setFont(font)
         self.NumOrder_SupplierOrder.setObjectName("NumOrder_SupplierOrder")
         self.gridLayout_2.addWidget(self.NumOrder_SupplierOrder, 1, 2, 1, 1)
         self.label_Supplier = QtWidgets.QLabel(parent=self.frame)
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Supplier.setFont(font)
         self.label_Supplier.setObjectName("label_Supplier")
         self.gridLayout_2.addWidget(self.label_Supplier, 1, 3, 1, 1)
         self.Supplier_SupplierOrder = QtWidgets.QComboBox(parent=self.frame)
-        self.Supplier_SupplierOrder.setMinimumSize(QtCore.QSize(int(300//1.5), int(25//1.5)))
-        self.Supplier_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.Supplier_SupplierOrder.setEditable(True)
+        self.Supplier_SupplierOrder.setMinimumSize(QtCore.QSize(int(300//1.5), int(35//1.5)))
+        self.Supplier_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Supplier_SupplierOrder.setFont(font)
         self.Supplier_SupplierOrder.setObjectName("Supplier_SupplierOrder")
         self.gridLayout_2.addWidget(self.Supplier_SupplierOrder, 1, 4, 1, 4)
         self.label_DelivWay = QtWidgets.QLabel(parent=self.frame)
-        self.label_DelivWay.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        self.label_DelivWay.setMaximumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
+        self.label_DelivWay.setMinimumSize(QtCore.QSize(int(150//1.5), int(35//1.5)))
+        self.label_DelivWay.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_DelivWay.setFont(font)
         self.label_DelivWay.setObjectName("label_DelivWay")
-        self.gridLayout_2.addWidget(self.label_DelivWay, 1, 8, 1, 1)
+        self.gridLayout_2.addWidget(self.label_DelivWay, 1, 8, 1, 2)
         self.DelivWay_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.DelivWay_SupplierOrder.setMinimumSize(QtCore.QSize(int(105//1.5), int(25//1.5)))
-        self.DelivWay_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.DelivWay_SupplierOrder.setMinimumSize(QtCore.QSize(int(150//1.5), int(35//1.5)))
+        self.DelivWay_SupplierOrder.setMaximumSize(QtCore.QSize(int(150//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.DelivWay_SupplierOrder.setFont(font)
         self.DelivWay_SupplierOrder.setObjectName("DelivWay_SupplierOrder")
-        self.gridLayout_2.addWidget(self.DelivWay_SupplierOrder, 1, 9, 1, 2)
+        self.gridLayout_2.addWidget(self.DelivWay_SupplierOrder, 1, 10, 1, 1)
         self.label_PayWay = QtWidgets.QLabel(parent=self.frame)
-        self.label_PayWay.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.label_PayWay.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.label_PayWay.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.label_PayWay.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_PayWay.setFont(font)
         self.label_PayWay.setObjectName("label_PayWay")
         self.gridLayout_2.addWidget(self.label_PayWay, 1, 11, 1, 2)
-        self.PayWay_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.PayWay_SupplierOrder.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.PayWay_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.PayWay_SupplierOrder = QtWidgets.QComboBox(parent=self.frame)
+        self.PayWay_SupplierOrder.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.PayWay_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
+        self.PayWay_SupplierOrder.setEditable(True)
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.PayWay_SupplierOrder.setFont(font)
         self.PayWay_SupplierOrder.setObjectName("PayWay_SupplierOrder")
-        self.gridLayout_2.addWidget(self.PayWay_SupplierOrder, 1, 13, 1, 4)
+        self.gridLayout_2.addWidget(self.PayWay_SupplierOrder, 1, 13, 1, 3)
+        icon0 = QtGui.QIcon()
+        icon0.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Add_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Plus = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Plus.setMinimumSize(QtCore.QSize(int(35//1.5), int(35//1.5)))
+        self.Button_Plus.setMaximumSize(QtCore.QSize(int(35//1.5), int(35//1.5)))
+        self.Button_Plus.setIcon(icon0)
+        self.Button_Plus.setObjectName("Button_Plus")
+        self.gridLayout_2.addWidget(self.Button_Plus, 1, 16, 1, 1)
         self.label_Date = QtWidgets.QLabel(parent=self.frame)
-        self.label_Date.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
-        self.label_Date.setMaximumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
+        self.label_Date.setMinimumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
+        self.label_Date.setMaximumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Date.setFont(font)
         self.label_Date.setObjectName("label_Date")
         self.gridLayout_2.addWidget(self.label_Date, 2, 1, 1, 1)
         self.Date_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.Date_SupplierOrder.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        self.Date_SupplierOrder.setMaximumSize(QtCore.QSize(int(170//1.5), int(25//1.5)))
+        self.Date_SupplierOrder.setMinimumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
+        self.Date_SupplierOrder.setMaximumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Date_SupplierOrder.setFont(font)
         self.Date_SupplierOrder.setObjectName("Date_SupplierOrder")
         self.gridLayout_2.addWidget(self.Date_SupplierOrder, 2, 2, 1, 1)
         self.label_TheirRef = QtWidgets.QLabel(parent=self.frame)
-        self.label_TheirRef.setMinimumSize(QtCore.QSize(int(95//1.5), int(25//1.5)))
-        self.label_TheirRef.setMaximumSize(QtCore.QSize(int(95//1.5), int(25//1.5)))
+        self.label_TheirRef.setMinimumSize(QtCore.QSize(int(95//1.5), int(35//1.5)))
+        self.label_TheirRef.setMaximumSize(QtCore.QSize(int(95//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_TheirRef.setFont(font)
         self.label_TheirRef.setObjectName("label_TheirRef")
         self.gridLayout_2.addWidget(self.label_TheirRef, 2, 3, 1, 1)
         self.TheirRef_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.TheirRef_SupplierOrder.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.TheirRef_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.TheirRef_SupplierOrder.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.TheirRef_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.TheirRef_SupplierOrder.setFont(font)
         self.TheirRef_SupplierOrder.setObjectName("TheirRef_SupplierOrder")
         self.gridLayout_2.addWidget(self.TheirRef_SupplierOrder, 2, 4, 1, 4)
         self.label_DelivDate = QtWidgets.QLabel(parent=self.frame)
-        self.label_DelivDate.setMinimumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
-        self.label_DelivDate.setMaximumSize(QtCore.QSize(int(100//1.5), int(25//1.5)))
+        self.label_DelivDate.setMinimumSize(QtCore.QSize(int(150//1.5), int(35//1.5)))
+        self.label_DelivDate.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_DelivDate.setFont(font)
         self.label_DelivDate.setObjectName("label_DelivDate")
-        self.gridLayout_2.addWidget(self.label_DelivDate, 2, 8, 1, 1)
-        self.DelivDate_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.DelivDate_SupplierOrder.setMinimumSize(QtCore.QSize(int(105//1.5), int(25//1.5)))
-        self.DelivDate_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.gridLayout_2.addWidget(self.label_DelivDate, 2, 8, 1, 2)
+        self.DelivDate_SupplierOrder = QtWidgets.QDateEdit(calendarPopup=True)
+        self.DelivDate_SupplierOrder.setMinimumSize(QtCore.QSize(int(150//1.5), int(35//1.5)))
+        self.DelivDate_SupplierOrder.setMaximumSize(QtCore.QSize(int(150//1.5), int(35//1.5)))
+        self.DelivDate_SupplierOrder.setDate(QtCore.QDate.currentDate())
+        self.DelivDate_SupplierOrder.setDisplayFormat("dd/MM/yyyy")
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.DelivDate_SupplierOrder.setFont(font)
         self.DelivDate_SupplierOrder.setObjectName("DelivDate_SupplierOrder")
-        self.gridLayout_2.addWidget(self.DelivDate_SupplierOrder, 2, 9, 1, 2)
+        self.DelivDate_SupplierOrder.setStyleSheet("QCalendarWidget QWidget{\n"
+"background-color: rgb(3, 174, 236);\n"
+"}\n"
+"\n"
+"QCalendarWidget QTableView{\n"
+"    background-color: #121212;\n"
+"alternate-background-color: #121212;\n"
+"}\n"
+"\n"
+"QCalendarWidget QToolButton {\n"
+"    color: white;\n"
+"    font-size:14px;\n"
+"    icon-size:20px 20px;\n"
+"    background-color:rgb(3, 174, 236);\n"
+"}\n"
+"\n"
+"QCalendarWidget QToolButton::hover {\n"
+"    background-color : #019ad2;\n"
+"}\n"
+"\n"
+"QCalendarWidget QToolButton::pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border: 3px solid;\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}\n"
+"\n"
+"QCalendarWidget QSpinBox{\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border: 2px solid;\n"
+"    border-color: rgb(3,174, 236);\n"
+"}\n"
+"\n"
+"QCalendarWidget QAbstractItemView:enabled{\n"
+"    selection-background-color: rgb(3, 174, 236);\n"
+"    selection-color: white;\n"
+"}\n"
+"\n"
+"#qt_calendar_prevmonth {\n"
+"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
+"}\n"
+"#qt_calendar_nextmonth {\n"
+"    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
+"}")
+        self.gridLayout_2.addWidget(self.DelivDate_SupplierOrder, 2, 10, 1, 1)
         self.label_DelivTerm = QtWidgets.QLabel(parent=self.frame)
-        self.label_DelivTerm.setMinimumSize(QtCore.QSize(int(105//1.5), int(25//1.5)))
-        self.label_DelivTerm.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.label_DelivTerm.setMinimumSize(QtCore.QSize(int(0//1.5), int(35//1.5)))
+        self.label_DelivTerm.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_DelivTerm.setFont(font)
         self.label_DelivTerm.setObjectName("label_DelivTerm")
         self.gridLayout_2.addWidget(self.label_DelivTerm, 2, 11, 1, 2)
         self.DelivTerm_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.DelivTerm_SupplierOrder.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.DelivTerm_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.DelivTerm_SupplierOrder.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.DelivTerm_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.DelivTerm_SupplierOrder.setFont(font)
         self.DelivTerm_SupplierOrder.setObjectName("DelivTerm_SupplierOrder")
         self.gridLayout_2.addWidget(self.DelivTerm_SupplierOrder, 2, 13, 1, 4)
         self.label_Obs = QtWidgets.QLabel(parent=self.frame)
-        self.label_Obs.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
-        self.label_Obs.setMaximumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
+        self.label_Obs.setMinimumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
+        self.label_Obs.setMaximumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Obs.setFont(font)
         self.label_Obs.setObjectName("label_Obs")
         self.gridLayout_2.addWidget(self.label_Obs, 3, 1, 1, 1)
         self.OrderObs_SupplierOrder = QtWidgets.QTextEdit(parent=self.frame)
-        self.OrderObs_SupplierOrder.setMinimumSize(QtCore.QSize(0, int(25//1.5)))
-        self.OrderObs_SupplierOrder.setMaximumSize(QtCore.QSize(16777214, int(25//1.5)))
+        self.OrderObs_SupplierOrder.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.OrderObs_SupplierOrder.setMaximumSize(QtCore.QSize(16777214, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.OrderObs_SupplierOrder.setFont(font)
         self.OrderObs_SupplierOrder.setObjectName("OrderObs_SupplierOrder")
         self.gridLayout_2.addWidget(self.OrderObs_SupplierOrder, 3, 2, 1, 6)
         self.label_Supply = QtWidgets.QLabel(parent=self.frame)
-        self.label_Supply.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
-        self.label_Supply.setMaximumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
+        self.label_Supply.setMinimumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
+        self.label_Supply.setMaximumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Supply.setFont(font)
         self.label_Supply.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Supply.setObjectName("label_Supply")
         self.gridLayout_2.addWidget(self.label_Supply, 4, 1, 1, 1)
         self.Supply_SupplierOrder = QtWidgets.QComboBox(parent=self.frame)
-        self.Supply_SupplierOrder.setMinimumSize(QtCore.QSize(int(300//1.5), int(25//1.5)))
-        self.Supply_SupplierOrder.setMinimumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.Supply_SupplierOrder.setEditable(True)
+        self.Supply_SupplierOrder.setMinimumSize(QtCore.QSize(int(300//1.5), int(35//1.5)))
+        self.Supply_SupplierOrder.setMinimumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Supply_SupplierOrder.setFont(font)
         self.Supply_SupplierOrder.setObjectName("Supply_SupplierOrder")
         self.gridLayout_2.addWidget(self.Supply_SupplierOrder, 5, 1, 1, 4)
         self.label_Stock = QtWidgets.QLabel(parent=self.frame)
-        self.label_Stock.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.label_Stock.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.label_Stock.setMinimumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
+        self.label_Stock.setMaximumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Stock.setFont(font)
         self.label_Stock.setObjectName("label_Stock")
         self.gridLayout_2.addWidget(self.label_Stock, 4, 5, 1, 1)
         self.Stock_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.Stock_SupplierOrder.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.Stock_SupplierOrder.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.Stock_SupplierOrder.setMinimumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
+        self.Stock_SupplierOrder.setMaximumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Stock_SupplierOrder.setFont(font)
         self.Stock_SupplierOrder.setReadOnly(True)
         self.Stock_SupplierOrder.setObjectName("Stock_SupplierOrder")
         self.gridLayout_2.addWidget(self.Stock_SupplierOrder, 5, 5, 1, 1)
         self.label_StockDsp = QtWidgets.QLabel(parent=self.frame)
-        self.label_StockDsp.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.label_StockDsp.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.label_StockDsp.setMinimumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
+        self.label_StockDsp.setMaximumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_StockDsp.setFont(font)
         self.label_StockDsp.setObjectName("label_StockDsp")
         self.gridLayout_2.addWidget(self.label_StockDsp, 4, 6, 1, 1)
         self.StockDsp_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.StockDsp_SupplierOrder.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.StockDsp_SupplierOrder.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.StockDsp_SupplierOrder.setMinimumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
+        self.StockDsp_SupplierOrder.setMaximumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.StockDsp_SupplierOrder.setFont(font)
         self.StockDsp_SupplierOrder.setReadOnly(True)
         self.StockDsp_SupplierOrder.setObjectName("StockDsp_SupplierOrder")
         self.gridLayout_2.addWidget(self.StockDsp_SupplierOrder, 5, 6, 1, 1)
         self.label_StockVrt = QtWidgets.QLabel(parent=self.frame)
-        self.label_StockVrt.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.label_StockVrt.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.label_StockVrt.setMinimumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
+        self.label_StockVrt.setMaximumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_StockVrt.setFont(font)
         self.label_StockVrt.setObjectName("label_StockVrt")
         self.gridLayout_2.addWidget(self.label_StockVrt, 4, 7, 1, 1)
         self.StockVrt_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.StockVrt_SupplierOrder.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.StockVrt_SupplierOrder.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.StockVrt_SupplierOrder.setMinimumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
+        self.StockVrt_SupplierOrder.setMaximumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.StockVrt_SupplierOrder.setFont(font)
         self.StockVrt_SupplierOrder.setReadOnly(True)
         self.StockVrt_SupplierOrder.setObjectName("StockVrt_SupplierOrder")
         self.gridLayout_2.addWidget(self.StockVrt_SupplierOrder, 5, 7, 1, 1)
         self.label_UnitValue = QtWidgets.QLabel(parent=self.frame)
-        self.label_UnitValue.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.label_UnitValue.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.label_UnitValue.setMinimumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
+        self.label_UnitValue.setMaximumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_UnitValue.setFont(font)
         self.label_UnitValue.setObjectName("label_UnitValue")
         self.gridLayout_2.addWidget(self.label_UnitValue, 4, 8, 1, 1)
         self.UnitValue_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.UnitValue_SupplierOrder.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.UnitValue_SupplierOrder.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.UnitValue_SupplierOrder.setMinimumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
+        self.UnitValue_SupplierOrder.setMaximumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.UnitValue_SupplierOrder.setFont(font)
         self.UnitValue_SupplierOrder.setObjectName("UnitValue_SupplierOrder")
         self.gridLayout_2.addWidget(self.UnitValue_SupplierOrder, 5, 8, 1, 1)
         self.label_Discount = QtWidgets.QLabel(parent=self.frame)
-        self.label_Discount.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.label_Discount.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.label_Discount.setMinimumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
+        self.label_Discount.setMaximumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Discount.setFont(font)
         self.label_Discount.setObjectName("label_Discount")
         self.gridLayout_2.addWidget(self.label_Discount, 4, 9, 1, 1)
         self.Discount_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.Discount_SupplierOrder.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.Discount_SupplierOrder.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.Discount_SupplierOrder.setMinimumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
+        self.Discount_SupplierOrder.setMaximumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Discount_SupplierOrder.setFont(font)
         self.Discount_SupplierOrder.setObjectName("Discount_SupplierOrder")
         self.gridLayout_2.addWidget(self.Discount_SupplierOrder, 5, 9, 1, 1)
         self.label_IDOrd = QtWidgets.QLabel(parent=self.frame)
-        self.label_IDOrd.setMinimumSize(QtCore.QSize(int(50//1.5), int(25//1.5)))
-        self.label_IDOrd.setMaximumSize(QtCore.QSize(int(50//1.5), int(25//1.5)))
+        self.label_IDOrd.setMinimumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
+        self.label_IDOrd.setMaximumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
         self.label_IDOrd.setObjectName("label_IDOrd")
         self.label_IDOrd.setText("")
-        self.label_IDOrd.setStyleSheet("color: rgb(255, 255, 255);")
+        if self.username == 'd.marquez':
+            self.label_IDOrd.setStyleSheet("color: #121212")
+        else:
+            self.label_IDOrd.setStyleSheet("color: white")
         self.gridLayout_2.addWidget(self.label_IDOrd, 6, 1, 1, 1)
         self.label_IDRecord = QtWidgets.QLabel(parent=self.frame)
-        self.label_IDRecord.setMinimumSize(QtCore.QSize(int(50//1.5), int(25//1.5)))
-        self.label_IDRecord.setMaximumSize(QtCore.QSize(int(50//1.5), int(25//1.5)))
+        self.label_IDRecord.setMinimumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
+        self.label_IDRecord.setMaximumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
         self.label_IDRecord.setObjectName("label_IDRecord")
         self.label_IDRecord.setText("")
-        self.label_IDRecord.setStyleSheet("color: rgb(255, 255, 255);")
+        if self.username == 'd.marquez':
+            self.label_IDRecord.setStyleSheet("color: #121212")
+        else:
+            self.label_IDRecord.setStyleSheet("color: white")
         self.gridLayout_2.addWidget(self.label_IDRecord, 6, 2, 1, 1)
         self.label_Position = QtWidgets.QLabel(parent=self.frame)
-        self.label_Position.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.label_Position.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.label_Position.setMinimumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
+        self.label_Position.setMaximumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Position.setFont(font)
         self.label_Position.setObjectName("label_Position")
         self.gridLayout_2.addWidget(self.label_Position, 6, 5, 1, 1)
         self.Position_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.Position_SupplierOrder.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.Position_SupplierOrder.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.Position_SupplierOrder.setMinimumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
+        self.Position_SupplierOrder.setMaximumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Position_SupplierOrder.setFont(font)
         self.Position_SupplierOrder.setObjectName("Position_SupplierOrder")
         self.gridLayout_2.addWidget(self.Position_SupplierOrder, 7, 5, 1, 1)
         self.label_Quantity = QtWidgets.QLabel(parent=self.frame)
-        self.label_Quantity.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.label_Quantity.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.label_Quantity.setMinimumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
+        self.label_Quantity.setMaximumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Quantity.setFont(font)
         self.label_Quantity.setObjectName("label_Quantity")
         self.gridLayout_2.addWidget(self.label_Quantity, 6, 6, 1, 1)
         self.Quantity_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.Quantity_SupplierOrder.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.Quantity_SupplierOrder.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.Quantity_SupplierOrder.setMinimumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
+        self.Quantity_SupplierOrder.setMaximumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Quantity_SupplierOrder.setFont(font)
         self.Quantity_SupplierOrder.setObjectName("Quantity_SupplierOrder")
         self.gridLayout_2.addWidget(self.Quantity_SupplierOrder, 7, 6, 1, 1)
         self.label_Deliv1 = QtWidgets.QLabel(parent=self.frame)
-        self.label_Deliv1.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.label_Deliv1.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.label_Deliv1.setMinimumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
+        self.label_Deliv1.setMaximumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Deliv1.setFont(font)
         self.label_Deliv1.setObjectName("label_Deliv1")
         self.gridLayout_2.addWidget(self.label_Deliv1, 6, 7, 1, 1)
         self.Deliv1_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.Deliv1_SupplierOrder.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.Deliv1_SupplierOrder.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.Deliv1_SupplierOrder.setMinimumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
+        self.Deliv1_SupplierOrder.setMaximumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Deliv1_SupplierOrder.setFont(font)
         self.Deliv1_SupplierOrder.setObjectName("Deliv1_SupplierOrder")
         self.gridLayout_2.addWidget(self.Deliv1_SupplierOrder, 7, 7, 1, 1)
         self.label_Deliv2 = QtWidgets.QLabel(parent=self.frame)
-        self.label_Deliv2.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.label_Deliv2.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.label_Deliv2.setMinimumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
+        self.label_Deliv2.setMaximumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Deliv2.setFont(font)
         self.label_Deliv2.setObjectName("label_Deliv2")
         self.gridLayout_2.addWidget(self.label_Deliv2, 6, 8, 1, 1)
         self.Deliv2_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.Deliv2_SupplierOrder.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.Deliv2_SupplierOrder.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.Deliv2_SupplierOrder.setMinimumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
+        self.Deliv2_SupplierOrder.setMaximumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Deliv2_SupplierOrder.setFont(font)
         self.Deliv2_SupplierOrder.setObjectName("Deliv2_SupplierOrder")
         self.gridLayout_2.addWidget(self.Deliv2_SupplierOrder, 7, 8, 1, 1)
         self.label_Deliv3 = QtWidgets.QLabel(parent=self.frame)
-        self.label_Deliv3.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.label_Deliv3.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.label_Deliv3.setMinimumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
+        self.label_Deliv3.setMaximumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Deliv3.setFont(font)
         self.label_Deliv3.setObjectName("label_Deliv3")
         self.gridLayout_2.addWidget(self.label_Deliv3, 6, 9, 1, 1)
         self.Deliv3_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.Deliv3_SupplierOrder.setMinimumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
-        self.Deliv3_SupplierOrder.setMaximumSize(QtCore.QSize(int(80//1.5), int(25//1.5)))
+        self.Deliv3_SupplierOrder.setMinimumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
+        self.Deliv3_SupplierOrder.setMaximumSize(QtCore.QSize(int(80//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.Deliv3_SupplierOrder.setFont(font)
         self.Deliv3_SupplierOrder.setObjectName("Deliv3_SupplierOrder")
         self.gridLayout_2.addWidget(self.Deliv3_SupplierOrder, 7, 9, 1, 1)
         self.label_DateDeliv = QtWidgets.QLabel(parent=self.frame)
-        self.label_DateDeliv.setMinimumSize(QtCore.QSize(int(105//1.5), int(25//1.5)))
-        self.label_DateDeliv.setMaximumSize(QtCore.QSize(int(105//1.5), int(25//1.5)))
+        self.label_DateDeliv.setMinimumSize(QtCore.QSize(int(105//1.5), int(35//1.5)))
+        self.label_DateDeliv.setMaximumSize(QtCore.QSize(int(105//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         font.setItalic(True)
         self.label_DateDeliv.setFont(font)
         self.label_DateDeliv.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_DateDeliv.setObjectName("label_DateDeliv")
         self.gridLayout_2.addWidget(self.label_DateDeliv, 6, 10, 1, 1)
         self.label_NoteDeliv = QtWidgets.QLabel(parent=self.frame)
-        self.label_NoteDeliv.setMinimumSize(QtCore.QSize(int(105//1.5), int(25//1.5)))
-        self.label_NoteDeliv.setMaximumSize(QtCore.QSize(int(105//1.5), int(25//1.5)))
+        self.label_NoteDeliv.setMinimumSize(QtCore.QSize(int(105//1.5), int(35//1.5)))
+        self.label_NoteDeliv.setMaximumSize(QtCore.QSize(int(105//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         font.setItalic(True)
         self.label_NoteDeliv.setFont(font)
         self.label_NoteDeliv.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_NoteDeliv.setObjectName("label_NoteDeliv")
         self.gridLayout_2.addWidget(self.label_NoteDeliv, 7, 10, 1, 1)
         self.label_1Deliv = QtWidgets.QLabel(parent=self.frame)
-        self.label_1Deliv.setMinimumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
-        self.label_1Deliv.setMaximumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
+        self.label_1Deliv.setMinimumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
+        self.label_1Deliv.setMaximumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         font.setItalic(True)
         self.label_1Deliv.setFont(font)
         self.label_1Deliv.setObjectName("label_1Deliv")
         self.gridLayout_2.addWidget(self.label_1Deliv, 5, 11, 1, 1)
         self.DelivDate1_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.DelivDate1_SupplierOrder.setMinimumSize(QtCore.QSize(int(95//1.5), int(25//1.5)))
-        self.DelivDate1_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.DelivDate1_SupplierOrder.setMinimumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
+        self.DelivDate1_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.DelivDate1_SupplierOrder.setFont(font)
         self.DelivDate1_SupplierOrder.setObjectName("DelivDate1_SupplierOrder")
         self.gridLayout_2.addWidget(self.DelivDate1_SupplierOrder, 6, 11, 1, 2)
         self.DelivNote1_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.DelivNote1_SupplierOrder.setMinimumSize(QtCore.QSize(int(95//1.5), int(25//1.5)))
-        self.DelivNote1_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.DelivNote1_SupplierOrder.setMinimumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
+        self.DelivNote1_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.DelivNote1_SupplierOrder.setFont(font)
         self.DelivNote1_SupplierOrder.setObjectName("DelivNote1_SupplierOrder")
         self.gridLayout_2.addWidget(self.DelivNote1_SupplierOrder, 7, 11, 1, 2)
         self.label_2Deliv = QtWidgets.QLabel(parent=self.frame)
-        self.label_2Deliv.setMinimumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
-        self.label_2Deliv.setMaximumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
+        self.label_2Deliv.setMinimumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
+        self.label_2Deliv.setMaximumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         font.setItalic(True)
         self.label_2Deliv.setFont(font)
         self.label_2Deliv.setObjectName("label_2Deliv")
         self.gridLayout_2.addWidget(self.label_2Deliv, 5, 13, 1, 1)
         self.DelivDate2_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.DelivDate2_SupplierOrder.setMinimumSize(QtCore.QSize(int(95//1.5), int(25//1.5)))
-        self.DelivDate2_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.DelivDate2_SupplierOrder.setMinimumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
+        self.DelivDate2_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.DelivDate2_SupplierOrder.setFont(font)
         self.DelivDate2_SupplierOrder.setObjectName("DelivDate2_SupplierOrder")
         self.gridLayout_2.addWidget(self.DelivDate2_SupplierOrder, 6, 13, 1, 2)
         self.DelivNote2_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.DelivNote2_SupplierOrder.setMinimumSize(QtCore.QSize(int(95//1.5), int(25//1.5)))
-        self.DelivNote2_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.DelivNote2_SupplierOrder.setMinimumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
+        self.DelivNote2_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.DelivNote2_SupplierOrder.setFont(font)
         self.DelivNote2_SupplierOrder.setObjectName("DelivNote2_SupplierOrder")
         self.gridLayout_2.addWidget(self.DelivNote2_SupplierOrder, 7, 13, 1, 2)
         self.label_3Deliv = QtWidgets.QLabel(parent=self.frame)
-        self.label_3Deliv.setMinimumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
-        self.label_3Deliv.setMaximumSize(QtCore.QSize(int(70//1.5), int(25//1.5)))
+        self.label_3Deliv.setMinimumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
+        self.label_3Deliv.setMaximumSize(QtCore.QSize(int(50//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         font.setItalic(True)
         self.label_3Deliv.setFont(font)
         self.label_3Deliv.setObjectName("label_3Deliv")
         self.gridLayout_2.addWidget(self.label_3Deliv, 5, 15, 1, 1)
         self.DelivDate3_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.DelivDate3_SupplierOrder.setMinimumSize(QtCore.QSize(int(95//1.5), int(25//1.5)))
-        self.DelivDate3_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.DelivDate3_SupplierOrder.setMinimumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
+        self.DelivDate3_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.DelivDate3_SupplierOrder.setFont(font)
         self.DelivDate3_SupplierOrder.setObjectName("DelivDate3_SupplierOrder")
         self.gridLayout_2.addWidget(self.DelivDate3_SupplierOrder, 6, 15, 1, 2)
         self.DelivNote3_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame)
-        self.DelivNote3_SupplierOrder.setMinimumSize(QtCore.QSize(int(95//1.5), int(25//1.5)))
-        self.DelivNote3_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(25//1.5)))
+        self.DelivNote3_SupplierOrder.setMinimumSize(QtCore.QSize(int(70//1.5), int(35//1.5)))
+        self.DelivNote3_SupplierOrder.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         self.DelivNote3_SupplierOrder.setFont(font)
         self.DelivNote3_SupplierOrder.setObjectName("DelivNote3_SupplierOrder")
         self.gridLayout_2.addWidget(self.DelivNote3_SupplierOrder, 7, 15, 1, 2)
         icon1 = QtGui.QIcon()
         icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Check.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Deliv1 = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Deliv1.setMinimumSize(QtCore.QSize(int(25//1.5), int(25//1.5)))
-        self.Button_Deliv1.setMaximumSize(QtCore.QSize(int(25//1.5), int(25//1.5)))
-        self.Button_Deliv1.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        self.Button_Deliv1.setMinimumSize(QtCore.QSize(int(35//1.5), int(35//1.5)))
+        self.Button_Deliv1.setMaximumSize(QtCore.QSize(int(35//1.5), int(35//1.5)))
         self.Button_Deliv1.setIcon(icon1)
         self.Button_Deliv1.setObjectName("Button_Deliv1")
         self.gridLayout_2.addWidget(self.Button_Deliv1, 5, 12, 1, 1)
         self.Button_Deliv2 = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Deliv2.setMinimumSize(QtCore.QSize(int(25//1.5), int(25//1.5)))
-        self.Button_Deliv2.setMaximumSize(QtCore.QSize(int(25//1.5), int(25//1.5)))
-        self.Button_Deliv2.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        self.Button_Deliv2.setMinimumSize(QtCore.QSize(int(35//1.5), int(35//1.5)))
+        self.Button_Deliv2.setMaximumSize(QtCore.QSize(int(35//1.5), int(35//1.5)))
         self.Button_Deliv2.setIcon(icon1)
         self.Button_Deliv2.setObjectName("Button_Deliv2")
         self.gridLayout_2.addWidget(self.Button_Deliv2, 5, 14, 1, 1)
         self.Button_Deliv3 = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Deliv3.setMinimumSize(QtCore.QSize(int(25//1.5), int(25//1.5)))
-        self.Button_Deliv3.setMaximumSize(QtCore.QSize(int(25//1.5), int(25//1.5)))
-        self.Button_Deliv3.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        self.Button_Deliv3.setMinimumSize(QtCore.QSize(int(35//1.5), int(35//1.5)))
+        self.Button_Deliv3.setMaximumSize(QtCore.QSize(int(35//1.5), int(35//1.5)))
         self.Button_Deliv3.setIcon(icon1)
         self.Button_Deliv3.setObjectName("Button_Deliv3")
         self.gridLayout_2.addWidget(self.Button_Deliv3, 5, 16, 1, 1)
         self.Button_CreateOrder = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_CreateOrder.setMinimumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
-        self.Button_CreateOrder.setMaximumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
-        self.Button_CreateOrder.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        self.Button_CreateOrder.setMinimumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
+        self.Button_CreateOrder.setMaximumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
         self.Button_CreateOrder.setObjectName("Button_CreateOrder")
         self.gridLayout_2.addWidget(self.Button_CreateOrder, 1, 17, 1, 1)
         self.Button_ModifyOrder = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_ModifyOrder.setMinimumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
-        self.Button_ModifyOrder.setMaximumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
-        self.Button_ModifyOrder.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        self.Button_ModifyOrder.setMinimumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
+        self.Button_ModifyOrder.setMaximumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
         self.Button_ModifyOrder.setObjectName("Button_ModifyOrder")
         self.gridLayout_2.addWidget(self.Button_ModifyOrder, 2, 17, 1, 1)
+        self.Button_Reload = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Reload.setMinimumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
+        self.Button_Reload.setMaximumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
+        self.Button_Reload.setObjectName("Button_Reload")
+        self.gridLayout_2.addWidget(self.Button_Reload, 3, 17, 1, 1)
         self.Button_AddRecord = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_AddRecord.setMinimumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
-        self.Button_AddRecord.setMaximumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
-        self.Button_AddRecord.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        self.Button_AddRecord.setMinimumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
+        self.Button_AddRecord.setMaximumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
         self.Button_AddRecord.setObjectName("Button_AddRecord")
         self.gridLayout_2.addWidget(self.Button_AddRecord, 5, 17, 1, 1)
         self.Button_ModifyRecord = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_ModifyRecord.setMinimumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
-        self.Button_ModifyRecord.setMaximumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
-        self.Button_ModifyRecord.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        self.Button_ModifyRecord.setMinimumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
+        self.Button_ModifyRecord.setMaximumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
         self.Button_ModifyRecord.setObjectName("Button_ModifyRecord")
         self.gridLayout_2.addWidget(self.Button_ModifyRecord, 6, 17, 1, 1)
         self.Button_DeleteRecord = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_DeleteRecord.setMinimumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
-        self.Button_DeleteRecord.setMaximumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
-        self.Button_DeleteRecord.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        self.Button_DeleteRecord.setMinimumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
+        self.Button_DeleteRecord.setMaximumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
         self.Button_DeleteRecord.setObjectName("Button_DeleteRecord")
         self.gridLayout_2.addWidget(self.Button_DeleteRecord, 7, 17, 1, 1)
+        self.Button_Observations = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Observations.setMinimumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
+        self.Button_Observations.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
+        self.Button_Observations.setObjectName("Button_Observations")
+        self.gridLayout_2.addWidget(self.Button_Observations, 8, 1, 1, 3)
         self.label_Details = QtWidgets.QLabel(parent=self.frame)
-        self.label_Details.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
-        self.label_Details.setMaximumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
+        self.label_Details.setMinimumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
+        self.label_Details.setMaximumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(11//1.5))
+        font.setPointSize(int(16//1.5))
         font.setBold(True)
         self.label_Details.setFont(font)
         self.label_Details.setObjectName("label_Details")
-        self.gridLayout_2.addWidget(self.label_Details, 7, 1, 1, 1)
-        self.tableRecords = CustomTableWidgetRecord()
-        self.tableRecords.setObjectName("tableRecords")
-        self.tableRecords.setColumnCount(12)
-        self.tableRecords.setRowCount(0)
-        for i in range(12):
-            item = QtWidgets.QTableWidgetItem()
-            font = QtGui.QFont()
-            font.setPointSize(int(10//1.5))
-            font.setBold(True)
-            item.setFont(font)
-            self.tableRecords.setHorizontalHeaderItem(i, item)
-        self.gridLayout_2.addWidget(self.tableRecords, 12, 1, 1, 17)
-        self.Coms_SupplierOrder = QtWidgets.QTextEdit(parent=self.frame)
-        self.Coms_SupplierOrder.setMinimumSize(QtCore.QSize(0, int(80//1.5)))
-        self.Coms_SupplierOrder.setMaximumSize(QtCore.QSize(int(1300//1.5), int(80//1.5)))
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        self.Coms_SupplierOrder.setFont(font)
-        self.Coms_SupplierOrder.setObjectName("Coms_SupplierOrder")
-        self.gridLayout_2.addWidget(self.Coms_SupplierOrder, 13, 1, 1, 16)
-        self.label_FinalCom = QtWidgets.QLabel(parent=self.frame)
-        self.label_FinalCom.setMinimumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
-        self.label_FinalCom.setMaximumSize(QtCore.QSize(int(75//1.5), int(25//1.5)))
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        self.label_FinalCom.setFont(font)
-        self.label_FinalCom.setObjectName("label_FinalCom")
-        self.gridLayout_2.addWidget(self.label_FinalCom, 14, 1, 1, 1)
-        self.FinalComs_SupplierOrder = QtWidgets.QTextEdit(parent=self.frame)
-        self.FinalComs_SupplierOrder.setMinimumSize(QtCore.QSize(0, int(60//1.5)))
-        self.FinalComs_SupplierOrder.setMaximumSize(QtCore.QSize(int(1220//1.5), int(60//1.5)))
-        font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
-        self.FinalComs_SupplierOrder.setFont(font)
-        self.FinalComs_SupplierOrder.setObjectName("FinalComs_SupplierOrder")
-        self.gridLayout_2.addWidget(self.FinalComs_SupplierOrder, 14, 2, 2, 15)
+        self.gridLayout_2.addWidget(self.label_Details, 9, 1, 1, 1)
         self.frame_2 = QtWidgets.QFrame(parent=self.frame)
-        self.frame_2.setMaximumSize(QtCore.QSize(int(175//1.5), 16777215))
-        self.frame_2.setStyleSheet(".QFrame {\n"
+        self.frame_2.setMaximumSize(QtCore.QSize(int(500//1.5), 16777215))
+        if self.username == 'd.marquez':
+            self.frame_2.setStyleSheet(".QFrame {\n"
+"    border: 1px solid white;\n"
+"}")
+        else:
+            self.frame_2.setStyleSheet(".QFrame {\n"
 "    border: 1px solid black;\n"
 "}")
         self.frame_2.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
@@ -1412,80 +1426,110 @@ class Ui_SupplierOrder_Window(object):
         self.verticalLayout = QtWidgets.QVBoxLayout(self.frame_2)
         self.verticalLayout.setObjectName("verticalLayout")
         self.label_Total = QtWidgets.QLabel(parent=self.frame_2)
-        self.label_Total.setMinimumSize(QtCore.QSize(int(150//1.5), int(25//1.5)))
-        self.label_Total.setMaximumSize(QtCore.QSize(int(150//1.5), int(25//1.5)))
+        self.label_Total.setMinimumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
+        self.label_Total.setMaximumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         font.setBold(True)
         self.label_Total.setFont(font)
         self.label_Total.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.label_Total.setObjectName("label_Total")
         self.verticalLayout.addWidget(self.label_Total)
         self.Total_SupplierOrder = QtWidgets.QLineEdit(parent=self.frame_2)
-        self.Total_SupplierOrder.setMinimumSize(QtCore.QSize(int(150//1.5), int(25//1.5)))
-        self.Total_SupplierOrder.setMaximumSize(QtCore.QSize(int(150//1.5), int(25//1.5)))
+        self.Total_SupplierOrder.setMinimumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
+        self.Total_SupplierOrder.setMaximumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         font.setBold(True)
         self.Total_SupplierOrder.setFont(font)
         self.Total_SupplierOrder.setReadOnly(True)
         self.Total_SupplierOrder.setObjectName("Total_SupplierOrder")
         self.Total_SupplierOrder.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.verticalLayout.addWidget(self.Total_SupplierOrder)
-        self.gridLayout_2.addWidget(self.frame_2, 13, 17, 1, 1)
+        self.gridLayout_2.addWidget(self.frame_2, 8, 13, 2, 4)
         self.Currency_SupplierOrder = QtWidgets.QComboBox(parent=self.frame)
-        self.Currency_SupplierOrder.setMinimumSize(QtCore.QSize(int(175//1.5), int(25//1.5)))
-        self.Currency_SupplierOrder.setMaximumSize(QtCore.QSize(int(175//1.5), int(25//1.5)))
+        self.Currency_SupplierOrder.setMinimumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
+        self.Currency_SupplierOrder.setMaximumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
         font.setBold(True)
         self.Currency_SupplierOrder.setFont(font)
         self.Currency_SupplierOrder.setObjectName("Currency_SupplierOrder")
-        self.gridLayout_2.addWidget(self.Currency_SupplierOrder, 14, 17, 1, 1)
+        self.gridLayout_2.addWidget(self.Currency_SupplierOrder, 8, 17, 1, 1)
         self.Button_Print = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Print.setMinimumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
-        self.Button_Print.setMaximumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
-        self.Button_Print.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 10px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 4px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
+        self.Button_Print.setMinimumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
+        self.Button_Print.setMaximumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
         self.Button_Print.setObjectName("Button_Print")
-        self.gridLayout_2.addWidget(self.Button_Print, 15, 17, 1, 1)
-        self.tableSupplierOrders = CustomTableWidgetOrder()
-        self.tableSupplierOrders.setObjectName("tableSupplierOrders")
-        self.tableSupplierOrders.setColumnCount(19)
-        self.tableSupplierOrders.setRowCount(0)
-        for i in range(19):
+        self.gridLayout_2.addWidget(self.Button_Print, 9, 17, 1, 1)
+        self.tableRecords = CustomTableWidgetRecord()
+        self.tableRecords.setMinimumSize(QtCore.QSize(16777215, int(200//1.5)))
+        # self.tableRecords.setMaximumSize(QtCore.QSize(16777215, int(200//1.5)))
+        self.tableRecords.setObjectName("tableRecords")
+        self.tableRecords.setColumnCount(13)
+        self.tableRecords.setRowCount(0)
+        for i in range(13):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
-            font.setPointSize(int(10//1.5))
+            font.setPointSize(int(14//1.5))
+            font.setBold(True)
+            item.setFont(font)
+            self.tableRecords.setHorizontalHeaderItem(i, item)
+        self.tableRecords.hideColumn(12)
+        self.gridLayout_2.addWidget(self.tableRecords, 10, 1, 1, 17)
+        # self.Coms_SupplierOrder = QtWidgets.QTextEdit(parent=self.frame)
+        # self.Coms_SupplierOrder.setMinimumSize(QtCore.QSize(0, int(80//1.5)))
+        # self.Coms_SupplierOrder.setMaximumSize(QtCore.QSize(int(2800//1.5), int(1500//1.5)))
+        # font = QtGui.QFont()
+        # font.setPointSize(int(14//1.5))
+        # self.Coms_SupplierOrder.setFont(font)
+        # self.Coms_SupplierOrder.setObjectName("Coms_SupplierOrder")
+        # self.gridLayout_2.addWidget(self.Coms_SupplierOrder, 11, 1, 3, 17)
+        # self.label_FinalCom = QtWidgets.QLabel(parent=self.frame)
+        # self.label_FinalCom.setMinimumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
+        # self.label_FinalCom.setMaximumSize(QtCore.QSize(int(75//1.5), int(35//1.5)))
+        # font = QtGui.QFont()
+        # font.setPointSize(int(14//1.5))
+        # self.label_FinalCom.setFont(font)
+        # self.label_FinalCom.setObjectName("label_FinalCom")
+        # self.gridLayout_2.addWidget(self.label_FinalCom, 14, 1, 1, 1)
+        # self.FinalComs_SupplierOrder = QtWidgets.QTextEdit(parent=self.frame)
+        # self.FinalComs_SupplierOrder.setMinimumSize(QtCore.QSize(0, int(60//1.5)))
+        # self.FinalComs_SupplierOrder.setMaximumSize(QtCore.QSize(int(1220//1.5), int(60//1.5)))
+        # font = QtGui.QFont()
+        # font.setPointSize(int(14//1.5))
+        # self.FinalComs_SupplierOrder.setFont(font)
+        # self.FinalComs_SupplierOrder.setObjectName("FinalComs_SupplierOrder")
+        # self.gridLayout_2.addWidget(self.FinalComs_SupplierOrder, 14, 2, 2, 15)
+        
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.tableSupplierOrders = CustomTableWidgetOrder()
+        self.tableSupplierOrders.setObjectName("tableSupplierOrders")
+        self.tableSupplierOrders.setColumnCount(3)
+        self.tableSupplierOrders.setRowCount(0)
+        for i in range(3):
+            item = QtWidgets.QTableWidgetItem()
+            font = QtGui.QFont()
+            font.setPointSize(int(14//1.5))
             font.setBold(True)
             item.setFont(font)
             self.tableSupplierOrders.setHorizontalHeaderItem(i, item)
-        self.gridLayout_2.addWidget(self.tableSupplierOrders, 16, 1, 1, 17)
+
+        # self.verticalLayout_2.addWidget(self.scrollArea)
+        # self.verticalLayout_2.addWidget(self.tableSupplierOrders)
+
+        self.splitter.addWidget(self.scrollArea)
+        self.splitter.addWidget(self.tableSupplierOrders)
+        self.splitter.setSizes([280, 20])
+        self.verticalLayout_2.addWidget(self.splitter)
+
+        self.Position = QtWidgets.QLineEdit(parent=self.frame)
+        self.Position.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
+        self.Position.setMaximumSize(QtCore.QSize(500, int(35//1.5)))
+        font = QtGui.QFont()
+        font.setPointSize(int(14//1.5))
+        self.Position.setFont(font)
+        self.Position.setObjectName("Position")
+        self.verticalLayout_2.addWidget(self.Position)
         self.gridLayout.addWidget(self.frame, 1, 0, 1, 1)
         SupplierOrder_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=SupplierOrder_Window)
@@ -1504,9 +1548,25 @@ class Ui_SupplierOrder_Window(object):
         self.retranslateUi(SupplierOrder_Window)
         QtCore.QMetaObject.connectSlotsByName(SupplierOrder_Window)
 
-        commands_suppliers = "SELECT * FROM purch_fact.suppliers ORDER BY purch_fact.suppliers.name"
-        commands_supplies = "SELECT * FROM purch_fact.supplies"
-        commands_currency = "SELECT * FROM purch_fact.currency ORDER BY id"
+        commands_suppliers = ("""
+                        SELECT * 
+                        FROM purch_fact.suppliers
+                        ORDER BY purch_fact.suppliers.name
+                        """)
+        commands_supplies = ("""
+                        SELECT reference, description, ROUND(physical_stock,2), ROUND(available_stock,2), ROUND(pending_stock,2), id
+                        FROM purch_fact.supplies
+                        """)
+        commands_currency = ("""
+                        SELECT * 
+                        FROM purch_fact.currency
+                        ORDER BY purch_fact.currency.id
+                        """)
+        commands_payway = ("""
+                        SELECT pay_way
+                        FROM purch_fact.pay_way_suppliers_order
+                        ORDER BY pay_way ASC
+                        """)
         conn = None
         try:
         # read the connection parameters
@@ -1521,6 +1581,8 @@ class Ui_SupplierOrder_Window(object):
             results_supplies=cur.fetchall()
             cur.execute(commands_currency)
             results_currency=cur.fetchall()
+            cur.execute(commands_payway)
+            results_payway=cur.fetchall()
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
@@ -1541,19 +1603,25 @@ class Ui_SupplierOrder_Window(object):
                 conn.close()
 
         list_suppliers=[x[1] for x in results_suppliers]
-        self.Supplier_SupplierOrder.addItems(list_suppliers)
+        self.Supplier_SupplierOrder.addItems([''] + list_suppliers)
 
-        list_supplies=[x[3] + ' | ' + x[4] for x in results_supplies]
-        self.Supply_SupplierOrder.addItems(sorted(list_supplies))
+        self.list_supplies=[x[0] + ' | ' + x[1] + ' | ' + str(x[2]) + ' | ' + str(x[3]) + ' | ' + str(x[4])  + ' | ID:' + str(x[5]) for x in results_supplies]
+        self.Supply_SupplierOrder.addItems([''] + sorted(self.list_supplies))
 
         list_currency=[x[2] + ' | ' + x[4] for x in results_currency]
         self.Currency_SupplierOrder.addItems(list_currency)
 
+        list_payway=[x[0] for x in results_payway]
+        self.PayWay_SupplierOrder.addItems([''] + sorted(list_payway))
+
+        self.Position_SupplierOrder.setText('1')
+        self.Date_SupplierOrder.setText(date.today().strftime("%d/%m/%Y"))
+
         self.tableSupplierOrders.itemClicked.connect(self.loadformorder)
         self.tableRecords.itemClicked.connect(self.loadformsupply)
-        # # # self.tableClients.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
         self.Button_CreateOrder.clicked.connect(self.createorder)
         self.Button_ModifyOrder.clicked.connect(self.modifyorder)
+        self.Button_Reload.clicked.connect(self.loadtableorders)
         self.Button_AddRecord.clicked.connect(self.addrecord)
         self.Button_ModifyRecord.clicked.connect(self.modifyrecord)
         self.Button_DeleteRecord.clicked.connect(self.deleterecord)
@@ -1562,16 +1630,82 @@ class Ui_SupplierOrder_Window(object):
         self.Button_Deliv3.clicked.connect(self.adddeliv3)
         self.Supply_SupplierOrder.currentIndexChanged.connect(self.loadstocks)
         self.Button_Print.clicked.connect(self.printsupplierorder)
+        self.Button_Plus.clicked.connect(self.add_payway)
         self.tableRecords.horizontalHeader().sectionClicked.connect(self.on_headerrecords_section_clicked)
         self.tableSupplierOrders.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
+        self.Position.textChanged.connect(self.position_table)
+        self.Button_Observations.clicked.connect(self.show_dialog)
         self.loadtableorders()
+
+        # self.Coms_SupplierOrder.textChanged.connect(self.reset_timer)
+        self.typing_timer = QtCore.QTimer(self)
+        self.typing_timer.setInterval(1000)  # 1 segundo de inactividad
+        self.typing_timer.setSingleShot(True)
+        self.typing_timer.timeout.connect(self.update_coms)
 
 
     def retranslateUi(self, SupplierOrder_Window):
         _translate = QtCore.QCoreApplication.translate
         SupplierOrder_Window.setWindowTitle(_translate("SupplierOrder_Window", "Pedido Proveedor"))
-        self.Button_ModifyRecord.setText(_translate("SupplierOrder_Window", "Modificar Reg."))
-        self.Button_DeleteRecord.setText(_translate("SupplierOrder_Window", "Eliminar Reg."))
+        self.Button_CreateOrder.setText(_translate("SupplierOrder_Window", "Cr. Ped."))
+        self.Button_ModifyOrder.setText(_translate("SupplierOrder_Window", "Mod. Ped."))
+        self.Button_Reload.setText(_translate("SupplierOrder_Window", "Recargar"))
+        self.Button_AddRecord.setText(_translate("SupplierOrder_Window", "Ag. Reg."))
+        self.Button_ModifyRecord.setText(_translate("SupplierOrder_Window", "Mod. Reg."))
+        self.Button_DeleteRecord.setText(_translate("SupplierOrder_Window", "El. Reg."))
+        self.Button_Print.setText(_translate("SupplierOrder_Window", "IMP."))
+        self.Button_Observations.setText(_translate("SupplierOrder_Window", "Notas Pedido"))
+        self.label_Total.setText(_translate("SupplierOrder_Window", "Total:"))
+        self.label_Supplier.setText(_translate("SupplierOrder_Window", "Prov.:"))
+        self.label_TheirRef.setText(_translate("SupplierOrder_Window", "S/Ref.:"))
+        self.label_Stock.setText(_translate("SupplierOrder_Window", "St.:"))
+        self.label_Quantity.setText(_translate("SupplierOrder_Window", "Cant.:"))
+        self.label_NumOrder.setText(_translate("SupplierOrder_Window", "Nº Pedido:"))
+        self.label_Deliv2.setText(_translate("SupplierOrder_Window", "Ent. 2:"))
+        self.label_Details.setText(_translate("SupplierOrder_Window", "Detalle:"))
+        self.label_StockVrt.setText(_translate("SupplierOrder_Window", "St. V.:"))
+        self.label_Deliv3.setText(_translate("SupplierOrder_Window", "Ent. 3:"))
+        self.label_Obs.setText(_translate("SupplierOrder_Window", "Obs:"))
+        self.label_Supply.setText(_translate("SupplierOrder_Window", "Insumo:"))
+        self.label_Date.setText(_translate("SupplierOrder_Window", "Fecha:"))
+        self.label_StockDsp.setText(_translate("SupplierOrder_Window", "St. D.:"))
+        self.label_DelivDate.setText(_translate("SupplierOrder_Window", "F. Entrega:"))
+        self.label_DelivWay.setText(_translate("SupplierOrder_Window", "Envío:"))
+        self.label_Deliv1.setText(_translate("SupplierOrder_Window", "Ent. 1:"))
+        self.label_3Deliv.setText(_translate("SupplierOrder_Window", "3ª Ent."))
+        self.label_2Deliv.setText(_translate("SupplierOrder_Window", "2ª Ent."))
+        self.label_1Deliv.setText(_translate("SupplierOrder_Window", "1ª Ent."))
+        self.label_DateDeliv.setText(_translate("SupplierOrder_Window", "Fecha"))
+        self.label_NoteDeliv.setText(_translate("SupplierOrder_Window", "Albarán"))
+        self.label_DelivTerm.setText(_translate("SupplierOrder_Window", "P. Entrega:"))
+        self.label_PayWay.setText(_translate("SupplierOrder_Window", "Pago:"))
+        # self.label_FinalCom.setText(_translate("SupplierOrder_Window", "Coment. Final:"))
+        self.label_UnitValue.setText(_translate("SupplierOrder_Window", "V. Un.:"))
+        self.label_Discount.setText(_translate("SupplierOrder_Window", "% Dcto.:"))
+        self.label_Position.setText(_translate("SupplierOrder_Window", "Pos.:"))
+
+        item = self.tableSupplierOrders.horizontalHeaderItem(0)
+        item.setText(_translate("SupplierOrder_Window", "ID"))
+        item = self.tableSupplierOrders.horizontalHeaderItem(1)
+        item.setText(_translate("SupplierOrder_Window", "Nº Pedido"))
+        item = self.tableSupplierOrders.horizontalHeaderItem(2)
+        item.setText(_translate("SupplierOrder_Window", "Proveedor"))
+        # item = self.tableSupplierOrders.horizontalHeaderItem(3)
+        # item.setText(_translate("SupplierOrder_Window", "Fecha Pedido"))
+        # item = self.tableSupplierOrders.horizontalHeaderItem(4)
+        # item.setText(_translate("SupplierOrder_Window", "Fecha Entrega"))
+        # item = self.tableSupplierOrders.horizontalHeaderItem(5)
+        # item.setText(_translate("SupplierOrder_Window", "S/Referencia"))
+        # item = self.tableSupplierOrders.horizontalHeaderItem(6)
+        # item.setText(_translate("SupplierOrder_Window", "Obs."))
+        # item = self.tableSupplierOrders.horizontalHeaderItem(7)
+        # item.setText(_translate("SupplierOrder_Window", "Plazo Entrega"))
+        # item = self.tableSupplierOrders.horizontalHeaderItem(8)
+        # item.setText(_translate("SupplierOrder_Window", "Forma Envío"))
+        # item = self.tableSupplierOrders.horizontalHeaderItem(9)
+        # item.setText(_translate("SupplierOrder_Window", "Total (€)"))
+        # item = self.tableSupplierOrders.horizontalHeaderItem(10)
+        # item.setText(_translate("SupplierOrder_Window", "Forma Pago"))
         item = self.tableRecords.horizontalHeaderItem(0)
         item.setText(_translate("SupplierOrder_Window", "ID"))
         item = self.tableRecords.horizontalHeaderItem(1)
@@ -1596,93 +1730,78 @@ class Ui_SupplierOrder_Window(object):
         item.setText(_translate("SupplierOrder_Window", "Cant 2"))
         item = self.tableRecords.horizontalHeaderItem(11)
         item.setText(_translate("SupplierOrder_Window", "Cant 3"))
-        self.Button_ModifyOrder.setText(_translate("SupplierOrder_Window", "Modificar Pedido"))
-        self.label_Total.setText(_translate("SupplierOrder_Window", "Total del pedido:"))
-        self.label_Supplier.setText(_translate("SupplierOrder_Window", "Proveedor:"))
-        item = self.tableSupplierOrders.horizontalHeaderItem(0)
-        item.setText(_translate("SupplierOrder_Window", "ID"))
-        item = self.tableSupplierOrders.horizontalHeaderItem(1)
-        item.setText(_translate("SupplierOrder_Window", "Nº Pedido"))
-        item = self.tableSupplierOrders.horizontalHeaderItem(2)
-        item.setText(_translate("SupplierOrder_Window", "Proveedor"))
-        item = self.tableSupplierOrders.horizontalHeaderItem(3)
-        item.setText(_translate("SupplierOrder_Window", "Fecha Pedido"))
-        item = self.tableSupplierOrders.horizontalHeaderItem(4)
-        item.setText(_translate("SupplierOrder_Window", "Fecha Entrega"))
-        item = self.tableSupplierOrders.horizontalHeaderItem(5)
-        item.setText(_translate("SupplierOrder_Window", "S/Referencia"))
-        item = self.tableSupplierOrders.horizontalHeaderItem(6)
-        item.setText(_translate("SupplierOrder_Window", "Obs."))
-        item = self.tableSupplierOrders.horizontalHeaderItem(7)
-        item.setText(_translate("SupplierOrder_Window", "Plazo Entrega"))
-        item = self.tableSupplierOrders.horizontalHeaderItem(8)
-        item.setText(_translate("SupplierOrder_Window", "Forma Envío"))
-        item = self.tableSupplierOrders.horizontalHeaderItem(9)
-        item.setText(_translate("SupplierOrder_Window", "Comentario"))
-        item = self.tableSupplierOrders.horizontalHeaderItem(10)
-        item.setText(_translate("SupplierOrder_Window", "Com Final"))
-        item = self.tableSupplierOrders.horizontalHeaderItem(11)
-        item.setText(_translate("SupplierOrder_Window", "Total (€)"))
-        item = self.tableSupplierOrders.horizontalHeaderItem(12)
-        item.setText(_translate("SupplierOrder_Window", "Forma Pago"))
-        item = self.tableSupplierOrders.horizontalHeaderItem(13)
-        item.setText(_translate("SupplierOrder_Window", "F. 1ª Entr."))
-        item = self.tableSupplierOrders.horizontalHeaderItem(14)
-        item.setText(_translate("SupplierOrder_Window", "A. 1ª Entr."))
-        item = self.tableSupplierOrders.horizontalHeaderItem(15)
-        item.setText(_translate("SupplierOrder_Window", "F. 2ª Entr."))
-        item = self.tableSupplierOrders.horizontalHeaderItem(16)
-        item.setText(_translate("SupplierOrder_Window", "A. 2ª Entr."))
-        item = self.tableSupplierOrders.horizontalHeaderItem(17)
-        item.setText(_translate("SupplierOrder_Window", "F. 3ª Entr."))
-        item = self.tableSupplierOrders.horizontalHeaderItem(18)
-        item.setText(_translate("SupplierOrder_Window", "A. 3ª Ent."))
-        self.Button_Print.setText(_translate("SupplierOrder_Window", "IMPRIMIR"))
-        self.label_TheirRef.setText(_translate("SupplierOrder_Window", "S/Referencia:"))
-        self.Button_AddRecord.setText(_translate("SupplierOrder_Window", "Agregar Reg."))
-        self.label_Stock.setText(_translate("SupplierOrder_Window", "Stock:"))
-        self.label_Quantity.setText(_translate("SupplierOrder_Window", "Cantidad:"))
-        self.label_NumOrder.setText(_translate("SupplierOrder_Window", "Nº Pedido:"))
-        self.label_Deliv2.setText(_translate("SupplierOrder_Window", "Entrega 2:"))
-        self.label_Details.setText(_translate("SupplierOrder_Window", "Detalle:"))
-        self.label_StockVrt.setText(_translate("SupplierOrder_Window", "Stock Vrt.:"))
-        self.label_Deliv3.setText(_translate("SupplierOrder_Window", "Entrega 3:"))
-        self.Button_CreateOrder.setText(_translate("SupplierOrder_Window", "Crear Pedido"))
-        self.label_Obs.setText(_translate("SupplierOrder_Window", "Obs:"))
-        self.label_Supply.setText(_translate("SupplierOrder_Window", "Insumo:"))
-        self.label_Date.setText(_translate("SupplierOrder_Window", "Fecha:"))
-        self.label_StockDsp.setText(_translate("SupplierOrder_Window", "Stock Dsp.:"))
-        self.label_DelivDate.setText(_translate("SupplierOrder_Window", "Fecha Entrega:"))
-        self.label_DelivWay.setText(_translate("SupplierOrder_Window", "Forma Envío:"))
-        self.label_Deliv1.setText(_translate("SupplierOrder_Window", "Entrega 1:"))
-        self.label_3Deliv.setText(_translate("SupplierOrder_Window", "3ª Entrega"))
-        self.label_2Deliv.setText(_translate("SupplierOrder_Window", "2ª Entrega"))
-        self.label_1Deliv.setText(_translate("SupplierOrder_Window", "1ª Entrega"))
-        self.label_DateDeliv.setText(_translate("SupplierOrder_Window", "Fecha"))
-        self.label_NoteDeliv.setText(_translate("SupplierOrder_Window", "Albarán"))
-        self.label_DelivTerm.setText(_translate("SupplierOrder_Window", "Plazo Entrega:"))
-        self.label_PayWay.setText(_translate("SupplierOrder_Window", "Forma Pago:"))
-        self.label_FinalCom.setText(_translate("SupplierOrder_Window", "Coment. Final:"))
-        self.label_UnitValue.setText(_translate("SupplierOrder_Window", "Valor Un.:"))
-        self.label_Discount.setText(_translate("SupplierOrder_Window", "% Dcto.:"))
-        self.label_Position.setText(_translate("SupplierOrder_Window", "Posición:"))
 
+    def reset_timer(self):
+        self.typing_timer.start()
+
+# Function to modify order comments
+    def update_coms(self):
+        order_id=self.label_IDOrd.text()
+        order_com=self.Coms_SupplierOrder.toPlainText()
+
+        if order_id=="":
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Modificar Pedido")
+            dlg.setText("Selecciona un pedido existente e introduce una fecha válida")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
+
+        else:
+            commands_updateorder = ("""
+                        UPDATE purch_fact.supplier_ord_header
+                        SET "order_com" = %s
+                        WHERE "id" = %s
+                        """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of principal command
+                data=(order_com, order_id,)
+                cur.execute(commands_updateorder, data)
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
 # Function to create order
     def createorder(self):
         num_order=self.NumOrder_SupplierOrder.text()
         supplier_name=self.Supplier_SupplierOrder.currentText()
         delivway=self.DelivWay_SupplierOrder.text()
-        payway=self.PayWay_SupplierOrder.text()
+        payway=self.PayWay_SupplierOrder.currentText()
         order_date=self.Date_SupplierOrder.text()
         their_ref=self.TheirRef_SupplierOrder.text()
-        delivdate=self.DelivDate_SupplierOrder.text()
+        delivdate=self.DelivDate_SupplierOrder.date().toString(QtCore.Qt.DateFormat.ISODate)
         delivterm=self.DelivTerm_SupplierOrder.text()
         order_obs=self.OrderObs_SupplierOrder.toPlainText()
-        order_com=self.Coms_SupplierOrder.toPlainText()
-        order_finalcoms=self.FinalComs_SupplierOrder.toPlainText()
+        # order_com=self.Coms_SupplierOrder.toPlainText()
+        # order_finalcoms=self.FinalComs_SupplierOrder.toPlainText()
         currency=self.Currency_SupplierOrder.currentText()[0]
         total=self.Total_SupplierOrder.text()
+        self.Coms_SupplierOrder = ''
 
         if order_date=="" or (order_date==" " or (num_order==" " or num_order=="")):
             dlg = QtWidgets.QMessageBox()
@@ -1706,24 +1825,25 @@ class Ui_SupplierOrder_Window(object):
             dlg.exec()
             del dlg, new_icon
 
-        elif not self.is_valid_date(delivdate):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Crear Pedido")
-            dlg.setText("La fecha de entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+        # elif delivdate != '' and not self.is_valid_date(delivdate):
+        #     dlg = QtWidgets.QMessageBox()
+        #     new_icon = QtGui.QIcon()
+        #     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        #     dlg.setWindowIcon(new_icon)
+        #     dlg.setWindowTitle("Crear Pedido")
+        #     dlg.setText("La fecha de entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
+        #     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        #     dlg.exec()
+        #     del dlg, new_icon
 
         else:
+            delivdate = None if delivdate == '' else delivdate
             commands_neworder=("""
                             INSERT INTO purch_fact.supplier_ord_header (
                             supplier_id, order_date, delivery_date, notes, supplier_order_num, their_ref,
-                            delivery_way, pay_way, delivery_term, order_com, total_amount, final_comment, currency_id
+                            delivery_way, pay_way, delivery_term, total_amount, currency_id
                             )
-                            VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                            VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                             """)
             conn = None
             try:
@@ -1744,7 +1864,7 @@ class Ui_SupplierOrder_Window(object):
                 supplier_id = result_supplier[0]
                 currency_id = result_currency[0]
             # execution of principal command
-                data=(supplier_id,order_date,delivdate,order_obs,num_order,their_ref,delivway,payway,delivterm,order_com,total,order_finalcoms,currency_id,)
+                data=(supplier_id,order_date,delivdate,order_obs,num_order,their_ref,delivway,payway,delivterm,total,currency_id,)
                 cur.execute(commands_neworder, data)
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -1776,8 +1896,6 @@ class Ui_SupplierOrder_Window(object):
             finally:
                 if conn is not None:
                     conn.close()
-
-            self.loadtableorders()
 
             conn = None
             try:
@@ -1816,6 +1934,7 @@ class Ui_SupplierOrder_Window(object):
 
             self.loadtableorders()
 
+            self.tableRecords.setRowCount(0)
 
 # Function to modify order data
     def modifyorder(self):
@@ -1823,14 +1942,14 @@ class Ui_SupplierOrder_Window(object):
         num_order=self.NumOrder_SupplierOrder.text()
         supplier_name=self.Supplier_SupplierOrder.currentText()
         delivway=self.DelivWay_SupplierOrder.text()
-        payway=self.PayWay_SupplierOrder.text()
+        payway=self.PayWay_SupplierOrder.currentText()
         order_date=self.Date_SupplierOrder.text()
         their_ref=self.TheirRef_SupplierOrder.text()
-        delivdate=self.DelivDate_SupplierOrder.text()
+        delivdate=self.DelivDate_SupplierOrder.date().toString(QtCore.Qt.DateFormat.ISODate)
         delivterm=self.DelivTerm_SupplierOrder.text()
         order_obs=self.OrderObs_SupplierOrder.toPlainText()
-        order_com=self.Coms_SupplierOrder.toPlainText()
-        order_finalcoms=self.FinalComs_SupplierOrder.toPlainText()
+        # order_com=self.Coms_SupplierOrder.toPlainText()
+        # order_finalcoms=self.FinalComs_SupplierOrder.toPlainText()
         currency=self.Currency_SupplierOrder.currentText()[0]
         total=self.Total_SupplierOrder.text()
 
@@ -1856,22 +1975,22 @@ class Ui_SupplierOrder_Window(object):
             dlg.exec()
             del dlg, new_icon
 
-        elif not self.is_valid_date(delivdate):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Crear Pedido")
-            dlg.setText("La fecha de entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
+        # elif not self.is_valid_date(delivdate):
+        #     dlg = QtWidgets.QMessageBox()
+        #     new_icon = QtGui.QIcon()
+        #     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        #     dlg.setWindowIcon(new_icon)
+        #     dlg.setWindowTitle("Crear Pedido")
+        #     dlg.setText("La fecha de entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
+        #     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+        #     dlg.exec()
+        #     del dlg, new_icon
 
         else:
             commands_updateorder = ("""
                         UPDATE purch_fact.supplier_ord_header
                         SET "supplier_id" = %s, "order_date" = %s, "delivery_date" = %s, "notes" = %s, "supplier_order_num" = %s, "their_ref" = %s,
-                        "delivery_way" = %s, "pay_way" = %s, "delivery_term" = %s, "order_com" = %s, "total_amount" = %s, "final_comment" = %s, "currency_id" = %s
+                        "delivery_way" = %s, "pay_way" = %s, "delivery_term" = %s, "total_amount" = %s, "currency_id" = %s
                         WHERE "id" = %s
                         """)
             conn = None
@@ -1893,7 +2012,7 @@ class Ui_SupplierOrder_Window(object):
                 supplier_id = result_supplier[0]
                 currency_id = result_currency[0]
             # execution of principal command
-                data=(supplier_id,order_date,delivdate,order_obs,num_order,their_ref,delivway,payway,delivterm,order_com,total,order_finalcoms,currency_id,order_id,)
+                data=(supplier_id,order_date,delivdate,order_obs,num_order,their_ref,delivway,payway,delivterm,total,currency_id,order_id,)
                 cur.execute(commands_updateorder, data)
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -1926,22 +2045,28 @@ class Ui_SupplierOrder_Window(object):
                 if conn is not None:
                     conn.close()
 
-            self.loadtableorders()
-
-
 # Function to create record
     def addrecord(self):
         order_id=self.label_IDOrd.text()
         supply_name=self.Supply_SupplierOrder.currentText()
         supply_name=supply_name[:supply_name.find(" |")]
         unit_value=self.UnitValue_SupplierOrder.text()
-        unit_value=unit_value.replace(".",",")
-        discount=self.Discount_SupplierOrder.text() if self.Discount_SupplierOrder.text() not in [""," "] else 0
+        if "€" in unit_value:
+            unit_value=unit_value.replace(".","")
+            unit_value=unit_value.replace(" €","")
+        else:
+            unit_value=unit_value.replace(".",",")
+        discount=self.Discount_SupplierOrder.text()
+        if "%" in discount:
+            discount = discount.replace(" %","")
+        else:
+            discount = discount if discount not in [""," "] else 0
         position=self.Position_SupplierOrder.text()
         quantity=self.Quantity_SupplierOrder.text()
         deliv_quant_1=self.Deliv1_SupplierOrder.text() if self.Deliv1_SupplierOrder.text() not in [""," "] else 0
         deliv_quant_2=self.Deliv2_SupplierOrder.text() if self.Deliv2_SupplierOrder.text() not in [""," "] else 0
         deliv_quant_3=self.Deliv3_SupplierOrder.text() if self.Deliv3_SupplierOrder.text() not in [""," "] else 0
+        supply_id=self.Supply_SupplierOrder.currentText().split("|")[-1].strip().split(":")[1]
 
         conn = None
         try:
@@ -2023,8 +2148,8 @@ class Ui_SupplierOrder_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                query_supplyid = "SELECT id, pending_stock FROM purch_fact.supplies WHERE reference = %s"
-                cur.execute(query_supplyid, (supply_name,))
+                query_supplyid = "SELECT id, pending_stock FROM purch_fact.supplies WHERE id = %s"
+                cur.execute(query_supplyid, (supply_id,))
                 result_supplyid = cur.fetchone()
 
             # get id from table
@@ -2034,8 +2159,8 @@ class Ui_SupplierOrder_Window(object):
 
                 query_pending_stock = ("""UPDATE purch_fact.supplies
                                         SET "pending_stock" = %s 
-                                        WHERE "reference" = %s""")
-                cur.execute(query_pending_stock, (new_pending_stock,supply_name,))
+                                        WHERE "id" = %s""")
+                cur.execute(query_pending_stock, (new_pending_stock,supply_id,))
             # execution of principal command
                 data=(order_id,position,supply_id,unit_value,discount,quantity,deliv_quant_1,deliv_quant_2,deliv_quant_3,)
                 cur.execute(commands_newrecord, data)
@@ -2059,10 +2184,16 @@ class Ui_SupplierOrder_Window(object):
                 if conn is not None:
                     conn.close()
 
+            self.Supply_SupplierOrder.setCurrentIndex(0)
+            self.Quantity_SupplierOrder.setText("")
+            
             self.loadtablerecords()
             self.calculate_totalorder()
             self.loadstocks()
 
+            self.Supply_SupplierOrder.setFocus()
+
+            self.Position_SupplierOrder.setText(str(int(position) + 1))
 
 # Function to modify record data
     def modifyrecord(self):
@@ -2070,13 +2201,18 @@ class Ui_SupplierOrder_Window(object):
         supply_name=self.Supply_SupplierOrder.currentText()
         supply_name=supply_name[:supply_name.find(" |")]
         unit_value=self.UnitValue_SupplierOrder.text()
-        unit_value=unit_value.replace(".",",")
+        if "€" in unit_value:
+            unit_value=unit_value.replace(".","")
+            unit_value=unit_value.replace(" €","")
+        else:
+            unit_value=unit_value.replace(".",",")
         discount=self.Discount_SupplierOrder.text().replace(" %", "") if " %" in self.Discount_SupplierOrder.text() else (self.Discount_SupplierOrder.text() if self.Discount_SupplierOrder.text() not in [""," "] else 0)
         position=self.Position_SupplierOrder.text()
         quantity=self.Quantity_SupplierOrder.text()
         deliv_quant_1=self.Deliv1_SupplierOrder.text() if self.Deliv1_SupplierOrder.text() not in [""," "] else 0
         deliv_quant_2=self.Deliv2_SupplierOrder.text() if self.Deliv2_SupplierOrder.text() not in [""," "] else 0
         deliv_quant_3=self.Deliv3_SupplierOrder.text() if self.Deliv3_SupplierOrder.text() not in [""," "] else 0
+        supply_id=self.Supply_SupplierOrder.currentText().split("|")[-1].strip().split(":")[1]
 
         if record_id == "":
             dlg = QtWidgets.QMessageBox()
@@ -2117,8 +2253,8 @@ class Ui_SupplierOrder_Window(object):
             # execution of commands
                 query_supplyid = ("""SELECT id, physical_stock, pending_stock, available_stock
                                     FROM purch_fact.supplies
-                                    WHERE reference = %s""")
-                cur.execute(query_supplyid, (supply_name,))
+                                    WHERE id = %s""")
+                cur.execute(query_supplyid, (supply_id,))
                 result_supplyid = cur.fetchone()
 
                 query_quantitysupply = ("""SELECT pending, deliv_quant_1, deliv_quant_2, deliv_quant_3
@@ -2127,7 +2263,6 @@ class Ui_SupplierOrder_Window(object):
                 cur.execute(query_quantitysupply, (record_id,))
                 result_quantity = cur.fetchone()
             # get id from table
-                supply_id = result_supplyid[0]
                 stock = result_supplyid[1]
                 pending_stock = result_supplyid[2]
                 available_stock = result_supplyid[3]
@@ -2148,8 +2283,9 @@ class Ui_SupplierOrder_Window(object):
 
                 query_pending_stock = ("""UPDATE purch_fact.supplies
                                         SET "physical_stock" = %s, "pending_stock" = %s, "available_stock" = %s 
-                                        WHERE "reference" = %s""")
-                cur.execute(query_pending_stock, (new_stock,new_pending_stock,new_available_stock,supply_name,))
+                                        WHERE "id" = %s""")
+
+                cur.execute(query_pending_stock, (new_stock,new_pending_stock,new_available_stock,supply_id,))
             # execution of principal command
                 data=(position,supply_id,unit_value,discount,quantity,deliv_quant_1,deliv_quant_2,deliv_quant_3,record_id,)
                 cur.execute(commands_modifyrecord, data)
@@ -2174,16 +2310,21 @@ class Ui_SupplierOrder_Window(object):
                 if conn is not None:
                     conn.close()
 
+            self.Supply_SupplierOrder.setCurrentIndex(0)
+            self.Position_SupplierOrder.setText("")
+            self.Quantity_SupplierOrder.setText("")
+            
             self.loadtablerecords()
             self.calculate_totalorder()
             self.loadstocks()
 
-#Function to delete record data
+# Function to delete record data
     def deleterecord(self):
         record_id=self.label_IDRecord.text()
         supply_name=self.Supply_SupplierOrder.currentText()
         supply_name=supply_name[:supply_name.find(" |")]
         quantity=self.Quantity_SupplierOrder.text()
+        supply_id=self.Supply_SupplierOrder.currentText().split("|")[-1].strip().split(":")[1]
 
         if record_id == "":
             dlg = QtWidgets.QMessageBox()
@@ -2208,19 +2349,18 @@ class Ui_SupplierOrder_Window(object):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                query_supplyid = "SELECT id, pending_stock FROM purch_fact.supplies WHERE reference = %s"
-                cur.execute(query_supplyid, (supply_name,))
+                query_supplyid = "SELECT id, pending_stock FROM purch_fact.supplies WHERE id = %s"
+                cur.execute(query_supplyid, (supply_id,))
                 result_supplyid = cur.fetchone()
 
             # get id from table
-                supply_id = result_supplyid[0]
                 pending_stock = result_supplyid[1]
                 new_pending_stock = str(float(pending_stock) - float(quantity))
 
                 query_pending_stock = ("""UPDATE purch_fact.supplies
                                         SET "pending_stock" = %s 
-                                        WHERE "reference" = %s""")
-                cur.execute(query_pending_stock, (new_pending_stock,supply_name,))
+                                        WHERE "id" = %s""")
+                cur.execute(query_pending_stock, (new_pending_stock,supply_id,))
             # execution of principal command
                 data=(record_id,)
                 cur.execute(commands_deleterecord, data)
@@ -2244,6 +2384,10 @@ class Ui_SupplierOrder_Window(object):
                 if conn is not None:
                     conn.close()
 
+            self.Supply_SupplierOrder.setCurrentIndex(0)
+            self.Position_SupplierOrder.setText("")
+            self.Quantity_SupplierOrder.setText("")
+            
             self.loadtablerecords()
             self.calculate_totalorder()
             self.loadstocks()
@@ -2252,32 +2396,74 @@ class Ui_SupplierOrder_Window(object):
     def loadformorder(self,item):
         data_order=[]
 
-        for column in range(19):
-            item_text=self.tableSupplierOrders.item(item.row(), column).text()
-            data_order.append(item_text)
+        item_text=self.tableSupplierOrders.item(item.row(), 0).text()
+        data_order.append(item_text)
 
         self.label_IDOrd.setText(data_order[0])
-        self.NumOrder_SupplierOrder.setText(data_order[1])
-        self.Supplier_SupplierOrder.setCurrentText(data_order[2])
-        self.Date_SupplierOrder.setText(data_order[3])
-        self.DelivDate_SupplierOrder.setText(data_order[4])
-        self.TheirRef_SupplierOrder.setText(data_order[5])
-        self.OrderObs_SupplierOrder.setText(data_order[6])
-        self.DelivTerm_SupplierOrder.setText(data_order[7])
-        self.DelivWay_SupplierOrder.setText(data_order[8])
-        self.Coms_SupplierOrder.setText(data_order[9])
-        self.FinalComs_SupplierOrder.setText(data_order[10])
-        self.PayWay_SupplierOrder.setText(data_order[12])
-        self.DelivDate1_SupplierOrder.setText(data_order[13] if data_order[13] != "None" else "")
-        self.DelivNote1_SupplierOrder.setText(data_order[14] if data_order[14] != "None" else "")
-        self.DelivDate2_SupplierOrder.setText(data_order[15] if data_order[15] != "None" else "")
-        self.DelivNote2_SupplierOrder.setText(data_order[16] if data_order[16] != "None" else "")
-        self.DelivDate3_SupplierOrder.setText(data_order[17] if data_order[17] != "None" else "")
-        self.DelivNote3_SupplierOrder.setText(data_order[18] if data_order[18] != "None" else "")
+
+        commands_querytableorders = ("""
+                        SELECT so_header.supplier_order_num, suppliers."name",
+                        TO_CHAR(so_header."order_date",'DD-MM-YYYY'), TO_CHAR(so_header.delivery_date,'DD-MM-YYYY'),
+                        so_header.their_ref, so_header.notes, so_header.delivery_term, so_header.delivery_way, 
+                        so_header.order_com, so_header.pay_way,
+                        TO_CHAR(so_header."deliv_date_1",'DD-MM-YYYY'), so_header."deliv_note_1",
+                        TO_CHAR(so_header."deliv_date_2",'DD-MM-YYYY'), so_header."deliv_note_2",
+                        TO_CHAR(so_header."deliv_date_3",'DD-MM-YYYY'), so_header."deliv_note_3"
+                        FROM purch_fact.supplier_ord_header AS so_header
+                        LEFT JOIN purch_fact.suppliers AS suppliers ON (suppliers."id" = so_header."supplier_id")
+                        WHERE so_header.id = %s
+                        ORDER BY so_header.supplier_order_num DESC
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands_querytableorders,(data_order[0],))
+            results_orders=cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        self.NumOrder_SupplierOrder.setText(results_orders[0][0])
+        self.Supplier_SupplierOrder.setCurrentText(results_orders[0][1])
+        self.Date_SupplierOrder.setText(results_orders[0][2])
+        self.DelivDate_SupplierOrder.setDate(QtCore.QDate.fromString(results_orders[0][3], "dd-MM-yyyy"))
+        self.TheirRef_SupplierOrder.setText(results_orders[0][4])
+        self.OrderObs_SupplierOrder.setText(results_orders[0][5])
+        self.DelivTerm_SupplierOrder.setText(results_orders[0][6])
+        self.DelivWay_SupplierOrder.setText(results_orders[0][7])
+        self.Coms_SupplierOrder = results_orders[0][8]
+        # self.FinalComs_SupplierOrder.setText(data_order[10])
+        self.PayWay_SupplierOrder.setCurrentText(results_orders[0][9])
+        self.DelivDate1_SupplierOrder.setText(results_orders[0][10] if results_orders[0][10] != "None" else "")
+        self.DelivNote1_SupplierOrder.setText(results_orders[0][11] if results_orders[0][11] != "None" else "")
+        self.DelivDate2_SupplierOrder.setText(results_orders[0][12] if results_orders[0][12] != "None" else "")
+        self.DelivNote2_SupplierOrder.setText(results_orders[0][13] if results_orders[0][13] != "None" else "")
+        self.DelivDate3_SupplierOrder.setText(results_orders[0][14] if results_orders[0][14] != "None" else "")
+        self.DelivNote3_SupplierOrder.setText(results_orders[0][15] if results_orders[0][15] != "None" else "")
 
         self.label_IDRecord.setText("")
-        self.Position_SupplierOrder.setText("")
-        self.Supply_SupplierOrder.setCurrentText("- - - - - | - - - - -")
+
+        self.Supply_SupplierOrder.setCurrentIndex(0)
         self.Quantity_SupplierOrder.setText("")
         self.UnitValue_SupplierOrder.setText("")
         self.Discount_SupplierOrder.setText("")
@@ -2291,21 +2477,34 @@ class Ui_SupplierOrder_Window(object):
         self.loadtablerecords()
         self.calculate_totalorder()
 
+        total_rows = self.tableRecords.rowCount()
+
+        if total_rows == 0:
+            self.Position_SupplierOrder.setText("1")
+        else:
+            biggest_value = None
+            for row in range(total_rows):
+                item = self.tableRecords.item(row, 1).text()
+                if item is not None:
+                    value = int(item)
+                    if biggest_value is None or value > biggest_value:
+                        biggest_value = value
+
+            self.Position_SupplierOrder.setText(str(biggest_value + 1))
 
 # Function to load record form
     def loadformsupply(self,item):
         data_supply=[]
 
-        for column in range(12):
+        for column in range(13):
             item_text=self.tableRecords.item(item.row(), column).text()
             data_supply.append(item_text)
 
         self.label_IDRecord.setText(data_supply[0])
         self.Position_SupplierOrder.setText(data_supply[1])
-        self.Supply_SupplierOrder.setCurrentText(data_supply[2] + " | " + data_supply[3])
         self.Quantity_SupplierOrder.setText(data_supply[4])
         self.UnitValue_SupplierOrder.setText(data_supply[5])
-        self.Discount_SupplierOrder.setText(data_supply[6])
+        self.Discount_SupplierOrder.setText('' if data_supply[6] == '0.00 %' else data_supply[6])
         self.Deliv1_SupplierOrder.setText(data_supply[9])
         self.Deliv2_SupplierOrder.setText(data_supply[10])
         self.Deliv3_SupplierOrder.setText(data_supply[11])
@@ -2329,7 +2528,9 @@ class Ui_SupplierOrder_Window(object):
 
             self.Stock_SupplierOrder.setText(str(stock))
             self.StockDsp_SupplierOrder.setText(str(available))
-            self.StockVrt_SupplierOrder.setText(str(round(available + pending,4)))
+            self.StockVrt_SupplierOrder.setText(str(round(available + pending, 4)))
+
+            self.Supply_SupplierOrder.setCurrentText(data_supply[2] + " | " + data_supply[3] + " | " + str(round(stock,2)) + " | " + str(round(available,2)) + " | " + str(round(pending, 2)) + " | ID:" + data_supply[12])
 
         # close communication with the PostgreSQL database server
             cur.close()
@@ -2351,20 +2552,16 @@ class Ui_SupplierOrder_Window(object):
             if conn is not None:
                 conn.close()
 
-
 # Function to load table of orders
     def loadtableorders(self):
+        # TO_CHAR(so_header."order_date",'DD-MM-YYYY'), TO_CHAR(so_header.delivery_date,'DD-MM-YYYY'),
+        #                 so_header.their_ref, so_header.notes, so_header.delivery_term, so_header.delivery_way, so_header.total_amount, so_header.pay_way
         commands_querytableorders = ("""
-                        SELECT so_header.id, so_header.supplier_order_num, suppliers."name",
-                        TO_CHAR(so_header."order_date",'DD-MM-YYYY'), TO_CHAR(so_header.delivery_date,'DD-MM-YYYY'),
-                        so_header.their_ref, so_header.notes, so_header.delivery_term, so_header.delivery_way, so_header.order_com,
-                        so_header.final_comment, so_header.total_amount, so_header.pay_way,
-                        TO_CHAR(so_header.deliv_date_1,'DD-MM-YYYY'), so_header.deliv_note_1,
-                        TO_CHAR(so_header.deliv_date_2,'DD-MM-YYYY'), so_header.deliv_note_2,
-                        TO_CHAR(so_header.deliv_date_3,'DD-MM-YYYY'), so_header.deliv_note_3
+                        SELECT so_header.id, so_header.supplier_order_num, suppliers."name"
+                        
                         FROM purch_fact.supplier_ord_header AS so_header
                         LEFT JOIN purch_fact.suppliers AS suppliers ON (suppliers."id" = so_header."supplier_id")
-                        ORDER BY so_header.id
+                        ORDER BY so_header.supplier_order_num DESC
                         """)
         conn = None
         try:
@@ -2399,11 +2596,11 @@ class Ui_SupplierOrder_Window(object):
         tablerow=0
 
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
 
     # fill the Qt Table with the query results
         for row in results_orders:
-            for column in range(19):
+            for column in range(3):
                 value = row[column]
                 if value is None:
                     value = ''
@@ -2417,8 +2614,15 @@ class Ui_SupplierOrder_Window(object):
 
         self.tableSupplierOrders.verticalHeader().hide()
         self.tableSupplierOrders.setSortingEnabled(False)
-        self.tableSupplierOrders.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-
+        if self.username == 'd.marquez':
+            self.tableSupplierOrders.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableSupplierOrders.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+        else:
+            self.tableSupplierOrders.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+        self.tableSupplierOrders.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableSupplierOrders.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        # self.tableSupplierOrders.horizontalHeader().setSectionResizeMode(10, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableSupplierOrders.hideColumn(0)
 
 # Function to load table of records
     def loadtablerecords(self):
@@ -2430,7 +2634,7 @@ class Ui_SupplierOrder_Window(object):
                         purch_fact.supplier_ord_detail.quantity, purch_fact.supplier_ord_detail.unit_value, 
                         purch_fact.supplier_ord_detail.discount,purch_fact.supplier_ord_detail.pending,
                         purch_fact.supplier_ord_detail.deliv_quant_1, purch_fact.supplier_ord_detail.deliv_quant_2,
-                        purch_fact.supplier_ord_detail.deliv_quant_3
+                        purch_fact.supplier_ord_detail.deliv_quant_3, purch_fact.supplier_ord_detail."supply_id"
                         FROM purch_fact.supplier_ord_detail
                         LEFT JOIN purch_fact.supplies ON (purch_fact.supplies."id" = purch_fact.supplier_ord_detail."supply_id")
                         WHERE supplier_ord_header_id = %s
@@ -2469,11 +2673,12 @@ class Ui_SupplierOrder_Window(object):
         tablerow=0
 
         font = QtGui.QFont()
-        font.setPointSize(int(10//1.5))
+        font.setPointSize(int(14//1.5))
 
     # fill the Qt Table with the query results
         for row in results_records:
             row_list=list(row)
+            row_list[5]=row_list[5].replace(".","")
             row_list[5]=row_list[5].replace(",",".")
             row_list[5]=row_list[5][:row_list[5].find(" €")]
             row_list.insert(7,float(row_list[4])*float(row_list[5])*(1-float(row_list[6])/100))
@@ -2487,7 +2692,7 @@ class Ui_SupplierOrder_Window(object):
             row_list[7] = locale.format_string("%.2f", float(row_list[7]), grouping=True)
             row_list[7] = row_list[7] + " €"
 
-            for column in range(12):
+            for column in range(13):
                 value = row_list[column]
                 if value is None:
                     value = ''
@@ -2501,8 +2706,16 @@ class Ui_SupplierOrder_Window(object):
 
         self.tableRecords.verticalHeader().hide()
         self.tableRecords.setSortingEnabled(False)
-        self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-
+        if self.username == 'd.marquez':
+            self.tableRecords.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+        else:
+            self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+        self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableRecords.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableRecords.hideColumn(0)
+        self.tableRecords.custom_sort_int(1, QtCore.Qt.SortOrder.AscendingOrder)
+        # self.tableRecords.hideColumn(12)
 
 # Function to add delivery 1 data
     def adddeliv1(self):
@@ -2690,7 +2903,6 @@ class Ui_SupplierOrder_Window(object):
                 self.loadtableorders()
                 self.loadstocks()
 
-
 # Function to add delivery 2 data
     def adddeliv2(self):
         self.root = tk.Tk()
@@ -2876,7 +3088,6 @@ class Ui_SupplierOrder_Window(object):
                 self.loadtablerecords()
                 self.loadtableorders()
                 self.loadstocks()
-
 
 # Function to add delivery 3 data
     def adddeliv3(self):
@@ -3064,11 +3275,11 @@ class Ui_SupplierOrder_Window(object):
                 self.loadtableorders()
                 self.loadstocks()
 
-
 # Function to load stock values
     def loadstocks(self):
         supply_name=self.Supply_SupplierOrder.currentText()
         supply_name=supply_name[:supply_name.find(" |")]
+        supply_id=self.Supply_SupplierOrder.currentText().split("|")[-1].strip().split(":")[1] if self.Supply_SupplierOrder.currentText() != '' else 17130
 
         conn = None
         try:
@@ -3078,8 +3289,8 @@ class Ui_SupplierOrder_Window(object):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            query_stocks = "SELECT physical_stock, available_stock, pending_stock, unit_value FROM purch_fact.supplies WHERE reference = %s"
-            cur.execute(query_stocks, (supply_name,))
+            query_stocks = "SELECT physical_stock, available_stock, pending_stock, unit_value FROM purch_fact.supplies WHERE id = %s"
+            cur.execute(query_stocks, (supply_id,))
             result_stocks = cur.fetchone()
 
         # get id from table
@@ -3088,8 +3299,8 @@ class Ui_SupplierOrder_Window(object):
             pending = result_stocks[2]
             unit_value = result_stocks[3]
 
-            self.Stock_SupplierOrder.setText(str(stock))
-            self.StockDsp_SupplierOrder.setText(str(available_stock))
+            self.Stock_SupplierOrder.setText(str(round(stock,2)))
+            self.StockDsp_SupplierOrder.setText(str(round(available_stock,2)))
             self.StockVrt_SupplierOrder.setText(str(round(available_stock + pending,4)))
             self.UnitValue_SupplierOrder.setText(unit_value)
 
@@ -3113,7 +3324,6 @@ class Ui_SupplierOrder_Window(object):
             if conn is not None:
                 conn.close()
 
-
 #  Function to calculate the order total amount
     def calculate_totalorder(self):
         locale.setlocale(locale.LC_ALL, '')
@@ -3130,24 +3340,23 @@ class Ui_SupplierOrder_Window(object):
         total = total + " €"
         self.Total_SupplierOrder.setText(total)
 
-
 # Function to print in PDF the supplier order
     def printsupplierorder(self):
         order_id=self.label_IDOrd.text()
         num_order=self.NumOrder_SupplierOrder.text()
         date=self.Date_SupplierOrder.text()
         their_ref=self.TheirRef_SupplierOrder.text()
-        payway=self.PayWay_SupplierOrder.text()
+        payway=self.PayWay_SupplierOrder.currentText()
         delivway=self.DelivWay_SupplierOrder.text()
         delivterm=self.DelivTerm_SupplierOrder.text()
         obs=self.OrderObs_SupplierOrder.toPlainText()
-        coments=self.Coms_SupplierOrder.toPlainText()
-        final_coments=self.FinalComs_SupplierOrder.toPlainText()
+        coments=self.Coms_SupplierOrder
+        # final_coments=self.FinalComs_SupplierOrder.toPlainText()
         total_order=self.Total_SupplierOrder.text()
         supplier_name=self.Supplier_SupplierOrder.currentText()
         currency_symbol=self.Currency_SupplierOrder.currentText()[0]
         currency_eurovalue=self.Currency_SupplierOrder.currentText().split('|')[1].strip()
-        currency_eurovalue=float(currency_eurovalue[:currency_eurovalue.find(" €")].replace(",","."))
+        currency_eurovalue=float(currency_eurovalue[:currency_eurovalue.find(" €")].replace(".",":").replace(",",".").replace(":",""))
 
         if order_id=="":
             dlg = QtWidgets.QMessageBox()
@@ -3161,6 +3370,40 @@ class Ui_SupplierOrder_Window(object):
             del dlg,new_icon
 
         else:
+            commands_updateorder = ("""
+                        UPDATE purch_fact.supplier_ord_header
+                        SET "total_amount" = %s, "order_com" = %s
+                        WHERE "id" = %s
+                        """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of principal command
+                data=(total_order, coments, order_id,)
+                cur.execute(commands_updateorder, data)
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
+
             pdf = supplier_order(num_order,date,their_ref,payway,delivway,delivterm,obs,supplier_name)
 
             pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
@@ -3180,7 +3423,7 @@ class Ui_SupplierOrder_Window(object):
                 total_text=self.tableRecords.item(row, 7).text()
 
                 currency_unitvalue=unitvalue_text[:unitvalue_text.find(" €")]
-                currency_unitvalue=currency_unitvalue.replace(",",".")
+                currency_unitvalue=currency_unitvalue.replace(".",":").replace(",",".").replace(":","")
                 currency_unitvalue=float(currency_unitvalue) * currency_eurovalue
                 currency_unitvalue=locale.format_string("%.2f", currency_unitvalue, grouping=True) + " " + currency_symbol
 
@@ -3191,17 +3434,25 @@ class Ui_SupplierOrder_Window(object):
                 currency_total=locale.format_string("%.2f", currency_total, grouping=True) + " " + currency_symbol
 
                 y_position = pdf.get_y()
-                pdf.set_font('Helvetica', '', 9)
+                pdf.set_font('DejaVuSansCondensed', '', 9)
                 pdf.cell(1, 0.53, position_text, align='C')
                 pdf.cell(0.2, 0.53, "")
                 pdf.cell(1.25, 0.53, quantity_text, align='C')
                 pdf.cell(0.2, 0.53, "")
-                pdf.cell(4.8, 0.53, code_text)
+                if len(code_text) > 25:
+                    x_position = pdf.get_x()
+                    y_position = pdf.get_y()
+                    pdf.multi_cell(4.6, 0.5, code_text, align='L')
+                    pdf.set_y(y_position)
+                    pdf.set_x(x_position + 4.6)
+                else:
+                    pdf.cell(4.6, 0.4, code_text, align='L')
                 pdf.cell(0.2, 0.53, "")
                 x_position = pdf.get_x()
-                pdf.multi_cell(5.9, 0.53, description_text)
+                y_position = pdf.get_y()
+                pdf.multi_cell(6.1, 0.4, description_text, align='L')
                 pdf.set_y(y_position)
-                pdf.set_x(x_position + 5.9)
+                pdf.set_x(x_position + 6.1)
                 pdf.cell(0.2, 0.53, "")
                 pdf.set_font('DejaVuSansCondensed', size=9)
                 pdf.cell(1.94, 0.53, currency_unitvalue, align='R')
@@ -3211,79 +3462,109 @@ class Ui_SupplierOrder_Window(object):
                 pdf.cell(0.2, 0.53, "")
                 pdf.set_font('DejaVuSansCondensed', size=9)
                 pdf.cell(2.05, 0.53, currency_total, align='R')
-                pdf.ln(1)
+                pdf.ln(1.3)
 
             currency_totalorder=float(total_order[:total_order.find(" €")].replace(".","").replace(",","."))
             currency_totalorder=currency_totalorder * currency_eurovalue
             currency_totalorder=locale.format_string("%.2f", currency_totalorder, grouping=True) + " " + currency_symbol
             
             y_position = pdf.get_y()
-            pdf.set_fill_color(231, 231, 226)
-            y_position = pdf.get_y()
-            pdf.cell(13.995, 0.50, "")
-            pdf.set_font('Helvetica', 'U', 8)
-            pdf.cell(2.3, 0.50, "Total del pedido:",fill=True)
-            pdf.set_font('DejaVuSansCondensed-Bold', size=10)
-            pdf.cell(2.29, 0.50, currency_totalorder, align='R', fill=True)
-            pdf.ln(1)
-            pdf.set_font('Helvetica', 'B', 8)
-            x_position = pdf.get_x()
-            pdf.multi_cell(13.795, 0.3, coments)
-            pdf.ln(1)
-            pdf.multi_cell(13.795, 0.3, final_coments)
+
+            # Calcular la altura del contenido que se agregará
+            total_content_height = pdf.get_multicell_height(13.795, coments) + 0.5 + 0.5 + 0.5  # Altura de cada celda más un salto de línea
+
+            # Verificar si hay suficiente espacio en la página actual
+            if y_position + total_content_height < 29.8:
+                # Hay suficiente espacio, agregar contenido en la página actual
+                pdf.set_fill_color(231, 231, 226)
+                pdf.cell(13.75, 0.50, "")
+                pdf.set_font('Helvetica', 'U', 8)
+                pdf.cell(2.3, 0.50, "Total del pedido:", fill=True)
+                pdf.set_font('DejaVuSansCondensed-Bold', size=10)
+                pdf.cell(3.32, 0.50, currency_totalorder, align='R', fill=True)
+                pdf.ln(1)
+                pdf.set_font('DejaVuSansCondensed-Bold', size=8)
+                x_position = pdf.get_x()
+                pdf.multi_cell(13.795, 0.3, coments)
+            else:
+                # No hay suficiente espacio, agregar contenido en la página siguiente
+                pdf.add_page()
+                pdf.set_fill_color(231, 231, 226)
+                pdf.cell(13.75, 0.50, "")
+                pdf.set_font('Helvetica', 'U', 8)
+                pdf.cell(2.3, 0.50, "Total del pedido:", fill=True)
+                pdf.set_font('DejaVuSansCondensed-Bold', size=10)
+                pdf.cell(3.32, 0.50, currency_totalorder, align='R', fill=True)
+                pdf.ln(1)
+                pdf.set_font('DejaVuSansCondensed-Bold', size=8)
+                x_position = pdf.get_x()
+                pdf.multi_cell(13.795, 0.3, coments)
+
+            # Restaurar la posición Y original después de agregar el contenido
             pdf.set_y(y_position)
             pdf.set_x(x_position + 13.795)
             pdf.ln(1)
 
-            output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar Pedido Proveedor")
+            pdf_buffer = pdf.output()
 
-            if output_path:
-                pdf.output(output_path)
+            temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Imprimir pedido")
-                dlg.setText("PDF generado con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg,new_icon
+            with open(temp_file_path, "wb") as temp_file:
+                temp_file.write(pdf_buffer)
 
-                commands_updateorder = ("""
-                        UPDATE purch_fact.supplier_ord_header
-                        SET "total_amount" = %s
-                        WHERE "id" = %s
-                        """)
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of principal command
-                    data=(total_order,order_id,)
-                    cur.execute(commands_updateorder, data)
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+            pdf.close()
 
+            self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Abre el PDF en el visor
+            self.pdf_viewer.showMaximized()
+
+            # output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar Pedido Proveedor")
+
+            # if output_path:
+            #     pdf.output(output_path)
+
+            #     dlg = QtWidgets.QMessageBox()
+            #     new_icon = QtGui.QIcon()
+            #     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            #     dlg.setWindowIcon(new_icon)
+            #     dlg.setWindowTitle("Imprimir pedido")
+            #     dlg.setText("PDF generado con éxito")
+            #     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+            #     dlg.exec()
+            #     del dlg,new_icon
+
+            #     commands_updateorder = ("""
+            #             UPDATE purch_fact.supplier_ord_header
+            #             SET "total_amount" = %s, "order_com" = %s, "final_comment" = %s
+            #             WHERE "id" = %s
+            #             """)
+            #     conn = None
+            #     try:
+            #     # read the connection parameters
+            #         params = config()
+            #     # connect to the PostgreSQL server
+            #         conn = psycopg2.connect(**params)
+            #         cur = conn.cursor()
+            #     # execution of principal command
+            #         data=(total_order, coments, final_coments ,order_id,)
+            #         cur.execute(commands_updateorder, data)
+            #     # close communication with the PostgreSQL database server
+            #         cur.close()
+            #     # commit the changes
+            #         conn.commit()
+            #     except (Exception, psycopg2.DatabaseError) as error:
+            #         dlg = QtWidgets.QMessageBox()
+            #         new_icon = QtGui.QIcon()
+            #         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            #         dlg.setWindowIcon(new_icon)
+            #         dlg.setWindowTitle("ERP EIPSA")
+            #         dlg.setText("Ha ocurrido el siguiente error:\n"
+            #                     + str(error))
+            #         dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            #         dlg.exec()
+            #         del dlg, new_icon
+            #     finally:
+            #         if conn is not None:
+            #             conn.close()
 
 # Function of popup window to enter quantities of deliveries
     def show_popup(self, supply_name, supply_description):
@@ -3324,41 +3605,225 @@ class Ui_SupplierOrder_Window(object):
         popup.mainloop()
         return quantity  # Returning entered value
 
-
 # Function to check date format
     def is_valid_date(self, date_str):
         formats = ['%d/%m/%Y', '%d-%m-%Y']
         
         for fmt in formats:
             try:
-                datetime.datetime.strptime(date_str, fmt)
+                datetime.strptime(date_str, fmt)
                 return True
             except ValueError:
                 pass
             
         return False
 
-
-#Function when clicking on table header
+# Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
         header_pos = self.tableSupplierOrders.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.tableSupplierOrders.horizontalHeader().height()
         popup_pos = self.tableSupplierOrders.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableSupplierOrders.show_unique_values_menu(logical_index, popup_pos, header_height)
 
-
-#Function when clicking on table header
+# Function when clicking on table header
     def on_headerrecords_section_clicked(self, logical_index):
         header_pos = self.tableRecords.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.tableRecords.horizontalHeader().height()
         popup_pos = self.tableRecords.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableRecords.show_unique_values_menu(logical_index, popup_pos, header_height)
 
+# Function to add a new pay way
+    def add_payway(self):
+        dlg = QtWidgets.QInputDialog()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle('Forma de pago')
+        dlg.setLabelText('Introduce una forma de pago:')
+
+        while True:
+            clickedButton = dlg.exec()
+            if clickedButton == 1:
+                value_payway = dlg.textValue()
+                if value_payway != '':
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        commands_insertpayway = ("""INSERT INTO purch_fact.pay_way_suppliers_order (pay_way) 
+                                        VALUES (%s)""")
+                        cur.execute(commands_insertpayway, (value_payway,))
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Forma de pago")
+                        dlg.setText("Datos insertados con éxito")
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                        dlg.exec()
+                        del dlg,new_icon
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
+                    break
+                dlg_error = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg_error.setWindowIcon(new_icon)
+                dlg_error.setWindowTitle("Forma de pago")
+                dlg_error.setText("El valor no puede estar vacío")
+                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg_error.exec()
+                del dlg_error,new_icon
+            else:
+                break
+
+        commands_payway = ("""
+                        SELECT pay_way
+                        FROM purch_fact.pay_way_suppliers_order
+                        ORDER BY pay_way ASC
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands_payway)
+            results_payway=cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+        
+        self.PayWay_SupplierOrder.clear()
+        list_payway=[x[0] for x in results_payway]
+        self.PayWay_SupplierOrder.addItems([''] + sorted(list_payway))
+
+# Function to move table to specific item by text search
+    def position_table(self):
+        text_position = self.Position.text()
+
+        self.tableSupplierOrders.clearSelection()
+
+        for i in range(self.tableSupplierOrders.rowCount()):
+            item = self.tableSupplierOrders.item(i, 1)
+            if item is not None and text_position.upper() in item.text().upper():
+                item.setSelected(True)
+                self.tableSupplierOrders.scrollToItem(item)
+                return
+
+# Function to events for keys
+    def keyPressEvent(self, event: QtGui.QKeyEvent):
+        if event.key() == QtCore.Qt.Key.Key_Escape:
+            focused_widget = QtWidgets.QApplication.focusWidget()
+            if isinstance(focused_widget, QtWidgets.QLineEdit) or isinstance(focused_widget, QtWidgets.QTextEdit):
+                focused_widget.clear()
+            elif isinstance(focused_widget, QtWidgets.QComboBox):
+                focused_widget.setCurrentIndex(0)
+
+# Function to show dialog to insert order comments
+    def show_dialog(self):
+        if self.label_IDOrd.text() != '':
+            
+            dlg = QtWidgets.QDialog()
+            dlg.setWindowTitle("Dialog")
+            dlg.setGeometry(50, 50, 900, 600)
+
+            vLayout = QtWidgets.QVBoxLayout(dlg)
+
+            btn = QtWidgets.QPushButton("Guardar")
+            vLayout.addWidget(btn)
+            btn.clicked.connect(self.save_order_comments)
+            
+            self.te = QtWidgets.QTextEdit()
+            self.te.setText(self.Coms_SupplierOrder)
+            self.te.setStyleSheet("background-color: transparent;")
+            vLayout.addWidget(self.te)
+
+            dlg.exec()
+
+# Function to save order comments
+    def save_order_comments(self):
+        id_order = self.label_IDOrd.text()
+        self.Coms_SupplierOrder = self.te.toPlainText()
+
+        commands_updateorder = ("""
+                        UPDATE purch_fact.supplier_ord_header
+                        SET "order_com" = %s
+                        WHERE "id" = %s
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of principal command
+            data=(self.Coms_SupplierOrder, id_order,)
+            cur.execute(commands_updateorder, data)
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    SupplierOrder_Window = QtWidgets.QMainWindow()
-    ui = Ui_SupplierOrder_Window()
-    ui.setupUi(SupplierOrder_Window)
-    SupplierOrder_Window.showMaximized()
+    ui = Ui_SupplierOrder_Window('d.marquez')
+    ui.showMaximized()
     sys.exit(app.exec())
