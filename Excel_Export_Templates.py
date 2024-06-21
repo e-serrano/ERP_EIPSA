@@ -2273,6 +2273,7 @@ class offer_temp:
                                 "flange_facing",
                                 "material_tw",
                                 "std_length",
+                                "ins_length",
                                 "root_diam",
                                 "tip_diam",
                                 "sensor_element",

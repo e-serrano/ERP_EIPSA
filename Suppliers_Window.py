@@ -40,8 +40,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
         menu.addSeparator()
 
-        menu.setStyleSheet("QMenu { color: black; }"
-                        "QMenu::item:selected { background-color: #33bdef; }"
+        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         if column_index not in self.column_filters:
@@ -308,12 +307,10 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
-
 
 class Ui_Suppliers_Window(object):
     def __init__(self, username):
@@ -680,7 +677,7 @@ class Ui_Suppliers_Window(object):
         self.label.setMinimumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
         self.label.setMaximumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
         self.label.setText("")
-        self.label.setStyleSheet("color: rgb(255, 255, 255);")
+        self.label.setStyleSheet("color: #121212;")
         self.label.setObjectName("label")
         self.gridLayout_2.addWidget(self.label, 4, 4, 1, 1)
         self.Button_AddSupplier = QtWidgets.QPushButton(parent=self.frame)
@@ -1038,7 +1035,6 @@ class Ui_Suppliers_Window(object):
 
                 self.loadtablesuppliers()
 
-
 # Function to modify data of suplliers in database
     def modifysupplier(self):
         id=self.label.text()
@@ -1126,7 +1122,6 @@ class Ui_Suppliers_Window(object):
 
             self.loadtablesuppliers()
 
-
 # Function to delete data of suppliers in database
     def deletesupplier(self):
         id=self.label.text()
@@ -1188,7 +1183,6 @@ class Ui_Suppliers_Window(object):
 
             self.loadtablesuppliers()
 
-
 # Function to load data of suppliers in form fields
     def loadformsuppliers(self,item):
         data_supplier=[]
@@ -1211,7 +1205,6 @@ class Ui_Suppliers_Window(object):
         self.Vto2_Suppliers.setText(data_supplier[12])
         self.Iva_Suppliers.setCurrentText(data_supplier[13])
         self.Notes_Suppliers.setText(data_supplier[14])
-
 
 # Function to load data of suppliers in table
     def loadtablesuppliers(self):
@@ -1295,6 +1288,11 @@ class Ui_Suppliers_Window(object):
         header_height = self.tableSuppliers.horizontalHeader().height()
         popup_pos = self.tableSuppliers.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableSuppliers.show_unique_values_menu(logical_index, popup_pos, header_height)
+
+
+
+
+
 
 if __name__ == "__main__":
     import sys

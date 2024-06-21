@@ -183,7 +183,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 nipple_list.append([code_nipple,codefab_nipple,tradcodnipple,modelnipple,designnipple,processnipple,materialnipple,qtynipple])
                 all_list_parts.append(nipple_list)
 
-            if code_handle != '' and model.data(model.index(target_row, 19)) != '3':
+            if code_handle != '' and model.data(model.index(target_row, 19)) not in ['3', '1/8" (3)']:
                 tradcodhandle = model.data(model.index(target_row, 121))
                 modelhandle = (model.data(model.index(target_row, 62)) + 'mm')
                 designhandle = model.data(model.index(target_row, 20))

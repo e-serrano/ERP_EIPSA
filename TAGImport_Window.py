@@ -212,6 +212,7 @@ class Ui_ImportTAG_Window(object):
 
                     if self.radioFlow.isChecked()==True:
                         table_name='tags_data.tags_flow'
+                        seq_id='tags_flow_id_tag_flow_seq'
                         df_final = df_table.iloc[:,1:34]
                         filled_column_names = ["tag", "tag_state", "num_offer", "item_type", "line_size",
                                         "rating", "facing", "schedule", "flange_material", "flange_type",
@@ -242,6 +243,10 @@ class Ui_ImportTAG_Window(object):
                             # Editing sheet Import
                                 sheet_name = "Import"
 
+                                sql_query_id = f"SELECT last_value FROM pg_sequences WHERE schemaname = 'tags_data' AND sequencename = '{seq_id}'"
+                                cursor.execute(sql_query_id)
+                                id_tag = int(cursor.fetchone()[0]) + 1
+
                                 for index, row in df_final.iterrows():
                                 # Create a list of pairs for each column with value
                                     columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
@@ -253,14 +258,13 @@ class Ui_ImportTAG_Window(object):
                                                         else f"'{values}'") for column, values in columns_values])
 
                                 # Creating insertion query and executing it
+                                    self.ws = self.wb[sheet_name]
+                                    self.ws[f'A{index+9}'] = id_tag
+
+                                    id_tag += 1
+
                                     sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
                                     cursor.execute(sql_insertion)
-                            
-                                    sql_query_id = f'SELECT "id_tag_flow" FROM {table_name} WHERE "tag" = \'{row["tag"]}\' AND "num_offer" = \'{row["num_offer"]}\''
-                                    cursor.execute(sql_query_id)
-                                    result_id=cursor.fetchall()
-                                    self.ws = self.wb[sheet_name]
-                                    self.ws[f'A{index+9}'] = result_id[0][0]
 
                                 #Setting data validation as original excel
                                     relation_column_validation={'C':'S', 'I':'A', 'J':'B', 'K':'C', 'L':'D',
@@ -305,6 +309,7 @@ class Ui_ImportTAG_Window(object):
 
                     elif self.radioTemp.isChecked()==True:
                         table_name='tags_data.tags_temp'
+                        seq_id='tags_temp_id_tag_temp_seq'
                         df_final = df_table.iloc[:,1:39]
                         filled_column_names = ["tag", "tag_state", "num_offer", "item_type", "tw_type",
                                         "flange_size", "flange_rating", "flange_facing", "material_tw", "root_diam",
@@ -337,6 +342,10 @@ class Ui_ImportTAG_Window(object):
                             # Editing sheet Import
                                 sheet_name = "Import"
 
+                                sql_query_id = f"SELECT last_value FROM pg_sequences WHERE schemaname = 'tags_data' AND sequencename = '{seq_id}'"
+                                cursor.execute(sql_query_id)
+                                id_tag = int(cursor.fetchone()[0]) + 1
+
                                 for index, row in df_final.iterrows():
                                 # Create a list of pairs for each column with value
                                     columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
@@ -352,14 +361,13 @@ class Ui_ImportTAG_Window(object):
                                                 ])
 
                                 # Creating insertion query and executing it
+                                    self.ws = self.wb[sheet_name]
+                                    self.ws[f'A{index+9}'] = id_tag
+
+                                    id_tag += 1
+
                                     sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
                                     cursor.execute(sql_insertion)
-
-                                    sql_query_id = f'SELECT "id_tag_temp" FROM {table_name} WHERE "tag" = \'{row["tag"]}\' AND "num_offer" = \'{row["num_offer"]}\''
-                                    cursor.execute(sql_query_id)
-                                    result_id=cursor.fetchall()
-                                    self.ws = self.wb[sheet_name]
-                                    self.ws[f'A{index+9}'] = result_id[0][0]
 
                                 #Setting data validation as original excel
                                     relation_column_validation={'C':'AB', 'I':'A', 'J':'B', 'K':'C', 'L':'D',
@@ -405,6 +413,7 @@ class Ui_ImportTAG_Window(object):
 
                     elif self.radioLevel.isChecked()==True:
                         table_name='tags_data.tags_level'
+                        seq_id='tags_level_id_tag_level_seq'
                         df_final = df_table.iloc[:,1:40]
                         filled_column_names = ["tag", "tag_state", "num_offer", "item_type", "model_num",
                                                 "body_material", "proc_conn_type", "proc_conn_size", "proc_conn_rating", "proc_conn_facing",
@@ -436,7 +445,11 @@ class Ui_ImportTAG_Window(object):
 
                             # Editing sheet Import
                                 sheet_name = "Import"
-                                
+
+                                sql_query_id = f"SELECT last_value FROM pg_sequences WHERE schemaname = 'tags_data' AND sequencename = '{seq_id}'"
+                                cursor.execute(sql_query_id)
+                                id_tag = int(cursor.fetchone()[0]) + 1
+
                                 for index, row in df_final.iterrows():
                                 # Create a list of pairs for each column with value
                                     columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
@@ -452,14 +465,13 @@ class Ui_ImportTAG_Window(object):
                                                 ])
 
                                 # Creating insertion query and executing it
+                                    self.ws = self.wb[sheet_name]
+                                    self.ws[f'A{index+9}'] = id_tag
+
+                                    id_tag += 1
+
                                     sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
                                     cursor.execute(sql_insertion)
-
-                                    sql_query_id = f'SELECT "id_tag_level" FROM {table_name} WHERE "tag" = \'{row["tag"]}\' AND "num_offer" = \'{row["num_offer"]}\''
-                                    cursor.execute(sql_query_id)
-                                    result_id=cursor.fetchall()
-                                    self.ws = self.wb[sheet_name]
-                                    self.ws[f'A{index+9}'] = result_id[0][0]
 
                                 #Setting data validation as original excel
                                     relation_column_validation={'C':'AD', 'I':'A', 'J':'B', 'K':'C', 'L':'E',
@@ -506,6 +518,7 @@ class Ui_ImportTAG_Window(object):
 
                     elif self.radioOthers.isChecked()==True:
                         table_name='tags_data.tags_others'
+                        seq_id='tags_others_id_tag_others_seq'
                         df_final = df_table.iloc[:,1:15]
                         filled_column_names = ["tag", "tag_state", "num_offer", "description", "nace"]
                         empty_counts = []
@@ -532,7 +545,11 @@ class Ui_ImportTAG_Window(object):
 
                             # Editing sheet Import
                                 sheet_name = "Import"
-                                
+
+                                sql_query_id = f"SELECT last_value FROM pg_sequences WHERE schemaname = 'tags_data' AND sequencename = '{seq_id}'"
+                                cursor.execute(sql_query_id)
+                                id_tag = int(cursor.fetchone()[0]) + 1
+
                                 for index, row in df_final.iterrows():
                                 # Create a list of pairs for each column with value
                                     columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
@@ -546,14 +563,13 @@ class Ui_ImportTAG_Window(object):
                                                 ])
 
                                 # Creating insertion query and executing it
+                                    self.ws = self.wb[sheet_name]
+                                    self.ws[f'A{index+9}'] = id_tag
+
+                                    id_tag += 1
+
                                     sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
                                     cursor.execute(sql_insertion)
-
-                                    sql_query_id = f'SELECT "id_tag_others" FROM {table_name} WHERE "tag" = \'{row["tag"]}\' AND "num_offer" = \'{row["num_offer"]}\''
-                                    cursor.execute(sql_query_id)
-                                    result_id=cursor.fetchall()
-                                    self.ws = self.wb[sheet_name]
-                                    self.ws[f'A{index+9}'] = result_id[0][0]
 
                                 #Setting data validation as original excel
                                     relation_column_validation={'C':'A', 'K':'B'}

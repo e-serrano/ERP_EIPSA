@@ -20,6 +20,7 @@ from datetime import *
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
+
 class CustomComboBox(QtWidgets.QComboBox):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -725,18 +726,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
     "    border: 2px solid white;\n"
     "}\n"
     "\n"
-    "QComboBox {\n"
-    "border: 1px solid white;\n"
-    "border-radius: 3px;\n"
-    "}\n"
-    "QComboBox QAbstractItemView{\n"
-    "min-width: 1200px;\n"
-    "}\n"
-    "\n"
-    "QComboBox QAbstractItemView::item {\n"
-    "min-height: 35px;\n"
-    "}\n"
-    "\n"
     "QPushButton {\n"
     "background-color: #33bdef;\n"
     "  border: 1px solid transparent;\n"
@@ -763,7 +752,25 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
     "QPushButton:pressed {\n"
     "    background-color: rgb(1, 140, 190);\n"
     "    border-color: rgb(255, 255, 255);\n"
-    "}")
+    "}\n"
+    "\n"
+    "QComboBox:editable {\n"
+    "border: 1px solid white;\n"
+    "border-radius: 3px;\n"
+    "}\n"
+    "QComboBox QAbstractItemView{\n"
+    "min-width: 1200px;\n"
+    "}\n"
+    "\n"
+    "QComboBox QAbstractItemView::item {\n"
+    "min-height: 35px;\n"
+    "border: .5px solid white;\n"
+    "}\n"
+    "\n"
+    "QComboBox QAbstractItemView::item:hover {\n"
+    "background-color: blue;\n"
+    "}"
+    )
         else:
             SupplierOrder_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
@@ -820,8 +827,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.verticalLayout_2.setObjectName("verticalLayout_2")
 
         self.splitter = QtWidgets.QSplitter(QtCore.Qt.Orientation.Horizontal)
-
-
 
         self.scrollArea = QtWidgets.QScrollArea(parent=self.frame)
         self.scrollArea.setWidgetResizable(True)
@@ -1621,7 +1626,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.tableRecords.itemClicked.connect(self.loadformsupply)
         self.Button_CreateOrder.clicked.connect(self.createorder)
         self.Button_ModifyOrder.clicked.connect(self.modifyorder)
-        self.Button_Reload.clicked.connect(self.loadtableorders)
+        self.Button_Reload.clicked.connect(self.load_all)
         self.Button_AddRecord.clicked.connect(self.addrecord)
         self.Button_ModifyRecord.clicked.connect(self.modifyrecord)
         self.Button_DeleteRecord.clicked.connect(self.deleterecord)
@@ -1637,11 +1642,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.Button_Observations.clicked.connect(self.show_dialog)
         self.loadtableorders()
 
-        # self.Coms_SupplierOrder.textChanged.connect(self.reset_timer)
-        self.typing_timer = QtCore.QTimer(self)
-        self.typing_timer.setInterval(1000)  # 1 segundo de inactividad
-        self.typing_timer.setSingleShot(True)
-        self.typing_timer.timeout.connect(self.update_coms)
+        self.tableSupplierOrders.itemDoubleClicked.connect(self.item_double_clicked)
 
 
     def retranslateUi(self, SupplierOrder_Window):
@@ -1731,60 +1732,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         item = self.tableRecords.horizontalHeaderItem(11)
         item.setText(_translate("SupplierOrder_Window", "Cant 3"))
 
-    def reset_timer(self):
-        self.typing_timer.start()
-
-# Function to modify order comments
-    def update_coms(self):
-        order_id=self.label_IDOrd.text()
-        order_com=self.Coms_SupplierOrder.toPlainText()
-
-        if order_id=="":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Modificar Pedido")
-            dlg.setText("Selecciona un pedido existente e introduce una fecha válida")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
-
-        else:
-            commands_updateorder = ("""
-                        UPDATE purch_fact.supplier_ord_header
-                        SET "order_com" = %s
-                        WHERE "id" = %s
-                        """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of principal command
-                data=(order_com, order_id,)
-                cur.execute(commands_updateorder, data)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
-            except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
 
 # Function to create order
     def createorder(self):
@@ -3278,51 +3225,52 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 # Function to load stock values
     def loadstocks(self):
         supply_name=self.Supply_SupplierOrder.currentText()
-        supply_name=supply_name[:supply_name.find(" |")]
-        supply_id=self.Supply_SupplierOrder.currentText().split("|")[-1].strip().split(":")[1] if self.Supply_SupplierOrder.currentText() != '' else 17130
+        if supply_name != '':
+            supply_name=supply_name[:supply_name.find(" |")]
+            supply_id=self.Supply_SupplierOrder.currentText().split("|")[-1].strip().split(":")[1] if self.Supply_SupplierOrder.currentText() != '' else 17130
 
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            query_stocks = "SELECT physical_stock, available_stock, pending_stock, unit_value FROM purch_fact.supplies WHERE id = %s"
-            cur.execute(query_stocks, (supply_id,))
-            result_stocks = cur.fetchone()
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                query_stocks = "SELECT physical_stock, available_stock, pending_stock, unit_value FROM purch_fact.supplies WHERE id = %s"
+                cur.execute(query_stocks, (supply_id,))
+                result_stocks = cur.fetchone()
 
-        # get id from table
-            stock = result_stocks[0]
-            available_stock = result_stocks[1]
-            pending = result_stocks[2]
-            unit_value = result_stocks[3]
+            # get id from table
+                stock = result_stocks[0]
+                available_stock = result_stocks[1]
+                pending = result_stocks[2]
+                unit_value = result_stocks[3]
 
-            self.Stock_SupplierOrder.setText(str(round(stock,2)))
-            self.StockDsp_SupplierOrder.setText(str(round(available_stock,2)))
-            self.StockVrt_SupplierOrder.setText(str(round(available_stock + pending,4)))
-            self.UnitValue_SupplierOrder.setText(unit_value)
+                self.Stock_SupplierOrder.setText(str(round(stock,2)))
+                self.StockDsp_SupplierOrder.setText(str(round(available_stock,2)))
+                self.StockVrt_SupplierOrder.setText(str(round(available_stock + pending,4)))
+                self.UnitValue_SupplierOrder.setText(unit_value)
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
 
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
 #  Function to calculate the order total amount
     def calculate_totalorder(self):
@@ -3405,12 +3353,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                     conn.close()
 
             pdf = supplier_order(num_order,date,their_ref,payway,delivway,delivterm,obs,supplier_name)
-
             pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
             pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
-
             pdf.set_auto_page_break(auto=True, margin=2)
-
             pdf.add_page()
 
             for row in range(self.tableRecords.rowCount()):
@@ -3470,12 +3415,12 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             
             y_position = pdf.get_y()
 
-            # Calcular la altura del contenido que se agregará
-            total_content_height = pdf.get_multicell_height(13.795, coments) + 0.5 + 0.5 + 0.5  # Altura de cada celda más un salto de línea
+            # Calculate height of content to add
+            total_content_height = pdf.get_multicell_height(13.795, coments) + 0.5 + 0.5 + 0.5  # Height of each cell plus line break
 
-            # Verificar si hay suficiente espacio en la página actual
+            # Verify if exists enough space on actual page
             if y_position + total_content_height < 29.8:
-                # Hay suficiente espacio, agregar contenido en la página actual
+                # If exists, add content on actual page
                 pdf.set_fill_color(231, 231, 226)
                 pdf.cell(13.75, 0.50, "")
                 pdf.set_font('Helvetica', 'U', 8)
@@ -3485,9 +3430,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 pdf.ln(1)
                 pdf.set_font('DejaVuSansCondensed-Bold', size=8)
                 x_position = pdf.get_x()
-                pdf.multi_cell(13.795, 0.3, coments)
+                pdf.multi_cell(13.795, 0.3, coments) if coments is not None else pdf.cell(13.795, 0.3, coments)
             else:
-                # No hay suficiente espacio, agregar contenido en la página siguiente
+                # If not exists, add content on next page
                 pdf.add_page()
                 pdf.set_fill_color(231, 231, 226)
                 pdf.cell(13.75, 0.50, "")
@@ -3498,9 +3443,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 pdf.ln(1)
                 pdf.set_font('DejaVuSansCondensed-Bold', size=8)
                 x_position = pdf.get_x()
-                pdf.multi_cell(13.795, 0.3, coments)
+                pdf.multi_cell(13.795, 0.3, coments) if coments is not None else pdf.cell(13.795, 0.3, coments)
 
-            # Restaurar la posición Y original después de agregar el contenido
+            # Restore original Y position after add content
             pdf.set_y(y_position)
             pdf.set_x(x_position + 13.795)
             pdf.ln(1)
@@ -3517,54 +3462,94 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Abre el PDF en el visor
             self.pdf_viewer.showMaximized()
 
-            # output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar Pedido Proveedor")
 
-            # if output_path:
-            #     pdf.output(output_path)
+            pdf_verification = supplier_order(num_order,date,their_ref,payway,delivway,delivterm,obs,supplier_name)
+            pdf_verification.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
+            pdf_verification.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+            pdf_verification.set_auto_page_break(auto=True, margin=2)
+            pdf_verification.add_page()
 
-            #     dlg = QtWidgets.QMessageBox()
-            #     new_icon = QtGui.QIcon()
-            #     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            #     dlg.setWindowIcon(new_icon)
-            #     dlg.setWindowTitle("Imprimir pedido")
-            #     dlg.setText("PDF generado con éxito")
-            #     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            #     dlg.exec()
-            #     del dlg,new_icon
+            for row in range(self.tableRecords.rowCount()):
+                position_text=self.tableRecords.item(row, 1).text()
+                quantity_text=self.tableRecords.item(row, 4).text()
+                code_text=self.tableRecords.item(row, 2).text()
+                description_text=self.tableRecords.item(row, 3).text()
+                unitvalue_text=self.tableRecords.item(row, 5).text()
+                discount_text=self.tableRecords.item(row, 6).text()
+                total_text=self.tableRecords.item(row, 7).text()
 
-            #     commands_updateorder = ("""
-            #             UPDATE purch_fact.supplier_ord_header
-            #             SET "total_amount" = %s, "order_com" = %s, "final_comment" = %s
-            #             WHERE "id" = %s
-            #             """)
-            #     conn = None
-            #     try:
-            #     # read the connection parameters
-            #         params = config()
-            #     # connect to the PostgreSQL server
-            #         conn = psycopg2.connect(**params)
-            #         cur = conn.cursor()
-            #     # execution of principal command
-            #         data=(total_order, coments, final_coments ,order_id,)
-            #         cur.execute(commands_updateorder, data)
-            #     # close communication with the PostgreSQL database server
-            #         cur.close()
-            #     # commit the changes
-            #         conn.commit()
-            #     except (Exception, psycopg2.DatabaseError) as error:
-            #         dlg = QtWidgets.QMessageBox()
-            #         new_icon = QtGui.QIcon()
-            #         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            #         dlg.setWindowIcon(new_icon)
-            #         dlg.setWindowTitle("ERP EIPSA")
-            #         dlg.setText("Ha ocurrido el siguiente error:\n"
-            #                     + str(error))
-            #         dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            #         dlg.exec()
-            #         del dlg, new_icon
-            #     finally:
-            #         if conn is not None:
-            #             conn.close()
+                y_position = pdf_verification.get_y()
+                pdf_verification.set_font('DejaVuSansCondensed', '', 9)
+                pdf_verification.cell(1, 0.53, position_text, align='C')
+                pdf_verification.cell(0.2, 0.53, "")
+                pdf_verification.cell(1.25, 0.53, quantity_text, align='C')
+                pdf_verification.cell(0.2, 0.53, "")
+                if len(code_text) > 25:
+                    x_position = pdf_verification.get_x()
+                    y_position = pdf_verification.get_y()
+                    pdf_verification.multi_cell(4.6, 0.5, code_text, align='L')
+                    pdf_verification.set_y(y_position)
+                    pdf_verification.set_x(x_position + 4.6)
+                else:
+                    pdf_verification.cell(4.6, 0.4, code_text, align='L')
+                pdf_verification.cell(0.2, 0.53, "")
+                x_position = pdf_verification.get_x()
+                y_position = pdf_verification.get_y()
+                pdf_verification.multi_cell(6.1, 0.4, description_text, align='L')
+                pdf_verification.set_y(y_position)
+                pdf_verification.set_x(x_position + 6.1)
+                pdf_verification.cell(0.2, 0.53, "")
+                pdf_verification.set_font('DejaVuSansCondensed', size=9)
+                pdf_verification.cell(1.94, 0.53, "", align='R')
+                pdf_verification.cell(0.2, 0.53, "")
+                pdf_verification.set_font('Helvetica', '', 9)
+                pdf_verification.cell(1.23, 0.53, "", align='C')
+                pdf_verification.cell(0.2, 0.53, "")
+                pdf_verification.set_font('DejaVuSansCondensed', size=9)
+                pdf_verification.cell(2.05, 0.53, "", align='R')
+                pdf_verification.ln(1.3)
+
+            y_position = pdf_verification.get_y()
+
+            # Calculate height of content to add
+            total_content_height = pdf_verification.get_multicell_height(13.795, coments) + 0.5 + 0.5 + 0.5  # Height of each cell plus line break
+
+            # Verify if exists enough space on actual page
+            if y_position + total_content_height < 29.8:
+                # If exists, add content on actual page
+                pdf_verification.set_fill_color(231, 231, 226)
+                pdf_verification.cell(13.75, 0.50, "")
+                pdf_verification.set_font('Helvetica', 'U', 8)
+                pdf_verification.cell(2.3, 0.50, "Total del pedido:", fill=True)
+                pdf_verification.set_font('DejaVuSansCondensed-Bold', size=10)
+                pdf_verification.cell(3.32, 0.50, "", align='R', fill=True)
+                pdf_verification.ln(1)
+                pdf_verification.set_font('DejaVuSansCondensed-Bold', size=8)
+                x_position = pdf_verification.get_x()
+                pdf_verification.multi_cell(13.795, 0.3, coments) if coments is not None else pdf_verification.cell(13.795, 0.3, coments)
+            else:
+                # If not exists, add content on next page
+                pdf_verification.add_page()
+                pdf_verification.set_fill_color(231, 231, 226)
+                pdf_verification.cell(13.75, 0.50, "")
+                pdf_verification.set_font('Helvetica', 'U', 8)
+                pdf_verification.cell(2.3, 0.50, "Total del pedido:", fill=True)
+                pdf_verification.set_font('DejaVuSansCondensed-Bold', size=10)
+                pdf_verification.cell(3.32, 0.50, "", align='R', fill=True)
+                pdf_verification.ln(1)
+                pdf_verification.set_font('DejaVuSansCondensed-Bold', size=8)
+                x_position = pdf_verification.get_x()
+                pdf_verification.multi_cell(13.795, 0.3, coments) if coments is not None else pdf_verification.cell(13.795, 0.3, coments)
+
+            # Restore original Y position after add content
+            pdf_verification.set_y(y_position)
+            pdf_verification.set_x(x_position + 13.795)
+            pdf_verification.ln(1)
+
+            output_path = "//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES/" + num_order + ".pdf"
+
+            if output_path:
+                pdf_verification.output(output_path)
 
 # Function of popup window to enter quantities of deliveries
     def show_popup(self, supply_name, supply_description):
@@ -3819,6 +3804,106 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         finally:
             if conn is not None:
                 conn.close()
+
+# Function to load file
+    def item_double_clicked(self, item):
+        if item.column() == 1:
+            item_number = self.tableSupplierOrders.item(item.row(), 1).text()
+
+            query_path = ("""
+                        SELECT suppliers."num_delivnote"
+                        FROM verification.delivnote_suppliers AS suppliers
+                        WHERE suppliers."supplier_order_num" = %s
+                        """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(query_path, (item_number,))
+                results=cur.fetchall()
+
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+                if len(results) != 0:
+                    file_path = os.path.normpath(results[0][0])
+                    os.startfile(file_path)
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
+
+# Function to load comboboxes
+    def load_comboboxes(self):
+        commands_suppliers = ("""
+                        SELECT * 
+                        FROM purch_fact.suppliers
+                        ORDER BY purch_fact.suppliers.name
+                        """)
+        commands_supplies = ("""
+                        SELECT reference, description, ROUND(physical_stock,2), ROUND(available_stock,2), ROUND(pending_stock,2), id
+                        FROM purch_fact.supplies
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands_suppliers)
+            results_suppliers=cur.fetchall()
+            cur.execute(commands_supplies)
+            results_supplies=cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        list_suppliers=[x[1] for x in results_suppliers]
+        self.Supplier_SupplierOrder.addItems([''] + list_suppliers)
+
+        self.list_supplies=[x[0] + ' | ' + x[1] + ' | ' + str(x[2]) + ' | ' + str(x[3]) + ' | ' + str(x[4])  + ' | ID:' + str(x[5]) for x in results_supplies]
+        self.Supply_SupplierOrder.addItems([''] + sorted(self.list_supplies))
+
+# Function to load tables and comboboxes
+    def load_all(self):
+        self.loadtableorders()
+        self.load_comboboxes()
+
+
 
 
 if __name__ == "__main__":

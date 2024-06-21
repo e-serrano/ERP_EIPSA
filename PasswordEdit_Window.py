@@ -322,11 +322,11 @@ class Ui_EditPasswordWindow(object):
                     conn.close()
 
 
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     EditPasswordWindow = QtWidgets.QMainWindow()
-#     ui = Ui_EditPasswordWindow()
-#     ui.setupUi(EditPasswordWindow)
-#     EditPasswordWindow.show()
-#     sys.exit(app.exec())
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    EditPasswordWindow = QtWidgets.QMainWindow()
+    ui = Ui_EditPasswordWindow('j.tena')
+    ui.setupUi(EditPasswordWindow)
+    EditPasswordWindow.show()
+    sys.exit(app.exec())

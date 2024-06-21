@@ -454,7 +454,7 @@ class Ui_OTFabOrder_Window(object):
 
         table_data = []
 
-        for row in range(self.tableOT.rowCountCount()):
+        for row in range(self.tableOT.rowCount()):
             row_data = []
             for col in range(self.tableOT.columnCount()):
                 item = self.tableOT.item(row, col)
@@ -466,68 +466,68 @@ class Ui_OTFabOrder_Window(object):
         df_toexport = pd.DataFrame(table_data, columns=['TAG','ELEMENTO','CANT','OT','FECHA','CANTxOT','TRAD COD','OF'])
         
 
-        # output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
-
-        # if output_path:
-        #     wb = Workbook()
-        #     ws = wb.active
-
-        #     # Add data to Excel
-        #     for index, row in df_toexport.iterrows():
-        #         fecha_str = row['FECHA']
-        #         if fecha_str is not None:
-        #             fecha_obj = datetime.strptime(fecha_str, '%d/%m/%Y').date()
-        #             df_toexport.at[index, 'FECHA'] = fecha_obj
-
-        #     for r_idx, row in enumerate(dataframe_to_rows(df_toexport, index=False, header=True), 1):
-        #         ws.append(row)
-
-        #     # Currency Style
-        #     currency_style = NamedStyle(name='currency', number_format='#,##0.00 €')
-        #     date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
-
-        #     # Apply Styles
-        #     for cell in ws['E']:
-        #         cell.style = date_style
-
-        #     wb.save(output_path)
-
-
-        pdf = fab_order()
-
-        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
-
-        pdf.set_auto_page_break(auto=True, margin=2)
-
-        pdf.add_page()
-
-        for row in range(self.tableOT.rowCount()):
-            pdf.set_font('Helvetica', '', 9)
-            pdf.cell(4.5, 0.53, self.tableOT.item(row, 1).text(), align='C', border=1)
-            pdf.cell(4.8, 0.53, self.tableOT.item(row, 2).text(), align='C', border=1)
-            pdf.cell(1.5, 0.53, self.tableOT.item(row, 3).text(), align='C', border=1)
-            pdf.cell(1.5, 0.53, self.tableOT.item(row, 4).text(), align='C', border=1)
-            pdf.cell(2.1, 0.53, self.tableOT.item(row, 5).text(), align='C', border=1)
-            pdf.cell(2.1, 0.53, self.tableOT.item(row, 6).text(), align='C', border=1)
-            pdf.cell(10, 0.53, self.tableOT.item(row, 7).text(), align='C', border=1)
-            pdf.cell(1.3, 0.53, self.tableOT.item(row, 8).text(), align='C', border=1)
-            pdf.ln(0.53)
-
-        output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar Orden Fabricación")
+        output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
 
         if output_path:
-            pdf.output(output_path)
+            wb = Workbook()
+            ws = wb.active
 
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Imprimir Orden Fabricación")
-            dlg.setText("PDF generado con éxito")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-            del dlg,new_icon
+            # Add data to Excel
+            for index, row in df_toexport.iterrows():
+                fecha_str = row['FECHA']
+                if fecha_str is not None:
+                    fecha_obj = datetime.strptime(fecha_str, '%d/%m/%Y').date()
+                    df_toexport.at[index, 'FECHA'] = fecha_obj
+
+            for r_idx, row in enumerate(dataframe_to_rows(df_toexport, index=False, header=True), 1):
+                ws.append(row)
+
+            # Currency Style
+            currency_style = NamedStyle(name='currency', number_format='#,##0.00 €')
+            date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
+
+            # Apply Styles
+            for cell in ws['E']:
+                cell.style = date_style
+
+            wb.save(output_path)
+
+
+        # pdf = fab_order()
+
+        # pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
+        # pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+
+        # pdf.set_auto_page_break(auto=True, margin=2)
+
+        # pdf.add_page()
+
+        # for row in range(self.tableOT.rowCount()):
+        #     pdf.set_font('Helvetica', '', 9)
+        #     pdf.cell(4.5, 0.53, self.tableOT.item(row, 1).text(), align='C', border=1)
+        #     pdf.cell(4.8, 0.53, self.tableOT.item(row, 2).text(), align='C', border=1)
+        #     pdf.cell(1.5, 0.53, self.tableOT.item(row, 3).text(), align='C', border=1)
+        #     pdf.cell(1.5, 0.53, self.tableOT.item(row, 4).text(), align='C', border=1)
+        #     pdf.cell(2.1, 0.53, self.tableOT.item(row, 5).text(), align='C', border=1)
+        #     pdf.cell(2.1, 0.53, self.tableOT.item(row, 6).text(), align='C', border=1)
+        #     pdf.cell(10, 0.53, self.tableOT.item(row, 7).text(), align='C', border=1)
+        #     pdf.cell(1.3, 0.53, self.tableOT.item(row, 8).text(), align='C', border=1)
+        #     pdf.ln(0.53)
+
+        # output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar Orden Fabricación")
+
+        # if output_path:
+        #     pdf.output(output_path)
+
+        #     dlg = QtWidgets.QMessageBox()
+        #     new_icon = QtGui.QIcon()
+        #     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        #     dlg.setWindowIcon(new_icon)
+        #     dlg.setWindowTitle("Imprimir Orden Fabricación")
+        #     dlg.setText("PDF generado con éxito")
+        #     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+        #     dlg.exec()
+        #     del dlg,new_icon
 
 
 if __name__ == "__main__":

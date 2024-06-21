@@ -472,7 +472,16 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
 "QPushButton:pressed {\n"
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
-"}")
+"}\n"
+"QMenu {\n"
+"background-color: white;\n"
+"color: black;\n"
+"}\n"
+"QMenu::item {\n"
+"background-color: white;\n"
+"color: black;\n"
+"}\n"
+"QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         self.centralwidget = QtWidgets.QWidget(parent=Workshop_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)

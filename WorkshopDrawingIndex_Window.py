@@ -1319,6 +1319,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             WorkshopDrawingIndex_Window.setStyleSheet(
             ".QFrame {border: 2px solid black;\n"
             "}\n"
+            "QMenu {\n"
+                "background-color: #333;\n"
+                "color: black;\n"
+            "}\n"
+            "QMenu::item {\n"
+                "background-color: transparent;\n"
+                "color: black;\n"
+            "}\n"
             "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         self.centralwidget = QtWidgets.QWidget(parent=WorkshopDrawingIndex_Window)
         if self.username == 'm.gil':
@@ -2317,7 +2325,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         model.setData(index, date.today().strftime("%d/%m/%Y"))
 
             elif event.key() == QtCore.Qt.Key.Key_J:
-                if isinstance(model, EditableTableModelM) or isinstance(model, EditableTableModelOf):
+                if isinstance(model, EditableTableModelM) or isinstance(model, EditableTableModelOf) or isinstance(model, EditableTableModelDim):
                     selected_indexes = table.selectionModel().selectedIndexes()
                     if not selected_indexes:
                         return
@@ -2333,6 +2341,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         number = int(first_value[3:5])
                     elif first_value[0] == 'M':
                         number = int(first_value[2:4])
+                    else:
+                        number = int(first_value[-5:][:2])
 
                     if isinstance(model, QtCore.QSortFilterProxyModel):
                         model_indexes = [model.mapToSource(index) for index in selected_indexes]
@@ -2342,6 +2352,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 dwg_number = first_value[:3]+str("{:02}".format(number))+first_value[-3:]
                             elif first_value[0] == 'M':
                                 dwg_number = first_value[:2]+str("{:02}".format(number))+first_value[-3:]
+                            else:
+                                dwg_number = first_value[:-5]+str("{:02}".format(number))+first_value[-3:]
 
                             model.sourceModel().setData(index, dwg_number)
                     else:
@@ -2352,6 +2364,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 dwg_number = first_value[:3]+str("{:02}".format(number))+first_value[-3:]
                             elif first_value[0] == 'M':
                                 dwg_number = first_value[:2]+str("{:02}".format(number))+first_value[-3:]
+                            else:
+                                dwg_number = first_value[:-5]+str("{:02}".format(number))+first_value[-3:]
+
                             model.setData(index, dwg_number)
 
         elif event.matches(QKeySequence.StandardKey.MoveToNextLine):

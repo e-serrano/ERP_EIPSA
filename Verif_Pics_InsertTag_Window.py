@@ -873,7 +873,18 @@ class Ui_Verif_Pics_InsertTag_Window(QtWidgets.QMainWindow):
 
 # Function to search pdf file
     def search_document(self):
-        self.fname = askopenfilename(filetypes=[("Archivos JPG", "*.jpg")],
+        self.num_order_value = self.num_order.text().upper()
+        num_order_year = str(datetime.now().year)[:2] + self.num_order_value [self.num_order_value .rfind("/") - 2:self.num_order_value .rfind("/")]
+
+        if self.num_order_value[:2] == 'PA':
+            initialdir="//srvad01/base de datos de pedidos/Año " + num_order_year + "/" + num_order_year + " Pedidos Almacen/"
+        elif self.num_order_value[:2] == 'P-':
+            initialdir="//srvad01/base de datos de pedidos/Año " + num_order_year + "/" + num_order_year + " Pedidos/"
+        else:
+            initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION"
+
+
+        self.fname = askopenfilename(initialdir=initialdir, filetypes=[("Archivos JPG", "*.jpg")],
                             title="Seleccionar imagen")
         if self.fname:
             self.images.setText(self.fname)
@@ -919,13 +930,21 @@ class Ui_Verif_Pics_InsertTag_Window(QtWidgets.QMainWindow):
                 if conn is not None:
                     conn.close()
 
+        elif item.column() == 4:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Verificación")
+            dlg.setText(item.text())
+            dlg.exec()
+            del dlg, new_icon
 
 
 
-
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     Verif_Pics_InsertTag_Window = Ui_Verif_Pics_InsertTag_Window('PA-24/042','m.gil')
-#     Verif_Pics_InsertTag_Window.show()
-#     sys.exit(app.exec())
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    Verif_Pics_InsertTag_Window = Ui_Verif_Pics_InsertTag_Window('P-24/002-S00','m.gil')
+    Verif_Pics_InsertTag_Window.show()
+    sys.exit(app.exec())

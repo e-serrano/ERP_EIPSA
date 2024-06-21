@@ -21,7 +21,6 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
-
 class ColorDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -63,7 +62,6 @@ class ColorDelegate(QtWidgets.QStyledItemDelegate):
         super().initStyleOption(option, index)
         color = self.colors_dict.get(index.row()+1, QtGui.QColor("white"))
         option.palette.setColor(QtGui.QPalette.ColorGroup.All, QtGui.QPalette.ColorRole.Text, color)
-
 
 class CustomTableWidget(QtWidgets.QTableWidget):
     def __init__(self, parent=None):
@@ -361,13 +359,11 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-
 class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
     def __init__(self, username):
         super().__init__()
         self.username = username
         self.setupUi(self)
-
 
     def setupUi(self, VerifSupplierInsert_Window):
         VerifSupplierInsert_Window.setObjectName("VerifSupplierInsert_Window")
@@ -463,9 +459,9 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 1)
         self.tableRecords = CustomTableWidget()
         self.tableRecords.setObjectName("tableWidget")
-        self.tableRecords.setColumnCount(7)
+        self.tableRecords.setColumnCount(8)
         self.tableRecords.setRowCount(0)
-        for i in range (7):
+        for i in range (8):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -570,6 +566,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         font.setPointSize(10)
         self.supplier.setFont(font)
         self.supplier.setObjectName("supplier")
+        self.supplier.setEditable(True)
         self.gridLayout_2.addWidget(self.supplier, 2, 5, 1, 1)
         self.label_obs = QtWidgets.QLabel(parent=self.frame)
         self.label_obs.setMinimumSize(QtCore.QSize(105, 25))
@@ -764,16 +761,18 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         item = self.tableRecords.horizontalHeaderItem(0)
         item.setText(_translate("VerificationQuery_Window", "ID"))
         item = self.tableRecords.horizontalHeaderItem(1)
-        item.setText(_translate("VerificationQuery_Window", "Fecha"))
+        item.setText(_translate("VerificationQuery_Window", "Nº Pedido. Prov."))
         item = self.tableRecords.horizontalHeaderItem(2)
         item.setText(_translate("VerificationQuery_Window", "Proveedor"))
         item = self.tableRecords.horizontalHeaderItem(3)
-        item.setText(_translate("VerificationQuery_Window", "Nº Albarán"))
+        item.setText(_translate("VerificationQuery_Window", "Fecha Verif."))
         item = self.tableRecords.horizontalHeaderItem(4)
-        item.setText(_translate("VerificationQuery_Window", "Material"))
+        item.setText(_translate("VerificationQuery_Window", "Nº Albarán"))
         item = self.tableRecords.horizontalHeaderItem(5)
         item.setText(_translate("VerificationQuery_Window", "Material"))
         item = self.tableRecords.horizontalHeaderItem(6)
+        item.setText(_translate("VerificationQuery_Window", "Material"))
+        item = self.tableRecords.horizontalHeaderItem(7)
         item.setText(_translate("VerificationQuery_Window", "Observaciones"))
 
 
@@ -782,7 +781,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.tableRecords.setRowCount(0)
 
         query_material = ("""
-                        SELECT suppliers."id", TO_CHAR(suppliers."date_delivnote", 'dd/MM/yyyy'), suppliers."supplier", suppliers."num_delivnote", suppliers."material", suppliers."state", suppliers."notes"
+                        SELECT suppliers."id", suppliers."supplier_order_num", suppliers."supplier", TO_CHAR(suppliers."date_delivnote", 'dd/MM/yyyy'), suppliers."num_delivnote", suppliers."material", suppliers."state", suppliers."notes"
                         FROM verification.delivnote_suppliers AS suppliers
                         ORDER BY suppliers."date_delivnote"
                         """)
@@ -803,14 +802,14 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             conn.commit()
 
             self.tableRecords.setRowCount(len(results))
-            self.tableRecords.setColumnCount(7)
+            self.tableRecords.setColumnCount(8)
             tablerow=0
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(7):
-                    if column == 3:
-                        value = row[column].split("/")[-1]
+                for column in range(8):
+                    if column == 4:
+                        value = row[column].split("/")[-1] if row[column] is not None else ''
                     else:
                         value = row[column]
                     if value is None:
@@ -827,7 +826,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableRecords.horizontalHeader().setSectionResizeMode( QtWidgets.QHeaderView.ResizeMode.Stretch)
             self.tableRecords.hideColumn(0)
-            self.tableRecords.custom_sort(1, QtCore.Qt.SortOrder.DescendingOrder)
+            self.tableRecords.custom_sort(2, QtCore.Qt.SortOrder.DescendingOrder)
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -991,6 +990,17 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
                 self.query_values()
 
+                folder_path = '//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES'
+                file_name = delivnote.split("/")[-1]
+                file_path = os.path.join(folder_path, file_name)
+
+                # Verify if file exists
+                if os.path.isfile(file_path):
+                    try:
+                        os.remove(file_path)
+                    except Exception as e:
+                        print(f"No se pudo eliminar el archivo '{file_name}': {e}")
+
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
@@ -1008,47 +1018,58 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
 # Function to load file
     def item_double_clicked(self, item):
-        if item.column() == 3:
-            item_id = self.tableRecords.item(item.row(), 0).text()
+        if item.text() != '':
+            if item.column() == 4:
+                item_id = self.tableRecords.item(item.row(), 0).text()
 
-            query_path = ("""
-                        SELECT suppliers."num_delivnote"
-                        FROM verification.delivnote_suppliers AS suppliers
-                        WHERE suppliers."id" = %s
-                        """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(query_path, (item_id,))
-                results=cur.fetchall()
+                query_path = ("""
+                            SELECT suppliers."num_delivnote"
+                            FROM verification.delivnote_suppliers AS suppliers
+                            WHERE suppliers."id" = %s
+                            """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(query_path, (item_id,))
+                    results=cur.fetchall()
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
 
-                file_path = os.path.normpath(results[0][0])
-                os.startfile(file_path)
+                    file_path = os.path.normpath(results[0][0])
+                    os.startfile(file_path)
 
-            except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+            elif item.column() == 1:
+                name_pdf = item.text()
+                file_path = os.path.normpath("//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES/" + name_pdf + ".pdf")
+
+                if os.path.isfile(file_path):
+                    try:
+                        os.startfile(file_path)
+                    except Exception as e:
+                        print(f"No se pudo abrir el archivo '{name_pdf}': {e}")
 
 # Function to load form when selecting recor
     def loadform(self, item):
@@ -1059,12 +1080,12 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             data_order.append(item_text)
 
         self.label_id.setText(data_order[0])
-        self.date.setText(data_order[1])
+        self.date.setText(data_order[3])
         self.supplier.setCurrentText(data_order[2])
         # self.delivnote.setText(data_order[3])
-        self.material.setText(data_order[4])
-        self.state.setCurrentText(data_order[5])
-        self.obs.setText(data_order[6])
+        self.material.setText(data_order[5])
+        self.state.setCurrentText(data_order[6])
+        self.obs.setText(data_order[7])
 
         query_delivnote = ("""
                         SELECT suppliers."num_delivnote"
@@ -1194,7 +1215,6 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.state.clear()
         self.supplier.clear()
 
-
         actual_date=date.today()
         actual_date=actual_date.strftime("%d/%m/%Y")
         self.date.setText(actual_date)
@@ -1241,7 +1261,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
         self.state.setItemDelegate(ColorDelegate())
         self.state.addItems(list_states)
-        self.supplier.addItems(list_suppliers)
+        self.supplier.addItems([''] + list_suppliers)
 
 # Function for key events
     def keyPressEvent(self, event):

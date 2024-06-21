@@ -13,6 +13,7 @@ import os
 import re
 from datetime import *
 import locale
+import fnmatch
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -1006,7 +1007,6 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.select_all_of_eq.clicked.connect(self.toggle_of_eq_checkboxes)
         self.select_all_of_sensor.clicked.connect(self.toggle_of_sensor_checkboxes)
         self.select_all_others.clicked.connect(self.toggle_all_others_checkboxes)
-        self.tableTags.itemClicked.connect(self.loadform)
         self.state_test.currentTextChanged.connect(self.change_text_color)
         self.tableOthers.itemSelectionChanged.connect(self.countSelectedCells)
         self.tableTags.itemDoubleClicked.connect(self.item_double_clicked)
@@ -1196,30 +1196,30 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                 if material == 'Caudal':
                     self.table_name = "tags_data.tags_flow"
                     self.column_id = "id_tag_flow"
-                    commands_tags = f" SELECT '', {self.column_id}, tag, num_order, item_type, dim_drawing, of_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), final_verif_dim_obs, tag_images FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
-                    self.num_columns = 14
-                    column_headers = ['', 'ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Plano Dim.', 'OF Equipo', 'Fecha Dim.', 'Fecha OF', 'Fecha PH1', 'Fecha PH2', 'Fecha LP', 'Obs.', 'Fotos']
+                    commands_tags = f" SELECT '', {self.column_id}, tag, num_order, item_type, dim_drawing, of_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state = 'PURCHASED' ORDER BY tag"
+                    self.num_columns = 13
+                    column_headers = ['', 'ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Plano Dim.', 'OF Equipo', 'Fecha Dim.', 'Fecha OF', 'Fecha PH1', 'Fecha PH2', 'Fecha LP', 'Fotos']
                     self.select_all_of_sensor.setVisible(False)
                 elif material == 'Temperatura':
                     self.table_name = "tags_data.tags_temp"
                     self.column_id = "id_tag_temp"
-                    commands_tags = f" SELECT '', {self.column_id}, tag, num_order, item_type, dim_drawing, of_drawing, of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_sensor_date, 'DD/MM/YYYY'), TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), final_verif_dim_obs, tag_images FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
-                    self.num_columns = 16
-                    column_headers = ['', 'ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Plano Dim.', 'OF Equipo', 'OF Sensor', 'Fecha Dim.', 'Fecha OF Vaina', 'Fecha OF Sensor', 'Fecha PH1', 'Fecha PH2', 'Fecha LP', 'Obs.', 'Fotos']
+                    commands_tags = f" SELECT '', {self.column_id}, tag, num_order, item_type, dim_drawing, of_drawing, of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_sensor_date, 'DD/MM/YYYY'), TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state = 'PURCHASED' ORDER BY tag"
+                    self.num_columns = 15
+                    column_headers = ['', 'ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Plano Dim.', 'OF Equipo', 'OF Sensor', 'Fecha Dim.', 'Fecha OF Vaina', 'Fecha OF Sensor', 'Fecha PH1', 'Fecha PH2', 'Fecha LP', 'Fotos']
                     self.select_all_of_sensor.setVisible(True)
                 elif material == 'Nivel':
                     self.table_name = "tags_data.tags_level"
                     self.column_id = "id_tag_level"
-                    commands_tags = f" SELECT '', {self.column_id}, tag, num_order, item_type, dim_drawing, of_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), final_verif_dim_obs, tag_images FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
-                    self.num_columns = 14
-                    column_headers = ['', 'ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Plano Dim.', 'OF Equipo', 'Fecha Dim.', 'Fecha OF', 'Fecha PH1', 'Fecha PH2', 'Fecha LP', 'Obs.', 'Fotos']
+                    commands_tags = f" SELECT '', {self.column_id}, tag, num_order, item_type, dim_drawing, of_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state = 'PURCHASED' ORDER BY tag"
+                    self.num_columns = 13
+                    column_headers = ['', 'ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Plano Dim.', 'OF Equipo', 'Fecha Dim.', 'Fecha OF', 'Fecha PH1', 'Fecha PH2', 'Fecha LP', 'Fotos']
                     self.select_all_of_sensor.setVisible(False)
                 elif material == 'Otros':
                     self.column_id = "id_tag_others"
                     self.table_name = "tags_data.tags_others"
-                    commands_tags = f" SELECT '', {self.column_id}, tag, num_order, description, dim_drawing, of_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), final_verif_dim_obs, tag_images FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
-                    self.num_columns = 14
-                    column_headers = ['', 'ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Plano Dim.', 'OF Equipo', 'Fecha Dim.', 'Fecha OF', 'Fecha PH1', 'Fecha PH2', 'Fecha LP', 'Obs.', 'Fotos']
+                    commands_tags = f" SELECT '', {self.column_id}, tag, num_order, description, dim_drawing, of_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state = 'PURCHASED' ORDER BY tag"
+                    self.num_columns = 13
+                    column_headers = ['', 'ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Plano Dim.', 'OF Equipo', 'Fecha Dim.', 'Fecha OF', 'Fecha PH1', 'Fecha PH2', 'Fecha LP', 'Fotos']
                     self.select_all_of_sensor.setVisible(False)
 
                 conn = None
@@ -1250,7 +1250,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                     checkbox = QtWidgets.QCheckBox(self)
                                     checkbox.setChecked(False)
                                     self.tableTags.setCellWidget(tablerow, column, checkbox)
-                                elif column in [5,6,7] and self.num_columns == 16:
+                                elif column in [5,6,7] and self.num_columns == 15:
                                     value = row[column]
                                     if value is None:
                                         value = ''
@@ -1261,7 +1261,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                         checkbox = QtWidgets.QCheckBox(value)
                                         checkbox.setChecked(False)
                                         self.tableTags.setCellWidget(tablerow, column, checkbox)
-                                elif column in [5,6] and self.num_columns == 14:
+                                elif column in [5,6] and self.num_columns == 13:
                                     value = row[column]
                                     if value is None:
                                         value = ''
@@ -2618,21 +2618,6 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             self.pics_insert_menu.show()
             self.ui.Button_Cancel.clicked.connect(self.query_tables)
 
-# Function to load form
-    def loadform(self,item):
-        data_order=[]
-        if self.tableTags.columnCount() == 14:
-            list_columns = [8,9]
-        else:
-            list_columns = [7,8]
-
-        for column in list_columns:
-            item_text=self.tableTags.item(item.row(), column).text() if self.tableTags.item(item.row(), column) is not None else ""
-            data_order.append(item_text)
-
-        self.date_test.setText(data_order[0])
-        self.obs_test.setText(data_order[1])
-
 # Function when clicking on table tag header
     def on_header_section_clicked(self, logical_index):
         header_pos = self.tableTags.horizontalHeader().sectionViewportPosition(logical_index)
@@ -2652,6 +2637,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         actual_date=date.today()
         actual_date=actual_date.strftime("%d/%m/%Y")
         self.date_test.setText(actual_date)
+        self.obs_test.setText("")
 
         query_states = ("""
                             SELECT "state_verif"
@@ -2759,7 +2745,14 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
 # Function to load file
     def item_double_clicked(self, item):
-        if item.column() == (self.tableTags.columnCount() - 1):
+        sender = self.sender()
+        if sender == self.tableTags:
+            header_item = self.tableTags.horizontalHeaderItem(item.column())
+            header_text = header_item.text()
+        else:
+            header_text = ''
+
+        if header_text == 'Fotos':
             item_id = self.tableTags.item(item.row(), 1).text()
 
             query_path =f"SELECT tag_images FROM {self.table_name} WHERE {self.column_id} = {item_id}"
@@ -2798,7 +2791,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                 if conn is not None:
                     conn.close()
 
-        elif item.column() == 4:
+        elif header_text == 'Tipo Equipo':
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
@@ -2808,6 +2801,295 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             dlg.setText(cell_content)
             dlg.exec()
             del dlg, new_icon
+
+        elif header_text == 'Fecha Dim.':
+            if item.text() != '':
+                item_id = self.tableTags.item(item.row(), 1).text()
+                query =f"SELECT TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), final_verif_dim_obs FROM {self.table_name} WHERE {self.column_id} = {item_id}"
+
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(query)
+                    results=cur.fetchall()
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Plano Dimensional")
+                    dlg.setText("Fecha: " + results[0][0] + "\n"
+                                "Observaciones: " + results[0][1])
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+        elif header_text == 'Fecha OF':
+            if item.text() != '':
+                item_id = self.tableTags.item(item.row(), 1).text()
+                query =f"SELECT TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), final_verif_of_eq_obs FROM {self.table_name} WHERE {self.column_id} = {item_id}"
+
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(query)
+                    results=cur.fetchall()
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Plano OF")
+                    dlg.setText("Fecha: " + results[0][0] + "\n"
+                                "Observaciones: " + results[0][1])
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+        elif header_text == 'Fecha OF Sensor':
+            if item.text() != '':
+                item_id = self.tableTags.item(item.row(), 1).text()
+                query =f"SELECT TO_CHAR(final_verif_of_sensor_date, 'DD/MM/YYYY'), final_verif_of_sensor_obs FROM {self.table_name} WHERE {self.column_id} = {item_id}"
+
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(query)
+                    results=cur.fetchall()
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Plano OF Sensor")
+                    dlg.setText("Fecha: " + results[0][0] + "\n"
+                                "Observaciones: " + results[0][1])
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+        elif header_text == 'Fecha PH1':
+            if item.text() != '':
+                item_id = self.tableTags.item(item.row(), 1).text()
+                query =f"SELECT TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_obs FROM {self.table_name} WHERE {self.column_id} = {item_id}"
+
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(query)
+                    results=cur.fetchall()
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Prueba Hidrostática 1")
+                    dlg.setText("Fecha: " + results[0][0] + "\n"
+                                "Manómetro: " + results[0][1] + "\n"
+                                "Presión: " + results[0][2] + "\n"
+                                "Observaciones: " + results[0][3])
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+        elif header_text == 'Fecha PH2':
+            if item.text() != '':
+                item_id = self.tableTags.item(item.row(), 1).text()
+                query =f"SELECT TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_obs FROM {self.table_name} WHERE {self.column_id} = {item_id}"
+
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(query)
+                    results=cur.fetchall()
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Prueba Hidrostática 2")
+                    dlg.setText("Fecha: " + results[0][0] + "\n"
+                                "Manómetro: " + results[0][1] + "\n"
+                                "Presión: " + results[0][2] + "\n"
+                                "Observaciones: " + results[0][3])
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+        elif header_text == 'Fecha LP':
+            if item.text() != '':
+                item_id = self.tableTags.item(item.row(), 1).text()
+                query =f"SELECT TO_CHAR(lp_date, 'DD/MM/YYYY'), lp_hn_liq1, lp_hn_liq2, lp_hn_liq3, lp_obs FROM {self.table_name} WHERE {self.column_id} = {item_id}"
+
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(query)
+                    results=cur.fetchall()
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Líquidos Penetrantes")
+                    dlg.setText("Fecha: " + results[0][0] + "\n"
+                                "9PR5: " + results[0][1] + "\n"
+                                "9D1B: " + results[0][2] + "\n"
+                                "996PB: " + results[0][3] + "\n"
+                                "Observaciones: " + results[0][4])
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
 
 
 
@@ -2888,6 +3170,39 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             finally:
                 if conn is not None:
                     conn.close()
+
+        elif item.column() == 2 and item.text() == 'PPI':
+            self.num_order_value = self.num_order.text().upper()
+            order_year = str(datetime.now().year)[:2] + self.num_order_value [self.num_order_value .rfind("/") - 2:self.num_order_value .rfind("/")]
+            
+            if self.num_order_value[:2] == 'PA':
+                num_order = self.num_order_value
+                path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
+                for folder in os.listdir(path):
+                    if num_order.replace("/", "-") in folder:
+                        folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/"
+                        for root, dirs, files in os.walk(folder_path):
+                            for filename in files:
+                                if fnmatch.fnmatch(filename, '*PPI.pdf*'):
+                                    file_path = os.path.join(root, filename)
+                                    file_path = os.path.normpath(file_path)
+                                    os.startfile(file_path)
+
+            elif self.num_order_value[:2] == 'P-':
+                num_order = self.num_order_value[:8]
+                path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
+                for folder in os.listdir(path):
+                    if num_order.replace("/", "-") in folder:
+                        folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/"
+                        for root, dirs, files in os.walk(folder_path):
+                            for filename in files:
+                                if fnmatch.fnmatch(filename, '*PPI.pdf*'):
+                                    file_path = os.path.join(root, filename)
+                                    file_path = os.path.normpath(file_path)
+                                    os.startfile(file_path)
+
+
+
 
 
 

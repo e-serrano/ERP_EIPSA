@@ -1,4 +1,4 @@
-#☻ Form implementation generated from reading ui file 'Supplies_Window.ui'
+# Form implementation generated from reading ui file 'Supplies_Window.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -307,11 +307,28 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+
+class AlignDelegate_records(QtWidgets.QStyledItemDelegate):
+    def initStyleOption(self, option, index):
+        super(AlignDelegate_records, self).initStyleOption(option, index)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+
+        if index.column() == 6:  # Check column and paint if apply
+            value = index.data()
+
+            if value != '' :
+                if float(value) < 0:  
+                    color = QtGui.QColor(255, 124, 128)  # Red if lower than 0
+                else:
+                    color = QtGui.QColor(24, 24, 24)
+            else:
+                color = QtGui.QColor(24, 24, 24)
+
+            option.backgroundBrush = color
 
 
 class Ui_Supplies_Window(QtWidgets.QMainWindow):
@@ -637,9 +654,9 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addWidget(self.tableQuotations, 10, 1, 1, 15)
         self.tableSupplies = CustomTableWidget()
         self.tableSupplies.setObjectName("tableSupplies")
-        self.tableSupplies.setColumnCount(12)
+        self.tableSupplies.setColumnCount(8)
         self.tableSupplies.setRowCount(0)
-        for i in range(12):
+        for i in range(8):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(int(14//1.5))
@@ -673,11 +690,21 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         self.statusbar = QtWidgets.QStatusBar(parent=Supplies_Window)
         self.statusbar.setObjectName("statusbar")
         Supplies_Window.setStatusBar(self.statusbar)
+
         self.tableQuotations.setSortingEnabled(False)
-        self.tableQuotations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         self.tableQuotations.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        if self.username == 'd.marquez':
+            self.tableQuotations.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableQuotations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+        else:
+            self.tableQuotations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+
         self.tableSupplies.setSortingEnabled(False)
-        self.tableSupplies.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        if self.username == 'd.marquez':
+            self.tableSupplies.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableSupplies.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+        else:
+            self.tableSupplies.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
 
         self.retranslateUi(Supplies_Window)
         QtCore.QMetaObject.connectSlotsByName(Supplies_Window)
@@ -742,7 +769,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         self.tableQuotations.horizontalHeader().sectionClicked.connect(self.on_header_sectionquot_clicked)
         self.Button_AddSupply.clicked.connect(self.addsupply)
         self.Button_ModifySupply.clicked.connect(self.modifysupply)
-        self.Button_ReloadTable.clicked.connect(self.loadtablesupplies)
+        self.Button_ReloadTable.clicked.connect(self.reload_table)
         # self.Name_Supplies.editingFinished.connect(self.loadquotations)
         self.Position.textChanged.connect(self.position_table)
         self.loadtablesupplies()
@@ -766,21 +793,13 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         item = self.tableSupplies.horizontalHeaderItem(3)
         item.setText(_translate("Supplies_Window", "Un. Med."))
         item = self.tableSupplies.horizontalHeaderItem(4)
-        item.setText(_translate("Supplies_Window", "Valor Unit."))
+        item.setText(_translate("Supplies_Window", "V. Unit."))
         item = self.tableSupplies.horizontalHeaderItem(5)
-        item.setText(_translate("Supplies_Window", "Stock"))
+        item.setText(_translate("Supplies_Window", "Stk"))
         item = self.tableSupplies.horizontalHeaderItem(6)
-        item.setText(_translate("Supplies_Window", "Stock Disp."))
+        item.setText(_translate("Supplies_Window", "Stk Dsp."))
         item = self.tableSupplies.horizontalHeaderItem(7)
-        item.setText(_translate("Supplies_Window", "Pend. Recibir"))
-        item = self.tableSupplies.horizontalHeaderItem(8)
-        item.setText(_translate("Supplies_Window", "Ubicación"))
-        item = self.tableSupplies.horizontalHeaderItem(9)
-        item.setText(_translate("Supplies_Window", "Aplicación"))
-        item = self.tableSupplies.horizontalHeaderItem(10)
-        item.setText(_translate("Supplies_Window", "Familia"))
-        item = self.tableSupplies.horizontalHeaderItem(11)
-        item.setText(_translate("Supplies_Window", "Obs."))
+        item.setText(_translate("Supplies_Window", "Pend."))
         item = self.tableQuotations.horizontalHeaderItem(0)
         item.setText(_translate("Supplies_Window", "Nombre"))
         item = self.tableQuotations.horizontalHeaderItem(1)
@@ -1039,7 +1058,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
     def loadformsupplies(self,item):
         data_supply=[]
 
-        for column in range(12):
+        for column in range(self.tableSupplies.columnCount()):
             item_text=self.tableSupplies.item(item.row(), column).text()
             data_supply.append(item_text)
 
@@ -1051,15 +1070,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         self.Stock_Supplies.setText(str(round(float(data_supply[5]),2)))
         self.StockAv_Supplies.setText(str(round(float(data_supply[6]),2)))
         self.Pending_Supplies.setText(data_supply[7])
-        self.Location_Supplies.setText(data_supply[8])
-        self.Destination_Supplies.setCurrentText(data_supply[9] if data_supply[9] != "None" else "")
-        self.Class_Supplies.setCurrentText(data_supply[10] if data_supply[10] != "None" else "")
-        self.Obs_Supplies.setText(data_supply[11])
 
-        self.loadquotations()
-
-# Function to load data of supplies in table
-    def loadtablesupplies(self):
         commands_querysupplies = ("""
                         SELECT purch_fact.supplies.id,
                         purch_fact.supplies.reference,purch_fact.supplies.description,
@@ -1074,6 +1085,57 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
                         LEFT JOIN purch_fact.measure_units ON (purch_fact.measure_units."id" = purch_fact.supplies."m_unit_id")
                         LEFT JOIN purch_fact.destination_supply ON (purch_fact.destination_supply."id" = purch_fact.supplies."dest_id")
                         LEFT JOIN purch_fact.class_supply ON (purch_fact.class_supply."id" = purch_fact.supplies."class_id")
+                        WHERE purch_fact.supplies.id = %s
+                        ORDER BY purch_fact.supplies.reference ASC
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands_querysupplies,(data_supply[0],))
+            results_supplies=cur.fetchall()
+
+            self.Location_Supplies.setText(results_supplies[0][8])
+            self.Destination_Supplies.setCurrentText(results_supplies[0][9] if results_supplies[0][9] != "None" else "")
+            self.Class_Supplies.setCurrentText(results_supplies[0][10] if results_supplies[0][10] != "None" else "")
+            self.Obs_Supplies.setText(results_supplies[0][11])
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        self.loadquotations()
+
+# Function to load data of supplies in table
+    def loadtablesupplies(self):
+        commands_querysupplies = ("""
+                        SELECT purch_fact.supplies.id,
+                        purch_fact.supplies.reference,purch_fact.supplies.description,
+                        purch_fact.measure_units."measure_unit",
+                        purch_fact.supplies.unit_value,
+                        ROUND(purch_fact.supplies.physical_stock,2),ROUND(purch_fact.supplies.available_stock,2),
+                        ROUND(purch_fact.supplies.pending_stock,2)
+                        FROM purch_fact.supplies
+                        LEFT JOIN purch_fact.measure_units ON (purch_fact.measure_units."id" = purch_fact.supplies."m_unit_id")
                         ORDER BY purch_fact.supplies.reference ASC
                         """)
         conn = None
@@ -1111,10 +1173,9 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         font = QtGui.QFont()
         font.setPointSize(int(14//1.5))
 
-
     # fill the Qt Table with the query results
         for row in results_supplies:
-            for column in range(12):
+            for column in range(8):
                 value = row[column]
                 if value is None:
                     value = ''
@@ -1123,22 +1184,20 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
                 it.setFont(font)
                 self.tableSupplies.setItem(tablerow, column, it)
 
-            self.tableSupplies.setItemDelegateForRow(tablerow, AlignDelegate(self.tableSupplies))
+            self.tableSupplies.setItemDelegateForRow(tablerow, AlignDelegate_records(self.tableSupplies))
             tablerow+=1
 
         self.tableSupplies.verticalHeader().hide()
         self.tableSupplies.setSortingEnabled(False)
-        if self.username == 'd.marquez':
-            self.tableSupplies.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableSupplies.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-        else:
-            self.tableSupplies.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
-        for i in range(0,11):
-            self.tableSupplies.horizontalHeader().setSectionResizeMode(i,QtWidgets.QHeaderView.ResizeMode.Interactive)
-            self.tableSupplies.setColumnWidth(i, 100)
+
+        for i in range(0,8):
+            self.tableSupplies.horizontalHeader().setSectionResizeMode(i,QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableSupplies.setColumnWidth(i, 75)
+        self.tableSupplies.horizontalHeader().setSectionResizeMode(2,QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableSupplies.setColumnWidth(2, 510)
         self.tableSupplies.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         # self.tableSupplies.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableSupplies.horizontalHeader().setSectionResizeMode(11, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableSupplies.horizontalHeader().setSectionResizeMode(8, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableSupplies.hideColumn(0)
 
 # Function to load quotations
@@ -1209,11 +1268,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
 
         self.tableQuotations.verticalHeader().hide()
         self.tableQuotations.setSortingEnabled(False)
-        if self.username == 'd.marquez':
-            self.tableQuotations.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableQuotations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-        else:
-            self.tableQuotations.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+
         for i in range(0,6):
             self.tableQuotations.horizontalHeader().setSectionResizeMode(i,QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableQuotations.setColumnWidth(i, 100)
@@ -1265,6 +1320,73 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
                 focused_widget.clear()
             elif isinstance(focused_widget, QtWidgets.QComboBox):
                 focused_widget.setCurrentIndex(0)
+
+# Function to reload table supplies
+    def reload_table(self):
+        self.tableSupplies.setRowCount(0)
+        commands_querysupplies2 = ("""
+                        SELECT purch_fact.supplies.id,
+                        purch_fact.supplies.reference,purch_fact.supplies.description,
+                        purch_fact.measure_units."measure_unit",
+                        purch_fact.supplies.unit_value,
+                        ROUND(purch_fact.supplies.physical_stock,2),ROUND(purch_fact.supplies.available_stock,2),
+                        ROUND(purch_fact.supplies.pending_stock,2)
+                        FROM purch_fact.supplies
+                        LEFT JOIN purch_fact.measure_units ON (purch_fact.measure_units."id" = purch_fact.supplies."m_unit_id")
+                        ORDER BY purch_fact.supplies.reference ASC
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands_querysupplies2)
+            results_supplies2=cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        self.tableSupplies.setRowCount(len(results_supplies2))
+        tablerow=0
+
+        font = QtGui.QFont()
+        font.setPointSize(int(14//1.5))
+
+    # fill the Qt Table with the query results
+        for row in results_supplies2:
+            for column in range(8):
+                value = row[column]
+                if value is None:
+                    value = ''
+                it = QtWidgets.QTableWidgetItem(str(value))
+                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                it.setFont(font)
+                self.tableSupplies.setItem(tablerow, column, it)
+
+            tablerow+=1
+
+
+
+
+
 
 
 

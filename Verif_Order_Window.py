@@ -1020,7 +1020,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
     def __init__(self, username, numorder):
         super().__init__()
         self.username = username
-        self.numorder = numorder
+        self.numorder = numorder.upper()
         self.setupUi(self)
 
 
@@ -1650,7 +1650,29 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 # Function when item of table is double clicked
     def item_double_click(self, item):
         if item.text() != '':
-            if item.column() == 15:
+            if item.column() == 2: # Msgbox for tag
+                cell_content = item.text()
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Verificación")
+                dlg.setText(cell_content)
+                dlg.exec()
+                del dlg, new_icon
+
+            elif item.column() == 3: # Msgbox for description
+                cell_content = item.text()
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Verificación")
+                dlg.setText(cell_content)
+                dlg.exec()
+                del dlg, new_icon
+
+            elif item.column() == 15: # Open image
                 item_id = self.table_tags.item(item.row(), 0).text()
                 table_name = self.table_tags.item(item.row(), 16).text()
                 column_id = self.table_tags.item(item.row(), 17).text()
@@ -1691,12 +1713,12 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                     if conn is not None:
                         conn.close()
 
-            elif item.column() == 8:
+            elif item.column() == 8: # Msgbox for hydraulic test 1
                 item_id = self.table_tags.item(item.row(), 0).text()
                 table_name = self.table_tags.item(item.row(), 16).text()
                 column_id = self.table_tags.item(item.row(), 17).text()
 
-                query =f"SELECT tag, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure FROM {table_name} WHERE {column_id} = {item_id}"
+                query =f"SELECT tag, TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_obs FROM {table_name} WHERE {column_id} = {item_id}"
 
                 conn = None
                 try:
@@ -1722,7 +1744,8 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                     dlg.setText("TAG: " + results[0][0] + "\n"
                                 "Fecha: " + results[0][1] + "\n\n"
                                 "Manómetro: " + results[0][2] + "\n"
-                                "Presión: " + results[0][3])
+                                "Presión: " + results[0][3] + "\n"
+                                "Obs.: " + results[0][4])
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
                     del dlg, new_icon
@@ -1742,12 +1765,12 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                     if conn is not None:
                         conn.close()
 
-            elif item.column() == 9:
+            elif item.column() == 9: # Msgbox for hydraulic test 2
                 item_id = self.table_tags.item(item.row(), 0).text()
                 table_name = self.table_tags.item(item.row(), 16).text()
                 column_id = self.table_tags.item(item.row(), 17).text()
 
-                query =f"SELECT tag, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure FROM {table_name} WHERE {column_id} = {item_id}"
+                query =f"SELECT tag, TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_obs FROM {table_name} WHERE {column_id} = {item_id}"
 
                 conn = None
                 try:
@@ -1773,7 +1796,8 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                     dlg.setText("TAG: " + results[0][0] + "\n"
                                 "Fecha: " + results[0][1] + "\n\n"
                                 "Manómetro: " + results[0][2] + "\n"
-                                "Presión: " + results[0][3])
+                                "Presión: " + results[0][3] + "\n"
+                                "Obs.: " + results[0][4])
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
                     del dlg, new_icon
@@ -1793,12 +1817,12 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                     if conn is not None:
                         conn.close()
 
-            elif item.column() == 10:
+            elif item.column() == 10: # Msgbox for liquid test 
                 item_id = self.table_tags.item(item.row(), 0).text()
                 table_name = self.table_tags.item(item.row(), 16).text()
                 column_id = self.table_tags.item(item.row(), 17).text()
 
-                query =f"SELECT tag, TO_CHAR(lp_date, 'DD/MM/YYYY'), lp_hn_liq1, lp_hn_liq2, lp_hn_liq3 FROM {table_name} WHERE {column_id} = {item_id}"
+                query =f"SELECT tag, TO_CHAR(lp_date, 'DD/MM/YYYY'), lp_hn_liq1, lp_hn_liq2, lp_hn_liq3, lp_obs FROM {table_name} WHERE {column_id} = {item_id}"
 
                 conn = None
                 try:
@@ -1825,7 +1849,8 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                                 "Fecha: " + results[0][1] + "\n\n"
                                 "9PR5: " + results[0][2] + "\n"
                                 "9D1B: " + results[0][3] + "\n"
-                                "996PB: " + results[0][4])
+                                "996PB: " + results[0][4] + "\n"
+                                "Obs.: " + results[0][4])
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
                     del dlg, new_icon

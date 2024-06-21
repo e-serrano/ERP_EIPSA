@@ -1,4 +1,4 @@
-#♠ Form implementation generated from reading ui file 'ClientOrder_Window.ui'
+# Form implementation generated from reading ui file 'ClientOrder_Window.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -942,10 +942,6 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
     "    border: 2px solid white;\n"
     "}\n"
     "\n"
-    "QComboBox {\n"
-    "border: 1px solid white;\n"
-    "border-radius: 3px;\n"
-    "}\n"
     "QPushButton {\n"
     "background-color: #33bdef;\n"
     "  border: 1px solid transparent;\n"
@@ -969,17 +965,26 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
     "    border-color: rgb(0, 0, 0);\n"
     "}\n"
     "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}\n"
+    "\n"
+    "QComboBox:editable {\n"
+    "border: 1px solid white;\n"
+    "border-radius: 3px;\n"
+    "}\n"
     "QComboBox QAbstractItemView{\n"
     "min-width: 1200px;\n"
     "}\n"
     "\n"
     "QComboBox QAbstractItemView::item {\n"
     "min-height: 35px;\n"
+    "border: .5px solid white;\n"
     "}\n"
     "\n"
-    "QPushButton:pressed {\n"
-    "    background-color: rgb(1, 140, 190);\n"
-    "    border-color: rgb(255, 255, 255);\n"
+    "QComboBox QAbstractItemView::item:hover {\n"
+    "background-color: blue;\n"
     "}"
     )
         else:
@@ -1590,7 +1595,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         self.Button_AddRecord.clicked.connect(self.addrecord)
         self.Button_ModifyRecord.clicked.connect(self.modifyrecord)
         self.Button_DeleteRecord.clicked.connect(self.deleterecord)
-        self.Button_Reload.clicked.connect(self.loadtableorders)
+        self.Button_Reload.clicked.connect(self.load_all)
         self.Button_Deliv1.clicked.connect(self.adddeliv1)
         self.Button_Deliv2.clicked.connect(self.adddeliv2)
         self.Button_Deliv3.clicked.connect(self.adddeliv3)
@@ -3035,49 +3040,50 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
 # Function to load stock values
     def loadstocks(self):
         supply_name=self.Supply_ClientOrder.currentText()
-        supply_name=supply_name[:supply_name.find(" |")]
-        supply_id=self.Supply_ClientOrder.currentText().split("|")[-1].strip().split(":")[1]
+        if supply_name != '':
+            supply_name=supply_name[:supply_name.find(" |")]
+            supply_id=self.Supply_ClientOrder.currentText().split("|")[-1].strip().split(":")[1]
 
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            query_stocks = "SELECT physical_stock, available_stock, pending_stock FROM purch_fact.supplies WHERE id = %s"
-            cur.execute(query_stocks, (supply_id,))
-            result_stocks = cur.fetchone()
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                query_stocks = "SELECT physical_stock, available_stock, pending_stock FROM purch_fact.supplies WHERE id = %s"
+                cur.execute(query_stocks, (supply_id,))
+                result_stocks = cur.fetchone()
 
-        # get id from table
-            stock = result_stocks[0]
-            available_stock = result_stocks[1]
-            pending = result_stocks[2]
+            # get id from table
+                stock = result_stocks[0]
+                available_stock = result_stocks[1]
+                pending = result_stocks[2]
 
-            self.Stock_ClientOrder.setText(str(round(stock,2)))
-            self.StockDsp_ClientOrder.setText(str(round(available_stock,2)))
-            self.StockVrt_ClientOrder.setText(str(round(available_stock + pending,4)))
+                self.Stock_ClientOrder.setText(str(round(stock,2)))
+                self.StockDsp_ClientOrder.setText(str(round(available_stock,2)))
+                self.StockVrt_ClientOrder.setText(str(round(available_stock + pending,4)))
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
 
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
 # Function of popup window to enter quantities of deliveries
     def show_popup(self, supply_name, supply_description):
@@ -3183,6 +3189,60 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                 focused_widget.clear()
             elif isinstance(focused_widget, QtWidgets.QComboBox):
                 focused_widget.setCurrentIndex(0)
+
+# Function to load comboboxes
+    def load_comboboxes(self):
+        commands_clients = ("""
+                        SELECT * 
+                        FROM purch_fact.clients
+                        ORDER BY purch_fact.clients.name
+                        """)
+        commands_supplies = ("""
+                        SELECT reference, description, ROUND(physical_stock,2), ROUND(available_stock,2), ROUND(pending_stock,2), id
+                        FROM purch_fact.supplies
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands_clients)
+            results_clients=cur.fetchall()
+            cur.execute(commands_supplies)
+            results_supplies=cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        list_clients=[''] + [x[2] for x in results_clients]
+        self.Client_ClientOrder.addItems([''] + list_clients)
+
+        self.list_supplies=[x[0] + ' | ' + x[1] + ' | ' + str(x[2]) + ' | ' + str(x[3]) + ' | ' + str(x[4])  + ' | ID:' + str(x[5]) for x in results_supplies]
+        self.Supply_ClientOrder.addItems([''] + sorted(self.list_supplies))
+
+# Function to load tables and comboboxes
+    def load_all(self):
+        self.loadtableorders()
+        self.load_comboboxes()
+
 
 
 

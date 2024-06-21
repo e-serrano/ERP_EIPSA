@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'EditTags_Commercial_Window.ui'
+#☺ Form implementation generated from reading ui file 'EditTags_Commercial_Window.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.1
 #

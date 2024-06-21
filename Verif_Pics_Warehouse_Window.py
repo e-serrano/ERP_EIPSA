@@ -842,14 +842,14 @@ class Ui_Verif_Pics_Warehouse_Window(QtWidgets.QMainWindow):
 
 # Function to search jpg file
     def search_image(self):
-        self.fname = askopenfilename(filetypes=[("Archivos JPG", "*.jpg")],
+        self.fname = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos JPG", "*.jpg")],
                             title="Seleccionar imagen")
         if self.fname:
             self.images.setText(self.fname)
 
 # Function to search pdf file
     def search_document(self):
-        self.fname = askopenfilename(filetypes=[("Archivos PDF", "*.pdf")],
+        self.fname = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos PDF", "*.pdf")],
                             title="Seleccionar PDF")
         if self.fname:
             self.drawings.setText(self.fname)

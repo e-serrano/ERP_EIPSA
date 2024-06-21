@@ -433,7 +433,7 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
     def saveChanges(self):
         self.model.submitAll()
 
-
+# Function to add a new register to table
     def add_dbregister(self):
         table_name = "verification." + self.comboBox.currentText()
         code1 = self.code1_DBReg.text()
@@ -462,7 +462,11 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
             else:
                 values = [code1,code2,code3]
         elif self.columns_number > 1:
-            values = [code1,code2]
+            if self.column_headers[0] == 'id':
+                columns = columns[1:]
+                values = [code1]
+            else:
+                values = [code1,code2]
         elif self.columns_number > 0:
             values = [code1]
 
@@ -519,7 +523,7 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-
+# Function to load table after selection on checkbox
     def loadtable(self):
         table_name = "verification." + self.comboBox.currentText()
 
@@ -692,6 +696,9 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
             self.label_code7.setText('')
             self.code7_DBReg.setVisible(False)
             self.code7_DBReg.setText('')
+
+
+
 
 # if __name__ == "__main__":
 #     import sys

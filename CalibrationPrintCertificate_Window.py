@@ -230,6 +230,8 @@ class Ui_CalibrationPrintCertificate_Window(object):
         self.label_Sensor.setText(_translate("CalibrationPrintCertificate_Window", "Sensor:"))
         self.label_Date.setText(_translate("CalibrationPrintCertificate_Window", "Fecha:"))
 
+
+# Function to export certificate in pdf file
     def CalibrationPrintCertificate(self):
         numorder=self.num_order_print.text()
         sensor_type=self.Sensor.currentText()
@@ -570,7 +572,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                             dlg.exec()
                             del dlg, new_icon
 
-
+# Function to include the quality stamp for new pdf
     def new_content(self, y_position):
         fpdf = FPDF('L', 'cm', 'A4')
         fpdf.add_page()
@@ -578,7 +580,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
         fpdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/QualityControlStamp.png")), 23, y_position + 0.5, 4.5, 3)
         return io.BytesIO(fpdf.output())
 
-
+# Function to load calibration dates for selected order
     def charge_dates(self):
         numorder=self.num_order_print.text().upper()
 
@@ -636,7 +638,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
 
             self.num_order_print.setText(numorder)
 
-
+# Function to load calibration sensor for selected order
     def charge_sensor(self):
         numorder=self.num_order_print.text().upper()
         date_test = self.Cert_Date.currentText()
@@ -693,7 +695,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                 if conn is not None:
                     conn.close()
 
-
+# Function to calculate master values of resistance
     def calculate_master(self, temp, master):
         if temp is not None:
             if master in ['EIPSA-020', 'EIPSA-TE-01']:
@@ -795,7 +797,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
 
         return final_value
 
-
+# Function to calculate element values of resistance
     def calculate_element(self, temp, sensor):
         if temp is not None:
             if 'PT100' in sensor:
