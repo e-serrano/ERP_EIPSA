@@ -14,6 +14,8 @@ from Supplies_Window import Ui_Supplies_Window
 from Purchasing_DB_Menu import Ui_Purchasing_DB_Menu
 from Purchasing_Reports_Menu import Ui_Purchasing_Reports_Menu
 import os
+import configparser
+from Database_Connection import createConnection
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -201,8 +203,22 @@ class Ui_Purchasing_Menu(object):
 
 
     def supplies(self,Purchasing_Menu):
-        self.ui_supplies=Ui_Supplies_Window(self.username)
-        self.ui_supplies.showMaximized()
+        # self.ui_supplies=Ui_Supplies_Window(self.username)
+        # self.ui_supplies.showMaximized()
+
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_tag_com = createConnection(user_database, password_database)
+        if not db_tag_com:
+            sys.exit()
+
+        self.edit_tags_app = Ui_Supplies_Window(self.username,db_tag_com)
+        self.edit_tags_app.showMaximized()
 
 
     def clientorder(self,Purchasing_Menu):

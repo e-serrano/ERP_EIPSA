@@ -27,7 +27,6 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
-
 class ImageCalendarWidget(QtWidgets.QCalendarWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -49,14 +48,12 @@ class ImageCalendarWidget(QtWidgets.QCalendarWidget):
                 image_rect.moveTopRight(rect.topRight() - QtCore.QPoint(2, -5))
                 painter.drawImage(image_rect, image_scaled)
 
-
 class Ui_App_Comercial(QtWidgets.QMainWindow):
     def __init__(self, name, username):
         super(Ui_App_Comercial, self).__init__()
         self.name=name
         self.username=username
         self.setupUi(self)
-
 
     def setupUi(self, App_Comercial):
         App_Comercial.setObjectName("App_Comercial")
@@ -385,7 +382,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
             self.Button_Upload = QtWidgets.QPushButton(parent=self.frame)
             self.Button_Upload.setMinimumSize(QtCore.QSize(50, 50))
             self.Button_Upload.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_Upload.setToolTip('Gestión Usuarios')
+            self.Button_Upload.setToolTip('Importar Ofertas/Pedidos')
             self.Button_Upload.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
             self.Button_Upload.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"

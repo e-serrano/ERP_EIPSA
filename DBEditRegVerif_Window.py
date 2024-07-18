@@ -12,6 +12,8 @@ from config import config
 import psycopg2
 from PyQt6.QtCore import Qt
 import os
+import configparser
+from Database_Connection import createConnection
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -384,7 +386,8 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
 
         query_tablechanges = """SELECT table_name
                                 FROM information_schema.tables
-                                WHERE table_schema = 'verification' AND table_type = 'BASE TABLE';"""
+                                WHERE table_schema = 'verification' AND table_type = 'BASE TABLE'
+                                ORDER BY table_name;"""
 
         conn = None
         try:
@@ -416,10 +419,33 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-        tables_names=[x[0] for x in results if x[0] not in ['delivnote_suppliers', 'test_hardness', 'test_hydro', 'test_liquid', 'calibration_thermoelements', 'ppi_verification', 'exp_verification', 'm_drawing_verification', 'of_drawing_verification', 'dim_drawing_verification']]
-        tables_names.sort()
-        tables_names.insert(0,"")
-        self.comboBox.addItems(tables_names)
+        tables_db_names = [x[0] for x in results]
+
+        tables_names = ['Verif. Planos AL', 'Valores Fuerza Bola', 'Calibraciones', 'Albaranes', 'Verif. Planos DIM',
+                        'Herramientas Taller', 'Revisiones Herramientas', 'Verif. EXP', 'Tabla 5 Dureza', 'Tabla 6 Dureza', 'Valores PT100 INTA', 'Valores TC INTA',
+                        'Coladas Liq. Penetrantes', 'Verif. Planos M', 'Máquinas Taller',
+                        'Revisiones Máquinas', 'Manometros', 'Patrones Calibración', 'Patrones Termoelementos',
+                        'Desplegables No-Conformidad', 'Informes No-Conformidad', 'Verif. Planos OF', 'Equipos. Verif.', 'Verif. PPI',
+                        'Valores PT100 Norma', 'Valores TC B Norma', 'Valores TC C Norma', 'Valores TC E Norma', 'Valores TC J Norma',
+                        'Valores TC K Norma', 'Valores TC N Norma', 'Valores TC R Norma', 'Valores TC S Norma', 'Valores TC T Norma',
+                        'Estados Verif.', 'Estados Almacén', 'Proveedores Albaranes', 'Pruebas Dureza', 'Pruebas Hidróstaticas',
+                        'Pruebas Líquidos Penetrantes', 'Pruebas Otros', 'Tolerancias Termoelementos',
+                        'Planos DIM Taller', 'Planos OF Taller']
+
+        self.dict_tables = dict(zip(tables_db_names, tables_names))
+
+        tables_to_delete = ['al_drawing_verification', 'calibration_thermoelements', 'delivnote_suppliers', 'dim_drawing_verification',
+                            'handtools_workshop','handtools_workshop_revisions','exp_verification', 'm_drawing_verification', 'machines_workshop',
+                            'machines_workshop_revisions', 'nc_comboboxes', 'nc_report', 'of_drawing_verification',
+                            'ppi_verification', 'suppliers_verification', 'test_hardness', 'test_hydro',
+                            'test_liquid', 'test_others', 'workshop_dim_drawings', 'workshop_of_drawings']
+
+        for table in tables_to_delete:
+            del self.dict_tables[table]
+
+        list_tables = list(self.dict_tables.values())
+        list_tables.insert(0,"")
+        self.comboBox.addItems(sorted(list_tables))
 
 
     def retranslateUi(self, EditReg_Window):
@@ -525,194 +551,203 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
 
 # Function to load table after selection on checkbox
     def loadtable(self):
-        table_name = "verification." + self.comboBox.currentText()
+        value_table = self.comboBox.currentText()
 
-        self.model.setTable(table_name)
-        self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
-        self.model.select()
-        self.tableWidget.setModel(self.model)
+        if value_table != '':
+            table_name = "verification." + self.get_key_from_value(self.dict_tables, value_table)
 
-        self.tableWidget.verticalHeader().hide()
-        self.tableWidget.setItemDelegate(AlignDelegate(self.tableWidget))
-        self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        if self.username == 'm.gil':
-            self.tableWidget.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableWidget.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-            self.tableWidget.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-        else:
-            self.tableWidget.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
-        self.tableWidget.setObjectName("tableWidget")
-        self.gridLayout_2.addWidget(self.tableWidget, 8, 0, 1, 6)
-        self.model.dataChanged.connect(self.saveChanges)
 
-        self.columns_number = self.model.columnCount()
-        self.column_headers = [self.model.headerData(col, Qt.Orientation.Horizontal) for col in range(self.columns_number)]
+            self.model.setTable(table_name)
+            self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
+            self.model.select()
+            self.tableWidget.setModel(self.model)
 
-        if self.columns_number > 4:
-            if self.column_headers[0] == 'id':
-                self.label_code1.setText(self.column_headers[1])
-                self.label_code2.setText(self.column_headers[2])
-                self.label_code3.setText(self.column_headers[3])
-                self.label_code4.setText(self.column_headers[4])
-                self.code2_DBReg.setText('')
-                self.code2_DBReg.setVisible(True)
-                self.code3_DBReg.setText('')
-                self.code3_DBReg.setVisible(True)
-                self.code4_DBReg.setText('')
-                self.code4_DBReg.setVisible(True)
+            self.tableWidget.verticalHeader().hide()
+            self.tableWidget.setItemDelegate(AlignDelegate(self.tableWidget))
+            self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+            if self.username == 'm.gil':
+                self.tableWidget.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+                self.tableWidget.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
+                self.tableWidget.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+            else:
+                self.tableWidget.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+            self.tableWidget.setObjectName("tableWidget")
+            self.gridLayout_2.addWidget(self.tableWidget, 8, 0, 1, 6)
+            self.model.dataChanged.connect(self.saveChanges)
+
+            self.columns_number = self.model.columnCount()
+            self.column_headers = [self.model.headerData(col, Qt.Orientation.Horizontal) for col in range(self.columns_number)]
+
+            if self.columns_number > 4:
+                if self.column_headers[0] == 'id':
+                    self.label_code1.setText(self.column_headers[1])
+                    self.label_code2.setText(self.column_headers[2])
+                    self.label_code3.setText(self.column_headers[3])
+                    self.label_code4.setText(self.column_headers[4])
+                    self.code2_DBReg.setText('')
+                    self.code2_DBReg.setVisible(True)
+                    self.code3_DBReg.setText('')
+                    self.code3_DBReg.setVisible(True)
+                    self.code4_DBReg.setText('')
+                    self.code4_DBReg.setVisible(True)
+                    self.code5_DBReg.setText('')
+                    self.code5_DBReg.setVisible(False)
+                else:
+                    self.label_code1.setText(self.column_headers[0])
+                    self.label_code2.setText(self.column_headers[1])
+                    self.label_code3.setText(self.column_headers[2])
+                    self.label_code4.setText(self.column_headers[3])
+                    self.code2_DBReg.setVisible(True)
+                    self.code2_DBReg.setText('')
+                    self.code2_DBReg.setEnabled(True)
+                    self.code3_DBReg.setVisible(True)
+                    self.code3_DBReg.setText('')
+                    self.code3_DBReg.setEnabled(True)
+                    self.code4_DBReg.setVisible(True)
+                    self.code4_DBReg.setText('')
+                    self.code4_DBReg.setEnabled(True)
+                    self.code5_DBReg.setVisible(True)
+                    self.code5_DBReg.setText('')
+                    self.code5_DBReg.setEnabled(True)
+                self.label_code6.setText('')
+                self.code6_DBReg.setText('')
+                self.code6_DBReg.setVisible(False)
+                self.label_code7.setText('')
+                self.code7_DBReg.setText('')
+                self.code7_DBReg.setVisible(False)
+
+            elif self.columns_number > 3:
+                if self.column_headers[0] == 'id':
+                    self.label_code1.setText(self.column_headers[1])
+                    self.label_code2.setText(self.column_headers[2])
+                    self.label_code3.setText(self.column_headers[3])
+                    self.label_code4.setText('')
+                    self.code2_DBReg.setText('')
+                    self.code2_DBReg.setVisible(True)
+                    self.code3_DBReg.setText('')
+                    self.code3_DBReg.setVisible(True)
+                    self.code4_DBReg.setText('')
+                    self.code4_DBReg.setVisible(False)
+                else:
+                    self.label_code1.setText(self.column_headers[0])
+                    self.label_code2.setText(self.column_headers[1])
+                    self.label_code3.setText(self.column_headers[2])
+                    self.label_code4.setText(self.column_headers[3])
+                    self.code2_DBReg.setVisible(True)
+                    self.code2_DBReg.setText('')
+                    self.code2_DBReg.setEnabled(True)
+                    self.code3_DBReg.setVisible(True)
+                    self.code3_DBReg.setText('')
+                    self.code3_DBReg.setEnabled(True)
+                    self.code4_DBReg.setVisible(True)
+                    self.code4_DBReg.setText('')
+                    self.code4_DBReg.setEnabled(True)
+                self.label_code5.setText('')
                 self.code5_DBReg.setText('')
                 self.code5_DBReg.setVisible(False)
-            else:
-                self.label_code1.setText(self.column_headers[0])
-                self.label_code2.setText(self.column_headers[1])
-                self.label_code3.setText(self.column_headers[2])
-                self.label_code4.setText(self.column_headers[3])
-                self.code2_DBReg.setVisible(True)
-                self.code2_DBReg.setText('')
-                self.code2_DBReg.setEnabled(True)
-                self.code3_DBReg.setVisible(True)
-                self.code3_DBReg.setText('')
-                self.code3_DBReg.setEnabled(True)
-                self.code4_DBReg.setVisible(True)
-                self.code4_DBReg.setText('')
-                self.code4_DBReg.setEnabled(True)
-                self.code5_DBReg.setVisible(True)
-                self.code5_DBReg.setText('')
-                self.code5_DBReg.setEnabled(True)
-            self.label_code6.setText('')
-            self.code6_DBReg.setText('')
-            self.code6_DBReg.setVisible(False)
-            self.label_code7.setText('')
-            self.code7_DBReg.setText('')
-            self.code7_DBReg.setVisible(False)
+                self.label_code6.setText('')
+                self.code6_DBReg.setText('')
+                self.code6_DBReg.setVisible(False)
+                self.label_code7.setText('')
+                self.code7_DBReg.setText('')
+                self.code7_DBReg.setVisible(False)
 
-        elif self.columns_number > 3:
-            if self.column_headers[0] == 'id':
-                self.label_code1.setText(self.column_headers[1])
-                self.label_code2.setText(self.column_headers[2])
-                self.label_code3.setText(self.column_headers[3])
-                self.code2_DBReg.setText('')
-                self.code2_DBReg.setVisible(True)
-                self.code3_DBReg.setText('')
-                self.code3_DBReg.setVisible(True)
-                self.code4_DBReg.setText('')
+            elif self.columns_number > 2:
+                if self.column_headers[0] == 'id':
+                    self.label_code1.setText(self.column_headers[1])
+                    self.label_code2.setText(self.column_headers[2])
+                    self.code2_DBReg.setText('')
+                    self.code2_DBReg.setVisible(True)
+                    self.code3_DBReg.setText('')
+                    self.code3_DBReg.setVisible(False)
+                else:
+                    self.label_code1.setText(self.column_headers[0])
+                    self.label_code2.setText(self.column_headers[1])
+                    self.label_code3.setText(self.column_headers[2])
+                    self.code3_DBReg.setVisible(True)
+                    self.code3_DBReg.setText('')
+                self.label_code4.setText('')
                 self.code4_DBReg.setVisible(False)
-            else:
-                self.label_code1.setText(self.column_headers[0])
-                self.label_code2.setText(self.column_headers[1])
-                self.label_code3.setText(self.column_headers[2])
-                self.label_code4.setText(self.column_headers[3])
-                self.code2_DBReg.setVisible(True)
-                self.code2_DBReg.setText('')
-                self.code2_DBReg.setEnabled(True)
-                self.code3_DBReg.setVisible(True)
-                self.code3_DBReg.setText('')
-                self.code3_DBReg.setEnabled(True)
-                self.code4_DBReg.setVisible(True)
                 self.code4_DBReg.setText('')
-                self.code4_DBReg.setEnabled(True)
-            self.label_code5.setText('')
-            self.code5_DBReg.setText('')
-            self.code5_DBReg.setVisible(False)
-            self.label_code6.setText('')
-            self.code6_DBReg.setText('')
-            self.code6_DBReg.setVisible(False)
-            self.label_code7.setText('')
-            self.code7_DBReg.setText('')
-            self.code7_DBReg.setVisible(False)
+                self.label_code5.setText('')
+                self.code5_DBReg.setVisible(False)
+                self.code5_DBReg.setText('')
+                self.label_code6.setText('')
+                self.code6_DBReg.setVisible(False)
+                self.code6_DBReg.setText('')
+                self.label_code7.setText('')
+                self.code7_DBReg.setVisible(False)
+                self.code7_DBReg.setText('')
 
-        elif self.columns_number > 2:
-            if self.column_headers[0] == 'id':
-                self.label_code1.setText(self.column_headers[1])
-                self.label_code2.setText(self.column_headers[2])
-                self.code2_DBReg.setText('')
-                self.code2_DBReg.setVisible(True)
-                self.code3_DBReg.setText('')
+            elif self.columns_number > 1:
+                if self.column_headers[0] == 'id':
+                    self.label_code1.setText(self.column_headers[1])
+                    self.label_code2.setText('')
+                    self.code2_DBReg.setVisible(False)
+                    self.code2_DBReg.setText('')
+                else:
+                    self.label_code1.setText(self.column_headers[0])
+                    self.label_code2.setText(self.column_headers[1])
+                    self.code2_DBReg.setVisible(True)
+                    self.code2_DBReg.setText('')
+                    self.code2_DBReg.setEnabled(True)
+                self.label_code3.setText('')
                 self.code3_DBReg.setVisible(False)
-            else:
-                self.label_code1.setText(self.column_headers[0])
-                self.label_code2.setText(self.column_headers[1])
-                self.label_code3.setText(self.column_headers[2])
-                self.code3_DBReg.setVisible(True)
                 self.code3_DBReg.setText('')
-            self.label_code4.setText('')
-            self.code4_DBReg.setVisible(False)
-            self.code4_DBReg.setText('')
-            self.label_code5.setText('')
-            self.code5_DBReg.setVisible(False)
-            self.code5_DBReg.setText('')
-            self.label_code6.setText('')
-            self.code6_DBReg.setVisible(False)
-            self.code6_DBReg.setText('')
-            self.label_code7.setText('')
-            self.code7_DBReg.setVisible(False)
-            self.code7_DBReg.setText('')
+                self.label_code4.setText('')
+                self.code4_DBReg.setVisible(False)
+                self.code4_DBReg.setText('')
+                self.label_code5.setText('')
+                self.code5_DBReg.setVisible(False)
+                self.code5_DBReg.setText('')
+                self.label_code6.setText('')
+                self.code6_DBReg.setVisible(False)
+                self.code6_DBReg.setText('')
+                self.label_code7.setText('')
+                self.code7_DBReg.setVisible(False)
+                self.code7_DBReg.setText('')
 
-        elif self.columns_number > 1:
-            if self.column_headers[0] == 'id':
-                self.label_code1.setText(self.column_headers[1])
+            elif self.columns_number > 0:
+                self.label_code1.setText(self.column_headers[0])
                 self.label_code2.setText('')
                 self.code2_DBReg.setVisible(False)
                 self.code2_DBReg.setText('')
-            else:
-                self.label_code1.setText(self.column_headers[0])
-                self.label_code2.setText(self.column_headers[1])
-                self.code2_DBReg.setVisible(True)
-                self.code2_DBReg.setText('')
-                self.code2_DBReg.setEnabled(True)
-            self.label_code3.setText('')
-            self.code3_DBReg.setVisible(False)
-            self.code3_DBReg.setText('')
-            self.label_code4.setText('')
-            self.code4_DBReg.setVisible(False)
-            self.code4_DBReg.setText('')
-            self.label_code5.setText('')
-            self.code5_DBReg.setVisible(False)
-            self.code5_DBReg.setText('')
-            self.label_code6.setText('')
-            self.code6_DBReg.setVisible(False)
-            self.code6_DBReg.setText('')
-            self.label_code7.setText('')
-            self.code7_DBReg.setVisible(False)
-            self.code7_DBReg.setText('')
-
-        elif self.columns_number > 0:
-            self.label_code1.setText(self.column_headers[0])
-            self.label_code2.setText('')
-            self.code2_DBReg.setVisible(False)
-            self.code2_DBReg.setText('')
-            self.label_code3.setText('')
-            self.code3_DBReg.setVisible(False)
-            self.code3_DBReg.setText('')
-            self.label_code4.setText('')
-            self.code4_DBReg.setVisible(False)
-            self.code4_DBReg.setText('')
-            self.label_code5.setText('')
-            self.code5_DBReg.setVisible(False)
-            self.code5_DBReg.setText('')
-            self.label_code6.setText('')
-            self.code6_DBReg.setVisible(False)
-            self.code6_DBReg.setText('')
-            self.label_code7.setText('')
-            self.code7_DBReg.setVisible(False)
-            self.code7_DBReg.setText('')
+                self.label_code3.setText('')
+                self.code3_DBReg.setVisible(False)
+                self.code3_DBReg.setText('')
+                self.label_code4.setText('')
+                self.code4_DBReg.setVisible(False)
+                self.code4_DBReg.setText('')
+                self.label_code5.setText('')
+                self.code5_DBReg.setVisible(False)
+                self.code5_DBReg.setText('')
+                self.label_code6.setText('')
+                self.code6_DBReg.setVisible(False)
+                self.code6_DBReg.setText('')
+                self.label_code7.setText('')
+                self.code7_DBReg.setVisible(False)
+                self.code7_DBReg.setText('')
 
 
+    def get_key_from_value(self, dictionary, value):
+        return next((k for k, v in dictionary.items() if v == value), None)
 
 
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     config_obj = configparser.ConfigParser()
-#     config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-#     dbparam = config_obj["postgresql"]
-#     # set your parameters for the database connection URI using the keys from the configfile.ini
-#     user_database = dbparam["user"]
-#     password_database = dbparam["password"]
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    config_obj = configparser.ConfigParser()
+    config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+    dbparam = config_obj["postgresql"]
+    # set your parameters for the database connection URI using the keys from the configfile.ini
+    user_database = dbparam["user"]
+    password_database = dbparam["password"]
 
-#     if not createConnection(user_database, password_database):
-#         sys.exit()
+    db_validation = createConnection(user_database, password_database)
+    if not db_validation:
+        sys.exit()
 
-#     EditReg_Window = Ui_DBEditRegVerif_Window()
-#     EditReg_Window.show()
-#     sys.exit(app.exec())
+
+    EditReg_Window = Ui_DBEditRegVerif_Window(db_validation, 'm.gil')
+    EditReg_Window.show()
+    sys.exit(app.exec())

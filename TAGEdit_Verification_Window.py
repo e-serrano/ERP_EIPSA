@@ -130,12 +130,10 @@ class FreezeTableWidget(QtWidgets.QTableView):
                     dlg.exec()
                     del dlg, new_icon
 
-
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
-
 
 class CustomProxyModel(QtCore.QSortFilterProxyModel):
     def __init__(self, parent=None):
@@ -192,7 +190,6 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                 return False
         return True
 
-
 class EditableTableModel(QtSql.QSqlTableModel):
     updateFailed = QtCore.pyqtSignal(str)
 
@@ -220,11 +217,9 @@ class EditableTableModel(QtSql.QSqlTableModel):
         flags &= ~Qt.ItemFlag.ItemIsEditable
         return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
-
     def getColumnHeaders(self, visible_columns):
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
-
 
 class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
     def __init__(self,name,db,username):
@@ -331,23 +326,23 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addLayout(self.hcab, 0, 0, 1, 1)
         self.hLayout1 = QtWidgets.QHBoxLayout()
         self.hLayout1.setObjectName("hLayout1")
-        self.label_NumOrder = QtWidgets.QLabel(parent=self.frame)
-        self.label_NumOrder.setMinimumSize(QtCore.QSize(80, 25))
-        self.label_NumOrder.setMaximumSize(QtCore.QSize(80, 25))
+        self.label_Tag = QtWidgets.QLabel(parent=self.frame)
+        self.label_Tag.setMinimumSize(QtCore.QSize(80, 25))
+        self.label_Tag.setMaximumSize(QtCore.QSize(80, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
-        self.label_NumOrder.setFont(font)
-        self.label_NumOrder.setObjectName("label_NumOrder")
-        self.hLayout1.addWidget(self.label_NumOrder)
-        self.Numorder_EditTags = QtWidgets.QLineEdit(parent=self.frame)
-        self.Numorder_EditTags.setMinimumSize(QtCore.QSize(250, 25))
-        self.Numorder_EditTags.setMaximumSize(QtCore.QSize(250, 25))
+        self.label_Tag.setFont(font)
+        self.label_Tag.setObjectName("label_NumOrder")
+        self.hLayout1.addWidget(self.label_Tag)
+        self.Tag_EditTags = QtWidgets.QLineEdit(parent=self.frame)
+        self.Tag_EditTags.setMinimumSize(QtCore.QSize(250, 25))
+        self.Tag_EditTags.setMaximumSize(QtCore.QSize(250, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.Numorder_EditTags.setFont(font)
-        self.Numorder_EditTags.setObjectName("Numorder_EditTags")
-        self.hLayout1.addWidget(self.Numorder_EditTags)
+        self.Tag_EditTags.setFont(font)
+        self.Tag_EditTags.setObjectName("Numorder_EditTags")
+        self.hLayout1.addWidget(self.Tag_EditTags)
         self.gridLayout_2.addLayout(self.hLayout1, 1, 0, 1, 1)
         self.Button_Query = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Query.setMinimumSize(QtCore.QSize(150, 35))
@@ -395,7 +390,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 3, 0, 1, 1)
         self.model = EditableTableModel()
-        self.tableEditTags=FreezeTableWidget(self.model, '')
+        self.tableEditTags=QtWidgets.QTableView(parent=self.frame)
         self.tableEditTags.setObjectName("tableEditTags")
         self.gridLayout_2.addWidget(self.tableEditTags, 4, 0, 1, 1)
         self.hLayout3 = QtWidgets.QHBoxLayout()
@@ -445,7 +440,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolShow.clicked.connect(self.show_columns)
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
-        self.Numorder_EditTags.returnPressed.connect(self.query_tags)
+        self.Tag_EditTags.returnPressed.connect(self.query_tags)
         self.createContextMenu()
 
 
@@ -454,11 +449,11 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
         EditTags_Window.setWindowTitle(_translate("EditTags_Window", "Consultar Tags"))
         self.tableEditTags.setSortingEnabled(True)
         self.Button_Query.setText(_translate("EditTags_Window", "Buscar"))
-        self.label_NumOrder.setText(_translate("EditTags_Window", "Nº Pedido:"))
+        self.label_Tag.setText(_translate("EditTags_Window", "TAG:"))
 
 # Function to clear the text boxes
     def clean_boxes(self):
-        self.Numorder_EditTags.setText("")
+        self.Tag_EditTags.setText("")
 
 # Function to delete all filters when tool button is clicked
     def delete_allFilters(self):
@@ -506,171 +501,104 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
         self.dict_ordersort = {}
         self.hiddencolumns = []
 
-        self.numorder = self.Numorder_EditTags.text()
+        self.tag = self.Tag_EditTags.text()
 
-        if self.numorder=="":
+        if self.tag=="":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Rellena alguno de los campos")
+            dlg.setText("Rellena el campo")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
             del dlg, new_icon
 
         else:
-            if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', self.numorder):
+            query_flow = ('''
+                SELECT tags_data.tags_flow."tag"
+                FROM tags_data.tags_flow
+                WHERE UPPER (tags_data.tags_flow."tag") LIKE UPPER('%%'||%s||'%%')
+                ''')
+            query_temp = ('''
+                SELECT tags_data.tags_temp."tag"
+                FROM tags_data.tags_temp
+                WHERE UPPER (tags_data.tags_temp."tag") LIKE UPPER('%%'||%s||'%%')
+                ''')
+            query_level = ('''
+                SELECT tags_data.tags_level."tag"
+                FROM tags_data.tags_level
+                WHERE UPPER (tags_data.tags_level."tag") LIKE UPPER('%%'||%s||'%%')
+                ''')
+            query_others = ('''
+                SELECT tags_data.tags_others."tag"
+                FROM tags_data.tags_others
+                WHERE UPPER (tags_data.tags_others."tag") LIKE UPPER('%%'||%s||'%%')
+                ''')
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(query_flow,(self.tag,))
+                results_flow=cur.fetchall()
+                cur.execute(query_temp,(self.tag,))
+                results_temp=cur.fetchall()
+                cur.execute(query_level,(self.tag,))
+                results_level=cur.fetchall()
+                cur.execute(query_others,(self.tag,))
+                results_others=cur.fetchall()
+
+                if len(results_flow) != 0:
+                    self.variable = 'Caudal'
+                elif len(results_temp) != 0:
+                    self.variable = 'Temperatura'
+                elif len(results_level) != 0:
+                    self.variable = 'Nivel'
+                elif len(results_others) != 0:
+                    self.variable = 'Otros'
+                else:
+                    self.variable = ''
+
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
                 del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
-            else:
-                query = ('''
-                        SELECT num_order, product_type."variable"
-                        FROM orders
-                        INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
-                        INNER JOIN product_type ON (product_type."material" = offers."material")
-                        WHERE
-                        UPPER (orders."num_order") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query,(self.numorder,))
-                    results_variable=cur.fetchone()
-                    self.variable = results_variable[1] if results_variable != None else ''
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-                if results_variable == None:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("EL número de pedido no existe")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                else:
-                    query_flow = ('''
-                        SELECT tags_data.tags_flow."num_order"
-                        FROM tags_data.tags_flow
-                        WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                    query_temp = ('''
-                        SELECT tags_data.tags_temp."num_order"
-                        FROM tags_data.tags_temp
-                        WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                    query_level = ('''
-                        SELECT tags_data.tags_level."num_order"
-                        FROM tags_data.tags_level
-                        WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                    query_others = ('''
-                        SELECT tags_data.tags_others."num_order"
-                        FROM tags_data.tags_others
-                        WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                    conn = None
-                    try:
-                    # read the connection parameters
-                        params = config()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands
-                        cur.execute(query_flow,(self.numorder,))
-                        results_flow=cur.fetchall()
-                        cur.execute(query_temp,(self.numorder,))
-                        results_temp=cur.fetchall()
-                        cur.execute(query_level,(self.numorder,))
-                        results_level=cur.fetchall()
-                        cur.execute(query_others,(self.numorder,))
-                        results_others=cur.fetchall()
-
-                        if len(results_flow) != 0:
-                            self.variable = 'Caudal'
-                        elif len(results_temp) != 0:
-                            self.variable = 'Temperatura'
-                        elif len(results_level) != 0:
-                            self.variable = 'Nivel'
-                        elif len(results_others) != 0:
-                            self.variable = 'Otros'
-                        else:
-                            self.variable = ''
-
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
-                    finally:
-                        if conn is not None:
-                            conn.close()
-
-                    if self.variable == 'Caudal':
-                        self.model.setTable("tags_data.tags_flow")
-                        self.initial_column = 30
-                    elif self.variable == 'Temperatura':
-                        self.model.setTable("tags_data.tags_temp")
-                        self.initial_column = 35
-                    elif self.variable == 'Nivel':
-                        self.model.setTable("tags_data.tags_level")
-                        self.initial_column = 36
-                    elif self.variable == 'Otros':
-                        self.model.setTable("tags_data.tags_others")
-                        self.initial_column = 11
-                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
+            if self.variable == 'Caudal':
+                self.model.setTable("tags_data.tags_flow")
+            elif self.variable == 'Temperatura':
+                self.model.setTable("tags_data.tags_temp")
+            elif self.variable == 'Nivel':
+                self.model.setTable("tags_data.tags_level")
+            elif self.variable == 'Otros':
+                self.model.setTable("tags_data.tags_others")
+            self.model.setFilter(f"tag <>'' AND UPPER(tag) LIKE '%{self.tag.upper()}%'")
 
         if self.variable != '':
             self.tableEditTags.setModel(None)
-            # self.tableEditTags.setModel(self.proxy)
+            self.tableEditTags.setModel(self.proxy)
             self.model.select()
 
             self.proxy.setSourceModel(self.model)
-            # self.tableEditTags.setModel(self.proxy)
-            self.tableEditTags=FreezeTableWidget(self.proxy, self.variable)
+            self.tableEditTags.setModel(self.proxy)
 
             columns_number=self.model.columnCount()
             for column in range(columns_number):
@@ -681,12 +609,9 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(5,8):
                     self.tableEditTags.hideColumn(i)
-                for i in range(27,33):
+                for i in range(9,47):
                     self.tableEditTags.hideColumn(i)
-                for i in range(36,47):
-                    self.tableEditTags.hideColumn(i)
-                self.tableEditTags.hideColumn(50)
-                for i in range(72,125):
+                for i in range(49,156):
                     self.tableEditTags.hideColumn(i)
                 for i in range(157,columns_number):
                     self.tableEditTags.hideColumn(i)
@@ -696,15 +621,11 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(5,8):
                     self.tableEditTags.hideColumn(i)
-                for i in range(34,38):
+                for i in range(9,57):
                     self.tableEditTags.hideColumn(i)
-                for i in range(44,57):
+                for i in range(59,62):
                     self.tableEditTags.hideColumn(i)
-                for i in range(60,62):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(64,66):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(80,132):
+                for i in range(63,166):
                     self.tableEditTags.hideColumn(i)
                 for i in range(167,columns_number):
                     self.tableEditTags.hideColumn(i)
@@ -714,12 +635,9 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(5,8):
                     self.tableEditTags.hideColumn(i)
-                for i in range(35,39):
+                for i in range(9,51):
                     self.tableEditTags.hideColumn(i)
-                for i in range(42,51):
-                    self.tableEditTags.hideColumn(i)
-                self.tableEditTags.hideColumn(54)
-                for i in range(66,138):
+                for i in range(53,169):
                     self.tableEditTags.hideColumn(i)
                 for i in range(170,columns_number):
                     self.tableEditTags.hideColumn(i)
@@ -729,16 +647,18 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(5,8):
                     self.tableEditTags.hideColumn(i)
-                for i in range(10,14):
+                for i in range(9,15):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(17,56):
                     self.tableEditTags.hideColumn(i)
                 for i in range(57,columns_number):
                     self.tableEditTags.hideColumn(i)
 
             # self.tableEditTags.verticalHeader().hide()
             self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
-            self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
-            self.tableEditTags.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-            self.tableEditTags.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+            # self.tableEditTags.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            # self.tableEditTags.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             if self.username == 'm.gil':
                 self.tableEditTags.setStyleSheet("gridline-color: rgb(128, 128, 128);")
                 self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
@@ -751,6 +671,8 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
             self.tableEditTags.horizontalHeader().sectionDoubleClicked.connect(self.on_view_horizontalHeader_sectionClicked)
             self.tableEditTags.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
             self.tableEditTags.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+
+            self.tableEditTags.hideColumn(0)
 
         # Change all column names
             headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
@@ -896,6 +818,33 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
 
             self.selection_model = self.tableEditTags.selectionModel()
             self.selection_model.selectionChanged.connect(self.countSelectedCells)
+
+            self.tableEditTags.doubleClicked.connect(lambda index: self.open_pics(index, self.variable))
+
+# Function to open equipment photos
+    def open_pics(self, index, variable):
+        if ((variable == 'Caudal' and index.column() == 156)
+        or (variable == 'Temperatura' and index.column() == 166)
+        or (variable == 'Nivel' and index.column() == 169)
+        or (variable == 'Otros' and index.column() == 56)):
+            value = index.data()
+
+            if value != '':
+                try:
+                    file_path = os.path.normpath(value)
+                    os.startfile(file_path)
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):

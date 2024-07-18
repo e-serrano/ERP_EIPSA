@@ -137,7 +137,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         self.Button_query.setFont(font)
         self.Button_query.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon12 = QtGui.QIcon()
-        icon12.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Verification_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon12.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Caliber_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_query.setIcon(icon12)
         self.Button_query.setIconSize(QtCore.QSize(40, 40))
         self.Button_query.setObjectName("Button_query")

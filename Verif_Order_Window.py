@@ -12,6 +12,7 @@ import psycopg2
 import os
 from datetime import *
 import locale
+import fnmatch
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -1270,6 +1271,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         self.table_calibrations.itemSelectionChanged.connect(self.countSelectedCells_calibration)
 
         self.table_tags.itemDoubleClicked.connect(self.item_double_click)
+        self.table_drawings.itemDoubleClicked.connect(self.item_double_click)
 
         self.Button_Insert.clicked.connect(self.expedition)
 
@@ -1870,7 +1872,35 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                     if conn is not None:
                         conn.close()
 
+            elif item.column() == 1 and item.text() == 'PPI':
+                self.num_order_value = self.numorder
+                order_year = str(datetime.now().year)[:2] + self.num_order_value [self.num_order_value .rfind("/") - 2:self.num_order_value .rfind("/")]
+                
+                if self.num_order_value[:2] == 'PA':
+                    num_order = self.num_order_value
+                    path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
+                    for folder in os.listdir(path):
+                        if num_order.replace("/", "-") in folder:
+                            folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/"
+                            for root, dirs, files in os.walk(folder_path):
+                                for filename in files:
+                                    if fnmatch.fnmatch(filename, '*-PPI*'):
+                                        file_path = os.path.join(root, filename)
+                                        file_path = os.path.normpath(file_path)
+                                        os.startfile(file_path)
 
+                elif self.num_order_value[:2] == 'P-':
+                    num_order = self.num_order_value[:8]
+                    path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
+                    for folder in os.listdir(path):
+                        if num_order.replace("/", "-") in folder:
+                            folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/"
+                            for root, dirs, files in os.walk(folder_path):
+                                for filename in files:
+                                    if fnmatch.fnmatch(filename, '*-PPI*'):
+                                        file_path = os.path.join(root, filename)
+                                        file_path = os.path.normpath(file_path)
+                                        os.startfile(file_path)
 
 
 

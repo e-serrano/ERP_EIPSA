@@ -12,6 +12,8 @@ from tkinter.filedialog import asksaveasfilename
 from PDF_Styles import pruebas
 import shutil
 import win32api
+import psutil
+import time
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -221,6 +223,22 @@ class PDF_Viewer(QMainWindow):
             dlg.setIcon(QMessageBox.Icon.Warning)
             dlg.exec()
             del dlg,new_icon
+
+        self.close_adobe_reader()
+
+    def close_adobe_reader(self):
+        time.sleep(5)
+        for process in psutil.process_iter(['pid', 'name']):
+            try:
+                process_name = process.info['name'].lower()
+                if 'adobe' in process_name or 'acrobat' in process_name:
+                    # print(f"Cerrando {process.info['name']} con PID {process.info['pid']}")
+                    process.terminate()  # Termina el proceso
+                    process.wait()  # Espera a que el proceso termine
+                    # print(f"{process.info['name']} ha sido cerrado.")
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
+        self.close()
 
 
     def keyPressEvent(self, event):

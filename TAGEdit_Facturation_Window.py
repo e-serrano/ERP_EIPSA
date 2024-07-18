@@ -41,12 +41,29 @@ class CheckboxWidget(QtWidgets.QWidget):
         self.checkbox = QtWidgets.QCheckBox(text)
         layout.addWidget(self.checkbox)
 
-
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
+class ColorDelegate(QtWidgets.QItemDelegate):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def paint(self, painter, option, index: QtCore.QModelIndex):
+        background_color = QtGui.QColor(255, 255, 255)
+
+        state_column_index = index.sibling(index.row(), 6) # Index for column to check text
+        original_text = str(index.data())  # Text of cell to be painted
+        value_check = str(state_column_index.data()).upper()
+
+        if original_text != '' and original_text != value_check:
+            background_color = QtGui.QColor(255, 255, 0) #Yellow
+
+        painter.fillRect(option.rect, background_color)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+
+        super().paint(painter, option, index)
 
 class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, parent=None, options=None):
@@ -65,7 +82,6 @@ class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
 
     def setModelData(self, editor, model, index):
         model.setData(index, editor.currentText(), Qt.ItemDataRole.EditRole)
-
 
 class CustomProxyModel(QtCore.QSortFilterProxyModel):
     def __init__(self, parent=None):
@@ -122,7 +138,6 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                 return False
         return True
 
-
 class EditableTableModel(QtSql.QSqlTableModel):
     updateFailed = QtCore.pyqtSignal(str)
 
@@ -147,7 +162,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
     def flags(self, index):
         flags = super().flags(index)
-        if index.column() in range (0,8) or index.column() in self.column_range:
+        if index.column() in range (0,37) or index.column() in self.column_range:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -157,24 +172,6 @@ class EditableTableModel(QtSql.QSqlTableModel):
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
 
-
-class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
-    def __init__(self, parent=None, options=None):
-        super().__init__(parent)
-        self.options = options
-
-    def createEditor(self, parent, option, index):
-        editor = QtWidgets.QComboBox(parent)
-        editor.setEditable(True)
-        return editor
-
-    def setEditorData(self, editor, index):
-        text = index.data(Qt.ItemDataRole.DisplayRole)
-        editor.addItems(self.options)
-        editor.setEditText(text)
-
-    def setModelData(self, editor, model, index):
-        model.setData(index, editor.currentText(), Qt.ItemDataRole.EditRole)
 
 
 class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
@@ -880,18 +877,22 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                         self.model.setTable("tags_data.tags_flow")
                         self.initial_column = 67
                         self.initial_column2 = 72
+                        self.column_topaint = 157
                     elif self.variable == 'Temperatura':
                         self.model.setTable("tags_data.tags_temp")
                         self.initial_column = 75
                         self.initial_column2 = 80
+                        self.column_topaint = 167
                     elif self.variable == 'Nivel':
                         self.model.setTable("tags_data.tags_level")
                         self.initial_column = 61
                         self.initial_column2 = 66
+                        self.column_topaint = 170
                     elif self.variable == 'Otros':
                         self.model.setTable("tags_data.tags_others")
                         self.initial_column = 20
                         self.initial_column2 = 25
+                        self.column_topaint = 57
                     self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
 
         if self.variable != '':
@@ -962,6 +963,8 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
 
             # self.tableEditTags.verticalHeader().hide()
             self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
+            self.color_delegate = ColorDelegate(self)
+            self.tableEditTags.setItemDelegateForColumn(self.column_topaint, self.color_delegate)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -1433,7 +1436,24 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
 
 # Function to enable copy and paste cells
     def keyPressEvent(self, event):
-        if event.matches(QKeySequence.StandardKey.Copy):
+        if event.key() == QtCore.Qt.Key.Key_Delete: # Event when delete key is pressed
+            selected_indexes = self.tableEditTags.selectionModel().selectedIndexes()
+            if not selected_indexes:
+                return
+            
+            model = self.tableEditTags.model()
+            model_indexes = [model.mapToSource(index) for index in selected_indexes]
+
+            if isinstance(model, QtCore.QSortFilterProxyModel):
+                model_indexes = [model.mapToSource(index) for index in selected_indexes]
+                for index in model_indexes:
+                    model.sourceModel().setData(index, None)
+            else:
+                model_indexes = selected_indexes
+                for index in model_indexes:
+                    model.setData(index, None)
+
+        elif event.matches(QKeySequence.StandardKey.Copy):
             selected_indexes = self.tableEditTags.selectionModel().selectedIndexes()
             if selected_indexes:
                 clipboard = QApplication.clipboard()
@@ -1547,6 +1567,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
             self.hiddencolumns.append(column)
 
         self.context_menu.close()
+
 
 
 if __name__ == "__main__":

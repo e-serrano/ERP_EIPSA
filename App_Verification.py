@@ -22,6 +22,8 @@ class Ui_App_Verification(object):
     def __init__(self, name, username):
         self.name=name
         self.username=username
+        self.edit_tags_app = None
+        self.calibration_window = None
         locale.setlocale(locale.LC_TIME, 'es_ES.utf8')
 
 
@@ -177,15 +179,16 @@ class Ui_App_Verification(object):
         self.Button_Timer.setIconSize(QtCore.QSize(40, 40))
         self.Button_Timer.setObjectName("Button_Timer")
         self.Header.addWidget(self.Button_Timer)
-        spacerItem3 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem3)
-        self.Button_Verif_Order = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Verif_Order.setMinimumSize(QtCore.QSize(50, 50))
-        self.Button_Verif_Order.setMaximumSize(QtCore.QSize(50, 50))
-        self.Button_Verif_Order.setToolTip('Verificación Pedido')
-        self.Button_Verif_Order.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+
+        spacerItem5 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem5)
+        self.Button_Machines = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Machines.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Machines.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Machines.setToolTip('Máquinas')
+        self.Button_Machines.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         if self.username == 'm.gil':
-            self.Button_Verif_Order.setStyleSheet("QPushButton{\n"
+            self.Button_Machines.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
     "    background-color: rgb(38, 38, 38);\n"
@@ -208,7 +211,7 @@ class Ui_App_Verification(object):
     "    border-radius: 10px;\n"
     "}")
         else:
-            self.Button_Verif_Order.setStyleSheet("QPushButton{\n"
+            self.Button_Machines.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
     "    background-color: rgb(255, 255, 255);\n"
@@ -230,22 +233,23 @@ class Ui_App_Verification(object):
     "    background-color: rgb(200, 200, 200);\n"
     "    border-radius: 10px;\n"
     "}")
-        self.Button_Verif_Order.setText("")
-        icon8 = QtGui.QIcon()
-        icon8.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Verification_Order.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Verif_Order.setIcon(icon8)
-        self.Button_Verif_Order.setIconSize(QtCore.QSize(int(40), int(40)))
-        self.Button_Verif_Order.setObjectName("Button_Verif_Order")
-        self.Header.addWidget(self.Button_Verif_Order)
-        spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem2)
-        self.Button_Index_Drawings = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Index_Drawings.setMinimumSize(QtCore.QSize(50, 50))
-        self.Button_Index_Drawings.setMaximumSize(QtCore.QSize(50, 50))
-        self.Button_Index_Drawings.setToolTip('Índice Planos')
-        self.Button_Index_Drawings.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Machines.setText("")
+        icon10 = QtGui.QIcon()
+        icon10.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Machines.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Machines.setIcon(icon10)
+        self.Button_Machines.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Machines.setObjectName("Button_Machines")
+        self.Header.addWidget(self.Button_Machines)
+
+        spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem8)
+        self.Button_HandTools = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_HandTools.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_HandTools.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_HandTools.setToolTip('Herramientas de Mano')
+        self.Button_HandTools.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         if self.username == 'm.gil':
-            self.Button_Index_Drawings.setStyleSheet("QPushButton{\n"
+            self.Button_HandTools.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
     "    background-color: rgb(38, 38, 38);\n"
@@ -268,7 +272,7 @@ class Ui_App_Verification(object):
     "    border-radius: 10px;\n"
     "}")
         else:
-            self.Button_Index_Drawings.setStyleSheet("QPushButton{\n"
+            self.Button_HandTools.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
     "    background-color: rgb(255, 255, 255);\n"
@@ -290,23 +294,84 @@ class Ui_App_Verification(object):
     "    background-color: rgb(200, 200, 200);\n"
     "    border-radius: 10px;\n"
     "}")
-        self.Button_Index_Drawings.setText("")
-        icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Drawing_Index.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Index_Drawings.setIcon(icon6)
-        self.Button_Index_Drawings.setIconSize(QtCore.QSize(int(40), int(40)))
-        self.Button_Index_Drawings.setObjectName("Button_Index_Drawings")
-        self.Header.addWidget(self.Button_Index_Drawings)
+        self.Button_HandTools.setText("")
+        icon11 = QtGui.QIcon()
+        icon11.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Handtool.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_HandTools.setIcon(icon11)
+        self.Button_HandTools.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_HandTools.setObjectName("Button_HandTools")
+        self.Header.addWidget(self.Button_HandTools)
+
+        spacerItem9 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem9)
+        self.Button_Caliber = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Caliber.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Caliber.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Caliber.setToolTip('Equipos Medida')
+        self.Button_Caliber.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'm.gil':
+            self.Button_Caliber.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Caliber.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Caliber.setText("")
+        icon12 = QtGui.QIcon()
+        icon12.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Caliber.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Caliber.setIcon(icon12)
+        self.Button_Caliber.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Caliber.setObjectName("Button_Caliber")
+        self.Header.addWidget(self.Button_Caliber)
 
         spacerItem4 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem4)
-        self.Button_NCReports = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_NCReports.setMinimumSize(QtCore.QSize(50, 50))
-        self.Button_NCReports.setMaximumSize(QtCore.QSize(50, 50))
-        self.Button_NCReports.setToolTip('Informes NC')
-        self.Button_NCReports.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Hardness = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Hardness.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Hardness.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Hardness.setToolTip('Prueba Dureza')
+        self.Button_Hardness.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         if self.username == 'm.gil':
-            self.Button_NCReports.setStyleSheet("QPushButton{\n"
+            self.Button_Hardness.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
     "    background-color: rgb(38, 38, 38);\n"
@@ -329,7 +394,7 @@ class Ui_App_Verification(object):
     "    border-radius: 10px;\n"
     "}")
         else:
-            self.Button_NCReports.setStyleSheet("QPushButton{\n"
+            self.Button_Hardness.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
     "    background-color: rgb(255, 255, 255);\n"
@@ -351,13 +416,135 @@ class Ui_App_Verification(object):
     "    background-color: rgb(200, 200, 200);\n"
     "    border-radius: 10px;\n"
     "}")
-        self.Button_NCReports.setText("")
+        self.Button_Hardness.setText("")
         icon9 = QtGui.QIcon()
-        icon9.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/NC.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_NCReports.setIcon(icon9)
-        self.Button_NCReports.setIconSize(QtCore.QSize(int(40), int(40)))
-        self.Button_NCReports.setObjectName("Button_NCReports")
-        self.Header.addWidget(self.Button_NCReports)
+        icon9.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Hardness.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Hardness.setIcon(icon9)
+        self.Button_Hardness.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Hardness.setObjectName("Button_Hardness")
+        self.Header.addWidget(self.Button_Hardness)
+
+        spacerItem3 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem3)
+        self.Button_Hydro = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Hydro.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Hydro.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Hydro.setToolTip('Prueba Hidrostática')
+        self.Button_Hydro.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'm.gil':
+            self.Button_Hydro.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Hydro.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Hydro.setText("")
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Hydro.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Hydro.setIcon(icon8)
+        self.Button_Hydro.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Hydro.setObjectName("Button_Hydro")
+        self.Header.addWidget(self.Button_Hydro)
+
+        spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem2)
+        self.Button_Liquid = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Liquid.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Liquid.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Liquid.setToolTip('Líquidos Penetrantes')
+        self.Button_Liquid.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'm.gil':
+            self.Button_Liquid.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Liquid.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Liquid.setText("")
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Liquid.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Liquid.setIcon(icon6)
+        self.Button_Liquid.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Liquid.setObjectName("Button_Liquid")
+        self.Header.addWidget(self.Button_Liquid)
 
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
@@ -526,48 +713,48 @@ class Ui_App_Verification(object):
         self.Button_Verification.setIconSize(QtCore.QSize(40, 40))
         self.Button_Verification.setObjectName("Button_Verification")
         self.verticalLayout_3.addWidget(self.Button_Verification)
-        self.Button_Hydro = QtWidgets.QPushButton(parent=self.ButtonFrame)
-        self.Button_Hydro.setMinimumSize(QtCore.QSize(200, 50))
-        self.Button_Hydro.setMaximumSize(QtCore.QSize(200, 50))
+        self.Button_Verif_Order = QtWidgets.QPushButton(parent=self.ButtonFrame)
+        self.Button_Verif_Order.setMinimumSize(QtCore.QSize(200, 50))
+        self.Button_Verif_Order.setMaximumSize(QtCore.QSize(200, 50))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
-        self.Button_Hydro.setFont(font)
-        self.Button_Hydro.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Verif_Order.setFont(font)
+        self.Button_Verif_Order.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Hydro.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Hydro.setIcon(icon2)
-        self.Button_Hydro.setIconSize(QtCore.QSize(40, 40))
-        self.Button_Hydro.setObjectName("Button_Hydro")
-        self.verticalLayout_3.addWidget(self.Button_Hydro)
-        self.Button_Liquid = QtWidgets.QPushButton(parent=self.ButtonFrame)
-        self.Button_Liquid.setMinimumSize(QtCore.QSize(200, 50))
-        self.Button_Liquid.setMaximumSize(QtCore.QSize(200, 50))
+        icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Verification_Order.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Verif_Order.setIcon(icon2)
+        self.Button_Verif_Order.setIconSize(QtCore.QSize(40, 40))
+        self.Button_Verif_Order.setObjectName("Button_Verif_Order")
+        self.verticalLayout_3.addWidget(self.Button_Verif_Order)
+        self.Button_Index_Drawings = QtWidgets.QPushButton(parent=self.ButtonFrame)
+        self.Button_Index_Drawings.setMinimumSize(QtCore.QSize(200, 50))
+        self.Button_Index_Drawings.setMaximumSize(QtCore.QSize(200, 50))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
-        self.Button_Liquid.setFont(font)
-        self.Button_Liquid.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Index_Drawings.setFont(font)
+        self.Button_Index_Drawings.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Liquid.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Liquid.setIcon(icon3)
-        self.Button_Liquid.setIconSize(QtCore.QSize(40, 40))
-        self.Button_Liquid.setObjectName("Button_Liquid")
-        self.verticalLayout_3.addWidget(self.Button_Liquid)
-        self.Button_Hardness = QtWidgets.QPushButton(parent=self.ButtonFrame)
-        self.Button_Hardness.setMinimumSize(QtCore.QSize(200, 50))
-        self.Button_Hardness.setMaximumSize(QtCore.QSize(200, 50))
+        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Drawing_Index.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Index_Drawings.setIcon(icon3)
+        self.Button_Index_Drawings.setIconSize(QtCore.QSize(40, 40))
+        self.Button_Index_Drawings.setObjectName("Button_Index_Drawings")
+        self.verticalLayout_3.addWidget(self.Button_Index_Drawings)
+        self.Button_NCReports = QtWidgets.QPushButton(parent=self.ButtonFrame)
+        self.Button_NCReports.setMinimumSize(QtCore.QSize(200, 50))
+        self.Button_NCReports.setMaximumSize(QtCore.QSize(200, 50))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
-        self.Button_Hardness.setFont(font)
-        self.Button_Hardness.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_NCReports.setFont(font)
+        self.Button_NCReports.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Hardness.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Hardness.setIcon(icon4)
-        self.Button_Hardness.setIconSize(QtCore.QSize(40, 40))
-        self.Button_Hardness.setObjectName("Button_Hardness")
-        self.verticalLayout_3.addWidget(self.Button_Hardness)
+        icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/NC.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_NCReports.setIcon(icon4)
+        self.Button_NCReports.setIconSize(QtCore.QSize(40, 40))
+        self.Button_NCReports.setObjectName("Button_NCReports")
+        self.verticalLayout_3.addWidget(self.Button_NCReports)
         self.Button_Calibration = QtWidgets.QPushButton(parent=self.ButtonFrame)
         self.Button_Calibration.setMinimumSize(QtCore.QSize(200, 50))
         self.Button_Calibration.setMaximumSize(QtCore.QSize(200, 50))
@@ -659,6 +846,8 @@ class Ui_App_Verification(object):
         self.Button_Verif_Order.clicked.connect(self.verif_order)
         self.Button_Index_Drawings.clicked.connect(self.index_drawing)
         self.Button_NCReports.clicked.connect(self.nc_report)
+        self.Button_Machines.clicked.connect(self.workshop_machines)
+        self.Button_HandTools.clicked.connect(self.workshop_handtools)
         self.Button_Profile.clicked.connect(self.showMenu)
 
 
@@ -668,9 +857,9 @@ class Ui_App_Verification(object):
         self.HeaderName.setText(_translate("App_Verification", self.name))
         self.Button_QueryTag.setText(_translate("App_Verification", "    Consultar TAG(s)"))
         self.Button_Verification.setText(_translate("App_Verification", "    Verificación"))
-        self.Button_Liquid.setText(_translate("App_Verification", "  Liq. Penetrantes"))
-        self.Button_Hydro.setText(_translate("App_Verification", "    Prueba Hidro."))
-        self.Button_Hardness.setText(_translate("App_Verification", "    Prueba Dureza"))
+        self.Button_Verif_Order.setText(_translate("App_Verification", "  Verif. Pedido"))
+        self.Button_Index_Drawings.setText(_translate("App_Verification", "    Índice Planos"))
+        self.Button_NCReports.setText(_translate("App_Verification", "    Informes NC"))
         self.Button_Calibration.setText(_translate("App_Verification", "    Calibraciones"))
         self.Button_Suppliers.setText(_translate("App_Verification", "    Proveedores"))
 
@@ -683,7 +872,6 @@ class Ui_App_Verification(object):
         label_time = current_time.toString('hh:mm')
         # showing it to the label
         self.clock_indicator.setText(label_time)
-
 
 # Function to open corresponding window when Edit DB button is clicked
     def editdb(self):
@@ -712,20 +900,23 @@ class Ui_App_Verification(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_tags_tech = createConnection(user_database, password_database)
-        if not db_tags_tech:
-            sys.exit()
-
-        self.edit_tags_app = Ui_EditTags_Verification_Window(self.name, db_tags_tech, self.username)
-        self.edit_tags_app.show()
+        if self.edit_tags_app is None or not self.edit_tags_app.isVisible():
+            db_tags_tech = createConnection(user_database, password_database)
+            if not db_tags_tech:
+                sys.exit()
+            self.edit_tags_app = Ui_EditTags_Verification_Window(self.name, db_tags_tech, self.username)
+            self.edit_tags_app.show()
+        else:
+            self.edit_tags_app.raise_()
+            self.edit_tags_app.activateWindow()
+            self.edit_tags_app.setWindowState(self.edit_tags_app.windowState() & ~QtCore.Qt.WindowState.WindowMinimized | QtCore.Qt.WindowState.WindowActive)
 
 # Function to open corresponding window when Verification button is clicked
     def verification(self):
-        from Verification_Menu import Ui_Verification_Menu
-        self.verif_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_Verification_Menu(self.username)
-        self.ui.setupUi(self.verif_menu)
-        self.verif_menu.show()
+        from VerificationInsert_Window import Ui_VerificationInsert_Window
+        self.Verificationinsert_window=QtWidgets.QMainWindow()
+        self.ui=Ui_VerificationInsert_Window(self.username)
+        self.ui.showMaximized()
 
 # Function to open corresponding window when Hydrostatic Test button is clicked
     def hydrotest(self):
@@ -761,12 +952,17 @@ class Ui_App_Verification(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_calibration = createConnection(user_database, password_database)
-        if not db_calibration:
-            sys.exit()
+        if self.calibration_window is None or not self.calibration_window.isVisible():
+            db_calibration = createConnection(user_database, password_database)
+            if not db_calibration:
+                sys.exit()
 
-        self.calibration_window = Ui_Calibration_ThermoElements_Window(db_calibration, self.username)
-        self.calibration_window.showMaximized()
+            self.calibration_window = Ui_Calibration_ThermoElements_Window(db_calibration, self.username)
+            self.calibration_window.showMaximized()
+        else:
+            self.calibration_window.raise_()
+            self.calibration_window.activateWindow()
+            self.calibration_window.setWindowState(self.edit_tags_app.windowState() & ~QtCore.Qt.WindowState.WindowMinimized | QtCore.Qt.WindowState.WindowActive)
 
 # Function to open corresponding window when Suppliers button is clicked
     def suppliers_delivnote(self):
@@ -870,6 +1066,44 @@ class Ui_App_Verification(object):
 
         self.nc_window = Ui_NC_Report_Window(db_nc, self.username)
         self.nc_window.showMaximized()
+
+# Function to open window with workshop machines
+    def workshop_machines(self):
+        from Workshop_Machines_Window import Ui_Workshop_Machines_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_machines = createConnection(user_database, password_database)
+        if not db_machines:
+            sys.exit()
+
+        self.machines_window = Ui_Workshop_Machines_Window(db_machines, self.username)
+        self.machines_window.showMaximized()
+
+# Function to open window with workshop machines
+    def workshop_handtools(self):
+        from Workshop_Handtools_Window import Ui_Workshop_Handtools_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_handtools = createConnection(user_database, password_database)
+        if not db_handtools:
+            sys.exit()
+
+        self.handtool_window = Ui_Workshop_Handtools_Window(db_handtools, self.username)
+        self.handtool_window.showMaximized()
+
+
+
+
 
 
 if __name__ == "__main__":

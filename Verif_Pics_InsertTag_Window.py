@@ -10,7 +10,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from config import config
 import psycopg2
 import os
-import re
+import locale
 from datetime import *
 from tkinter.filedialog import askopenfilename
 
@@ -511,6 +511,16 @@ class Ui_Verif_Pics_InsertTag_Window(QtWidgets.QMainWindow):
         self.images.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.images.setObjectName("images")
         self.gridLayout_2.addWidget(self.images, 4, 2, 1, 1)
+        self.label_CountItems = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountItems.setMinimumSize(QtCore.QSize(105, 25))
+        self.label_CountItems.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_CountItems.setObjectName("label_CountItems")
+        self.gridLayout_2.addWidget(self.label_CountItems, 4, 4, 1, 1)
+        self.label_CountValue = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountValue.setMinimumSize(QtCore.QSize(105, 25))
+        self.label_CountValue.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_CountValue.setObjectName("label_CountValue")
+        self.gridLayout_2.addWidget(self.label_CountValue, 4, 5, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.gridLayout_2.addItem(spacerItem1, 5, 2, 1, 1)
         self.Button_Insert = QtWidgets.QPushButton(parent=self.frame)
@@ -554,6 +564,7 @@ class Ui_Verif_Pics_InsertTag_Window(QtWidgets.QMainWindow):
         self.tableTags.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
         self.select_all.clicked.connect(self.toggle_checkboxes)
         self.tableTags.itemDoubleClicked.connect(self.item_double_clicked)
+        self.tableTags.itemSelectionChanged.connect(self.countSelectedCells)
 
         self.querytags()
 
@@ -940,6 +951,22 @@ class Ui_Verif_Pics_InsertTag_Window(QtWidgets.QMainWindow):
             dlg.exec()
             del dlg, new_icon
 
+
+# Function to count cells
+    def countSelectedCells(self):
+        if len(self.tableTags.selectedIndexes()) > 1:
+            locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+            self.label_CountItems.setText("")
+            self.label_CountValue.setText("")
+
+            count_value = len([ix for ix in self.tableTags.selectedIndexes() if ix.data() != ""])
+
+            if count_value > 0:
+                self.label_CountItems.setText("Recuento:")
+                self.label_CountValue.setText(str(count_value))
+        else:
+            self.label_CountItems.setText("")
+            self.label_CountValue.setText("")
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'Warehouse_Menu.ui'
+#▲ Form implementation generated from reading ui file 'Warehouse_Menu.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -7,36 +7,1094 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-from SupplierOrder_Warehouse_Window import Ui_SupplierOrder_Warehouse_Window
-from Supplies_Warehouse_Window import Ui_Supplies_Warehouse_Window
+import psycopg2
+from config import config
 import os
+from datetime import *
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
+class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    def initStyleOption(self, option, index):
+        super(AlignDelegate, self).initStyleOption(option, index)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter | QtCore.Qt.AlignmentFlag.AlignVCenter
 
-class Ui_Warehouse_Menu(object):
+class AlignDelegate_drawings(QtWidgets.QStyledItemDelegate):
+    def initStyleOption(self, option, index):
+        super(AlignDelegate_drawings, self).initStyleOption(option, index)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter
+
+    def paint(self, painter, option, index):
+        super().paint(painter, option, index)
+
+        if index.column() == 3:  # Column to paint
+            state_column_index = index.sibling(index.row(), 4)  # Index for column to check text
+            original_text = str(index.data())  # Text of cell to be painted
+            value_check = str(state_column_index.data()).upper()  # Text for checking
+            text_color = QtGui.QColor(0, 0, 0)
+
+            if option.state & QtWidgets.QStyle.StateFlag.State_Selected:
+                painter.setPen(option.palette.highlightedText().color())
+                painter.setBrush(option.palette.highlight())
+            else:
+
+                if "STELLITE" in value_check:
+                    start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['316H', '316TI']):
+                    start_color = QtGui.QColor(92, 197, 229)  # Blue
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
+                    border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+                elif '304H' in value_check:
+                    start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+                elif '321H' in value_check:
+                    start_color = QtGui.QColor(251, 131, 179)  # Pink
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+                    border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+                elif '310H' in value_check:
+                    start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                    border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+                elif '347H' in value_check:
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+                    border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+                elif '317H' in value_check:
+                    start_color = QtGui.QColor(92, 197, 229)  # Blue
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+                    border_color = QtGui.QColor(255, 0, 0)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
+
+                elif 'F9' in value_check:
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'A707' in value_check:
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '316' in value_check:
+                    start_color = QtGui.QColor(92, 197, 229)  # Blue
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '304' in value_check:
+                    start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '446' in value_check:
+                    start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'MONEL' in value_check:
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(160, 120, 182)  # Purple
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'HASTELLOY' in value_check:
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '321' in value_check:
+                    start_color = QtGui.QColor(251, 131, 179)  # Pink
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'TANTALO' in value_check:
+                    text_color = QtGui.QColor(255, 255, 255)
+                    start_color = QtGui.QColor(0, 0, 0)  # Black
+                    end_color = QtGui.QColor(0, 0, 0)  # Black
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'F11' in value_check:
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'F22' in value_check:
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'LF2' in value_check:
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(255, 157, 59)  # Orange
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '310' in value_check:
+                    start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'ALLOY 20' in value_check:
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'INCONEL 600' in value_check:
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'N08904' in value_check:
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(255, 157, 59)  # Orange
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['F60', '32205', 'SAF 2205']):
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['F44', '31254']):
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '825' in value_check:
+                    start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                    end_color = QtGui.QColor(255, 87, 87)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '601' in value_check:
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '625' in value_check:
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    end_color = QtGui.QColor(255, 87, 87)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '800' in value_check:
+                    start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                    end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['F53', '32750', 'SAF 2507']):
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['F51', '31803']):
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['F55', '32760']):
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(255, 87, 87)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['C70610', 'CUNI 90-10', 'C70690']):
+                    start_color = QtGui.QColor(255, 87, 87)  # Red
+                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '347' in value_check:
+                    start_color = QtGui.QColor(251, 131, 179)  # Pink
+                    end_color = QtGui.QColor(146, 208, 80)  # Light Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif '317' in value_check:
+                    start_color = QtGui.QColor(92, 197, 229)  # Blue
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'TITANIO' in value_check:
+                    start_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'ALLOY 699XA' in value_check:
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    end_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['HR160', '50CR-50NI']):
+                    start_color = QtGui.QColor(24, 146, 97)  # Dark Green
+                    end_color = QtGui.QColor(251, 131, 179)  # Pink
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif any(item in value_check for item in ['F5', '5CR-1/2MO']):
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'ALUMINIO' in value_check:
+                    start_color = QtGui.QColor(255, 87, 87)  # Red
+                    end_color = QtGui.QColor(255, 87, 87)  # Red
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                else:
+                    start_color = QtGui.QColor(255, 255, 255)  # White
+                    end_color = QtGui.QColor(255, 255, 255)  # White
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                textRect = painter.boundingRect(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2), QtCore.Qt.TextFlag.TextDontClip | QtCore.Qt.AlignmentFlag.AlignCenter, original_text,)
+                verticalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).y() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).height() + textRect.height() + 8) / 2)
+                horizontalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).x() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).width() - textRect.width()) / 2)
+
+                painter.setPen(QtGui.QPen(text_color))
+                painter.drawText(horizontalPosition, verticalPosition, original_text)
+
+class CustomTableWidget(QtWidgets.QTableWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.list_filters=[]
+        self.column_filters = {}
+        self.column_actions = {}
+        self.checkbox_states = {}
+        self.rows_hidden = {}
+        self.general_rows_to_hide = set()
+
+# Function to show the menu
+    def show_unique_values_menu(self, column_index, header_pos, header_height):
+        menu = QtWidgets.QMenu(self)
+        actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro")
+        actionDeleteFilterColumn.triggered.connect(lambda: self.delete_filter(column_index))
+        menu.addAction(actionDeleteFilterColumn)
+        menu.addSeparator()
+        actionOrderAsc = menu.addAction("Ordenar Ascendente")
+        actionOrderAsc.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.AscendingOrder))
+        actionOrderDesc = menu.addAction("Ordenar Descendente")
+        actionOrderDesc.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.DescendingOrder))
+        menu.addSeparator()
+        actionFilterByText = menu.addAction("Buscar Texto")
+        actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
+        menu.addSeparator()
+
+        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
+                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+
+        if column_index not in self.column_filters:
+            self.column_filters[column_index] = set()
+
+        scroll_menu = QtWidgets.QScrollArea()
+        scroll_menu.setWidgetResizable(True)
+        scroll_widget = QtWidgets.QWidget(scroll_menu)
+        scroll_menu.setWidget(scroll_widget)
+        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+
+        checkboxes = []
+
+        select_all_checkbox = QtWidgets.QCheckBox("Seleccionar todo")
+        if column_index in self.checkbox_states:
+            select_all_checkbox.setCheckState(QtCore.Qt.CheckState(self.checkbox_states[column_index].get("Seleccionar todo", QtCore.Qt.CheckState(2))))
+        else:
+            select_all_checkbox.setCheckState(QtCore.Qt.CheckState(2))
+        scroll_layout.addWidget(select_all_checkbox)
+        checkboxes.append(select_all_checkbox)
+
+        unique_values = self.get_unique_values(column_index)
+        filtered_values = self.get_filtered_values()
+
+        for value in sorted(unique_values):
+            checkbox = QtWidgets.QCheckBox(value)
+            if select_all_checkbox.isChecked(): 
+                checkbox.setCheckState(QtCore.Qt.CheckState(2))
+            else:
+                if column_index in self.checkbox_states and value in self.checkbox_states[column_index]:
+                    checkbox.setCheckState(QtCore.Qt.CheckState(self.checkbox_states[column_index][value]))
+                elif filtered_values is None or value in filtered_values[column_index]:
+                    checkbox.setCheckState(QtCore.Qt.CheckState(2))
+                else:
+                    checkbox.setCheckState(QtCore.Qt.CheckState(0))
+            scroll_layout.addWidget(checkbox)
+            checkboxes.append(checkbox)
+
+        select_all_checkbox.stateChanged.connect(lambda state: self.set_all_checkboxes_state(checkboxes, state, column_index))
+
+        for value, checkbox in zip(sorted(unique_values), checkboxes[1:]):
+            checkbox.stateChanged.connect(lambda checked, value=value, checkbox=checkbox: self.apply_filter(column_index, value, checked))
+
+    # Action for drop down menu and adding scroll area as widget
+        action_scroll_menu = QtWidgets.QWidgetAction(menu)
+        action_scroll_menu.setDefaultWidget(scroll_menu)
+        menu.addAction(action_scroll_menu)
+
+        menu.exec(header_pos - QtCore.QPoint(0, header_height))
+
+
+# Function to delete filter on selected column
+    def delete_filter(self,column_index):
+        if column_index in self.column_filters:
+            del self.column_filters[column_index]
+        if column_index in self.checkbox_states:
+            del self.checkbox_states[column_index]
+        if column_index in self.rows_hidden:
+            for item in self.rows_hidden[column_index]:
+                self.setRowHidden(item, False)
+                if item in self.general_rows_to_hide:
+                    self.general_rows_to_hide.remove(item)
+            del self.rows_hidden[column_index]
+        header_item = self.horizontalHeaderItem(column_index)
+        header_item.setIcon(QtGui.QIcon())
+
+
+# Function to set all checkboxes state
+    def set_all_checkboxes_state(self, checkboxes, state, column_index):
+        if column_index not in self.checkbox_states:
+            self.checkbox_states[column_index] = {}
+
+        for checkbox in checkboxes:
+            checkbox.setCheckState(QtCore.Qt.CheckState(state))
+
+        self.checkbox_states[column_index]["Seleccionar todo"] = state
+
+
+# Function to apply filters to table
+    def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
+        if column_index not in self.column_filters:
+            self.column_filters[column_index] = set()
+
+        if text_filter is None:
+            if value is None:
+                self.column_filters[column_index] = set()
+            elif checked:
+                self.column_filters[column_index].add(value)
+            elif value in self.column_filters[column_index]:
+                self.column_filters[column_index].remove(value)
+
+        rows_to_hide = set()
+        for row in range(self.rowCount()):
+            show_row = True
+
+            # Check filters for all columns
+            for col, filters in self.column_filters.items():
+                item = self.item(row, col)
+                if item:
+                    item_value = item.text()
+                    if text_filter is None:
+                        if filters and item_value not in filters:
+                            show_row = False
+                            break
+
+        # Filtering by text
+            if text_filter is not None:
+                filter_dialog.accept()
+                item = self.item(row, column_index)
+                if item:
+                    if text_filter.upper() in item.text().upper():
+                        self.column_filters[column_index].add(item.text())
+                    else:
+                        show_row = False
+
+            if not show_row:
+                if row not in self.general_rows_to_hide:
+                    self.general_rows_to_hide.add(row)
+                    rows_to_hide.add(row)
+            else:
+                if row in self.general_rows_to_hide:
+                    self.general_rows_to_hide.remove(row)
+
+        # Update hidden rows for this column depending on checkboxes
+        if checked and text_filter is None:
+            if column_index not in self.rows_hidden:
+                self.rows_hidden[column_index] = set(rows_to_hide)
+            else:
+                self.rows_hidden[column_index].update(rows_to_hide)
+
+        # Update hidden rows for this column depending on filtered text
+        if text_filter is not None and value is None:
+            if column_index not in self.rows_hidden:
+                self.rows_hidden[column_index] = set(rows_to_hide)
+            else:
+                self.rows_hidden[column_index].update(rows_to_hide)
+
+        # Iterate over all rows to hide them as necessary
+        for row in range(self.rowCount()):
+            self.setRowHidden(row, row in self.general_rows_to_hide)
+
+        header_item = self.horizontalHeaderItem(column_index)
+        if len(self.general_rows_to_hide) > 0:
+            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+        else:
+            header_item.setIcon(QtGui.QIcon())
+
+
+    def filter_by_text(self, column_index):
+        filter_dialog = QtWidgets.QDialog(self)
+        filter_dialog.setWindowTitle("Filtrar por texto")
+        
+        label = QtWidgets.QLabel("Texto a filtrar:")
+        text_input = QtWidgets.QLineEdit()
+        
+        filter_button = QtWidgets.QPushButton("Filtrar")
+        filter_button.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 2px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        filter_button.clicked.connect(lambda: self.apply_filter(column_index, None, False, text_input.text(), filter_dialog))
+
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(label)
+        layout.addWidget(text_input)
+        layout.addWidget(filter_button)
+
+        filter_dialog.setLayout(layout)
+        filter_dialog.exec()
+
+
+# Function to obtain the unique matching applied filters 
+    def get_unique_values(self, column_index):
+        unique_values = set()
+        for row in range(self.rowCount()):
+            show_row = True
+            for col, filters in self.column_filters.items():
+                if col != column_index:
+                    item = self.item(row, col)
+                    if item:
+                        item_value = item.text()
+                        if filters and item_value not in filters:
+                            show_row = False
+                            break
+            if show_row:
+                item = self.item(row, column_index)
+                if item:
+                    unique_values.add(item.text())
+        return unique_values
+
+# Function to get values filtered by all columns
+    def get_filtered_values(self):
+        filtered_values = {}
+        for col, filters in self.column_filters.items():
+            filtered_values[col] = filters
+        return filtered_values
+
+# Function to sort column
+    def sort_column(self, column_index, sortOrder):
+        if self.horizontalHeaderItem(column_index).text() in ['Fecha Dim.', 'Fecha OF Vaina', 'Fecha OF Sensor', 'Fecha OF']:
+            self.custom_sort(column_index, sortOrder)
+        else:
+            self.sortByColumn(column_index, sortOrder)
+
+
+    def custom_sort(self, column, order):
+    # Obtén la cantidad de filas en la tabla
+        row_count = self.rowCount()
+
+        # Crea una lista de índices ordenados según las fechas
+        indexes = list(range(row_count))
+        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd-MM-yyyy"))
+
+        # Si el orden es descendente, invierte la lista
+        if order == QtCore.Qt.SortOrder.DescendingOrder:
+            indexes.reverse()
+
+        # Guarda el estado actual de las filas ocultas
+        hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
+
+        # Actualiza las filas en la tabla en el orden ordenado
+        rows = self.rowCount()
+        for i in range(rows):
+            self.insertRow(i)
+
+        for new_row, old_row in enumerate(indexes):
+            for col in range(self.columnCount()):
+                item = self.takeItem(old_row + rows, col)
+                self.setItem(new_row, col, item)
+
+        for i in range(rows):
+            self.removeRow(rows)
+
+        for row in hidden_rows:
+            self.setRowHidden(row, True)
+
+# Function with the menu configuration
+    def contextMenuEvent(self, event):
+        if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
+            logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
+            header_pos = self.mapToGlobal(self.horizontalHeader().pos())
+            header_height = self.horizontalHeader().height()
+            self.show_unique_values_menu(logical_index, header_pos, header_height)
+        else:
+            super().contextMenuEvent(event)
+
+class Ui_App_Warehouse(object):
     def __init__(self, name, username):
         self.name=name
         self.username=username
 
-    def setupUi(self, Warehouse_Menu):
-        Warehouse_Menu.setObjectName("Warehouse_Menu")
-        Warehouse_Menu.setWindowModality(QtCore.Qt.WindowModality.WindowModal)
-        Warehouse_Menu.resize(615, 400)
-        Warehouse_Menu.setMinimumSize(QtCore.QSize(315, 325))
-        Warehouse_Menu.setMaximumSize(QtCore.QSize(315, 325))
+
+    def setupUi(self, App_Warehouse):
+        App_Warehouse.setObjectName("App_Warehouse")
+        App_Warehouse.resize(945, 860)
+        App_Warehouse.setMinimumSize(QtCore.QSize(945, 860))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        Warehouse_Menu.setWindowIcon(icon)
-        Warehouse_Menu.setStyleSheet("QWidget {\n"
-"background-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-".QFrame {\n"
-"    border: 2px solid black;\n"
-"}\n"
-"\n"
-"QPushButton {\n"
+        App_Warehouse.setWindowIcon(icon)
+        if self.username == 'j.tena':
+            App_Warehouse.setStyleSheet("QWidget {\n"
+    "background-color: rgb(38, 38, 38); color: rgb(255, 255, 255);\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid white;\n"
+    "}\n"
+    "\n"
+    "QComboBox {\n"
+    "border: 1px solid white;\n"
+    "border-radius: 3px;\n"
+    "}\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 2px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
+        else:
+            App_Warehouse.setStyleSheet("QWidget {\n"
+    "background-color: rgb(255, 255, 255);\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid black;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 2px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
+        self.centralwidget = QtWidgets.QWidget(parent=App_Warehouse)
+        self.centralwidget.setObjectName("centralwidget")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.frame = QtWidgets.QFrame(parent=self.centralwidget)
+        self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
+        self.frame.setObjectName("frame")
+        self.gridLayout = QtWidgets.QGridLayout(self.frame)
+        self.gridLayout.setObjectName("gridLayout")
+        self.FrameApp = QtWidgets.QVBoxLayout()
+        self.FrameApp.setObjectName("FrameApp")
+        self.Header = QtWidgets.QHBoxLayout()
+        self.Header.setContentsMargins(-1, 0, -1, -1)
+        self.Header.setObjectName("Header")
+        self.LogoIcon = QtWidgets.QLabel(parent=self.frame)
+        self.LogoIcon.setMinimumSize(QtCore.QSize(int(220), int(52)))
+        self.LogoIcon.setMaximumSize(QtCore.QSize(int(220), int(52)))
+        self.LogoIcon.setText("")
+        self.LogoIcon.setPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Logo Nobg.ico"))))
+        self.LogoIcon.setScaledContents(True)
+        self.LogoIcon.setObjectName("LogoIcon")
+        self.Header.addWidget(self.LogoIcon)
+        spacerItem = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem)
+        self.Button_Suppliers = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Suppliers.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Suppliers.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Suppliers.setToolTip('Albaranes')
+        self.Button_Suppliers.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'j.tena':
+            self.Button_Suppliers.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        
+        else:
+            self.Button_Suppliers.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Suppliers.setText("")
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Supplier.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Suppliers.setIcon(icon2)
+        self.Button_Suppliers.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Suppliers.setObjectName("Button_Suppliers")
+        self.Header.addWidget(self.Button_Suppliers)
+        spacerItem6 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem6)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem1)
+        self.HeaderName = QtWidgets.QLabel(parent=self.frame)
+        font = QtGui.QFont()
+        font.setPointSize(int(12))
+        font.setBold(True)
+        self.HeaderName.setFont(font)
+        self.HeaderName.setStyleSheet("color:rgb(3, 174, 236)")
+        self.HeaderName.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.HeaderName.setObjectName("HeaderName")
+        self.Header.addWidget(self.HeaderName)
+        spacerItem15 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem15)
+        self.Button_Profile = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Profile.setMinimumSize(QtCore.QSize(int(50), int(50)))
+        self.Button_Profile.setMaximumSize(QtCore.QSize(int(50), int(50)))
+        self.Button_Profile.setToolTip('Configuración')
+        self.Button_Profile.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'j.tena':
+            self.Button_Profile.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        
+        else:
+            self.Button_Profile.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Profile.setText("")
+        icon13 = QtGui.QIcon()
+        icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/User.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Profile.setIcon(icon13)
+        self.Button_Profile.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Profile.setObjectName("Button_Profile")
+        self.Header.addWidget(self.Button_Profile)
+        self.FrameApp.addLayout(self.Header)
+        spacerItem3 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.FrameApp.addItem(spacerItem3)
+        self.PrincipalScreen = QtWidgets.QHBoxLayout()
+        self.PrincipalScreen.setObjectName("PrincipalScreen")
+        self.table_orders = CustomTableWidget()
+        self.table_orders.setMinimumSize(QtCore.QSize(int(220), 0))
+        self.table_orders.setMaximumSize(QtCore.QSize(int(220), 16777215))
+        self.table_orders.setObjectName("table")
+        self.table_orders.setColumnCount(1)
+        self.table_orders.setRowCount(0)
+        self.table_orders.verticalHeader().setVisible(False)
+        self.PrincipalScreen.addWidget(self.table_orders)
+        spacerItem4 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.PrincipalScreen.addItem(spacerItem4)
+        self.MainLayout = QtWidgets.QVBoxLayout()
+        self.MainLayout.setObjectName("MainLayout")
+        self.splitter = QtWidgets.QSplitter(QtCore.Qt.Orientation.Vertical)
+        self.tableDimDwg = CustomTableWidget()
+        self.tableDimDwg.setObjectName("tableDimDwg")
+        self.splitter.addWidget(self.tableDimDwg)
+        self.tableOfDwg = CustomTableWidget()
+        self.tableOfDwg.setObjectName("tableOfDwg")
+        self.splitter.addWidget(self.tableOfDwg)
+        self.tableMDwg = CustomTableWidget()
+        self.tableMDwg.setObjectName("tableMDwg")
+        self.splitter.addWidget(self.tableMDwg)
+        self.MainLayout.addWidget(self.splitter)
+        spacerItem5 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.MainLayout.addItem(spacerItem5)
+        self.BottomLayout  = QtWidgets.QHBoxLayout()
+        self.BottomLayout.setObjectName("BottomLayout")
+        self.label_date = QtWidgets.QLabel(parent=self.frame)
+        self.label_date.setMinimumSize(QtCore.QSize(80, 10))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_date.setFont(font)
+        self.label_date.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_date.setText("Fecha:")
+        self.label_date.setObjectName("label_date")
+        self.BottomLayout.addWidget(self.label_date)
+        self.date = QtWidgets.QLineEdit(parent=self.frame)
+        self.date.setMinimumSize(QtCore.QSize(105, 25))
+        self.date.setMaximumSize(QtCore.QSize(150, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.date.setFont(font)
+        self.date.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.date.setObjectName("date")
+        self.BottomLayout.addWidget(self.date)
+        self.label_state = QtWidgets.QLabel(parent=self.frame)
+        self.label_state.setMinimumSize(QtCore.QSize(105, 20))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_state.setFont(font)
+        self.label_state.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_state.setText("Estado:")
+        self.label_state.setObjectName("label_state")
+        self.BottomLayout.addWidget(self.label_state)
+        self.Button_AddState = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_AddState.setMinimumSize(QtCore.QSize(30, 25))
+        self.Button_AddState.setMaximumSize(QtCore.QSize(30, 25))
+        self.Button_AddState.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_AddState.setAutoDefault(True)
+        self.Button_AddState.setStyleSheet("QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
 "  border-radius: 3px;\n"
@@ -62,99 +1120,316 @@ class Ui_Warehouse_Menu(object):
 "QPushButton:pressed {\n"
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
+"}\n"
+"\n"
+"QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:focus:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
 "}")
-        self.centralwidget = QtWidgets.QWidget(parent=Warehouse_Menu)
-        self.centralwidget.setMinimumSize(QtCore.QSize(315, 300))
-        self.centralwidget.setMaximumSize(QtCore.QSize(315, 300))
-        self.centralwidget.setObjectName("centralwidget")
-        self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
-        self.gridLayout.setObjectName("gridLayout")
-        self.frame = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame.setMinimumSize(QtCore.QSize(275, 275))
-        self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
-        self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
-        self.frame.setObjectName("frame")
-        self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
-        self.gridLayout_2.setObjectName("gridLayout_2")
-        self.hLayout1 = QtWidgets.QHBoxLayout()
-        self.hLayout1.setObjectName("hLayout1")
-        self.Button_Supplies = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Supplies.setMinimumSize(QtCore.QSize(250, 35))
-        self.Button_Supplies.setMaximumSize(QtCore.QSize(250, 35))
-        self.Button_Supplies.setObjectName("Button_Supplies")
-        self.hLayout1.addWidget(self.Button_Supplies)
-        self.gridLayout_2.addLayout(self.hLayout1, 0, 0, 1, 1)
-        spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem, 2, 0, 1, 1)
-        self.hLayout2 = QtWidgets.QHBoxLayout()
-        self.hLayout2.setObjectName("hLayout2")
-        self.Button_SupplierOrder = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_SupplierOrder.setMinimumSize(QtCore.QSize(250, 35))
-        self.Button_SupplierOrder.setMaximumSize(QtCore.QSize(250, 35))
-        self.Button_SupplierOrder.setObjectName("Button_SupplierOrder")
-        self.hLayout2.addWidget(self.Button_SupplierOrder)
-        self.gridLayout_2.addLayout(self.hLayout2, 3, 0, 1, 1)
-        self.hLayout3 = QtWidgets.QHBoxLayout()
-        self.hLayout3.setObjectName("hLayout2")
-        self.Button_SupplierNote = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_SupplierNote.setMinimumSize(QtCore.QSize(250, 35))
-        self.Button_SupplierNote.setMaximumSize(QtCore.QSize(250, 35))
-        self.Button_SupplierNote.setObjectName("Button_SupplierNote")
-        self.hLayout3.addWidget(self.Button_SupplierNote)
-        self.gridLayout_2.addLayout(self.hLayout3, 5, 0, 1, 1)
-        self.hLayout4 = QtWidgets.QHBoxLayout()
-        self.hLayout4.setContentsMargins(-1, 0, -1, -1)
-        self.hLayout4.setObjectName("hLayout4")
-        spacerItem3 = QtWidgets.QSpacerItem(350, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.hLayout4.addItem(spacerItem3)
-        self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Cancel.setEnabled(True)
-        self.Button_Cancel.setMinimumSize(QtCore.QSize(100, 35))
-        self.Button_Cancel.setMaximumSize(QtCore.QSize(100, 35))
-        self.Button_Cancel.setObjectName("Button_Cancel")
-        self.hLayout4.addWidget(self.Button_Cancel)
-        self.gridLayout_2.addLayout(self.hLayout4, 11, 0, 1, 1)
-        spacerItem5 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem5, 6, 0, 1, 1)
-        self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
-        Warehouse_Menu.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=Warehouse_Menu)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 615, 22))
+        self.Button_AddState.setObjectName("Button_AddState")
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Add_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_AddState.setIcon(icon1)
+        self.Button_AddState.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.BottomLayout.addWidget(self.Button_AddState)
+        self.state = QtWidgets.QComboBox(parent=self.frame)
+        self.state.setMinimumSize(QtCore.QSize(300, 25))
+        self.state.setMaximumSize(QtCore.QSize(300, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.state.setFont(font)
+        self.state.setObjectName("state")
+        self.BottomLayout.addWidget(self.state)
+        self.label_obs = QtWidgets.QLabel(parent=self.frame)
+        self.label_obs.setMinimumSize(QtCore.QSize(105, 20))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_obs.setFont(font)
+        self.label_obs.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_obs.setText("Observaciones:")
+        self.label_obs.setObjectName("label_obs")
+        self.BottomLayout.addWidget(self.label_obs)
+        self.obs = QtWidgets.QTextEdit(parent=self.frame)
+        self.obs.setMinimumSize(QtCore.QSize(105, 25))
+        self.obs.setMaximumSize(QtCore.QSize(16777215, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.obs.setFont(font)
+        self.obs.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.obs.setObjectName("obs")
+        self.BottomLayout.addWidget(self.obs)
+        self.Button_Insert = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Insert.setMinimumSize(QtCore.QSize(100, 35))
+        self.Button_Insert.setObjectName("Button_Insert")
+        self.BottomLayout.addWidget(self.Button_Insert)
+        self.MainLayout.addLayout(self.BottomLayout)
+        self.PrincipalScreen.addLayout(self.MainLayout)
+        self.FrameApp.addLayout(self.PrincipalScreen)
+        self.gridLayout.addLayout(self.FrameApp, 3, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.frame, 0, 0, 1, 1)
+        App_Warehouse.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=App_Warehouse)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 945, 22))
         self.menubar.setObjectName("menubar")
-        Warehouse_Menu.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=Warehouse_Menu)
+        App_Warehouse.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=App_Warehouse)
         self.statusbar.setObjectName("statusbar")
-        Warehouse_Menu.setStatusBar(self.statusbar)
+        App_Warehouse.setStatusBar(self.statusbar)
 
-        self.retranslateUi(Warehouse_Menu)
-        self.Button_Supplies.clicked.connect(lambda: self.supplies(Warehouse_Menu))
-        self.Button_SupplierOrder.clicked.connect(lambda: self.supplierorder(Warehouse_Menu))
-        self.Button_SupplierNote.clicked.connect(self.suppliers_delivnote)
-        self.Button_Cancel.clicked.connect(Warehouse_Menu.close)
-        QtCore.QMetaObject.connectSlotsByName(Warehouse_Menu)
+        if self.username == 'j.tena':
+            self.table_orders.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.table_orders.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+            self.tableDimDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableDimDwg.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+            self.tableOfDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableOfDwg.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+            self.tableMDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableMDwg.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+        else:
+            self.table_orders.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+            self.tableDimDwg.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+            self.tableOfDwg.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+            self.tableMDwg.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+
+        self.retranslateUi(App_Warehouse)
+        QtCore.QMetaObject.connectSlotsByName(App_Warehouse)
+
+        self.Button_Suppliers.clicked.connect(self.suppliers_delivnote)
+        self.Button_Profile.clicked.connect(self.showMenu)
+        self.Button_AddState.clicked.connect(self.add_state)
+        self.Button_Insert.clicked.connect(self.add_general_data)
+
+        self.query_all_order()
+        self.load_values()
 
 
-    def retranslateUi(self, Warehouse_Menu):
+    def retranslateUi(self, App_Warehouse):
         _translate = QtCore.QCoreApplication.translate
-        Warehouse_Menu.setWindowTitle(_translate("Warehouse_Menu", "ERP EIPSA - Almacén"))
-        self.Button_SupplierOrder.setText(_translate("Warehouse_Menu", "Pedido A Proveedor"))
-        self.Button_SupplierNote.setText(_translate("Warehouse_Menu", "Albaranes Proveedor"))
-        self.Button_Supplies.setText(_translate("Warehouse_Menu", "Suministros"))
-        self.Button_Cancel.setText(_translate("Warehouse_Menu", "Salir"))
+        App_Warehouse.setWindowTitle(_translate("App_Warehouse", "ERP EIPSA - Almacén"))
+        self.HeaderName.setText(_translate("App_Warehouse", self.name))
+        self.Button_Insert.setText(_translate("App_Warehouse", "Insertar"))
 
 
-    def supplies(self,Warehouse_Menu):
-        self.supplies_window=QtWidgets.QMainWindow()
-        self.ui=Ui_Supplies_Warehouse_Window()
-        self.ui.setupUi(self.supplies_window)
-        self.supplies_window.showMaximized()
+# Function to open window to insert drawing
+    def query_all_order(self):
+        self.table_orders.setRowCount(0)
+        commands_queryorder = ("""
+                    SELECT orders."num_order"
+                    FROM orders
+                    WHERE num_order NOT LIKE '%R%' AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)
+                    ORDER BY orders."num_order"
+                    """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(commands_queryorder)
+            results=cur.fetchall()
 
+            self.table_orders.setRowCount(len(results))
+            tablerow=0
 
-    def supplierorder(self,Warehouse_Menu):
-        self.supplierorder_window=QtWidgets.QMainWindow()
-        self.ui=Ui_SupplierOrder_Warehouse_Window()
-        self.ui.setupUi(self.supplierorder_window)
-        self.supplierorder_window.showMaximized()
+        # fill the Qt Table with the query results
+            for row in results:
+                for column in range(1):
+                    value = row[column]
+                    if value is None:
+                        value = ''
+                    it = QtWidgets.QTableWidgetItem(str(value))
+                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                    self.table_orders.setItem(tablerow, column, it)
+
+                tablerow+=1
+
+            self.table_orders.setItemDelegate(AlignDelegate(self.table_orders))
+            self.table_orders.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.table_orders.setHorizontalHeaderLabels(['Nº Pedido'])
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        self.table_orders.itemClicked.connect(self.item_clicked)
+
+# Function when item in table orders is clicked
+    def item_clicked(self, item):
+        self.num_order_toquery = item.text()
+        self.query_drawings(self.num_order_toquery)
+
+# Function to query drawings
+    def query_drawings(self, num_order):
+        if num_order is not None and num_order != '':
+            query_m_dwg = (""" SELECT '', id, num_order, drawing_number, drawing_description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
+                            FROM verification.m_drawing_verification WHERE UPPER(num_order) LIKE UPPER('%%'||%s||'%%')
+                            ORDER BY drawing_number""")
+
+            query_of_dwg = ("""SELECT '', id, num_order, drawing_number, drawing_description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
+                            FROM verification.workshop_of_drawings WHERE UPPER(num_order) LIKE UPPER('%%'||%s||'%%')
+                            ORDER BY drawing_number""")
+            
+            query_dim_dwg = ("""SELECT '', id, num_order, drawing_number, drawing_description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
+                            FROM verification.workshop_dim_drawings WHERE UPPER(num_order) LIKE UPPER('%%'||%s||'%%')
+                            ORDER BY drawing_number""")
+            
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(query_dim_dwg, (num_order,))
+                results_dim=cur.fetchall()
+
+                cur.execute(query_of_dwg, (num_order,))
+                results_of=cur.fetchall()
+
+                cur.execute(query_m_dwg, (num_order,))
+                results_m=cur.fetchall()
+
+                column_headers = ["", "ID", "Nº Pedido", "Nº Plano Dim.", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
+                column_headers_of = ["", "ID", "Nº Pedido", "Nº Plano OF", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
+                column_headers_m = ["", "ID", "Nº Pedido", "Nº Plano M", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
+
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+                self.tableDimDwg.setRowCount(len(results_dim))
+                self.tableDimDwg.setColumnCount(8)
+                tablerow=0
+
+            # fill the Qt Table with the query results
+                for row in results_dim:
+                    for column in range(8):
+                        if column == 0:
+                            checkbox_others = QtWidgets.QCheckBox()
+                            checkbox_others.setChecked(False)
+                            self.tableDimDwg.setCellWidget(tablerow, column, checkbox_others)
+                        else:
+                            value = row[column]
+                            if value is None:
+                                value = ''
+                            it = QtWidgets.QTableWidgetItem(str(value))
+                            it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                            self.tableDimDwg.setItem(tablerow, column, it)
+
+                    tablerow+=1
+
+                self.tableOfDwg.setRowCount(len(results_of))
+                self.tableOfDwg.setColumnCount(8)
+                tablerow=0
+
+            # fill the Qt Table with the query results
+                for row in results_of:
+                    for column in range(8):
+                        if column == 0:
+                            checkbox_others = QtWidgets.QCheckBox()
+                            checkbox_others.setChecked(False)
+                            self.tableOfDwg.setCellWidget(tablerow, column, checkbox_others)
+                        else:
+                            value = row[column]
+                            if value is None:
+                                value = ''
+                            it = QtWidgets.QTableWidgetItem(str(value))
+                            it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                            self.tableOfDwg.setItem(tablerow, column, it)
+
+                    tablerow+=1
+
+                self.tableMDwg.setRowCount(len(results_m))
+                self.tableMDwg.setColumnCount(8)
+                tablerow=0
+
+            # fill the Qt Table with the query results
+                for row in results_m:
+                    for column in range(8):
+                        if column == 0:
+                            checkbox_others = QtWidgets.QCheckBox()
+                            checkbox_others.setChecked(False)
+                            self.tableMDwg.setCellWidget(tablerow, column, checkbox_others)
+                        else:
+                            value = row[column]
+                            if value is None:
+                                value = ''
+                            it = QtWidgets.QTableWidgetItem(str(value))
+                            it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                            self.tableMDwg.setItem(tablerow, column, it)
+
+                    tablerow+=1
+
+                self.tableDimDwg.hideColumn(1)
+                self.tableDimDwg.setHorizontalHeaderLabels(column_headers)
+                self.tableDimDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                self.tableDimDwg.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+                self.tableDimDwg.sortByColumn(3, QtCore.Qt.SortOrder.AscendingOrder)
+                self.tableDimDwg.verticalHeader().hide()
+                self.tableDimDwg.setItemDelegate(AlignDelegate_drawings(self.tableDimDwg))
+
+                self.tableOfDwg.hideColumn(1)
+                self.tableOfDwg.setHorizontalHeaderLabels(column_headers_of)
+                self.tableOfDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                self.tableOfDwg.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+                self.tableOfDwg.sortByColumn(3, QtCore.Qt.SortOrder.AscendingOrder)
+                self.tableOfDwg.verticalHeader().hide()
+                self.tableOfDwg.setItemDelegate(AlignDelegate_drawings(self.tableOfDwg))
+
+                self.tableMDwg.hideColumn(1)
+                self.tableMDwg.setHorizontalHeaderLabels(column_headers_m)
+                self.tableMDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                self.tableMDwg.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+                self.tableMDwg.sortByColumn(3, QtCore.Qt.SortOrder.AscendingOrder)
+                self.tableMDwg.verticalHeader().hide()
+                self.tableMDwg.setItemDelegate(AlignDelegate_drawings(self.tableMDwg))
+                # self.tableOthers.setSortingEnabled(False)
+                # self.tableOthers.setHorizontalHeaderLabels(column_headers)
+                # self.tableOthers.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                # self.tableOthers.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
+                # self.tableOthers.hideColumn(1)
+                # self.tableOthers.sortByColumn(2, QtCore.Qt.SortOrder.AscendingOrder)
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                print(error)
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
 # Function to open corresponding window when Suppliers button is clicked
     def suppliers_delivnote(self):
@@ -163,3 +1438,415 @@ class Ui_Warehouse_Menu(object):
         self.ui=Ui_VerifSupplierInsert_Window(self.username)
         self.ui.setupUi(self.verifsupplier_window)
         self.verifsupplier_window.showMaximized()
+
+# Function to show menu when Profile button is clicked 
+    def showMenu(self):
+        menu = QtWidgets.QMenu(self.centralwidget)
+        if self.username == 'm.gil':
+            menu.setStyleSheet("QMenu { background-color: rgb(255, 255, 255); border: 1px solid black; width: 125px; right: -1px; }"
+            "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
+        else:
+            menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; }"
+            "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
+        option1 = menu.addAction("Editar contraseña")
+        option1.triggered.connect(lambda: self.editpassword())
+        menu.addAction(option1)
+        button = self.Button_Profile
+        menu.exec(button.mapToGlobal(QtCore.QPoint(-75, 50)))
+
+# Function to open corresponding window when Edit Password option is clicked
+    def editpassword(self):
+        from PasswordEdit_Window import Ui_EditPasswordWindow
+        self.edit_password_window=QtWidgets.QMainWindow()
+        self.ui=Ui_EditPasswordWindow(self.username)
+        self.ui.setupUi(self.edit_password_window)
+        self.edit_password_window.show()
+
+# Function to update all drawings
+    def add_general_data(self):
+        date_insert = self.date.text()
+        state = self.state.currentText()
+        notes = self.obs.toPlainText()
+
+        self.add_data_dim_drawings(date_insert, state, notes)
+        self.add_data_of_drawings(date_insert, state, notes)
+        self.add_data_m_drawings(date_insert, state, notes)
+
+        self.query_drawings(self.num_order_toquery)
+        self.obs.setText("")
+
+# Function to insert data on dimensional drawings
+    def add_data_dim_drawings(self, date, state, notes):
+        if self.tableDimDwg.rowCount() > 0:
+            row_list = []
+            for row in range(self.tableDimDwg.rowCount()):
+                item = self.tableDimDwg.cellWidget(row, 0)
+                if item.checkState() == QtCore.Qt.CheckState.Checked:
+                    row_list.append(row)
+            
+            for row_value in row_list:
+                id_order = self.tableDimDwg.item(row_value, 1).text()
+                dim_drawing = self.tableDimDwg.item(row_value, 3).text()
+                commands_select_dim_drawing = ("""
+                            SELECT warehouse_date
+                            FROM verification."workshop_dim_drawings"
+                            WHERE "id" = %s
+                            """)
+                commands_insert_dim_drawing = ("""
+                            UPDATE verification."workshop_dim_drawings"
+                            SET "warehouse_date" = %s, "warehouse_state" = %s,"warehouse_obs" = %s
+                            WHERE "id" = %s
+                            """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(commands_select_dim_drawing, (id_order,))
+                    results = cur.fetchall()
+
+                    if len(results) != 0:
+                        if results[0][0] is None:
+                            cur.execute(commands_insert_dim_drawing, (date, state, notes, id_order, ))
+
+                        else:
+                            dlg_yes_no = QtWidgets.QMessageBox()
+                            new_icon_yes_no = QtGui.QIcon()
+                            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                            dlg_yes_no.setWindowTitle("ERP EIPSA")
+                            dlg_yes_no.setText(f"Ya ha datos existentes para el plano {dim_drawing}\n"
+                                                "¿Deseas sobreescribirlos?\n")
+                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                            result = dlg_yes_no.exec()
+                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                cur.execute(commands_insert_dim_drawing, (date, state, notes, id_order, ))
+
+                            del dlg_yes_no, new_icon_yes_no
+
+                    else:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Planos Dimensionales")
+                        dlg.setText("No existe el plano dimensional " + dim_drawing)
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Planos M")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+# Function to insert data on OF drawings
+    def add_data_of_drawings(self, date, state, notes):
+        if self.tableOfDwg.rowCount() > 0:
+            row_list = []
+            for row in range(self.tableOfDwg.rowCount()):
+                item = self.tableOfDwg.cellWidget(row, 0)
+                if item.checkState() == QtCore.Qt.CheckState.Checked:
+                    row_list.append(row)
+            
+            for row_value in row_list:
+                id_order = self.tableOfDwg.item(row_value, 1).text()
+                of_drawing = self.tableOfDwg.item(row_value, 3).text()
+                commands_select_of_drawing = ("""
+                            SELECT warehouse_date
+                            FROM verification."workshop_of_drawings"
+                            WHERE "id" = %s
+                            """)
+                commands_insert_of_drawing = ("""
+                            UPDATE verification."workshop_of_drawings"
+                            SET "warehouse_date" = %s, "warehouse_state" = %s,"warehouse_obs" = %s
+                            WHERE "id" = %s
+                            """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(commands_select_of_drawing, (id_order,))
+                    results = cur.fetchall()
+
+                    if len(results) != 0:
+                        if results[0][0] is None:
+                            cur.execute(commands_insert_of_drawing, (date, state, notes, id_order, ))
+
+                        else:
+                            dlg_yes_no = QtWidgets.QMessageBox()
+                            new_icon_yes_no = QtGui.QIcon()
+                            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                            dlg_yes_no.setWindowTitle("ERP EIPSA")
+                            dlg_yes_no.setText(f"Ya ha datos existentes para el plano {of_drawing}\n"
+                                                "¿Deseas sobreescribirlos?\n")
+                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                            result = dlg_yes_no.exec()
+                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                cur.execute(commands_insert_of_drawing, (date, state, notes, id_order, ))
+
+                            del dlg_yes_no, new_icon_yes_no
+
+                    else:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Planos OF")
+                        dlg.setText("No existe el plano OF " + of_drawing)
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Planos M")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+# Function to insert data on M drawings
+    def add_data_m_drawings(self, date, state, notes):
+        if self.tableMDwg.rowCount() > 0:
+            row_list = []
+            for row in range(self.tableMDwg.rowCount()):
+                item = self.tableMDwg.cellWidget(row, 0)
+                if item.checkState() == QtCore.Qt.CheckState.Checked:
+                    row_list.append(row)
+            
+            for row_value in row_list:
+                id_order = self.tableMDwg.item(row_value, 1).text()
+                m_drawing = self.tableMDwg.item(row_value, 3).text()
+                commands_select_m_drawing = ("""
+                            SELECT warehouse_date
+                            FROM verification."m_drawing_verification"
+                            WHERE "id" = %s
+                            """)
+                commands_insert_m_drawing = ("""
+                            UPDATE verification."m_drawing_verification"
+                            SET "warehouse_date" = %s, "warehouse_state" = %s,"warehouse_obs" = %s
+                            WHERE "id" = %s
+                            """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(commands_select_m_drawing, (id_order,))
+                    results = cur.fetchall()
+
+                    if len(results) != 0:
+                        if results[0][0] is None:
+                            cur.execute(commands_insert_m_drawing, (date, state, notes, id_order, ))
+
+                        else:
+                            dlg_yes_no = QtWidgets.QMessageBox()
+                            new_icon_yes_no = QtGui.QIcon()
+                            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                            dlg_yes_no.setWindowTitle("ERP EIPSA")
+                            dlg_yes_no.setText(f"Ya ha datos existentes para el plano {m_drawing}\n"
+                                                "¿Deseas sobreescribirlos?\n")
+                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                            result = dlg_yes_no.exec()
+                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                cur.execute(commands_insert_m_drawing, (date, state, notes, id_order, ))
+
+                            del dlg_yes_no, new_icon_yes_no
+
+                    else:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Planos M")
+                        dlg.setText("No existe el plano M " + m_drawing)
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Planos M")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+# Function to add new state
+    def add_state(self):
+        dlg = QtWidgets.QInputDialog()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle('Nuevo estado')
+        dlg.setLabelText('Introduce el estado:')
+
+        while True:
+            clickedButton = dlg.exec()
+            if clickedButton == 1:
+                state = dlg.textValue()
+                if state != '':
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        commands_insertstate = ("INSERT INTO verification.states_warehouse (state_warehouse) VALUES (%s)")
+                        cur.execute(commands_insertstate, (state,))
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Nuevo estado")
+                        dlg.setText("Datos insertados con éxito")
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                        dlg.exec()
+                        del dlg,new_icon
+
+                        self.state.setCurrentText(state)
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+                    break
+                dlg_error = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg_error.setWindowIcon(new_icon)
+                dlg_error.setWindowTitle("Nuevo estado")
+                dlg_error.setText("El estado no puede estar vacío")
+                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg_error.exec()
+                del dlg_error,new_icon
+            else:
+                break
+
+        self.load_values()
+
+# Function to update fixed values
+    def load_values(self):
+        self.state.clear()
+
+        actual_date=date.today()
+        actual_date=actual_date.strftime("%d/%m/%Y")
+        self.date.setText(actual_date)
+
+        query_states = ("""
+                            SELECT "state_warehouse"
+                            FROM verification.states_warehouse
+                            ORDER BY "id"
+                            """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(query_states)
+            results_states=cur.fetchall()
+            list_states = [x[0] for x in results_states]
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        self.state.addItems(list_states)
+
+
+
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    App_Warehouse = QtWidgets.QMainWindow()
+    ui = Ui_App_Warehouse('Juan Tena','j.tena')
+    ui.setupUi(App_Warehouse)
+    App_Warehouse.show()
+    sys.exit(app.exec())

@@ -671,7 +671,7 @@ class Ui_StatsOffer_Window(QtWidgets.QMainWindow):
 
     def retranslateUi(self, StatsOffer_Window):
         _translate = QtCore.QCoreApplication.translate
-        StatsOffer_Window.setWindowTitle(_translate("StatsOffer_Window", "Consultar Oferta"))
+        StatsOffer_Window.setWindowTitle(_translate("StatsOffer_Window", "Estadísticas Comercial"))
         self.label_Commercial.setText(_translate("StatsOffer_Window", "Comercial:"))
         self.label_Year.setText(_translate("StatsOffer_Window", "Año:"))
         self.label_Total.setText(_translate("StatsOffer_Window", "N° Ofertas Totales:"))

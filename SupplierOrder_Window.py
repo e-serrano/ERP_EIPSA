@@ -1561,6 +1561,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         commands_supplies = ("""
                         SELECT reference, description, ROUND(physical_stock,2), ROUND(available_stock,2), ROUND(pending_stock,2), id
                         FROM purch_fact.supplies
+                        ORDER BY reference ASC
                         """)
         commands_currency = ("""
                         SELECT * 
@@ -1611,7 +1612,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.Supplier_SupplierOrder.addItems([''] + list_suppliers)
 
         self.list_supplies=[x[0] + ' | ' + x[1] + ' | ' + str(x[2]) + ' | ' + str(x[3]) + ' | ' + str(x[4])  + ' | ID:' + str(x[5]) for x in results_supplies]
-        self.Supply_SupplierOrder.addItems([''] + sorted(self.list_supplies))
+        self.Supply_SupplierOrder.addItems([''] + self.list_supplies)
 
         list_currency=[x[2] + ' | ' + x[4] for x in results_currency]
         self.Currency_SupplierOrder.addItems(list_currency)
@@ -2002,7 +2003,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             unit_value=unit_value.replace(".","")
             unit_value=unit_value.replace(" €","")
         else:
-            unit_value=unit_value.replace(".",",")
+            unit_value=unit_value
         discount=self.Discount_SupplierOrder.text()
         if "%" in discount:
             discount = discount.replace(" %","")
@@ -2152,8 +2153,12 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             unit_value=unit_value.replace(".","")
             unit_value=unit_value.replace(" €","")
         else:
-            unit_value=unit_value.replace(".",",")
-        discount=self.Discount_SupplierOrder.text().replace(" %", "") if " %" in self.Discount_SupplierOrder.text() else (self.Discount_SupplierOrder.text() if self.Discount_SupplierOrder.text() not in [""," "] else 0)
+            unit_value=unit_value
+        discount=self.Discount_SupplierOrder.text()
+        if "%" in discount:
+            discount = discount.replace(" %","")
+        else:
+            discount = discount if discount not in [""," "] else 0
         position=self.Position_SupplierOrder.text()
         quantity=self.Quantity_SupplierOrder.text()
         deliv_quant_1=self.Deliv1_SupplierOrder.text() if self.Deliv1_SupplierOrder.text() not in [""," "] else 0
@@ -2257,10 +2262,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 if conn is not None:
                     conn.close()
 
-            self.Supply_SupplierOrder.setCurrentIndex(0)
-            self.Position_SupplierOrder.setText("")
-            self.Quantity_SupplierOrder.setText("")
-            
             self.loadtablerecords()
             self.calculate_totalorder()
             self.loadstocks()
@@ -2450,8 +2451,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.label_IDRecord.setText(data_supply[0])
         self.Position_SupplierOrder.setText(data_supply[1])
         self.Quantity_SupplierOrder.setText(data_supply[4])
-        self.UnitValue_SupplierOrder.setText(data_supply[5])
-        self.Discount_SupplierOrder.setText('' if data_supply[6] == '0.00 %' else data_supply[6])
+        self.UnitValue_SupplierOrder.setText(data_supply[5].replace(".","").replace(",",".").replace(" €",""))
+        self.Discount_SupplierOrder.setText('' if data_supply[6] == '0.00 %' else data_supply[6].replace(" %",""))
         self.Deliv1_SupplierOrder.setText(data_supply[9])
         self.Deliv2_SupplierOrder.setText(data_supply[10])
         self.Deliv3_SupplierOrder.setText(data_supply[11])
@@ -2464,8 +2465,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            query_stocks = "SELECT physical_stock, available_stock, pending_stock FROM purch_fact.supplies WHERE reference = %s"
-            cur.execute(query_stocks, (data_supply[2],))
+            query_stocks = "SELECT physical_stock, available_stock, pending_stock FROM purch_fact.supplies WHERE id = %s"
+            cur.execute(query_stocks, (data_supply[12],))
             result_stocks = cur.fetchone()
 
         # get id from table
@@ -2625,12 +2626,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
     # fill the Qt Table with the query results
         for row in results_records:
             row_list=list(row)
-            row_list[5]=row_list[5].replace(".","")
-            row_list[5]=row_list[5].replace(",",".")
-            row_list[5]=row_list[5][:row_list[5].find(" €")]
             row_list.insert(7,float(row_list[4])*float(row_list[5])*(1-float(row_list[6])/100))
 
-            row_list[5] = locale.format_string("%.2f", float(row_list[5]), grouping=True)
+            row_list[5] = locale.format_string("%.3f", float(row_list[5]), grouping=True)
             row_list[5] = row_list[5] + " €"
 
             row_list[6] = "{:.2f}".format(float(row[6]))
@@ -2666,8 +2664,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to add delivery 1 data
     def adddeliv1(self):
-        self.root = tk.Tk()
-        self.root.withdraw()
+        # self.root = tk.Tk()
+        # self.root.withdraw()
         date=self.DelivDate1_SupplierOrder.text()
         note=self.DelivNote1_SupplierOrder.text()
         order_id=self.label_IDOrd.text()
@@ -2781,7 +2779,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         record_id = self.tableRecords.item(row, 0).text()
                         supply_name = self.tableRecords.item(row, 2).text()
                         supply_description = self.tableRecords.item(row, 3).text()
-                        quant_1 = self.show_popup(supply_name, supply_description)
+                        supply_id = self.tableRecords.item(row, 12).text()
+                        quant_1 = self.tableRecords.item(row, 8).text()
 
                         # while True:
                         #     quant_1 = self.show_popup(supply_name, supply_description)
@@ -2795,15 +2794,15 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                                                         """)
                         query_stock = ("""
                                         SELECT physical_stock, pending_stock, available_stock FROM purch_fact.supplies
-                                        WHERE "reference" = %s
+                                        WHERE "id" = %s
                                         """)
                         query_updatestock = ("""
                                             UPDATE purch_fact.supplies 
                                             SET "physical_stock" = %s, "pending_stock" = %s, "available_stock" = %s
-                                            WHERE "reference" = %s
+                                            WHERE "id" = %s
                                             """)
                         cur.execute(commands_add_deliv_quant_1,(quant_1,record_id))
-                        cur.execute(query_stock, (supply_name,))
+                        cur.execute(query_stock, (supply_id,))
                         results=cur.fetchone()
 
                         stock = results[0]
@@ -2812,14 +2811,14 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         new_stock = str(float(stock) + float(quant_1))
                         new_pending_stock = str(float(pending_stock) - float(quant_1))
                         new_available_stock = str(float(available_stock) + float(quant_1))
-                        cur.execute(query_updatestock, (new_stock, new_pending_stock, new_available_stock, supply_name,))
+                        cur.execute(query_updatestock, (new_stock, new_pending_stock, new_available_stock, supply_id,))
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
                     conn.commit()
 
-                    self.root.deiconify()
-                    self.root.destroy()
+                    # self.root.deiconify()
+                    # self.root.destroy()
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
@@ -2847,13 +2846,12 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         conn.close()
 
                 self.loadtablerecords()
-                self.loadtableorders()
                 self.loadstocks()
 
 # Function to add delivery 2 data
     def adddeliv2(self):
-        self.root = tk.Tk()
-        self.root.withdraw()
+        # self.root = tk.Tk()
+        # self.root.withdraw()
         date=self.DelivDate2_SupplierOrder.text()
         note=self.DelivNote2_SupplierOrder.text()
         order_id=self.label_IDOrd.text()
@@ -2967,7 +2965,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         record_id = self.tableRecords.item(row, 0).text()
                         supply_name = self.tableRecords.item(row, 2).text()
                         supply_description = self.tableRecords.item(row, 3).text()
-                        quant_2 = self.show_popup(supply_name, supply_description)
+                        supply_id = self.tableRecords.item(row, 12).text()
+                        quant_2 = self.tableRecords.item(row, 8).text()
 
                         # while True:
                         #     quant_2 = self.show_popup(supply_name, supply_description)
@@ -2981,15 +2980,15 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                                                     """)
                         query_stock = ("""
                                         SELECT physical_stock, pending_stock, available_stock FROM purch_fact.supplies
-                                        WHERE "reference" = %s
+                                        WHERE "id" = %s
                                         """)
                         query_updatestock = ("""
                                             UPDATE purch_fact.supplies 
                                             SET "physical_stock" = %s, "pending_stock" = %s, "available_stock" = %s
-                                            WHERE "reference" = %s
+                                            WHERE "id" = %s
                                             """)
                         cur.execute(commands_add_deliv_quant_2,(quant_2,record_id))
-                        cur.execute(query_stock, (supply_name,))
+                        cur.execute(query_stock, (supply_id,))
                         results=cur.fetchone()
 
                         stock = results[0]
@@ -2998,14 +2997,14 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         new_stock = str(float(stock) + float(quant_2))
                         new_pending_stock = str(float(pending_stock) - float(quant_2))
                         new_available_stock = str(float(available_stock) + float(quant_2))
-                        cur.execute(query_updatestock, (new_stock, new_pending_stock, new_available_stock, supply_name,))
+                        cur.execute(query_updatestock, (new_stock, new_pending_stock, new_available_stock, supply_id,))
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
                     conn.commit()
 
-                    self.root.deiconify()
-                    self.root.destroy()
+                    # self.root.deiconify()
+                    # self.root.destroy()
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
@@ -3038,8 +3037,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to add delivery 3 data
     def adddeliv3(self):
-        self.root = tk.Tk()
-        self.root.withdraw()
+        # self.root = tk.Tk()
+        # self.root.withdraw()
         date=self.DelivDate3_SupplierOrder.text()
         note=self.DelivNote3_SupplierOrder.text()
         order_id=self.label_IDOrd.text()
@@ -3153,7 +3152,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         record_id = self.tableRecords.item(row, 0).text()
                         supply_name = self.tableRecords.item(row, 2).text()
                         supply_description = self.tableRecords.item(row, 3).text()
-                        quant_3 = self.show_popup(supply_name, supply_description)
+                        supply_id = self.tableRecords.item(row, 12).text()
+                        quant_3 = self.tableRecords.item(row, 8).text()
 
                         # while True:
                         #     quant_3 = self.show_popup(supply_name, supply_description)
@@ -3167,15 +3167,15 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                             """)
                         query_stock = ("""
                                         SELECT physical_stock, pending_stock, available_stock FROM purch_fact.supplies
-                                        WHERE "reference" = %s
+                                        WHERE "id" = %s
                                         """)
                         query_updatestock = ("""
                                             UPDATE purch_fact.supplies 
                                             SET "physical_stock" = %s, "pending_stock" = %s, "available_stock" = %s
-                                            WHERE "reference" = %s
+                                            WHERE "id" = %s
                                             """)
                         cur.execute(commands_add_deliv_quant_3,(quant_3,record_id))
-                        cur.execute(query_stock, (supply_name,))
+                        cur.execute(query_stock, (supply_id,))
                         results=cur.fetchone()
 
                         stock = results[0]
@@ -3184,14 +3184,14 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         new_stock = str(float(stock) + float(quant_3))
                         new_pending_stock = str(float(pending_stock) - float(quant_3))
                         new_available_stock = str(float(available_stock) + float(quant_3))
-                        cur.execute(query_updatestock, (new_stock, new_pending_stock, new_available_stock, supply_name,))
+                        cur.execute(query_updatestock, (new_stock, new_pending_stock, new_available_stock, supply_id,))
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
                     conn.commit()
 
-                    self.root.deiconify()
-                    self.root.destroy()
+                    # self.root.deiconify()
+                    # self.root.destroy()
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
@@ -3219,7 +3219,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         conn.close()
 
                 self.loadtablerecords()
-                self.loadtableorders()
                 self.loadstocks()
 
 # Function to load stock values
@@ -3250,7 +3249,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 self.Stock_SupplierOrder.setText(str(round(stock,2)))
                 self.StockDsp_SupplierOrder.setText(str(round(available_stock,2)))
                 self.StockVrt_SupplierOrder.setText(str(round(available_stock + pending,4)))
-                self.UnitValue_SupplierOrder.setText(unit_value)
+                self.UnitValue_SupplierOrder.setText(str(unit_value))
 
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -3291,20 +3290,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 # Function to print in PDF the supplier order
     def printsupplierorder(self):
         order_id=self.label_IDOrd.text()
-        num_order=self.NumOrder_SupplierOrder.text()
-        date=self.Date_SupplierOrder.text()
-        their_ref=self.TheirRef_SupplierOrder.text()
-        payway=self.PayWay_SupplierOrder.currentText()
-        delivway=self.DelivWay_SupplierOrder.text()
-        delivterm=self.DelivTerm_SupplierOrder.text()
-        obs=self.OrderObs_SupplierOrder.toPlainText()
-        coments=self.Coms_SupplierOrder
-        # final_coments=self.FinalComs_SupplierOrder.toPlainText()
-        total_order=self.Total_SupplierOrder.text()
-        supplier_name=self.Supplier_SupplierOrder.currentText()
-        currency_symbol=self.Currency_SupplierOrder.currentText()[0]
-        currency_eurovalue=self.Currency_SupplierOrder.currentText().split('|')[1].strip()
-        currency_eurovalue=float(currency_eurovalue[:currency_eurovalue.find(" €")].replace(".",":").replace(",",".").replace(":",""))
 
         if order_id=="":
             dlg = QtWidgets.QMessageBox()
@@ -3318,6 +3303,21 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             del dlg,new_icon
 
         else:
+            num_order=self.NumOrder_SupplierOrder.text()
+            date=self.Date_SupplierOrder.text()
+            their_ref=self.TheirRef_SupplierOrder.text()
+            payway=self.PayWay_SupplierOrder.currentText()
+            delivway=self.DelivWay_SupplierOrder.text()
+            delivterm=self.DelivTerm_SupplierOrder.text()
+            obs=self.OrderObs_SupplierOrder.toPlainText()
+            coments=self.Coms_SupplierOrder
+            # final_coments=self.FinalComs_SupplierOrder.toPlainText()
+            total_order=self.Total_SupplierOrder.text()
+            supplier_name=self.Supplier_SupplierOrder.currentText()
+            currency_symbol=self.Currency_SupplierOrder.currentText()[0]
+            currency_eurovalue=self.Currency_SupplierOrder.currentText().split('|')[1].strip()
+            currency_eurovalue=float(currency_eurovalue[:currency_eurovalue.find(" €")].replace(".",":").replace(",",".").replace(":",""))
+
             commands_updateorder = ("""
                         UPDATE purch_fact.supplier_ord_header
                         SET "total_amount" = %s, "order_com" = %s
@@ -3825,13 +3825,14 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             # execution of commands
                 cur.execute(query_path, (item_number,))
                 results=cur.fetchall()
+                print(results)
 
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes
                 conn.commit()
 
-                if len(results) != 0:
+                if len(results) != 0 and results[0][0] is not None:
                     file_path = os.path.normpath(results[0][0])
                     os.startfile(file_path)
 

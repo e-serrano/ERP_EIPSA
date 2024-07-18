@@ -609,7 +609,7 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
         item.setText(_translate("QueryOrderTechnical_Window", "Obs. Envío"))
         self.label_Months.setText(_translate("QueryOrder_Window", "Meses / Año:"))
 
-
+# Function to delete all filters
     def delete_all_filters(self):
         for column in range(self.tableQueryOrder.columnCount()):
             if column in self.tableQueryOrder.rows_hidden:
@@ -625,7 +625,7 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
         self.tableQueryOrder.rows_hidden = {}
         self.tableQueryOrder.general_rows_to_hide = set()
 
-
+# Function to query all orders
     def query_all_order(self):
         self.tableQueryOrder.setRowCount(0)
         commands_queryorder = ("""
@@ -694,7 +694,7 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-
+# Function to query orders when filters apply
     def query_order_filtered(self):
         self.tableQueryOrder.setRowCount(0)
         month1 = self.Month1_QueryOrder.currentText()
@@ -820,7 +820,7 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
                 if conn is not None:
                     conn.close()
 
-
+# Function to count selected cells and sum values
     def countSelectedCells(self):
         if len(self.tableQueryOrder.selectedIndexes()) > 1:
             locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
@@ -844,7 +844,7 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
             self.label_CountItems.setText("")
             self.label_CountValue.setText("")
 
-
+# Function to conver money strings to float
     def euro_string_to_float(self, euro_str):
         match = re.match(r'^([\d.,]+)\s€$', euro_str)
         if match:
@@ -854,7 +854,7 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
         else:
             return 0.0
 
-
+# Function to export table in a excel file
     def export_data(self):
         if self.tableQueryOrder.rowCount() > 0:
             df = pd.DataFrame()
@@ -942,7 +942,6 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
             dlg.exec()
             del dlg,new_icon
 
-
 # Function to check if column index of double clicked cell is equal to first column index
     def on_item_double_clicked(self, item):
         if item.column() == 0:
@@ -958,7 +957,6 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
             dlg.setText(cell_content)
             dlg.exec()
 
-
 # Function when double clicked cell is in first column
     def order_deliveries(self, item):
         from OrderDeliveries_Window import Ui_DeliveriesOrder_Window
@@ -967,7 +965,6 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
         self.ui=Ui_DeliveriesOrder_Window(order_num)
         self.ui.setupUi(self.order_deliveries_window)
         self.order_deliveries_window.show()
-
 
 #Function when clicking on table header
     def on_header_section_clicked(self, logical_index):

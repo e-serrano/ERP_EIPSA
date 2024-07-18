@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import QMenu
 from PyQt6.QtCore import QUrl
 from datetime import *
 import os
+from pathlib import Path
 from config import config
 import psycopg2
 import pandas as pd
@@ -19,6 +20,9 @@ from PDF_Styles import welding_homologation
 import configparser
 from Database_Connection import createConnection
 from TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
+from openpyxl import Workbook
+from openpyxl.styles import NamedStyle
+from openpyxl.utils.dataframe import dataframe_to_rows
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -132,6 +136,66 @@ class Ui_App_Purchasing(object):
         self.Header.addWidget(self.Button_Welding)
         spacerItem11 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem11)
+    #     self.Button_Backup = QtWidgets.QPushButton(parent=self.frame)
+    #     self.Button_Backup.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+    #     self.Button_Backup.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+    #     self.Button_Backup.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+    #     if self.username == 'd.marquez':
+    #         self.Button_Backup.setStyleSheet("QPushButton{\n"
+    # "    border: 1px solid transparent;\n"
+    # "    border-color: rgb(3, 174, 236);\n"
+    # "    background-color: rgb(38, 38, 38);\n"
+    # "    border-radius: 10px;\n"
+    # "}\n"
+    # "\n"
+    # "QPushButton:hover{\n"
+    # "    border: 1px solid transparent;\n"
+    # "    border-color: rgb(0, 0, 0);\n"
+    # "    color: rgb(0,0,0);\n"
+    # "    background-color: rgb(255, 255, 255);\n"
+    # "    border-radius: 10px;\n"
+    # "}\n"
+    # "\n"
+    # "QPushButton:pressed{\n"
+    # "    border: 1px solid transparent;\n"
+    # "    border-color: rgb(0, 0, 0);\n"
+    # "    color: rgb(0,0,0);\n"
+    # "    background-color: rgb(200, 200, 200);\n"
+    # "    border-radius: 10px;\n"
+    # "}")
+    #     else:
+    #         self.Button_Backup.setStyleSheet("QPushButton{\n"
+    # "    border: 1px solid transparent;\n"
+    # "    border-color: rgb(3, 174, 236);\n"
+    # "    background-color: rgb(255, 255, 255);\n"
+    # "    border-radius: 10px;\n"
+    # "}\n"
+    # "\n"
+    # "QPushButton:hover{\n"
+    # "    border: 1px solid transparent;\n"
+    # "    border-color: rgb(0, 0, 0);\n"
+    # "    color: rgb(0,0,0);\n"
+    # "    background-color: rgb(255, 255, 255);\n"
+    # "    border-radius: 10px;\n"
+    # "}\n"
+    # "\n"
+    # "QPushButton:pressed{\n"
+    # "    border: 1px solid transparent;\n"
+    # "    border-color: rgb(0, 0, 0);\n"
+    # "    color: rgb(0,0,0);\n"
+    # "    background-color: rgb(200, 200, 200);\n"
+    # "    border-radius: 10px;\n"
+    # "}")
+    #     self.Button_Backup.setText("")
+    #     icon14 = QtGui.QIcon()
+    #     icon14.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Database_Backup.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+    #     self.Button_Backup.setIcon(icon14)
+    #     self.Button_Backup.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+    #     self.Button_Backup.setObjectName("Button_Backup")
+    #     self.Button_Backup.setToolTip("BackUp Datos")
+    #     self.Header.addWidget(self.Button_Backup)
+    #     spacerItem12 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+    #     self.Header.addItem(spacerItem12)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -443,6 +507,9 @@ class Ui_App_Purchasing(object):
         self.Button_QueryTag.clicked.connect(self.query_tag)
         self.Button_Profile.clicked.connect(self.showMenu)
         self.Button_Welding.clicked.connect(self.welding_data)
+        # self.Button_Backup.clicked.connect(self.backup_data)
+
+        self.backup_data()
 
 
     def retranslateUi(self, App_Purchasing):
@@ -457,6 +524,7 @@ class Ui_App_Purchasing(object):
         self.table.setSortingEnabled(True)
 
 
+# Function to open menu with purchase department functions
     def purchase(self):
         from Purchasing_Menu import Ui_Purchasing_Menu
         self.purchasing_window=QtWidgets.QMainWindow()
@@ -464,7 +532,7 @@ class Ui_App_Purchasing(object):
         self.ui.setupUi(self.purchasing_window)
         self.purchasing_window.show()
 
-
+# Function to open window for query offers
     def query_offer(self):
         from OfferQuery_Window import Ui_QueryOffer_Window
         self.query_offer_window=QtWidgets.QMainWindow()
@@ -472,7 +540,7 @@ class Ui_App_Purchasing(object):
         self.ui.setupUi(self.query_offer_window)
         self.query_offer_window.show()
 
-
+# Function to open window for query orders
     def query_order(self):
         from OrderQuery_Window import Ui_QueryOrder_Window
         self.query_order_window=QtWidgets.QMainWindow()
@@ -480,7 +548,7 @@ class Ui_App_Purchasing(object):
         self.ui.setupUi(self.query_order_window)
         self.query_order_window.show()
 
-
+# Function to open window for query tags
     def query_tag(self):
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -496,7 +564,7 @@ class Ui_App_Purchasing(object):
         self.edit_tags_app = Ui_EditTags_Commercial_Window(db_tag_com)
         self.edit_tags_app.showMaximized()
 
-
+# Function to show menu when profile button is pressed
     def showMenu(self):
         menu = QMenu(self.centralwidget)
         menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; font: 10px}"
@@ -507,7 +575,7 @@ class Ui_App_Purchasing(object):
         button = self.Button_Profile
         menu.exec(button.mapToGlobal(QtCore.QPoint(-75, 50)))
 
-
+# Function to edit user password
     def editpassword(self):
         from PasswordEdit_Window import Ui_EditPasswordWindow
         self.edit_password_window=QtWidgets.QMainWindow()
@@ -515,7 +583,7 @@ class Ui_App_Purchasing(object):
         self.ui.setupUi(self.edit_password_window)
         self.edit_password_window.show()
 
-
+# Function to query data related to welding operation
     def welding_data(self):
         commands_welding = ("""
                         SELECT personal."name", TO_CHAR(Max(imp_ot."date_ot"), 'dd/mm/yyyy') as max_date, operations."name_eipsa",
@@ -618,7 +686,6 @@ class Ui_App_Purchasing(object):
         self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Abre el PDF en el visor
         self.pdf_viewer.showMaximized()
 
-
 # Function to format date to long in spanish
     def format_date_spanish(self, date_toformat):
         months = ("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre")
@@ -628,6 +695,285 @@ class Ui_App_Purchasing(object):
         messsage = "{} de {} de {}".format(day, month, year)
 
         return messsage
+
+# Function to save all data related to purchasing departmen in Excel files
+    def backup_data(self):
+        base_path = Path.home() / "Documents" / "00 BACKUP-ERP"
+        new_folder_path = base_path / (date.today().strftime("%Y-%m-%d"))
+
+        if not new_folder_path.exists():
+            os.makedirs(new_folder_path, exist_ok=True)
+
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                commands_supplies = (""" SELECT * FROM purch_fact.supplies """)
+                cur.execute(commands_supplies)
+                results = cur.fetchall()
+                df_supplies = pd.DataFrame(results, columns=["ID", "ID Destino", "ID Clase", "Referencia", "Descripción", "Un. Med",
+                                                            "Val. Unit.", "Notas", "Stock", "Stock Disponible", "Pendiente", "Ubicación"])
+
+                commands_client_ord_header = (""" SELECT * FROM purch_fact.client_ord_header """)
+                cur.execute(commands_client_ord_header)
+                results = cur.fetchall()
+                df_client_order_header = pd.DataFrame(results, columns=["ID", "ID Cliente", "Fecha Pedido", "Fecha Entrega", "Nº Pedido Cliente", "Notas",
+                                                            "Fecha Entrega 1", "Albarán 1", "Fecha Entrega 2", "Albarán 2", "Fecha Entrega 3", "Albarán 3"])
+
+                commands_client_ord_details = (""" SELECT * FROM purch_fact.client_ord_detail """)
+                cur.execute(commands_client_ord_details)
+                results = cur.fetchall()
+                df_client_ord_details = pd.DataFrame(results, columns=["ID", "ID Pedido Cliente", "ID Suministro", "Cantidad", "Pendiente",
+                                                            "Fecha Entrega 1", "Cantidad 1", "Albarán 1",
+                                                            "Fecha Entrega 2", "Cantidad 1", "Albarán 2",
+                                                            "Fecha Entrega 3", "Cantidad 1", "Albarán 3", "Notas"])
+
+                commands_supplier_ord_header = (""" SELECT * FROM purch_fact.supplier_ord_header """)
+                cur.execute(commands_supplier_ord_header)
+                results = cur.fetchall()
+                df_supplier_ord_header = pd.DataFrame(results, columns=["ID", "ID Proveedor", "Fecha Pedido", "Fecha Entrega", "Notas", "Nº Pedido Proveedor",
+                                                            "S/Ref.", "Forma Envío", "Forma Pago", "Plazo Entrega", "Notas Pedido", "Subtotal",
+                                                            "Fecha Entrega 1", "Albarán 1", "Fecha Entrega 2", "Albarán 2", "Fecha Entrega 3", "Albarán 3",
+                                                            "Notas Finales", "ID Divisa"])
+
+                commands_supplier_ord_details = (""" SELECT * FROM purch_fact.supplier_ord_detail """)
+                cur.execute(commands_supplier_ord_details)
+                results = cur.fetchall()
+                df_supplier_ord_details = pd.DataFrame(results, columns=["ID", "ID Pedido Proveedor", "Posición", "ID Suministro", "Val. Unit.", "Descuento", "Cantidad", "Pendiente",
+                                                            "Fecha Entrega 1", "Cantidad 1", "Albarán 1",
+                                                            "Fecha Entrega 2", "Cantidad 1", "Albarán 2",
+                                                            "Fecha Entrega 3", "Cantidad 1", "Albarán 3"])
+
+                commands_quotation_header = (""" SELECT * FROM purch_fact.quotation_header """)
+                cur.execute(commands_quotation_header)
+                results = cur.fetchall()
+                df_quotation_header = pd.DataFrame(results, columns=["ID", "ID Proveedor", "Fecha Cotización", "Notas"])
+
+                commands_quotation_details = (""" SELECT * FROM purch_fact.quotation_details """)
+                cur.execute(commands_quotation_details)
+                results = cur.fetchall()
+                df_quotation_details = pd.DataFrame(results, columns=["ID", "ID Cotización", "ID Suministro", "Cantidad", "ID Divisa", "Valor Divisa", "Valor", "Notas"])
+
+                commands_suppliers = (""" SELECT * FROM purch_fact.suppliers """)
+                cur.execute(commands_suppliers)
+                results = cur.fetchall()
+                df_suppliers = pd.DataFrame(results, columns=["ID", "Nombre", "CIF", "Dirección", "Nº Tlf.", "Fax", "Ciudad", "Provincia", "País",
+                                                                "Código Postal", "ID Forma Pago", "Vto. Prog. 1", "Vto. Prog. 2", "ID IVA", "Notas"])
+
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                print(error)
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
+
+            output_path_supplies = new_folder_path / "Suministros.xlsx"
+            output_path_client_ord_header = new_folder_path / "Pedidos Cliente.xlsx"
+            output_path_client_ord_details = new_folder_path / "Detalles Pedidos Cliente.xlsx"
+            output_path_supplier_ord_header = new_folder_path / "Pedidos Proveedor.xlsx"
+            output_path_supplier_ord_details = new_folder_path / "Detalles Pedidos Proveedor.xlsx"
+            output_path_quotation_header = new_folder_path / "Cotizaciones.xlsx"
+            output_path_quotation_details = new_folder_path / "Detalles Cotizaciones.xlsx"
+            output_path_suppliers = new_folder_path / "Proveedores.xlsx"
+
+            if output_path_supplies:
+                wb = Workbook()
+                ws = wb.active
+
+                # Add data to Excel
+                for r_idx, row in enumerate(dataframe_to_rows(df_supplies, index=False, header=True), 1):
+                    ws.append(row)
+
+                # Date Style
+                date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
+                currency_style  = NamedStyle(name='currency_style ', number_format='#,##0.00" €"')
+
+                # Apply Date Style
+                for cell in ws['G']:
+                    cell.style = currency_style
+
+                # Save Excel
+                wb.save(output_path_supplies)
+
+            if output_path_client_ord_header:
+                wb = Workbook()
+                ws = wb.active
+
+                # Add data to Excel
+                for r_idx, row in enumerate(dataframe_to_rows(df_client_order_header, index=False, header=True), 1):
+                    ws.append(row)
+
+                # Date Style
+                date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
+                currency_style  = NamedStyle(name='currency_style ', number_format='#,##0.00" €"')
+
+                # Apply Date Style
+                columns = ['C', 'D', 'G', 'I', 'K']
+                for col in columns:
+                    for row in range(1, ws.max_row + 1):
+                        cell = ws[f'{col}{row}']
+                        cell.style = date_style
+
+                # Save Excel
+                wb.save(output_path_client_ord_header)
+
+            if output_path_client_ord_details:
+                wb = Workbook()
+                ws = wb.active
+
+                # Add data to Excel
+                for r_idx, row in enumerate(dataframe_to_rows(df_client_ord_details, index=False, header=True), 1):
+                    ws.append(row)
+
+                # Date Style
+                date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
+                currency_style  = NamedStyle(name='currency_style ', number_format='#,##0.00" €"')
+
+                # Apply Date Style
+                columns = ['F','I','L']
+                for col in columns:
+                    for row in range(1, ws.max_row + 1):
+                        cell = ws[f'{col}{row}']
+                        cell.style = date_style
+
+                # Save Excel
+                wb.save(output_path_client_ord_details)
+
+            if output_path_supplier_ord_header:
+                df_supplier_ord_header["Subtotal"] = df_supplier_ord_header["Subtotal"].apply(self.euros_to_float)
+                wb = Workbook()
+                ws = wb.active
+
+                # Add data to Excel
+                for r_idx, row in enumerate(dataframe_to_rows(df_supplier_ord_header, index=False, header=True), 1):
+                    ws.append(row)
+
+                # Date Style
+                date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
+                currency_style  = NamedStyle(name='currency_style ', number_format='#,##0.00" €"')
+
+                # Apply Date Style
+                for cell in ws['L']:
+                    cell.style = currency_style
+
+                columns = ['C','D','M','N','O']
+                for col in columns:
+                    for row in range(1, ws.max_row + 1):
+                        cell = ws[f'{col}{row}']
+                        cell.style = date_style
+
+                # Save Excel
+                wb.save(output_path_supplier_ord_header)
+
+            if output_path_supplier_ord_details:
+                wb = Workbook()
+                ws = wb.active
+
+                # Add data to Excel
+                for r_idx, row in enumerate(dataframe_to_rows(df_supplier_ord_details, index=False, header=True), 1):
+                    ws.append(row)
+
+                # Date Style
+                date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
+                currency_style  = NamedStyle(name='currency_style ', number_format='#,##0.00" €"')
+
+                # Apply Date Style
+                for cell in ws['E']:
+                    cell.style = currency_style
+
+                columns = ['I','L','O']
+                for col in columns:
+                    for row in range(1, ws.max_row + 1):
+                        cell = ws[f'{col}{row}']
+                        cell.style = date_style
+
+                # Save Excel
+                wb.save(output_path_supplier_ord_details)
+
+            if output_path_quotation_header:
+                wb = Workbook()
+                ws = wb.active
+
+                # Add data to Excel
+                for r_idx, row in enumerate(dataframe_to_rows(df_quotation_header, index=False, header=True), 1):
+                    ws.append(row)
+
+                # Date Style
+                date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
+                currency_style  = NamedStyle(name='currency_style ', number_format='#,##0.00" €"')
+
+                # Apply Date Style
+                for cell in ws['C']:
+                    cell.style = date_style
+
+                # Save Excel
+                wb.save(output_path_quotation_header)
+
+            if output_path_quotation_details:
+                df_quotation_details["Valor"] = df_quotation_details["Valor"].apply(self.euros_to_float)
+                wb = Workbook()
+                ws = wb.active
+
+                # Add data to Excel
+                for r_idx, row in enumerate(dataframe_to_rows(df_quotation_details, index=False, header=True), 1):
+                    ws.append(row)
+
+                # Date Style
+                date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
+                currency_style  = NamedStyle(name='currency_style ', number_format='#,##0.00" €"')
+
+                # Apply Date Style
+                for cell in ws['G']:
+                    cell.style = currency_style
+
+                # Save Excel
+                wb.save(output_path_quotation_details)
+
+            if output_path_suppliers:
+                wb = Workbook()
+                ws = wb.active
+
+                # Add data to Excel
+                for r_idx, row in enumerate(dataframe_to_rows(df_suppliers, index=False, header=True), 1):
+                    ws.append(row)
+
+                # Save Excel
+                wb.save(output_path_suppliers)
+
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("BackUp realizado con éxito")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+            dlg.exec()
+            del dlg, new_icon
+
+# Function to transform euros to float values
+    def euros_to_float(self, value):
+        value = value.replace(".", "")
+        value = value.replace(",", ".")
+        value = value[: value.find(" €")]
+        return float(value)
+
 
 
 

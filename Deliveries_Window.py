@@ -14,7 +14,6 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
-
 class EditableTableModel(QtSql.QSqlTableModel):
     updateFailed = QtCore.pyqtSignal(str)
 
@@ -48,7 +47,6 @@ class EditableTableModel(QtSql.QSqlTableModel):
     def getColumnHeaders(self, visible_columns):
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
-
 
 class CustomProxyModel(QtCore.QSortFilterProxyModel):
     def __init__(self, parent=None):
@@ -248,11 +246,11 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
 
         for i in range(1,21):
             self.tableDeliveries.hideColumn(i)
-        for i in range(26,31):
+        for i in range(26,32):
             self.tableDeliveries.hideColumn(i)
 
         headers=['Nº Pedido', '','','','','','','','','','','','','','','','','','','','',
-                '% Real Envío', 'Fecha Último Envío', 'Fecha Entregas Parciales', 'Observaciones','OK', '', '', '', '','']
+                '% Real Envío', 'Fecha Último Envío', 'Fecha Entregas Parciales', 'Observaciones','OK', '', '', '', '','','']
 
         self.tableDeliveries.setItemDelegate(AlignDelegate(self.tableDeliveries))
         self.tableDeliveries.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -305,12 +303,12 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
 
         for i in range(1,21):
             self.tableDeliveries.hideColumn(i)
-        for i in range(26,31):
+        for i in range(26,32):
             self.tableDeliveries.hideColumn(i)
 
 
         headers=['Nº Pedido', '','','','','','','','','','','','','','','','','','','','',
-                '% Real Envío', 'Fecha Último Envío', 'Fecha Entregas Parciales', 'Observaciones','OK', '', '', '', '','']
+                '% Real Envío', 'Fecha Último Envío', 'Fecha Entregas Parciales', 'Observaciones','OK', '', '', '', '','','']
 
         self.tableDeliveries.setItemDelegate(AlignDelegate(self.tableDeliveries))
         self.tableDeliveries.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -357,13 +355,6 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
                         self.checkbox_states[column][value] = True
                 self.dict_valuesuniques[column] = list_valuesUnique
 
-        self.tableDeliveries.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableDeliveries.horizontalHeader().setSectionResizeMode(21,QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDeliveries.horizontalHeader().setSectionResizeMode(22,QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDeliveries.horizontalHeader().setSectionResizeMode(23,QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDeliveries.horizontalHeader().setSectionResizeMode(24,QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDeliveries.horizontalHeader().setSectionResizeMode(25,QtWidgets.QHeaderView.ResizeMode.Stretch)
-
 # Function to save changes into database
     def saveChanges(self):
         self.model.submitAll()
@@ -379,7 +370,6 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
                     if value not in self.checkbox_states[column]:
                         self.checkbox_states[column][value] = True
             self.dict_valuesuniques[column] = list_valuesUnique
-
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
@@ -494,13 +484,6 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
             else:
                 self.proxy.setFilter(None, column)
 
-        self.tableDeliveries.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableDeliveries.horizontalHeader().setSectionResizeMode(19,QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDeliveries.horizontalHeader().setSectionResizeMode(20,QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDeliveries.horizontalHeader().setSectionResizeMode(21,QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDeliveries.horizontalHeader().setSectionResizeMode(22,QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDeliveries.horizontalHeader().setSectionResizeMode(23,QtWidgets.QHeaderView.ResizeMode.Stretch)
-
 # Function when select all checkbox is clicked
     def on_select_all_toggled(self, checked, action_name):
         filterColumn = self.logicalIndex
@@ -565,13 +548,6 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
                     value=value.toString("dd/MM/yyyy")
             self.checkbox_states[self.logicalIndex][str(value)] = True
 
-        self.tableDeliveries.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableDeliveries.horizontalHeader().setSectionResizeMode(19,QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDeliveries.horizontalHeader().setSectionResizeMode(20,QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDeliveries.horizontalHeader().setSectionResizeMode(21,QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDeliveries.horizontalHeader().setSectionResizeMode(22,QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDeliveries.horizontalHeader().setSectionResizeMode(23,QtWidgets.QHeaderView.ResizeMode.Stretch)
-
 # Function to order column ascending
     def on_actionSortAscending_triggered(self):
         sortColumn = self.logicalIndex
@@ -607,6 +583,10 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
             imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             self.model.setIconColumnHeader(filterColumn, icono)
+
+
+
+
 
 
 if __name__ == "__main__":

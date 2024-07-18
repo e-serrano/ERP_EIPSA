@@ -210,9 +210,8 @@ class Ui_StockVal_Window(object):
 # Function to load data in table
     def loaddata(self):
         commands_supplies = f"""
-                            SELECT supplies."reference", supplies."description", supplies."unit_value", ROUND(CAST(supplies."physical_stock" AS NUMERIC), 2) AS rounded_stock, measure_unit."measure_unit", supplies."unit_value" * supplies."physical_stock" AS subtotal
+                            SELECT supplies."reference", supplies."description", CAST(supplies."unit_value" AS money), ROUND(CAST(supplies."physical_stock" AS NUMERIC), 2) AS rounded_stock, supplies."m_unit_id",   CAST((supplies."unit_value" * supplies."physical_stock") AS money)  AS subtotal
                             FROM purch_fact.supplies AS supplies
-                            INNER JOIN purch_fact.measure_units AS measure_unit ON supplies."m_unit_id" = measure_unit."id"
                             WHERE supplies."physical_stock">0
                             ORDER BY supplies."reference"
                             """
@@ -326,33 +325,38 @@ class Ui_StockVal_Window(object):
             pdf.set_line_width(0.01)
             pdf.line(1, y_position, 20, y_position)
 
+            if y_position > 28.5:
+                pdf.add_page()
+
             if len(reference_text) > 30:
                 x_position = pdf.get_x()
-                pdf.multi_cell(5, 0.25, reference_text, align='L')
+                y_position = pdf.get_y()
+                pdf.fixed_height_multicell(5.5, 0.75, reference_text, 'J')
                 pdf.set_y(y_position)
-                pdf.set_x(x_position + 5)
+                pdf.set_x(x_position + 5.5)
             else:
-                pdf.cell(5, 0.5, reference_text, align='L')
+                pdf.cell(5.5, 0.5, reference_text, align='L')
 
             if len(description_text) > 50:
                 x_position = pdf.get_x()
-                pdf.multi_cell(7.5, 0.25, description_text, align='L')
+                y_position = pdf.get_y()
+                pdf.fixed_height_multicell(7.75, 0.75, description_text, 'J')
                 pdf.set_y(y_position)
-                pdf.set_x(x_position + 7.5)
+                pdf.set_x(x_position + 7.75)
             else:
-                pdf.cell(7.5, 0.5, description_text, align='L')
+                pdf.cell(7.75, 0.5, description_text, align='L')
 
-            pdf.cell(1.5, 0.5, val_text, align='R')
-            pdf.cell(1.5, 0.5, stock_text, align='C')
-            pdf.cell(0.5, 0.5, unit_text, align='C')
-            pdf.cell(3, 0.5, subtotal_text, align='R')
-            pdf.ln(0.5)
+            pdf.cell(1.5, 0.75, val_text, align='R')
+            pdf.cell(1.5, 0.75, stock_text, align='C')
+            pdf.cell(0.5, 0.75, unit_text, align='C')
+            pdf.cell(2.25, 0.75, subtotal_text, align='R')
+            pdf.ln(0.75)
 
         pdf.ln(0.5)
         pdf.set_font('DejaVuSansCondensed', '', 14)
         pdf.cell(5.5, 0.5, '')
         pdf.set_fill_color(247, 181, 128)
-        pdf.cell(7, 0.5, 'Total Valorado: ' + self.label_TotalValue_Euro.text(), fill=True, align='C')
+        pdf.cell(7, 0.75, 'Total Valorado: ' + self.label_TotalValue_Euro.text(), fill=True, align='C')
         
         pdf_buffer = pdf.output()
 

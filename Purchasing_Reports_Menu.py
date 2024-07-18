@@ -529,8 +529,8 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
     def pending_recep_supplier_excel(self, df):
         output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
 
-        df["Val. Un."] = df["Val. Un."].apply(self.euros_to_float)
-        df["Subtotal"] = df["Subtotal"].apply(self.euros_to_float)
+        # df["Val. Un."] = df["Val. Un."].apply(self.euros_to_float)
+        # df["Subtotal"] = df["Subtotal"].apply(self.euros_to_float)
 
         if output_path:
             wb = Workbook()

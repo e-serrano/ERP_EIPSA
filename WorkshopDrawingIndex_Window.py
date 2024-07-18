@@ -13,7 +13,7 @@ from PyQt6.QtCore import Qt, QDate, QMimeData
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
 import configparser
-from Database_Connection import createConnection_name
+from Database_Connection import createConnection_name, createConnection
 from config import config
 import psycopg2
 import locale
@@ -1034,9 +1034,10 @@ class CustomProxyModelDim(QtCore.QSortFilterProxyModel):
 class EditableTableModelDim(QtSql.QSqlTableModel):
     updateFailed = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent=None, column_range=None, database=None):
+    def __init__(self, username, parent=None, column_range=None, database=None):
         super().__init__(parent, database)
         self.column_range = column_range
+        self.username = username
 
     def setQuery(self, query):
         super().setQuery(query)
@@ -1058,11 +1059,15 @@ class EditableTableModelDim(QtSql.QSqlTableModel):
 
     def flags(self, index):
         flags = super().flags(index)
-        if index.column() in [5,6]:
+        if self.username in ['j.sanz', 'j.zofio']:
+            if index.column() >= 5:
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+            else:
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+        else:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        else:
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
     def getColumnHeaders(self, visible_columns):
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
@@ -1127,9 +1132,10 @@ class CustomProxyModelOf(QtCore.QSortFilterProxyModel):
 class EditableTableModelOf(QtSql.QSqlTableModel):
     updateFailed = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent=None, column_range=None, database=None):
+    def __init__(self, username, parent=None, column_range=None, database=None):
         super().__init__(parent, database)
         self.column_range = column_range
+        self.username = username
 
     def setQuery(self, query):
         super().setQuery(query)
@@ -1151,11 +1157,15 @@ class EditableTableModelOf(QtSql.QSqlTableModel):
 
     def flags(self, index):
         flags = super().flags(index)
-        if index.column() in [5,6]:
+        if self.username in ['j.sanz', 'j.zofio']:
+            if index.column() >= 5:
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+            else:
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+        else:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        else:
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
     def getColumnHeaders(self, visible_columns):
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
@@ -1220,9 +1230,10 @@ class CustomProxyModelM(QtCore.QSortFilterProxyModel):
 class EditableTableModelM(QtSql.QSqlTableModel):
     updateFailed = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent=None, column_range=None, database=None):
+    def __init__(self, username, parent=None, column_range=None, database=None):
         super().__init__(parent, database)
         self.column_range = column_range
+        self.username = username
 
     def setQuery(self, query):
         super().setQuery(query)
@@ -1244,11 +1255,15 @@ class EditableTableModelM(QtSql.QSqlTableModel):
 
     def flags(self, index):
         flags = super().flags(index)
-        if index.column() in [5,6]:
+        if self.username in ['j.sanz', 'j.zofio']:
+            if index.column() >= 5:
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+            else:
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+        else:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        else:
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
     def getColumnHeaders(self, visible_columns):
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
@@ -1258,14 +1273,15 @@ class EditableTableModelM(QtSql.QSqlTableModel):
 class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
     def __init__(self, db, username=None, num_order=None):
         super(Ui_WorkshopDrawingIndex_Window, self).__init__()
-        self.modelDim = EditableTableModelDim(database=db)
+        self.username = username
+        self.modelDim = EditableTableModelDim(self.username, database=db)
         self.proxyDim = CustomProxyModelDim()
-        self.modelOf = EditableTableModelOf(database=db)
+        self.modelOf = EditableTableModelOf(self.username, database=db)
         self.proxyOf = CustomProxyModelOf()
-        self.modelM = EditableTableModelM(database=db)
+        self.modelM = EditableTableModelM(self.username, database=db)
         self.proxyM = CustomProxyModelM()
         self.db = db
-        self.username = username
+        
         self.checkbox_states = {}
         self.dict_valuesuniques = {}
         self.dict_ordersort = {}
@@ -1501,6 +1517,41 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.Button_PaletteT.setIconSize(QtCore.QSize(40, 40))
         self.Button_PaletteT.setObjectName("Button_PaletteT")
         self.gridLayout_2.addWidget(self.Button_PaletteT, 1, 8, 2, 1)
+        self.Button_Description = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Description.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Description.setMaximumSize(QtCore.QSize(50, 16777215))
+        self.Button_Description.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Description.setStyleSheet(
+            "QPushButton{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(3, 174, 236);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:hover{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:pressed{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(200, 200, 200);\n"
+            "    border-radius: 10px;\n"
+            "}"
+        )
+        self.Button_Description.setText("")
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Description.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Description.setIcon(icon4)
+        self.Button_Description.setIconSize(QtCore.QSize(40, 40))
+        self.Button_Description.setObjectName("Button_Description")
+        self.gridLayout_2.addWidget(self.Button_Description, 1, 9, 2, 1)
         self.label_Type = QtWidgets.QLabel(parent=self.frame)
         self.label_Type.setMinimumSize(QtCore.QSize(100, 25))
         self.label_Type.setMaximumSize(QtCore.QSize(100, 25))
@@ -1558,19 +1609,19 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.layout_vertical = QtWidgets.QVBoxLayout()
         self.splitter = QtWidgets.QSplitter(QtCore.Qt.Orientation.Vertical)
         self.tableDimDwg = QtWidgets.QTableView(parent=self.frame)
-        self.modelDim = EditableTableModelDim(database=self.db)
+        self.modelDim = EditableTableModelDim(self.username,database=self.db)
         self.tableDimDwg.setObjectName("tableDimDwg")
         self.splitter.addWidget(self.tableDimDwg)
         self.tableOfDwg = QtWidgets.QTableView(parent=self.frame)
-        self.modelOf = EditableTableModelOf(database=self.db)
+        self.modelOf = EditableTableModelOf(self.username,database=self.db)
         self.tableOfDwg.setObjectName("tableOfDwg")
         self.splitter.addWidget(self.tableOfDwg)
         self.tableMDwg = QtWidgets.QTableView(parent=self.frame)
-        self.modelM = EditableTableModelM(database=self.db)
+        self.modelM = EditableTableModelM(self.username,database=self.db)
         self.tableMDwg.setObjectName("tableMDwg")
         self.splitter.addWidget(self.tableMDwg)
         self.layout_vertical.addWidget(self.splitter)
-        self.gridLayout_2.addLayout(self.layout_vertical, 4, 0, 1, 10)
+        self.gridLayout_2.addLayout(self.layout_vertical, 4, 0, 1, 11)
         self.hLayout3 = QtWidgets.QHBoxLayout()
         self.hLayout3.setObjectName("hLayout3")
         spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -1630,6 +1681,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.Button_AddLines.clicked.connect(self.add_lines)
         self.Button_PaletteM.clicked.connect(self.colour_palette_M)
         self.Button_PaletteT.clicked.connect(self.colour_palette_T)
+        self.Button_Description.clicked.connect(self.add_description)
 
         delete_action_dim = QtGui.QAction("Eliminar Fila", self)
         delete_action_dim.triggered.connect(lambda: self.delete_register(self.tableDimDwg, "verification.workshop_dim_drawings"))
@@ -1804,10 +1856,11 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             # self.gridLayout_2.addWidget(self.tableDimDwg, 3, 0, 1, 7)
 
         # Change all column names
-            headers = ["ID", "Nº Pedido", "Nº Plano Dim.", "Observaciones", "Descripción", "Fecha Verif.", "Estado Verif."]
+            headers = ["ID", "Nº Pedido", "Nº Plano Dim.", "Observaciones", "Descripción", "Fecha Verif.", "Estado Verif.", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
             self.modelDim.setAllColumnHeaders(headers)
 
             self.tableDimDwg.hideColumn(0)
+            self.tableDimDwg.hideColumn(9)
 
         # Getting the unique values for each column of the model
             for column in range(self.modelDim.columnCount()):
@@ -1861,10 +1914,11 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             # self.gridLayout_2.addWidget(self.tableOfDwg, 4, 0, 1, 7)
 
         # Change all column names
-            headers = ["ID", "Nº Pedido", "Nº Plano OF", "Observaciones", "Descripción", "Fecha Verif.", "Estado Verif."]
+            headers = ["ID", "Nº Pedido", "Nº Plano OF", "Observaciones", "Descripción", "Fecha Verif.", "Estado Verif.", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
             self.modelOf.setAllColumnHeaders(headers)
 
             self.tableOfDwg.hideColumn(0)
+            self.tableOfDwg.hideColumn(9)
 
         # Getting the unique values for each column of the model
             for column in range(self.modelOf.columnCount()):
@@ -1918,20 +1972,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             # self.gridLayout_2.addWidget(self.tableMDwg, 5, 0, 1, 7)
 
         # Change all column names
-            headers = [
-                "ID",
-                "Nº Pedido",
-                "Nº Plano M",
-                "Observaciones",
-                "Descripción",
-                "Fecha Verif.",
-                "Estado Verif.",
-                "Observaciones Verif.",
-            ]
+            headers = ["ID", "Nº Pedido", "Nº Plano M", "Observaciones",
+                "Descripción", "Fecha Verif.", "Estado Verif.",
+                "Obs. Verif.", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
             self.modelM.setAllColumnHeaders(headers)
 
             self.tableMDwg.hideColumn(0)
             self.tableMDwg.hideColumn(7)
+            self.tableMDwg.hideColumn(10)
 
         # Getting the unique values for each column of the model
             for column in range(self.modelM.columnCount()):
@@ -2616,81 +2664,156 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         if ok and item:
                             item_type = item
                             if item_type != '':
-                                if item_type == 'OF':
-                                    table_name = 'verification."workshop_of_drawings"'
-                                elif item_type == 'M':
-                                    table_name = 'verification."m_drawing_verification"'
-                                else:
-                                    table_name = 'verification."workshop_dim_drawings"'
-                                while True:
-                                    clickedButton3 = dlg3.exec()
-                                    if clickedButton3 == 1:
-                                        qty = dlg3.textValue()
-                                        if qty != '' and (qty.isdigit() and int(qty) > 0):
-                                            conn = None
-                                            try:
-                                            # read the connection parameters
-                                                params = config()
-                                            # connect to the PostgreSQL server
-                                                conn = psycopg2.connect(**params)
-                                                cur = conn.cursor()
+                                year = (int(num_order[3:5]) if num_order[:2] == 'PA' else int(num_order[2:4]))
+                                if year >= 24:
+                                    if item_type == 'M':
+                                        table_name = 'verification."m_drawing_verification"'
+                                        while True:
+                                            clickedButton3 = dlg3.exec()
+                                            if clickedButton3 == 1:
+                                                qty = dlg3.textValue()
+                                                if qty != '' and (qty.isdigit() and int(qty) > 0):
+                                                    conn = None
+                                                    try:
+                                                    # read the connection parameters
+                                                        params = config()
+                                                    # connect to the PostgreSQL server
+                                                        conn = psycopg2.connect(**params)
+                                                        cur = conn.cursor()
 
-                                            # execution of commands
-                                                for i in range(int(qty)):
-                                                    commands_insert_drawing = f"""INSERT INTO {table_name} ("num_order") VALUES ('{num_order}')"""
-                                                    cur.execute(commands_insert_drawing)
+                                                    # execution of commands
+                                                        for i in range(int(qty)):
+                                                            commands_insert_drawing = f"""INSERT INTO {table_name} ("num_order") VALUES ('{num_order}')"""
+                                                            cur.execute(commands_insert_drawing)
 
-                                            # close communication with the PostgreSQL database server
-                                                cur.close()
-                                            # commit the changes
-                                                conn.commit()
+                                                    # close communication with the PostgreSQL database server
+                                                        cur.close()
+                                                    # commit the changes
+                                                        conn.commit()
 
-                                                dlg = QtWidgets.QMessageBox()
+                                                        dlg = QtWidgets.QMessageBox()
+                                                        new_icon = QtGui.QIcon()
+                                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                                        dlg.setWindowIcon(new_icon)
+                                                        dlg.setWindowTitle("Indice Planos")
+                                                        dlg.setText("Datos insertados con éxito")
+                                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                                                        dlg.exec()
+                                                        del dlg,new_icon
+
+                                                    except (Exception, psycopg2.DatabaseError) as error:
+                                                        dlg = QtWidgets.QMessageBox()
+                                                        new_icon = QtGui.QIcon()
+                                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                                        dlg.setWindowIcon(new_icon)
+                                                        dlg.setWindowTitle("ERP EIPSA")
+                                                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                                    + str(error))
+                                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                                        dlg.exec()
+                                                        del dlg, new_icon
+                                                    finally:
+                                                        if conn is not None:
+                                                            conn.close()
+                                                    break
+                                                dlg_error = QtWidgets.QMessageBox()
                                                 new_icon = QtGui.QIcon()
                                                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                                dlg.setWindowIcon(new_icon)
-                                                dlg.setWindowTitle("Indice Planos")
-                                                dlg.setText("Datos insertados con éxito")
-                                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                                dlg.exec()
-                                                del dlg,new_icon
-
-                                            except (Exception, psycopg2.DatabaseError) as error:
-                                                dlg = QtWidgets.QMessageBox()
-                                                new_icon = QtGui.QIcon()
-                                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                                dlg.setWindowIcon(new_icon)
-                                                dlg.setWindowTitle("ERP EIPSA")
-                                                dlg.setText("Ha ocurrido el siguiente error:\n"
-                                                            + str(error))
-                                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                                dlg.exec()
-                                                del dlg, new_icon
-                                            finally:
-                                                if conn is not None:
-                                                    conn.close()
-                                            break
-                                        dlg_error = QtWidgets.QMessageBox()
-                                        new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                        dlg_error.setWindowIcon(new_icon)
-                                        dlg_error.setWindowTitle("Indice Planos")
-                                        dlg_error.setText("La cantidad no puede estar vacía o no es un valor válido")
-                                        dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                        dlg_error.exec()
-                                        del dlg_error,new_icon
-                                    else:
+                                                dlg_error.setWindowIcon(new_icon)
+                                                dlg_error.setWindowTitle("Indice Planos")
+                                                dlg_error.setText("La cantidad no puede estar vacía o no es un valor válido")
+                                                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                                dlg_error.exec()
+                                                del dlg_error,new_icon
+                                            else:
+                                                break
                                         break
-                                break
-                            dlg_error = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg_error.setWindowIcon(new_icon)
-                            dlg_error.setWindowTitle("Indice Planos")
-                            dlg_error.setText("La descripción no puede estar vacía.")
-                            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg_error.exec()
-                            del dlg_error,new_icon
+                                    else:
+                                        from TAGEdit_WorkshopDrawings_Window import Ui_EditTags_WorkshopDrawings_Window
+                                        config_obj = configparser.ConfigParser()
+                                        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+                                        dbparam = config_obj["postgresql"]
+                                        # set your parameters for the database connection URI using the keys from the configfile.ini
+                                        user_database = dbparam["user"]
+                                        password_database = dbparam["password"]
+
+                                        db_tags_tech = createConnection(user_database, password_database)
+                                        if not db_tags_tech:
+                                            sys.exit()
+
+                                        self.edit_tags_app = Ui_EditTags_WorkshopDrawings_Window(self.username, db_tags_tech, num_order)
+                                        self.edit_tags_app.show()
+
+                                        self.edit_tags_app.closeEvent = self.on_close_event
+
+                                        break
+                                else:
+                                    if item_type == 'M':
+                                        table_name = 'verification."m_drawing_verification"'
+                                    elif item_type == 'OF':
+                                        table_name = 'verification."workshop_of_drawings"'
+                                    elif item_type == 'Dimensional':
+                                        table_name = 'verification."workshop_dim_drawings"'
+                                    while True:
+                                        clickedButton3 = dlg3.exec()
+                                        if clickedButton3 == 1:
+                                            qty = dlg3.textValue()
+                                            if qty != '' and (qty.isdigit() and int(qty) > 0):
+                                                conn = None
+                                                try:
+                                                # read the connection parameters
+                                                    params = config()
+                                                # connect to the PostgreSQL server
+                                                    conn = psycopg2.connect(**params)
+                                                    cur = conn.cursor()
+
+                                                # execution of commands
+                                                    for i in range(int(qty)):
+                                                        commands_insert_drawing = f"""INSERT INTO {table_name} ("num_order") VALUES ('{num_order}')"""
+                                                        cur.execute(commands_insert_drawing)
+
+                                                # close communication with the PostgreSQL database server
+                                                    cur.close()
+                                                # commit the changes
+                                                    conn.commit()
+
+                                                    dlg = QtWidgets.QMessageBox()
+                                                    new_icon = QtGui.QIcon()
+                                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                                    dlg.setWindowIcon(new_icon)
+                                                    dlg.setWindowTitle("Indice Planos")
+                                                    dlg.setText("Datos insertados con éxito")
+                                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                                                    dlg.exec()
+                                                    del dlg,new_icon
+
+                                                except (Exception, psycopg2.DatabaseError) as error:
+                                                    dlg = QtWidgets.QMessageBox()
+                                                    new_icon = QtGui.QIcon()
+                                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                                    dlg.setWindowIcon(new_icon)
+                                                    dlg.setWindowTitle("ERP EIPSA")
+                                                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                                + str(error))
+                                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                                    dlg.exec()
+                                                    del dlg, new_icon
+                                                finally:
+                                                    if conn is not None:
+                                                        conn.close()
+                                                break
+                                            dlg_error = QtWidgets.QMessageBox()
+                                            new_icon = QtGui.QIcon()
+                                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                            dlg_error.setWindowIcon(new_icon)
+                                            dlg_error.setWindowTitle("Indice Planos")
+                                            dlg_error.setText("La cantidad no puede estar vacía o no es un valor válido")
+                                            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                            dlg_error.exec()
+                                            del dlg_error,new_icon
+                                        else:
+                                            break
+                                    break
                         else:
                             break
 
@@ -2789,6 +2912,226 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         conn.close()
 
             del dlg_yes_no, new_icon_yes_no
+
+# Function to add descriptions to drawings
+    def add_description(self):
+        self.numorder = self.Numorder_IndexDwg.text()
+
+        if self.numorder=="":
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Introduce un pedido")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
+
+        else:
+            if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', self.numorder):
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg, new_icon
+
+            else:
+                query = ('''
+                        SELECT num_order, product_type."variable"
+                        FROM orders
+                        INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
+                        INNER JOIN product_type ON (product_type."material" = offers."material")
+                        WHERE
+                        UPPER (orders."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(query,(self.numorder,))
+                    results_variable=cur.fetchone()
+                    self.variable = results_variable[1] if results_variable != None else ''
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+                if results_variable == None:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("EL número de pedido no existe")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                else:
+                    query_flow = ('''
+                        SELECT tags_data.tags_flow."num_order"
+                        FROM tags_data.tags_flow
+                        WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_temp = ('''
+                        SELECT tags_data.tags_temp."num_order"
+                        FROM tags_data.tags_temp
+                        WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_level = ('''
+                        SELECT tags_data.tags_level."num_order"
+                        FROM tags_data.tags_level
+                        WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    query_others = ('''
+                        SELECT tags_data.tags_others."num_order"
+                        FROM tags_data.tags_others
+                        WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
+                        ''')
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query_flow,(self.numorder,))
+                        results_flow=cur.fetchall()
+                        cur.execute(query_temp,(self.numorder,))
+                        results_temp=cur.fetchall()
+                        cur.execute(query_level,(self.numorder,))
+                        results_level=cur.fetchall()
+                        cur.execute(query_others,(self.numorder,))
+                        results_others=cur.fetchall()
+
+                        if len(results_flow) != 0:
+                            self.variable = 'Caudal'
+                        elif len(results_temp) != 0:
+                            self.variable = 'Temperatura'
+                        elif len(results_level) != 0:
+                            self.variable = 'Nivel'
+                        elif len(results_others) != 0:
+                            self.variable = 'Otros'
+                        else:
+                            self.variable = ''
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+                    if self.variable == 'Caudal':
+                        self.table_toquery = "tags_data.tags_flow"
+                    elif self.variable == 'Temperatura':
+                        self.table_toquery = "tags_data.tags_temp"
+                    elif self.variable == 'Nivel':
+                        self.table_toquery = "tags_data.tags_level"
+                    elif self.variable == 'Otros':
+                        self.table_toquery ="tags_data.tags_others"
+                    else:
+                        self.table_toquery =""
+
+                    if self.table_toquery == "tags_data.tags_flow":
+                        if self.proxyDim.rowCount() != 0:
+                            for row in range(self.proxyDim.rowCount()):
+                                num_dim_drawing = self.proxyDim.data(self.proxyDim.index(row, 2))
+
+                                query_data_flow = ('''
+                                    SELECT tags_data.tags_flow."item_type"
+                                    FROM tags_data.tags_flow
+                                    WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%') and (tags_data.tags_flow."dim_drawing") = %s
+                                    ''')
+                                conn = None
+                                try:
+                                # read the connection parameters
+                                    params = config()
+                                # connect to the PostgreSQL server
+                                    conn = psycopg2.connect(**params)
+                                    cur = conn.cursor()
+                                # execution of commands
+                                    cur.execute(query_data_flow,(self.numorder, num_dim_drawing,))
+                                    results_flow=cur.fetchall()
+
+                                    item_type = results_flow[0][0]
+
+                                    if item_type == 'RO':
+                                        query_description = ('''
+                                        SELECT item_type, line_size, rating, facing, schedule, element_material, plate_type, plate_thk
+                                        FROM tags_data.tags_flow
+                                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s
+                                        ''')
+                                        cur.execute(query_description,(self.numorder, num_dim_drawing,))
+                                        results_description=cur.fetchall()
+
+                                        description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                        " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][5] + " " +
+                                                        results_description[0][6] + " " + "ESPESOR " + results_description[0][7])
+
+                                        commands_insert_drawing = f"""INSERT INTO verification."workshop_dim_drawings" ("description") VALUES ('{description}')"""
+                                        cur.execute(commands_insert_drawing)
+
+                                # close communication with the PostgreSQL database server
+                                    cur.close()
+                                # commit the changes
+                                    conn.commit()
+                                except (Exception, psycopg2.DatabaseError) as error:
+                                    dlg = QtWidgets.QMessageBox()
+                                    new_icon = QtGui.QIcon()
+                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg.setWindowIcon(new_icon)
+                                    dlg.setWindowTitle("ERP EIPSA")
+                                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                + str(error))
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                    dlg.exec()
+                                    del dlg, new_icon
+                                finally:
+                                    if conn is not None:
+                                        conn.close()
+
+# Function to execute query function when tags window is closed
+    def on_close_event(self, event):
+        self.query_drawings()
+        event.accept()
+
 
 
 

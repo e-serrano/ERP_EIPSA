@@ -6,6 +6,7 @@ from datetime import *
 import PyQt6.QtCore
 from PyQt6 import QtCore, QtGui, QtWidgets
 import os
+import openpyxl
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -51,11 +52,18 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
         cur.execute(commands_numot)
         results=cur.fetchall()
         num_ot=results[-1][0]
+
+        excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+        workbook = openpyxl.load_workbook(excel_file_path)
+        worksheet = workbook.active
+        num_ot = worksheet['B2'].value
         cur.execute(check_otpedmat)
         results=cur.fetchall()
         if len(results) == 0:
             data=(numorder_pedmat + '-PEDMAT', numorder_pedmat, 'PEDIDO DE MATERIALES', 1, '{:06}'.format(int(num_ot) + 1), len(id_list), date.today().strftime("%d/%m/%Y"))
             cur.execute(commands_otpedmat, data)
+            worksheet['B2'].value = num_ot + 1
+            workbook.save(excel_file_path)
     # close communication with the PostgreSQL database server
         cur.close()
     # commit the changes
@@ -547,11 +555,18 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
         cur.execute(commands_numot)
         results=cur.fetchall()
         num_ot=results[-1][0]
+
+        excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+        workbook = openpyxl.load_workbook(excel_file_path)
+        worksheet = workbook.active
+        num_ot = worksheet['B2'].value
         cur.execute(check_otpedmat)
         results=cur.fetchall()
         if len(results) == 0:
             data=(numorder_pedmat + '-PEDMAT', numorder_pedmat, 'PEDIDO DE MATERIALES', 1, '{:06}'.format(int(num_ot) + 1), len(id_list), date.today().strftime("%d/%m/%Y"))
             cur.execute(commands_otpedmat, data)
+            worksheet['B2'].value = num_ot + 1
+            workbook.save(excel_file_path)
     # close communication with the PostgreSQL database server
         cur.close()
     # commit the changes
@@ -933,11 +948,18 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
         cur.execute(commands_numot)
         results=cur.fetchall()
         num_ot=results[-1][0]
+
+        excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+        workbook = openpyxl.load_workbook(excel_file_path)
+        worksheet = workbook.active
+        num_ot = worksheet['B2'].value
         cur.execute(check_otpedmat)
         results=cur.fetchall()
         if len(results) == 0:
             data=(numorder_pedmat + '-PEDMAT', numorder_pedmat, 'PEDIDO DE MATERIALES', 1, '{:06}'.format(int(num_ot) + 1), len(id_list), date.today().strftime("%d/%m/%Y"))
             cur.execute(commands_otpedmat, data)
+            worksheet['B2'].value = num_ot + 1
+            workbook.save(excel_file_path)
     # close communication with the PostgreSQL database server
         cur.close()
     # commit the changes

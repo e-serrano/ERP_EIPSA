@@ -151,7 +151,7 @@ class Ui_UpdateTableExist_Window(object):
 
         query_databasetables = """SELECT table_name
                                 FROM information_schema.tables
-                                WHERE table_schema = 'purch_fact' AND table_type = 'BASE TABLE';"""
+                                WHERE table_schema = 'fabrication' AND table_type = 'BASE TABLE';"""
 
         conn = None
         try:
@@ -201,7 +201,7 @@ class Ui_UpdateTableExist_Window(object):
 
 #Function to import data into and existing table from and Excel where first row is column name
     def importtableexist(self):
-        table_name='purch_fact.' + self.TableName_ImportTableExist.currentText()
+        table_name='fabrication.' + self.TableName_ImportTableExist.currentText()
 
         if self.label_name_file.text() == "":
             dlg = QtWidgets.QMessageBox()
@@ -222,7 +222,7 @@ class Ui_UpdateTableExist_Window(object):
             cursor = conn.cursor()
 
         #Importing excel file into dataframe
-            df_table = pd.read_excel(excel_file)
+            df_table = pd.read_excel(excel_file, dtype={'ot_num': str})
             df_table = df_table.astype(str)
             df_table.replace('nan', 'N/A', inplace=True)
 
@@ -235,7 +235,7 @@ class Ui_UpdateTableExist_Window(object):
                     # Creating string for columns names and values
                         columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
                         columns = ', '.join([column for column, _ in columns_values])
-                        values = ', '.join([f"'{value.replace('.', ',')}'" if column in ['offer_amount','order_amount'] else ('NULL' if value == '' and column in ['verification_date'] else f"'{value}'") for column, value in columns_values])
+                        values = ', '.join([f"'{value.replace('.', ',')}'" if column in ['offer_amount','order_amount'] else ('NULL' if value in ['','N/A'] and column in ['start_date'] else f"'{value}'") for column, value in columns_values])
 
                     # Creating the SET  and WHERE clause with proper formatting
                         set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])

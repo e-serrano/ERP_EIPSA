@@ -13,7 +13,7 @@ from datetime import *
 import os
 import pandas as pd
 from PDF_Styles import fab_order
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
 from tkinter.filedialog import asksaveasfilename
@@ -170,7 +170,7 @@ class Ui_OTFabOrder_Window(object):
         self.Button_Create.setText(_translate("OTFabOrder_Window", "Crear OT"))
         self.Button_Launch.setText(_translate("OTFabOrder_Window", "Lanzar OT"))
 
-
+# Function to create OT and asign number
     def create_ot(self):
         commands_numot = ("""SELECT "ot_num"
                         FROM fabrication.fab_order
@@ -188,6 +188,11 @@ class Ui_OTFabOrder_Window(object):
             cur.execute(commands_numot)
             results=cur.fetchall()
             num_ot=results[-1][0]
+
+            excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+            workbook = load_workbook(excel_file_path)
+            worksheet = workbook.active
+            num_ot = worksheet['B2'].value
             num_ot = '{:06}'.format(int(num_ot) + 1)
         # close communication with the PostgreSQL database server
             cur.close()
@@ -229,6 +234,9 @@ class Ui_OTFabOrder_Window(object):
             it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
             self.tableOT.setItem(i, 5, it)
 
+        worksheet['B2'].value = num_ot
+        workbook.save(excel_file_path)
+
         data_elements = []
         for row in range(self.tableOT.rowCount()):
             data_elements.append([self.tableOT.item(row, 2).text(), float(self.tableOT.item(row, 3).text())])
@@ -245,6 +253,7 @@ class Ui_OTFabOrder_Window(object):
         self.tableOT.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableOT.horizontalHeader().setSectionResizeMode(8, QtWidgets.QHeaderView.ResizeMode.Stretch)
 
+# Function to launch OT to database and generate document
     def launch_ot(self):
         data_of = []
         data_trad = []
@@ -458,13 +467,10 @@ class Ui_OTFabOrder_Window(object):
             row_data = []
             for col in range(self.tableOT.columnCount()):
                 item = self.tableOT.item(row, col)
-                # Añadir los datos a la lista, manejar el caso donde el item puede ser None
                 row_data.append(item.text() if item is not None else "")
             table_data.append(row_data)
-        
-        # Convertir la lista en un DataFrame de pandas
-        df_toexport = pd.DataFrame(table_data, columns=['TAG','ELEMENTO','CANT','OT','FECHA','CANTxOT','TRAD COD','OF'])
-        
+
+        df_toexport = pd.DataFrame(table_data, columns=['ID', 'TAG','ELEMENTO','CANT','OT','FECHA','CANTxOT','TRAD COD','OF'])
 
         output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
 
@@ -479,16 +485,30 @@ class Ui_OTFabOrder_Window(object):
                     fecha_obj = datetime.strptime(fecha_str, '%d/%m/%Y').date()
                     df_toexport.at[index, 'FECHA'] = fecha_obj
 
+                float_str = row['CANTxOT']
+                if float_str is not None:
+                    float_obj = float(float_str)
+                    df_toexport.at[index, 'CANTxOT'] = float_obj
+
+                float_str = row['CANT']
+                if float_str is not None:
+                    float_obj = float(float_str)
+                    df_toexport.at[index, 'CANT'] = float_obj
+
             for r_idx, row in enumerate(dataframe_to_rows(df_toexport, index=False, header=True), 1):
                 ws.append(row)
 
             # Currency Style
             currency_style = NamedStyle(name='currency', number_format='#,##0.00 €')
             date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
+            otnum_style = NamedStyle(name='otnum_style', number_format='000000')
 
             # Apply Styles
-            for cell in ws['E']:
+            for cell in ws['F']:
                 cell.style = date_style
+
+            for cell in ws['E']:
+                cell.style = otnum_style
 
             wb.save(output_path)
 

@@ -211,7 +211,7 @@ class Ui_TAGOfferToOrder_Window(object):
                 df_final = df_table.iloc[:,:33]
             elif self.radioTemp.isChecked()==True:
                 table_name='tags_data.tags_temp'
-                df_final = df_table.iloc[:,:38]
+                df_final = df_table.iloc[:,:39]
             elif self.radioLevel.isChecked()==True:
                 table_name= 'tags_data.tags_level'
                 df_final = df_table.iloc[:,:39]
@@ -288,7 +288,7 @@ class Ui_TAGOfferToOrder_Window(object):
                     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Datos importados con éxito")
+                    dlg.setText("Datos actualizados con éxito")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
                     del dlg, new_icon

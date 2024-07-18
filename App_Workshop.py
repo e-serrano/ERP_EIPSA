@@ -249,6 +249,127 @@ class Ui_App_Workshop(object):
         self.Button_Verification.setIconSize(QtCore.QSize(40, 40))
         self.Button_Verification.setObjectName("Button_Verification")
         self.Header.addWidget(self.Button_Verification)
+        spacerItem5 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem5)
+        self.Button_Machines = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Machines.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Machines.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Machines.setToolTip('Máquinas')
+        self.Button_Machines.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'm.gil':
+            self.Button_Machines.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Machines.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Machines.setText("")
+        icon10 = QtGui.QIcon()
+        icon10.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Machines.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Machines.setIcon(icon10)
+        self.Button_Machines.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Machines.setObjectName("Button_Machines")
+        self.Header.addWidget(self.Button_Machines)
+
+        spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem8)
+        self.Button_HandTools = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_HandTools.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_HandTools.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_HandTools.setToolTip('Herramientas de Mano')
+        self.Button_HandTools.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'm.gil':
+            self.Button_HandTools.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_HandTools.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_HandTools.setText("")
+        icon11 = QtGui.QIcon()
+        icon11.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Handtool.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_HandTools.setIcon(icon11)
+        self.Button_HandTools.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_HandTools.setObjectName("Button_HandTools")
+        self.Header.addWidget(self.Button_HandTools)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -547,6 +668,8 @@ class Ui_App_Workshop(object):
         self.Button_Palette_M.clicked.connect(self.colour_palette_M)
         self.Button_Palette_T.clicked.connect(self.colour_palette_T)
         self.Button_Verification.clicked.connect(self.verification)
+        self.Button_Machines.clicked.connect(self.workshop_machines)
+        self.Button_HandTools.clicked.connect(self.workshop_handtools)
 
         self.load_notifications()
 
@@ -569,7 +692,6 @@ class Ui_App_Workshop(object):
         self.notification_window.show()
         self.notification_window.Button_Cancel.clicked.connect(self.load_notifications)
 
-
 # Function to open window to check tags
     def query_tag(self):
         from TAGEdit_Workshop_Window import Ui_EditTags_Workshop_Window
@@ -587,7 +709,6 @@ class Ui_App_Workshop(object):
         self.edit_tags_app = Ui_EditTags_Workshop_Window(self.name, db_tags_tech)
         self.edit_tags_app.show()
 
-
 # Function to open window with manufacture table
     def manufacture(self):
         from Workshop_Window import Ui_Workshop_Window
@@ -604,9 +725,8 @@ class Ui_App_Workshop(object):
         if not db_manufacture:
             sys.exit()
 
-        self.workshop_window = Ui_Workshop_Window(db_manufacture)
+        self.workshop_window = Ui_Workshop_Window(db_manufacture, self.username)
         self.workshop_window.showMaximized()
-
 
 # Function to open window with assembly table
     def assembly(self):
@@ -622,9 +742,8 @@ class Ui_App_Workshop(object):
         if not db_assembly:
             sys.exit()
 
-        self.assembly_window = Ui_Assembly_Window(db_assembly)
+        self.assembly_window = Ui_Assembly_Window(db_assembly, self.username)
         self.assembly_window.showMaximized()
-
 
 # Function to open window with dispatch table
     def dispatch(self):
@@ -643,11 +762,9 @@ class Ui_App_Workshop(object):
         self.dispatch_window = Ui_Dispatch_Window(db_dispatch)
         self.dispatch_window.show()
 
-
 # Function to open window with manufacture times table
     def times(self):
         print('ordenes de compra')
-
 
 # Function to show menu when Profile button is clicked 
     def showMenu(self):
@@ -660,14 +777,12 @@ class Ui_App_Workshop(object):
         button = self.Button_Profile
         menu.exec(button.mapToGlobal(QtCore.QPoint(-75, 50)))
 
-
 # Function to open corresponding window when Edit Password option is clicked
     def editpassword(self):
         self.edit_password_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditPasswordWindow(self.username)
         self.ui.setupUi(self.edit_password_window)
         self.edit_password_window.show()
-
 
 # Function to load number of notifications
     def load_notifications(self):
@@ -724,13 +839,11 @@ class Ui_App_Workshop(object):
             icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Notification.setIcon(icon13)
 
-
 # Function to open window to insert drawing
     def insert_drawings(self):
         from Workshop_DrawingInsert_Window import Ui_Workshop_DrawingInsert_Window
         self.m_drawing_insert_window=Ui_Workshop_DrawingInsert_Window(self.username)
         self.m_drawing_insert_window.show()
-
 
 # Function to open window to check order drawings
     def index_drawing(self):
@@ -749,7 +862,6 @@ class Ui_App_Workshop(object):
         self.index_drawing_window = Ui_WorkshopDrawingIndex_Window(db_index, self.username)
         self.index_drawing_window.showMaximized()
 
-
 # Function to open colour palette table
     def colour_palette_M(self):
         from ColourPaletteM_Window import Ui_PaletteColourM_Window
@@ -759,7 +871,6 @@ class Ui_App_Workshop(object):
         self.ui.setupUi(self.palettecolourm_window)
         self.palettecolourm_window.show()
 
-
 # Function to open bolts colour palette table
     def colour_palette_T(self):
         from ColourPaletteT_Window import Ui_PaletteColourT_Window
@@ -768,7 +879,6 @@ class Ui_App_Workshop(object):
         self.ui = Ui_PaletteColourT_Window()
         self.ui.setupUi(self.palettecolourt_window)
         self.palettecolourt_window.show()
-
 
 # Function to open corresponding window when Verification button is clicked
     def verification(self):
@@ -801,6 +911,41 @@ class Ui_App_Workshop(object):
                 del dlg_error,new_icon
             else:
                 break
+
+# Function to open window with workshop machines
+    def workshop_machines(self):
+        from Workshop_Machines_Window import Ui_Workshop_Machines_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_machines = createConnection(user_database, password_database)
+        if not db_machines:
+            sys.exit()
+
+        self.machines_window = Ui_Workshop_Machines_Window(db_machines, self.username)
+        self.machines_window.showMaximized()
+
+# Function to open window with workshop machines
+    def workshop_handtools(self):
+        from Workshop_Handtools_Window import Ui_Workshop_Handtools_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_handtools = createConnection(user_database, password_database)
+        if not db_handtools:
+            sys.exit()
+
+        self.handtool_window = Ui_Workshop_Handtools_Window(db_handtools, self.username)
+        self.handtool_window.showMaximized()
+
 
 
 

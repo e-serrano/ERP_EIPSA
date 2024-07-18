@@ -14,6 +14,8 @@ import re
 from datetime import *
 import locale
 import fnmatch
+from Verif_Pics_Warehouse_Window import Ui_Verif_Pics_Warehouse_Window
+from Verif_Pics_InsertTag_Window import Ui_Verif_Pics_InsertTag_Window
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -189,13 +191,16 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
 
             # Check filters for all columns
             for col, filters in self.column_filters.items():
-                item = self.item(row, col)
-                if item:
-                    item_value = item.text()
-                    if text_filter is None:
-                        if filters and item_value not in filters:
-                            show_row = False
-                            break
+                if isinstance(self.cellWidget(row, col), QtWidgets.QCheckBox):
+                    item_value = self.cellWidget(row, col).text()
+                else:
+                    item = self.item(row, col)
+                    if item:
+                        item_value = item.text()
+                if text_filter is None:
+                    if filters and item_value not in filters:
+                        show_row = False
+                        break
 
         # Filtering by text
             if text_filter is not None:
@@ -303,6 +308,10 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
                 item = self.item(row, column_index)
                 if item:
                     unique_values.add(item.text())
+                else:
+                    cell_widget = self.cellWidget(row, column_index)
+                    if isinstance(cell_widget, QtWidgets.QCheckBox):
+                        unique_values.add(cell_widget.text())
         return unique_values
 
 # Function to get values filtered by all columns
@@ -318,7 +327,6 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
             self.custom_sort(column_index, sortOrder)
         else:
             self.sortByColumn(column_index, sortOrder)
-
 
     def custom_sort(self, column, order):
     # Obtén la cantidad de filas en la tabla
@@ -776,23 +784,19 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.num_order.setFont(font)
         self.num_order.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.num_order.setObjectName("num_order")
-        self.gridLayout_2.addWidget(self.num_order, 1, 1, 1, 5)
-        self.Button_OF_Drawing = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_OF_Drawing.setMinimumSize(QtCore.QSize(204, 35))
-        self.Button_OF_Drawing.setObjectName("Button_OF_Drawing")
-        self.gridLayout_2.addWidget(self.Button_OF_Drawing, 2, 1, 1, 1)
-        self.Button_M_Drawing = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_M_Drawing.setMinimumSize(QtCore.QSize(204, 35))
-        self.Button_M_Drawing.setObjectName("Button_M_Drawing")
-        self.gridLayout_2.addWidget(self.Button_M_Drawing, 3, 0, 1, 1)
-        self.Button_Dim_Drawing = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Dim_Drawing.setMinimumSize(QtCore.QSize(204, 35))
-        self.Button_Dim_Drawing.setObjectName("Button_Dim_Drawing")
-        self.gridLayout_2.addWidget(self.Button_Dim_Drawing, 2, 0, 1, 1)
-        self.Button_Photos= QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Photos.setMinimumSize(QtCore.QSize(204, 35))
-        self.Button_Photos.setObjectName("Button_Photos")
-        self.gridLayout_2.addWidget(self.Button_Photos, 3, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.num_order, 1, 1, 1, 6)
+        # self.Button_OF_Drawing = QtWidgets.QPushButton(parent=self.frame)
+        # self.Button_OF_Drawing.setMinimumSize(QtCore.QSize(204, 35))
+        # self.Button_OF_Drawing.setObjectName("Button_OF_Drawing")
+        # self.gridLayout_2.addWidget(self.Button_OF_Drawing, 2, 1, 1, 1)
+        # self.Button_M_Drawing = QtWidgets.QPushButton(parent=self.frame)
+        # self.Button_M_Drawing.setMinimumSize(QtCore.QSize(204, 35))
+        # self.Button_M_Drawing.setObjectName("Button_M_Drawing")
+        # self.gridLayout_2.addWidget(self.Button_M_Drawing, 3, 0, 1, 1)
+        # self.Button_Dim_Drawing = QtWidgets.QPushButton(parent=self.frame)
+        # self.Button_Dim_Drawing.setMinimumSize(QtCore.QSize(204, 35))
+        # self.Button_Dim_Drawing.setObjectName("Button_Dim_Drawing")
+        # self.gridLayout_2.addWidget(self.Button_Dim_Drawing, 2, 0, 1, 1)
         self.label_manometer1 = QtWidgets.QCheckBox(parent=self.frame)
         self.label_manometer1.setMinimumSize(QtCore.QSize(204, 25))
         font = QtGui.QFont()
@@ -801,14 +805,14 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.label_manometer1.setFont(font)
         # self.label_manometer1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_manometer1.setObjectName("label_manometer1")
-        self.gridLayout_2.addWidget(self.label_manometer1, 2, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.label_manometer1, 2, 0, 1, 1)
         self.manometer1 = QtWidgets.QComboBox(parent=self.frame)
         self.manometer1.setMinimumSize(QtCore.QSize(204, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.manometer1.setFont(font)
         self.manometer1.setObjectName("manometer1")
-        self.gridLayout_2.addWidget(self.manometer1, 2, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.manometer1, 2, 1, 1, 1)
         self.label_pressure1 = QtWidgets.QLabel(parent=self.frame)
         self.label_pressure1.setMinimumSize(QtCore.QSize(204, 25))
         font = QtGui.QFont()
@@ -817,7 +821,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.label_pressure1.setFont(font)
         self.label_pressure1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_pressure1.setObjectName("label_pressure1")
-        self.gridLayout_2.addWidget(self.label_pressure1, 2, 4, 1, 1)
+        self.gridLayout_2.addWidget(self.label_pressure1, 2, 2, 1, 1)
         self.pressure1 = QtWidgets.QLineEdit(parent=self.frame)
         self.pressure1.setMinimumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
@@ -825,7 +829,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.pressure1.setFont(font)
         self.pressure1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.pressure1.setObjectName("pressure1")
-        self.gridLayout_2.addWidget(self.pressure1, 2, 5, 1, 1)
+        self.gridLayout_2.addWidget(self.pressure1, 2, 3, 1, 1)
         self.label_manometer2 = QtWidgets.QCheckBox(parent=self.frame)
         self.label_manometer2.setMinimumSize(QtCore.QSize(204, 25))
         font = QtGui.QFont()
@@ -834,14 +838,14 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.label_manometer2.setFont(font)
         # self.label_manometer2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_manometer2.setObjectName("label_manometer2")
-        self.gridLayout_2.addWidget(self.label_manometer2, 3, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.label_manometer2, 3, 0, 1, 1)
         self.manometer2 = QtWidgets.QComboBox(parent=self.frame)
         self.manometer2.setMinimumSize(QtCore.QSize(204, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.manometer2.setFont(font)
         self.manometer2.setObjectName("manometer2")
-        self.gridLayout_2.addWidget(self.manometer2, 3, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.manometer2, 3, 1, 1, 1)
         self.label_pressure2 = QtWidgets.QLabel(parent=self.frame)
         self.label_pressure2.setMinimumSize(QtCore.QSize(204, 25))
         font = QtGui.QFont()
@@ -850,7 +854,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.label_pressure2.setFont(font)
         self.label_pressure2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_pressure2.setObjectName("label_pressure2")
-        self.gridLayout_2.addWidget(self.label_pressure2, 3, 4, 1, 1)
+        self.gridLayout_2.addWidget(self.label_pressure2, 3, 2, 1, 1)
         self.pressure2 = QtWidgets.QLineEdit(parent=self.frame)
         self.pressure2.setMinimumSize(QtCore.QSize(170, 25))
         font = QtGui.QFont()
@@ -858,16 +862,18 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.pressure2.setFont(font)
         self.pressure2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.pressure2.setObjectName("pressure2")
-        self.gridLayout_2.addWidget(self.pressure2, 3, 5, 1, 1)
+        self.gridLayout_2.addWidget(self.pressure2, 3, 3, 1, 1)
         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.gridLayout_2.addItem(spacerItem3, 4, 2, 1, 1)
         self.select_all_dim = QtWidgets.QCheckBox('Todos Dim.')
         self.gridLayout_2.addWidget(self.select_all_dim, 5, 1, 1, 1)
+        self.select_all_dim.setVisible(False)
         self.select_all_of_eq = QtWidgets.QCheckBox('Todos OF Eq.')
         self.select_all_of_eq.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.gridLayout_2.addWidget(self.select_all_of_eq, 5, 2, 1, 1)
+        self.select_all_of_eq.setVisible(False)
         self.select_all_of_sensor = QtWidgets.QCheckBox('Todos OF Sensor')
-        self.select_all_of_sensor.setLayoutDirection(QtCore.Qt.LayoutDirection.RightToLeft)
+        self.select_all_of_sensor.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.gridLayout_2.addWidget(self.select_all_of_sensor, 5, 3, 1, 1)
         self.select_all_of_sensor.setVisible(False)
         # self.select_ph = QtWidgets.QCheckBox('Prueba Hidrostática')
@@ -876,6 +882,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.select_lp = QtWidgets.QCheckBox('Líquidos Penetrantes')
         self.select_lp.setLayoutDirection(QtCore.Qt.LayoutDirection.RightToLeft)
         self.gridLayout_2.addWidget(self.select_lp, 5, 5, 1, 1)
+        self.select_lp.setVisible(False)
         self.select_all_tags = QtWidgets.QCheckBox('Todos Tags')
         self.select_all_tags.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.gridLayout_2.addWidget(self.select_all_tags, 5, 0, 1, 1)
@@ -886,22 +893,27 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addWidget(self.tableTags, 6, 0, 1, 6)
         self.select_all_others = QtWidgets.QCheckBox('Todos Otros')
         self.select_all_others.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
-        self.gridLayout_2.addWidget(self.select_all_others, 7, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.select_all_others, 2, 6, 1, 1)
         self.tableOthers = CustomTableWidgetOthers()
         self.tableOthers.setObjectName("tableWidget")
         self.tableOthers.setColumnCount(0)
         self.tableOthers.setRowCount(0)
-        self.gridLayout_2.addWidget(self.tableOthers, 8, 0, 1, 6)
-        self.label_CountItems = QtWidgets.QLabel(parent=self.frame)
-        self.label_CountItems.setMinimumSize(QtCore.QSize(105, 25))
-        self.label_CountItems.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_CountItems.setObjectName("label_CountItems")
-        self.gridLayout_2.addWidget(self.label_CountItems, 9, 4, 1, 1)
-        self.label_CountValue = QtWidgets.QLabel(parent=self.frame)
-        self.label_CountValue.setMinimumSize(QtCore.QSize(105, 25))
-        self.label_CountValue.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_CountValue.setObjectName("label_CountValue")
-        self.gridLayout_2.addWidget(self.label_CountValue, 9, 5, 1, 1)
+        self.gridLayout_2.addWidget(self.tableOthers, 3, 6, 9, 1)
+        self.label_CountItems_tags = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountItems_tags.setMinimumSize(QtCore.QSize(105, 25))
+        self.label_CountItems_tags.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_CountItems_tags.setObjectName("label_CountItems_tags")
+        self.gridLayout_2.addWidget(self.label_CountItems_tags, 9, 4, 1, 1)
+        self.label_CountValue_tags = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountValue_tags.setMinimumSize(QtCore.QSize(105, 25))
+        self.label_CountValue_tags.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_CountValue_tags.setObjectName("label_CountValue_tags")
+        self.gridLayout_2.addWidget(self.label_CountValue_tags, 9, 5, 1, 1)
+        self.label_CountItems_others = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountItems_others.setMinimumSize(QtCore.QSize(105, 25))
+        self.label_CountItems_others.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_CountItems_others.setObjectName("label_CountItems_others")
+        self.gridLayout_2.addWidget(self.label_CountItems_others, 12, 6, 1, 1)
         self.label_date = QtWidgets.QLabel(parent=self.frame)
         self.label_date.setMinimumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
@@ -959,6 +971,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.Button_Insert.setMinimumSize(QtCore.QSize(100, 35))
         self.Button_Insert.setObjectName("Button_Insert")
         self.gridLayout_2.addWidget(self.Button_Insert, 12, 0, 1, 2)
+        self.Button_Photos= QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Photos.setMinimumSize(QtCore.QSize(204, 35))
+        self.Button_Photos.setObjectName("Button_Photos")
+        self.gridLayout_2.addWidget(self.Button_Photos, 12, 2, 1, 2)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(100, 35))
         self.Button_Cancel.setObjectName("Button_Cancel")
@@ -996,9 +1012,9 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.Button_Cancel.clicked.connect(VerificationInsert_Window.close)
         self.num_order.returnPressed.connect(self.query_tables)
         self.Button_Insert.clicked.connect(self.insert_all_data)
-        self.Button_M_Drawing.clicked.connect(lambda: self.insert_m_drawings(self.num_order.text().upper()))
-        self.Button_OF_Drawing.clicked.connect(lambda: self.insert_of_drawings(self.num_order.text().upper()))
-        self.Button_Dim_Drawing.clicked.connect(lambda: self.insert_dim_drawings(self.num_order.text().upper()))
+        # self.Button_M_Drawing.clicked.connect(lambda: self.insert_m_drawings(self.num_order.text().upper()))
+        # self.Button_OF_Drawing.clicked.connect(lambda: self.insert_of_drawings(self.num_order.text().upper()))
+        # self.Button_Dim_Drawing.clicked.connect(lambda: self.insert_dim_drawings(self.num_order.text().upper()))
         self.Button_Photos.clicked.connect(lambda: self.insert_images(self.num_order.text().upper()))
         self.tableTags.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
         self.tableOthers.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked_others)
@@ -1008,23 +1024,12 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.select_all_of_sensor.clicked.connect(self.toggle_of_sensor_checkboxes)
         self.select_all_others.clicked.connect(self.toggle_all_others_checkboxes)
         self.state_test.currentTextChanged.connect(self.change_text_color)
-        self.tableOthers.itemSelectionChanged.connect(self.countSelectedCells)
+        self.tableOthers.itemSelectionChanged.connect(self.countSelectedCells_others)
+        self.tableTags.itemSelectionChanged.connect(self.countSelectedCells_tags)
         self.tableTags.itemDoubleClicked.connect(self.item_double_clicked)
         self.tableOthers.itemDoubleClicked.connect(self.item_double_clicked)
 
         self.load_values()
-
-        # self.show_message()
-
-    def show_message(self):
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("Verificación")
-        dlg.setText('PH y LP no disponibles')
-        dlg.exec()
-        del dlg, new_icon
 
 
     def retranslateUi(self, VerificationInsert_Window):
@@ -1040,9 +1045,9 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.label_obs.setText(_translate("VerificationInsert_Window", "Observaciones:"))
         self.Button_Cancel.setText(_translate("VerificationInsert_Window", "Cancelar"))
         self.Button_Insert.setText(_translate("VerificationInsert_Window", "Insertar"))
-        self.Button_M_Drawing.setText(_translate("VerificationInsert_Window", "Planos M"))
-        self.Button_OF_Drawing.setText(_translate("VerificationInsert_Window", "Planos OF"))
-        self.Button_Dim_Drawing.setText(_translate("VerificationInsert_Window", "Planos Dim."))
+        # self.Button_M_Drawing.setText(_translate("VerificationInsert_Window", "Planos M"))
+        # self.Button_OF_Drawing.setText(_translate("VerificationInsert_Window", "Planos OF"))
+        # self.Button_Dim_Drawing.setText(_translate("VerificationInsert_Window", "Planos Dim."))
         self.Button_Photos.setText(_translate("VerificationInsert_Window", "Fotos"))
 
 
@@ -1057,6 +1062,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.num_order_value = self.num_order.text().upper()
         if self.num_order_value != '':
             if self.num_order_value[:3] == 'AL-':
+                self.tableTags.setRowCount(0)
                 self.querywarehouse()
             else:
                 self.querytags()
@@ -1199,28 +1205,43 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     commands_tags = f" SELECT '', {self.column_id}, tag, num_order, item_type, dim_drawing, of_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state = 'PURCHASED' ORDER BY tag"
                     self.num_columns = 13
                     column_headers = ['', 'ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Plano Dim.', 'OF Equipo', 'Fecha Dim.', 'Fecha OF', 'Fecha PH1', 'Fecha PH2', 'Fecha LP', 'Fotos']
+                    self.select_all_dim.setVisible(True)
+                    self.select_all_of_eq.setVisible(True)
                     self.select_all_of_sensor.setVisible(False)
+                    self.select_lp.setVisible(True)
+
                 elif material == 'Temperatura':
                     self.table_name = "tags_data.tags_temp"
                     self.column_id = "id_tag_temp"
                     commands_tags = f" SELECT '', {self.column_id}, tag, num_order, item_type, dim_drawing, of_drawing, of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_sensor_date, 'DD/MM/YYYY'), TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state = 'PURCHASED' ORDER BY tag"
                     self.num_columns = 15
                     column_headers = ['', 'ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Plano Dim.', 'OF Equipo', 'OF Sensor', 'Fecha Dim.', 'Fecha OF Vaina', 'Fecha OF Sensor', 'Fecha PH1', 'Fecha PH2', 'Fecha LP', 'Fotos']
+                    self.select_all_dim.setVisible(True)
+                    self.select_all_of_eq.setVisible(True)
                     self.select_all_of_sensor.setVisible(True)
+                    self.select_lp.setVisible(True)
+
                 elif material == 'Nivel':
                     self.table_name = "tags_data.tags_level"
                     self.column_id = "id_tag_level"
                     commands_tags = f" SELECT '', {self.column_id}, tag, num_order, item_type, dim_drawing, of_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state = 'PURCHASED' ORDER BY tag"
                     self.num_columns = 13
                     column_headers = ['', 'ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Plano Dim.', 'OF Equipo', 'Fecha Dim.', 'Fecha OF', 'Fecha PH1', 'Fecha PH2', 'Fecha LP', 'Fotos']
+                    self.select_all_dim.setVisible(True)
+                    self.select_all_of_eq.setVisible(True)
                     self.select_all_of_sensor.setVisible(False)
+                    self.select_lp.setVisible(True)
+
                 elif material == 'Otros':
                     self.column_id = "id_tag_others"
                     self.table_name = "tags_data.tags_others"
                     commands_tags = f" SELECT '', {self.column_id}, tag, num_order, description, dim_drawing, of_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state = 'PURCHASED' ORDER BY tag"
                     self.num_columns = 13
                     column_headers = ['', 'ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Plano Dim.', 'OF Equipo', 'Fecha Dim.', 'Fecha OF', 'Fecha PH1', 'Fecha PH2', 'Fecha LP', 'Fotos']
+                    self.select_all_dim.setVisible(True)
+                    self.select_all_of_eq.setVisible(True)
                     self.select_all_of_sensor.setVisible(False)
+                    self.select_lp.setVisible(True)
 
                 conn = None
                 if material != '':
@@ -1292,6 +1313,8 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         self.tableTags.setSortingEnabled(False)
                         self.tableTags.setHorizontalHeaderLabels(column_headers)
                         self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+                        self.tableTags.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                        self.tableTags.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Interactive)
                         self.tableTags.hideColumn(1)
 
                     except (Exception, psycopg2.DatabaseError) as error:
@@ -1315,15 +1338,15 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.num_order_value = self.num_order.text().upper()
 
         query_others = ("""
-                        SELECT '', num_order, drawing_number, TO_CHAR(verif_m_drawing_date, 'DD/MM/YYYY'), verif_m_drawing_state, verif_m_drawing_obs FROM verification.m_drawing_verification WHERE UPPER(verification.m_drawing_verification."num_order") LIKE UPPER('%%'||%s||'%%')
+                        SELECT '', num_order, drawing_number, TO_CHAR(verif_m_drawing_date, 'DD/MM/YYYY') FROM verification.m_drawing_verification WHERE UPPER(verification.m_drawing_verification."num_order") LIKE UPPER('%%'||%s||'%%')
                         UNION
-                        SELECT '', num_order, 'PPI' as drawing_number, TO_CHAR(verif_ppi_date, 'DD/MM/YYYY'), verif_ppi_state, verif_ppi_obs FROM verification.ppi_verification WHERE UPPER(verification.ppi_verification."num_order") LIKE UPPER('%%'||%s||'%%')
+                        SELECT '', num_order, 'PPI' as drawing_number, TO_CHAR(verif_ppi_date, 'DD/MM/YYYY') FROM verification.ppi_verification WHERE UPPER(verification.ppi_verification."num_order") LIKE UPPER('%%'||%s||'%%')
                         UNION
-                        SELECT '', num_order, 'EXP' as drawing_number, TO_CHAR(verif_exp_date, 'DD/MM/YYYY'), verif_exp_state, verif_exp_obs FROM verification.exp_verification WHERE UPPER(verification.exp_verification."num_order") LIKE UPPER('%%'||%s||'%%')
+                        SELECT '', num_order, 'EXP' as drawing_number, TO_CHAR(verif_exp_date, 'DD/MM/YYYY') FROM verification.exp_verification WHERE UPPER(verification.exp_verification."num_order") LIKE UPPER('%%'||%s||'%%')
                         UNION
-                        SELECT '', num_order, drawing_number, TO_CHAR(verif_of_drawing_date, 'DD/MM/YYYY'), verif_of_drawing_state, verif_of_drawing_obs FROM verification.of_drawing_verification WHERE UPPER(verification.of_drawing_verification."num_order") LIKE UPPER('%%'||%s||'%%')
+                        SELECT '', num_order, drawing_number, TO_CHAR(verif_of_drawing_date, 'DD/MM/YYYY') FROM verification.of_drawing_verification WHERE UPPER(verification.of_drawing_verification."num_order") LIKE UPPER('%%'||%s||'%%')
                         UNION
-                        SELECT '', num_order, drawing_number, TO_CHAR(verif_dim_drawing_date, 'DD/MM/YYYY'), verif_dim_drawing_state, verif_dim_drawing_obs FROM verification.dim_drawing_verification WHERE UPPER(verification.dim_drawing_verification."num_order") LIKE UPPER('%%'||%s||'%%')
+                        SELECT '', num_order, drawing_number, TO_CHAR(verif_dim_drawing_date, 'DD/MM/YYYY') FROM verification.dim_drawing_verification WHERE UPPER(verification.dim_drawing_verification."num_order") LIKE UPPER('%%'||%s||'%%')
                         ORDER BY drawing_number
                         """)
         conn = None
@@ -1337,7 +1360,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             cur.execute(query_others, (self.num_order_value, self.num_order_value, self.num_order_value, self.num_order_value, self.num_order_value,))
             results=cur.fetchall()
 
-            column_headers = ['', 'Nº Pedido', 'Nº Plano', 'Fecha', 'Estado', 'Observaciones']
+            column_headers = ['', 'Nº Pedido', 'Nº Plano', 'Fecha']
 
         # close communication with the PostgreSQL database server
             cur.close()
@@ -1345,12 +1368,12 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             conn.commit()
 
             self.tableOthers.setRowCount(len(results))
-            self.tableOthers.setColumnCount(6)
+            self.tableOthers.setColumnCount(4)
             tablerow=0
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(6):
+                for column in range(4):
                     if column == 0:
                         checkbox_others = QtWidgets.QCheckBox()
                         checkbox_others.setChecked(False)
@@ -1370,7 +1393,8 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             self.tableOthers.setSortingEnabled(False)
             self.tableOthers.setHorizontalHeaderLabels(column_headers)
             self.tableOthers.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-            self.tableOthers.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableOthers.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableOthers.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Stretch)
             self.tableOthers.hideColumn(1)
             self.tableOthers.sortByColumn(2, QtCore.Qt.SortOrder.AscendingOrder)
 
@@ -1391,7 +1415,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
 # Funtion to load data of table wharehouse
     def querywarehouse(self):
-        self.tableOthers.setRowCount(0)
+        self.tableTags.setRowCount(0)
         self.num_order_value = self.num_order.text().upper()
 
         query_warehouse = ("""
@@ -1417,8 +1441,8 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         # commit the changes
             conn.commit()
 
-            self.tableOthers.setRowCount(len(results))
-            self.tableOthers.setColumnCount(10)
+            self.tableTags.setRowCount(len(results))
+            self.tableTags.setColumnCount(10)
             tablerow=0
 
         # fill the Qt Table with the query results
@@ -1427,29 +1451,34 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     if column == 0:
                         checkbox_others = QtWidgets.QCheckBox()
                         checkbox_others.setChecked(False)
-                        self.tableOthers.setCellWidget(tablerow, column, checkbox_others)
+                        self.tableTags.setCellWidget(tablerow, column, checkbox_others)
                     else:
                         value = row[column]
                         if value is None:
                             value = ''
                         else:
-                            if column == (self.tableOthers.columnCount() - 2) or column == (self.tableOthers.columnCount() - 1):
+                            if column == (self.tableTags.columnCount() - 2) or column == (self.tableTags.columnCount() - 1):
                                 value = row[column].split("/")[-1]
                         it = QtWidgets.QTableWidgetItem(str(value))
                         it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                        self.tableOthers.setItem(tablerow, column, it)
+                        self.tableTags.setItem(tablerow, column, it)
 
                 tablerow+=1
 
-            self.tableOthers.verticalHeader().hide()
-            self.tableOthers.setItemDelegate(AlignDelegate(self.tableOthers))
-            self.tableOthers.setSortingEnabled(False)
-            self.tableOthers.setHorizontalHeaderLabels(column_headers)
-            self.tableOthers.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-            self.tableOthers.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
-            self.tableOthers.horizontalHeader().setSectionResizeMode(9, QtWidgets.QHeaderView.ResizeMode.Stretch)
-            self.tableOthers.hideColumn(1)
-            self.tableOthers.sortByColumn(2, QtCore.Qt.SortOrder.AscendingOrder)
+            self.tableTags.verticalHeader().hide()
+            self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
+            self.tableTags.setSortingEnabled(False)
+            self.tableTags.setHorizontalHeaderLabels(column_headers)
+            self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableTags.horizontalHeader().setSectionResizeMode(8, QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableTags.horizontalHeader().setSectionResizeMode(9, QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableTags.hideColumn(1)
+            self.tableTags.sortByColumn(3, QtCore.Qt.SortOrder.AscendingOrder)
+
+            self.select_all_dim.setVisible(False)
+            self.select_all_of_eq.setVisible(False)
+            self.select_all_of_sensor.setVisible(False)
+            self.select_lp.setVisible(False)
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -1688,7 +1717,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 cur.execute(commands_hydrotest)
 
                             if self.label_manometer2.checkState() == QtCore.Qt.CheckState.Checked:
-                                commands_hydrotest = f"UPDATE {self.table_name} SET ph2_date = {test_date}, ph2_manometer = '{manometer2}', ph2_pressure = '{pressure2}', ph2_state = '{state}', ph2_obs = '{notes}' WHERE {self.column_id} = {id_value}"
+                                commands_hydrotest = f"UPDATE {self.table_name} SET ph2_date = '{test_date}', ph2_manometer = '{manometer2}', ph2_pressure = '{pressure2}', ph2_state = '{state}', ph2_obs = '{notes}' WHERE {self.column_id} = {id_value}"
                                 cur.execute(commands_hydrotest)
 
                             if self.select_lp.checkState() == QtCore.Qt.CheckState.Checked:
@@ -2074,15 +2103,6 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     if len(results) != 0:
                         if results[0][0] is None:
                             cur.execute(commands_insert_al_drawing, (verif_date, verif_state, verif_notes, results[0][1], ))
-                            # dlg = QtWidgets.QMessageBox()
-                            # new_icon = QtGui.QIcon()
-                            # new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            # dlg.setWindowIcon(new_icon)
-                            # dlg.setWindowTitle("Planos M")
-                            # dlg.setText("Datos insertados con éxito")
-                            # dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                            # dlg.exec()
-                            # del dlg, new_icon
 
                         else:
                             dlg_yes_no = QtWidgets.QMessageBox()
@@ -2097,16 +2117,6 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                             result = dlg_yes_no.exec()
                             if result == QtWidgets.QMessageBox.StandardButton.Yes:
                                 cur.execute(commands_insert_al_drawing, (verif_date, verif_state, verif_notes, results[0][1], ))
-
-                                # dlg = QtWidgets.QMessageBox()
-                                # new_icon = QtGui.QIcon()
-                                # new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                # dlg.setWindowIcon(new_icon)
-                                # dlg.setWindowTitle("Planos M")
-                                # dlg.setText("Datos insertados con éxito")
-                                # dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                # dlg.exec()
-                                # del dlg, new_icon
 
                                 self.obs_test.setText('')
 
@@ -2611,12 +2621,16 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             dlg.exec()
             del dlg,new_icon
         else:
-            from Verif_Pics_Menu import Ui_Verif_Pics_Menu
-            self.pics_insert_menu=QtWidgets.QMainWindow()
-            self.ui=Ui_Verif_Pics_Menu(numorder, self.username)
-            self.ui.setupUi(self.pics_insert_menu)
-            self.pics_insert_menu.show()
-            self.ui.Button_Cancel.clicked.connect(self.query_tables)
+            if numorder[:2] == 'AL':
+                self.picswarehouse_window=QtWidgets.QMainWindow()
+                self.ui=Ui_Verif_Pics_Warehouse_Window(numorder, self.username)
+                self.ui.setupUi(self.picswarehouse_window)
+                self.picswarehouse_window.showMaximized()
+            else:
+                self.picstags_window=QtWidgets.QMainWindow()
+                self.ui=Ui_Verif_Pics_InsertTag_Window(numorder, self.username)
+                self.ui.setupUi(self.picstags_window)
+                self.picstags_window.showMaximized()
 
 # Function when clicking on table tag header
     def on_header_section_clicked(self, logical_index):
@@ -2727,21 +2741,34 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
         self.state_test.setStyleSheet(f"color: rgb({text_color[0]}, {text_color[1]}, {text_color[2]})")
 
-# Function to count cells
-    def countSelectedCells(self):
+# Function to count cells of table tags
+    def countSelectedCells_tags(self):
+        if len(self.tableTags.selectedIndexes()) > 1:
+            locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+            self.label_CountItems_tags.setText("")
+            self.label_CountValue_tags.setText("")
+
+            count_value = len([ix for ix in self.tableTags.selectedIndexes() if ix.data() != ""])
+
+            if count_value > 0:
+                self.label_CountItems_tags.setText("Recuento:")
+                self.label_CountValue_tags.setText(str(count_value))
+        else:
+            self.label_CountItems_tags.setText("")
+            self.label_CountValue_tags.setText("")
+
+# Function to count cells of table others
+    def countSelectedCells_others(self):
         if len(self.tableOthers.selectedIndexes()) > 1:
             locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
-            self.label_CountItems.setText("")
-            self.label_CountValue.setText("")
+            self.label_CountItems_others.setText("")
 
             count_value = len([ix for ix in self.tableOthers.selectedIndexes() if ix.data() != ""])
 
             if count_value > 0:
-                self.label_CountItems.setText("Recuento:")
-                self.label_CountValue.setText(str(count_value))
+                self.label_CountItems_others.setText("Recuento: " + str(count_value))
         else:
-            self.label_CountItems.setText("")
-            self.label_CountValue.setText("")
+            self.label_CountItems_others.setText("")
 
 # Function to load file
     def item_double_clicked(self, item):
@@ -3183,7 +3210,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/"
                         for root, dirs, files in os.walk(folder_path):
                             for filename in files:
-                                if fnmatch.fnmatch(filename, '*PPI.pdf*'):
+                                if fnmatch.fnmatch(filename, '*-PPI*'):
                                     file_path = os.path.join(root, filename)
                                     file_path = os.path.normpath(file_path)
                                     os.startfile(file_path)
@@ -3196,10 +3223,174 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/"
                         for root, dirs, files in os.walk(folder_path):
                             for filename in files:
-                                if fnmatch.fnmatch(filename, '*PPI.pdf*'):
+                                if fnmatch.fnmatch(filename, '*-PPI*'):
                                     file_path = os.path.join(root, filename)
                                     file_path = os.path.normpath(file_path)
                                     os.startfile(file_path)
+
+        elif item.column() == 2 and item.text()[:2] == 'M-':
+            num_order = self.tableOthers.item(item.row(), 1).text()
+            m_drawing = self.tableOthers.item(item.row(), 2).text()
+            commands_select_m_drawing = ("""
+                        SELECT notes, drawing_description
+                        FROM verification."m_drawing_verification"
+                        WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
+                        AND
+                        "drawing_number" = %s
+                        """)
+
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(commands_select_m_drawing, (num_order, m_drawing,))
+                results = cur.fetchall()
+
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Planos M")
+                dlg.setText("Pedido: " + num_order + "\n"
+                            "Plano: " + m_drawing + "\n"
+                            "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
+                            "Descripción: " + (results[0][1] if results[0][1] is not None else ""))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Planos M")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+
+            finally:
+                if conn is not None:
+                    conn.close()
+
+        elif item.column() == 2 and item.text()[:3] == 'OF-':
+            num_order = self.tableOthers.item(item.row(), 1).text()
+            of_drawing = self.tableOthers.item(item.row(), 2).text()
+            commands_select_of_drawing = ("""
+                        SELECT notes, drawing_description
+                        FROM verification."workshop_of_drawings"
+                        WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
+                        AND
+                        "drawing_number" = %s
+                        """)
+
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(commands_select_of_drawing, (num_order, of_drawing,))
+                results = cur.fetchall()
+
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Planos OF")
+                dlg.setText("Pedido: " + num_order + "\n"
+                            "Plano: " + of_drawing + "\n"
+                            "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
+                            "Descripción: " + (results[0][1] if results[0][1] is not None else ""))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Planos OF")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+
+            finally:
+                if conn is not None:
+                    conn.close()
+
+        elif item.column() == 2 and item.text() not in ['PPI', 'EXP']:
+            num_order = self.tableOthers.item(item.row(), 1).text()
+            dim_drawing = self.tableOthers.item(item.row(), 2).text()
+            commands_select_dim_drawing = ("""
+                        SELECT notes, drawing_description
+                        FROM verification."workshop_dim_drawings"
+                        WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
+                        AND
+                        "drawing_number" = %s
+                        """)
+
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(commands_select_dim_drawing, (num_order, dim_drawing,))
+                results = cur.fetchall()
+
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Planos Dim.")
+                dlg.setText("Pedido: " + num_order + "\n"
+                            "Plano: " + dim_drawing + "\n"
+                            "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
+                            "Descripción: " + (results[0][1] if results[0][1] is not None else ""))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Planos Dim.")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+
+            finally:
+                if conn is not None:
+                    conn.close()
+
+
 
 
 

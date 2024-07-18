@@ -6490,7 +6490,7 @@ class material_order:
         ws["L4"] = num_order
         ws["C5"] = client
         ws["C6"] = variable
-        ws["H1"] = int(num_ot)
+        ws["H1"] = int(num_ot+1)
         ws["H9"] = date.today().strftime("%d/%m/%Y")
 
         root = Tk()

@@ -436,8 +436,8 @@ class Ui_ReportPurRefDate_Window(object):
     def generate_excel(self):
         output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
 
-        self.df["Total"] = self.df["Total"].apply(self.euros_to_float)
-        self.df["Subtotal"] = self.df["Subtotal"].apply(self.euros_to_float)
+        # self.df["Total"] = self.df["Total"].apply(self.euros_to_float)
+        # self.df["Subtotal"] = self.df["Subtotal"].apply(self.euros_to_float)
 
         if output_path:
             wb = Workbook()

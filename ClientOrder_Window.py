@@ -1547,6 +1547,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         commands_supplies = ("""
                         SELECT reference, description, ROUND(physical_stock,2), ROUND(available_stock,2), ROUND(pending_stock,2), id
                         FROM purch_fact.supplies
+                        ORDER BY reference ASC
                         """)
         conn = None
         try:
@@ -1579,11 +1580,11 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-        list_clients=[''] + [x[2] for x in results_clients]
+        list_clients=[x[2] for x in results_clients]
         self.Client_ClientOrder.addItems([''] + list_clients)
 
         self.list_supplies=[x[0] + ' | ' + x[1] + ' | ' + str(x[2]) + ' | ' + str(x[3]) + ' | ' + str(x[4])  + ' | ID:' + str(x[5]) for x in results_supplies]
-        self.Supply_ClientOrder.addItems([''] + sorted(self.list_supplies))
+        self.Supply_ClientOrder.addItems([''] + self.list_supplies)
 
         self.Date_ClientOrder.setText(date.today().strftime("%d/%m/%Y"))
 
@@ -1714,6 +1715,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
             del dlg, new_icon
 
         else:
+            commands_checkorder=("""SELECT id FROM purch_fact.client_ord_header WHERE client_order_num = %s""")
             commands_neworder=("""
                             INSERT INTO purch_fact.client_ord_header (
                             client_id, order_date, delivery_date, client_order_num, notes
@@ -1728,30 +1730,45 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                query_client = "SELECT id FROM purch_fact.clients WHERE name = %s"
-                cur.execute(query_client, (client_name,))
-                result_client = cur.fetchone()
+                cur.execute(commands_checkorder, (num_client_order,))
+                results = cur.fetchall()
 
-            # get id from table
-                client_id = result_client[0] if result_client is not None else None
-            # execution of principal command
-                data=(client_id,date,deliv_term,num_client_order,notes,)
-                cur.execute(commands_neworder, data)
+                if len(results) == 0:
+                    query_client = "SELECT id FROM purch_fact.clients WHERE name = %s"
+                    cur.execute(query_client, (client_name,))
+                    result_client = cur.fetchone()
+
+                # get id from table
+                    client_id = result_client[0] if result_client is not None else None
+                # execution of principal command
+                    data=(client_id,date,deliv_term,num_client_order,notes,)
+                    cur.execute(commands_neworder, data)
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Crear Pedido Cliente")
+                    dlg.setText("Pedido creado con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+
+                    del dlg,new_icon
+
+                else:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Crear Pedido Cliente")
+                    dlg.setText("El número de pedido ya existe")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes
                 conn.commit()
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Crear Pedido Cliente")
-                dlg.setText("Pedido creado con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-
-                del dlg,new_icon
 
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
@@ -2021,23 +2038,38 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                query_supplyid = "SELECT id, available_stock FROM purch_fact.supplies WHERE id = %s"
+                query_supplyid = ("""SELECT id, physical_stock, pending_stock, available_stock
+                                    FROM purch_fact.supplies WHERE id = %s""")
                 cur.execute(query_supplyid, (supply_id,))
                 result_supplyid = cur.fetchone()
 
-                query_quantitysupply = "SELECT quantity FROM purch_fact.client_ord_detail WHERE id = %s"
+                query_quantitysupply = ("""SELECT pending, deliv_quant_1, deliv_quant_2, deliv_quant_3
+                                        FROM purch_fact.client_ord_detail WHERE id = %s""")
                 cur.execute(query_quantitysupply, (record_id,))
                 result_quantity = cur.fetchone()
             # get id from table
-                supply_id = result_supplyid[0]
-                available_stock = result_supplyid[1]
-                old_quantity = result_quantity[0]
-                new_available_stock = str(float(available_stock) + float(old_quantity) - float(quantity))
+                stock = result_supplyid[1]
+                pending_stock = result_supplyid[2]
+                available_stock = result_supplyid[3]
+
+                old_pending = result_quantity[0]
+                old_quant_deliv_1 = result_quantity[1]
+                old_quant_deliv_2 = result_quantity[2]
+                old_quant_deliv_3 = result_quantity[3]
+
+                new_quant_deliv = float(deliv_quant_1) + float(deliv_quant_2) + float(deliv_quant_3)
+                old_quant_deliv = float(old_quant_deliv_1) + float(old_quant_deliv_2) + float(old_quant_deliv_3)
+
+                new_pending = float(quantity) - new_quant_deliv
+
+                new_stock= str(float(stock) - old_quant_deliv + new_quant_deliv)
+                new_pending_stock = str(float(pending_stock) - float(old_pending) + float(new_pending))
+                new_available_stock= str(float(available_stock) - old_quant_deliv + new_quant_deliv)
 
                 query_available_stock = ("""UPDATE purch_fact.supplies
-                                        SET "available_stock" = %s 
+                                        SET "physical_stock" = %s, "pending_stock" = %s, "available_stock" = %s 
                                         WHERE "id" = %s""")
-                cur.execute(query_available_stock, (new_available_stock,supply_id,))
+                cur.execute(query_available_stock, (new_stock,new_pending_stock,new_available_stock,supply_id,))
             # execution of principal command
                 data=(supply_id,quantity,deliv_quant_1,deliv_quant_2,deliv_quant_3,notes_supply,record_id,)
                 cur.execute(commands_modifyrecord, data)
@@ -2062,9 +2094,6 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                 if conn is not None:
                     conn.close()
 
-            self.Supply_ClientOrder.setCurrentIndex(0)
-            self.Quantity_ClientOrder.setText("")
-            
             self.loadtablerecords()
             self.loadstocks()
 
@@ -2608,33 +2637,41 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                         supply_description = self.tableRecord.item(row, 2).text()
                         # pending = self.tableRecord.item(row, 6).text()
                         quant_1 = self.tableRecord.item(row, 6).text()
+                        stock_item = self.tableRecord.item(row, 3).text()
 
-                        # while True:
-                        #     quant_1 = self.show_popup(supply_name, supply_description)
-                        #     if quant_1 < pending:
-                        #         break
-
-                        commands_add_deliv_quant_1 = ("""
-                            UPDATE purch_fact.client_ord_detail
-                            SET "deliv_quant_1" = %s
-                            WHERE "id" = %s
-                            """)
-                        query_stock = ("""
-                                        SELECT physical_stock FROM purch_fact.supplies
-                                        WHERE "id" = %s
-                                        """)
-                        query_updatestock = ("""
-                                            UPDATE purch_fact.supplies 
-                                            SET "physical_stock" = %s
+                        if float(quant_1) > float(stock_item):
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("Añadir 1ª entrega")
+                            dlg.setText("No hay suficiente cantidad de: " + supply_name + " | " + supply_description + "\n"
+                                        "No se dará de baja")
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg.exec()
+                            del dlg,new_icon
+                        else:
+                            commands_add_deliv_quant_1 = ("""
+                                UPDATE purch_fact.client_ord_detail
+                                SET "deliv_quant_1" = %s
+                                WHERE "id" = %s
+                                """)
+                            query_stock = ("""
+                                            SELECT physical_stock FROM purch_fact.supplies
                                             WHERE "id" = %s
                                             """)
-                        cur.execute(commands_add_deliv_quant_1,(quant_1,record_id))
-                        cur.execute(query_stock, (supply_id,))
-                        results=cur.fetchone()
+                            query_updatestock = ("""
+                                                UPDATE purch_fact.supplies 
+                                                SET "physical_stock" = %s
+                                                WHERE "id" = %s
+                                                """)
+                            cur.execute(commands_add_deliv_quant_1,(quant_1,record_id))
+                            cur.execute(query_stock, (supply_id,))
+                            results=cur.fetchone()
 
-                        stock = results[0]
-                        new_stock = str(float(stock) - float(quant_1))
-                        cur.execute(query_updatestock, (new_stock, supply_id,))
+                            stock = results[0]
+                            new_stock = str(float(stock) - float(quant_1))
+                            cur.execute(query_updatestock, (new_stock, supply_id,))
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
@@ -2661,6 +2698,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
                                 + str(error))
+                    print(error)
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                     dlg.exec()
                     del dlg, new_icon
@@ -2791,33 +2829,41 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                         supply_description = self.tableRecord.item(row, 2).text()
                         # pending = self.tableRecord.item(row, 6).text()
                         quant_2 = self.tableRecord.item(row, 6).text()
+                        stock_item = self.tableRecord.item(row, 3).text()
 
-                        # while True:
-                        #     quant_2 = self.show_popup(supply_name, supply_description)
-                        #     if quant_2 < pending:
-                        #         break
-
-                        commands_add_deliv_quant_2 = ("""
-                            UPDATE purch_fact.client_ord_detail
-                            SET "deliv_quant_2" = %s
-                            WHERE "id" = %s
-                            """)
-                        query_stock = ("""
-                                        SELECT physical_stock FROM purch_fact.supplies
-                                        WHERE "id" = %s
-                                        """)
-                        query_updatestock = ("""
-                                            UPDATE purch_fact.supplies 
-                                            SET "physical_stock" = %s
+                        if float(quant_2) > float(stock_item):
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("Añadir 2ª entrega")
+                            dlg.setText("No hay suficiente cantidad de: " + supply_name + " | " + supply_description + "\n"
+                                        "No se dará de baja")
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg.exec()
+                            del dlg,new_icon
+                        else:
+                            commands_add_deliv_quant_2 = ("""
+                                UPDATE purch_fact.client_ord_detail
+                                SET "deliv_quant_2" = %s
+                                WHERE "id" = %s
+                                """)
+                            query_stock = ("""
+                                            SELECT physical_stock FROM purch_fact.supplies
                                             WHERE "id" = %s
                                             """)
-                        cur.execute(commands_add_deliv_quant_2,(quant_2,record_id))
-                        cur.execute(query_stock, (supply_id,))
-                        results=cur.fetchone()
+                            query_updatestock = ("""
+                                                UPDATE purch_fact.supplies 
+                                                SET "physical_stock" = %s
+                                                WHERE "id" = %s
+                                                """)
+                            cur.execute(commands_add_deliv_quant_2,(quant_2,record_id))
+                            cur.execute(query_stock, (supply_id,))
+                            results=cur.fetchone()
 
-                        stock = results[0]
-                        new_stock = str(float(stock) - float(quant_2))
-                        cur.execute(query_updatestock, (new_stock, supply_id,))
+                            stock = results[0]
+                            new_stock = str(float(stock) - float(quant_2))
+                            cur.execute(query_updatestock, (new_stock, supply_id,))
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
@@ -2974,33 +3020,41 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                         supply_description = self.tableRecord.item(row, 2).text()
                         # pending = self.tableRecord.item(row, 6).text()
                         quant_3 = self.tableRecord.item(row, 6).text()
+                        stock_item = self.tableRecord.item(row, 3).text()
 
-                        # while True:
-                        #     quant_3 = self.show_popup(supply_name, supply_description)
-                        #     if quant_3 < pending:
-                        #         break
-
-                        commands_add_deliv_quant_3 = ("""
-                            UPDATE purch_fact.client_ord_detail
-                            SET "deliv_quant_3" = %s
-                            WHERE "id" = %s
-                            """)
-                        query_stock = ("""
-                                        SELECT physical_stock FROM purch_fact.supplies
-                                        WHERE "id" = %s
-                                        """)
-                        query_updatestock = ("""
-                                            UPDATE purch_fact.supplies 
-                                            SET "physical_stock" = %s
+                        if float(quant_3) > float(stock_item):
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("Añadir 3ª entrega")
+                            dlg.setText("No hay suficiente cantidad de: " + supply_name + " | " + supply_description + "\n"
+                                        "No se dará de baja")
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg.exec()
+                            del dlg,new_icon
+                        else:
+                            commands_add_deliv_quant_3 = ("""
+                                UPDATE purch_fact.client_ord_detail
+                                SET "deliv_quant_3" = %s
+                                WHERE "id" = %s
+                                """)
+                            query_stock = ("""
+                                            SELECT physical_stock FROM purch_fact.supplies
                                             WHERE "id" = %s
                                             """)
-                        cur.execute(commands_add_deliv_quant_3,(quant_3,record_id))
-                        cur.execute(query_stock, (supply_id,))
-                        results=cur.fetchone()
+                            query_updatestock = ("""
+                                                UPDATE purch_fact.supplies 
+                                                SET "physical_stock" = %s
+                                                WHERE "id" = %s
+                                                """)
+                            cur.execute(commands_add_deliv_quant_3,(quant_3,record_id))
+                            cur.execute(query_stock, (supply_id,))
+                            results=cur.fetchone()
 
-                        stock = results[0]
-                        new_stock = str(float(stock) - float(quant_3))
-                        cur.execute(query_updatestock, (new_stock, supply_id,))
+                            stock = results[0]
+                            new_stock = str(float(stock) - float(quant_3))
+                            cur.execute(query_updatestock, (new_stock, supply_id,))
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes

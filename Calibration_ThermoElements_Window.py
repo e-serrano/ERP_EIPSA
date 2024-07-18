@@ -1082,7 +1082,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
             data = bytearray()
 
             for index in model_indexes:
-                data += str(self.model.data(index)).encode('utf-8') + b'\t'
+                data += str(self.model.data(index) if not isinstance(self.model.data(index), QtCore.QDate) else self.model.data(index).toString("dd/MM/yyyy")).encode('utf-8') + b'\t'
 
             mime_data.setData("text/plain", data)
 

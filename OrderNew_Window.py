@@ -449,15 +449,16 @@ class Ui_New_Order_Window(object):
                     data = (numorder, numoffer, numref, actual_date, expectdate, notes, amount, num_items, state, numoffer)
                     cur.execute(commands_neworder, data)
 
-                    cur.execute(commands_select_ppi, (numorder,))
-                    results_ppi = cur.fetchall()
-                    if len(results_ppi) == 0:
-                        cur.execute(commands_insert_ppi, (numorder,))
+                    if numorder[-1] != 'R':
+                        cur.execute(commands_select_ppi, (numorder,))
+                        results_ppi = cur.fetchall()
+                        if len(results_ppi) == 0:
+                            cur.execute(commands_insert_ppi, (numorder,))
 
-                    cur.execute(commands_select_exp, (numorder,))
-                    results_exp = cur.fetchall()
-                    if len(results_exp) == 0:
-                        cur.execute(commands_insert_exp, (numorder,))
+                        cur.execute(commands_select_exp, (numorder,))
+                        results_exp = cur.fetchall()
+                        if len(results_exp) == 0:
+                            cur.execute(commands_insert_exp, (numorder,))
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes

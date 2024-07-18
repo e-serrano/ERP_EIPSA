@@ -538,7 +538,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                                         dlg.exec()
                                         del dlg, new_icon
 
-                    output_path = "//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS CALIBRACIÓN/" + numorder.replace('/','-') + '-' + sensor_type + "-" + cert_date.replace("/","-") + "ESP.pdf"
+                    output_path = "//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS CALIBRACIÓN/" + numorder.replace('/','-') + '-' + sensor_type + "-" + cert_date.replace("/","-") + ".pdf"
 
                     if output_path:
                         try:

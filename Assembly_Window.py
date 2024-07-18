@@ -37,18 +37,27 @@ class ColorDelegate(QtWidgets.QItemDelegate):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
             # execution of commands
-            commands_colors = "SELECT num_order, bg_color FROM orders"
+            commands_colors = "SELECT num_order, bg_color, bg_color_assembly  FROM orders"
             cur.execute(commands_colors)
             results = cur.fetchall()
 
             for result in results:
-                order, color = result
-                if color is not None:
+                order, color_w, color_a = result
+                if color_w is not None:
                     # Extraemos los valores RGB de la cadena hexadecimal
-                    r, g, b = re.findall(r'\w\w', color)
-                    colors_dict[order] = QtGui.QColor(int(r, 16), int(g, 16), int(b, 16))
-                else:
-                    colors_dict[order] = QtGui.QColor(255, 255, 255, 0)
+                    r, g, b = re.findall(r'\w\w', color_w)
+                    color_w = QtGui.QColor(int(r, 16), int(g, 16), int(b, 16))
+                else: 
+                    color_w = QtGui.QColor(255, 255, 255, 0)
+                
+                if color_a is not None:
+                    # Extraemos los valores RGB de la cadena hexadecimal
+                    r, g, b = re.findall(r'\w\w', color_a)
+                    color_a = QtGui.QColor(int(r, 16), int(g, 16), int(b, 16))
+                else: 
+                    color_a = QtGui.QColor(255, 255, 255, 0)
+
+                colors_dict[order] = (color_w, color_a)
 
             # close communication with the PostgreSQL database server
             cur.close()
@@ -65,33 +74,44 @@ class ColorDelegate(QtWidgets.QItemDelegate):
 
     def paint(self, painter, option, index: QtCore.QModelIndex):
         value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
-        if index.column() == 16 and value <= 50 and value >= 1:
-            background_color = QtGui.QColor(255, 255, 0) #Yellow
-        elif index.column() == 16 and value == 99:
-            background_color = QtGui.QColor(24, 146, 97) #Dark Green
-        elif index.column() == 16 and value < 99  and value > 50:
-            background_color = QtGui.QColor(0, 255, 0) #Green
-        elif index.column() == 16 and value == 100:
-            background_color = QtGui.QColor(0, 102, 204) #Blue
-        else:
-            background_color = QtGui.QColor(255, 255, 255) #White
+        background_color = QtGui.QColor(255, 255, 255)
+
+        if index.column() == 16:
+            if value <= 50 and value >= 1:
+                background_color = QtGui.QColor(255, 255, 0) #Yellow
+            elif value == 99:
+                background_color = QtGui.QColor(24, 146, 97) #Dark Green
+            elif value < 99  and value > 50:
+                background_color = QtGui.QColor(0, 255, 0) #Green
+            elif value == 100:
+                background_color = QtGui.QColor(0, 102, 204) #Blue
+            else:
+                background_color = QtGui.QColor(255, 255, 255) #White
 
 
-        if index.column() == 4 and value <= QtCore.QDate.currentDate():
-            background_color = QtGui.QColor(255, 0, 0) #Red
+        elif index.column() == 4:
+            if value <= QtCore.QDate.currentDate():
+                background_color = QtGui.QColor(255, 0, 0) #Red
+            elif (value.toPyDate() - QtCore.QDate.currentDate().toPyDate()).days <= 15:
+                background_color = QtGui.QColor(237, 125, 49) #Orange
+            elif (value.toPyDate() - QtCore.QDate.currentDate().toPyDate()).days <= 30:
+                background_color = QtGui.QColor(255, 125, 255) #Pink
 
-        elif index.column() == 4 and (value.toPyDate() - QtCore.QDate.currentDate().toPyDate()).days <= 15:
-            background_color = QtGui.QColor(237, 125, 49) #Orange
+        elif index.column() == 14:
+            state_column_index = index.sibling(index.row(), 0)
+            order = str(state_column_index.data())
 
-        elif index.column() == 4 and (value.toPyDate() - QtCore.QDate.currentDate().toPyDate()).days <= 30:
-            background_color = QtGui.QColor(255, 125, 255) #Pink
-
-        state_column_index = index.sibling(index.row(), 0)
-        order = str(state_column_index.data())
-
-        if index.column() == 19:
             if order in self.colors_dict:
-                background_color = self.colors_dict[order]
+                background_color = self.colors_dict[order][0]
+            else:
+                background_color = QtGui.QColor(255, 255, 255, 0)
+
+        elif index.column() == 19:
+            state_column_index = index.sibling(index.row(), 0)
+            order = str(state_column_index.data())
+
+            if order in self.colors_dict:
+                background_color = self.colors_dict[order][1]
             else:
                 background_color = QtGui.QColor(255, 255, 255, 0)
 
@@ -181,7 +201,7 @@ class EditableTableModel_P(QtSql.QSqlTableModel):
 
     def flags(self, index):
         flags = super().flags(index)
-        if index.column() in [0,4,25]:
+        if index.column() in [0,4,14,25]:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -284,7 +304,7 @@ class EditableTableModel_PA(QtSql.QSqlTableModel):
 
 
 class Ui_Assembly_Window(QtWidgets.QMainWindow):
-    def __init__(self, db):
+    def __init__(self, db, username):
         super().__init__()
         self.model_P = EditableTableModel_P(database=db)
         self.proxy_P = CustomProxyModel_P()
@@ -301,6 +321,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.action_checkbox_map_PA = {}
         self.checkbox_filters_PA = {}
         self.db = db
+        self.username = username
         self.model_P.dataChanged.connect(self.saveChanges)
         self.model_PA.dataChanged.connect(self.saveChanges)
         self.setupUi(self)
@@ -522,23 +543,26 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         for i in range(1,4):
             self.tableAssembly_P.hideColumn(i)
             self.tableAssembly_PA.hideColumn(i)
-        for i in range(5,16):
+        for i in range(5,14):
             self.tableAssembly_P.hideColumn(i)
             self.tableAssembly_PA.hideColumn(i)
+        self.tableAssembly_P.hideColumn(15)
+        self.tableAssembly_PA.hideColumn(15)
         for i in range(21,25):
             self.tableAssembly_P.hideColumn(i)
             self.tableAssembly_PA.hideColumn(i)
-        for i in range(26,31):
+        for i in range(26,32):
             self.tableAssembly_P.hideColumn(i)
             self.tableAssembly_PA.hideColumn(i)
 
-        headers=['Nº Pedido', '','','','F. Cont.','','','','','','','','','','','',
-                '% Montaje','Cambios %','F. Rec.','F. Prev.','Observaciones',
-                '', '', '', '','OK', '', '', '', '']
+        headers=['Nº Pedido', '','','','F. Cont.','','','','','','','','','','F. Prev. Taller','',
+                '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones',
+                '', '', '', '','OK', '', '', '', '', '']
 
         self.tableAssembly_P.setItemDelegate(AlignDelegate(self.tableAssembly_P))
         self.color_delegate = ColorDelegate(self)
         self.tableAssembly_P.setItemDelegateForColumn(4, self.color_delegate)
+        self.tableAssembly_P.setItemDelegateForColumn(14, self.color_delegate)
         self.tableAssembly_P.setItemDelegateForColumn(16, self.color_delegate)
         self.tableAssembly_P.setItemDelegateForColumn(19, self.color_delegate)
         # self.tableAssembly.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -567,6 +591,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.tableAssembly_PA.setItemDelegate(AlignDelegate(self.tableAssembly_PA))
         self.color_delegate = ColorDelegate(self)
         self.tableAssembly_PA.setItemDelegateForColumn(4, self.color_delegate)
+        self.tableAssembly_PA.setItemDelegateForColumn(14, self.color_delegate)
         self.tableAssembly_PA.setItemDelegateForColumn(16, self.color_delegate)
         self.tableAssembly_PA.setItemDelegateForColumn(19, self.color_delegate)
         # self.tableAssembly.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -624,20 +649,22 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
 
         for i in range(1,4):
             self.tableAssembly_P.hideColumn(i)
-        for i in range(5,16):
+        for i in range(5,14):
             self.tableAssembly_P.hideColumn(i)
+        self.tableAssembly_P.hideColumn(15)
         for i in range(21,25):
             self.tableAssembly_P.hideColumn(i)
-        for i in range(26,31):
+        for i in range(26,32):
             self.tableAssembly_P.hideColumn(i)
 
-        headers=['Nº Pedido', '','','','F. Cont.','','','','','','','','','','','',
-                '% Montaje','Cambios %','F. Rec.','F. Prev.','Observaciones',
-                '', '', '', '','OK', '', '', '', '']
+        headers=['Nº Pedido', '','','','F. Cont.','','','','','','','','','','F. Prev. Taller','',
+                '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones',
+                '', '', '', '','OK', '', '', '', '', '']
 
         self.tableAssembly_P.setItemDelegate(AlignDelegate(self.tableAssembly_P))
         self.color_delegate = ColorDelegate(self)
         self.tableAssembly_P.setItemDelegateForColumn(4, self.color_delegate)
+        self.tableAssembly_P.setItemDelegateForColumn(14, self.color_delegate)
         self.tableAssembly_P.setItemDelegateForColumn(16, self.color_delegate)
         self.tableAssembly_P.setItemDelegateForColumn(19, self.color_delegate)
         # self.tableAssembly.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -690,16 +717,17 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             self.tableAssembly_PA.hideColumn(i)
         for i in range(21,25):
             self.tableAssembly_PA.hideColumn(i)
-        for i in range(26,31):
+        for i in range(26,32):
             self.tableAssembly_PA.hideColumn(i)
 
-        headers=['Nº Pedido', '','','','F. Cont.','','','','','','','','','','','',
-                '% Montaje','Cambios %','F. Rec.','F. Prev.','Observaciones',
-                '', '', '', '','OK', '', '', '', '']
+        headers=['Nº Pedido', '','','','F. Cont.','','','','','','','','','','F. Prev. Taller','',
+                '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones',
+                '', '', '', '','OK', '', '', '', '', '']
 
         self.tableAssembly_PA.setItemDelegate(AlignDelegate(self.tableAssembly_PA))
         self.color_delegate = ColorDelegate(self)
         self.tableAssembly_PA.setItemDelegateForColumn(4, self.color_delegate)
+        self.tableAssembly_PA.setItemDelegateForColumn(14, self.color_delegate)
         self.tableAssembly_PA.setItemDelegateForColumn(16, self.color_delegate)
         self.tableAssembly_PA.setItemDelegateForColumn(19, self.color_delegate)
         # self.tableAssembly.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -754,17 +782,6 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                         self.checkbox_states_P[column][value] = True
                 self.dict_valuesuniques_P[column] = list_valuesUnique
 
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(11, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(12, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(13, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(14, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(15, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_P.setColumnWidth(15, 300)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(25, QtWidgets.QHeaderView.ResizeMode.Stretch)
-
     def delete_allFilters_PA(self):
         columns_number=self.model_PA.columnCount()
         for index in range(columns_number):
@@ -795,17 +812,6 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                         list_valuesUnique.append(str(value))
                         self.checkbox_states_PA[column][value] = True
                 self.dict_valuesuniques_PA[column] = list_valuesUnique
-
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(11, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(12, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(13, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(14, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(15, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_PA.setColumnWidth(15, 300)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(25, QtWidgets.QHeaderView.ResizeMode.Stretch)
 
 
 # Function to save changes into database
@@ -1054,40 +1060,12 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             else:
                 self.proxy_P.setFilter(None, column)
 
-        self.tableAssembly_P.setItemDelegate(AlignDelegate(self.tableAssembly_P))
-        self.color_delegate = ColorDelegate(self)
-        self.tableAssembly_P.setItemDelegateForColumn(11, self.color_delegate)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(11, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(12, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(13, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(14, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(15, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_P.setColumnWidth(15, 300)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(25, QtWidgets.QHeaderView.ResizeMode.Stretch)
-
     def menu_acceptbutton_triggered_PA(self):
         for column, filters in self.checkbox_filters_PA.items():
             if filters:
                 self.proxy_PA.setFilter(filters, column)
             else:
                 self.proxy_PA.setFilter(None, column)
-
-        self.tableAssembly_PA.setItemDelegate(AlignDelegate(self.tableAssembly_PA))
-        self.color_delegate = ColorDelegate(self)
-        self.tableAssembly_PA.setItemDelegateForColumn(11, self.color_delegate)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(11, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(12, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(13, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(14, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(15, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_PA.setColumnWidth(15, 300)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(25, QtWidgets.QHeaderView.ResizeMode.Stretch)
 
 
 # Function when select all checkbox is clicked for each table
@@ -1197,20 +1175,6 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                     value=value.toString("dd/MM/yyyy")
             self.checkbox_states_P[self.logicalIndex][str(value)] = True
 
-        self.tableAssembly_P.setItemDelegate(AlignDelegate(self.tableAssembly_P))
-        self.color_delegate = ColorDelegate(self)
-        self.tableAssembly_P.setItemDelegateForColumn(11, self.color_delegate)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(11, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(12, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(13, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(14, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(15, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_P.setColumnWidth(15, 300)
-        self.tableAssembly_P.horizontalHeader().setSectionResizeMode(25, QtWidgets.QHeaderView.ResizeMode.Stretch)
-
     def on_actionDeleteFilterColumn_triggered_PA(self):
         filterColumn = self.logicalIndex
         if filterColumn in self.proxy_PA.filters:
@@ -1231,20 +1195,6 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             if isinstance(value, QtCore.QDate):
                     value=value.toString("dd/MM/yyyy")
             self.checkbox_states_PA[self.logicalIndex][str(value)] = True
-
-        self.tableAssembly_PA.setItemDelegate(AlignDelegate(self.tableAssembly_PA))
-        self.color_delegate = ColorDelegate(self)
-        self.tableAssembly_PA.setItemDelegateForColumn(11, self.color_delegate)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(11, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(12, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(13, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(14, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(15, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableAssembly_PA.setColumnWidth(15, 300)
-        self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(25, QtWidgets.QHeaderView.ResizeMode.Stretch)
 
 
 # Function to order column ascending for each table
@@ -1321,7 +1271,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
 
 # Function for key events
     def custom_keyPressEvent(self, event, table, model, proxy):
-        if event.key() == QtCore.Qt.Key.Key_Delete:
+        if event.key() == QtCore.Qt.Key.Key_Delete: # Event when delete key is pressed
             selected_indexes = table.selectionModel().selectedIndexes()
             if not selected_indexes:
                 return
@@ -1338,7 +1288,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                 for index in model_indexes:
                     model.setData(index, None)
 
-        elif event.modifiers() and QtCore.Qt.KeyboardModifier.ControlModifier:
+        elif event.modifiers() and QtCore.Qt.KeyboardModifier.ControlModifier: # Event when ctrl + , is pressed
             if event.key() == QtCore.Qt.Key.Key_Comma:
                 selected_indexes = table.selectionModel().selectedIndexes()
                 if not selected_indexes:
@@ -1355,7 +1305,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                     for index in model_indexes:
                         model.setData(index, date.today().strftime("%d/%m/%Y"))
 
-        elif event.matches(QKeySequence.StandardKey.Copy):
+        elif event.matches(QKeySequence.StandardKey.Copy): # Event for copy (ctrl + c)
             selected_indexes = table.selectionModel().selectedIndexes()
             if not selected_indexes:
                 return
@@ -1374,7 +1324,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             clipboard = QApplication.clipboard()
             clipboard.setMimeData(mime_data)
 
-        elif event.matches(QKeySequence.StandardKey.Paste):
+        elif event.matches(QKeySequence.StandardKey.Paste): # Event for paste (ctrl + v)
             if table.selectionModel() != None:
 
                 clipboard = QApplication.clipboard()
@@ -1398,7 +1348,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
 
                 model.submitAll()
 
-        elif event.matches(QKeySequence.StandardKey.MoveToNextLine):
+        elif event.matches(QKeySequence.StandardKey.MoveToNextLine): # Event for down cursor pressed
             if table.selectionModel() != None:
                 selected_indexes = table.selectionModel().selectedIndexes()
                 if len(selected_indexes) == 1:
@@ -1411,8 +1361,9 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                     table.selectionModel().clearSelection()
                     new_selection = QtCore.QItemSelection(QtCore.QModelIndex(model.index(new_row, current_column)), QtCore.QModelIndex(model.index(new_row, current_column)))
                     table.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
+                    table.selectionModel().setCurrentIndex(model.index(new_row, current_column), QtCore.QItemSelectionModel.SelectionFlag.ClearAndSelect)
 
-        elif event.matches(QKeySequence.StandardKey.MoveToPreviousLine):
+        elif event.matches(QKeySequence.StandardKey.MoveToPreviousLine): # Event for up cursor pressed
             if table.selectionModel() != None:
                 selected_indexes = table.selectionModel().selectedIndexes()
                 if len(selected_indexes) == 1:
@@ -1425,8 +1376,9 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                     table.selectionModel().clearSelection()
                     new_selection = QtCore.QItemSelection(QtCore.QModelIndex(model.index(new_row, current_column)), QtCore.QModelIndex(model.index(new_row, current_column)))
                     table.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
+                    table.selectionModel().setCurrentIndex(model.index(new_row, current_column), QtCore.QItemSelectionModel.SelectionFlag.ClearAndSelect)
 
-        elif event.matches(QKeySequence.StandardKey.MoveToNextChar):
+        elif event.matches(QKeySequence.StandardKey.MoveToNextChar): # Event for right cursor pressed
             if table.selectionModel() != None:
                 selected_indexes = table.selectionModel().selectedIndexes()
                 if len(selected_indexes) == 1:
@@ -1439,8 +1391,9 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                     table.selectionModel().clearSelection()
                     new_selection = QtCore.QItemSelection(QtCore.QModelIndex(model.index(current_row, new_column)), QtCore.QModelIndex(model.index(current_row, new_column)))
                     table.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
+                    table.selectionModel().setCurrentIndex(model.index(current_row, new_column), QtCore.QItemSelectionModel.SelectionFlag.ClearAndSelect)
 
-        elif event.matches(QKeySequence.StandardKey.MoveToPreviousChar):
+        elif event.matches(QKeySequence.StandardKey.MoveToPreviousChar): # Event for left cursor pressed
             if table.selectionModel() != None:
                 selected_indexes = table.selectionModel().selectedIndexes()
                 if len(selected_indexes) == 1:
@@ -1453,13 +1406,13 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                     table.selectionModel().clearSelection()
                     new_selection = QtCore.QItemSelection(QtCore.QModelIndex(model.index(current_row, new_column)), QtCore.QModelIndex(model.index(current_row, new_column)))
                     table.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
+                    table.selectionModel().setCurrentIndex(model.index(current_row, new_column), QtCore.QItemSelectionModel.SelectionFlag.ClearAndSelect)
 
-        elif event.matches(QKeySequence.StandardKey.InsertParagraphSeparator):
+        elif event.matches(QKeySequence.StandardKey.InsertParagraphSeparator): # Event for enter pressed
             current_index = table.selectionModel().selectedIndexes()[0]
 
             if current_index.isValid():
                 table.edit(current_index)
-
 
         super().keyPressEvent(event)
 
@@ -1480,7 +1433,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             if not db_index:
                 sys.exit()
 
-            self.index_drawing_window = Ui_WorkshopDrawingIndex_Window(db_index, None, num_order)
+            self.index_drawing_window = Ui_WorkshopDrawingIndex_Window(db_index, self.username, num_order)
             self.index_drawing_window.showMaximized()
 
 # Function to open colour picker
@@ -1506,7 +1459,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
                 # execution of commands
-                commands_colors = "UPDATE orders SET bg_color = %s WHERE num_order = %s"
+                commands_colors = "UPDATE orders SET bg_color_assembly = %s WHERE num_order = %s"
                 cur.execute(commands_colors, (hex_color, value,))
 
                 # close communication with the PostgreSQL database server
@@ -1544,6 +1497,6 @@ if __name__ == "__main__":
     if not db_manufacture:
         sys.exit()
 
-    workshop_window = Ui_Assembly_Window(db_manufacture)
+    workshop_window = Ui_Assembly_Window(db_manufacture,'j.sanz')
     workshop_window.show()
     sys.exit(app.exec())

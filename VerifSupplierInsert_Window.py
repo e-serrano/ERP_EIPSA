@@ -373,7 +373,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         VerifSupplierInsert_Window.setWindowIcon(icon)
-        if self.username == 'm.gil':
+        if self.username in ['m.gil','j.tena']:
             VerifSupplierInsert_Window.setStyleSheet("QWidget {\n"
     "background-color: #121212; color: rgb(255, 255, 255)\n"
     "}\n"
@@ -486,7 +486,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         font.setPointSize(11)
         font.setBold(True)
         self.label_id.setFont(font)
-        if self.username == 'm.gil':
+        if self.username in ['m.gil','j.tena']:
             self.label_id.setStyleSheet("color: #121212")
         else:
             self.label_id.setStyleSheet("color: white")
@@ -722,7 +722,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.tableRecords.verticalHeader().setVisible(True)
         self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableRecords.setSortingEnabled(False)
-        if self.username == 'm.gil':
+        if self.username in ['m.gil','j.tena']:
             self.tableRecords.setStyleSheet("gridline-color: rgb(128, 128, 128);")
             self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
         else:
@@ -1080,7 +1080,6 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             data_order.append(item_text)
 
         self.label_id.setText(data_order[0])
-        self.date.setText(data_order[3])
         self.supplier.setCurrentText(data_order[2])
         # self.delivnote.setText(data_order[3])
         self.material.setText(data_order[5])
@@ -1172,6 +1171,8 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
                         dlg.exec()
                         del dlg,new_icon
 
+                        self.supplier.setCurrentText(supplier)
+
                     except (Exception, psycopg2.DatabaseError) as error:
                         dlg = QtWidgets.QMessageBox()
                         new_icon = QtGui.QIcon()
@@ -1201,7 +1202,6 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
                 break
 
         self.load_values()
-        self.supplier.setCurrentText(supplier)
 
 #Function when clicking on table header
     def on_header_section_clicked(self, logical_index):

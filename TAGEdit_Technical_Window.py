@@ -44,12 +44,10 @@ class CheckboxWidget(QtWidgets.QWidget):
         self.checkbox = QtWidgets.QCheckBox(text)
         layout.addWidget(self.checkbox)
 
-
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
-
 
 class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, parent=None, options=None):
@@ -68,7 +66,6 @@ class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
 
     def setModelData(self, editor, model, index):
         model.setData(index, editor.currentText(), Qt.ItemDataRole.EditRole)
-
 
 class CustomProxyModel(QtCore.QSortFilterProxyModel):
     def __init__(self, parent=None):
@@ -125,7 +122,6 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                 return False
         return True
 
-
 class EditableTableModel(QtSql.QSqlTableModel):
     updateFailed = QtCore.pyqtSignal(str)
 
@@ -159,7 +155,6 @@ class EditableTableModel(QtSql.QSqlTableModel):
     def getColumnHeaders(self, visible_columns):
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
-
 
 class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, parent=None, options=None):
@@ -1000,11 +995,11 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(145,149):
                     self.tableEditTags.hideColumn(i)
-                for i in range(150,154):
+                for i in range(150,155):
                     self.tableEditTags.hideColumn(i)
-                for i in range(155,163):
+                for i in range(156,163):
                     self.tableEditTags.hideColumn(i)
-                for i in range(165,166):
+                for i in range(164,166):
                     self.tableEditTags.hideColumn(i)
                 for i in range(167,169):
                     self.tableEditTags.hideColumn(i)
@@ -1130,7 +1125,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                             "Dim. Flotador", "Junta Bridas", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Plano",
                             "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Orden de Compra", "Fecha Orden Compra",
                             "Notas Orden Compra", "Plano Dimensional", "Plano OF", "Fecha OF", "Notas Equipo",
-                            "Colada Cuerpo", "Cert. Cuerpo", "Colada Cuerpo Vlv", "Cert. Cuerpo Vlv", "Colada Brida Vlv", "Cert. Brida Vlv"
+                            "Colada Cuerpo", "Cert. Cuerpo", "Colada Cuerpo Vlv", "Cert. Cuerpo Vlv", "Colada Brida Vlv", "Cert. Brida Vlv",
                             "Estado Fabricación", "Inspección", "Fecha IRC", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
                             "Trad. Equipo", "Cod. Cuerpo", "Cod. Fab. Cuerpo", "Cant. Cuerpo", "Cod. Cubierta",
                             "Cod. Fab. Cubierta", "Cant. Cubierta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería",

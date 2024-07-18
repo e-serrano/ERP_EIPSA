@@ -13,7 +13,7 @@ from PyQt6.QtCore import Qt, QDate, QUrl
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
 import configparser
-from Database_Connection import createConnection
+from Database_Connection import createConnection, createConnection_name
 from config import config
 import psycopg2
 import locale
@@ -160,7 +160,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
     def flags(self, index):
         flags = super().flags(index)
         # return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
-        if index.column() in [12]:
+        if index.column() in [0,8]:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -171,7 +171,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
         return column_headers
 
 class CustomPDF(FPDF):
-    def fixed_height_multicell(self, w, total_h, txt, align_mc, border='LR', fill=False):
+    def fixed_height_multicell(self, w, total_h, txt, align_mc, border='LRB', fill=False):
         # Divide el texto en palabras
         words = txt.split()
         lines = []
@@ -202,7 +202,7 @@ class CustomPDF(FPDF):
         # Asegura que la altura total sea 2.75 cm
         self.set_xy(x, y + total_h)
 
-class Ui_NC_Report_Window(QtWidgets.QMainWindow):
+class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
     def __init__(self, db, username):
         super().__init__()
         self.model = EditableTableModel()
@@ -228,7 +228,7 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
 
     def closeConnection(self):
     # Closing database connection
-        self.tableReports.setModel(None)
+        self.tableHandtools.setModel(None)
         del self.model
         if self.db:
             self.db.close()
@@ -236,24 +236,24 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
             if QtSql.QSqlDatabase.contains("qt_sql_default_connection"):
                 QtSql.QSqlDatabase.removeDatabase("qt_sql_default_connection")
 
-    def setupUi(self, NC_Report_Window):
-        NC_Report_Window.setObjectName("NC_Report_Window")
-        NC_Report_Window.resize(790, 595)
-        NC_Report_Window.setMinimumSize(QtCore.QSize(790, 595))
+    def setupUi(self, Workshop_Handtools_Window):
+        Workshop_Handtools_Window.setObjectName("Workshop_Handtools_Window")
+        Workshop_Handtools_Window.resize(790, 595)
+        Workshop_Handtools_Window.setMinimumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        NC_Report_Window.setWindowIcon(icon)
+        Workshop_Handtools_Window.setWindowIcon(icon)
         if self.username == 'm.gil':
-            NC_Report_Window.setStyleSheet(
+            Workshop_Handtools_Window.setStyleSheet(
             ".QFrame {border: 2px solid white;\n"
             "}\n"
             "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         else:
-            NC_Report_Window.setStyleSheet(
+            Workshop_Handtools_Window.setStyleSheet(
             ".QFrame {border: 2px solid black;\n"
             "}\n"
             "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
-        self.centralwidget = QtWidgets.QWidget(parent=NC_Report_Window)
+        self.centralwidget = QtWidgets.QWidget(parent=Workshop_Handtools_Window)
         if self.username == 'm.gil':
             self.centralwidget.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255);")
         else:
@@ -280,16 +280,6 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
         self.hcab.addWidget(self.toolDeleteFilter)
         self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer1)
-        self.toolShow = QtWidgets.QToolButton(self.frame)
-        self.toolShow.setObjectName("Show_Button")
-        self.toolShow.setToolTip("Ver todos")
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.toolShow.setIcon(icon)
-        self.toolShow.setIconSize(QtCore.QSize(25, 25))
-        self.hcab.addWidget(self.toolShow)
-        self.hcabspacer2=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.hcab.addItem(self.hcabspacer2)
         self.toolExpExcel = QtWidgets.QToolButton(self.frame)
         self.toolExpExcel.setObjectName("ExpExcel_Button")
         self.toolExpExcel.setToolTip("Exportar a Excel")
@@ -309,35 +299,10 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
         self.toolAdd.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolAdd)
 
-        self.hcabspacer4=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.hcab.addItem(self.hcabspacer4)
-        self.toolImages = QtWidgets.QToolButton(self.frame)
-        self.toolImages.setObjectName("Image_Button")
-        self.toolImages.setToolTip("Añadir Imagen")
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Camera.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.toolImages.setIcon(icon)
-        self.toolImages.setIconSize(QtCore.QSize(25, 25))
-        self.hcab.addWidget(self.toolImages)
-
-        self.hcabspacer5=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.hcab.addItem(self.hcabspacer5)
-        self.toolPDF = QtWidgets.QToolButton(self.frame)
-        self.toolPDF.setObjectName("PDF_Button")
-        self.toolPDF.setToolTip("Imprimir PDF")
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.toolPDF.setIcon(icon)
-        self.toolPDF.setIconSize(QtCore.QSize(25, 25))
-        self.hcab.addWidget(self.toolPDF)
-
         if self.username == 'm.gil':
             self.toolDeleteFilter.setStyleSheet("border: 1px solid white;")
             self.toolExpExcel.setStyleSheet("border: 1px solid white;")
-            self.toolShow.setStyleSheet("border: 1px solid white;")
             self.toolAdd.setStyleSheet("border: 1px solid white;")
-            self.toolImages.setStyleSheet("border: 1px solid white;")
-            self.toolPDF.setStyleSheet("border: 1px solid white;")
 
         self.hcabspacer6=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer6)
@@ -345,10 +310,10 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
 
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 1, 0, 1, 1)
-        self.tableReports=QtWidgets.QTableView(parent=self.frame)
+        self.tableHandtools=QtWidgets.QTableView(parent=self.frame)
         self.model = EditableTableModel()
-        self.tableReports.setObjectName("tableReports")
-        self.gridLayout_2.addWidget(self.tableReports, 2, 0, 1, 1)
+        self.tableHandtools.setObjectName("tableHandtools")
+        self.gridLayout_2.addWidget(self.tableHandtools, 2, 0, 1, 1)
         self.hLayout3 = QtWidgets.QHBoxLayout()
         self.hLayout3.setObjectName("hLayout3")
         spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -381,73 +346,40 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
-        NC_Report_Window.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=NC_Report_Window)
+        Workshop_Handtools_Window.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=Workshop_Handtools_Window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 790, 22))
         self.menubar.setObjectName("menubar")
-        NC_Report_Window.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=NC_Report_Window)
+        Workshop_Handtools_Window.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=Workshop_Handtools_Window)
         self.statusbar.setObjectName("statusbar")
-        NC_Report_Window.setStatusBar(self.statusbar)
+        Workshop_Handtools_Window.setStatusBar(self.statusbar)
 
-        self.retranslateUi(NC_Report_Window)
-        QtCore.QMetaObject.connectSlotsByName(NC_Report_Window)
+        self.retranslateUi(Workshop_Handtools_Window)
+        QtCore.QMetaObject.connectSlotsByName(Workshop_Handtools_Window)
 
         self.model.dataChanged.connect(self.saveChanges)
         self.createContextMenu()
 
+        delete_action = QtGui.QAction("Eliminar Fila", self)
+        delete_action.triggered.connect(self.delete_register)
+
+        self.context_menu_row = QtWidgets.QMenu(self)
+        self.context_menu_row.addAction(delete_action)
+
+        self.tableHandtools.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
+        self.tableHandtools.addActions([delete_action])
+
         self.toolAdd.clicked.connect(self.add_new)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
-        self.toolShow.clicked.connect(self.query_all_reports)
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
-        self.toolImages.clicked.connect(self.add_images)
-        self.toolPDF.clicked.connect(self.print_pdf)
 
-        commands_comboboxes = ["SELECT nc_type FROM validation_data.nc_report_type",
-                                "SELECT zone FROM verification.nc_comboboxes WHERE zone <> ''",
-                                "SELECT detected FROM verification.nc_comboboxes WHERE detected <> ''",
-                                "SELECT responsible FROM verification.nc_comboboxes WHERE responsible <> ''",
-                                "SELECT zone_responsible FROM verification.nc_comboboxes WHERE zone_responsible <> ''",]
+        self.query_handtools()
 
-        self.all_results = []
-
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            for query in commands_comboboxes:
-                cur.execute(query)
-                results_flow=cur.fetchall()
-                self.all_results.append(results_flow)
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-        self.query_reports()
-
-    def retranslateUi(self, NC_Report_Window):
+    def retranslateUi(self, Workshop_Handtools_Window):
         _translate = QtCore.QCoreApplication.translate
-        NC_Report_Window.setWindowTitle(_translate("NC_Report_Window", "Informes No-Conformidad"))
-        self.tableReports.setSortingEnabled(True)
+        Workshop_Handtools_Window.setWindowTitle(_translate("Workshop_Handtools_Window", "Herramientas Taller"))
+        self.tableHandtools.setSortingEnabled(True)
 
 # Function to delete all filters when tool button is clicked
     def delete_allFilters(self):
@@ -464,8 +396,8 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
             self.checkbox_filters = {}
 
             self.proxy.invalidateFilter()
-            self.tableReports.setModel(None)
-            self.tableReports.setModel(self.proxy)
+            self.tableHandtools.setModel(None)
+            self.tableHandtools.setModel(self.proxy)
 
             # Getting the unique values for each column of the model
             for column in range(self.model.columnCount()):
@@ -501,45 +433,39 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
             self.dict_valuesuniques[column] = list_valuesUnique
 
 # Function to load table and setting in the window
-    def query_reports(self):
+    def query_handtools(self):
         self.checkbox_states = {}
         self.dict_valuesuniques = {}
         self.dict_ordersort = {}
         self.hiddencolumns = []
 
-        self.model.setTable("verification.nc_report")
-        if self.username == 'j.martinez':
-            self.model.setFilter("audit IS NOT NULL")
-        if self.username == 'm.gil':
-            self.model.setFilter("cost IS NULL")
+        self.model.setTable("verification.handtools_workshop")
 
-        self.tableReports.setModel(None)
-        self.tableReports.setModel(self.proxy)
+        self.tableHandtools.setModel(None)
+        self.tableHandtools.setModel(self.proxy)
         self.model.select()
 
         self.proxy.setSourceModel(self.model)
-        self.tableReports.setModel(self.proxy)
+        self.tableHandtools.setModel(self.proxy)
 
         columns_number=self.model.columnCount()
 
-        self.tableReports.setItemDelegate(AlignDelegate(self.tableReports))
+        self.tableHandtools.setItemDelegate(AlignDelegate(self.tableHandtools))
         self.adjust_table()
 
         if self.username == 'm.gil':
-            self.tableReports.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableReports.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-            self.tableReports.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+            self.tableHandtools.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableHandtools.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
+            self.tableHandtools.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
         else:
-            self.tableReports.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+            self.tableHandtools.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
 
-        self.tableReports.setObjectName("tableReports")
-        self.gridLayout_2.addWidget(self.tableReports, 2, 0, 1, 1)
-        self.tableReports.setSortingEnabled(False)
+        self.tableHandtools.setObjectName("tableHandtools")
+        self.gridLayout_2.addWidget(self.tableHandtools, 2, 0, 1, 1)
+        self.tableHandtools.setSortingEnabled(False)
 
     # Change all column names
-        headers_names = ["ID", "Tipo", "Fecha NC", "A", "Nº Pedido", "Nº Plano", "Área", "Detectado",
-                    "Responsable", "Responsable Área", "Descripción", "Análisis Causa", "Fotos", "Tipificación", "Acción Correctiva",
-                    "Fecha Acción", "Acc. Corr. Completada", "Coste"]
+        headers_names = ["ID", "Marca", "Tipo", "Características", "Próx. Rev.", "Año", "Nave", "Notas", "Foto"]
 
         self.model.setAllColumnHeaders(headers_names)
 
@@ -558,129 +484,48 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
                         self.checkbox_states[column][value] = True
                 self.dict_valuesuniques[column] = list_valuesUnique
 
-        self.selection_model = self.tableReports.selectionModel()
+        self.selection_model = self.tableHandtools.selectionModel()
         self.selection_model.selectionChanged.connect(self.countSelectedCells)
 
-        self.combo_itemtype = EditableComboBoxDelegate(self.tableReports, sorted([x[0] for x in self.all_results[0]]))
-        self.tableReports.setItemDelegateForColumn(13, self.combo_itemtype)
-        for i in range(1, 5):
-            self.combo_itemtype = EditableComboBoxDelegate(self.tableReports, sorted([x[0] for x in self.all_results[i]]))
-            self.tableReports.setItemDelegateForColumn(i + 5, self.combo_itemtype)
+        self.tableHandtools.horizontalHeader().sectionDoubleClicked.connect(self.on_view_horizontalHeader_sectionClicked)
+        self.tableHandtools.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+        self.tableHandtools.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
-        self.tableReports.horizontalHeader().sectionDoubleClicked.connect(self.on_view_horizontalHeader_sectionClicked)
-        self.tableReports.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-        self.tableReports.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.tableHandtools.sortByColumn(0, Qt.SortOrder.DescendingOrder)
 
-        self.tableReports.sortByColumn(0, Qt.SortOrder.DescendingOrder)
-
-        if self.username == 'm.gil':
-            self.tableReports.hideColumn(3)
-
-        self.tableReports.doubleClicked.connect(lambda index: self.open_pics(index))
-
-# Function to load table and setting in the window
-    def query_all_reports(self):
-        self.checkbox_states = {}
-        self.dict_valuesuniques = {}
-        self.dict_ordersort = {}
-        self.hiddencolumns = []
-
-        self.model.setTable("verification.nc_report")
-
-        self.tableReports.setModel(None)
-        self.tableReports.setModel(self.proxy)
-        self.model.select()
-
-        self.proxy.setSourceModel(self.model)
-        self.tableReports.setModel(self.proxy)
-
-        columns_number=self.model.columnCount()
-
-        self.tableReports.setItemDelegate(AlignDelegate(self.tableReports))
-        self.adjust_table()
-
-        if self.username == 'm.gil':
-            self.tableReports.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableReports.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-            self.tableReports.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-        else:
-            self.tableReports.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
-
-        self.tableReports.setObjectName("tableReports")
-        self.gridLayout_2.addWidget(self.tableReports, 2, 0, 1, 1)
-        self.tableReports.setSortingEnabled(False)
-
-    # Change all column names
-        headers_names = ["ID", "Tipo", "Fecha NC", "A", "Nº Pedido", "Nº Plano", "Área", "Detectado",
-                    "Responsable", "Responsable Área", "Descripción", "Análisis Causa", "Fotos", "Tipificación", "Acción Correctiva",
-                    "Fecha Acción", "Acc. Corr. Completada", "Coste"]
-
-        self.model.setAllColumnHeaders(headers_names)
-
-    # Getting the unique values for each column of the model
-        for column in range(self.model.columnCount()):
-            list_valuesUnique = []
-            if column not in self.checkbox_states:
-                self.checkbox_states[column] = {}
-                self.checkbox_states[column]['Seleccionar todo'] = True
-                for row in range(self.model.rowCount()):
-                    value = self.model.record(row).value(column)
-                    if value not in list_valuesUnique:
-                        if isinstance(value, QtCore.QDate):
-                            value=value.toString("dd/MM/yyyy")
-                        list_valuesUnique.append(str(value))
-                        self.checkbox_states[column][value] = True
-                self.dict_valuesuniques[column] = list_valuesUnique
-
-        self.selection_model = self.tableReports.selectionModel()
-        self.selection_model.selectionChanged.connect(self.countSelectedCells)
-
-        self.combo_itemtype = EditableComboBoxDelegate(self.tableReports, sorted([x[0] for x in self.all_results[0]]))
-        self.tableReports.setItemDelegateForColumn(13, self.combo_itemtype)
-        for i in range(1, 5):
-            self.combo_itemtype = EditableComboBoxDelegate(self.tableReports, sorted([x[0] for x in self.all_results[i]]))
-            self.tableReports.setItemDelegateForColumn(i + 5, self.combo_itemtype)
-
-        self.tableReports.horizontalHeader().sectionDoubleClicked.connect(self.on_view_horizontalHeader_sectionClicked)
-        self.tableReports.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-        self.tableReports.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-
-        self.tableReports.sortByColumn(0, Qt.SortOrder.DescendingOrder)
-
-        if self.username == 'm.gil':
-            self.tableReports.hideColumn(3)
-
-        self.tableReports.doubleClicked.connect(lambda index: self.open_pics(index))
+        self.tableHandtools.doubleClicked.connect(lambda index: self.item_double_clicked(index))
+        self.tableHandtools.hideColumn(3)
+        self.tableHandtools.hideColumn(8)
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
         self.logicalIndex = logicalIndex
         self.menuValues = QtWidgets.QMenu(self)
-        self.signalMapper = QtCore.QSignalMapper(self.tableReports)
+        self.signalMapper = QtCore.QSignalMapper(self.tableHandtools)
 
         valuesUnique_view = []
-        for row in range(self.tableReports.model().rowCount()):
-            index = self.tableReports.model().index(row, self.logicalIndex)
+        for row in range(self.tableHandtools.model().rowCount()):
+            index = self.tableHandtools.model().index(row, self.logicalIndex)
             value = index.data(Qt.ItemDataRole.DisplayRole)
             if value not in valuesUnique_view:
                 if isinstance(value, QtCore.QDate):
                     value=value.toString("dd/MM/yyyy")
                 valuesUnique_view.append(value)
 
-        actionSortAscending = QtGui.QAction("Ordenar Ascendente", self.tableReports)
+        actionSortAscending = QtGui.QAction("Ordenar Ascendente", self.tableHandtools)
         actionSortAscending.triggered.connect(self.on_actionSortAscending_triggered)
         self.menuValues.addAction(actionSortAscending)
-        actionSortDescending = QtGui.QAction("Ordenar Descendente", self.tableReports)
+        actionSortDescending = QtGui.QAction("Ordenar Descendente", self.tableHandtools)
         actionSortDescending.triggered.connect(self.on_actionSortDescending_triggered)
         self.menuValues.addAction(actionSortDescending)
         self.menuValues.addSeparator()
 
-        actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro", self.tableReports)
+        actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro", self.tableHandtools)
         actionDeleteFilterColumn.triggered.connect(self.on_actionDeleteFilterColumn_triggered)
         self.menuValues.addAction(actionDeleteFilterColumn)
         self.menuValues.addSeparator()
 
-        actionTextFilter = QtGui.QAction("Buscar...", self.tableReports)
+        actionTextFilter = QtGui.QAction("Buscar...", self.tableHandtools)
         actionTextFilter.triggered.connect(self.on_actionTextFilter_triggered)
         self.menuValues.addAction(actionTextFilter)
         self.menuValues.addSeparator()
@@ -730,10 +575,10 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
 
         self.menuValues.addSeparator()
 
-        accept_button = QtGui.QAction("ACEPTAR", self.tableReports)
+        accept_button = QtGui.QAction("ACEPTAR", self.tableHandtools)
         accept_button.triggered.connect(self.menu_acceptbutton_triggered)
 
-        cancel_button = QtGui.QAction("CANCELAR", self.tableReports)
+        cancel_button = QtGui.QAction("CANCELAR", self.tableHandtools)
         cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
 
         self.menuValues.addAction(accept_button)
@@ -744,11 +589,11 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
                                         "QMenu::item:selected { background-color: #33bdef; }"
                                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
-        headerPos = self.tableReports.mapToGlobal(self.tableReports.horizontalHeader().pos())        
+        headerPos = self.tableHandtools.mapToGlobal(self.tableHandtools.horizontalHeader().pos())        
 
-        posY = headerPos.y() + self.tableReports.horizontalHeader().height()
-        scrollX = self.tableReports.horizontalScrollBar().value()
-        xInView = self.tableReports.horizontalHeader().sectionViewportPosition(logicalIndex)
+        posY = headerPos.y() + self.tableHandtools.horizontalHeader().height()
+        scrollX = self.tableHandtools.horizontalScrollBar().value()
+        xInView = self.tableHandtools.horizontalHeader().sectionViewportPosition(logicalIndex)
         posX = headerPos.x() + xInView - scrollX
 
         self.menuValues.exec(QtCore.QPoint(posX, posY))
@@ -817,15 +662,15 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
         self.model.setIconColumnHeader(filterColumn, '')
         self.proxy.invalidateFilter()
 
-        self.tableReports.setModel(None)
-        self.tableReports.setModel(self.proxy)
+        self.tableHandtools.setModel(None)
+        self.tableHandtools.setModel(self.proxy)
 
         if filterColumn in self.checkbox_filters:
             del self.checkbox_filters[filterColumn]
 
         self.checkbox_states[self.logicalIndex].clear()
         self.checkbox_states[self.logicalIndex]['Seleccionar todo'] = True
-        for row in range(self.tableReports.model().rowCount()):
+        for row in range(self.tableHandtools.model().rowCount()):
             value = self.model.record(row).value(filterColumn)
             if isinstance(value, QtCore.QDate):
                     value=value.toString("dd/MM/yyyy")
@@ -872,13 +717,13 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
 # Function to hide column when action clicked
     def hide_column(self):
         filterColumn = self.logicalIndex
-        self.tableReports.setColumnHidden(filterColumn, True)
+        self.tableHandtools.setColumnHidden(filterColumn, True)
         self.hiddencolumns.append(filterColumn)
 
 # Function to show all hidden columns
     def show_columns(self):
         for column in self.hiddencolumns:
-            self.tableReports.setColumnHidden(column, False)
+            self.tableHandtools.setColumnHidden(column, False)
         self.hiddencolumns.clear()
 
 # Function to export data to excel
@@ -896,7 +741,7 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
         else:
             final_data = []
 
-            visible_columns = [col for col in range(self.model.columnCount()) if not self.tableReports.isColumnHidden(col)]
+            visible_columns = [col for col in range(self.model.columnCount()) if not self.tableHandtools.isColumnHidden(col)]
             visible_headers = self.model.getColumnHeaders(visible_columns)
             for row in range(self.proxy.rowCount()):
                 tag_data = []
@@ -919,8 +764,8 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
 # Function to enable copy and paste cells
     def keyPressEvent(self, event):
         if event.matches(QKeySequence.StandardKey.Copy):
-            if self.tableReports.selectionModel() != None:
-                selected_indexes = self.tableReports.selectionModel().selectedIndexes()
+            if self.tableHandtools.selectionModel() != None:
+                selected_indexes = self.tableHandtools.selectionModel().selectedIndexes()
                 if selected_indexes:
                     clipboard = QApplication.clipboard()
                     text = self.get_selected_text(selected_indexes)
@@ -929,8 +774,8 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
                     clipboard.setText(text)
 
         elif event.matches(QKeySequence.StandardKey.Paste):
-            if self.tableReports.selectionModel() != None:
-                selected_indexes = self.tableReports.selectionModel().selectedIndexes()
+            if self.tableHandtools.selectionModel() != None:
+                selected_indexes = self.tableHandtools.selectionModel().selectedIndexes()
                 if selected_indexes:
                     clipboard = QApplication.clipboard()
                     text = clipboard.text()
@@ -978,15 +823,15 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
 
 # Function to count selected cells and sum its values
     def countSelectedCells(self):
-        if len(self.tableReports.selectedIndexes()) > 1:
+        if len(self.tableHandtools.selectedIndexes()) > 1:
             locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
             self.label_SumItems.setText("")
             self.label_SumValue.setText("")
             self.label_CountItems.setText("")
             self.label_CountValue.setText("")
 
-            sum_value = sum([self.euro_string_to_float(str(ix.data())) if re.match(r'^[\d.,]+\sÇ$', str(ix.data())) else float(str(ix.data()).replace(',', '.')) if str(ix.data()).replace(',', '.').replace('.', '', 1).isdigit() else 0 for ix in self.tableReports.selectedIndexes()])
-            count_value = len([ix for ix in self.tableReports.selectedIndexes() if ix.data() != ""])
+            sum_value = sum([self.euro_string_to_float(str(ix.data())) if re.match(r'^[\d.,]+\sÇ$', str(ix.data())) else float(str(ix.data()).replace(',', '.')) if str(ix.data()).replace(',', '.').replace('.', '', 1).isdigit() else 0 for ix in self.tableHandtools.selectedIndexes()])
+            count_value = len([ix for ix in self.tableHandtools.selectedIndexes() if ix.data() != ""])
             if sum_value > 0:
                 self.label_SumItems.setText("Suma:")
                 self.label_SumValue.setText(locale.format_string("%.2f", sum_value, grouping=True))
@@ -1017,19 +862,19 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
 
 # Function to show context menu when right-click
     def showColumnContextMenu(self, pos):
-        header = self.tableReports.horizontalHeader()
+        header = self.tableHandtools.horizontalHeader()
         column = header.logicalIndexAt(pos)
-        self.context_menu.exec(self.tableReports.mapToGlobal(pos))
+        self.context_menu.exec(self.tableHandtools.mapToGlobal(pos))
 
 # Function to hide selected columns
     def hideSelectedColumns(self):
         selected_columns = set()
-        header = self.tableReports.horizontalHeader()
+        header = self.tableHandtools.horizontalHeader()
         for index in header.selectionModel().selectedColumns():
             selected_columns.add(index.column())
 
         for column in selected_columns:
-            self.tableReports.setColumnHidden(column, True)
+            self.tableHandtools.setColumnHidden(column, True)
             self.hiddencolumns.append(column)
 
         self.context_menu.close()
@@ -1037,7 +882,7 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
 # Function to add a new line
     def add_new(self):
         commands_new=("""
-                        INSERT INTO verification.nc_report (report_type)
+                        INSERT INTO verification.handtools_workshop (brand)
                         VALUES(%s)
                         """)
         conn = None
@@ -1048,7 +893,7 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of principal command
-            data=('NC',)
+            data=('',)
             cur.execute(commands_new, data)
         # close communication with the PostgreSQL database server
             cur.close()
@@ -1070,208 +915,96 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-        self.query_reports()
+        self.query_handtools()
 
 # Function to adjust table size
     def adjust_table(self):
-        self.tableReports.horizontalHeader().setDefaultSectionSize(200)
-        self.tableReports.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableReports.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        for i in range(2,10):
-            self.tableReports.horizontalHeader().setSectionResizeMode(i,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableReports.horizontalHeader().setSectionResizeMode(13,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableReports.horizontalHeader().setSectionResizeMode(15,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableReports.horizontalHeader().setSectionResizeMode(17,QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableReports.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableHandtools.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableHandtools.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
-# Function to print pdf
-    def print_pdf(self):
-        selected_indexes = self.tableReports.selectionModel().selectedIndexes()
+# Function when item is double clicked
+    def item_double_clicked(self,index):
+        if index.column() == 0:
+            self.open_handtool_information(index)
 
+# Function to see revisions of handtool
+    def open_handtool_information(self,index):
+        value = index.data()
+
+        from Workshop_Handtools_Rev_Window import Ui_Workshop_Handtools_Rev_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_nc = createConnection_name(user_database, password_database, 'handtool_'+ str(value))
+        if not db_nc:
+            sys.exit()
+
+        self.nc_window = Ui_Workshop_Handtools_Rev_Window(db_nc, self.username, value)
+        self.nc_window.showMaximized()
+
+# Function to delete register of database
+    def delete_register(self):
+        selection_model = self.tableHandtools.selectionModel()
+
+        if not selection_model.hasSelection():
+            return
+
+        model = self.tableHandtools.model()
+
+        id_values = []
+        selected_indexes = selection_model.selectedRows()
         for index in selected_indexes:
-            if index.column() == 0:
-                num_nc = str(index.sibling(index.row(), 0).data())
-                type_nc = str(index.sibling(index.row(), 1).data())
-                nc_date = str(index.sibling(index.row(), 2).data().toString("dd/MM/yyyy"))
-                num_order = str(index.sibling(index.row(), 4).data())
-                num_drawing = str(index.sibling(index.row(), 5).data())
-                area = str(index.sibling(index.row(), 6).data())
-                detected = str(index.sibling(index.row(), 7).data())
-                responsible = str(index.sibling(index.row(), 8).data())
-                area_responsible = str(index.sibling(index.row(), 9).data())
-                description = str(index.sibling(index.row(), 10).data())
-                cause_analysis = str(index.sibling(index.row(), 11).data())
-                type_cause = str(index.sibling(index.row(), 13).data())
-                corrective_action = str(index.sibling(index.row(), 14).data())
-                date_corrective = str(index.sibling(index.row(), 15).data().toString("dd/MM/yyyy"))
-                completed_corrective_action = str(index.sibling(index.row(), 16).data())
+            # Obtaining first columns values
+            item_index = model.index(index.row(), 0)
+            if item_index.isValid():
+                value = model.data(item_index)
+                id_values.append(value)
 
-                pdf = CustomPDF('P', 'cm', 'A4')
-
-                pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-                pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
-
-                pdf.set_auto_page_break(auto=True)
-                pdf.set_margins(2.25, 1.5)
-
-                pdf.add_page()
-
-                pdf.set_font('Helvetica', 'BU', 10)
-                pdf.cell(16.5, 0.5, "NOTA DE DESVIACIÓN", align='C')
-                pdf.ln(1)
-
-                pdf.set_font('Helvetica', '', 9)
-                pdf.cell(6.25, 0.45, "AREA", border='TL')
-                pdf.cell(5.5, 0.45, "ESPECIFICACION", border='TL')
-                pdf.cell(4.75, 0.9, "  N°", align='L', border=1)
-                pdf.ln(0.45)
-
-                pdf.cell(6.25, 0.45, area, border='L')
-                pdf.cell(5.5, 0.45, "APLICABLE", border='L')
-                pdf.ln()
-
-                pdf.cell(6.25, 0.45, "", border='L')
-                pdf.cell(5.5, 0.45, num_order, border='L')
-                pdf.cell(4.75, 0.45, nc_date[-4:], align='C', border='LR')
-                pdf.ln()
-
-                pdf.cell(6.25, 0.45, "EIPSA", border='L')
-                pdf.cell(5.5, 0.45, num_drawing, border='L')
-                pdf.cell(4.75, 0.45, "Fecha:   " + nc_date, align='C', border=1)
-                pdf.ln()
-
-                pdf.cell(16.5, 0.5, "", border=1)
-                pdf.ln()
-                pdf.cell(16.5, 0.5, "DEFICIENCIAS ENCONTRADAS", border='LBR')
-                pdf.ln()
-
-                pdf.fixed_height_multicell(16.5, 2.75, description, 'J')
-                pdf.ln(0)
-
-                pdf.cell(16.5, 0.5, "ANALISIS DE CAUSA", border=1)
-                pdf.ln()
-
-                pdf.fixed_height_multicell(16.5, 2.5, cause_analysis, 'J')
-                pdf.ln(0)
-
-                pdf.cell(3.75, 0.5, "CLASIFICACIÓN: ", border='LB')
-                pdf.cell(12.75, 0.5, type_cause, border='RB')
-                pdf.ln()
-
-                pdf.cell(3.75, 0.5, "DETECTADO", border='LBR')
-                pdf.cell(4, 0.5, "INFORMADO", border='LBR')
-                pdf.cell(4, 0.5, "RESPONSABLES", border='LBR')
-                pdf.cell(4.75, 0.5, "RESPONSABLE AREA", border='LBR')
-                pdf.ln()
-
-                y_position = pdf.get_y()
-                pdf.fixed_height_multicell(3.75, 1.75, detected, 'C')
-                pdf.set_xy(6, y_position)
-                pdf.fixed_height_multicell(4, 1.75, "Jesús Martínez", 'C')
-                pdf.set_xy(10, y_position)
-                pdf.fixed_height_multicell(4, 1.75, responsible, 'C')
-                pdf.set_xy(14, y_position)
-                pdf.fixed_height_multicell(4.75, 1.75, area_responsible, 'C')
-                pdf.ln(0)
-
-                pdf.cell(16.5, 0.5, "", border=1)
-                pdf.ln()
-                pdf.cell(16.5, 0.5, "ACCIONES CORRECTIVAS RECOMENDADAS", border='LRB')
-                pdf.ln()
-
-                pdf.fixed_height_multicell(16.5, 2.75, corrective_action, 'J')
-                pdf.ln(0)
-                
-                pdf.cell(9.75, 0.5, "FECHA LÍMITE DE CUMPLIMENTACIÓN", border=1)
-                pdf.cell(6.75, 0.5, "RESPONSABLE DE LA A.C.C.", border=1)
-                pdf.ln()
-
-                pdf.cell(9.75, 1, date_corrective, border='LRB', align='C')
-                pdf.cell(6.75, 1, "", border='LRB')
-                pdf.ln()
-
-                pdf.cell(16.5, 0.5, "ACCIÓN CORRECTIVA COMPLETADA SATISFACTORIAMENTE", border='LRB')
-                pdf.ln()
-
-                y_position = pdf.get_y()
-                pdf.fixed_height_multicell(9.75, 3.25, completed_corrective_action, 'J')
-                pdf.set_xy(12, y_position)
-                pdf.cell(2, 0.5, "Firma", align='C')
-                pdf.cell(4.75, 0.5, "Fecha: ", border='R', align='C')
-                pdf.ln()
-                y_position = pdf.get_y()
-                pdf.set_xy(12, y_position)
-                pdf.cell(6.75, 2.25, "", border='R')
-                pdf.ln()
-                y_position = pdf.get_y()
-                pdf.set_xy(12, y_position)
-                pdf.cell(6.75, 0.5, "GABRIEL LÓPEZ", border='R', align='C')
-                pdf.ln()
-
-                pdf.cell(3.75, 0.5, "COSTE DIRECTO:", border='TL')
-                pdf.cell(6, 0.5, "COSTE INDIRECTO:", border='TL')
-                pdf.cell(6.75, 0.5, "COSTE TOTAL:", border='TLR')
-                pdf.ln()
-
-                pdf.cell(3.75, 1.5, "", border='BL')
-                pdf.cell(6, 1.5, "", border='BL')
-                pdf.cell(6.75, 1.5, "", border='BLR')
-                pdf.ln()
-
-                pdf.cell(6.75, 0.75, "")
-                pdf.ln()
-
-                pdf.set_font('Helvetica', 'B', 10)
-                pdf.cell(3.75, 0.5, "ND-001", border=1, align='C')
-                pdf.ln()
-
-                # pdf_buffer = pdf.output()
-
-                # temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
-
-                # with open(temp_file_path, "wb") as temp_file:
-                #     temp_file.write(pdf_buffer)
-
-                # self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Abre el PDF en el visor
-                # self.pdf_viewer.showMaximized()
-
-                output_path = "//nas01/DATOS/Comunes/GARANTIA DE CALIDAD EIPSA/No-Conformidad/INFORMES PDF/" + type_nc + "-" + num_nc + ".pdf"
-
-                if output_path:
-                    try:
-                        pdf.output(output_path)
-
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        dlg_error = QtWidgets.QMessageBox()
-                        new_icon_error = QtGui.QIcon()
-                        new_icon_error.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_error.setWindowIcon(new_icon_error)
-                        dlg_error.setWindowTitle("ERP EIPSA")
-                        dlg_error.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg_error.exec()
-                        del dlg_error, new_icon_error
-
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("PDFs generados")
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-        dlg.exec()
-        del dlg, new_icon
-
-# Function to open photos
-    def open_pics(self, index):
-        if index.column() == 12:
-            value = index.data()
-
-            if value != '':
+        if len(id_values) != 0:
+            dlg_yes_no = QtWidgets.QMessageBox()
+            new_icon_yes_no = QtGui.QIcon()
+            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+            dlg_yes_no.setWindowTitle("ERP EIPSA")
+            dlg_yes_no.setText("¿Estás seguro de que deseas eliminar los registros?\n")
+            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            result = dlg_yes_no.exec()
+            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                conn = None
                 try:
-                    file_path = os.path.normpath(value)
-                    os.startfile(file_path)
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    commands_delete = ("""DELETE FROM verification.handtools_workshop
+                                        WHERE id = %s""")
+                    for id_value in id_values:
+                        data = (id_value,)
+                        cur.execute(commands_delete, data)
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Máquinas")
+                    dlg.setText("Registros eliminados con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg,new_icon
+
+                    self.query_handtools()
 
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
@@ -1284,63 +1017,11 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                     dlg.exec()
                     del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
 
-# Function photos to reports
-    def add_images(self):
-        selected_indexes = self.tableReports.selectionModel().selectedIndexes()
-        if not selected_indexes:
-            return
-        
-        if len(selected_indexes) == 1:
-            index = selected_indexes[0]
-            if index.column() == 12:
-                id_column_index = index.sibling(index.row(), 0)
-                value_id = str(id_column_index.data())
-
-                images_path = askdirectory(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/Informes No conformidad")
-
-                if images_path:
-                    commands_insert = ("""
-                            UPDATE verification."nc_report"
-                            SET "images" = %s
-                            WHERE "id" = %s
-                            """)
-
-                    conn = None
-                    try:
-                    # read the connection parameters
-                        params = config()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands
-                        cur.execute(commands_insert, (images_path, value_id,))
-
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
-
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Verificación EXP")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
-
-                    finally:
-                        if conn is not None:
-                            conn.close()
-
-                    self.model.select()
-
-
-
+            del dlg_yes_no, new_icon_yes_no
 
 
 
@@ -1360,6 +1041,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    NC_Report_Window = Ui_NC_Report_Window(db, 'm.gil')
-    NC_Report_Window.showMaximized()
+    Workshop_Handtools_Window = Ui_Workshop_Handtools_Window(db, 'm.gil')
+    Workshop_Handtools_Window.showMaximized()
     sys.exit(app.exec())

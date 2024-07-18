@@ -390,11 +390,11 @@ class Ui_Login_Window(object):
                     self.Login_Window.close()
 
                 elif rol_app == "Almacén":
-                    from App_Warehouse import Ui_Warehouse_Menu
+                    from App_Warehouse import Ui_App_Warehouse
                     self.app_window = QtWidgets.QMainWindow()
-                    self.ui_warehouse = Ui_Warehouse_Menu(match[0][1]+' '+match[0][2], login_username)
+                    self.ui_warehouse = Ui_App_Warehouse(match[0][1]+' '+match[0][2], login_username)
                     self.ui_warehouse.setupUi(self.app_window)
-                    self.app_window.show()
+                    self.app_window.showMaximized()
                     self.Login_Window.close()
 
                 elif rol_app == "Taller":
