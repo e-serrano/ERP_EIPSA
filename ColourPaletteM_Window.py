@@ -256,16 +256,16 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 painter.drawText(horizontalPosition, verticalPosition, '696')
 
             elif 'TANTALO' in value_check:
-                start_color = QtGui.QColor(0, 0, 0)  # Black
-                end_color = QtGui.QColor(0, 0, 0)  # Black
+                start_color = QtGui.QColor(255, 87, 87)  # Red
+                end_color = QtGui.QColor(92, 197, 229)  # Blue
                 rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
                 rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
 
                 painter.fillRect(rect_top, start_color)
                 painter.fillRect(rect_bottom, end_color)
 
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
+                painter.drawText(rect_top, QtCore.Qt.AlignmentFlag.AlignCenter, '658')
+                painter.drawText(rect_bottom, QtCore.Qt.AlignmentFlag.AlignCenter, '634')
 
             elif 'F11' in value_check:
                 start_color = QtGui.QColor(255, 157, 59)  # Orange

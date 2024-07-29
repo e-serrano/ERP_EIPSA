@@ -47,8 +47,6 @@ class ImageCalendarWidget(QtWidgets.QCalendarWidget):
                 cur.execute(commands_dates, data)
                 results=cur.fetchall()
 
-                print(results)
-
                 type_day = results[0][0]
                 time_result = str(timedelta(seconds=results[0][1].seconds))
 

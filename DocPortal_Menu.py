@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'EditOffer_Window.ui'
+#b Form implementation generated from reading ui file 'EditOffer_Window.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.1
 #
@@ -126,7 +126,7 @@ class Ui_PortalDoc_Menu(object):
 
     def retranslateUi(self, PortalDoc_Menu):
         _translate = QtCore.QCoreApplication.translate
-        PortalDoc_Menu.setWindowTitle(_translate("PortalDoc_Menu", "Nueva Oferta"))
+        PortalDoc_Menu.setWindowTitle(_translate("PortalDoc_Menu", "Documentación"))
         self.Button_Creation.setText(_translate("PortalDoc_Menu", "Creación Líneas"))
         self.Button_Activation.setText(_translate("PortalDoc_Menu", "Activación Líneas / Portal"))
         self.Button_Cancel.setText(_translate("PortalDoc_Menu", "Cancelar"))

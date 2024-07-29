@@ -65,42 +65,6 @@ class Ui_App_Workshop(object):
         self.Header.addWidget(self.LogoIcon)
         spacerItem = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem)
-        self.Button_M_Drawings = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_M_Drawings.setMinimumSize(QtCore.QSize(50, 50))
-        self.Button_M_Drawings.setMaximumSize(QtCore.QSize(50, 50))
-        self.Button_M_Drawings.setToolTip('Planos M')
-        self.Button_M_Drawings.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_M_Drawings.setStyleSheet("QPushButton{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(3, 174, 236);\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border-radius: 10px;\n"
-"}\n"
-"\n"
-"QPushButton:hover{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"    color: rgb(0,0,0);\n"
-"    background-color: rgb(255, 255, 255);\n"
-"    border-radius: 10px;\n"
-"}\n"
-"\n"
-"QPushButton:pressed{\n"
-"    border: 1px solid transparent;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"    color: rgb(0,0,0);\n"
-"    background-color: rgb(200, 200, 200);\n"
-"    border-radius: 10px;\n"
-"}")
-        self.Button_M_Drawings.setText("")
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/M_Drawing.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_M_Drawings.setIcon(icon2)
-        self.Button_M_Drawings.setIconSize(QtCore.QSize(int(40), int(40)))
-        self.Button_M_Drawings.setObjectName("Button_M_Drawings")
-        self.Header.addWidget(self.Button_M_Drawings)
-        spacerItem6 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem6)
         self.Button_Index_Drawings = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Index_Drawings.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_Index_Drawings.setMaximumSize(QtCore.QSize(50, 50))
@@ -249,7 +213,7 @@ class Ui_App_Workshop(object):
         self.Button_Verification.setIconSize(QtCore.QSize(40, 40))
         self.Button_Verification.setObjectName("Button_Verification")
         self.Header.addWidget(self.Button_Verification)
-        spacerItem5 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem5 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem5)
         self.Button_Machines = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Machines.setMinimumSize(QtCore.QSize(50, 50))
@@ -310,7 +274,7 @@ class Ui_App_Workshop(object):
         self.Button_Machines.setObjectName("Button_Machines")
         self.Header.addWidget(self.Button_Machines)
 
-        spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem8 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem8)
         self.Button_HandTools = QtWidgets.QPushButton(parent=self.frame)
         self.Button_HandTools.setMinimumSize(QtCore.QSize(50, 50))
@@ -662,7 +626,6 @@ class Ui_App_Workshop(object):
         self.Button_Times.clicked.connect(self.times)
         self.Button_Notification.clicked.connect(self.notifications)
         self.Button_Profile.clicked.connect(self.showMenu)
-        self.Button_M_Drawings.clicked.connect(self.insert_drawings)
         self.Button_Index_Drawings.clicked.connect(self.index_drawing)
 
         self.Button_Palette_M.clicked.connect(self.colour_palette_M)
@@ -838,12 +801,6 @@ class Ui_App_Workshop(object):
             icon13 = QtGui.QIcon()
             icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Notification.setIcon(icon13)
-
-# Function to open window to insert drawing
-    def insert_drawings(self):
-        from Workshop_DrawingInsert_Window import Ui_Workshop_DrawingInsert_Window
-        self.m_drawing_insert_window=Ui_Workshop_DrawingInsert_Window(self.username)
-        self.m_drawing_insert_window.show()
 
 # Function to open window to check order drawings
     def index_drawing(self):

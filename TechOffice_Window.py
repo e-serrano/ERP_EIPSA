@@ -159,7 +159,7 @@ class Ui_TechOffice_Window(QtWidgets.QMainWindow):
             self.tableTechOf.hideColumn(i)
         for i in range(11,25):
             self.tableTechOf.hideColumn(i)
-        for i in range(26,30):
+        for i in range(26,32):
             self.tableTechOf.hideColumn(i)
 
         headers=['Nº Pedido', '','','','','','','','',

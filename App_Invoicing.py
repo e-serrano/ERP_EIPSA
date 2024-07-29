@@ -653,7 +653,7 @@ class Ui_App_Invoicing(object):
 # Function to open window for manage clients
     def clients(self):
         self.clients_window=QtWidgets.QMainWindow()
-        self.ui=Ui_Clients_Window(self.name)
+        self.ui=Ui_Clients_Window(self.name, self.username)
         self.ui.setupUi(self.clients_window)
         self.clients_window.show()
 

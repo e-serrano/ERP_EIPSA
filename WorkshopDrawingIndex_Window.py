@@ -240,9 +240,8 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                     painter.fillRect(rect_bottom, end_color)
 
                 elif 'TANTALO' in value_check:
-                    text_color = QtGui.QColor(255, 255, 255)
-                    start_color = QtGui.QColor(0, 0, 0)  # Black
-                    end_color = QtGui.QColor(0, 0, 0)  # Black
+                    start_color = QtGui.QColor(255, 87, 87)  # Red
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
                     rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
                     rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
 
@@ -706,9 +705,8 @@ class AlignDelegate_M(QtWidgets.QStyledItemDelegate):
                     painter.fillRect(rect_bottom, end_color)
 
                 elif 'TANTALO' in value_check:
-                    text_color = QtGui.QColor(255, 255, 255)
-                    start_color = QtGui.QColor(0, 0, 0)  # Black
-                    end_color = QtGui.QColor(0, 0, 0)  # Black
+                    start_color = QtGui.QColor(255, 87, 87)  # Red
+                    end_color = QtGui.QColor(92, 197, 229)  # Blue
                     rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
                     rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
 
@@ -1849,7 +1847,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 self.tableDimDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
             self.tableDimDwg.setObjectName("tableDimDwg")
             self.tableDimDwg.setSortingEnabled(False)
-            # self.tableDimDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableDimDwg, self.modelDim, self.proxyDim))
+            self.tableDimDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableDimDwg, self.modelDim, self.proxyDim))
             # self.tableDimDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
             # self.tableDimDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
             self.splitter.addWidget(self.tableDimDwg)
@@ -1907,7 +1905,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 self.tableOfDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
             self.tableOfDwg.setObjectName("tableOfDwg")
             self.tableOfDwg.setSortingEnabled(False)
-            # self.tableOfDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableOfDwg, self.modelOf, self.proxyOf))
+            self.tableOfDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableOfDwg, self.modelOf, self.proxyOf))
             # self.tableOfDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
             # self.tableOfDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
             self.splitter.addWidget(self.tableOfDwg)
@@ -1965,7 +1963,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 self.tableMDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
             self.tableMDwg.setObjectName("tableMDwg")
             self.tableMDwg.setSortingEnabled(False)
-            # self.tableMDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableMDwg, self.modelMDwg, self.proxyM))
+            self.tableMDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableMDwg, self.modelMDwg, self.proxyM))
             # self.tableMDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
             # self.tableMDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
             self.splitter.addWidget(self.tableMDwg)
@@ -3075,9 +3073,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 num_dim_drawing = self.proxyDim.data(self.proxyDim.index(row, 2))
 
                                 query_data_flow = ('''
-                                    SELECT tags_data.tags_flow."item_type"
+                                    SELECT "item_type"
                                     FROM tags_data.tags_flow
-                                    WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%') and (tags_data.tags_flow."dim_drawing") = %s
+                                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s
                                     ''')
                                 conn = None
                                 try:
@@ -3092,21 +3090,46 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
                                     item_type = results_flow[0][0]
 
-                                    if item_type == 'RO':
-                                        query_description = ('''
-                                        SELECT item_type, line_size, rating, facing, schedule, element_material, plate_type, plate_thk
-                                        FROM tags_data.tags_flow
-                                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s
-                                        ''')
-                                        cur.execute(query_description,(self.numorder, num_dim_drawing,))
-                                        results_description=cur.fetchall()
+                                    query_description = ('''
+                                    SELECT item_type, line_size, rating, facing, schedule, element_material,
+                                    plate_type, plate_thk, flange_material, flange_type, tapping_num_size,
+                                    gasket_material, tube_material, stages_number
+                                    FROM tags_data.tags_flow
+                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s
+                                    ''')
+                                    cur.execute(query_description,(self.numorder, num_dim_drawing,))
+                                    results_description=cur.fetchall()
 
+                                    if item_type in ['C. RING', 'P', 'RO']:
                                         description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                                        " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][5] + " " +
-                                                        results_description[0][6] + " " + "ESPESOR " + results_description[0][7])
+                                                    " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][5] + " " +
+                                                    results_description[0][6] + " ESPESOR " + results_description[0][7])
 
-                                        commands_insert_drawing = f"""INSERT INTO verification."workshop_dim_drawings" ("description") VALUES ('{description}')"""
-                                        cur.execute(commands_insert_drawing)
+                                    elif item_type in ['F', 'F+C.RING', 'F+P', 'M.RUN']:
+                                        description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                    " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][8] +
+                                                    ((" BRIDAS " + results_description[0][9]) if results_description[0][0] == 'M.RUN' else " ") +
+                                                    " TOMAS: " + results_description[0][10] + " " + "Junta " +
+                                                    ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else 22,2))))
+
+                                    elif item_type in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW']:
+                                        description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                    " " + results_description[0][3] + " SCH " + results_description[0][4] + " B:" + results_description[0][8] +
+                                                    ((" BRIDAS " + results_description[0][9]) if results_description[0][0] in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6'] else " ") +
+                                                    "E:" + results_description[0][5] + 
+                                                    (" TOMAS: " + results_description[0][10] if results_description[0][0] in ['NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW'] else "") +
+                                                    (results_description[0][13] + " SALTOS: " if results_description[0][0] == 'MULTISTAGE RO' else ""))
+
+                                    elif item_type in ['NOZZLE BW', 'VWM', 'VWW']:
+                                        description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                    " " + (results_description[0][3] if results_description[0][0] in ['VWM', 'VWW'] else "") +
+                                                    " SCH " + results_description[0][4] + " T:" + results_description[0][12] +
+                                                    "E:" + results_description[0][5] + " TOMAS: " + results_description[0][10])
+
+                                    commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
+                                                                SET "drawing_description" = '{description}'
+                                                                WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
+                                    cur.execute(commands_insert_drawing)
 
                                 # close communication with the PostgreSQL database server
                                     cur.close()
@@ -3127,12 +3150,163 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     if conn is not None:
                                         conn.close()
 
+                    elif self.table_toquery == "tags_data.tags_temp":
+                        if self.proxyDim.rowCount() != 0:
+                            for row in range(self.proxyDim.rowCount()):
+                                num_dim_drawing = self.proxyDim.data(self.proxyDim.index(row, 2))
+
+                                query_data_temp = ('''
+                                    SELECT "item_type"
+                                    FROM tags_data.tags_temp
+                                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s
+                                    ''')
+                                conn = None
+                                try:
+                                # read the connection parameters
+                                    params = config()
+                                # connect to the PostgreSQL server
+                                    conn = psycopg2.connect(**params)
+                                    cur = conn.cursor()
+                                # execution of commands
+                                    cur.execute(query_data_temp,(self.numorder, num_dim_drawing,))
+                                    results_temp=cur.fetchall()
+
+                                    item_type = results_temp[0][0]
+
+                                    query_description = ('''
+                                    SELECT item_type, tw_type, flange_size, flange_rating, flange_facing, geometry, material_tw,
+                                    ins_length, root_diam, sensor_element, sheath_stem_material, sheath_stem_diam, insulation,
+                                    nipple_ext_material, head_case_material, tt_cerblock
+                                    FROM tags_data.tags_temp
+                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s
+                                    ''')
+                                    cur.execute(query_description,(self.numorder, num_dim_drawing,))
+                                    results_description=cur.fetchall()
+
+                                    if item_type in ['TW', 'TW+BIM']:
+                                        description = (str(len(results_temp)) + " " + results_description[0][0] + " " +
+                                                    results_description[0][1] + " " +
+                                                    results_description[0][2] + results_description[0][3] + results_description[0][4] + " " +
+                                                    results_description[0][5] + " " + results_description[0][6] + " Ins:" + results_description[0][7] + "mm ø:" + results_description[0][8] + " " +
+                                                    (results_description[0][13] if 'BIM' in results_description[0][0] else ""))
+
+                                    elif item_type in ['TW+TE','TW+TE+TIT']:
+                                        description = (str(len(results_temp)) + " " + results_description[0][0] + " " +
+                                                    results_description[0][1] + " " +
+                                                    results_description[0][2] + results_description[0][3] + results_description[0][4] + " " +
+                                                    results_description[0][5] + " " + results_description[0][6] + " Ins:" + results_description[0][7] + "mm ø:" + results_description[0][8] + " " +
+                                                    results_description[0][9] + " " + results_description[0][10] + " " + results_description[0][11] + " " + results_description[0][12] + " " + 
+                                                    results_description[0][13] + " " + results_description[0][14] + " " + results_description[0][15])
+
+                                    elif item_type in ['TE']:
+                                        description = (str(len(results_temp)) + " " + results_description[0][9] + " " + results_description[0][10] + " " + 
+                                                    results_description[0][11] + " " + results_description[0][12])
+
+                                    commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
+                                                                SET "drawing_description" = '{description}'
+                                                                WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
+                                    cur.execute(commands_insert_drawing)
+
+                                # close communication with the PostgreSQL database server
+                                    cur.close()
+                                # commit the changes
+                                    conn.commit()
+                                except (Exception, psycopg2.DatabaseError) as error:
+                                    dlg = QtWidgets.QMessageBox()
+                                    new_icon = QtGui.QIcon()
+                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg.setWindowIcon(new_icon)
+                                    dlg.setWindowTitle("ERP EIPSA")
+                                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                + str(error))
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                    dlg.exec()
+                                    del dlg, new_icon
+                                finally:
+                                    if conn is not None:
+                                        conn.close()
+
+                    elif self.table_toquery == "tags_data.tags_level":
+                        if self.proxyDim.rowCount() != 0:
+                            for row in range(self.proxyDim.rowCount()):
+                                num_dim_drawing = self.proxyDim.data(self.proxyDim.index(row, 2))
+
+                                query_data_level = ('''
+                                    SELECT "item_type"
+                                    FROM tags_data.tags_level
+                                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s
+                                    ''')
+                                conn = None
+                                try:
+                                # read the connection parameters
+                                    params = config()
+                                # connect to the PostgreSQL server
+                                    conn = psycopg2.connect(**params)
+                                    cur = conn.cursor()
+                                # execution of commands
+                                    cur.execute(query_data_level,(self.numorder, num_dim_drawing,))
+                                    results_level=cur.fetchall()
+
+                                    item_type = results_level[0][0]
+
+                                    query_description = ('''
+                                    SELECT item_type, model_num, proc_conn_size, proc_conn_rating, proc_conn_facing, valve_type,
+                                    gasket_mica, illuminator, scale_type, antifrost, float_material, body_material
+                                    FROM tags_data.tags_level
+                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s
+                                    ''')
+                                    cur.execute(query_description,(self.numorder, num_dim_drawing,))
+                                    results_description=cur.fetchall()
+
+                                    if item_type in ['Reflex', 'Transparent']:
+                                        description = (str(len(results_level)) + " " + results_description[0][11] + " " +
+                                                    results_description[0][1] +
+                                                    ('-M' if 'MICA' in results_description[0][6] else "") +
+                                                    ('-I' if 'YES' in results_description[0][7] else "") +
+                                                    ('-K' if 'ANTIFROST' in results_description[0][9] else "") +
+                                                    " " +
+                                                    " " + results_description[0][2] + results_description[0][3] + results_description[0][4] + " " + results_description[0][5])
+
+                                    elif item_type in ['Magnetic']:
+                                        description = (str(len(results_level)) + "-" + results_description[0][0] + " " + results_description[0][1] + " " + 
+                                                    "Flotador " + results_description[0][10])
+
+                                    commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
+                                                                SET "drawing_description" = '{description}'
+                                                                WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
+                                    cur.execute(commands_insert_drawing)
+
+                                # close communication with the PostgreSQL database server
+                                    cur.close()
+                                # commit the changes
+                                    conn.commit()
+                                except (Exception, psycopg2.DatabaseError) as error:
+                                    dlg = QtWidgets.QMessageBox()
+                                    new_icon = QtGui.QIcon()
+                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg.setWindowIcon(new_icon)
+                                    dlg.setWindowTitle("ERP EIPSA")
+                                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                + str(error))
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                    dlg.exec()
+                                    del dlg, new_icon
+                                finally:
+                                    if conn is not None:
+                                        conn.close()
+
+                    self.query_drawings()
+
 # Function to execute query function when tags window is closed
     def on_close_event(self, event):
         self.query_drawings()
         event.accept()
 
-
+# Function to extract thickness of gasket
+    def extract_thickness(self, gasket):
+        pattern = re.compile(r'\d+,\d+mm|\d+\.\d+mm|\d+mm')
+        match = pattern.search(gasket)
+        return match.group() if match else ""
 
 
 

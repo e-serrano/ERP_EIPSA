@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'App_Technical.ui'
+#♥ Form implementation generated from reading ui file 'App_Technical.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -1082,12 +1082,51 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_NCReport.setIconSize(QtCore.QSize(40, 40))
             self.Button_NCReport.setObjectName("Button_NCReport")
             self.Header.addWidget(self.Button_NCReport)
+            spacerItem17 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem17)
+            self.Button_Nuclear = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Nuclear.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Nuclear.setMaximumSize(QtCore.QSize(50, 16777215))
+            self.Button_Nuclear.setToolTip('Anexos Nuclear')
+            self.Button_Nuclear.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Nuclear.setStyleSheet(
+                "QPushButton{\n"
+                "    border: 1px solid transparent;\n"
+                "    border-color: rgb(3, 174, 236);\n"
+                "    background-color: rgb(255, 255, 255);\n"
+                "    border-radius: 10px;\n"
+                "}\n"
+                "\n"
+                "QPushButton:hover{\n"
+                "    border: 1px solid transparent;\n"
+                "    border-color: rgb(0, 0, 0);\n"
+                "    color: rgb(0,0,0);\n"
+                "    background-color: rgb(255, 255, 255);\n"
+                "    border-radius: 10px;\n"
+                "}\n"
+                "\n"
+                "QPushButton:pressed{\n"
+                "    border: 1px solid transparent;\n"
+                "    border-color: rgb(0, 0, 0);\n"
+                "    color: rgb(0,0,0);\n"
+                "    background-color: rgb(200, 200, 200);\n"
+                "    border-radius: 10px;\n"
+                "}"
+            )
+            self.Button_Nuclear.setText("")
+            icon17 = QtGui.QIcon()
+            icon17.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Nuclear.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Nuclear.setIcon(icon17)
+            self.Button_Nuclear.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Nuclear.setObjectName("Button_Nuclear")
+            self.Header.addWidget(self.Button_Nuclear)
             self.Button_Times.clicked.connect(self.times)
             self.Button_OT.clicked.connect(self.otorder)
             self.Button_DB_Manuf.clicked.connect(self.dbmanufedit)
             self.Button_ClockIn_Import.clicked.connect(self.importclockin)
             self.Button_ClockIn.clicked.connect(self.clockin)
             self.Button_NCReport.clicked.connect(self.nc_report)
+            self.Button_Nuclear.clicked.connect(self.nuclear_annex)
         elif self.name in ["Santos Sánchez"]:
             self.Button_TechOffice = QtWidgets.QPushButton(parent=self.frame)
             self.Button_TechOffice.setMinimumSize(QtCore.QSize(50, 50))
@@ -2167,28 +2206,27 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                 del dlg, new_icon
 
 # Function to create PDF with specific text in a position
-    def new_content(self, value, type):
+    def new_content(self, value, type_eq):
         pdf = FPDF(unit='mm')
         pdf.set_font("helvetica", "", 10)
         pdf.set_text_color(0, 0, 0)
 
-        if type == 'RO':
-            pdf.add_page()
-            pdf.text(100, 10, value)
+        excel_file = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Importación\Importar Tags Cálculos.xlsx"
+        df_data = pd.read_excel(excel_file, sheet_name='Posiciones')
+        df_data = df_data.set_index('type')
 
-        elif type == 'MUL':
+        x_position = df_data['x(mm)'][type_eq]
+        y_position = df_data['y(mm)'][type_eq]
+
+        if type_eq == 'MUL':
             pdf.add_page()
-            pdf.set_xy(43, 140)
+            pdf.set_xy(x_position, y_position)
             with pdf.rotation(90):
                 pdf.cell(10, 10, value)
 
-        elif type == 'FC':
+        else:
             pdf.add_page()
-            pdf.text(20, 35, value)
-
-        elif type == 'VAINA':
-            pdf.add_page()
-            pdf.text(20, 17, value)
+            pdf.text(x_position, y_position, value)
 
         return io.BytesIO(pdf.output())
 
@@ -2378,11 +2416,11 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 
 
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     Login_Window = QtWidgets.QMainWindow()
-#     ui = Ui_App_Technical('Jorge Valtierra','j.valtierra')
-#     ui.setupUi(Login_Window)
-#     Login_Window.show()
-#     sys.exit(app.exec())
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    Login_Window = QtWidgets.QMainWindow()
+    ui = Ui_App_Technical('Ernesto Carrillo','e.carrillo')
+    ui.setupUi(Login_Window)
+    Login_Window.show()
+    sys.exit(app.exec())

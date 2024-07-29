@@ -1012,9 +1012,6 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.Button_Cancel.clicked.connect(VerificationInsert_Window.close)
         self.num_order.returnPressed.connect(self.query_tables)
         self.Button_Insert.clicked.connect(self.insert_all_data)
-        # self.Button_M_Drawing.clicked.connect(lambda: self.insert_m_drawings(self.num_order.text().upper()))
-        # self.Button_OF_Drawing.clicked.connect(lambda: self.insert_of_drawings(self.num_order.text().upper()))
-        # self.Button_Dim_Drawing.clicked.connect(lambda: self.insert_dim_drawings(self.num_order.text().upper()))
         self.Button_Photos.clicked.connect(lambda: self.insert_images(self.num_order.text().upper()))
         self.tableTags.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
         self.tableOthers.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked_others)
@@ -1063,6 +1060,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         if self.num_order_value != '':
             if self.num_order_value[:3] == 'AL-':
                 self.tableTags.setRowCount(0)
+                self.tableOthers.setRowCount(0)
                 self.querywarehouse()
             else:
                 self.querytags()
@@ -1419,7 +1417,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.num_order_value = self.num_order.text().upper()
 
         query_warehouse = ("""
-                        SELECT '', id, num_order, drawing_number, TO_CHAR(verif_al_drawing_date, 'DD/MM/YYYY'), verif_al_drawing_state, verif_al_drawing_obs,
+                        SELECT '', id, num_order, drawing_number, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), TO_CHAR(verif_al_drawing_date, 'DD/MM/YYYY'),
                         description, image, document
                         FROM verification.al_drawing_verification WHERE UPPER(verification.al_drawing_verification."num_order") LIKE UPPER('%%'||%s||'%%')
                         """)
@@ -1434,7 +1432,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             cur.execute(query_warehouse, (self.num_order_value,))
             results=cur.fetchall()
 
-            column_headers = ['', 'ID', 'Nº Pedido', 'Nº Plano', 'Fecha', 'Estado', 'Observaciones', 'Descripción', 'Foto', 'PDF Plano']
+            column_headers = ['', 'ID', 'Nº Pedido', 'Nº Plano', 'Fecha Almacén', 'Fecha Verif.', 'Descripción', 'Foto', 'PDF Plano']
 
         # close communication with the PostgreSQL database server
             cur.close()
@@ -1442,12 +1440,12 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             conn.commit()
 
             self.tableTags.setRowCount(len(results))
-            self.tableTags.setColumnCount(10)
+            self.tableTags.setColumnCount(9)
             tablerow=0
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(10):
+                for column in range(9):
                     if column == 0:
                         checkbox_others = QtWidgets.QCheckBox()
                         checkbox_others.setChecked(False)
@@ -2548,66 +2546,6 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     if conn is not None:
                         conn.close()
 
-# Function to open window for M drawings
-    def insert_m_drawings(self, numorder):
-        if numorder == '':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Verificación")
-            dlg.setText("Introduce un número de pedido")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
-        else:
-            from Verif_M_DrawingInsert_Window import Ui_Verif_M_DrawingInsert_Window
-            self.m_drawing_insert_window=QtWidgets.QMainWindow()
-            self.ui=Ui_Verif_M_DrawingInsert_Window(numorder, self.username)
-            self.ui.setupUi(self.m_drawing_insert_window)
-            self.m_drawing_insert_window.show()
-            self.ui.Button_Cancel.clicked.connect(self.query_tables)
-
-# Function to open window for OF drawings
-    def insert_of_drawings(self, numorder):
-        if numorder == '':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Verificación")
-            dlg.setText("Introduce un número de pedido")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
-        else:
-            from Verif_OF_DrawingInsert_Menu import Ui_Verif_OF_Drawing_Menu
-            self.of_drawing_insert_window_menu=QtWidgets.QMainWindow()
-            self.ui=Ui_Verif_OF_Drawing_Menu(numorder, self.username)
-            self.ui.setupUi(self.of_drawing_insert_window_menu)
-            self.of_drawing_insert_window_menu.show()
-            self.ui.Button_Cancel.clicked.connect(self.query_tables)
-
-# Function to open window for Dim drawings
-    def insert_dim_drawings(self, numorder):
-        if numorder == '':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Verificación")
-            dlg.setText("Introduce un número de pedido")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
-        else:
-            from Verif_Dim_DrawingInsert_Menu import Ui_Verif_Dim_Drawing_Menu
-            self.dim_drawing_insert_window_menu=QtWidgets.QMainWindow()
-            self.ui=Ui_Verif_Dim_Drawing_Menu(numorder, self.username)
-            self.ui.setupUi(self.dim_drawing_insert_window_menu)
-            self.dim_drawing_insert_window_menu.show()
-            self.ui.Button_Cancel.clicked.connect(self.query_tables)
-
 # Function to open window for images
     def insert_images(self, numorder):
         if numorder == '':
@@ -2779,10 +2717,15 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         else:
             header_text = ''
 
-        if header_text == 'Fotos':
+        if header_text in ['Fotos', 'Foto', 'PDF Plano']:
             item_id = self.tableTags.item(item.row(), 1).text()
 
-            query_path =f"SELECT tag_images FROM {self.table_name} WHERE {self.column_id} = {item_id}"
+            if header_text == 'Fotos':
+                query_path =f"SELECT tag_images FROM {self.table_name} WHERE {self.column_id} = {item_id}"
+            elif header_text == 'Foto':
+                query_path =f"""SELECT image FROM verification."al_drawing_verification" WHERE id = {item_id}"""
+            else:
+                query_path =f"""SELECT document FROM verification."al_drawing_verification" WHERE id = {item_id}"""
 
             conn = None
             try:
@@ -3118,6 +3061,101 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     if conn is not None:
                         conn.close()
 
+        elif header_text == 'Fecha Almacén':
+            if item.text() != '':
+                item_id = self.tableTags.item(item.row(), 1).text()
+                query =f"SELECT TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs FROM verification.al_drawing_verification WHERE id = {item_id}"
+
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(query)
+                    results=cur.fetchall()
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Planos AL")
+                    dlg.setText("Fecha: " + (results[0][0] if results[0][0] is not None else "") + "\n"
+                                "Estado: " + (results[0][1] if results[0][1] is not None else "") + "\n"
+                                "Observaciones: " + (results[0][2] if results[0][2] is not None else ""))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+        elif header_text == 'Fecha Verif.':
+            if item.text() != '':
+                item_id = self.tableTags.item(item.row(), 1).text()
+                query =f"SELECT TO_CHAR(verif_al_drawing_date, 'DD/MM/YYYY'), verif_al_drawing_state, verif_al_drawing_obs FROM verification.al_drawing_verification WHERE id = {item_id}"
+
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(query)
+                    results=cur.fetchall()
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Planos AL")
+                    dlg.setText("Fecha: " + (results[0][0] if results[0][0] is not None else "") + "\n"
+                                "Estado: " + (results[0][1] if results[0][1] is not None else "") + "\n"
+                                "Observaciones: " + (results[0][2] if results[0][2] is not None else ""))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
 
 
         if item.column() == (self.tableOthers.columnCount() - 2) and self.num_order.text().upper()[:3] == 'AL-':

@@ -7,6 +7,7 @@ import PyQt6.QtCore
 from PyQt6 import QtCore, QtGui, QtWidgets
 import os
 import openpyxl
+import re
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -1017,7 +1018,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
             codefab_antifrost = model.data(model.index(target_row, 118))
             all_list_parts = []
 
-            model_num = model.data(model.index(target_row, 9))[:6]
+            model_num = model.data(model.index(target_row, 9))[:6] if model.data(model.index(target_row, 9))[2:4] !='HH' else model.data(model.index(target_row, 9))[:7]
             level_type = model.data(model.index(target_row, 8))
             conn_type = model.data(model.index(target_row, 15))
             nipplehexdim = model.data(model.index(target_row, 32))[:8]
@@ -1027,7 +1028,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
             if code_body != '':
                 tradcodbody = model.data(model.index(target_row, 121))
                 modelbody = nipplehexdim
-                designbody = '40x40'
+                designbody = '40x40' if model_num[2:3] != 'H' else ('100x50'if model_num[2:4] != 'HH' else '80x40')
                 processbody = (nipplehexdim + '-M')
                 materialbody = 'A-105' if model.data(model.index(target_row, 10)) == 'Carbon Steel' else model.data(model.index(target_row, 10))
                 qtybody = model.data(model.index(target_row, 71))
@@ -1048,7 +1049,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands one by one
-                    cover_num = model_num[2:6]
+                    cover_num = model_num[2:6] if model_num[2:4] !='HH' else model_num[3:7]
                     cover_num = cover_num[:2] + '1' + cover_num[3:]
                     cur.execute(commands_coverdim,(cover_num,))
                     results=cur.fetchone()
@@ -1075,7 +1076,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
 
                 tradcodcover = model.data(model.index(target_row, 122))
                 modelcover = ('L=' + str(length))
-                designcover = '80x30'
+                designcover = '80x30' if model_num[2:4] != 'HH' else '90x40'
                 processcover = (str(bores) + ' taladros')
                 materialcover = 'A-105' if model.data(model.index(target_row, 10)) == 'Carbon Steel' else model.data(model.index(target_row, 10))
                 qtycover = model.data(model.index(target_row, 74))
@@ -1115,8 +1116,8 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
             if code_bolts != '':
                 tradcodbolts = model.data(model.index(target_row, 123))
                 modelbolts = 'TRANSPARENCIA' if level_type == 'Transparent' else 'REFLEXIÓN'
-                designbolts = 'M10x132 mm' if level_type == 'Transparent' else ''
-                processbolts = 'cabeza exag 17 e/c' if level_type == 'Transparent' else ''
+                designbolts = '' if model_num[2:4] == 'HH' else ('M10x132 mm' if level_type == 'Transparent' else '')
+                processbolts = '' if model_num[2:4] == 'HH' else ('cabeza exag 17 e/c' if level_type == 'Transparent' else '')
                 materialbolts = 'B7/2H' if level_type in ['Transparent','Reflex'] else model.data(model.index(target_row, 24))
                 qtybolts = model.data(model.index(target_row, 77))
                 bolts_list.append([code_bolts,codefab_bolts,tradcodbolts,modelbolts,designbolts,processbolts,materialbolts,qtybolts])
@@ -1124,7 +1125,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
 
             if code_nipplehex != '':
                 tradcodnipplehex = model.data(model.index(target_row, 124))
-                modelnipplehex = (str((cc_length-length-72)/2+20) + ' mm')
+                modelnipplehex = (str((cc_length-int(get_number_before_mm(tradcodbody))-72)/2+20) + ' mm')
                 designnipplehex = ''
                 processnipplehex = ''
                 materialnipplehex = 'A-105' if model.data(model.index(target_row, 10)) == 'Carbon Steel' else model.data(model.index(target_row, 10))
@@ -1183,7 +1184,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
 
             if code_illuminator != '':
                 tradcodilluminator = model.data(model.index(target_row, 129))
-                modelilluminator = model_num[:6].replace('S','I')
+                modelilluminator = model_num[:6].replace('S','I') if model_num[2:4] != 'HH' else model_num[:7].replace('HH','I')
                 designilluminator = ''
                 processilluminator = ''
                 materialilluminator = 'HIERRO'
@@ -1227,73 +1228,73 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
                             model.data(model.index(target_row, 66)), model.data(model.index(target_row, 4)), model.data(model.index(target_row, 48)),
                             model.data(model.index(target_row, 39)), model.data(model.index(target_row, 62))]
 
-            # columns_equipments  = ", ".join([f'"{column}"' for column in columns_equipments])
-            # values_equipments =  ", ".join(['NULL' if value == '' or value == 0 else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in values_equipments])
+            columns_equipments  = ", ".join([f'"{column}"' for column in columns_equipments])
+            values_equipments =  ", ".join(['NULL' if value == '' or value == 0 else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in values_equipments])
 
-            # columns_tags  = ", ".join([f'"{column}"' for column in columns_tags])
-            # values_tags =  ", ".join(['NULL' if value == '' or value == PyQt6.QtCore.QDate() else (str(value) if isinstance(value, (int, float)) else (f"'{value.toString('yyyy-MM-dd')}'" if isinstance(value, PyQt6.QtCore.QDate) else f"'{str(value)}'")) for value in values_tags])
+            columns_tags  = ", ".join([f'"{column}"' for column in columns_tags])
+            values_tags =  ", ".join(['NULL' if value == '' or value == PyQt6.QtCore.QDate() else (str(value) if isinstance(value, (int, float)) else (f"'{value.toString('yyyy-MM-dd')}'" if isinstance(value, PyQt6.QtCore.QDate) else f"'{str(value)}'")) for value in values_tags])
 
-            # columns_parts = ", ".join([f'"{column}"' for column in columns_parts])
+            columns_parts = ", ".join([f'"{column}"' for column in columns_parts])
 
-            # commands_equipments = f"INSERT INTO fabrication.equipments ({columns_equipments}) VALUES ({values_equipments})"
-            # commands_tags = f"INSERT INTO fabrication.tags ({columns_tags}) VALUES ({values_tags})"
+            commands_equipments = f"INSERT INTO fabrication.equipments ({columns_equipments}) VALUES ({values_equipments})"
+            commands_tags = f"INSERT INTO fabrication.tags ({columns_tags}) VALUES ({values_tags})"
 
-            # check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{model.data(model.index(target_row, 66))}'"
+            check_equipments = f"SELECT * FROM fabrication.equipments WHERE code_equipment = '{model.data(model.index(target_row, 66))}'"
 
-            # conn = None
-            # try:
-            # # read the connection parameters
-            #     params = config()
-            # # connect to the PostgreSQL server
-            #     conn = psycopg2.connect(**params)
-            #     cur = conn.cursor()
-            # # execution of commands
-            #     cur.execute(check_equipments)
-            #     results=cur.fetchall()
-            #     if len(results) == 0:
-            #         cur.execute(commands_equipments)
-            #     else:
-            #         set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_equipments.split(", ")[1:], values_equipments.split(", ")[1:])])
-            #         update_equipments = f"UPDATE fabrication.equipments SET {set_clause} WHERE code_equipment = '{model.data(model.index(target_row, 66))}'"
-            #         cur.execute(update_equipments)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(check_equipments)
+                results=cur.fetchall()
+                if len(results) == 0:
+                    cur.execute(commands_equipments)
+                else:
+                    set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_equipments.split(", ")[1:], values_equipments.split(", ")[1:])])
+                    update_equipments = f"UPDATE fabrication.equipments SET {set_clause} WHERE code_equipment = '{model.data(model.index(target_row, 66))}'"
+                    cur.execute(update_equipments)
 
-            #     for list_part in all_list_parts:
-            #         check_parts = f"SELECT * FROM fabrication.parts WHERE code_part = '{list_part[0][0]}'"
-            #         cur.execute(check_parts)
-            #         results=cur.fetchall()
-            #         if len(results) == 0:
-            #             list_part_modified = list_part[0].copy()
-            #             list_part_modified[-1] = 'N-Niveles'
-            #             values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
-            #             commands_parts = f"INSERT INTO fabrication.parts ({columns_parts}) VALUES ({values_parts})"
-            #             cur.execute(commands_parts)
-            #         else:
-            #             list_part_modified = list_part[0].copy()
-            #             list_part_modified[-1] = 'N-Niveles'
-            #             values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
-            #             set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_parts.split(", ")[1:], values_parts.split(", ")[1:])])
-            #             update_parts = f"UPDATE fabrication.parts SET {set_clause} WHERE code_part = '{list_part[0][0]}'"
-            #             cur.execute(update_parts)
+                for list_part in all_list_parts:
+                    check_parts = f"SELECT * FROM fabrication.parts WHERE code_part = '{list_part[0][0]}'"
+                    cur.execute(check_parts)
+                    results=cur.fetchall()
+                    if len(results) == 0:
+                        list_part_modified = list_part[0].copy()
+                        list_part_modified[-1] = 'N-Niveles'
+                        values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
+                        commands_parts = f"INSERT INTO fabrication.parts ({columns_parts}) VALUES ({values_parts})"
+                        cur.execute(commands_parts)
+                    else:
+                        list_part_modified = list_part[0].copy()
+                        list_part_modified[-1] = 'N-Niveles'
+                        values_parts = ", ".join('NULL' if value == '' else (str(value) if isinstance(value, (int, float)) else f"'{str(value)}'") for value in list_part_modified)
+                        set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns_parts.split(", ")[1:], values_parts.split(", ")[1:])])
+                        update_parts = f"UPDATE fabrication.parts SET {set_clause} WHERE code_part = '{list_part[0][0]}'"
+                        cur.execute(update_parts)
 
-            #     cur.execute(commands_tags)
-            # # close communication with the PostgreSQL database server
-            #     cur.close()
-            # # commit the changes
-            #     conn.commit()
-            # except (Exception, psycopg2.DatabaseError) as error:
-            #     dlg = QtWidgets.QMessageBox()
-            #     new_icon = QtGui.QIcon()
-            #     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            #     dlg.setWindowIcon(new_icon)
-            #     dlg.setWindowTitle("ERP EIPSA")
-            #     dlg.setText("Ha ocurrido el siguiente error:\n"
-            #                 + str(error))
-            #     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            #     dlg.exec()
-            #     del dlg, new_icon
-            # finally:
-            #     if conn is not None:
-            #         conn.close()
+                cur.execute(commands_tags)
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
 # Turn all lists in dataframe and grouped in order to sum same items
     data_lists = [
@@ -1360,3 +1361,10 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
             conn.close()
     excel_mat_order = material_order(df_combined,numorder_pedmat,client,variable,num_ot)
     excel_mat_order.save_excel()
+
+
+def get_number_before_mm(text):
+    match = re.search(r'(\d+)\s*mm', text)
+    if match:
+        return int(match.group(1))
+    return None
