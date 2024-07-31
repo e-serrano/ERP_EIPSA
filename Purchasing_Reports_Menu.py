@@ -500,8 +500,8 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
                 pdf.cell(2, 0.5, str(df_client.iloc[row, 4]), align="C")
                 pdf.cell(1.5, 0.5, str(df_client.iloc[row, 5]), align="C")
                 pdf.cell(1.5, 0.5, str(df_client.iloc[row, 6]), align='C')
-                pdf.cell(2, 0.5, str(df_client.iloc[row, 7]), align="C")
-                pdf.cell(2, 0.5, str(df_client.iloc[row, 8]), align="C")
+                pdf.cell(2, 0.5, str(self.format_value(df_client.iloc[row, 7])), align="C")
+                pdf.cell(2, 0.5, str(self.format_value(df_client.iloc[row, 8])), align="C")
                 pdf.ln(0.75)
 
             pdf.cell(16, 0.5, "Total Pendiente:", align="R")
@@ -587,17 +587,17 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
 
 
     def format_value(self, number):
-        values = number.replace("€", "").split()
+        # values = number.replace("€", "").split()
 
         total_euro = 0
 
-        for value in values:
-            value=value.replace(".","")
-            value=value.replace(",",".")
-            decimal = float(value)
-            total_euro += decimal
+        # for value in values:
+        # value=number.replace(".","")
+        # value=value.replace(",",".")
+        # decimal = float(value)
+        # total_euro += decimal
 
-        formatted_number = '{:,.2f}'.format(total_euro)
+        formatted_number = '{:,.2f}'.format(number)
 
         # Reemplazar el punto decimal por coma
         formatted_number = formatted_number.replace('.', ':')

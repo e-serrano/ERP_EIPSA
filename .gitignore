@@ -11,6 +11,10 @@ Resources/
 
 .env
 
+icon.ico
+
+setup.ico
+
 MoneyChange.py
 
 PDF_Styles.py
@@ -19,9 +23,7 @@ Email_Styles.py
 
 Database_Connection.py
 
-icon.ico
-
-setup.ico
+UpdateTableExist_Window.py
 
 import_tables.py
 

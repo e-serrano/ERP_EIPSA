@@ -322,7 +322,7 @@ class Ui_ReportPurRefDate_Window(object):
 
     def retranslateUi(self, ReportPurRefDate_Window):
         _translate = QtCore.QCoreApplication.translate
-        ReportPurRefDate_Window.setWindowTitle(_translate("ReportPurRefDate_Window", "Resumen Cliente"))
+        ReportPurRefDate_Window.setWindowTitle(_translate("ReportPurRefDate_Window", "Compra Artículos"))
         item = self.tableWidget.horizontalHeaderItem(0)
         item.setText(_translate("ReportPurRefDate_Window", "Nombre"))
         item = self.tableWidget.horizontalHeaderItem(1)

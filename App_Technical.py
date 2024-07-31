@@ -1,4 +1,4 @@
-#♥ Form implementation generated from reading ui file 'App_Technical.ui'
+# Form implementation generated from reading ui file 'App_Technical.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -1664,14 +1664,10 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to open window for order query
     def query_order(self):
-        self.query_order_window=QtWidgets.QMainWindow()
-        if self.name in ['Jesús Martínez']:
+        if self.name not in ['Jesús Martínez']:
             from OrderQuery_Window import Ui_QueryOrder_Window
-            self.ui=Ui_QueryOrder_Window()
-        else:
-            from OrderQueryTechnical_Window import Ui_QueryOrderTechnical_Window
-            self.ui=Ui_QueryOrderTechnical_Window()
-        self.ui.setupUi(self.query_order_window)
+            self.query_order_window=Ui_QueryOrder_Window('Técnico')
+
         self.query_order_window.show()
 
 # Function to open window for tag edition

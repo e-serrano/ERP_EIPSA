@@ -11,6 +11,8 @@ from PyQt6.QtCore import Qt
 import psycopg2
 import sys
 from config import config
+import configparser
+from Database_Connection import createConnection, createConnection_name
 from datetime import *
 import os
 
@@ -501,11 +503,20 @@ class Ui_App_Manager(object):
 
 
     def query_tag(self):
-        from TAGQuery_Window import Ui_QueryTags_Window
-        self.querytag_window=QtWidgets.QMainWindow()
-        self.ui=Ui_QueryTags_Window('Comercial')
-        self.ui.setupUi(self.querytag_window)
-        self.querytag_window.show()
+        from TAGEdit_Workshop_Window import Ui_EditTags_Workshop_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_tags_tech = createConnection(user_database, password_database)
+        if not db_tags_tech:
+            sys.exit()
+
+        self.edit_tags_app = Ui_EditTags_Workshop_Window(self.name, db_tags_tech)
+        self.edit_tags_app.show()
 
 
     def query_documents(self):

@@ -187,13 +187,13 @@ class Ui_OTFabOrder_Window(object):
         # execution of commands
             cur.execute(commands_numot)
             results=cur.fetchall()
-            num_ot=results[-1][0]
+            self.num_ot=results[-1][0]
 
             excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
             workbook = load_workbook(excel_file_path)
             worksheet = workbook.active
-            num_ot = worksheet['B2'].value
-            num_ot = '{:06}'.format(int(num_ot) + 1)
+            self.num_ot = worksheet['B2'].value
+            self.num_ot = '{:06}'.format(int(self.num_ot) + 1)
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
@@ -213,7 +213,7 @@ class Ui_OTFabOrder_Window(object):
             if conn is not None:
                 conn.close()
 
-        it = QtWidgets.QTableWidgetItem(str(num_ot))
+        it = QtWidgets.QTableWidgetItem(str(self.num_ot))
         it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
         self.tableOT.setItem(0, 4, it)
         it = QtWidgets.QTableWidgetItem(str(date.today().strftime("%d/%m/%Y")))
@@ -222,20 +222,17 @@ class Ui_OTFabOrder_Window(object):
 
         for i in range(1,self.tableOT.rowCount()):
             if self.tableOT.item(i, 2).text() == self.tableOT.item(i - 1, 2).text():
-                it = QtWidgets.QTableWidgetItem(str(num_ot))
+                it = QtWidgets.QTableWidgetItem(str(self.num_ot))
                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                 self.tableOT.setItem(i, 4, it)
             else:
-                num_ot = '{:06}'.format(int(num_ot) + 1)
-                it = QtWidgets.QTableWidgetItem(str(num_ot))
+                self.num_ot = '{:06}'.format(int(self.num_ot) + 1)
+                it = QtWidgets.QTableWidgetItem(str(self.num_ot))
                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                 self.tableOT.setItem(i, 4, it)
             it = QtWidgets.QTableWidgetItem(str(date.today().strftime("%d/%m/%Y")))
             it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
             self.tableOT.setItem(i, 5, it)
-
-        worksheet['B2'].value = num_ot
-        workbook.save(excel_file_path)
 
         data_elements = []
         for row in range(self.tableOT.rowCount()):
@@ -511,6 +508,12 @@ class Ui_OTFabOrder_Window(object):
                 cell.style = otnum_style
 
             wb.save(output_path)
+
+            excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+            workbook = load_workbook(excel_file_path)
+            worksheet = workbook.active
+            worksheet['B2'].value = self.num_ot
+            workbook.save(excel_file_path)
 
 
         # pdf = fab_order()

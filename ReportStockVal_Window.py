@@ -189,7 +189,7 @@ class Ui_StockVal_Window(object):
 
     def retranslateUi(self, ReportStockVal):
         _translate = QtCore.QCoreApplication.translate
-        ReportStockVal.setWindowTitle(_translate("ReportStockVal", "Resumen Cliente"))
+        ReportStockVal.setWindowTitle(_translate("ReportStockVal", "Valoración de Stock"))
         item = self.tableWidget.horizontalHeaderItem(0)
         item.setText(_translate("ReportStockVal", "Referencia"))
         item = self.tableWidget.horizontalHeaderItem(1)

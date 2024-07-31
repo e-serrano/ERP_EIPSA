@@ -365,8 +365,9 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 
 class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, rol_app = None):
         super().__init__()
+        self.rol_app = rol_app
         self.setupUi(self)
 
     def setupUi(self, QueryOrder_Window):
@@ -675,6 +676,10 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
             # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(17,QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableQueryOrder.horizontalHeader().setMinimumSectionSize(120)
 
+            if self.rol_app == 'Técnico':
+                self.tableQueryOrder.hideColumn(14)
+                self.tableQueryOrder.hideColumn(15)
+
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
@@ -800,6 +805,10 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
                 # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(10,QtWidgets.QHeaderView.ResizeMode.Interactive)
                 # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(17,QtWidgets.QHeaderView.ResizeMode.Interactive)
                 self.tableQueryOrder.horizontalHeader().setMinimumSectionSize(120)
+
+                if self.rol_app == 'Técnico':
+                    self.tableQueryOrder.hideColumn(14)
+                    self.tableQueryOrder.hideColumn(15)
 
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -974,9 +983,9 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
         self.tableQueryOrder.show_unique_values_menu(logical_index, popup_pos, header_height)
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    QueryOrder_Window = Ui_QueryOrder_Window()
-    QueryOrder_Window.show()
-    sys.exit(app.exec())
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     QueryOrder_Window = Ui_QueryOrder_Window('Técnico')
+#     QueryOrder_Window.show()
+#     sys.exit(app.exec())

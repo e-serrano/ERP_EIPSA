@@ -15,7 +15,6 @@ from config import config
 import psycopg2
 from Database_Connection import createConnection, createConnection_name
 import sys
-import uuid
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 

@@ -567,7 +567,7 @@ class Ui_App_Purchasing(object):
 # Function to show menu when profile button is pressed
     def showMenu(self):
         menu = QMenu(self.centralwidget)
-        menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; font: 10px}"
+        menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; font: 10px; color: white}"
         "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
         option1 = menu.addAction("Editar contraseña")
         option1.triggered.connect(lambda: self.editpassword())

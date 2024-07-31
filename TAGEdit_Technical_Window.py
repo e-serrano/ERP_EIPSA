@@ -325,48 +325,6 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         self.Numorder_EditTags.setFont(font)
         self.Numorder_EditTags.setObjectName("Numorder_EditTags")
         self.hLayout1.addWidget(self.Numorder_EditTags)
-        self.Button_Clean = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Clean.setMinimumSize(QtCore.QSize(150, 35))
-        self.Button_Clean.setMaximumSize(QtCore.QSize(150, 35))
-        self.Button_Clean.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.Button_Clean.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 8px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:focus {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255)\n"
-"}\n"
-"\n"
-"QPushButton:focus:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
-        self.Button_Clean.setObjectName("Button_Clean")
         self.gridLayout_2.addLayout(self.hLayout1, 1, 0, 1, 1)
         self.Button_Query = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Query.setMinimumSize(QtCore.QSize(150, 35))
@@ -411,7 +369,6 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 "}")
         self.Button_Query.setObjectName("Button_Query")
         self.hLayout1.addWidget(self.Button_Query)
-        self.hLayout1.addWidget(self.Button_Clean)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 3, 0, 1, 1)
         self.tableEditTags=QtWidgets.QTableView(parent=self.frame)
@@ -461,7 +418,6 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
         self.retranslateUi(EditTags_Window)
         QtCore.QMetaObject.connectSlotsByName(EditTags_Window)
-        self.Button_Clean.clicked.connect(self.clean_boxes)
         self.Button_Query.clicked.connect(self.query_tags)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolShow.clicked.connect(self.show_columns)
@@ -605,7 +561,6 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         self.tableEditTags.setSortingEnabled(True)
         self.Button_Query.setText(_translate("EditTags_Window", "Buscar"))
         self.label_NumOrder.setText(_translate("EditTags_Window", "Nº Pedido:"))
-        self.Button_Clean.setText(_translate("EditTags_Window", "Vaciar Cuadros"))
 
 # Function to clear the text boxes
     def clean_boxes(self):
