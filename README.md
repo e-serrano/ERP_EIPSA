@@ -47,7 +47,7 @@ En cuanto a la aplicación, las principales librerías que se han usado son:
 
 En el siguiente enlace se puede ver un diagrama de la aplicación:
 
-https://miro.com/welcomeonboard/SUc4bVpSa2lMTEt5ZGNPVkJJRU5FSGY1Sjd1WXZ6b2k4MTFnYnlLajVXemgwcHFRcUdGYVlEcXN3ZGdHNFpLT3wzNDU4NzY0NTkxOTgxNTk5NjQ5fDI=?share_link_id=140514251492
+https://miro.com/app/board/uXjVKtByFCY=/?share_link_id=989377658782
   
   
   
