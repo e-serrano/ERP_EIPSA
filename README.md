@@ -38,29 +38,29 @@ Options used:
 * --icon: Apply the icon to a Windows executable. Icon should be .ico format
 
 ## Built With 🛠️
-![Python](https://img.shields.io/badge/python-14354C?style=for-the-badge&logo=python&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
+![Python 3.11](https://img.shields.io/badge/python-14354C?style=for-the-badge&logo=python&logoColor=white)
+![PostgreSQL 15](https://img.shields.io/badge/PostgreSQL-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Visual Studio Code](https://img.shields.io/badge/Visual_Studio_Code-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white)
 
 ### Libraries
-* PyQt6: For the application interface.
-* Tkinter: For popup messages or dialog boxes.
-* Pandas: For data management and results display.
-* Psycopg2: For database connection and queries.  
-* Matplotlib: For graph generation.
-* Configparser: For reading the .ini file created during the installation process.
+* PyQt6 (version 6.6.1): For the application interface.
+* Tkinter (version 0.1.0): For popup messages or dialog boxes.
+* Pandas (version 2.2.1): For data management and results display.
+* Psycopg2 (version 2.9.9): For database connection and queries.  
+* Matplotlib (version 3.7.1): For graph generation.
+* Configparser (version 5.3.0): For reading the .ini file created during the installation process.
 * locale: For setting the regional configuration.
 * os: For operating system dependent functionalities.
 * re: For regular expressions matching operations.
 * datetime: For date and time manipulation.
 * hashlib: For password encryption.
-* openpyxl: For Excel file creation and modification.
-* docxtpl: For Word file creation and modification.
-* PyFPDF: For creation and modification of PDF files.
+* openpyxl (version 3.1.2): For Excel file creation and modification.
+* docxtpl (version 0.16.7): For Word file creation and modification.
+* PyFPDF (version 2.7.5): For creation and modification of PDF files.
 * smtplib: For sending mails.
 * win32api: For Windows processes manipulation.
-* psutil: For information retrieval and process manipulation.
-* pyinstaller: For creating .exe file
+* psutil (version 5.9.5): For information retrieval and process manipulation.
+* pyinstaller (version 5.13.0): For creating .exe file
 
 
   
