@@ -7,7 +7,7 @@ dist/
 UI_Files/
 *.ui
 
-Resources/
+Manuals/
 
 .env
 
