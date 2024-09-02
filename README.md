@@ -16,7 +16,8 @@ This application is a Windows desktop application for a particular industrial co
 This application allows the unification and organization of all areas, that is, to be a system that allows the traceability of all processes and, therefore, leads to the planning and optimization of resources. 
 <br><br>
 Data is storaged in a database hosted on a local server. This database is managed with PostgreSQL. The database diagram can be seen in the following pdf: 
-[Database Diagram](https://github.com/user-attachments/files/16575592/ESQUEMA.BASE.DE.DATOS.pdf)
+[Database Diagram](https://github.com/user-attachments/files/16833497/ESQUEMA.BASE.DE.DATOS.pdf)
+
 <br><br>
 Since the user system is role-based, each user has access to a specific part of the application, which means that they only have access to certain functionalities specific to their position. A diagram of the application for each type of role can be seen here:
 [Application diagram](https://miro.com/app/board/uXjVKtByFCY=/?share_link_id=989377658782)
