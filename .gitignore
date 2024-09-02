@@ -4,9 +4,6 @@ dist/
 *.spec
 *.pyc
 
-UI_Files/
-*.ui
-
 Manuals/
 *.pdf
 

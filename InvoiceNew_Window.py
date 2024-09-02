@@ -3957,10 +3957,22 @@ class Ui_InvoiceNew_Window(object):
             conn.commit()
 
             # self.AgInterm.setText(results_clientsdata[0][0])
-            self.label_ClientGroup.setText(results_clientsdata[0][1])
-            self.IVACL_Invoice.setText(results_clientsdata[0][2] if results_clientsdata[0][2] not in ['COM', 'EXENTO', 'EXP'] else '0')
-            self.AditData3_Invoice.setText(results_clientsdata[0][3])
-            self.AditData4_Invoice.setText(results_clientsdata[0][4])
+            if len(results_clientsdata) != 0:
+                self.label_ClientGroup.setText(results_clientsdata[0][1])
+                self.IVACL_Invoice.setText(results_clientsdata[0][2] if results_clientsdata[0][2] not in ['COM', 'EXENTO', 'EXP'] else '0')
+                self.AditData3_Invoice.setText(results_clientsdata[0][3])
+                self.AditData4_Invoice.setText(results_clientsdata[0][4])
+            else:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Este cliente no tiene un banco asignado\n"
+                            + "Los datos correspondientes no se cargarán")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg, new_icon
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()

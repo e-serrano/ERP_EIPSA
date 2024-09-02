@@ -1408,7 +1408,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Clients_Window = QtWidgets.QMainWindow()
-    ui = Ui_Clients_Window('Daniel Márquez')
+    ui = Ui_Clients_Window('Daniel Márquez','d.marquez')
     ui.setupUi(Clients_Window)
     Clients_Window.showMaximized()
     sys.exit(app.exec())
