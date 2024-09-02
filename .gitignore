@@ -8,6 +8,7 @@ UI_Files/
 *.ui
 
 Manuals/
+*.pdf
 
 .env
 

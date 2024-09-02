@@ -1,14 +1,8 @@
 import psycopg2
-import configparser
+from config import config
 
 def delete_user_database(email):
-    params = {
-        "host": '10.1.20.252',
-        "port": 5432,
-        "database": 'ERP_EIPSA',
-        "user": 'postgres',
-        "password": 'EIPS@0545$@!'
-    }
+    params = config()
     conn = psycopg2.connect(**params)
     cur = conn.cursor()
 
