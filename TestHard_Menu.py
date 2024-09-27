@@ -15,10 +15,25 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_TestHard_Menu(object):
+    """
+    UI class for the Hard Test Menu window.
+    """
     def __init__(self, username):
+        """
+        Initializes the Ui_TestHard_Menu with the specified username.
+
+        Args:
+            username (str): username associated with the window.
+        """
         self.username=username
 
     def setupUi(self, TestHard_Menu):
+        """
+        Sets up the user interface for the TestHard_Menu.
+
+        Args:
+            TestHard_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         TestHard_Menu.setObjectName("TestHard_Menu")
         TestHard_Menu.resize(300, 336)
         TestHard_Menu.setMinimumSize(QtCore.QSize(300, 300))
@@ -162,7 +177,11 @@ class Ui_TestHard_Menu(object):
         QtCore.QMetaObject.connectSlotsByName(TestHard_Menu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, TestHard_Menu):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         TestHard_Menu.setWindowTitle(_translate("TestHard_Menu", "Prueba Dureza"))
         self.Button_Query.setText(_translate("TestHard_Menu", "Consultar"))
@@ -171,12 +190,24 @@ class Ui_TestHard_Menu(object):
 
 
     def insert_Hard(self,TestHard_Menu):
+        """
+        Opens the 'insert_Hard' window and closes the current menu. Sets up the UI for the user.
+        
+        Args:
+            TestHard_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.Hardinsert_window=Ui_TestHardInsert_Window(self.username)
         self.Hardinsert_window.show()
         TestHard_Menu.close()
 
 
     def query_Hard(self,TestHard_Menu):
+        """
+        Opens the 'insert_Hard' window and closes the current menu. Sets up the UI for the user.
+        
+        Args:
+            TestHard_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.Hardquery_window=QtWidgets.QMainWindow()
         self.ui=Ui_TestHardQuery_Window(self.username)
         self.ui.setupUi(self.Hardquery_window)

@@ -15,7 +15,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_CreateTAGTemp_Window(object):
+    """
+    UI class for the Create Tag Flow window.
+    """
     def setupUi(self, CreateTAGTemp_Window):
+        """
+        Sets up the user interface for the CreateTAGTemp_Window.
+
+        Args:
+            CreateTAGTemp_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         CreateTAGTemp_Window.setObjectName("CreateTAGTemp_Window")
         CreateTAGTemp_Window.resize(1168, 610)
         CreateTAGTemp_Window.setMinimumSize(QtCore.QSize(1200, 665))
@@ -836,7 +845,11 @@ class Ui_CreateTAGTemp_Window(object):
         QtCore.QMetaObject.connectSlotsByName(CreateTAGTemp_Window)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, CreateTAGTemp_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         CreateTAGTemp_Window.setWindowTitle(_translate("CreateTAGTemp_Window", "Crear TAG Temperatura"))
         self.label_TAG.setText(_translate("CreateTAGTemp_Window", "*TAG:"))
@@ -879,6 +892,9 @@ class Ui_CreateTAGTemp_Window(object):
 
 
     def createtagT(self):
+        """
+        Creates a new temperature TAG entry after validating form inputs.
+        """
         tag=self.TAG_CreatetagT.text()
         tag_state='QUOTED'
         numoffer=self.NumOffer_CreatetagT.text()
@@ -981,6 +997,12 @@ class Ui_CreateTAGTemp_Window(object):
 
 
     def queryoffernumber(self):
+        """
+        Queries the database to retrieve offer and PO numbers associated with a given order number.
+
+        Raises:
+            psycopg2.DatabaseError: If a database error occurs during the SQL execution.
+        """
         numorder=self.NumOrder_CreatetagT.text()
     #SQL Query for loading existing data in database
         commands_loadofferorder = ("""

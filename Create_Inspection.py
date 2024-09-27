@@ -7,6 +7,18 @@ from datetime import *
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 def inspection(proxy, model, variable):
+    """
+    Updates inspection data for specific tags in the database based on the provided variable.
+
+    Args:
+        proxy (QAbstractProxyModel): The proxy model containing the current data view.
+        model (QAbstractItemModel): The model containing the main data.
+        variable (str): A variable that determines the type of inspection to be performed. It can be one of
+                        the following values:
+                        - 'Caudal'
+                        - 'Temperatura'
+                        - 'Nivel'
+    """
     id_list = []
 
     for row in range(proxy.rowCount()):

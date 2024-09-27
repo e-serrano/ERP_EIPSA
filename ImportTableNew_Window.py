@@ -151,6 +151,7 @@ class Ui_ImportTableNew_Window(object):
         QtCore.QMetaObject.connectSlotsByName(ImportTableNew_Window)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, ImportTableNew_Window):
         _translate = QtCore.QCoreApplication.translate
         ImportTableNew_Window.setWindowTitle(_translate("ImportTableNew_Window", "Importar Tabla Nueva"))

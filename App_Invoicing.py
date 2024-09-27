@@ -31,41 +31,56 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 ZOOM_MULTIPLIER = math.sqrt(2.0)
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
-
-class ImageCalendarWidget(QtWidgets.QCalendarWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.task_dates = []
-
-    def set_task_dates(self, dates):
-        self.task_dates = dates
-        self.updateCells()
-
-    def paintCell(self, painter, rect, date):
-        QtWidgets.QCalendarWidget.paintCell(self, painter, rect, date)
-
-        if date in self.task_dates:
-            image_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Flag.png"))
-            image = QtGui.QImage(image_path)
-            if not image.isNull():
-                image_scaled = image.scaled(rect.width() // 4, rect.height() // 4, QtCore.Qt.AspectRatioMode.KeepAspectRatio, QtCore.Qt.TransformationMode.SmoothTransformation)
-                image_rect = image_scaled.rect()
-                image_rect.moveTopRight(rect.topRight() - QtCore.QPoint(2, -5))
-                painter.drawImage(image_rect, image_scaled)
-
-
 class Ui_App_Invoicing(object):
+    """
+    Ui_App_Invoicing represents the invoicing application interface.
+
+    Attributes:
+        name (str): The name of the application or user.
+        username (str): The username of the logged-in user.
+        pdf_viewer (PDF_Viewer): An instance of the PDF_Viewer class used to display PDFs.
+    """
     def __init__(self, name, username):
+        """
+        Initializes the Ui_App_Invoicing object with a user-specific name and username.
+
+        Args:
+            name (str): The name associated with the application or user.
+            username (str): The username of the current user.
+
+        Side Effects:
+            Creates an instance of the PDF_Viewer class for PDF handling.
+        """
         self.name=name
         self.username=username
         self.pdf_viewer = PDF_Viewer()
 
 
     def setupUi(self, App_Invoicing):
+        """
+        Sets up the user interface components for the main application window.
+
+        Args:
+            App_Invoicing (QtWidgets.QMainWindow): The main window object to set up.
+        """
         App_Invoicing.setObjectName("App_Invoicing")
         App_Invoicing.resize(945, 860)
         App_Invoicing.setMinimumSize(QtCore.QSize(945, 860))
@@ -467,66 +482,6 @@ class Ui_App_Invoicing(object):
         self.BottomLayout = QtWidgets.QHBoxLayout()
         self.BottomLayout.setContentsMargins(-1, 0, -1, -1)
         self.BottomLayout.setObjectName("BottomLayout")
-#         self.Calendar = QtWidgets.QCalendarWidget(parent=self.frame)
-#         self.Calendar.setEnabled(True)
-#         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
-#         sizePolicy.setHorizontalStretch(0)
-#         sizePolicy.setVerticalStretch(0)
-#         sizePolicy.setHeightForWidth(self.Calendar.sizePolicy().hasHeightForWidth())
-#         self.Calendar.setSizePolicy(sizePolicy)
-#         self.Calendar.setMinimumSize(QtCore.QSize(int(200), int(400)))
-#         self.Calendar.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
-#         font = QtGui.QFont()
-#         font.setPointSize(int(10))
-#         self.Calendar.setFont(font)
-#         self.Calendar.setStyleSheet("QCalendarWidget QWidget{\n"
-# "background-color: rgb(3, 174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QTableView{\n"
-# "    background-color: white;\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton {\n"
-# "    color: white;\n"
-# "    font-size:15px;\n"
-# "    icon-size:20px 20px;\n"
-# "    background-color:rgb(3, 174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton::hover {\n"
-# "    background-color : #019ad2;\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton::pressed {\n"
-# "    background-color: rgb(1, 140, 190);\n"
-# "    border: 3px solid;\n"
-# "    border-color: rgb(255, 255, 255);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QSpinBox{\n"
-# "    background-color: rgb(255, 255, 255);\n"
-# "    border: 2px solid;\n"
-# "    border-color: rgb(3,174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QAbstractItemView:enabled{\n"
-# "    selection-background-color: rgb(3, 174, 236);\n"
-# "    selection-color: white;\n"
-# "}\n"
-# "\n"
-# "#qt_calendar_prevmonth {\n"
-# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
-# "}\n"
-# "#qt_calendar_nextmonth {\n"
-# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
-# "}")
-#         self.Calendar.setSelectedDate(QtCore.QDate.currentDate())
-#         self.Calendar.setGridVisible(True)
-#         self.Calendar.setNavigationBarVisible(True)
-#         self.Calendar.setDateEditEnabled(True)
-#         self.Calendar.setObjectName("Calendar")
-#         self.BottomLayout.addWidget(self.Calendar)
         self.MainLayout.addLayout(self.BottomLayout)
         self.PrincipalScreen.addLayout(self.MainLayout)
         self.FrameApp.addLayout(self.PrincipalScreen)
@@ -552,7 +507,11 @@ class Ui_App_Invoicing(object):
         self.Button_QueryOrder.clicked.connect(self.query_order)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, App_Invoicing):
+        """
+        Translates and updates the text of various UI elements in the given App_Comercial.
+        """
         _translate = QtCore.QCoreApplication.translate
         App_Invoicing.setWindowTitle(_translate("App_Invoicing", "ERP EIPSA - Facturación"))
         self.HeaderName.setText(_translate("App_Invoicing", self.name))
@@ -562,8 +521,11 @@ class Ui_App_Invoicing(object):
         self.Button_Clients.setText(_translate("App_Invoicing", "    Clientes"))
         self.Button_QueryOrder.setText(_translate("App_Invoicing", "   Consultar Pedidos"))
 
-
+# Function to open window to send documents
     def send_documents(self):
+        """
+        Opens the Invoice Send Menu window, which allows users to send documents.
+        """
         from InvoiceSend_Menu import Ui_InvoiceSend_Menu
         self.send_invoice_menu=QtWidgets.QMainWindow()
         self.ui=Ui_InvoiceSend_Menu()
@@ -572,14 +534,29 @@ class Ui_App_Invoicing(object):
 
 # Function to open window for new invoices
     def invoice(self):
+        """
+        Opens the New Invoice window, where users can create new invoices.
+        """
         from InvoiceNew_Window import Ui_InvoiceNew_Window
-        self.invoice_window=QtWidgets.QMainWindow()
-        self.ui=Ui_InvoiceNew_Window()
-        self.ui.setupUi(self.invoice_window)
-        self.invoice_window.showMaximized()
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_tags_invoices = createConnection(user_database, password_database)
+        if not db_tags_invoices:
+            sys.exit()
+
+        self.invoices_app = Ui_InvoiceNew_Window(db_tags_invoices, self.username)
+        self.invoices_app.show()
 
 # Function to open window for query all invoices
     def query_invoice(self):
+        """
+        Opens the Invoice Query window, allowing users to view all invoices.
+        """
         from InvoiceQuery_Window import Ui_QueryInvoice_Window
         self.query_invoice_window=QtWidgets.QMainWindow()
         self.ui=Ui_QueryInvoice_Window()
@@ -588,6 +565,9 @@ class Ui_App_Invoicing(object):
 
 # Function to open window for query expending invoices
     def query_expiring_invoice(self):
+        """
+        Opens the Expiring Invoice Query window, allowing users to view invoices that are nearing expiration.
+        """
         from InvoiceExpiration_Window import Ui_ExpiringInvoice_Window
         self.query_expiring_invoice_window=QtWidgets.QMainWindow()
         self.ui=Ui_ExpiringInvoice_Window()
@@ -596,6 +576,9 @@ class Ui_App_Invoicing(object):
 
 # Function to open window for query transactions
     def query_transactions(self):
+        """
+        Opens the Transactions Query window, allowing users to view invoice-related transactions.
+        """
         from InvoiceTransactions_Window import Ui_TransactionsInvoice_Window
         self.query_transactions_window=QtWidgets.QMainWindow()
         self.ui=Ui_TransactionsInvoice_Window()
@@ -604,6 +587,9 @@ class Ui_App_Invoicing(object):
 
 # Function to open window for manage banks
     def banks(self):
+        """
+        Opens the Banks Management window, allowing users to manage bank information.
+        """
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
@@ -620,6 +606,9 @@ class Ui_App_Invoicing(object):
 
 # Function to open window for manage payway
     def payway(self):
+        """
+        Opens the Payway Management window, allowing users to manage payment methods.
+        """
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
@@ -636,6 +625,9 @@ class Ui_App_Invoicing(object):
 
 # Function to open window for manage countries
     def countries(self):
+        """
+        Opens the Countries Management window, allowing users to manage country information.
+        """
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
@@ -652,6 +644,9 @@ class Ui_App_Invoicing(object):
 
 # Function to open window for manage clients
     def clients(self):
+        """
+        Opens the Clients Management window, allowing users to manage client information.
+        """
         self.clients_window=QtWidgets.QMainWindow()
         self.ui=Ui_Clients_Window(self.name, self.username)
         self.ui.setupUi(self.clients_window)
@@ -659,6 +654,10 @@ class Ui_App_Invoicing(object):
 
 # Function to query pending invoices
     def pending_invoice(self):
+        """
+        Opens a dialog to input a date range and retrieves pending invoices from the database within that range.
+        The results are processed and displayed in a DataFrame.
+        """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -808,6 +807,10 @@ class Ui_App_Invoicing(object):
 
 # Function to query intermediate agent liquidation
     def ag_int_liq(self):
+        """
+        Opens a dialog to input a date range and retrieves agent transactions from the database within that range.
+        The results are processed and displayed in a DataFrame.
+        """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -910,6 +913,10 @@ class Ui_App_Invoicing(object):
 
 # Function to open the context menu when profile picture is clicked
     def showMenu(self):
+        """
+        Displays a context menu when the profile button is clicked. 
+        Provides options to edit the password.
+        """
         menu = QMenu(self.centralwidget)
         menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; }"
         "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
@@ -921,6 +928,9 @@ class Ui_App_Invoicing(object):
 
 # Function to open window for editing password
     def editpassword(self):
+        """
+        Opens a new window for editing the user's password. 
+        """
         self.edit_password_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditPasswordWindow(self.username)
         self.ui.setupUi(self.edit_password_window)
@@ -928,6 +938,12 @@ class Ui_App_Invoicing(object):
 
 # Function to generate pdf for pending invoices
     def generate_pending_invoices_pdf(self, df):
+        """
+        Generates a PDF report of pending invoices for clients.
+
+        Args:
+            df (DataFrame): A DataFrame containing client data and invoice details.
+        """
         list_clients = df['code'].unique().tolist()
 
         pdf = pending_invoices()
@@ -995,6 +1011,12 @@ class Ui_App_Invoicing(object):
 
 # Function to generate pdf for pending invoices
     def generate_ag_int_pdf(self, df):
+        """
+        Generates a PDF report of agent intermediary (AG) states and their invoices.
+
+        Args:
+            df (DataFrame): A DataFrame containing agent and invoice information.
+        """
         list_ag = df['agint'].unique().tolist()
 
         pdf = ag_int_liquid()
@@ -1130,6 +1152,15 @@ class Ui_App_Invoicing(object):
 
 # Function to format amount values
     def format_number(self, number):
+        """
+        Formats a number as a string with two decimal places and a euro symbol.
+
+        Args:
+            number (float): The number to format.
+            
+        Returns:
+            str: The formatted number as a string with the euro symbol.
+        """
     # Convertir el número a una cadena con el formato deseado
         formatted_number = '{:,.2f}'.format(number)
 
@@ -1145,6 +1176,15 @@ class Ui_App_Invoicing(object):
 
 # Function to format date to long in spanish
     def format_date_spanish(self, date_toformat):
+        """
+        Formats a date object to a long string in Spanish.
+
+        Args:
+            date_toformat (date): The date to format.
+            
+        Returns:
+            str: The formatted date as a string in the format "day de month de year".
+        """
         months = ("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre")
         day = date_toformat.day
         month = months[date_toformat.month - 1]
@@ -1155,6 +1195,9 @@ class Ui_App_Invoicing(object):
 
 # Function to open window for tag edition
     def edit_tag(self):
+        """
+        Opens a window for editing tags in the facturation system.
+        """
         from TAGEdit_Facturation_Window import Ui_EditTags_Facturation_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -1172,6 +1215,9 @@ class Ui_App_Invoicing(object):
 
 # Function to open window to query orders
     def query_order(self):
+        """
+        Opens a window for querying orders.
+        """
         from OrderQuery_Window import Ui_QueryOrder_Window
         self.query_order_window=Ui_QueryOrder_Window()
         self.query_order_window.show()

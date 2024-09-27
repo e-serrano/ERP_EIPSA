@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'VerifSupplierInsert_Window.ui'
+# Form implementation generated from reading ui file 'VerifPiecesInsert_Window.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -24,24 +24,23 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
 
     """
-    def initStyleOption(self, option, index):
+    def __init__(self, parent=None):
         """
-        Initializes the style option for the item, setting its display alignment to center.
+        Initializes the custom delegate, fetching color data from the database..
 
         Args:
-            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
-            index (QtCore.QModelIndex): The model index of the item.
+            parent (QWidget, optional): The parent widget. Defaults to None.
         """
-        super(AlignDelegate, self).initStyleOption(option, index)
-        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
-
-class AlignDelegate_Custom(QtWidgets.QStyledItemDelegate):
-    def __init__(self, column_name, parent=None):
         super().__init__(parent)
         self.colors_dict = self.get_colors_from_database()
-        self.column_name = column_name
 
     def get_colors_from_database(self):
+        """
+        Retrieves color data from a PostgreSQL database and returns a dictionary with state-to-color mappings.
+
+        Returns:
+            dict: A dictionary where the key is the state and the value is a QColor object.
+        """
         colors_dict = {}
 
         conn = None
@@ -74,71 +73,30 @@ class AlignDelegate_Custom(QtWidgets.QStyledItemDelegate):
         return colors_dict
 
     def initStyleOption(self, option, index):
-        super(AlignDelegate_Custom, self).initStyleOption(option, index)
+        super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
+        header_estado = "Estado"
         state_column = -1
 
         table_widget = option.widget
 
         for column in range(table_widget.columnCount()):
             header_item = table_widget.horizontalHeaderItem(column)
-            if header_item and header_item.text() == self.column_name:
+            if header_item and header_item.text() == header_estado:
                 state_column = column
                 break
 
-        if state_column != -1:
+        if index.column() == 2 and state_column != -1:
             state_column_index = index.sibling(index.row(), state_column)
             value = str(state_column_index.data())
 
             if value in self.colors_dict:
                 text_color = self.colors_dict[value]
             else:
-                text_color = QtGui.QColor(0, 0, 0, 0)
+                text_color = QtGui.QColor(255, 255, 255, 0)
 
             option.palette.setBrush(QtGui.QPalette.ColorRole.Text, text_color)
-
-class ColorDelegate(QtWidgets.QStyledItemDelegate):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.colors_dict = self.get_colors_from_database()
-
-    def get_colors_from_database(self):
-        colors_dict = {}
-
-        conn = None
-        try:
-            # read the connection parameters
-            params = config()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            # execution of commands
-            commands_colors = "SELECT id, r_channel, g_channel, b_channel FROM verification.states_verification"
-            cur.execute(commands_colors)
-            results = cur.fetchall()
-
-            for result in results:
-                id_color, red, green, blue = result
-                colors_dict[id_color] = QtGui.QColor(red, green, blue)
-
-            # close communication with the PostgreSQL database server
-            cur.close()
-            # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            # Handle the error appropriately
-            pass
-        finally:
-            if conn is not None:
-                conn.close()
-
-        return colors_dict
-
-    def initStyleOption(self, option, index):
-        super().initStyleOption(option, index)
-        color = self.colors_dict.get(index.row()+1, QtGui.QColor("white"))
-        option.palette.setColor(QtGui.QPalette.ColorGroup.All, QtGui.QPalette.ColorRole.Text, color)
 
 class CustomTableWidget(QtWidgets.QTableWidget):
     """
@@ -529,22 +487,22 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
+class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
     def __init__(self, username):
         super().__init__()
         self.username = username
         self.setupUi(self)
 
-    def setupUi(self, VerifSupplierInsert_Window):
-        VerifSupplierInsert_Window.setObjectName("VerifSupplierInsert_Window")
-        VerifSupplierInsert_Window.resize(400, 561)
-        VerifSupplierInsert_Window.setMinimumSize(QtCore.QSize(1000, 675))
-        # VerifSupplierInsert_Window.setMaximumSize(QtCore.QSize(800, 675))
+    def setupUi(self, VerifPiecesInsert_Window):
+        VerifPiecesInsert_Window.setObjectName("VerifPiecesInsert_Window")
+        VerifPiecesInsert_Window.resize(400, 561)
+        VerifPiecesInsert_Window.setMinimumSize(QtCore.QSize(1000, 675))
+        # VerifPiecesInsert_Window.setMaximumSize(QtCore.QSize(800, 675))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        VerifSupplierInsert_Window.setWindowIcon(icon)
+        VerifPiecesInsert_Window.setWindowIcon(icon)
         if self.username in ['m.gil','j.tena']:
-            VerifSupplierInsert_Window.setStyleSheet("QWidget {\n"
+            VerifPiecesInsert_Window.setStyleSheet("QWidget {\n"
     "background-color: #121212; color: rgb(255, 255, 255)\n"
     "}\n"
     "\n"
@@ -580,7 +538,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
     "    border-color: rgb(255, 255, 255);\n"
     "}")
         else:
-            VerifSupplierInsert_Window.setStyleSheet("QWidget {\n"
+            VerifPiecesInsert_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
 "}\n"
 "\n"
@@ -615,7 +573,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
 "}")
-        self.centralwidget = QtWidgets.QWidget(parent=VerifSupplierInsert_Window)
+        self.centralwidget = QtWidgets.QWidget(parent=VerifPiecesInsert_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -629,9 +587,9 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 1)
         self.tableRecords = CustomTableWidget()
         self.tableRecords.setObjectName("tableWidget")
-        self.tableRecords.setColumnCount(8)
+        self.tableRecords.setColumnCount(10)
         self.tableRecords.setRowCount(0)
-        for i in range (8):
+        for i in range (10):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -671,23 +629,76 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.date.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.date.setObjectName("date")
         self.gridLayout_2.addWidget(self.date, 2, 2, 1, 1)
-        self.label_supplier = QtWidgets.QLabel(parent=self.frame)
-        self.label_supplier.setMinimumSize(QtCore.QSize(105, 25))
-        self.label_supplier.setMaximumSize(QtCore.QSize(105, 25))
+        self.label_quantity = QtWidgets.QLabel(parent=self.frame)
+        self.label_quantity.setMinimumSize(QtCore.QSize(105, 25))
+        self.label_quantity.setMaximumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
-        self.label_supplier.setFont(font)
-        self.label_supplier.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_supplier.setObjectName("label_supplier")
-        self.gridLayout_2.addWidget(self.label_supplier, 2, 3, 1, 1)
-
-        self.Button_AddSupplier = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_AddSupplier.setMinimumSize(QtCore.QSize(30, 25))
-        self.Button_AddSupplier.setMaximumSize(QtCore.QSize(30, 25))
-        self.Button_AddSupplier.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_AddSupplier.setAutoDefault(True)
-        self.Button_AddSupplier.setStyleSheet("QPushButton {\n"
+        self.label_quantity.setFont(font)
+        self.label_quantity.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_quantity.setObjectName("label_quantity")
+        self.gridLayout_2.addWidget(self.label_quantity, 2, 3, 1, 1)
+        self.quantity = QtWidgets.QLineEdit(parent=self.frame)
+        self.quantity.setMinimumSize(QtCore.QSize(105, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.quantity.setFont(font)
+        self.quantity.setObjectName("supplier")
+        self.gridLayout_2.addWidget(self.quantity, 2, 5, 1, 1)
+        self.label_num_ot = QtWidgets.QLabel(parent=self.frame)
+        self.label_num_ot.setMinimumSize(QtCore.QSize(105, 25))
+        self.label_num_ot.setMaximumSize(QtCore.QSize(105, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_num_ot.setFont(font)
+        self.label_num_ot.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_num_ot.setObjectName("label_num_ot")
+        self.gridLayout_2.addWidget(self.label_num_ot, 3, 0, 1, 1)
+        self.num_ot = QtWidgets.QLineEdit(parent=self.frame)
+        self.num_ot.setMinimumSize(QtCore.QSize(105, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.num_ot.setFont(font)
+        self.num_ot.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.num_ot.setObjectName("num_ot")
+        self.gridLayout_2.addWidget(self.num_ot, 3, 2, 1, 1)
+        self.label_notes = QtWidgets.QLabel(parent=self.frame)
+        self.label_notes.setMinimumSize(QtCore.QSize(105, 25))
+        self.label_notes.setMaximumSize(QtCore.QSize(105, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_notes.setFont(font)
+        self.label_notes.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_notes.setObjectName("label_notes")
+        self.gridLayout_2.addWidget(self.label_notes, 3, 3, 1, 1)
+        self.notes = QtWidgets.QTextEdit(parent=self.frame)
+        self.notes.setMinimumSize(QtCore.QSize(105, 25))
+        self.notes.setMaximumSize(QtCore.QSize(16777215, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.notes.setFont(font)
+        self.notes.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.notes.setObjectName("notes")
+        self.gridLayout_2.addWidget(self.notes, 3, 5, 1, 1)
+        self.label_description = QtWidgets.QLabel(parent=self.frame)
+        self.label_description.setMinimumSize(QtCore.QSize(105, 25))
+        self.label_description.setMaximumSize(QtCore.QSize(105, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_description.setFont(font)
+        self.label_description.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_description.setObjectName("label_description")
+        self.gridLayout_2.addWidget(self.label_description, 4, 0, 1, 1)
+        self.Button_AddDescription= QtWidgets.QPushButton(parent=self.frame)
+        self.Button_AddDescription.setMinimumSize(QtCore.QSize(30, 25))
+        self.Button_AddDescription.setMaximumSize(QtCore.QSize(30, 25))
+        self.Button_AddDescription.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_AddDescription.setAutoDefault(True)
+        self.Button_AddDescription.setStyleSheet("QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
 "  border-radius: 3px;\n"
@@ -724,55 +735,36 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
 "}")
-        self.Button_AddSupplier.setObjectName("Button_AcceptFilter")
+        self.Button_AddDescription.setObjectName("Button_AddDescription")
         icon2 = QtGui.QIcon()
         icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Add_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_AddSupplier.setIcon(icon2)
-        self.Button_AddSupplier.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.gridLayout_2.addWidget(self.Button_AddSupplier, 2, 4, 1, 1)
-        self.supplier = QtWidgets.QComboBox(parent=self.frame)
-        self.supplier.setMinimumSize(QtCore.QSize(105, 25))
+        self.Button_AddDescription.setIcon(icon2)
+        self.Button_AddDescription.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.gridLayout_2.addWidget(self.Button_AddDescription, 4, 1, 1, 1)
+        self.description = QtWidgets.QComboBox(parent=self.frame)
+        self.description.setMinimumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.supplier.setFont(font)
-        self.supplier.setObjectName("supplier")
-        self.supplier.setEditable(True)
-        self.gridLayout_2.addWidget(self.supplier, 2, 5, 1, 1)
-        self.label_obs = QtWidgets.QLabel(parent=self.frame)
-        self.label_obs.setMinimumSize(QtCore.QSize(105, 25))
-        self.label_obs.setMaximumSize(QtCore.QSize(105, 25))
+        self.description.setFont(font)
+        self.description.setObjectName("supplier")
+        self.description.setEditable(True)
+        self.gridLayout_2.addWidget(self.description, 4, 2, 1, 1)
+        self.label_image = QtWidgets.QLabel(parent=self.frame)
+        self.label_image.setMinimumSize(QtCore.QSize(105, 25))
+        self.label_image.setMaximumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
-        self.label_obs.setFont(font)
-        self.label_obs.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_obs.setObjectName("label_obs")
-        self.gridLayout_2.addWidget(self.label_obs, 2, 6, 1, 1)
-        self.obs = QtWidgets.QTextEdit(parent=self.frame)
-        self.obs.setMinimumSize(QtCore.QSize(105, 25))
-        self.obs.setMaximumSize(QtCore.QSize(16777215, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.obs.setFont(font)
-        self.obs.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.obs.setObjectName("obs")
-        self.gridLayout_2.addWidget(self.obs, 2, 7, 1, 1)
-        self.label_delivnote = QtWidgets.QLabel(parent=self.frame)
-        self.label_delivnote.setMinimumSize(QtCore.QSize(105, 25))
-        self.label_delivnote.setMaximumSize(QtCore.QSize(105, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_delivnote.setFont(font)
-        self.label_delivnote.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_delivnote.setObjectName("label_delivnote")
-        self.gridLayout_2.addWidget(self.label_delivnote, 3, 0, 1, 1)
-        self.Button_Search = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Search.setMinimumSize(QtCore.QSize(30, 25))
-        self.Button_Search.setMaximumSize(QtCore.QSize(30, 25))
-        self.Button_Search.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_Search.setAutoDefault(True)
-        self.Button_Search.setStyleSheet("QPushButton {\n"
+        self.label_image.setFont(font)
+        self.label_image.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_image.setObjectName("label_image")
+        self.gridLayout_2.addWidget(self.label_image, 4, 3, 1, 1)
+        self.Button_SearchImage = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_SearchImage.setMinimumSize(QtCore.QSize(30, 25))
+        self.Button_SearchImage.setMaximumSize(QtCore.QSize(30, 25))
+        self.Button_SearchImage.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_SearchImage.setAutoDefault(True)
+        self.Button_SearchImage.setStyleSheet("QPushButton {\n"
 "background-color: #33bdef;\n"
 "  border: 1px solid transparent;\n"
 "  border-radius: 3px;\n"
@@ -809,86 +801,131 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 "    background-color: rgb(1, 140, 190);\n"
 "    border-color: rgb(255, 255, 255);\n"
 "}")
-        self.Button_Search.setObjectName("Button_AcceptFilter")
+        self.Button_SearchImage.setObjectName("Button_SearchImage")
         icon1 = QtGui.QIcon()
         icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Search.setIcon(icon1)
-        self.Button_Search.setIconSize(QtCore.QSize(20, 20))
-        self.Button_Search.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.gridLayout_2.addWidget(self.Button_Search, 3, 1, 1, 1)
-        self.delivnote = QtWidgets.QLineEdit(parent=self.frame)
-        self.delivnote.setMinimumSize(QtCore.QSize(105, 25))
+        self.Button_SearchImage.setIcon(icon1)
+        self.Button_SearchImage.setIconSize(QtCore.QSize(20, 20))
+        self.Button_SearchImage.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.gridLayout_2.addWidget(self.Button_SearchImage, 4, 4, 1, 1)
+        self.image = QtWidgets.QLineEdit(parent=self.frame)
+        self.image.setMinimumSize(QtCore.QSize(105, 25))
         # self.delivnote.setMaximumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.delivnote.setFont(font)
-        self.delivnote.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.delivnote.setObjectName("delivnote")
-        self.delivnote.setReadOnly(True)
-        self.gridLayout_2.addWidget(self.delivnote, 3, 2, 1, 1)
+        self.image.setFont(font)
+        self.image.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.image.setObjectName("delivnote")
+        self.image.setReadOnly(True)
+        self.gridLayout_2.addWidget(self.image, 4, 5, 1, 1)
         self.label_material = QtWidgets.QLabel(parent=self.frame)
         self.label_material.setMinimumSize(QtCore.QSize(105, 25))
-        # self.label_material.setMaximumSize(QtCore.QSize(105, 25))
+        self.label_material.setMaximumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
         self.label_material.setFont(font)
         self.label_material.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_material.setObjectName("label_material")
-        self.gridLayout_2.addWidget(self.label_material, 3, 3, 1, 2)
+        self.gridLayout_2.addWidget(self.label_material, 5, 0, 1, 1)
         self.material = QtWidgets.QLineEdit(parent=self.frame)
         self.material.setMinimumSize(QtCore.QSize(105, 25))
-        # self.material.setMaximumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.material.setFont(font)
         self.material.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.material.setObjectName("material")
-        self.gridLayout_2.addWidget(self.material, 3, 5, 1, 1)
-        self.label_state = QtWidgets.QLabel(parent=self.frame)
-        self.label_state.setMinimumSize(QtCore.QSize(105, 25))
-        self.label_state.setMaximumSize(QtCore.QSize(105, 25))
+        self.gridLayout_2.addWidget(self.material, 5, 2, 1, 1)
+        self.label_document = QtWidgets.QLabel(parent=self.frame)
+        self.label_document.setMinimumSize(QtCore.QSize(105, 25))
+        self.label_document.setMaximumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
-        self.label_state.setFont(font)
-        self.label_state.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_state.setObjectName("label_state")
-        self.gridLayout_2.addWidget(self.label_state, 3, 6, 1, 1)
-        self.state = QtWidgets.QComboBox(parent=self.frame)
-        self.state.setMinimumSize(QtCore.QSize(105, 25))
-        # self.state.setMaximumSize(QtCore.QSize(105, 25))
+        self.label_document.setFont(font)
+        self.label_document.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_document.setObjectName("label_document")
+        self.gridLayout_2.addWidget(self.label_document, 5, 3, 1, 1)
+        self.Button_SearchDocument = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_SearchDocument.setMinimumSize(QtCore.QSize(30, 25))
+        self.Button_SearchDocument.setMaximumSize(QtCore.QSize(30, 25))
+        self.Button_SearchDocument.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_SearchDocument.setAutoDefault(True)
+        self.Button_SearchDocument.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 8px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}\n"
+"\n"
+"QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:focus:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        self.Button_SearchDocument.setObjectName("Button_SearchDocument")
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_SearchDocument.setIcon(icon3)
+        self.Button_SearchDocument.setIconSize(QtCore.QSize(20, 20))
+        self.Button_SearchDocument.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.gridLayout_2.addWidget(self.Button_SearchDocument, 5, 4, 1, 1)
+        self.document = QtWidgets.QLineEdit(parent=self.frame)
+        self.document.setMinimumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.state.setFont(font)
-        self.state.setObjectName("state")
-        self.gridLayout_2.addWidget(self.state, 3, 7, 1, 1)
+        self.document.setFont(font)
+        self.document.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.document.setObjectName("document")
+        self.document.setReadOnly(True)
+        self.gridLayout_2.addWidget(self.document, 5, 5, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.gridLayout_2.addItem(spacerItem1, 4, 2, 1, 1)
+        self.gridLayout_2.addItem(spacerItem1, 6, 2, 1, 1)
         self.Button_Insert = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Insert.setMinimumSize(QtCore.QSize(100, 35))
         # self.Button_Insert.setMaximumSize(QtCore.QSize(100, 35))
         self.Button_Insert.setObjectName("Button_Insert")
-        self.gridLayout_2.addWidget(self.Button_Insert, 5, 0, 1, 3)
+        self.gridLayout_2.addWidget(self.Button_Insert, 7, 0, 1, 3)
         self.Button_Edit = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Edit.setMinimumSize(QtCore.QSize(100, 35))
         # self.Button_Edit.setMaximumSize(QtCore.QSize(100, 35))
         self.Button_Edit.setObjectName("Button_Edit")
-        self.gridLayout_2.addWidget(self.Button_Edit, 5, 3, 1, 3)
-        self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Cancel.setMinimumSize(QtCore.QSize(100, 35))
-        # self.Button_Cancel.setMaximumSize(QtCore.QSize(100, 35))
-        self.Button_Cancel.setObjectName("Button_Cancel")
-        self.gridLayout_2.addWidget(self.Button_Cancel, 5, 6, 1, 2)
+        self.gridLayout_2.addWidget(self.Button_Edit, 7, 3, 1, 3)
+
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
-        VerifSupplierInsert_Window.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=VerifSupplierInsert_Window)
+        VerifPiecesInsert_Window.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=VerifPiecesInsert_Window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 400, 22))
         self.menubar.setObjectName("menubar")
-        VerifSupplierInsert_Window.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=VerifSupplierInsert_Window)
+        VerifPiecesInsert_Window.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=VerifPiecesInsert_Window)
         self.statusbar.setObjectName("statusbar")
-        VerifSupplierInsert_Window.setStatusBar(self.statusbar)
+        VerifPiecesInsert_Window.setStatusBar(self.statusbar)
         self.tableRecords.verticalHeader().setVisible(True)
         self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableRecords.setSortingEnabled(False)
@@ -897,57 +934,60 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
         else:
             self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
-        VerifSupplierInsert_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
-        self.retranslateUi(VerifSupplierInsert_Window)
-        QtCore.QMetaObject.connectSlotsByName(VerifSupplierInsert_Window)
+        self.retranslateUi(VerifPiecesInsert_Window)
+        QtCore.QMetaObject.connectSlotsByName(VerifPiecesInsert_Window)
 
-        self.Button_Cancel.clicked.connect(VerifSupplierInsert_Window.close)
         self.Button_Insert.clicked.connect(self.insert)
         self.Button_Edit.clicked.connect(self.edit)
         self.tableRecords.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
         self.tableRecords.itemDoubleClicked.connect(self.item_double_clicked)
         self.tableRecords.itemClicked.connect(self.loadform)
-        self.Button_Search.clicked.connect(self.search_document)
-        self.Button_AddSupplier.clicked.connect(self.add_supplier)
-        self.state.currentTextChanged.connect(self.change_text_color)
+        self.Button_SearchDocument.clicked.connect(self.search_document)
+        self.Button_SearchImage.clicked.connect(self.search_image)
+        self.Button_AddDescription.clicked.connect(self.add_description)
 
         self.load_values()
         self.query_values()
 
 
 # Function to translate and updates the text of various UI elements
-    def retranslateUi(self, VerifSupplierInsert_Window):
+    def retranslateUi(self, VerifPiecesInsert_Window):
         """
         Translates and updates the text of various UI elements.
         """
         _translate = QtCore.QCoreApplication.translate
-        VerifSupplierInsert_Window.setWindowTitle(_translate("VerifSupplierInsert_Window", "Proveedores"))
-        self.label_date.setText(_translate("VerifSupplierInsert_Window", "Fecha:"))
-        self.label_supplier.setText(_translate("VerifSupplierInsert_Window", "Proveedor:"))
-        self.label_obs.setText(_translate("VerifSupplierInsert_Window", "Observaciones:"))
-        self.label_delivnote.setText(_translate("VerifSupplierInsert_Window", "Nº Albarán:"))
-        self.label_material.setText(_translate("VerifSupplierInsert_Window", "Material:"))
-        self.label_state.setText(_translate("VerifSupplierInsert_Window", "Estado:"))
-        self.Button_Cancel.setText(_translate("VerifSupplierInsert_Window", "Cancelar"))
-        self.Button_Insert.setText(_translate("VerifSupplierInsert_Window", "Insertar"))
-        self.Button_Edit.setText(_translate("VerifSupplierInsert_Window", "Editar"))
+        VerifPiecesInsert_Window.setWindowTitle(_translate("VerifPiecesInsert_Window", "Piezas Taller"))
+        self.label_date.setText(_translate("VerifPiecesInsert_Window", "Fecha:"))
+        self.label_quantity.setText(_translate("VerifPiecesInsert_Window", "Cantidad:"))
+        self.label_num_ot.setText(_translate("VerifPiecesInsert_Window", "Nº OT:"))
+        self.label_notes.setText(_translate("VerifPiecesInsert_Window", "Notas:"))
+        self.label_description.setText(_translate("VerifPiecesInsert_Window", "Descripción:"))
+        self.label_image.setText(_translate("VerifPiecesInsert_Window", "Foto:"))
+        self.label_material.setText(_translate("VerifPiecesInsert_Window", "Material:"))
+        self.label_document.setText(_translate("VerifPiecesInsert_Window", "Plano:"))
+        self.Button_Insert.setText(_translate("VerifPiecesInsert_Window", "Insertar"))
+        self.Button_Edit.setText(_translate("VerifPiecesInsert_Window", "Editar"))
         item = self.tableRecords.horizontalHeaderItem(0)
-        item.setText(_translate("VerifSupplierInsert_Window", "ID"))
+        item.setText(_translate("VerifPiecesInsert_Window", "ID"))
         item = self.tableRecords.horizontalHeaderItem(1)
-        item.setText(_translate("VerifSupplierInsert_Window", "Nº Pedido. Prov."))
+        item.setText(_translate("VerifPiecesInsert_Window", "Nº OT"))
         item = self.tableRecords.horizontalHeaderItem(2)
-        item.setText(_translate("VerifSupplierInsert_Window", "Proveedor"))
+        item.setText(_translate("VerifPiecesInsert_Window", "Fecha"))
         item = self.tableRecords.horizontalHeaderItem(3)
-        item.setText(_translate("VerifSupplierInsert_Window", "Fecha Verif."))
+        item.setText(_translate("VerifPiecesInsert_Window", "Descripción"))
         item = self.tableRecords.horizontalHeaderItem(4)
-        item.setText(_translate("VerifSupplierInsert_Window", "Nº Albarán"))
+        item.setText(_translate("VerifPiecesInsert_Window", "Material"))
         item = self.tableRecords.horizontalHeaderItem(5)
-        item.setText(_translate("VerifSupplierInsert_Window", "Material"))
+        item.setText(_translate("VerifPiecesInsert_Window", "Cantidad"))
         item = self.tableRecords.horizontalHeaderItem(6)
-        item.setText(_translate("VerifSupplierInsert_Window", "Estado"))
+        item.setText(_translate("VerifPiecesInsert_Window", "Notas"))
         item = self.tableRecords.horizontalHeaderItem(7)
-        item.setText(_translate("VerifSupplierInsert_Window", "Observaciones"))
+        item.setText(_translate("VerifPiecesInsert_Window", "Foto"))
+        item = self.tableRecords.horizontalHeaderItem(8)
+        item.setText(_translate("VerifPiecesInsert_Window", "PDF Plano"))
+        item = self.tableRecords.horizontalHeaderItem(9)
+        item.setText(_translate("VerifPiecesInsert_Window", "Estado"))
 
 
 # Function to query data and set values on table
@@ -955,9 +995,10 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.tableRecords.setRowCount(0)
 
         query_material = ("""
-                        SELECT suppliers."id", suppliers."supplier_order_num", suppliers."supplier", TO_CHAR(suppliers."date_delivnote", 'dd/MM/yyyy'), suppliers."num_delivnote", suppliers."material", suppliers."state", suppliers."notes"
-                        FROM verification.delivnote_suppliers AS suppliers
-                        ORDER BY suppliers."date_delivnote", suppliers."supplier_order_num"
+                        SELECT pieces."id", pieces."num_ot", TO_CHAR(pieces."date_addition", 'dd/MM/yyyy'), pieces."description",
+                        pieces."material", pieces."quantity", pieces."notes", pieces."image", pieces."document", pieces."state"
+                        FROM verification.warehouse_added_pieces AS pieces
+                        ORDER BY pieces."id" DESC
                         """)
         conn = None
         try:
@@ -976,13 +1017,13 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             conn.commit()
 
             self.tableRecords.setRowCount(len(results))
-            self.tableRecords.setColumnCount(8)
+            self.tableRecords.setColumnCount(10)
             tablerow=0
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(8):
-                    if column == 4:
+                for column in range(10):
+                    if column in [7,8]:
                         value = row[column].split("/")[-1] if row[column] is not None else ''
                     else:
                         value = row[column]
@@ -996,12 +1037,12 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
             self.tableRecords.verticalHeader().hide()
             self.tableRecords.setItemDelegate(AlignDelegate(self.tableRecords))
-            self.tableRecords.setItemDelegateForColumn(3, AlignDelegate_Custom('Estado', self.tableRecords))
             self.tableRecords.setSortingEnabled(False)
             self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableRecords.horizontalHeader().setSectionResizeMode( QtWidgets.QHeaderView.ResizeMode.Stretch)
             self.tableRecords.hideColumn(0)
-            self.tableRecords.custom_sort(2, QtCore.Qt.SortOrder.DescendingOrder)
+            self.tableRecords.hideColumn(9)
+            # self.tableRecords.custom_sort(2, QtCore.Qt.SortOrder.DescendingOrder)
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -1022,11 +1063,14 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
     def insert(self):
         id_record = self.label_id.text()
         date_record = self.date.text()
-        supplier = self.supplier.currentText()
-        delivnote = self.delivnote.text()
-        state = self.state.currentText()
+        num_ot = self.num_ot.text()
+        description = self.description.currentText()
         material = self.material.text()
-        notes = self.obs.toPlainText()
+        quantity = self.quantity.text()
+        notes = self.notes.toPlainText()
+        image = self.image.text()
+        document = self.document.text()
+        state = 'Realizado Por Mario' if self.username == 'm.gil' else 'Realizado Por Juan'
 
         if id_record != '':
             dlg = QtWidgets.QMessageBox()
@@ -1039,7 +1083,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             dlg.exec()
             del dlg, new_icon
 
-        elif date_record == '' or (supplier == '' or (delivnote == '' or material == '')):
+        elif date_record == '' or (num_ot == '' or (description == '' or (material == '' or (quantity == '' or document == '')))):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -1059,10 +1103,10 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                commands_insert = ("""INSERT INTO verification.delivnote_suppliers
-                                    (date_delivnote, supplier, num_delivnote, material, state, notes) 
-                                    VALUES (%s, %s, %s, %s, %s, %s)""")
-                data = (date_record, supplier, delivnote, material, state, notes,)
+                commands_insert = ("""INSERT INTO verification.warehouse_added_pieces
+                                    (date_addition, num_ot, description, material, quantity, notes, image, document, state) 
+                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""")
+                data = (date_record, num_ot, description, material, quantity, notes, image, document, state)
                 cur.execute(commands_insert, data)
 
             # close communication with the PostgreSQL database server
@@ -1070,15 +1114,18 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             # commit the changes
                 conn.commit()
 
-                self.delivnote.setText("")
+                self.quantity.setText("")
+                self.num_ot.setText("")
+                self.notes.setText("")
                 self.material.setText("")
-                self.obs.setText("")
+                self.image.setText("")
+                self.document.setText("")
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Proveedores")
+                dlg.setWindowTitle("Piezas Taller")
                 dlg.setText("Datos insertados con éxito")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                 dlg.exec()
@@ -1105,11 +1152,14 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
     def edit(self):
         id_record = self.label_id.text()
         date_record = self.date.text()
-        supplier = self.supplier.currentText()
-        delivnote = self.delivnote.text()
-        state = self.state.currentText()
+        num_ot = self.num_ot.text()
+        description = self.description.currentText()
         material = self.material.text()
-        notes = self.obs.toPlainText()
+        quantity = self.quantity.text()
+        notes = self.notes.toPlainText()
+        image = self.image.text()
+        document = self.document.text()
+        state = 'Realizado Por Mario' if self.username == 'm.gil' else 'Realizado Por Juan'
 
         if id_record == '':
             dlg = QtWidgets.QMessageBox()
@@ -1122,7 +1172,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             dlg.exec()
             del dlg, new_icon
 
-        elif date_record == '' or (supplier == '' or (delivnote == '' or material == '')):
+        elif date_record == '' or (num_ot == '' or (description == '' or (material == '' or (quantity == '' or document == '')))):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -1134,8 +1184,9 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             del dlg, new_icon
         else:
             query_edit = ("""
-                        UPDATE verification.delivnote_suppliers
-                        SET "date_delivnote" = %s, "supplier" = %s, "num_delivnote" = %s, "material" = %s, "state" = %s, "notes" = %s
+                        UPDATE verification.warehouse_added_pieces
+                        SET "date_addition" = %s, "num_ot" = %s, "description" = %s, "material" = %s,
+                        "quantity" = %s, "notes" = %s, "image" = %s, "document" = %s, "state" = %s
                         WHERE "id" = %s
                         """)
             conn = None
@@ -1146,7 +1197,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                cur.execute(query_edit, (date_record, supplier, delivnote, material, state, notes,id_record,))
+                cur.execute(query_edit, (date_record, num_ot, description, material, quantity, notes, image, document, state, id_record,))
 
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -1164,17 +1215,6 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
                 del dlg, new_icon
 
                 self.query_values()
-
-                folder_path = '//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES'
-                file_name = delivnote.split("/")[-1]
-                file_path = os.path.join(folder_path, file_name)
-
-                # Verify if file exists
-                if os.path.isfile(file_path):
-                    try:
-                        os.remove(file_path)
-                    except Exception as e:
-                        print(f"No se pudo eliminar el archivo '{file_name}': {e}")
 
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
@@ -1194,14 +1234,21 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 # Function to load file
     def item_double_clicked(self, item):
         if item.text() != '':
-            if item.column() == 4:
+            if item.column() in [7,8]:
                 item_id = self.tableRecords.item(item.row(), 0).text()
 
-                query_path = ("""
-                            SELECT suppliers."num_delivnote"
-                            FROM verification.delivnote_suppliers AS suppliers
-                            WHERE suppliers."id" = %s
-                            """)
+                if item.column() == 7:
+                    query_path = ("""
+                                SELECT pieces."image"
+                                FROM verification.warehouse_added_pieces AS pieces
+                                WHERE pieces."id" = %s
+                                """)
+                else:
+                    query_path = ("""
+                                SELECT pieces."document"
+                                FROM verification.warehouse_added_pieces AS pieces
+                                WHERE pieces."id" = %s
+                                """)
                 conn = None
                 try:
                 # read the connection parameters
@@ -1236,17 +1283,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
                     if conn is not None:
                         conn.close()
 
-            elif item.column() == 1:
-                name_pdf = item.text()
-                file_path = os.path.normpath("//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES/" + name_pdf + ".pdf")
-
-                if os.path.isfile(file_path):
-                    try:
-                        os.startfile(file_path)
-                    except Exception as e:
-                        print(f"No se pudo abrir el archivo '{name_pdf}': {e}")
-
-# Function to load form when selecting recor
+# Function to load form when selecting record
     def loadform(self, item):
         data_order=[]
 
@@ -1255,16 +1292,17 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             data_order.append(item_text)
 
         self.label_id.setText(data_order[0])
-        self.supplier.setCurrentText(data_order[2])
-        # self.delivnote.setText(data_order[3])
-        self.material.setText(data_order[5])
-        self.state.setCurrentText(data_order[6])
-        self.obs.setText(data_order[7])
+        self.num_ot.setText(data_order[1])
+        self.date.setText(data_order[2])
+        self.description.setCurrentText(data_order[3])
+        self.material.setText(data_order[4])
+        self.quantity.setText(data_order[5])
+        self.notes.setText(data_order[6])
 
-        query_delivnote = ("""
-                        SELECT suppliers."num_delivnote"
-                        FROM verification.delivnote_suppliers AS suppliers
-                        WHERE suppliers."id" = %s
+        query_image_doc = ("""
+                        SELECT image, document
+                        FROM verification.warehouse_added_pieces
+                        WHERE id = %s
                         """)
         conn = None
         try:
@@ -1274,15 +1312,15 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            cur.execute(query_delivnote, (data_order[0],))
+            cur.execute(query_image_doc, (data_order[0],))
             results=cur.fetchall()
-            self.delivnote.setText(results[0][0])
+            self.image.setText(results[0][0])
+            self.document.setText(results[0][1])
 
             # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
             conn.commit()
-
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -1301,25 +1339,32 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
 # Function to search pdf file
     def search_document(self):
-        self.fname = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES", filetypes=[("Archivos PDF", "*.pdf")],
+        self.fname = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL", filetypes=[("Archivos PDF", "*.pdf")],
                             title="Seleccionar archivo pdf")
         if self.fname:
-            self.delivnote.setText(self.fname)
+            self.document.setText(self.fname)
 
-# Function to add new supplier
-    def add_supplier(self):
+# Function to search image
+    def search_image(self):
+        self.fname = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL", filetypes=[("Archivos JPG", "*.jpg")],
+                            title="Seleccionar imagen")
+        if self.fname:
+            self.image.setText(self.fname)
+
+# Function to add new description
+    def add_description(self):
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle('Nuevo proveedor')
-        dlg.setLabelText('Introduce el nombre del proveedor:')
+        dlg.setWindowTitle('Nueva descripción')
+        dlg.setLabelText('Introduce una nueva descripción:')
 
         while True:
             clickedButton = dlg.exec()
             if clickedButton == 1:
-                supplier = dlg.textValue()
-                if supplier != '':
+                description_piece = dlg.textValue()
+                if description_piece != '':
                     conn = None
                     try:
                     # read the connection parameters
@@ -1328,8 +1373,8 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
                         conn = psycopg2.connect(**params)
                         cur = conn.cursor()
                     # execution of commands
-                        commands_insertsupplier = ("INSERT INTO verification.suppliers_verification (supplier_name) VALUES (%s)")
-                        cur.execute(commands_insertsupplier, (supplier,))
+                        commands_insertdescription = ("INSERT INTO verification.warehouse_pieces (pieces_description) VALUES (%s)")
+                        cur.execute(commands_insertdescription, (description_piece,))
 
                     # close communication with the PostgreSQL database server
                         cur.close()
@@ -1340,13 +1385,13 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
                         new_icon = QtGui.QIcon()
                         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                         dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Nuevo proveedor")
+                        dlg.setWindowTitle("Nueva descripción")
                         dlg.setText("Datos insertados con éxito")
                         dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                         dlg.exec()
                         del dlg,new_icon
 
-                        self.supplier.setCurrentText(supplier)
+                        self.description.setCurrentText(description_piece)
 
                     except (Exception, psycopg2.DatabaseError) as error:
                         dlg = QtWidgets.QMessageBox()
@@ -1368,8 +1413,8 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg_error.setWindowIcon(new_icon)
-                dlg_error.setWindowTitle("Nuevo proveedor")
-                dlg_error.setText("El nombre no puede estar vacío")
+                dlg_error.setWindowTitle("Nueva descripción")
+                dlg_error.setText("La descripción no puede estar vacío")
                 dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg_error.exec()
                 del dlg_error,new_icon
@@ -1391,22 +1436,16 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
 # Function to update fixed values
     def load_values(self):
-        self.state.clear()
-        self.supplier.clear()
+        self.description.clear()
 
         actual_date=date.today()
         actual_date=actual_date.strftime("%d/%m/%Y")
         self.date.setText(actual_date)
 
-        query_states = ("""
-                            SELECT "state_verif"
-                            FROM verification.states_verification
-                            ORDER BY "id"
-                            """)
-        query_suppliers= ("""
-                            SELECT "supplier_name"
-                            FROM verification.suppliers_verification
-                            ORDER BY "supplier_name"
+        query_description= ("""
+                            SELECT "pieces_description"
+                            FROM verification.warehouse_pieces
+                            ORDER BY "pieces_description"
                             """)
         conn = None
         try:
@@ -1416,17 +1455,9 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            cur.execute(query_states)
-            results_states=cur.fetchall()
-            list_states = [x[0] for x in results_states]
-
-            if self.username == 'j.tena':
-                element = list_states.pop(3)  # Extraemos el cuarto elemento
-                list_states.insert(0, element)
-
-            cur.execute(query_suppliers)
-            results_suppliers=cur.fetchall()
-            list_suppliers = [x[0] for x in results_suppliers]
+            cur.execute(query_description)
+            results_description=cur.fetchall()
+            list_description = [x[0] for x in results_description]
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
@@ -1442,9 +1473,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-        self.state.setItemDelegate(ColorDelegate())
-        self.state.addItems(list_states)
-        self.supplier.addItems([''] + list_suppliers)
+        self.description.addItems([''] + list_description)
 
 # Function for key events
     def keyPressEvent(self, event):
@@ -1457,42 +1486,6 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         if event.key() == QtCore.Qt.Key.Key_F5:
             self.load_values()
 
-# Function to change combobox color when change value
-    def change_text_color(self, text):
-        colors_dict = {}
-        conn = None
-        try:
-            # read the connection parameters
-            params = config()
-            # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            # execution of commands
-            commands_colors = "SELECT state_verif, r_channel, g_channel, b_channel FROM verification.states_verification"
-            cur.execute(commands_colors)
-            results = cur.fetchall()
-
-            for result in results:
-                state, red, green, blue = result
-                colors_dict[state] = [red, green, blue]
-
-            # close communication with the PostgreSQL database server
-            cur.close()
-            # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            # Handle the error appropriately
-            pass
-        finally:
-            if conn is not None:
-                conn.close()
-
-        if text in colors_dict:
-            text_color = colors_dict[text]
-        else:
-            text_color = [255, 255, 255]
-
-        self.state.setStyleSheet(f"color: rgb({text_color[0]}, {text_color[1]}, {text_color[2]})")
 
 
 
@@ -1500,6 +1493,6 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    VerifSupplierInsert_Window = Ui_VerifSupplierInsert_Window('j.tena')
-    VerifSupplierInsert_Window.show()
+    VerifPiecesInsert_Window = Ui_VerifPiecesInsert_Window('j.tena')
+    VerifPiecesInsert_Window.show()
     sys.exit(app.exec())

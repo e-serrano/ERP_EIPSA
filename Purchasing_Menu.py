@@ -21,11 +21,27 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Purchasing_Menu(object):
+    """
+    UI class for the Purchasing Menu window.
+    """
     def __init__(self, name, username):
+        """
+        Initializes the `Ui_Purchasing_Menu` window with the provided user information and sets up the UI.
+
+        Args:
+            name (str): The name of the user or report.
+            username (str): The username of the logged-in user.
+        """
         self.name=name
         self.username = username
 
     def setupUi(self, Purchasing_Menu):
+        """
+        Sets up the user interface for the Purchasing_Menu.
+
+        Args:
+            Purchasing_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         Purchasing_Menu.setObjectName("Purchasing_Menu")
         Purchasing_Menu.setWindowModality(QtCore.Qt.WindowModality.WindowModal)
         Purchasing_Menu.resize(615, 400)
@@ -182,16 +198,20 @@ class Ui_Purchasing_Menu(object):
         Purchasing_Menu.setStatusBar(self.statusbar)
 
         self.retranslateUi(Purchasing_Menu)
-        self.Button_Supplies.clicked.connect(lambda: self.supplies(Purchasing_Menu))
-        self.Button_ClientOrder.clicked.connect(lambda: self.clientorder(Purchasing_Menu))
-        self.Button_SupplierOrder.clicked.connect(lambda: self.supplierorder(Purchasing_Menu))
-        self.Button_Quotation.clicked.connect(lambda: self.quotation(Purchasing_Menu))
+        self.Button_Supplies.clicked.connect(self.supplies)
+        self.Button_ClientOrder.clicked.connect(self.clientorder)
+        self.Button_SupplierOrder.clicked.connect(self.supplierorder)
+        self.Button_Quotation.clicked.connect(self.quotation)
         self.Button_Databases.clicked.connect(lambda: self.databases(Purchasing_Menu))
         self.Button_Reports.clicked.connect(lambda: self.reports(Purchasing_Menu))
         QtCore.QMetaObject.connectSlotsByName(Purchasing_Menu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, Purchasing_Menu):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         Purchasing_Menu.setWindowTitle(_translate("Purchasing_Menu", "ERP EIPSA - Compras"))
         self.Button_SupplierOrder.setText(_translate("Purchasing_Menu", "Pedido A Proveedor"))
@@ -202,9 +222,10 @@ class Ui_Purchasing_Menu(object):
         self.Button_ClientOrder.setText(_translate("Purchasing_Menu", "Pedido De Clientes"))
 
 
-    def supplies(self,Purchasing_Menu):
-        # self.ui_supplies=Ui_Supplies_Window(self.username)
-        # self.ui_supplies.showMaximized()
+    def supplies(self):
+        """
+        Opens the 'supplies' window. Sets up UI for the user.
+        """
 
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -221,22 +242,37 @@ class Ui_Purchasing_Menu(object):
         self.edit_tags_app.showMaximized()
 
 
-    def clientorder(self,Purchasing_Menu):
+    def clientorder(self):
+        """
+        Opens the 'clientorder' window. Sets up UI for the user.
+        """
         self.ui_clientorder=Ui_ClientOrder_Window(self.username)
         self.ui_clientorder.showMaximized()
 
 
-    def supplierorder(self,Purchasing_Menu):
+    def supplierorder(self):
+        """
+        Opens the 'supplierorder' window. Sets up UI for the user.
+        """
         self.ui_supplierorder=Ui_SupplierOrder_Window(self.username)
         self.ui_supplierorder.showMaximized()
 
 
-    def quotation(self,Purchasing_Menu):
+    def quotation(self):
+        """
+        Opens the 'quotation' window. Sets up UI for the user.
+        """
         self.ui_quotation=Ui_Quotation_Window(self.username)
         self.ui_quotation.showMaximized()
 
 
     def databases(self,Purchasing_Menu):
+        """
+        Opens the 'databases' window and hides the current menu. Sets up UI for the user and connects the cancel button to re-show the previous menu.
+
+        Args:
+            Purchasing_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.purchase_DB_window=QtWidgets.QMainWindow()
         self.ui=Ui_Purchasing_DB_Menu(self.name, self.username)
         self.ui.setupUi(self.purchase_DB_window)
@@ -246,6 +282,12 @@ class Ui_Purchasing_Menu(object):
 
 
     def reports(self,Purchasing_Menu):
+        """
+        Opens the 'reports' window and hides the current menu. Sets up UI for the user and connects the cancel button to re-show the previous menu.
+
+        Args:
+            Purchasing_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.purchasing_reports_window=QtWidgets.QMainWindow()
         self.ui=Ui_Purchasing_Reports_Menu(self.name, self.username)
         self.ui.setupUi(self.purchasing_reports_window)

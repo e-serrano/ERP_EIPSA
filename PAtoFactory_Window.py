@@ -17,7 +17,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_PAtoFactory(object):
+    """
+    UI class for the Edit Order Menu window.
+    """
     def setupUi(self, PAtoFactory):
+        """
+        Sets up the user interface for the EditOrder_Menu.
+
+        Args:
+            EditOrder_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         PAtoFactory.setObjectName("PAtoFactory")
         PAtoFactory.resize(450, 325)
         PAtoFactory.setMinimumSize(QtCore.QSize(450, 325))
@@ -168,7 +177,11 @@ class Ui_PAtoFactory(object):
         QtCore.QMetaObject.connectSlotsByName(PAtoFactory)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, PAtoFactory):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         PAtoFactory.setWindowTitle(_translate("PAtoFactory", "Envío A Fábrica"))
         self.Button_Insert.setText(_translate("PAtoFactory", "Insertar"))
@@ -178,6 +191,9 @@ class Ui_PAtoFactory(object):
 
 
     def insert_data(self):
+        """
+        Update the information of the order selected. Includes the date when the PA passes from office to factory"
+        """
         num_order = self.num_order.text()
         verif_date = self.verif_date.text()
 

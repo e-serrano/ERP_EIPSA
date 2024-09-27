@@ -18,10 +18,25 @@ from Excel_Export_Templates import order_ovr, doc_situation
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 class Ui_ExportDocs_Menu(object):
+    """
+    UI class for the Export Docs Menu window.
+    """
     def __init__(self, username):
+        """
+        Initializes the Ui_ExportDocs_Menu with the specified username.
+
+        Args:
+            username (str): username associated with the window.
+        """
         self.username = username
 
     def setupUi(self, ExportDocs_Menu):
+        """
+        Sets up the user interface for the ExportDocs_Menu.
+
+        Args:
+            ExportDocs_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         ExportDocs_Menu.setObjectName("Type_Tag_Menu")
         ExportDocs_Menu.setWindowModality(QtCore.Qt.WindowModality.WindowModal)
         ExportDocs_Menu.resize(300, 400)
@@ -143,7 +158,11 @@ class Ui_ExportDocs_Menu(object):
         QtCore.QMetaObject.connectSlotsByName(ExportDocs_Menu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, ExportDocs_Menu):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         ExportDocs_Menu.setWindowTitle(_translate("ExportDocs_Menu", "Generar Documentos"))
         self.Button_OrderAccept.setText(_translate("ExportDocs_Menu", "Acuse Pedido"))
@@ -154,6 +173,9 @@ class Ui_ExportDocs_Menu(object):
 
 # Function to export offers in excel format
     def export_offer(self):
+        """
+        Opens the 'export_offer' window. Sets up the UI for the user.
+        """
         self.exportoffer_window=QtWidgets.QMainWindow()
         self.ui=Ui_ExportOffer_Window(self.username)
         self.ui.setupUi(self.exportoffer_window)
@@ -161,6 +183,9 @@ class Ui_ExportDocs_Menu(object):
 
 # Function to export order acceptation in word format
     def order_accept(self):
+        """
+        Opens the 'order_accept' window. Sets up the UI for the user.
+        """
         self.orderaccept_window=QtWidgets.QMainWindow()
         self.ui=Ui_OrderAccept_Window(self.username)
         self.ui.setupUi(self.orderaccept_window)
@@ -168,6 +193,9 @@ class Ui_ExportDocs_Menu(object):
 
 # Function to export order OVR in excel format
     def order_ovr(self):
+        """
+        Exort OVR data for a given order
+        """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -246,6 +274,9 @@ class Ui_ExportDocs_Menu(object):
 
 # Function to export document situation of orders in excel format
     def doc_situation(self):
+        """
+        Export document situation for a given order
+        """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)

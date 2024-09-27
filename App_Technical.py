@@ -14,7 +14,7 @@ import psycopg2
 import sys
 import configparser
 from Database_Connection import createConnection
-from tkinter.filedialog import askopenfilename, asksaveasfilename
+from tkinter.filedialog import askopenfilename
 import pandas as pd
 import os
 import io
@@ -26,7 +26,21 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center and setting color for cells.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
@@ -48,7 +62,27 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
 
 class CustomTableWidget(QtWidgets.QTableWidget):
+    """
+    Custom QTableWidget that supports filtering and sorting features.
+
+    Attributes:
+        list_filters (list): Stores filters applied to the table.
+        column_filters (dict): Maps column indices to sets of applied filters.
+        column_actions (dict): Maps column indices to actions related to columns.
+        checkbox_states (dict): Stores the state of checkboxes for filtering.
+        rows_hidden (dict): Maps column indices to sets of hidden row indices.
+        general_rows_to_hide (set): Set of row indices that are hidden across the table.
+    """
     def __init__(self, parent=None):
+        """
+        Initializes the CustomTableWidget.
+
+        Sets up the initial state of the widget, including filters, checkbox states, 
+        and hidden rows.
+
+        Args:
+            parent (QWidget, optional): The parent widget of this table. Defaults to None.
+        """
         super().__init__(parent)
         self.list_filters=[]
         self.column_filters = {}
@@ -59,6 +93,17 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to show the menu
     def show_unique_values_menu(self, column_index, header_pos, header_height):
+        """
+        Displays a context menu for unique values in a specified column.
+
+        The menu includes options to remove filters, sort the column, and filter by text. 
+        It also allows the user to select/unselect unique values via checkboxes.
+
+        Args:
+            column_index (int): The index of the column for which the menu is displayed.
+            header_pos (QPoint): The position of the header in the viewport.
+            header_height (int): The height of the header.
+        """
         menu = QtWidgets.QMenu(self)
         actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro")
         actionDeleteFilterColumn.triggered.connect(lambda: self.delete_filter(column_index))
@@ -125,9 +170,16 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         menu.exec(header_pos - QtCore.QPoint(0, header_height))
 
-
 # Function to delete filter on selected column
     def delete_filter(self,column_index):
+        """
+        Removes the filter applied to the specified column.
+
+        Unhides previously hidden rows and resets the checkbox state for the column.
+
+        Args:
+            column_index (int): The index of the column from which to delete the filter.
+        """
         if column_index in self.column_filters:
             del self.column_filters[column_index]
         if column_index in self.checkbox_states:
@@ -141,9 +193,16 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         header_item = self.horizontalHeaderItem(column_index)
         header_item.setIcon(QtGui.QIcon())
 
-
 # Function to set all checkboxes state
     def set_all_checkboxes_state(self, checkboxes, state, column_index):
+        """
+        Sets the state of all checkboxes in the filter menu for a specific column.
+
+        Args:
+            checkboxes (list): List of checkboxes to update.
+            state (Qt.CheckState): The desired state for the checkboxes.
+            column_index (int): The index of the column for which the checkboxes are set.
+        """
         if column_index not in self.checkbox_states:
             self.checkbox_states[column_index] = {}
 
@@ -152,9 +211,18 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         self.checkbox_states[column_index]["Seleccionar todo"] = state
 
-
 # Function to apply filters to table
     def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
+        """
+        Applies a filter to the specified column based on the checkbox state and optional text filter.
+
+        Args:
+            column_index (int): The index of the column to filter.
+            value (str): The value to filter by.
+            checked (bool): Indicates if the filter should be applied (True) or removed (False).
+            text_filter (str, optional): Additional text filter for filtering items. Defaults to None.
+            filter_dialog (QDialog, optional): The dialog used for the text filter. Defaults to None.
+        """
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
 
@@ -222,8 +290,14 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         else:
             header_item.setIcon(QtGui.QIcon())
 
-
+# Function to apply filters to table based on a desired text
     def filter_by_text(self, column_index):
+        """
+        Opens a dialog for filtering the specified column by text input.
+
+        Args:
+            column_index (int): The index of the column to filter.
+        """
         filter_dialog = QtWidgets.QDialog(self)
         filter_dialog.setWindowTitle("Filtrar por texto")
         
@@ -268,9 +342,17 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         filter_dialog.setLayout(layout)
         filter_dialog.exec()
 
-
 # Function to obtain the unique matching applied filters 
     def get_unique_values(self, column_index):
+        """
+        Retrieves unique values from the specified column, taking into account any active filters on other columns.
+
+        Args:
+            column_index (int): The index of the column from which to retrieve unique values.
+
+        Returns:
+            set: A set of unique values from the specified column that are visible based on the current filters.
+        """
         unique_values = set()
         for row in range(self.rowCount()):
             show_row = True
@@ -290,6 +372,12 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to get values filtered by all columns
     def get_filtered_values(self):
+        """
+        Gets the current filter values for all columns.
+
+        Returns:
+            dict: A dictionary where each key is a column index and the value is a set of filters applied to that column.
+        """
         filtered_values = {}
         for col, filters in self.column_filters.items():
             filtered_values[col] = filters
@@ -297,28 +385,37 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to sort column
     def sort_column(self, column_index, sortOrder):
+        """
+        Sorts the specified column based on the given order. If the column is a date column, a custom sort method is used.
+
+        Args:
+            column_index (int): The index of the column to sort.
+            sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         if column_index == 5:
             self.custom_sort(column_index, sortOrder)
         else:
             self.sortByColumn(column_index, sortOrder)
 
-
+# Function to sort column based on special datatypes
     def custom_sort(self, column, order):
-    # Obtén la cantidad de filas en la tabla
+        """
+        Custom sorting method for date columns. Sorts the specified column based on date values.
+
+        Args:
+            column (int): The index of the column to sort.
+            order (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         row_count = self.rowCount()
 
-        # Crea una lista de índices ordenados según las fechas
         indexes = list(range(row_count))
         indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd-MM-yyyy"))
 
-        # Si el orden es descendente, invierte la lista
         if order == QtCore.Qt.SortOrder.DescendingOrder:
             indexes.reverse()
 
-        # Guarda el estado actual de las filas ocultas
         hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
 
-        # Actualiza las filas en la tabla en el orden ordenado
         rows = self.rowCount()
         for i in range(rows):
             self.insertRow(i)
@@ -336,6 +433,12 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function with the menu configuration
     def contextMenuEvent(self, event):
+        """
+        Handles the context menu event for the table. Shows a menu for filtering unique values when the header is right-clicked.
+
+        Args:
+            event (QEvent): The event triggered by the context menu action.
+        """
         if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
             logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
             header_pos = self.mapToGlobal(self.horizontalHeader().pos())
@@ -346,14 +449,33 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 
 class Ui_App_Technical(QtWidgets.QMainWindow):
+    """
+    Main application window for the technical app.
+
+        Args:
+        name (str): The name of the user.
+        username (str): The username of the user.
+    """
     def __init__(self, name, username):
+        """
+        Initializes the main window, setting up the user interface and storing user-specific details.
+
+        Args:
+            name (str): The name of the user.
+            username (str): The username of the user.
+        """
         super().__init__() 
         self.name=name
         self.username=username
         self.setupUi(self)
 
-
     def setupUi(self, App_Technical):
+        """
+        Sets up the user interface components for the main application window.
+
+        Args:
+            App_Technical (QtWidgets.QMainWindow): The main window object to set up.
+        """
         App_Technical.setObjectName("App_Technical")
         App_Technical.resize(945, 860)
         App_Technical.setMinimumSize(QtCore.QSize(945, 860))
@@ -748,7 +870,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_TestMenu.setObjectName("Button_TestMenu")
             self.Button_TestMenu.setToolTip("Insertar Pruebas")
             self.Header.addWidget(self.Button_TestMenu)
-
             spacerItem16 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
             self.Header.addItem(spacerItem16)
             self.Button_Test = QtWidgets.QPushButton(parent=self.frame)
@@ -785,44 +906,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_Test.setObjectName("Button_Test")
             self.Button_Test.setToolTip("Pruebas")
             self.Header.addWidget(self.Button_Test)
-            spacerItem9 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.Header.addItem(spacerItem9)
-            self.Button_Verification = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_Verification.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_Verification.setMaximumSize(QtCore.QSize(50, 16777215))
-            self.Button_Verification.setToolTip('Verificación')
-            self.Button_Verification.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_Verification.setStyleSheet(
-                "QPushButton{\n"
-                "    border: 1px solid transparent;\n"
-                "    border-color: rgb(3, 174, 236);\n"
-                "    background-color: rgb(255, 255, 255);\n"
-                "    border-radius: 10px;\n"
-                "}\n"
-                "\n"
-                "QPushButton:hover{\n"
-                "    border: 1px solid transparent;\n"
-                "    border-color: rgb(0, 0, 0);\n"
-                "    color: rgb(0,0,0);\n"
-                "    background-color: rgb(255, 255, 255);\n"
-                "    border-radius: 10px;\n"
-                "}\n"
-                "\n"
-                "QPushButton:pressed{\n"
-                "    border: 1px solid transparent;\n"
-                "    border-color: rgb(0, 0, 0);\n"
-                "    color: rgb(0,0,0);\n"
-                "    background-color: rgb(200, 200, 200);\n"
-                "    border-radius: 10px;\n"
-                "}"
-            )
-            self.Button_Verification.setText("")
-            icon9 = QtGui.QIcon()
-            icon9.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_Verification.setIcon(icon9)
-            self.Button_Verification.setIconSize(QtCore.QSize(40, 40))
-            self.Button_Verification.setObjectName("Button_Verification")
-            self.Header.addWidget(self.Button_Verification)
             spacerItem17 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
             self.Header.addItem(spacerItem17)
             self.Button_Nuclear = QtWidgets.QPushButton(parent=self.frame)
@@ -865,7 +948,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_OT.clicked.connect(self.otorder)
             self.Button_TestMenu.clicked.connect(self.insert_test)
             self.Button_Test.clicked.connect(self.query_test)
-            self.Button_Verification.clicked.connect(self.verification)
             self.Button_Nuclear.clicked.connect(self.nuclear_annex)
         elif self.name in ["Jesús Martínez"]:
             self.Button_Times = QtWidgets.QPushButton(parent=self.frame)
@@ -976,11 +1058,11 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Header.addWidget(self.Button_DB_Manuf)
             spacerItem6 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
             self.Header.addItem(spacerItem6)
-            self.Button_ClockIn_Import = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_ClockIn_Import.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_ClockIn_Import.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_ClockIn_Import.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_ClockIn_Import.setStyleSheet("QPushButton{\n"
+            self.Button_Test = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Test.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Test.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_Test.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Test.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
     "    background-color: rgb(255, 255, 255);\n"
@@ -1002,52 +1084,16 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
     "    background-color: rgb(200, 200, 200);\n"
     "    border-radius: 10px;\n"
     "}")
-            self.Button_ClockIn_Import.setText("")
-            icon7 = QtGui.QIcon()
-            icon7.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/ClockIn_Import.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_ClockIn_Import.setIcon(icon7)
-            self.Button_ClockIn_Import.setIconSize(QtCore.QSize(40, 40))
-            self.Button_ClockIn_Import.setObjectName("Button_ClockIn_Import")
-            self.Button_ClockIn_Import.setToolTip("Importar fichajes")
-            self.Header.addWidget(self.Button_ClockIn_Import)
-            spacerItem18 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.Header.addItem(spacerItem18)
-            self.Button_ClockIn = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_ClockIn.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_ClockIn.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_ClockIn.setToolTip('Fichajes')
-            self.Button_ClockIn.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_ClockIn.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-            self.Button_ClockIn.setText("")
-            icon17 = QtGui.QIcon()
-            icon17.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/ClockIn.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_ClockIn.setIcon(icon17)
-            self.Button_ClockIn.setIconSize(QtCore.QSize(40, 40))
-            self.Button_ClockIn.setObjectName("Button_ClockIn")
-            self.Header.addWidget(self.Button_ClockIn)
-            spacerItem19 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.Header.addItem(spacerItem19)
+            self.Button_Test.setText("")
+            icon14 = QtGui.QIcon()
+            icon14.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Tests.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Test.setIcon(icon14)
+            self.Button_Test.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Test.setObjectName("Button_Test")
+            self.Button_Test.setToolTip("Pruebas")
+            self.Header.addWidget(self.Button_Test)
+            spacerItem16 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem16)
             self.Button_NCReport = QtWidgets.QPushButton(parent=self.frame)
             self.Button_NCReport.setMinimumSize(QtCore.QSize(50, 50))
             self.Button_NCReport.setMaximumSize(QtCore.QSize(50, 50))
@@ -1120,13 +1166,88 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_Nuclear.setIconSize(QtCore.QSize(40, 40))
             self.Button_Nuclear.setObjectName("Button_Nuclear")
             self.Header.addWidget(self.Button_Nuclear)
+            spacerItem19 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem19)
+            self.Button_ClockIn_Import = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_ClockIn_Import.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_ClockIn_Import.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_ClockIn_Import.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_ClockIn_Import.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_ClockIn_Import.setText("")
+            icon7 = QtGui.QIcon()
+            icon7.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/ClockIn_Import.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_ClockIn_Import.setIcon(icon7)
+            self.Button_ClockIn_Import.setIconSize(QtCore.QSize(40, 40))
+            self.Button_ClockIn_Import.setObjectName("Button_ClockIn_Import")
+            self.Button_ClockIn_Import.setToolTip("Importar fichajes")
+            self.Header.addWidget(self.Button_ClockIn_Import)
+            spacerItem18 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem18)
+            self.Button_ClockIn = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_ClockIn.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_ClockIn.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_ClockIn.setToolTip('Fichajes')
+            self.Button_ClockIn.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_ClockIn.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_ClockIn.setText("")
+            icon17 = QtGui.QIcon()
+            icon17.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/ClockIn.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_ClockIn.setIcon(icon17)
+            self.Button_ClockIn.setIconSize(QtCore.QSize(40, 40))
+            self.Button_ClockIn.setObjectName("Button_ClockIn")
+            self.Header.addWidget(self.Button_ClockIn)
+            
+            
             self.Button_Times.clicked.connect(self.times)
             self.Button_OT.clicked.connect(self.otorder)
             self.Button_DB_Manuf.clicked.connect(self.dbmanufedit)
-            self.Button_ClockIn_Import.clicked.connect(self.importclockin)
-            self.Button_ClockIn.clicked.connect(self.clockin)
+            self.Button_Test.clicked.connect(self.query_test)
             self.Button_NCReport.clicked.connect(self.nc_report)
             self.Button_Nuclear.clicked.connect(self.nuclear_annex)
+            self.Button_ClockIn_Import.clicked.connect(self.importclockin)
+            self.Button_ClockIn.clicked.connect(self.clockin)
         elif self.name in ["Santos Sánchez"]:
             self.Button_TechOffice = QtWidgets.QPushButton(parent=self.frame)
             self.Button_TechOffice.setMinimumSize(QtCore.QSize(50, 50))
@@ -1412,63 +1533,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.BottomLayout = QtWidgets.QHBoxLayout()
         self.BottomLayout.setContentsMargins(-1, 0, -1, -1)
         self.BottomLayout.setObjectName("BottomLayout")
-#         self.Calendar = QtWidgets.QCalendarWidget(parent=self.frame)
-#         self.Calendar.setEnabled(True)
-#         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
-#         sizePolicy.setHorizontalStretch(0)
-#         sizePolicy.setVerticalStretch(0)
-#         sizePolicy.setHeightForWidth(self.Calendar.sizePolicy().hasHeightForWidth())
-#         self.Calendar.setSizePolicy(sizePolicy)
-#         self.Calendar.setMinimumSize(QtCore.QSize(200, 400))
-#         self.Calendar.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
-#         self.Calendar.setStyleSheet("QCalendarWidget QWidget{\n"
-# "background-color: rgb(3, 174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QTableView{\n"
-# "    background-color: white;\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton {\n"
-# "    color: white;\n"
-# "    font-size:20px;\n"
-# "    icon-size:30px 30px;\n"
-# "    background-color:rgb(3, 174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton::hover {\n"
-# "    background-color : #019ad2;\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton::pressed {\n"
-# "    background-color: rgb(1, 140, 190);\n"
-# "    border: 3px solid;\n"
-# "    border-color: rgb(255, 255, 255);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QSpinBox{\n"
-# "    background-color: rgb(255, 255, 255);\n"
-# "    border: 2px solid;\n"
-# "    border-color: rgb(3,174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QAbstractItemView:enabled{\n"
-# "    selection-background-color: rgb(3, 174, 236);\n"
-# "    selection-color: white;\n"
-# "}\n"
-# "\n"
-# "#qt_calendar_prevmonth {\n"
-# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
-# "}\n"
-# "#qt_calendar_nextmonth {\n"
-# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
-# "}")
-#         self.Calendar.setSelectedDate(QtCore.QDate.currentDate())
-#         self.Calendar.setGridVisible(True)
-#         self.Calendar.setNavigationBarVisible(True)
-#         self.Calendar.setDateEditEnabled(True)
-#         self.Calendar.setObjectName("Calendar")
-#         self.BottomLayout.addWidget(self.Calendar)
         self.MainLayout.addLayout(self.BottomLayout)
         self.PrincipalScreen.addLayout(self.MainLayout)
         self.FrameApp.addLayout(self.PrincipalScreen)
@@ -1560,7 +1624,11 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.load_notifications()
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, App_Technical):
+        """
+        Translates and updates the text of various UI elements in the given App_Comercial.
+        """
         _translate = QtCore.QCoreApplication.translate
         App_Technical.setWindowTitle(_translate("App_Technical", "ERP EIPSA - Técnico"))
         self.HeaderName.setText(_translate("App_Technical", self.name))
@@ -1585,9 +1653,11 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         item = self.tableDocs.horizontalHeaderItem(6)
         item.setText(_translate("App_Technical", "Seguimiento"))
 
-
 # Function to edit database tables of technical section
     def editdb(self):
+        """
+        Opens a window for editing the database records.
+        """
         from DBEditReg_Window import Ui_DBEditReg_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -1605,6 +1675,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to open window with deliveries table
     def deliveries(self):
+        """
+        Opens a window displaying the deliveries table.
+        """
         from Deliveries_Window import Ui_Deliveries_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -1620,12 +1693,11 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.deliveries_window = Ui_Deliveries_Window(db_deliveries)
         self.deliveries_window.show()
 
-
-    def times(self):
-        print('tiempos')
-
 # Function to open window with OT table
     def otorder(self):
+        """
+        Opens a window for creating OT (Order of Work) records.
+        """
         from OTGeneralCreate_Window import Ui_OTGeneralCreate_Window
         self.otgeneralcreate_window=QtWidgets.QMainWindow()
         self.ui=Ui_OTGeneralCreate_Window()
@@ -1634,12 +1706,18 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to open window to insert test data
     def insert_test(self):
+        """
+        Opens a menu for inserting test data.
+        """
         from Tests_Menu import Ui_Tests_Menu
         self.Testinsert_window=Ui_Tests_Menu(self.username)
         self.Testinsert_window.show()
 
 # Function to open window with orders table for technical office data
     def techoffice(self):
+        """
+        Opens a window displaying the orders table for technical office data.
+        """
         from TechOffice_Window import Ui_TechOffice_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -1657,6 +1735,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to open window with notifications table
     def notifications(self):
+        """
+        Opens a new window to show active notifications. 
+        """
         from NotificationsHistory_Window import Ui_HistoryNotifications_Window
         self.notification_window=Ui_HistoryNotifications_Window(self.username)
         self.notification_window.show()
@@ -1664,6 +1745,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to open window for order query
     def query_order(self):
+        """
+        Opens a new window for querying orders. 
+        """
         if self.name not in ['Jesús Martínez']:
             from OrderQuery_Window import Ui_QueryOrder_Window
             self.query_order_window=Ui_QueryOrder_Window('Técnico')
@@ -1672,6 +1756,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to open window for tag edition
     def edit_tag(self):
+        """
+        Opens a new window for editing existing tags. 
+        """
         from TAGEdit_Technical_Window import Ui_EditTags_Technical_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -1689,6 +1776,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to open window for tag query
     def query_tag(self):
+        """
+        Opens a new window for querying tags. 
+        """
         from TAGQuery_Menu import Ui_TAGQuery_Menu
         self.querytag_window=QtWidgets.QMainWindow()
         self.ui=Ui_TAGQuery_Menu('Técnico')
@@ -1697,6 +1787,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to open window for documentation creation
     def create_documents(self):
+        """
+        Opens a window for creating new documents.
+        """
         from DocNew_Window import Ui_New_Doc_Window
         self.createdoc_window=QtWidgets.QMainWindow()
         self.ui=Ui_New_Doc_Window()
@@ -1705,89 +1798,95 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to open window for documentation importation
     def import_documents(self):
+        """
+        Opens a file dialog for selecting an Excel file and imports its contents into the database.
+        """
         # File dialog to select Excel file
         # Tk().withdraw()  # Ocultar la ventana principal de tkinter
-            excel_file = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")],
-                            title="Seleccionar archivo Excel")
+        excel_file = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")],
+                        title="Seleccionar archivo Excel")
 
-            if excel_file:
-                try:
-        # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # Saving Excel in Pandas Dataframe
-                    df = pd.read_excel(excel_file)
+        if excel_file:
+            try:
+    # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # Saving Excel in Pandas Dataframe
+                df = pd.read_excel(excel_file)
 
-                # Reading each row and inserting data in table
-                    for index, row in df.iterrows():
-                    # Creating SQL sentence
-                        values=[str(value) for value in row.values]
-                        values.append('')
+            # Reading each row and inserting data in table
+                for index, row in df.iterrows():
+                # Creating SQL sentence
+                    values=[str(value) for value in row.values]
+                    values.append('')
 
-                        query = "SELECT * FROM documentation WHERE num_doc_eipsa = %s"
-                        cur.execute(query, (values[0],))
-                        results=cur.fetchall()
-                        match=list(filter(lambda x:values[0] in x, results))
+                    query = "SELECT * FROM documentation WHERE num_doc_eipsa = %s"
+                    cur.execute(query, (values[0],))
+                    results=cur.fetchall()
+                    match=list(filter(lambda x:values[0] in x, results))
 
-                        if len(match)>0:
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("Nuevo Documento")
-                            dlg.setText(f"El número de documento '{values[0]}' ya existe y no será importado. Por favor, edítalo y vuelve a importarlo")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                            dlg.exec()
-                            del dlg, new_icon
+                    if len(match)>0:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Nuevo Documento")
+                        dlg.setText(f"El número de documento '{values[0]}' ya existe y no será importado. Por favor, edítalo y vuelve a importarlo")
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                        dlg.exec()
+                        del dlg, new_icon
 
-                        else:
-                            query = "SELECT id FROM document_type WHERE doc_type = %s"
-                            cur.execute(query, (values[4],))
-                        # get results from query
-                            resultado = cur.fetchone()
-                        # get id from table
-                            id_doctype = resultado[0]
-                        #inserting values to BBDD
-                            values[4]=str(id_doctype)
-                            values = "', '".join(['' if value=='nan' else value for value in values])
-                            sql_insertion = f"INSERT INTO documentation (num_doc_eipsa,num_doc_client,num_order,doc_title,doc_type_id,critical,state) VALUES ('{values}')"
-                        # Executing SQL sentence
-                            cur.execute(sql_insertion)
+                    else:
+                        query = "SELECT id FROM document_type WHERE doc_type = %s"
+                        cur.execute(query, (values[4],))
+                    # get results from query
+                        resultado = cur.fetchone()
+                    # get id from table
+                        id_doctype = resultado[0]
+                    #inserting values to BBDD
+                        values[4]=str(id_doctype)
+                        values = "', '".join(['' if value=='nan' else value for value in values])
+                        sql_insertion = f"INSERT INTO documentation (num_doc_eipsa,num_doc_client,num_order,doc_title,doc_type_id,critical,state) VALUES ('{values}')"
+                    # Executing SQL sentence
+                        cur.execute(sql_insertion)
 
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Importar Documentos")
-                    dlg.setText("Importación completada")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Importar Documentos")
+                dlg.setText("Importación completada")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+                del dlg, new_icon
 
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
 # Function to open window for documentation edition
     def edit_documents(self):
+        """
+        Opens a window for editing existing documents in the database.
+        """
         from DocEdit_Window import Ui_EditDoc_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -1807,12 +1906,19 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to open window for documentation query
     def query_documents(self):
+        """
+        Opens a new window for querying documents. 
+        """
         from DocQuery_Window import Ui_QueryDoc_Window
         self.querydoc_menu=Ui_QueryDoc_Window()
         self.querydoc_menu.show()
 
 # Function to show contextual menu when profile image is clicked
     def showMenu(self):
+        """
+        Displays a context menu when the profile button is clicked. 
+        Provides options to edit the password.
+        """
         menu = QMenu(self.centralwidget)
         menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; }"
         "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
@@ -1824,6 +1930,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to open window for password edition
     def editpassword(self):
+        """
+        Opens a new window for editing the user's password. 
+        """
         from PasswordEdit_Window import Ui_EditPasswordWindow
         self.edit_password_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditPasswordWindow(self.username)
@@ -1832,6 +1941,13 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to update documentation table
     def update_table(self):
+        """
+        Updates the documentation table. Fetches documentation records that are either in a specific state or have no state. 
+        Handles errors and displays them using a message box.
+
+        Raises:
+            Exception: If there is an error during the database operation.
+        """
         self.tableDocs.setRowCount(0)
         delay_date=QtCore.QDate.currentDate().addDays(-10)
         commands_documentation = ("""
@@ -1892,6 +2008,10 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 #Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
+        """
+        Handles the click event on the table header.
+        Displays a context menu for unique values in the clicked column header.
+        """
         header_pos = self.tableDocs.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.tableDocs.horizontalHeader().height()
         popup_pos = self.tableDocs.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
@@ -1899,6 +2019,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to load number of notifications
     def load_notifications(self):
+        """
+        Loads and displays notifications for the user from various tables in the 'notifications' schema.
+        """
         query_tables_notifications = """SELECT table_name
                                 FROM information_schema.tables
                                 WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
@@ -1954,6 +2077,16 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to import clock times
     def importtimes(self):
+        """
+        Imports operational times from a text file into the database.
+
+        Processes a specified text file, transforms the data into a DataFrame, 
+        and inserts it into the 'fabrication.imp_ot' table in the PostgreSQL database.
+
+        Raises:
+            Exception: If there is an error during the database operation.
+        """
+
         fname = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Tiempos\EXPSEM.txt"
 
         if fname:
@@ -2019,7 +2152,10 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to edit database tables of manufacturing section
     def dbmanufedit(self):
-        from DBManufEditReg_Window import Ui_DBManufEditReg_Window
+        """
+        Opens the database manufacturing editing window.
+        """
+        from DBManufEditReg_Window import Ui_DBEditRegManuf_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
@@ -2031,32 +2167,40 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         if not db_manuf:
             sys.exit()
 
-        self.dbedit_window=Ui_DBManufEditReg_Window(db_manuf)
+        self.dbedit_window=Ui_DBEditRegManuf_Window(db_manuf)
         self.dbedit_window.show()
 
 # Function to import clock-in hours
     def importclockin(self):
+        """
+        Imports clock-in hours from a selected text file into the database.
+
+        Prompts the user to select a text file, processes the data, 
+        and inserts it into the 'clock_in_times' table in the PostgreSQL database.
+
+        Raises:
+            Exception: If there is an error during the database operation.
+        """
         fname = askopenfilename(filetypes=[("Archivos de Excel", "*.txt")],
                         title="Seleccionar archivo Excel")
 
         if fname:
-            # Expected columns
-            column_names = ['worker_id', 'name', 'workday', 'type_day', 'notes', 'time_1', 'time_2', 'time_3', 'time_4','extra']
-            
-            df = pd.read_csv(fname, sep="|", header=None, names=column_names, encoding="latin-1")
-            df = df.astype(str)
-            df_final = df.iloc[1:,[0, 2, 4, 5, 6, 7, 8]].copy()
-            columns_update = ['time_1', 'time_2', 'time_3', 'time_4']
-
-            # Apply replace on selected columns
-            df_final[columns_update] = df_final[columns_update].apply(lambda x: x.str.replace(r'\(\d+\)', '', regex=True))
-            df_final[columns_update] = df_final[columns_update].apply(lambda x: x.str.replace('nan', '0:00', regex=True))
-
-            params = config()
-            conn = psycopg2.connect(**params)
-            cursor = conn.cursor()
-
             try:
+                # Expected columns
+                column_names = ['worker_id', 'name', 'workday', 'type_day', 'notes', 'time_1', 'time_2', 'time_3', 'time_4','extra']
+                
+                df = pd.read_csv(fname, sep="|", header=None, names=column_names, encoding="latin-1")
+                df = df.astype(str)
+                df_final = df.iloc[1:,[0, 2, 4, 5, 6, 7, 8]].copy()
+                columns_update = ['time_1', 'time_2', 'time_3', 'time_4']
+
+                # Apply replace on selected columns
+                df_final[columns_update] = df_final[columns_update].apply(lambda x: x.str.replace(r'\(\d+\)', '', regex=True))
+                df_final[columns_update] = df_final[columns_update].apply(lambda x: x.str.replace('nan', '0:00', regex=True))
+
+                params = config()
+                conn = psycopg2.connect(**params)
+                cursor = conn.cursor()
 
                 for index, row in df_final.iterrows():
                 # Create a list of pairs (column_name, column_value) for each column with value
@@ -2102,12 +2246,21 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to show calendar with clock-in hours
     def clockin(self):
+        """
+        Opens the calendar window for viewing clock-in hours.
+        """
         from ClockIn_Window import MyCalendarApp
         self.clockin_window = MyCalendarApp(self.username)
         self.clockin_window.showMaximized()
 
 # Function to allow copy function in documents table
     def keyPressEvent(self, event):
+        """
+        Handles custom key events for cell operations in the table.
+
+        Args:
+            event (QtGui.QKeyEvent): The key event to handle.
+        """
         super().keyPressEvent(event)
         if event.matches(QtGui.QKeySequence.StandardKey.Copy):
             selected_indexes = self.tableDocs.selectedIndexes()
@@ -2118,6 +2271,15 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to get the copied text in the clipboard
     def get_selected_text(self, indexes):
+        """
+        Retrieves the text from the selected cells and returns it as a plain text string.
+
+        Args:
+            indexes (list of QModelIndex): A list of QModelIndex objects representing the selected cells.
+        
+        Returns:
+            str: A string containing the text from the selected cells.
+        """
         rows = set()
         cols = set()
         for index in indexes:
@@ -2144,6 +2306,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to open menu for document control
     def portal_doc(self):
+        """
+        Opens the document portal menu window.
+        """
         from DocPortal_Menu import Ui_PortalDoc_Menu
         self.portaldoc_menu=QtWidgets.QMainWindow()
         self.ui=Ui_PortalDoc_Menu()
@@ -2152,6 +2317,15 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to insert text on existing PDF
     def editpdf(self):
+        """
+        Inserts text into an existing PDF based on data from an Excel file and saves the modified PDF.
+
+        Prompts the user to select a PDF file to edit, processes the corresponding Excel file, 
+        and merges new content onto the specified pages.
+
+        Raises:
+            Exception: If there is an error during the PDF editing process.
+        """
         pdf_file = askopenfilename(filetypes=[("Archivos PDF", "*.pdf")], title="Seleccionar archivo pdf")
 
         if pdf_file:
@@ -2203,6 +2377,16 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to create PDF with specific text in a position
     def new_content(self, value, type_eq):
+        """
+        Generates a PDF containing a new content based on the specified value and equipment type.
+
+        Args:
+            value (str): The content to be added to the PDF.
+            type_eq (str): The type of equipment, determining the positioning in the PDF.
+
+        Returns:
+            io.BytesIO: A byte stream containing the generated PDF.
+        """
         pdf = FPDF(unit='mm')
         pdf.set_font("helvetica", "", 10)
         pdf.set_text_color(0, 0, 0)
@@ -2228,6 +2412,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to show window with tables of all tests
     def query_test(self):
+        """
+        Prompts the user to enter an order number and displays a window with the corresponding test tables.
+        """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -2260,22 +2447,20 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Funtion to show window with manufacturing times
     def checktimes(self):
+        """
+        Opens a window displaying manufacturing times.
+        """
         from TimesQuery_Window import Ui_TimesQuery_Window
         self.timesquery_window=QtWidgets.QMainWindow()
         self.ui=Ui_TimesQuery_Window(self.username)
         self.ui.setupUi(self.timesquery_window)
         self.timesquery_window.showMaximized()
 
-# Function to open corresponding window when Verification button is clicked
-    def verification(self):
-        from VerificationQuery_Window import Ui_VerificationQuery_Window
-        self.Verificationquery_window=QtWidgets.QMainWindow()
-        self.ui=Ui_VerificationQuery_Window(self.username)
-        self.ui.setupUi(self.Verificationquery_window)
-        self.Verificationquery_window.showMaximized()
-
 # Function to generate nuclear annexes
     def nuclear_annex(self):
+        """
+        Prompts the user for various inputs to generate nuclear annexes and exports them to an Excel document.
+        """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -2395,6 +2580,9 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
 # Function to open window of nc reports
     def nc_report(self):
+        """
+        Opens a window for viewing NC reports from the database.
+        """
         from NC_Report_Window import Ui_NC_Report_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -2411,12 +2599,15 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.nc_window.showMaximized()
 
 
+    def times(self):
+        print('tiempos')
+
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Login_Window = QtWidgets.QMainWindow()
-    ui = Ui_App_Technical('Ernesto Carrillo','e.carrillo')
+    ui = Ui_App_Technical('Jesús Martínez','j.martinez')
     ui.setupUi(Login_Window)
     Login_Window.show()
     sys.exit(app.exec())

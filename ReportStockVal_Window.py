@@ -23,17 +23,46 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
 class Ui_StockVal_Window(object):
+    """
+    UI class for the Stock Valoration window.
+    """
     def __init__(self):
+        """
+        Initializes the Ui_StockVal_Window object.
+
+        Side Effects:
+            Creates an instance of the PDF_Viewer class for PDF handling.
+        """
         self.pdf_viewer = PDF_Viewer()
 
 
     def setupUi(self, ReportStockVal):
+        """
+        Sets up the user interface for the ReportStockVal.
+
+        Args:
+            ReportStockVal (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         ReportStockVal.setObjectName("ReportStockVal")
         ReportStockVal.resize(1165, 945)
         ReportStockVal.setMinimumSize(QtCore.QSize(1165, 945))
@@ -187,7 +216,11 @@ class Ui_StockVal_Window(object):
 
         self.loaddata()
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, ReportStockVal):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         ReportStockVal.setWindowTitle(_translate("ReportStockVal", "Valoración de Stock"))
         item = self.tableWidget.horizontalHeaderItem(0)
@@ -209,6 +242,10 @@ class Ui_StockVal_Window(object):
 
 # Function to load data in table
     def loaddata(self):
+        """
+        Queries the database for supplies, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         commands_supplies = f"""
                             SELECT supplies."reference", supplies."description", CAST(supplies."unit_value" AS money), ROUND(CAST(supplies."physical_stock" AS NUMERIC), 2) AS rounded_stock, supplies."m_unit_id",   CAST((supplies."unit_value" * supplies."physical_stock") AS money)  AS subtotal
                             FROM purch_fact.supplies AS supplies
@@ -276,6 +313,9 @@ class Ui_StockVal_Window(object):
 
 # Function to calculate total
     def calculate_totalqty(self):
+            """
+            Calculates the total values for euro amount and total quantity of items in the stock based on the data in the table model.
+            """
             locale.setlocale(locale.LC_ALL, '')
             total = 0
             for row in range(self.tableWidget.rowCount()):
@@ -302,6 +342,9 @@ class Ui_StockVal_Window(object):
 
 # Function to generate PDF
     def generate_pdf(self):
+        """
+        Generates the pdf of the stock valoration.
+        """
         from PDF_Styles import stock_valoration
         from tkinter.filedialog import asksaveasfilename
 
@@ -372,6 +415,9 @@ class Ui_StockVal_Window(object):
 
 # Function to generate Excel
     def generate_excel(self):
+        """
+        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
+        """
         output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
 
         self.df["Val. Un."] = self.df["Val. Un."].apply(self.euros_to_float)
@@ -400,6 +446,9 @@ class Ui_StockVal_Window(object):
 
 # Function to transform euros to float values
     def euros_to_float(self, value):
+        """
+        Converts a euro-formatted string to a float.
+        """
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]

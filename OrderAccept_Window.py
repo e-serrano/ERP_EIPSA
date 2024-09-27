@@ -19,10 +19,25 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_OrderAccept_Window(object):
+    """
+    UI class for the Order Accept window.
+    """
     def __init__(self, username=None):
+        """
+        Initializes the Ui_OrderAccept_Window with the specified username.
+
+        Args:
+            username (str): username associated with the window.
+        """
         self.username=username
 
     def setupUi(self, OrderAccept_Window):
+        """
+        Sets up the user interface for the OrderAccept_Window.
+
+        Args:
+            OrderAccept_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         OrderAccept_Window.setObjectName("OrderAccept_Window")
         OrderAccept_Window.resize(300, 450)
         OrderAccept_Window.setMinimumSize(QtCore.QSize(300, 650))
@@ -289,12 +304,16 @@ class Ui_OrderAccept_Window(object):
         OrderAccept_Window.setMenuBar(self.menubar)
 
         self.retranslateUi(OrderAccept_Window)
-        self.generate_orderaccept.clicked.connect(lambda: self.generate_document(OrderAccept_Window))
+        self.generate_orderaccept.clicked.connect(self.generate_document)
         # self.revision_orderaccept.returnPressed.connect(lambda: self.generateoffer(OrderAccept_Window))
         QtCore.QMetaObject.connectSlotsByName(OrderAccept_Window)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, OrderAccept_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         OrderAccept_Window.setWindowTitle(_translate("OrderAccept_Window", "Generar Acuse Pedido"))
         self.label_numorder_orderaccept.setText(_translate("OrderAccept_Window", "Número Pedido:"))
@@ -310,7 +329,10 @@ class Ui_OrderAccept_Window(object):
 
 
 # Function to generate the final document
-    def generate_document(self, OrderAccept_Window):
+    def generate_document(self):
+        """
+        Generates a purchase order acknowledgment document based on the order details provided by the user
+        """
         try:
             numorder = self.numorder_orderaccept.text()
             address_client = self.address_orderaccept.text()
@@ -573,6 +595,12 @@ class Ui_OrderAccept_Window(object):
 
 # Function to save the final document
     def save_document(self, document):
+        """
+        Saves the generated document to a user-specified location.
+
+        Args:
+        - document: The generated Word document object to be saved.
+        """
         output_path_accept = asksaveasfilename(
                 defaultextension=".docx",
                 filetypes=[("Archivos de Word", "*.docx")],
@@ -583,6 +611,15 @@ class Ui_OrderAccept_Window(object):
 
 # Function to format date to long in spanish
     def format_date_spanish(self, date_toformat):
+        """
+        Formats a date object to a long string in Spanish.
+
+        Args:
+            date_toformat (date): The date to format.
+            
+        Returns:
+            str: The formatted date as a string in the format "day de month de year".
+        """
         months = ("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre")
         day = date_toformat.day
         month = months[date_toformat.month - 1]
@@ -593,6 +630,15 @@ class Ui_OrderAccept_Window(object):
 
 # Function to format date to long in english
     def format_date_english(self, date_toformat):
+        """
+        Formats a date object to a long string in Englsih.
+
+        Args:
+            date_toformat (date): The date to format.
+            
+        Returns:
+            str: The formatted date as a string in the format "month day, year".
+        """
         months = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
         day = date_toformat.day
         month = months[date_toformat.month - 1]

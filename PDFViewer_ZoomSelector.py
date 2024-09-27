@@ -7,11 +7,17 @@ from PyQt6.QtCore import pyqtSignal, pyqtSlot
 
 
 class ZoomSelector(QComboBox):
-
+    """
+    A combo box for selecting and setting zoom levels, with options for predefined and custom zoom percentages.
+    Emits signals for zoom mode and zoom factor changes.
+    """
     zoom_mode_changed = pyqtSignal(QPdfView.ZoomMode)
     zoom_factor_changed = pyqtSignal(float)
 
     def __init__(self, parent):
+        """
+        Initializes the ZoomSelector, sets up editable mode, adds predefined zoom options, and connects signals.
+        """
         super().__init__(parent)
         self.setEditable(True)
 
@@ -34,15 +40,24 @@ class ZoomSelector(QComboBox):
 
     @pyqtSlot(float)
     def set_zoom_factor(self, zoomFactor):
+        """
+        Sets the zoom factor and updates the combo box selection to the corresponding percentage.
+        """
         percent = int(zoomFactor * 100)
         self.setCurrentText(f"{percent}%")
 
     @pyqtSlot()
     def reset(self):
+        """
+        Resets the combo box to the default zoom level (100%).
+        """
         self.setCurrentIndex(1)  # 100%
 
     @pyqtSlot(str)
     def on_current_text_changed(self, text):
+        """
+        Emits zoom mode and factor signals based on the current text selection.
+        """
         if text == "Fit Width":
             self.zoom_mode_changed.emit(QPdfView.ZoomMode.FitToWidth)
         elif text == "Fit Page":
@@ -56,4 +71,7 @@ class ZoomSelector(QComboBox):
 
     @pyqtSlot()
     def _editing_finished(self):
+        """
+        Handles the event when editing in the combo box line edit is finished.
+        """
         self.on_current_text_changed(self.lineEdit().text())

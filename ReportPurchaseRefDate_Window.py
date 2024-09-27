@@ -23,12 +23,35 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 class Ui_ReportPurRefDate_Window(object):
+    """
+    UI class for the Report purchase by reference and dates window.
+    """
     def setupUi(self, ReportPurRefDate_Window):
+        """
+        Sets up the user interface for the ReportPurRefDate_Window.
+
+        Args:
+            ReportPurRefDate_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         ReportPurRefDate_Window.setObjectName("ReportPurRefDate_Window")
         ReportPurRefDate_Window.resize(1165, 945)
         ReportPurRefDate_Window.setMinimumSize(QtCore.QSize(1165, 945))
@@ -115,122 +138,6 @@ class Ui_ReportPurRefDate_Window(object):
         self.gridLayout1.addWidget(self.Button_Export, 0, 3, 1, 1)
         spacerItem2 = QtWidgets.QSpacerItem(20, 15, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout1.addItem(spacerItem2, 1, 1, 1, 1)
-#         self.label_dates = QtWidgets.QLabel(parent=self.frame)
-#         self.label_dates.setMinimumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
-#         self.label_dates.setMaximumSize(QtCore.QSize(int(100//1.5), int(35//1.5)))
-#         font = QtGui.QFont()
-#         font.setPointSize(int(11//1.5))
-#         font.setBold(True)
-#         self.label_dates.setFont(font)
-#         self.label_dates.setObjectName("label_dates")
-#         self.gridLayout1.addWidget(self.label_dates, 2, 0, 1, 1)
-#         self.DateStart = QtWidgets.QDateEdit(calendarPopup=True)
-#         self.DateStart.setMinimumSize(QtCore.QSize(int(300//1.5), int(35//1.5)))
-#         self.DateStart.setMaximumSize(QtCore.QSize(int(300//1.5), int(35//1.5)))
-#         self.DateStart.setDate(QtCore.QDate.currentDate())
-#         font = QtGui.QFont()
-#         font.setPointSize(int(10//1.5))
-#         self.DateStart.setFont(font)
-#         self.DateStart.setObjectName("DateStart")
-#         self.DateStart.setStyleSheet("QCalendarWidget QWidget{\n"
-# "background-color: rgb(3, 174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QTableView{\n"
-# "    background-color: white;\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton {\n"
-# "    color: white;\n"
-# "    font-size:10px;\n"
-# "    icon-size:20px 20px;\n"
-# "    background-color:rgb(3, 174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton::hover {\n"
-# "    background-color : #019ad2;\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton::pressed {\n"
-# "    background-color: rgb(1, 140, 190);\n"
-# "    border: 3px solid;\n"
-# "    border-color: rgb(255, 255, 255);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QSpinBox{\n"
-# "    background-color: rgb(255, 255, 255);\n"
-# "    border: 2px solid;\n"
-# "    border-color: rgb(3,174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QAbstractItemView:enabled{\n"
-# "    selection-background-color: rgb(3, 174, 236);\n"
-# "    selection-color: white;\n"
-# "}\n"
-# "\n"
-# "#qt_calendar_prevmonth {\n"
-# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
-# "}\n"
-# "#qt_calendar_nextmonth {\n"
-# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
-# "}")
-#         self.gridLayout1.addWidget(self.DateStart, 2, 1, 1, 1)
-#         self.DateEnd = QtWidgets.QDateEdit(calendarPopup=True)
-#         self.DateEnd.setMinimumSize(QtCore.QSize(int(300//1.5), int(35//1.5)))
-#         self.DateEnd.setMaximumSize(QtCore.QSize(int(300//1.5), int(35//1.5)))
-#         font = QtGui.QFont()
-#         font.setPointSize(int(10//1.5))
-#         self.DateEnd.setFont(font)
-#         self.DateEnd.setDate(QtCore.QDate.currentDate())
-#         self.DateEnd.setObjectName("DateEnd")
-#         self.DateEnd.setStyleSheet("QCalendarWidget QWidget{\n"
-# "background-color: rgb(3, 174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QTableView{\n"
-# "    background-color: white;\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton {\n"
-# "    color: white;\n"
-# "    font-size:10px;\n"
-# "    icon-size:20px 20px;\n"
-# "    background-color:rgb(3, 174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton::hover {\n"
-# "    background-color : #019ad2;\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton::pressed {\n"
-# "    background-color: rgb(1, 140, 190);\n"
-# "    border: 3px solid;\n"
-# "    border-color: rgb(255, 255, 255);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QSpinBox{\n"
-# "    background-color: rgb(255, 255, 255);\n"
-# "    border: 2px solid;\n"
-# "    border-color: rgb(3,174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QAbstractItemView:enabled{\n"
-# "    selection-background-color: rgb(3, 174, 236);\n"
-# "    selection-color: white;\n"
-# "}\n"
-# "\n"
-# "#qt_calendar_prevmonth {\n"
-# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
-# "}\n"
-# "#qt_calendar_nextmonth {\n"
-# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
-# "}")
-#         self.gridLayout1.addWidget(self.DateEnd, 2, 2, 1, 1)
-#         self.Button_Load = QtWidgets.QPushButton(parent=self.frame)
-#         self.Button_Load.setMinimumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
-#         self.Button_Load.setMaximumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
-#         self.Button_Load.setObjectName("Button_Load")
-#         self.gridLayout1.addWidget(self.Button_Load, 2, 3, 1, 1)
         self.gridLayout_2.addLayout(self.gridLayout1, 1, 0, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(20, 30, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem1, 2, 0, 1, 1)
@@ -320,7 +227,11 @@ class Ui_ReportPurRefDate_Window(object):
         self.ItemName.currentIndexChanged.connect(self.loaddata)
         self.Button_Export.clicked.connect(self.generate_excel)
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, ReportPurRefDate_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         ReportPurRefDate_Window.setWindowTitle(_translate("ReportPurRefDate_Window", "Compra Artículos"))
         item = self.tableWidget.horizontalHeaderItem(0)
@@ -342,6 +253,10 @@ class Ui_ReportPurRefDate_Window(object):
 
 
     def loaddata(self):
+        """
+        Queries the database based on selected item, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         supply_name = self.ItemName.currentText()
         supply_name = supply_name[:supply_name.find(" |")]
 
@@ -434,6 +349,9 @@ class Ui_ReportPurRefDate_Window(object):
 
 
     def generate_excel(self):
+        """
+        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
+        """
         output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
 
         # self.df["Total"] = self.df["Total"].apply(self.euros_to_float)
@@ -473,23 +391,29 @@ class Ui_ReportPurRefDate_Window(object):
 
 #  Function to calculate the total amount
     def calculate_total(self):
-            locale.setlocale(locale.LC_ALL, '')
-            total = 0
-            for row in range(self.tableWidget.rowCount()):
-                item = self.tableWidget.item(row, 5)
-                if item is not None:
-                    value = item.text()
-                    value=value.replace(".","")
-                    value=value.replace(",",".")
-                    value=value[:value.find(" €")]
-                    total += float(value)
-            total = locale.format_string("%.2f", total, grouping=True)
-            total = total + " €"
-            self.label_TotalValue.setText(total)
+        """
+        Calculates the total amounts based on the data in the table widget.
+        """
+        locale.setlocale(locale.LC_ALL, '')
+        total = 0
+        for row in range(self.tableWidget.rowCount()):
+            item = self.tableWidget.item(row, 5)
+            if item is not None:
+                value = item.text()
+                value=value.replace(".","")
+                value=value.replace(",",".")
+                value=value[:value.find(" €")]
+                total += float(value)
+        total = locale.format_string("%.2f", total, grouping=True)
+        total = total + " €"
+        self.label_TotalValue.setText(total)
 
 
 # Function to transform euros to float values
     def euros_to_float(self, value):
+        """
+        Converts a euro-formatted string to a float.
+        """
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]

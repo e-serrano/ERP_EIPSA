@@ -21,22 +21,52 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
 class Ui_QueryTask_Window(QtWidgets.QMainWindow):
+    """
+    UI class for the Task Query window.
+    """
     def __init__(self, name, date=None):
+        """
+        Initializes the Ui_QueryTask_Window.
+
+        Args:
+            id (str): The ID of the task.
+            task (str): The task description.
+            date (str): The task date in "dd-MM-yyyy" format.
+            state (str): The state or status of the task.
+        """
         super().__init__()
         self.name=name
         if date:
             self.dateselected = date.toString("yyyy-MM-dd")
         self.setupUi(self)
-    # def __init__(self):
-    #     self.name="Luis Bravo"
 
     def setupUi(self, QueryTask_Window):
+        """
+        Sets up the user interface for the QueryTask_Window.
+
+        Args:
+            QueryTask_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         QueryTask_Window.setObjectName("QueryTask_Window")
         QueryTask_Window.resize(400, 561)
         QueryTask_Window.setMinimumSize(QtCore.QSize(600, 575))
@@ -181,7 +211,11 @@ class Ui_QueryTask_Window(QtWidgets.QMainWindow):
         self.queryTask()
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, QueryTask_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         QueryTask_Window.setWindowTitle(_translate("QueryTask_Window", "Tareas"))
         item = self.tableTasks.horizontalHeaderItem(0)
@@ -203,6 +237,10 @@ class Ui_QueryTask_Window(QtWidgets.QMainWindow):
 
 
     def queryTask(self):
+        """
+        Queries the database for tasks, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         conn = None
         commands_QueryTask_All_LB = ("""
                                     SELECT "id", "creator", "task", TO_CHAR("task_date", 'DD-MM-YYYY'), "state", "responsible"
@@ -248,12 +286,12 @@ class Ui_QueryTask_Window(QtWidgets.QMainWindow):
             cur = conn.cursor()
         # execution of commands one by one
             if hasattr(self, 'dateselected'):
-                if self.name in ['Luis Bravo', 'Fernando Gallego']:
+                if self.name in ['Fernando Gallego']:
                     cur.execute(commands_QueryTask_date_LB, (self.dateselected,))
                 else:
                     cur.execute(commands_QueryTask_date, (self.name, self.dateselected,))
             else:
-                if self.name in ['Luis Bravo', 'Fernando Gallego']:
+                if self.name in ['Fernando Gallego']:
                     cur.execute(commands_QueryTask_All_LB)
                 else:
                     cur.execute(commands_QueryTask_All, (self.name,))
@@ -268,7 +306,7 @@ class Ui_QueryTask_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                if self.name in ['Luis Bravo', 'Fernando Gallego']:
+                if self.name in ['Fernando Gallego']:
                     for column in range(6):
                         value = row[column]
                         if value is None:
@@ -305,7 +343,11 @@ class Ui_QueryTask_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
+
     def update_tasks(self):
+        """
+        Modifies the selected entry in database after validating form inputs.
+        """
         self.tableTasks.setSortingEnabled(False)
         self.tableTasks.setRowCount(0)
         conn = None
@@ -353,12 +395,12 @@ class Ui_QueryTask_Window(QtWidgets.QMainWindow):
             cur = conn.cursor()
         # execution of commands one by one
             if hasattr(self, 'dateselected'):
-                if self.name in ['Luis Bravo', 'Fernando Gallego']:
+                if self.name in ['Fernando Gallego']:
                     cur.execute(commands_QueryTask_date_LB, (self.dateselected,))
                 else:
                     cur.execute(commands_QueryTask_date, (self.name, self.dateselected,))
             else:
-                if self.name in ['Luis Bravo', 'Fernando Gallego']:
+                if self.name in ['Fernando Gallego']:
                     cur.execute(commands_QueryTask_All_LB)
                 else:
                     cur.execute(commands_QueryTask_All, (self.name,))
@@ -373,7 +415,7 @@ class Ui_QueryTask_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                if self.name in ['Luis Bravo', 'Fernando Gallego']:
+                if self.name in ['Fernando Gallego']:
                     for column in range(6):
                         value = row[column]
                         if value is None:
@@ -413,10 +455,22 @@ class Ui_QueryTask_Window(QtWidgets.QMainWindow):
 
 
     def on_item_double_clicked(self, item):
+        """
+        Handles double-click events on items in a QTableWidget.
+        
+        Args:
+            item (QtWidgets.QTableWidgetItem): The item that was double-clicked.
+        """
         self.edittask(item)
 
 
     def edittask(self, item):
+        """
+        Opens a window to edit the selected task details.
+
+        Args:
+            item (QTableWidgetItem): The table widget item containing task information.
+        """
         task = item.tableWidget().item(item.row(), 2).text()
         id = item.tableWidget().item(item.row(), 0).text()
         date = item.tableWidget().item(item.row(), 3).text()
@@ -430,6 +484,12 @@ class Ui_QueryTask_Window(QtWidgets.QMainWindow):
 
 
     def historytask(self,QueryTask_Window):
+        """
+        Opens a window to display the task history and hides the query window.
+
+        Args:
+            QueryTask_Window (QMainWindow): The main query task window to be hidden.
+        """
         self.historytaskwindow=Ui_HistoryTask_Window(self.name)
         self.historytaskwindow.show()
         QueryTask_Window.hide()
@@ -437,6 +497,9 @@ class Ui_QueryTask_Window(QtWidgets.QMainWindow):
 
 
     def export_to_excel(self):
+        """
+        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
+        """
         file_name, _ = QFileDialog.getSaveFileName(self, "Guardar como Excel", "", "Archivos Excel (*.xlsx);;Todos los archivos (*)")
 
         if file_name:
@@ -451,6 +514,12 @@ class Ui_QueryTask_Window(QtWidgets.QMainWindow):
 
 
     def keyPressEvent(self, event):
+        """
+        Handles custom key events for cell operations in the table.
+
+        Args:
+            event (QtGui.QKeyEvent): The key event to handle.
+        """
         super().keyPressEvent(event)
         if event.matches(QtGui.QKeySequence.StandardKey.Copy):
             selected_indexes = self.tableTasks.selectedIndexes()
@@ -461,6 +530,15 @@ class Ui_QueryTask_Window(QtWidgets.QMainWindow):
 
 
     def get_selected_text(self, indexes):
+        """
+        Retrieves the text from the selected cells and returns it as a plain text string.
+
+        Args:
+            indexes (list of QModelIndex): A list of QModelIndex objects representing the selected cells.
+        
+        Returns:
+            str: A string containing the text from the selected cells.
+        """
         rows = set()
         cols = set()
         for index in indexes:
@@ -490,6 +568,6 @@ class Ui_QueryTask_Window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    QueryTask_Window = Ui_QueryTask_Window()
+    QueryTask_Window = Ui_QueryTask_Window('Carlos Crespo')
     QueryTask_Window.show()
     sys.exit(app.exec())

@@ -19,7 +19,13 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_MainWindow(object):
+    """
+    Sets up the main window UI, including actions, menus, toolbars, and central widgets for a PDF viewer.
+    """
     def setupUi(self, MainWindow):
+        """
+        Configures the UI components of the main window, including actions, menus, toolbars, and layout.
+        """
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(700, 600)
@@ -170,7 +176,11 @@ class Ui_MainWindow(object):
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, MainWindow):
+        """
+        Translates and updates the text of various UI elements based on the current language settings.
+        """
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"PDF Viewer", None))
         self.actionQuit.setText(QCoreApplication.translate("MainWindow", u"Quit", None))
 #if QT_CONFIG(shortcut)

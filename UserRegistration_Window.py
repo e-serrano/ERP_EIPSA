@@ -20,7 +20,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_RegistrationWindow(object):
+    """
+    UI class for the User Registration window.
+    """
     def setupUi(self, RegistrationWindow):
+        """
+        Sets up the user interface for the RegistrationWindow.
+
+        Args:
+            RegistrationWindow (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         RegistrationWindow.setObjectName("RegistrationWindow")
         RegistrationWindow.resize(270, 615)
         RegistrationWindow.setMinimumSize(QtCore.QSize(270, 655))
@@ -180,7 +189,7 @@ class Ui_RegistrationWindow(object):
         font.setPointSize(10)
         self.rol_reg.setFont(font)
         self.rol_reg.setObjectName("rol_reg")
-        list_rol=['Almacén','Comercial','Compras','Dirección','Facturación','Taller','Técnico','Verificación']
+        list_rol=['Almacén','Comercial','Compras','Dirección','SubDirección','Facturación','Taller','Técnico','Verificación']
         self.rol_reg.addItems(list_rol)
         self.gridLayout_3.addWidget(self.rol_reg, 9, 0, 1, 1)
         self.label_initials = QtWidgets.QLabel(parent=self.frame)
@@ -251,8 +260,11 @@ class Ui_RegistrationWindow(object):
         QtCore.QMetaObject.connectSlotsByName(RegistrationWindow)
         self.rol_reg.currentIndexChanged.connect(self.visible)
 
-
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, RegistrationWindow):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         RegistrationWindow.setWindowTitle(_translate("RegistrationWindow", "Registrar Usuario"))
         self.label_name_reg.setText(_translate("RegistrationWindow", "Nombre:"))
@@ -266,6 +278,9 @@ class Ui_RegistrationWindow(object):
 
 
     def registration(self):
+        """
+        Inserts new user data in database and send mail with credentials
+        """
         reg_name=self.name_reg.text()
         reg_secondname=self.secondname_reg.text()
         reg_username=self.username_reg.text()
@@ -485,6 +500,9 @@ class Ui_RegistrationWindow(object):
 
 
     def visible(self):
+        """
+        Toggles the visibility of the initials label and input field based on the selected role.
+        """
         if self.rol_reg.currentText() != 'Comercial':
             self.label_initials.setVisible(False)
             self.initials_reg.setVisible(False)

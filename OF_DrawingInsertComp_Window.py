@@ -18,11 +18,27 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_OF_DrawingInsertComp_Window(object):
+    """
+    UI class for the Insert OF drawings for components window.
+    """
     def __init__(self, numorder, username):
+        """
+        Initializes the Ui_New_Offer_Window with the specified username and order number.
+
+        Args:
+            username (str): username associated with the window.
+            numorder (str): order number associated with the window.
+        """
         self.numorder = numorder
         self.username = username
 
     def setupUi(self, OF_DrawingInsertComp_Window):
+        """
+        Sets up the user interface for the OF_DrawingInsertComp_Window.
+
+        Args:
+            OF_DrawingInsertComp_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         OF_DrawingInsertComp_Window.setObjectName("OF_DrawingInsertComp_Window")
         OF_DrawingInsertComp_Window.resize(450, 325)
         OF_DrawingInsertComp_Window.setMinimumSize(QtCore.QSize(450, 325))
@@ -219,7 +235,11 @@ class Ui_OF_DrawingInsertComp_Window(object):
         QtCore.QMetaObject.connectSlotsByName(OF_DrawingInsertComp_Window)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, OF_DrawingInsertComp_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         OF_DrawingInsertComp_Window.setWindowTitle(_translate("OF_DrawingInsertComp_Window", "Planos OF"))
         self.Button_Insert.setText(_translate("OF_DrawingInsertComp_Window", "Insertar"))
@@ -229,6 +249,9 @@ class Ui_OF_DrawingInsertComp_Window(object):
 
 
     def insert_of_drawing(self):
+        """
+        Inserts OF drawing for components data associated with an order into the database.
+        """
         num_order = self.num_order.text()
         drawing = self.drawing.text()
 
@@ -446,7 +469,6 @@ class Ui_OF_DrawingInsertComp_Window(object):
                     cur.close()
                 # commit the changes
                     conn.commit()
-
 
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()

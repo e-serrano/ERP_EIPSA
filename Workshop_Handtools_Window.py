@@ -30,6 +30,14 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
+    """
+    Converts an image in PNG format to a base64 encoded string.
+
+    Args:
+        imagen: An instance of QImage or QPixmap to be converted.
+    Return: 
+        A base64 encoded string representing the image in PNG format.
+    """
     buffer = QtCore.QBuffer()
     buffer.open(QtCore.QIODevice.OpenModeFlag.WriteOnly)
     imagen.save(buffer, ".png")
@@ -37,47 +45,67 @@ def imagen_to_base64(imagen):
     return base64_data
 
 
-class CheckboxWidget(QtWidgets.QWidget):
-    def __init__(self, text):
-        super().__init__()
-        layout = QtWidgets.QHBoxLayout(self)
-        self.checkbox = QtWidgets.QCheckBox(text)
-        layout.addWidget(self.checkbox)
-
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
-class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
-    def __init__(self, parent=None, options=None):
-        super().__init__(parent)
-        self.options = options
-
-    def createEditor(self, parent, option, index):
-        editor = QtWidgets.QComboBox(parent)
-        editor.setEditable(True)
-        return editor
-
-    def setEditorData(self, editor, index):
-        text = index.data(Qt.ItemDataRole.DisplayRole)
-        editor.addItems(self.options)
-        editor.setEditText(text)
-
-    def setModelData(self, editor, model, index):
-        model.setData(index, editor.currentText(), Qt.ItemDataRole.EditRole)
-
 class CustomProxyModel(QtCore.QSortFilterProxyModel):
+    """
+    A custom proxy model that filters table rows based on expressions set for specific columns.
+
+    Attributes:
+        _filters (dict): A dictionary to store filter expressions for columns.
+        header_names (dict): A dictionary to store header names for the table.
+
+    Properties:
+        filters: Getter for the current filter dictionary.
+
+    """
     def __init__(self, parent=None):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
         super().__init__(parent)
         self._filters = dict()
         self.header_names = {}
 
     @property
     def filters(self):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
         return self._filters
 
     def setFilter(self, expresion, column, action_name=None):
+        """
+        Apply a filter expression to a specific column, or remove it if necessary.
+
+        Args:
+            expresion (str): The filter expression.
+            column (int): The index of the column to apply the filter to.
+            action_name (str, optional): Name of the action, can be empty. Defaults to None.
+        """
         if expresion or expresion == '':
             if column in self.filters:
                 if action_name or action_name == '':
@@ -96,6 +124,16 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
         self.invalidateFilter()
 
     def filterAcceptsRow(self, source_row, source_parent):
+        """
+        Check if a row passes the filter criteria based on the column filters.
+
+        Args:
+            source_row (int): The row number in the source model.
+            source_parent (QModelIndex): The parent index of the row.
+
+        Returns:
+            bool: True if the row meets the filter criteria, False otherwise.
+        """
         for column, expresions in self.filters.items():
             text = self.sourceModel().index(source_row, column, source_parent).data()
 
@@ -121,45 +159,85 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
             else:
                 return False
         return True
-    
-    def lessThan(self, left, right):
-        left_value = self.sourceModel().data(left)
-        right_value = self.sourceModel().data(right)
-
-        if isinstance(left_value, str) and left_value.find('€') > 0:
-            left_value = left_value.replace(' €','').replace('.','').replace(',','.')
-            left_value = float(left_value)
-        if isinstance(right_value, str) and right_value.find('€') > 0:
-            right_value = right_value.replace(' €','').replace('.','').replace(',','.')
-            right_value = float(right_value)
-
-        return left_value < right_value
 
 class EditableTableModel(QtSql.QSqlTableModel):
+    """
+    A custom SQL table model that supports editable columns, headers, and special flagging behavior based on user permissions.
+
+    Signals:
+        updateFailed (str): Signal emitted when an update to the model fails.
+    """
     updateFailed = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None, column_range=None):
+        """
+        Initialize the model with user permissions and optional database and column range.
+
+        Args:
+            username (str): The username for permission-based actions.
+            parent (QObject, optional): Parent object for the model. Defaults to None.
+            column_range (list, optional): A list specifying the range of columns. Defaults to None.
+        """
         super().__init__(parent)
         self.column_range = column_range
 
     def setAllColumnHeaders(self, headers):
+        """
+        Set headers for all columns in the model.
+
+        Args:
+            headers (list): A list of header names.
+        """
         for column, header in enumerate(headers):
             self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
 
     def setIndividualColumnHeader(self, column, header):
+        """
+        Set the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            header (str): The header name.
+        """
         self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
 
     def setIconColumnHeader(self, column, icon):
+        """
+        Set an icon in the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            icon (QIcon): The icon to display in the header.
+        """
         self.setHeaderData(column, QtCore.Qt.Orientation.Horizontal, icon, Qt.ItemDataRole.DecorationRole)
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        """
+        Retrieve the header data for a specific section of the model.
+
+        Args:
+            section (int): The section index (column or row).
+            orientation (Qt.Orientation): The orientation (horizontal or vertical).
+            role (Qt.ItemDataRole, optional): The role for the header data. Defaults to DisplayRole.
+
+        Returns:
+            QVariant: The header data for the specified section.
+        """
         if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
             return super().headerData(section, orientation, role)
         return super().headerData(section, orientation, role)
 
     def flags(self, index):
+        """
+        Get the item flags for a given index, controlling editability and selection based on user permissions.
+
+        Args:
+            index (QModelIndex): The index of the item.
+
+        Returns:
+            Qt.ItemFlags: The flags for the specified item.
+        """
         flags = super().flags(index)
-        # return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
         if index.column() in [0,8]:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
@@ -167,43 +245,47 @@ class EditableTableModel(QtSql.QSqlTableModel):
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
     def getColumnHeaders(self, visible_columns):
+        """
+        Retrieve the headers for the specified visible columns.
+
+        Args:
+            visible_columns (list): List of column indices that are visible.
+
+        Returns:
+            list: A list of column headers for the visible columns.
+        """
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
 
-class CustomPDF(FPDF):
-    def fixed_height_multicell(self, w, total_h, txt, align_mc, border='LRB', fill=False):
-        # Divide el texto en palabras
-        words = txt.split()
-        lines = []
-        line = ''
-        for word in words:
-            # Si la longitud de la línea con la palabra añadida es mayor que el ancho de la celda
-            if self.get_string_width(line + word + ' ') > w - 0.5:
-                # Añade la línea a la lista de líneas y comienza una nueva línea
-                lines.append(line)
-                line = word + ' '
-            else:
-                # Añade la palabra a la línea actual
-                line += word + ' '
-        # Añade la última línea a la lista de líneas
-        lines.append(line)
-        
-        # Calcula la altura de cada línea para que la altura total sea igual a total_h
-        line_height = total_h / len(lines)
-
-        # Guarda la posición actual
-        x, y = self.get_x(), self.get_y()
-
-        for line in lines:
-            # Imprime cada línea con la altura calculada
-            self.multi_cell(w, line_height, line, border, align_mc, fill)
-            self.set_x(x)
-
-        # Asegura que la altura total sea 2.75 cm
-        self.set_xy(x, y + total_h)
 
 class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
+    """
+    Main window class for managing workshop handtools, including data filtering, sorting,
+    and handling machine-related operations.
+
+    Attributes:
+        model: The table model used to handle data for the machine revisions.
+        proxy: A custom proxy model for filtering and sorting the data.
+        db: The database connection object.
+        machine_id: The ID of the machine being reviewed or modified.
+        checkbox_states: Dictionary storing the states of checkboxes for filtering purposes.
+        dict_valuesuniques: Dictionary holding unique values for each column in the table.
+        dict_ordersort: Dictionary managing the sorting order of columns.
+        hiddencolumns: List of columns that are hidden in the table view.
+        variable: Holds the current variable being used for filtering or sorting.
+        action_checkbox_map: Dictionary mapping actions to checkboxes for filtering.
+        checkbox_filters: Dictionary of active filters applied through checkboxes.
+        username: The username of the current user.
+    """
     def __init__(self, db, username):
+        """
+        Initializes the workshop handtools window, sets up the data model, proxy model, 
+        and connects relevant signals for handling changes.
+        
+        Args:
+            db: Database connection object.
+            username: Username of the current user.
+        """
         super().__init__()
         self.model = EditableTableModel()
         self.proxy = CustomProxyModel()
@@ -221,13 +303,21 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
         self.model.dataChanged.connect(self.saveChanges)
 
     def closeEvent(self, event):
-    # Closing database connection
+        """
+        Handles the event triggered when the window is closed. Ensures models are cleared and database connections are closed.
+
+        Args:
+            event (QCloseEvent): The close event triggered when the window is about to close.
+        """
         if self.model:
             self.model.clear()
         self.closeConnection()
 
     def closeConnection(self):
-    # Closing database connection
+        """
+        Closes the database connection and clears any references to the models.
+        Also removes the 'drawing_index' database connection from Qt's connection list if it exists.
+        """
         self.tableHandtools.setModel(None)
         del self.model
         if self.db:
@@ -237,6 +327,12 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
                 QtSql.QSqlDatabase.removeDatabase("qt_sql_default_connection")
 
     def setupUi(self, Workshop_Handtools_Window):
+        """
+        Sets up the user interface for the Workshop_Handtools_Window.
+
+        Args:
+            Workshop_Handtools_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         Workshop_Handtools_Window.setObjectName("Workshop_Handtools_Window")
         Workshop_Handtools_Window.resize(790, 595)
         Workshop_Handtools_Window.setMinimumSize(QtCore.QSize(790, 595))
@@ -376,13 +472,20 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
 
         self.query_handtools()
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, Workshop_Handtools_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         Workshop_Handtools_Window.setWindowTitle(_translate("Workshop_Handtools_Window", "Herramientas Taller"))
         self.tableHandtools.setSortingEnabled(True)
 
 # Function to delete all filters when tool button is clicked
     def delete_allFilters(self):
+        """
+        Resets all filters and updates the table model with unique values for each column.
+        """
         if self.proxy.rowCount() != 0:
             columns_number=self.model.columnCount()
             for index in range(columns_number):
@@ -418,6 +521,9 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
 
 # Function to save changes into database
     def saveChanges(self):
+        """
+        Saves changes made to the data models and updates unique values for each column.
+        """
         self.model.submitAll()
 
         for column in range(self.model.columnCount()):
@@ -434,6 +540,10 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
 
 # Function to load table and setting in the window
     def query_handtools(self):
+        """
+        Queries the database for handtools with filter applied, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         self.checkbox_states = {}
         self.dict_valuesuniques = {}
         self.dict_ordersort = {}
@@ -499,6 +609,12 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
+        """
+        Displays a menu when a column header is clicked. The menu includes options for sorting, filtering, and managing column visibility.
+        
+        Args:
+            logicalIndex (int): Index of the clicked column.
+        """
         self.logicalIndex = logicalIndex
         self.menuValues = QtWidgets.QMenu(self)
         self.signalMapper = QtCore.QSignalMapper(self.tableHandtools)
@@ -600,10 +716,16 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
 
 # Function when cancel button of menu is clicked
     def menu_cancelbutton_triggered(self):
+        """
+        Hides the menu when the cancel button is clicked.
+        """
         self.menuValues.hide()
 
 # Function when accept button of menu is clicked
     def menu_acceptbutton_triggered(self):
+        """
+        Applies the selected filters and updates the table model with the new filters.
+        """
         for column, filters in self.checkbox_filters.items():
             if filters:
                 self.proxy.setFilter(filters, column)
@@ -614,6 +736,13 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
 
 # Function when select all checkbox is clicked
     def on_select_all_toggled(self, checked, action_name):
+        """
+        Toggles the state of all checkboxes in the filter menu when the 'Select All' checkbox is toggled.
+        
+        Args:
+            checked (bool): The checked state of the 'Select All' checkbox.
+            action_name (str): The name of the action (usually 'Select All').
+        """
         filterColumn = self.logicalIndex
         imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
@@ -635,6 +764,13 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
 
 # Function when checkbox of header menu is clicked
     def on_checkbox_toggled(self, checked, action_name):
+        """
+        Updates the filter state when an individual checkbox is toggled.
+        
+        Args:
+            checked (bool): The checked state of the checkbox.
+            action_name (str): The name of the checkbox.
+        """
         filterColumn = self.logicalIndex
         imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
@@ -656,6 +792,9 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
 
 # Function to delete individual column filter
     def on_actionDeleteFilterColumn_triggered(self):
+        """
+        Removes the filter from the selected column and updates the table model.
+        """
         filterColumn = self.logicalIndex
         if filterColumn in self.proxy.filters:
                 del self.proxy.filters[filterColumn]
@@ -680,18 +819,27 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
 
 # Function to order column ascending
     def on_actionSortAscending_triggered(self):
+        """
+        Sorts the selected column in ascending order.
+        """
         sortColumn = self.logicalIndex
         sortOrder = Qt.SortOrder.AscendingOrder
         self.proxy.sort(sortColumn, sortOrder)
 
 # Function to order column descending
     def on_actionSortDescending_triggered(self):
+        """
+        Sorts the selected column in descending order.
+        """
         sortColumn = self.logicalIndex
         sortOrder = Qt.SortOrder.DescendingOrder
         self.proxy.sortByColumn(sortColumn, sortOrder)
 
 # Function when text is searched
     def on_actionTextFilter_triggered(self):
+        """
+        Opens a dialog to enter a text filter and applies it to the selected column.
+        """
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
@@ -716,18 +864,29 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
 
 # Function to hide column when action clicked
     def hide_column(self):
+        """
+        Hides the selected column in the table view.
+        """
         filterColumn = self.logicalIndex
         self.tableHandtools.setColumnHidden(filterColumn, True)
         self.hiddencolumns.append(filterColumn)
 
 # Function to show all hidden columns
     def show_columns(self):
+        """
+        Makes all previously hidden columns visible in the table and clears the list of hidden columns.
+        """
         for column in self.hiddencolumns:
             self.tableHandtools.setColumnHidden(column, False)
         self.hiddencolumns.clear()
 
 # Function to export data to excel
     def exporttoexcel(self):
+        """
+        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
+
+        Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
+        """
         if self.proxy.rowCount() == 0:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
@@ -763,6 +922,12 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
 
 # Function to enable copy and paste cells
     def keyPressEvent(self, event):
+        """
+        Handles custom key events for cell operations in the table.
+
+        Args:
+            event (QtGui.QKeyEvent): The key event to handle.
+        """
         if event.matches(QKeySequence.StandardKey.Copy):
             if self.tableHandtools.selectionModel() != None:
                 selected_indexes = self.tableHandtools.selectionModel().selectedIndexes()
@@ -797,6 +962,15 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
 
 # Function to get the text of the selected cells
     def get_selected_text(self, indexes):
+        """
+        Retrieves the text from the selected cells and returns it as a plain text string.
+
+        Args:
+            indexes (list of QModelIndex): A list of QModelIndex objects representing the selected cells.
+        
+        Returns:
+            str: A string containing the text from the selected cells.
+        """
         if len(indexes) == 1:  # For only one cell selected
             index = indexes[0]
             cell_data = index.data(Qt.ItemDataRole.DisplayRole)
@@ -823,6 +997,9 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
 
 # Function to count selected cells and sum its values
     def countSelectedCells(self):
+        """
+        Counts the number of selected cells and sums their values. Updates the UI labels with the count and sum.
+        """
         if len(self.tableHandtools.selectedIndexes()) > 1:
             locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
             self.label_SumItems.setText("")
@@ -846,6 +1023,15 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
 
 # Function to format money string values
     def euro_string_to_float(self, euro_str):
+        """
+        Converts a string representing an amount in euros to a float.
+
+        Args:
+            euro_str (str): A string representing the amount in euros (e.g., "1.234,56 €").
+        
+        Returns:
+            float: The numeric value of the amount as a float.
+        """
         match = re.match(r'^([\d.,]+)\s€$', euro_str)
         if match:
             number_str = match.group(1)
@@ -856,18 +1042,30 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
 
 # Function for creating context menu
     def createContextMenu(self):
+        """
+        Creates a context menu with options for hiding selected columns.
+        """
         self.context_menu = QtWidgets.QMenu(self)
         hide_columns_action = self.context_menu.addAction("Ocultar Columnas")
         hide_columns_action.triggered.connect(self.hideSelectedColumns)
 
 # Function to show context menu when right-click
     def showColumnContextMenu(self, pos):
+        """
+        Displays the context menu at the specified position for column operations.
+
+        Args:
+            pos (QPoint): The position at which to display the context menu.
+        """
         header = self.tableHandtools.horizontalHeader()
         column = header.logicalIndexAt(pos)
         self.context_menu.exec(self.tableHandtools.mapToGlobal(pos))
 
 # Function to hide selected columns
     def hideSelectedColumns(self):
+        """
+        Hides the currently selected columns in the table and updates the list of hidden columns.
+        """
         selected_columns = set()
         header = self.tableHandtools.horizontalHeader()
         for index in header.selectionModel().selectedColumns():
@@ -881,6 +1079,10 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
 
 # Function to add a new line
     def add_new(self):
+        """
+        Inserts a new empty entry into the handtools_workshop table.
+        Commits the changes to the database and handles any errors.
+        """
         commands_new=("""
                         INSERT INTO verification.handtools_workshop (brand)
                         VALUES(%s)
@@ -919,16 +1121,26 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
 
 # Function to adjust table size
     def adjust_table(self):
+        """
+        Adjusts column visibility and resize behavior in the tableHandtools widget.
+        """
         self.tableHandtools.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableHandtools.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableHandtools.verticalHeader().setVisible(False)
 
 # Function when item is double clicked
     def item_double_clicked(self,index):
+        """
+        Opens detailed machine information if the first column is double-clicked.
+        """
         if index.column() == 0:
             self.open_handtool_information(index)
 
 # Function to see revisions of handtool
     def open_handtool_information(self,index):
+        """
+        Opens the information window for the selected handtool by connecting to its database.
+        """
         value = index.data()
 
         from Workshop_Handtools_Rev_Window import Ui_Workshop_Handtools_Rev_Window
@@ -948,6 +1160,9 @@ class Ui_Workshop_Handtools_Window(QtWidgets.QMainWindow):
 
 # Function to delete register of database
     def delete_register(self):
+        """
+        Deletes selected records from the specified table.
+        """
         selection_model = self.tableHandtools.selectionModel()
 
         if not selection_model.hasSelection():

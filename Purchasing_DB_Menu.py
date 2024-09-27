@@ -15,11 +15,27 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Purchasing_DB_Menu(object):
+    """
+    UI class for the Purchasing Database Menu window.
+    """
     def __init__(self, name, username):
+        """
+        Initializes the Ui_NewOffer_Menu with the specified username.
+
+        Args:
+            name (str): name associated with the window.
+            username (str): username associated with the window.
+        """
         self.name=name
         self.username = username
 
     def setupUi(self, Purchasing_DB_Menu):
+        """
+        Sets up the user interface for the Purchasing_DB_Menu.
+
+        Args:
+            Purchasing_DB_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         Purchasing_DB_Menu.setObjectName("Purchasing_DB_Menu")
         Purchasing_DB_Menu.resize(300, 340)
         Purchasing_DB_Menu.setMinimumSize(QtCore.QSize(int(300//1.5), int(340//1.5)))
@@ -158,7 +174,11 @@ class Ui_Purchasing_DB_Menu(object):
         QtCore.QMetaObject.connectSlotsByName(Purchasing_DB_Menu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, Purchasing_DB_Menu):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         Purchasing_DB_Menu.setWindowTitle(_translate("Purchasing_DB_Menu", "Bases"))
         self.Button_Clients.setText(_translate("Purchasing_DB_Menu", "Clientes"))
@@ -167,6 +187,12 @@ class Ui_Purchasing_DB_Menu(object):
 
 
     def suppliers(self,Purchasing_DB_Menu):
+        """
+        Opens the 'suppliers' window and hides the current menu. Sets up the UI for the user.
+        
+        Args:
+            Purchasing_DB_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.suppliers_window=QtWidgets.QMainWindow()
         self.ui=Ui_Suppliers_Window(self.username)
         self.ui.setupUi(self.suppliers_window)
@@ -176,6 +202,12 @@ class Ui_Purchasing_DB_Menu(object):
 
 
     def clients(self,Purchasing_DB_Menu):
+        """
+        Opens the 'clients' window and hides the current menu. Sets up the UI for the user.
+        
+        Args:
+            Purchasing_DB_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.clients_window=QtWidgets.QMainWindow()
         self.ui=Ui_Clients_Window(self.name, self.username)
         self.ui.setupUi(self.clients_window)

@@ -22,19 +22,51 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
 class Ui_OTFabOrder_Window(object):
+    """
+    UI class for the OT order for fabrication window.
+    """
     def __init__(self, df_data, id_list, model, variable):
+        """
+        Initializes the fabrication order window UI with the given data, ID list, model, and variable.
+
+        Parameters:
+        - df_data (DataFrame): Data related to the orders.
+        - id_list (list): List of order IDs.
+        - model (Any): The UI model used for displaying the orders.
+        - variable (Any): A variable to manage the logic for this specific window.
+        """
         self.df_data = df_data
         self.id_list = id_list
         self.model = model
         self.variable = variable
 
     def setupUi(self, OTFabOrder_Window):
+        """
+        Sets up the user interface for the OTFabOrder_Window.
+
+        Args:
+            OTFabOrder_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         OTFabOrder_Window.setObjectName("OTFabOrder_Window")
         OTFabOrder_Window.resize(400, 561)
         OTFabOrder_Window.setMinimumSize(QtCore.QSize(600, 575))
@@ -163,7 +195,11 @@ class Ui_OTFabOrder_Window(object):
         self.Button_Launch.clicked.connect(self.launch_ot)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, OTFabOrder_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         OTFabOrder_Window.setWindowTitle(_translate("OTFabOrder_Window", "Orden de Fabricación"))
         self.Button_Cancel.setText(_translate("OTFabOrder_Window", "Salir"))
@@ -172,6 +208,10 @@ class Ui_OTFabOrder_Window(object):
 
 # Function to create OT and asign number
     def create_ot(self):
+        """
+        Creates a new fabrication order (OT) by generating the next order number 
+        and populating the order table with relevant data.
+        """
         commands_numot = ("""SELECT "ot_num"
                         FROM fabrication.fab_order
                         WHERE NOT "ot_num" LIKE '90%'
@@ -252,6 +292,10 @@ class Ui_OTFabOrder_Window(object):
 
 # Function to launch OT to database and generate document
     def launch_ot(self):
+        """
+        Launches a fabrication order (OT) by processing data from the model and 
+        populating the order table with relevant attributes. Exports the final order table data to an Excel file, applying specific styles and formatting
+        """
         data_of = []
         data_trad = []
 
@@ -392,13 +436,13 @@ class Ui_OTFabOrder_Window(object):
                     if value == self.tableOT.item(row, 2).text():
                         trad_column = df_trad.columns[df_trad.columns.get_loc(column_codefab) + 1]
                         code_trad = row_df[trad_column]
-                        it = QtWidgets.QTableWidgetItem(str(code_trad))
-                        it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                        self.tableOT.setItem(row, 7, it)
+                it = QtWidgets.QTableWidgetItem(str(code_trad))
+                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                self.tableOT.setItem(row, 7, it)
 
         df_of = pd.DataFrame(data_of)
         for row in range (self.tableOT.rowCount()):
-            if any(value in self.tableOT.item(row, 7).text() for value in ['PLACA', 'RO', 'PT100']):
+            if any(value in self.tableOT.item(row, 7).text() for value in ['TE', 'PT100']):
                 of_drawing = df_of[df_of.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 2].values[0]
             else:
                 of_drawing = df_of[df_of.iloc[:, 0] == self.tableOT.item(row, 1).text()].iloc[:, 1].values[0]
@@ -515,42 +559,6 @@ class Ui_OTFabOrder_Window(object):
             worksheet['B2'].value = self.num_ot
             workbook.save(excel_file_path)
 
-
-        # pdf = fab_order()
-
-        # pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-        # pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
-
-        # pdf.set_auto_page_break(auto=True, margin=2)
-
-        # pdf.add_page()
-
-        # for row in range(self.tableOT.rowCount()):
-        #     pdf.set_font('Helvetica', '', 9)
-        #     pdf.cell(4.5, 0.53, self.tableOT.item(row, 1).text(), align='C', border=1)
-        #     pdf.cell(4.8, 0.53, self.tableOT.item(row, 2).text(), align='C', border=1)
-        #     pdf.cell(1.5, 0.53, self.tableOT.item(row, 3).text(), align='C', border=1)
-        #     pdf.cell(1.5, 0.53, self.tableOT.item(row, 4).text(), align='C', border=1)
-        #     pdf.cell(2.1, 0.53, self.tableOT.item(row, 5).text(), align='C', border=1)
-        #     pdf.cell(2.1, 0.53, self.tableOT.item(row, 6).text(), align='C', border=1)
-        #     pdf.cell(10, 0.53, self.tableOT.item(row, 7).text(), align='C', border=1)
-        #     pdf.cell(1.3, 0.53, self.tableOT.item(row, 8).text(), align='C', border=1)
-        #     pdf.ln(0.53)
-
-        # output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar Orden Fabricación")
-
-        # if output_path:
-        #     pdf.output(output_path)
-
-        #     dlg = QtWidgets.QMessageBox()
-        #     new_icon = QtGui.QIcon()
-        #     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        #     dlg.setWindowIcon(new_icon)
-        #     dlg.setWindowTitle("Imprimir Orden Fabricación")
-        #     dlg.setText("PDF generado con éxito")
-        #     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-        #     dlg.exec()
-        #     del dlg,new_icon
 
 
 if __name__ == "__main__":

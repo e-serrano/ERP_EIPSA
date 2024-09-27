@@ -3,6 +3,19 @@ from configparser import ConfigParser
 
 
 def config(filename=r"C:\Program Files\ERP EIPSA\database.ini", section='postgresql'):
+    """
+    Reads database configuration from an INI file and returns the configuration parameters as a dictionary.
+
+     Args:
+        filename (str): Path to the INI file containing the database configuration.
+        section (str): The section in the INI file to read configuration from. Default is 'postgresql'.
+
+    Returns:
+        dict: A dictionary containing the database configuration parameters.
+
+    Raises:
+        Exception: If the specified section is not found in the INI file.
+    """
     # create a parser
     parser = ConfigParser()
     # read config file

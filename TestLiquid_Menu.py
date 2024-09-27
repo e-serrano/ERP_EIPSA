@@ -15,10 +15,25 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_TestLiquid_Menu(object):
+    """
+    UI class for the Liquid Test Menu window.
+    """
     def __init__(self, username):
+        """
+        Initializes the Ui_TestLiquid_Menu with the specified username.
+
+        Args:
+            username (str): username associated with the window.
+        """
         self.username=username
 
     def setupUi(self, TestLiquid_Menu):
+        """
+        Sets up the user interface for the TestLiquid_Menu.
+
+        Args:
+            TestLiquid_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         TestLiquid_Menu.setObjectName("TestLiquid_Menu")
         TestLiquid_Menu.resize(300, 336)
         TestLiquid_Menu.setMinimumSize(QtCore.QSize(300, 300))
@@ -162,7 +177,11 @@ class Ui_TestLiquid_Menu(object):
         QtCore.QMetaObject.connectSlotsByName(TestLiquid_Menu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, TestLiquid_Menu):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         TestLiquid_Menu.setWindowTitle(_translate("TestLiquid_Menu", "Líquidos Penetrantes"))
         self.Button_Query.setText(_translate("TestLiquid_Menu", "Consultar"))
@@ -171,12 +190,24 @@ class Ui_TestLiquid_Menu(object):
 
 
     def insert_Liquid(self,TestLiquid_Menu):
+        """
+        Opens the 'insert_Liquid' window and closes the current menu. Sets up the UI for the user.
+        
+        Args:
+            TestLiquid_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.Liquidinsert_window=Ui_TestLiquidInsert_Window(self.username)
         self.Liquidinsert_window.show()
         TestLiquid_Menu.close()
 
 
     def query_Liquid(self,TestLiquid_Menu):
+        """
+        Opens the 'query_Liquid' window and closes the current menu. Sets up the UI for the user.
+        
+        Args:
+            TestLiquid_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.Liquidquery_window=QtWidgets.QMainWindow()
         self.ui=Ui_TestLiquidQuery_Window(self.username)
         self.ui.setupUi(self.Liquidquery_window)

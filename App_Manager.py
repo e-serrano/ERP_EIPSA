@@ -20,18 +20,52 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
 class Ui_App_Manager(object):
+    """
+    Main application window for the manager app.
+
+        Args:
+        name (str): The name of the user.
+        username (str): The username of the user.
+    """
     def __init__(self, name, username):
+        """
+        Initializes the main window, setting up the user interface and storing user-specific details.
+
+        Args:
+            name (str): The name of the user.
+            username (str): The username of the user.
+        """
         self.name=name
         self.username=username
 
 
     def setupUi(self, App_Manager):
+        """
+        Sets up the user interface components for the main application window.
+
+        Args:
+            App_Manager (QtWidgets.QMainWindow): The main window object to set up.
+        """
         App_Manager.setObjectName("App_Manager")
         App_Manager.resize(945, 860)
         App_Manager.setMinimumSize(QtCore.QSize(945, 860))
@@ -387,7 +421,7 @@ class Ui_App_Manager(object):
         self.Button_QueryOrder.clicked.connect(self.query_order)
         self.Button_QueryTag.clicked.connect(self.query_tag)
         self.Button_QueryDoc.clicked.connect(self.query_documents)
-        self.Button_Graphs.clicked.connect(self.graphs)
+        self.Button_Graphs.clicked.connect(self.stats_offers)
         self.Button_ClientsResume.clicked.connect(self.clients_generalresume)
         self.Button_Profile.clicked.connect(self.showMenu)
         self.tableOffer.itemDoubleClicked.connect(self.on_item_double_clicked)
@@ -450,7 +484,11 @@ class Ui_App_Manager(object):
                 conn.close()
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, App_Manager):
+        """
+        Translates and updates the text of various UI elements in the given App_Comercial.
+        """
         _translate = QtCore.QCoreApplication.translate
         App_Manager.setWindowTitle(_translate("App_Manager", "ERP EIPSA - Dirección"))
         self.HeaderName.setText(_translate("App_Manager", self.name))
@@ -485,25 +523,36 @@ class Ui_App_Manager(object):
         self.tableOffer.setSortingEnabled(False)
         self.tableOffer.setSortingEnabled(__sortingEnabled)
 
-
+# Function to open window for query offers
     def query_offer(self):
+        """
+        Opens a new window for querying offers. 
+        Displays the UI to search and view details of existing offers.
+        """
         from OfferQuery_Window import Ui_QueryOffer_Window
         self.query_offer_window=QtWidgets.QMainWindow()
         self.ui=Ui_QueryOffer_Window()
         self.ui.setupUi(self.query_offer_window)
         self.query_offer_window.show()
 
-
+# Function to open window for query orders
     def query_order(self):
+        """
+        Opens a new window for querying orders. 
+        Displays the UI to search and view details of existing orders.
+        """
         from OrderQuery_Window import Ui_QueryOrder_Window
         self.query_order_window=QtWidgets.QMainWindow()
         self.ui=Ui_QueryOrder_Window()
         self.ui.setupUi(self.query_order_window)
         self.query_order_window.show()
 
-
+# Function to open window for query tags
     def query_tag(self):
-        from TAGEdit_Workshop_Window import Ui_EditTags_Workshop_Window
+        """
+        Opens a window for querying tags.
+        """
+        from TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
@@ -511,40 +560,53 @@ class Ui_App_Manager(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_tags_tech = createConnection(user_database, password_database)
-        if not db_tags_tech:
+        db_tag_com = createConnection(user_database, password_database)
+        if not db_tag_com:
             sys.exit()
 
-        self.edit_tags_app = Ui_EditTags_Workshop_Window(self.name, db_tags_tech)
-        self.edit_tags_app.show()
+        self.edit_tags_app = Ui_EditTags_Commercial_Window(db_tag_com, self.name)
+        self.edit_tags_app.showMaximized()
 
-
+# Function to open window for query documents
     def query_documents(self):
+        """
+        Opens a new window for querying documents. 
+        """
         from DocQuery_Window import Ui_QueryDoc_Window
         self.querydoc_menu=QtWidgets.QMainWindow()
         self.ui=Ui_QueryDoc_Window()
         self.ui.setupUi(self.querydoc_menu)
         self.querydoc_menu.show()
 
+# Function to open menu of offer statistics
+    def stats_offers(self):
+        """
+        Opens a new window for viewing offer statistics. 
+        Sets up the UI for offer statistics and displays the window.
+        """
+        from OfferStats_Menu import Ui_StatsOffer_Menu
+        self.statswindow=QtWidgets.QMainWindow()
+        self.ui=Ui_StatsOffer_Menu()
+        self.ui.setupUi(self.statswindow)
+        self.statswindow.show()
 
-    def graphs(self):
-        from OfferGraphs_Window import Ui_GraphsOffer_Window
-        self.graphswindow=QtWidgets.QMainWindow()
-        self.ui=Ui_GraphsOffer_Window()
-        self.ui.setupUi(self.graphswindow)
-        self.graphswindow.show()
-
-
+# Function to open window with clients data resume
     def clients_generalresume(self):
+        """
+        Opens a new window to display a general resume of client data. 
+        """
         from ClientsGeneralResume_Window import Ui_ClientsGeneralResume_Window
         self.clients_general_resume_window=QtWidgets.QMainWindow()
         self.ui=Ui_ClientsGeneralResume_Window()
         self.ui.setupUi(self.clients_general_resume_window)
         self.clients_general_resume_window.show()
 
-
-
+# Function to show menu when profile button is clicked
     def showMenu(self):
+        """
+        Displays a context menu when the profile button is clicked. 
+        Provides options to edit the password.
+        """
         menu = QMenu(self.centralwidget)
         menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; }"
         "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
@@ -554,82 +616,25 @@ class Ui_App_Manager(object):
         button = self.Button_Profile
         menu.exec(button.mapToGlobal(QtCore.QPoint(-75, 50)))
 
-
+# Function to open window for password edition
     def editpassword(self):
+        """
+        Opens a new window for editing the user's password. 
+        """
         from PasswordEdit_Window import Ui_EditPasswordWindow
         self.edit_password_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditPasswordWindow(self.username)
         self.ui.setupUi(self.edit_password_window)
         self.edit_password_window.show()
 
-
-
-#Function to update the table
-    def update_table(self):
-        commands_appcomercial = ("""
-                    SELECT "num_offer","state","responsible","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","notes","important","tracking"
-                    FROM offers
-                    WHERE ("responsible" = %s
-                    AND
-                    ("state" = 'Presentada'
-                    OR
-                    "state" = 'Registrada'
-                    ))
-                    ORDER BY "num_offer"
-                    """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            if self.name == 'Carlos Crespo':
-                cur.execute(commands_appcomercial,(self.name[0] + self.name[self.name.find(' ')+1] + 'H',))
-            else:
-                cur.execute(commands_appcomercial,(self.name[0] + self.name[self.name.find(' ')+1],))
-            results=cur.fetchall()
-            self.tableOffer.setRowCount(len(results))
-            tablerow=0
-
-        # fill the Qt Table with the query results
-            for row in results:
-                for column in range(11):
-                    value = row[column]
-                    if value is None:
-                        value = ''
-                    it = QtWidgets.QTableWidgetItem(str(value))
-                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                    self.tableOffer.setItem(tablerow, column, it)
-
-                tablerow+=1
-
-            self.tableOffer.verticalHeader().hide()
-            self.tableOffer.setItemDelegate(AlignDelegate(self.tableOffer))
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-
 # Function to check if column index of double clicked cell is equal to first column index
     def on_item_double_clicked(self, item):
+        """
+        Handles the double-click event on items in a table.
+
+        Args:
+            item (QTableWidgetItem): The item that was double-clicked.
+        """
         if item.column() == 2:
             self.clientresume(item)
 
@@ -643,9 +648,14 @@ class Ui_App_Manager(object):
             dlg.setText(cell_content)
             dlg.exec()
 
-
 # Function when double clicked cell is in first column
     def clientresume(self, item):
+        """
+        Opens a window displaying the resume of a selected client.
+
+        Args:
+            item (QTableWidgetItem): The item containing the client's name.
+        """
         from ClientResume_Window import Ui_ClientResume_Window
         clientname=item.text()
         self.client_resume_window=QtWidgets.QMainWindow()

@@ -15,10 +15,25 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Edit_Offer_Window(object):
+    """
+    UI class for the Edit Offer window.
+    """
     def __init__(self, num_offer = None):
+        """
+        Initializes the Ui_Edit_Offer_Window with the specified offer number.
+
+        Args:
+            num_offer (str, optionañ): offer number associated with the window.
+        """
         self.num_offer = num_offer
 
     def setupUi(self, Edit_Offer_Window):
+        """
+        Sets up the user interface for the Edit_Offer_Window.
+
+        Args:
+            Edit_Offer_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         Edit_Offer_Window.setObjectName("Edit_Offer_Window")
         Edit_Offer_Window.resize(670, 425)
         Edit_Offer_Window.setMinimumSize(QtCore.QSize(1400, 700))
@@ -651,8 +666,11 @@ class Ui_Edit_Offer_Window(object):
             self.NumOffer_EditOffer.setText(self.num_offer)
             self.queryofferdata()
 
-
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, Edit_Offer_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         Edit_Offer_Window.setWindowTitle(_translate("Edit_Offer_Window", "Editar Oferta"))
         self.label_NumOffer.setText(_translate("Edit_Offer_Window", "Nº Oferta:"))
@@ -686,6 +704,9 @@ class Ui_Edit_Offer_Window(object):
 
 # Function to edit offer information
     def editoffer(self):
+        """
+        Edit the corresponding entry in database after validating form inputs.
+        """
         numoffer=self.NumOffer_EditOffer.text()
         client=self.Client_EditOffer.currentText()
         finalclient=self.FinalClient_EditOffer.text()
@@ -889,6 +910,10 @@ class Ui_Edit_Offer_Window(object):
 
 # Function to load offer information
     def queryofferdata(self):
+        """
+        Queries the database for offer data based on the offer number provided by the user. It displays the retrieved information 
+        in the corresponding form fields.
+        """
         numoffer=self.NumOffer_EditOffer.text()
     #SQL Query for loading existing data in database
         commands_loaddataoffer = ("""
@@ -977,6 +1002,12 @@ class Ui_Edit_Offer_Window(object):
 
 # Function to load client list
     def load_clients(self):
+        """
+        Loads the list of clients from the database into the client selection widget.
+
+        Raises:
+            psycopg2.DatabaseError: If a database error occurs during the SQL execution.
+        """
         self.Client_EditOffer.clear()
         commands_clients = ("""
                         SELECT * 

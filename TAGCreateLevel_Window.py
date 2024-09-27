@@ -15,7 +15,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_CreateTAGNiv_Window(object):
+    """
+    UI class for the Create Tag Flow window.
+    """
     def setupUi(self, CreateTAGNiv_Window):
+        """
+        Sets up the user interface for the CreateTAGNiv_Window.
+
+        Args:
+            CreateTAGNiv_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         CreateTAGNiv_Window.setObjectName("CreateTAGNiv_Window")
         CreateTAGNiv_Window.resize(1400, 650)
         CreateTAGNiv_Window.setMinimumSize(QtCore.QSize(1400, 650))
@@ -849,7 +858,11 @@ class Ui_CreateTAGNiv_Window(object):
         QtCore.QMetaObject.connectSlotsByName(CreateTAGNiv_Window)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, CreateTAGNiv_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         CreateTAGNiv_Window.setWindowTitle(_translate("CreateTAGNiv_Window", "Crear TAG Nivel"))
         self.label_TAG.setText(_translate("CreateTAGNiv_Window", "*TAG:"))
@@ -894,6 +907,9 @@ class Ui_CreateTAGNiv_Window(object):
 
 
     def createtagN(self):
+        """
+        Creates a new level TAG entry after validating form inputs.
+        """
         tag=self.TAG_CreatetagN.text()
         tag_state='QUOTED'
         numoffer=self.NumOffer_CreatetagN.text()
@@ -997,7 +1013,13 @@ class Ui_CreateTAGNiv_Window(object):
 
 
     def queryoffernumber(self):
-        numorder=self.NumOrder_CreatetagQ.text()
+        """
+        Queries the database to retrieve offer and PO numbers associated with a given order number.
+
+        Raises:
+            psycopg2.DatabaseError: If a database error occurs during the SQL execution.
+        """
+        numorder=self.NumOrder_CreatetagN.text()
     #SQL Query for loading existing data in database
         commands_loadofferorder = ("""
                     SELECT "num_order","num_offer","num_ref_order"

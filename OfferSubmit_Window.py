@@ -18,7 +18,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_SubmitOffer_Window(object):
+    """
+    UI class for the Submit Offer window.
+    """
     def setupUi(self, SubmitOffer_Window):
+        """
+        Sets up the user interface for the SubmitOffer_Window.
+
+        Args:
+            SubmitOffer_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         SubmitOffer_Window.setObjectName("SubmitOffer_Window")
         SubmitOffer_Window.resize(450, 325)
         SubmitOffer_Window.setMinimumSize(QtCore.QSize(450, 325))
@@ -200,7 +209,11 @@ class Ui_SubmitOffer_Window(object):
         QtCore.QMetaObject.connectSlotsByName(SubmitOffer_Window)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, SubmitOffer_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         SubmitOffer_Window.setWindowTitle(_translate("SubmitOffer_Window", "Presentar Oferta"))
         self.Button_Present.setText(_translate("SubmitOffer_Window", "Presentar"))
@@ -212,6 +225,9 @@ class Ui_SubmitOffer_Window(object):
         self.dollarmoney.setText(_translate("SubmitOffer_Window", "$"))
 
     def SubmitOffer(self):
+        """
+        Update the offer status to "Presentada" and set all the data of submitted offer
+        """
         numoffer=self.Offer_Submit.text()
         initial_amount=self.Amount_Submit.text()
         state="Presentada"

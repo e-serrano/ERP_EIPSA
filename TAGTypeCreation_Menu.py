@@ -10,14 +10,23 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 
 from TAGCreateFlow_Window import Ui_CreateTAGFlow_Window
 from TAGCreateTemp_Window import Ui_CreateTAGTemp_Window
-from TAGCreateNiv_Window import Ui_CreateTAGNiv_Window
+from TAGCreateLevel_Window import Ui_CreateTAGNiv_Window
 from TAGCreateOthers_Window import Ui_CreateTAGOthers_Window
 import os
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 class Ui_TypeTagCreation_Menu(object):
+    """
+    UI class for the Type Tag Creation Menu window.
+    """
     def setupUi(self, TypeTag_Menu):
+        """
+        Sets up the user interface for the TypeTag_Menu.
+
+        Args:
+            TypeTag_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         TypeTag_Menu.setObjectName("Type_Tag_Menu")
         TypeTag_Menu.setWindowModality(QtCore.Qt.WindowModality.WindowModal)
         TypeTag_Menu.resize(300, 400)
@@ -139,7 +148,11 @@ class Ui_TypeTagCreation_Menu(object):
         QtCore.QMetaObject.connectSlotsByName(TypeTag_Menu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, TypeTag_Menu):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         TypeTag_Menu.setWindowTitle(_translate("TypeTag_Menu", "Crear TAG"))
         self.Button_Temp.setText(_translate("TypeTag_Menu", "Temperatura"))
@@ -150,6 +163,14 @@ class Ui_TypeTagCreation_Menu(object):
 
 
     def Typetag(self, TypeTag_Menu, variable):
+        """
+        Opens a specific tag creation window based on the provided tag type.
+
+        Args:
+            TypeTag_Menu (QtWidgets.QMainWindow): The current menu window that will be hidden once a new tag window is opened.
+            variable (str): A string indicating the type of tag to be created. Expected values are 'Caudal', 'Temperatura', 'Nivel', or 'Otros'.
+            
+        """
         final_variable=variable
         
         if final_variable=='Caudal':

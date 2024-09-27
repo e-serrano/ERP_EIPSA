@@ -7,7 +7,12 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtSql
+from PyQt6.QtCore import Qt
+import re
 from config import config
+import configparser
+from Database_Connection import createConnection_name, createConnection
 import psycopg2
 import os
 from tkinter.filedialog import asksaveasfilename, askopenfilename
@@ -17,7 +22,27 @@ import pandas as pd
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 class CustomTableWidgetInvoice(QtWidgets.QTableWidget):
+    """
+    Custom QTableWidget that supports filtering and sorting features.
+
+    Attributes:
+        list_filters (list): Stores filters applied to the table.
+        column_filters (dict): Maps column indices to sets of applied filters.
+        column_actions (dict): Maps column indices to actions related to columns.
+        checkbox_states (dict): Stores the state of checkboxes for filtering.
+        rows_hidden (dict): Maps column indices to sets of hidden row indices.
+        general_rows_to_hide (set): Set of row indices that are hidden across the table.
+    """
     def __init__(self, parent=None):
+        """
+        Initializes the CustomTableWidget.
+
+        Sets up the initial state of the widget, including filters, checkbox states, 
+        and hidden rows.
+
+        Args:
+            parent (QWidget, optional): The parent widget of this table. Defaults to None.
+        """
         super().__init__(parent)
         self.list_filters=[]
         self.column_filters = {}
@@ -28,6 +53,17 @@ class CustomTableWidgetInvoice(QtWidgets.QTableWidget):
 
 # Function to show the menu
     def show_unique_values_menu(self, column_index, header_pos, header_height):
+        """
+        Displays a context menu for unique values in a specified column.
+
+        The menu includes options to remove filters, sort the column, and filter by text. 
+        It also allows the user to select/unselect unique values via checkboxes.
+
+        Args:
+            column_index (int): The index of the column for which the menu is displayed.
+            header_pos (QPoint): The position of the header in the viewport.
+            header_height (int): The height of the header.
+        """
         menu = QtWidgets.QMenu(self)
         actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro")
         actionDeleteFilterColumn.triggered.connect(lambda: self.delete_filter(column_index))
@@ -94,9 +130,16 @@ class CustomTableWidgetInvoice(QtWidgets.QTableWidget):
 
         menu.exec(header_pos - QtCore.QPoint(0, header_height))
 
-
 # Function to delete filter on selected column
     def delete_filter(self,column_index):
+        """
+        Removes the filter applied to the specified column.
+
+        Unhides previously hidden rows and resets the checkbox state for the column.
+
+        Args:
+            column_index (int): The index of the column from which to delete the filter.
+        """
         if column_index in self.column_filters:
             del self.column_filters[column_index]
         if column_index in self.checkbox_states:
@@ -110,9 +153,16 @@ class CustomTableWidgetInvoice(QtWidgets.QTableWidget):
         header_item = self.horizontalHeaderItem(column_index)
         header_item.setIcon(QtGui.QIcon())
 
-
 # Function to set all checkboxes state
     def set_all_checkboxes_state(self, checkboxes, state, column_index):
+        """
+        Sets the state of all checkboxes in the filter menu for a specific column.
+
+        Args:
+            checkboxes (list): List of checkboxes to update.
+            state (Qt.CheckState): The desired state for the checkboxes.
+            column_index (int): The index of the column for which the checkboxes are set.
+        """
         if column_index not in self.checkbox_states:
             self.checkbox_states[column_index] = {}
 
@@ -121,9 +171,18 @@ class CustomTableWidgetInvoice(QtWidgets.QTableWidget):
 
         self.checkbox_states[column_index]["Seleccionar todo"] = state
 
-
 # Function to apply filters to table
     def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
+        """
+        Applies a filter to the specified column based on the checkbox state and optional text filter.
+
+        Args:
+            column_index (int): The index of the column to filter.
+            value (str): The value to filter by.
+            checked (bool): Indicates if the filter should be applied (True) or removed (False).
+            text_filter (str, optional): Additional text filter for filtering items. Defaults to None.
+            filter_dialog (QDialog, optional): The dialog used for the text filter. Defaults to None.
+        """
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
 
@@ -191,8 +250,14 @@ class CustomTableWidgetInvoice(QtWidgets.QTableWidget):
         else:
             header_item.setIcon(QtGui.QIcon())
 
-
+# Function to apply filters to table based on a desired text
     def filter_by_text(self, column_index):
+        """
+        Opens a dialog for filtering the specified column by text input.
+
+        Args:
+            column_index (int): The index of the column to filter.
+        """
         filter_dialog = QtWidgets.QDialog(self)
         filter_dialog.setWindowTitle("Filtrar por texto")
         
@@ -237,9 +302,17 @@ class CustomTableWidgetInvoice(QtWidgets.QTableWidget):
         filter_dialog.setLayout(layout)
         filter_dialog.exec()
 
-
 # Function to obtain the unique matching applied filters 
     def get_unique_values(self, column_index):
+        """
+        Retrieves unique values from the specified column, taking into account any active filters on other columns.
+
+        Args:
+            column_index (int): The index of the column from which to retrieve unique values.
+
+        Returns:
+            set: A set of unique values from the specified column that are visible based on the current filters.
+        """
         unique_values = set()
         for row in range(self.rowCount()):
             show_row = True
@@ -259,6 +332,12 @@ class CustomTableWidgetInvoice(QtWidgets.QTableWidget):
 
 # Function to get values filtered by all columns
     def get_filtered_values(self):
+        """
+        Gets the current filter values for all columns.
+
+        Returns:
+            dict: A dictionary where each key is a column index and the value is a set of filters applied to that column.
+        """
         filtered_values = {}
         for col, filters in self.column_filters.items():
             filtered_values[col] = filters
@@ -266,28 +345,37 @@ class CustomTableWidgetInvoice(QtWidgets.QTableWidget):
 
 # Function to sort column
     def sort_column(self, column_index, sortOrder):
+        """
+        Sorts the specified column based on the given order. If the column is a date column, a custom sort method is used.
+
+        Args:
+            column_index (int): The index of the column to sort.
+            sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         if column_index == 3:
             self.custom_sort(column_index, sortOrder)
         else:
             self.sortByColumn(column_index, sortOrder)
 
-
+# Function to sort column based on special datatypes
     def custom_sort(self, column, order):
-    # Obtén la cantidad de filas en la tabla
+        """
+        Custom sorting method for date columns. Sorts the specified column based on date values.
+
+        Args:
+            column (int): The index of the column to sort.
+            order (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         row_count = self.rowCount()
 
-        # Crea una lista de índices ordenados según las fechas
         indexes = list(range(row_count))
         indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd-MM-yyyy"))
 
-        # Si el orden es descendente, invierte la lista
         if order == QtCore.Qt.SortOrder.DescendingOrder:
             indexes.reverse()
 
-        # Guarda el estado actual de las filas ocultas
         hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
 
-        # Actualiza las filas en la tabla en el orden ordenado
         rows = self.rowCount()
         for i in range(rows):
             self.insertRow(i)
@@ -305,6 +393,12 @@ class CustomTableWidgetInvoice(QtWidgets.QTableWidget):
 
 # Function with the menu configuration
     def contextMenuEvent(self, event):
+        """
+        Handles the context menu event for the table. Shows a menu for filtering unique values when the header is right-clicked.
+
+        Args:
+            event (QEvent): The event triggered by the context menu action.
+        """
         if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
             logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
             header_pos = self.mapToGlobal(self.horizontalHeader().pos())
@@ -313,9 +407,28 @@ class CustomTableWidgetInvoice(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-
 class CustomTableWidgetRecord(QtWidgets.QTableWidget):
+    """
+    Custom QTableWidget that supports filtering and sorting features.
+
+    Attributes:
+        list_filters (list): Stores filters applied to the table.
+        column_filters (dict): Maps column indices to sets of applied filters.
+        column_actions (dict): Maps column indices to actions related to columns.
+        checkbox_states (dict): Stores the state of checkboxes for filtering.
+        rows_hidden (dict): Maps column indices to sets of hidden row indices.
+        general_rows_to_hide (set): Set of row indices that are hidden across the table.
+    """
     def __init__(self, parent=None):
+        """
+        Initializes the CustomTableWidget.
+
+        Sets up the initial state of the widget, including filters, checkbox states, 
+        and hidden rows.
+
+        Args:
+            parent (QWidget, optional): The parent widget of this table. Defaults to None.
+        """
         super().__init__(parent)
         self.list_filters=[]
         self.column_filters = {}
@@ -326,6 +439,17 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
 
 # Function to show the menu
     def show_unique_values_menu(self, column_index, header_pos, header_height):
+        """
+        Displays a context menu for unique values in a specified column.
+
+        The menu includes options to remove filters, sort the column, and filter by text. 
+        It also allows the user to select/unselect unique values via checkboxes.
+
+        Args:
+            column_index (int): The index of the column for which the menu is displayed.
+            header_pos (QPoint): The position of the header in the viewport.
+            header_height (int): The height of the header.
+        """
         menu = QtWidgets.QMenu(self)
         actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro")
         actionDeleteFilterColumn.triggered.connect(lambda: self.delete_filter(column_index))
@@ -392,9 +516,16 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
 
         menu.exec(header_pos - QtCore.QPoint(0, header_height))
 
-
 # Function to delete filter on selected column
     def delete_filter(self,column_index):
+        """
+        Removes the filter applied to the specified column.
+
+        Unhides previously hidden rows and resets the checkbox state for the column.
+
+        Args:
+            column_index (int): The index of the column from which to delete the filter.
+        """
         if column_index in self.column_filters:
             del self.column_filters[column_index]
         if column_index in self.checkbox_states:
@@ -408,9 +539,16 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
         header_item = self.horizontalHeaderItem(column_index)
         header_item.setIcon(QtGui.QIcon())
 
-
 # Function to set all checkboxes state
     def set_all_checkboxes_state(self, checkboxes, state, column_index):
+        """
+        Sets the state of all checkboxes in the filter menu for a specific column.
+
+        Args:
+            checkboxes (list): List of checkboxes to update.
+            state (Qt.CheckState): The desired state for the checkboxes.
+            column_index (int): The index of the column for which the checkboxes are set.
+        """
         if column_index not in self.checkbox_states:
             self.checkbox_states[column_index] = {}
 
@@ -419,9 +557,18 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
 
         self.checkbox_states[column_index]["Seleccionar todo"] = state
 
-
 # Function to apply filters to table
     def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
+        """
+        Applies a filter to the specified column based on the checkbox state and optional text filter.
+
+        Args:
+            column_index (int): The index of the column to filter.
+            value (str): The value to filter by.
+            checked (bool): Indicates if the filter should be applied (True) or removed (False).
+            text_filter (str, optional): Additional text filter for filtering items. Defaults to None.
+            filter_dialog (QDialog, optional): The dialog used for the text filter. Defaults to None.
+        """
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
 
@@ -489,8 +636,14 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
         else:
             header_item.setIcon(QtGui.QIcon())
 
-
+# Function to apply filters to table based on a desired text
     def filter_by_text(self, column_index):
+        """
+        Opens a dialog for filtering the specified column by text input.
+
+        Args:
+            column_index (int): The index of the column to filter.
+        """
         filter_dialog = QtWidgets.QDialog(self)
         filter_dialog.setWindowTitle("Filtrar por texto")
         
@@ -535,9 +688,17 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
         filter_dialog.setLayout(layout)
         filter_dialog.exec()
 
-
 # Function to obtain the unique matching applied filters 
     def get_unique_values(self, column_index):
+        """
+        Retrieves unique values from the specified column, taking into account any active filters on other columns.
+
+        Args:
+            column_index (int): The index of the column from which to retrieve unique values.
+
+        Returns:
+            set: A set of unique values from the specified column that are visible based on the current filters.
+        """
         unique_values = set()
         for row in range(self.rowCount()):
             show_row = True
@@ -557,6 +718,12 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
 
 # Function to get values filtered by all columns
     def get_filtered_values(self):
+        """
+        Gets the current filter values for all columns.
+
+        Returns:
+            dict: A dictionary where each key is a column index and the value is a set of filters applied to that column.
+        """
         filtered_values = {}
         for col, filters in self.column_filters.items():
             filtered_values[col] = filters
@@ -564,25 +731,34 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
 
 # Function to sort column
     def sort_column(self, column_index, sortOrder):
+        """
+        Sorts the specified column based on the given order. If the column is a date column, a custom sort method is used.
+
+        Args:
+            column_index (int): The index of the column to sort.
+            sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         self.sortByColumn(column_index, sortOrder)
 
-
+# Function to sort column based on special datatypes
     def custom_sort(self, column, order):
-    # Obtén la cantidad de filas en la tabla
+        """
+        Custom sorting method for date columns. Sorts the specified column based on date values.
+
+        Args:
+            column (int): The index of the column to sort.
+            order (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         row_count = self.rowCount()
 
-        # Crea una lista de índices ordenados según las fechas
         indexes = list(range(row_count))
         indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd-MM-yyyy"))
 
-        # Si el orden es descendente, invierte la lista
         if order == QtCore.Qt.SortOrder.DescendingOrder:
             indexes.reverse()
 
-        # Guarda el estado actual de las filas ocultas
         hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
 
-        # Actualiza las filas en la tabla en el orden ordenado
         rows = self.rowCount()
         for i in range(rows):
             self.insertRow(i)
@@ -600,6 +776,12 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
 
 # Function with the menu configuration
     def contextMenuEvent(self, event):
+        """
+        Handles the context menu event for the table. Shows a menu for filtering unique values when the header is right-clicked.
+
+        Args:
+            event (QEvent): The event triggered by the context menu action.
+        """
         if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
             logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
             header_pos = self.mapToGlobal(self.horizontalHeader().pos())
@@ -608,18 +790,356 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
+class MultiLineDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A delegate class that allows editing of table cells using a multi-line QTextEdit widget. This delegate is useful for
+    displaying and editing text in table views that require multi-line input.
+    """
+    def createEditor(self, parent, option, index):
+        """
+        Creates a QTextEdit widget for multi-line editing and centers the text within the editor.
 
-class Ui_InvoiceNew_Window(object):
-    def __init__(self, num_invoice=None):
-        self.numinvoice=num_invoice
+        Args:
+            parent: The parent widget for the editor.
+            option: The style options for the item.
+            index: The index of the item being edited.
+
+        Returns:
+            QTextEdit: The multi-line editor widget.
+        """
+        editor = QtWidgets.QTextEdit(parent)
+        editor.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        return editor
+
+    def setEditorData(self, editor, index):
+        """
+        Loads the data from the model into the QTextEdit editor for editing.
+
+        Args:
+            editor: The QTextEdit widget for editing.
+            index: The index of the item in the model being edited.
+        """
+        value = index.data(QtCore.Qt.ItemDataRole.EditRole)
+        if isinstance(value, str):
+            editor.setPlainText(value)
+
+    def setModelData(self, editor, model, index):
+        """
+        Saves the data from the QTextEdit editor back into the model.
+
+        Args:
+            editor: The QTextEdit widget used for editing.
+            model: The data model where the edited data will be stored.
+            index: The index of the item being edited.
+        """
+        model.setData(index, editor.toPlainText(), QtCore.Qt.ItemDataRole.EditRole)
+
+    def updateEditorGeometry(self, editor, option, index):
+        """
+        Updates the geometry of the editor to match the size of the table cell.
+
+        Args:
+            editor: The QTextEdit widget used for editing.
+            option: The style options for the item, including geometry.
+            index: The index of the item being edited.
+        """
+        editor.setGeometry(option.rect)
+
+class CustomProxyModel(QtCore.QSortFilterProxyModel):
+    """
+    A custom proxy model that filters table rows based on expressions set for specific columns.
+
+    Attributes:
+        _filters (dict): A dictionary to store filter expressions for columns.
+        header_names (dict): A dictionary to store header names for the table.
+
+    Properties:
+        filters: Getter for the current filter dictionary.
+
+    """
+    def __init__(self, parent=None):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
+        super().__init__(parent)
+        self._filters = dict()
+        self.header_names = {}
+
+    @property
+    def filters(self):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
+        return self._filters
+
+    def setFilter(self, expresion, column, action_name=None):
+        """
+        Apply a filter expression to a specific column, or remove it if necessary.
+
+        Args:
+            expresion (str): The filter expression.
+            column (int): The index of the column to apply the filter to.
+            action_name (str, optional): Name of the action, can be empty. Defaults to None.
+        """
+        if expresion or expresion == "":
+            if column in self.filters:
+                if action_name or action_name == "":
+                    self.filters[column].remove(expresion)
+                else:
+                    self.filters[column].append(expresion)
+            else:
+                self.filters[column] = [expresion]
+        elif column in self.filters:
+            if action_name or action_name == "":
+                self.filters[column].remove(expresion)
+                if not self.filters[column]:
+                    del self.filters[column]
+            else:
+                del self.filters[column]
+        self.invalidateFilter()
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        """
+        Check if a row passes the filter criteria based on the column filters.
+
+        Args:
+            source_row (int): The row number in the source model.
+            source_parent (QModelIndex): The parent index of the row.
+
+        Returns:
+            bool: True if the row meets the filter criteria, False otherwise.
+        """
+        for column, expresions in self.filters.items():
+            text = self.sourceModel().index(source_row, column, source_parent).data()
+
+            if isinstance(text, QtCore.QDate):  # Check if filters are QDate. If True, convert to text
+                text = text.toString("yyyy-MM-dd")
+
+            for expresion in expresions[0]:
+                if expresion == "":  # If expression is empty, match empty cells
+                    if text == "":
+                        break
+
+                elif re.fullmatch(r"^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$", expresion):
+                    expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
+                    expresion = expresion.toString("yyyy-MM-dd")
+
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    if regex.match(str(text)).hasMatch():
+                        break
+
+                else:
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    if regex.match(str(text)).hasMatch():
+                        break
+            else:
+                return False
+        return True
+
+class EditableTableModel(QtSql.QSqlTableModel):
+    """
+    A custom SQL table model that supports editable columns, headers, and special flagging behavior based on user permissions.
+
+    Signals:
+        updateFailed (str): Signal emitted when an update to the model fails.
+    """
+    updateFailed = QtCore.pyqtSignal(str)
+
+    def __init__(self, username, parent=None, column_range=None, database=None):
+        """
+        Initialize the model with user permissions and optional database and column range.
+
+        Args:
+            username (str): The username for permission-based actions.
+            parent (QObject, optional): Parent object for the model. Defaults to None.
+            column_range (list, optional): A list specifying the range of columns. Defaults to None.
+        """
+        super().__init__(parent, database)
+        self.column_range = column_range
+        self.username = username
+
+    def setQuery(self, query):
+        """
+        Set the SQL query for the model.
+
+        Args:
+            query (QSqlQuery): The query to populate the model.
+        """
+        super().setQuery(query)
+
+    def setAllColumnHeaders(self, headers):
+        """
+        Set headers for all columns in the model.
+
+        Args:
+            headers (list): A list of header names.
+        """
+        for column, header in enumerate(headers):
+            self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
+
+    def setIndividualColumnHeader(self, column, header):
+        """
+        Set the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            header (str): The header name.
+        """
+        self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
+
+    def setIconColumnHeader(self, column, icon):
+        """
+        Set an icon in the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            icon (QIcon): The icon to display in the header.
+        """
+        self.setHeaderData(column, QtCore.Qt.Orientation.Horizontal, icon, Qt.ItemDataRole.DecorationRole)
+
+    def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        """
+        Retrieve the header data for a specific section of the model.
+
+        Args:
+            section (int): The section index (column or row).
+            orientation (Qt.Orientation): The orientation (horizontal or vertical).
+            role (Qt.ItemDataRole, optional): The role for the header data. Defaults to DisplayRole.
+
+        Returns:
+            QVariant: The header data for the specified section.
+        """
+        if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
+            return super().headerData(section, orientation, role)
+        return super().headerData(section, orientation, role)
+
+    def flags(self, index):
+        """
+        Get the item flags for a given index, controlling editability and selection based on user permissions.
+
+        Args:
+            index (QModelIndex): The index of the item.
+
+        Returns:
+            Qt.ItemFlags: The flags for the specified item.
+        """
+        flags = super().flags(index)
+        if index.column() in [0, 1, 7, 8]:
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        else:
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+
+    def getColumnHeaders(self, visible_columns):
+        """
+        Retrieve the headers for the specified visible columns.
+
+        Args:
+            visible_columns (list): List of column indices that are visible.
+
+        Returns:
+            list: A list of column headers for the visible columns.
+        """
+        column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
+        return column_headers
+
+
+class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
+    """
+    Represents the main window for creating or editing invoices in the application.
+
+    Attributes:
+        db: The database connection used to interact with invoice data.
+        username: The username of the currently logged-in user.
+        numinvoice: The number of the invoice being created or edited.
+        model: The data model for managing the editable table of invoice items.
+        proxy: A proxy model used for sorting and filtering table data.
+        checkbox_states: A dictionary that tracks the states of checkboxes in the UI.
+        dict_valuesuniques: A dictionary storing unique values for filtering purposes.
+        dict_ordersort: A dictionary storing the sorting order of columns.
+        hiddencolumns: A list of columns that are hidden from view.
+        action_checkbox_map: A mapping of checkboxes to specific actions in the UI.
+        checkbox_filters: A dictionary storing filters applied based on checkbox selections.
+    """
+    def __init__(self, db, username=None, num_invoice=None):
+        """
+        Initializes the Ui_InvoiceNew_Window with the given database connection, username, and invoice number.
+
+        Args:
+            db: The database connection used to interact with the invoice data.
+            username: The username of the currently logged-in user (optional).
+            num_invoice: The number of the invoice being created or edited (optional).
+        """
+        super(Ui_InvoiceNew_Window, self).__init__()
+        self.numinvoice = num_invoice
+        self.db = db
+        self.username = username
+        self.model = EditableTableModel(self.username, database=db)
+        self.proxy = CustomProxyModel()
+        self.checkbox_states = {}
+        self.dict_valuesuniques = {}
+        self.dict_ordersort = {}
+        self.hiddencolumns = []
+        self.action_checkbox_map = {}
+        self.checkbox_filters = {}
+        # self.model.dataChanged.connect(self.saveChanges)
+        self.setupUi(self)
+
+    def closeEvent(self, event):
+        """
+        Handles the close event to clean up resources.
+
+        Args:
+            event (QtGui.QCloseEvent): The close event.
+        """
+        if self.model:
+            self.model.clear()
+        self.closeConnection()
+
+    def closeConnection(self):
+        """
+        Closes the database connection and cleans up resources.
+        """
+        self.tableRecords.setModel(None)
+        del self.model
+        if self.db:
+            self.db.close()
+            del self.db
+            if QtSql.QSqlDatabase.contains("facturation"):
+                QtSql.QSqlDatabase.removeDatabase("facturation")
     
     def setupUi(self, Invoice_Window):
+        """
+        Sets up the user interface for the Invoice_Window.
+
+        Args:
+            Invoice_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         Invoice_Window.setObjectName("Invoice_Window")
         Invoice_Window.resize(1476, 927)
         icon = QtGui.QIcon()
@@ -628,7 +1148,7 @@ class Ui_InvoiceNew_Window(object):
         Invoice_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
 "}\n"
-"")
+"QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         self.centralwidget = QtWidgets.QWidget(parent=Invoice_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -929,63 +1449,6 @@ class Ui_InvoiceNew_Window(object):
         self.Button_EditInvoice.setObjectName("Button_EditInvoice")
         self.Button_EditInvoice.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.gridLayout_4.addWidget(self.Button_EditInvoice, 2, 9, 1, 1)
-        # self.line_horizontal = QtWidgets.QFrame(parent=self.scrollAreaWidgetContents)
-        # self.line_horizontal.setObjectName("line_horizontal")
-        # self.line_horizontal.setFrameShadow(QtWidgets.QFrame.Shadow.Plain)
-        # self.line_horizontal.setFrameShape(QtWidgets.QFrame.Shape.HLine)
-        # self.gridLayout_4.addWidget(self.line_horizontal, 4, 0, 1, 10)
-        self.label_Item = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
-        self.label_Item.setMinimumSize(QtCore.QSize(50, 25))
-        self.label_Item.setMaximumSize(QtCore.QSize(50, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_Item.setFont(font)
-        self.label_Item.setObjectName("label_Item")
-        self.gridLayout_4.addWidget(self.label_Item, 5, 0, 1, 1)
-        self.label_Qty = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
-        self.label_Qty.setMinimumSize(QtCore.QSize(80, 25))
-        self.label_Qty.setMaximumSize(QtCore.QSize(16777215, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_Qty.setFont(font)
-        self.label_Qty.setObjectName("label_Qty")
-        self.gridLayout_4.addWidget(self.label_Qty, 5, 1, 1, 1)
-        self.label_Description = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
-        self.label_Description.setMinimumSize(QtCore.QSize(80, 25))
-        self.label_Description.setMaximumSize(QtCore.QSize(16777215, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_Description.setFont(font)
-        self.label_Description.setObjectName("label_Description")
-        self.gridLayout_4.addWidget(self.label_Description, 5, 2, 1, 1)
-        self.Description_Invoice = QtWidgets.QTextEdit(parent=self.scrollAreaWidgetContents)
-        self.Description_Invoice.setMinimumSize(QtCore.QSize(0, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Description_Invoice.setFont(font)
-        self.Description_Invoice.setObjectName("Description_Invoice")
-        self.gridLayout_4.addWidget(self.Description_Invoice, 5, 3, 2, 1)
-        self.label_UnitValueEur = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
-        self.label_UnitValueEur.setMinimumSize(QtCore.QSize(80, 25))
-        self.label_UnitValueEur.setMaximumSize(QtCore.QSize(80, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_UnitValueEur.setFont(font)
-        self.label_UnitValueEur.setObjectName("label_UnitValueEur")
-        self.gridLayout_4.addWidget(self.label_UnitValueEur, 5, 4, 1, 1)
-        self.label_UnitValueDollar = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
-        self.label_UnitValueDollar.setMinimumSize(QtCore.QSize(80, 25))
-        self.label_UnitValueDollar.setMaximumSize(QtCore.QSize(80, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_UnitValueDollar.setFont(font)
-        self.label_UnitValueDollar.setObjectName("label_UnitValueDollar")
-        self.gridLayout_4.addWidget(self.label_UnitValueDollar, 5, 5, 1, 1)
         self.AgInterm = QtWidgets.QLineEdit(parent=self.scrollAreaWidgetContents)
         font = QtGui.QFont()
         font.setPointSize(8)
@@ -994,7 +1457,7 @@ class Ui_InvoiceNew_Window(object):
         self.AgInterm.setReadOnly(True)
         self.AgInterm.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.AgInterm.setObjectName("AgInterm")
-        self.gridLayout_4.addWidget(self.AgInterm, 5, 8, 1, 1)
+        self.gridLayout_4.addWidget(self.AgInterm, 5, 4, 1, 1)
         self.AgIntermOk = QtWidgets.QLineEdit(parent=self.scrollAreaWidgetContents)
         font = QtGui.QFont()
         font.setPointSize(8)
@@ -1003,7 +1466,7 @@ class Ui_InvoiceNew_Window(object):
         self.AgIntermOk.setReadOnly(True)
         self.AgIntermOk.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.AgIntermOk.setObjectName("AgIntermOk")
-        self.gridLayout_4.addWidget(self.AgIntermOk, 6, 8, 1, 1)
+        self.gridLayout_4.addWidget(self.AgIntermOk, 5, 5, 1, 1)
         self.AgIntermState = QtWidgets.QLineEdit(parent=self.scrollAreaWidgetContents)
         font = QtGui.QFont()
         font.setPointSize(8)
@@ -1012,7 +1475,7 @@ class Ui_InvoiceNew_Window(object):
         self.AgIntermState.setReadOnly(True)
         self.AgIntermState.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.AgIntermState.setObjectName("AgIntermState")
-        self.gridLayout_4.addWidget(self.AgIntermState, 7, 8, 1, 1)
+        self.gridLayout_4.addWidget(self.AgIntermState, 5, 6, 1, 1)
         self.Button_SearchInvoice = QtWidgets.QPushButton(parent=self.scrollAreaWidgetContents)
         self.Button_SearchInvoice.setMinimumSize(QtCore.QSize(0, 35))
         self.Button_SearchInvoice.setMaximumSize(QtCore.QSize(16777215, 500))
@@ -1057,39 +1520,7 @@ class Ui_InvoiceNew_Window(object):
 "}")
         self.Button_SearchInvoice.setObjectName("Button_SearchInvoice")
         self.Button_SearchInvoice.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.gridLayout_4.addWidget(self.Button_SearchInvoice, 5, 9, 3, 1)
-        self.Item_Invoice = QtWidgets.QLineEdit(parent=self.scrollAreaWidgetContents)
-        self.Item_Invoice.setMinimumSize(QtCore.QSize(100, 30))
-        self.Item_Invoice.setMaximumSize(QtCore.QSize(100, 30))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Item_Invoice.setFont(font)
-        self.Item_Invoice.setObjectName("Item_Invoice")
-        self.gridLayout_4.addWidget(self.Item_Invoice, 6, 0, 1, 1)
-        self.Qty_Invoice = QtWidgets.QLineEdit(parent=self.scrollAreaWidgetContents)
-        self.Qty_Invoice.setMinimumSize(QtCore.QSize(100, 30))
-        self.Qty_Invoice.setMaximumSize(QtCore.QSize(100, 30))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.Qty_Invoice.setFont(font)
-        self.Qty_Invoice.setObjectName("Qty_Invoice")
-        self.gridLayout_4.addWidget(self.Qty_Invoice, 6, 1, 1, 1)
-        self.UnitValueEur_Invoice = QtWidgets.QLineEdit(parent=self.scrollAreaWidgetContents)
-        self.UnitValueEur_Invoice.setMinimumSize(QtCore.QSize(80, 30))
-        self.UnitValueEur_Invoice.setMaximumSize(QtCore.QSize(80, 30))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.UnitValueEur_Invoice.setFont(font)
-        self.UnitValueEur_Invoice.setObjectName("UnitValueEur_Invoice")
-        self.gridLayout_4.addWidget(self.UnitValueEur_Invoice, 6, 4, 1, 1)
-        self.UnitValueDollar_Invoice = QtWidgets.QLineEdit(parent=self.scrollAreaWidgetContents)
-        self.UnitValueDollar_Invoice.setMinimumSize(QtCore.QSize(80, 30))
-        self.UnitValueDollar_Invoice.setMaximumSize(QtCore.QSize(80, 30))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.UnitValueDollar_Invoice.setFont(font)
-        self.UnitValueDollar_Invoice.setObjectName("UnitValueDollar_Invoice")
-        self.gridLayout_4.addWidget(self.UnitValueDollar_Invoice, 6, 5, 1, 1)
+        self.gridLayout_4.addWidget(self.Button_SearchInvoice, 3, 9, 2, 1)
         self.Button_AddReg = QtWidgets.QPushButton(parent=self.scrollAreaWidgetContents)
         self.Button_AddReg.setMinimumSize(QtCore.QSize(150, 30))
         self.Button_AddReg.setMaximumSize(QtCore.QSize(16777215, 30))
@@ -1134,97 +1565,7 @@ class Ui_InvoiceNew_Window(object):
 "}")
         self.Button_AddReg.setObjectName("Button_AddReg")
         self.Button_AddReg.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.gridLayout_4.addWidget(self.Button_AddReg, 5, 6, 1, 2)
-        self.Button_EditReg = QtWidgets.QPushButton(parent=self.scrollAreaWidgetContents)
-        self.Button_EditReg.setMinimumSize(QtCore.QSize(150, 30))
-        self.Button_EditReg.setMaximumSize(QtCore.QSize(16777215, 30))
-        self.Button_EditReg.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_EditReg.setAutoDefault(True)
-        self.Button_EditReg.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 2px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-"QPushButton:focus{\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:focus:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
-        self.Button_EditReg.setObjectName("Button_EditReg")
-        self.Button_EditReg.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.gridLayout_4.addWidget(self.Button_EditReg, 6, 6, 1, 2)
-        self.Button_DeleteReg = QtWidgets.QPushButton(parent=self.scrollAreaWidgetContents)
-        self.Button_DeleteReg.setMinimumSize(QtCore.QSize(150, 30))
-        self.Button_DeleteReg.setMaximumSize(QtCore.QSize(16777215, 30))
-        self.Button_DeleteReg.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_DeleteReg.setAutoDefault(True)
-        self.Button_DeleteReg.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 2px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-"QPushButton:focus{\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:focus:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
-        self.Button_DeleteReg.setObjectName("Button_DeleteReg")
-        self.Button_DeleteReg.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.gridLayout_4.addWidget(self.Button_DeleteReg, 7, 6, 1, 2)
+        self.gridLayout_4.addWidget(self.Button_AddReg, 5, 1, 1, 1)
         self.label_Details = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
         self.label_Details.setMinimumSize(QtCore.QSize(100, 25))
         self.label_Details.setMaximumSize(QtCore.QSize(100, 25))
@@ -1233,17 +1574,13 @@ class Ui_InvoiceNew_Window(object):
         font.setBold(True)
         self.label_Details.setFont(font)
         self.label_Details.setObjectName("label_Details")
-        self.gridLayout_4.addWidget(self.label_Details, 7, 0, 1, 1)
-        self.label_IDRecord = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
-        self.label_IDRecord.setObjectName("label_IDRecord")
-        self.label_IDRecord.setStyleSheet("color: rgb(255, 255, 255);")
-        self.gridLayout_4.addWidget(self.label_IDRecord, 7, 1, 1, 1)
+        self.gridLayout_4.addWidget(self.label_Details, 5, 0, 1, 1)
         self.label_IDInvoice = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
         self.label_IDInvoice.setMinimumSize(QtCore.QSize(150, 25))
         self.label_IDInvoice.setMaximumSize(QtCore.QSize(150, 16777215))
         self.label_IDInvoice.setObjectName("label_IDInvoice")
         self.label_IDInvoice.setStyleSheet("color: rgb(255, 255, 255);")
-        self.gridLayout_4.addWidget(self.label_IDInvoice, 7, 2, 1, 1)
+        self.gridLayout_4.addWidget(self.label_IDInvoice, 5, 3, 1, 1)
         self.Button_ImportReg = QtWidgets.QPushButton(parent=self.scrollAreaWidgetContents)
         self.Button_ImportReg.setMinimumSize(QtCore.QSize(150, 30))
         self.Button_ImportReg.setMaximumSize(QtCore.QSize(16777215, 30))
@@ -1288,20 +1625,11 @@ class Ui_InvoiceNew_Window(object):
 "}")
         self.Button_ImportReg.setObjectName("Button_ImportReg")
         self.Button_ImportReg.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.gridLayout_4.addWidget(self.Button_ImportReg, 7, 4, 1, 2)
-        self.tableRecords = CustomTableWidgetRecord()
+        self.gridLayout_4.addWidget(self.Button_ImportReg, 5, 2, 1, 1)
+        self.tableRecords = QtWidgets.QTableView(parent=self.scrollAreaWidgetContents)
+        self.tableRecords.setObjectName("tableRecords")
         self.tableRecords.setMinimumSize(QtCore.QSize(0, 300))
         self.tableRecords.setMaximumSize(QtCore.QSize(16777215, 300))
-        self.tableRecords.setObjectName("tableRecords")
-        self.tableRecords.setColumnCount(8)
-        self.tableRecords.setRowCount(0)
-        for i in range(8):
-            item = QtWidgets.QTableWidgetItem()
-            font = QtGui.QFont()
-            font.setPointSize(10)
-            font.setBold(True)
-            item.setFont(font)
-            self.tableRecords.setHorizontalHeaderItem(i, item)
         self.gridLayout_4.addWidget(self.tableRecords, 8, 0, 1, 10)
         self.label_Qty_Elements = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
         self.label_Qty_Elements.setMinimumSize(QtCore.QSize(0, 25))
@@ -2265,16 +2593,12 @@ class Ui_InvoiceNew_Window(object):
         self.Client_Invoice.currentIndexChanged.connect(self.clientchange)
         self.DestCountry_Invoice.currentIndexChanged.connect(self.destcountrychange)
     # Adding functions to tables
-        self.tableRecords.horizontalHeader().sectionClicked.connect(self.on_headerrecords_section_clicked)
         self.tableInvoice.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
         self.tableInvoice.itemClicked.connect(self.loadforminvoice)
-        self.tableRecords.itemClicked.connect(self.loadformrecords)
     # Adding functions to buttons
         self.Button_CreateInvoice.clicked.connect(self.createinvoice)
         self.Button_EditInvoice.clicked.connect(self.modifyinvoice)
         self.Button_AddReg.clicked.connect(self.addrecord)
-        self.Button_EditReg.clicked.connect(self.modifyrecord)
-        self.Button_DeleteReg.clicked.connect(self.deleterecord)
         self.Button_FactEuro.clicked.connect(self.submiteuroinvoice)
         self.Button_FactDollar.clicked.connect(self.submitdollarinvoice)
         self.Button_DelivNote.clicked.connect(self.generate_delivnote)
@@ -2297,6 +2621,15 @@ class Ui_InvoiceNew_Window(object):
         self.Con3Dollar_Invoice.editingFinished.connect(self.calculate_totalorder)
         self.Con4Dollar_Invoice.editingFinished.connect(self.calculate_totalorder)
         self.Con5Dollar_Invoice.editingFinished.connect(self.calculate_totalorder)
+
+        delete_action_record = QtGui.QAction("Eliminar Fila", self)
+        delete_action_record.triggered.connect(lambda: self.delete_register(self.tableRecords, "purch_fact.invoice_detail"))
+
+        self.context_menu_row = QtWidgets.QMenu(self)
+        self.context_menu_row.addAction(delete_action_record)
+        
+        self.tableRecords.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
+        self.tableRecords.addActions([delete_action_record])
 
         self.loadinvoicetable()
 
@@ -2339,8 +2672,11 @@ class Ui_InvoiceNew_Window(object):
 
             self.loadforminvoice(None, self.label_IDInvoice.text())
 
-
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, Invoice_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         Invoice_Window.setWindowTitle(_translate("Invoice_Window", "Factura"))
         self.label_1.setText(_translate("Invoice_Window", "€"))
@@ -2360,7 +2696,6 @@ class Ui_InvoiceNew_Window(object):
         self.label_MercType.setText(_translate("Invoice_Window", "Tipo Mercad.:"))
         self.label_TheirRef.setText(_translate("Invoice_Window", "S/Ref:"))
         self.label_Details.setText(_translate("Invoice_Window", "Detalle:"))
-        self.label_Description.setText(_translate("Invoice_Window", "Descripción:"))
         self.label_TaxBase.setText(_translate("Invoice_Window", "Base Imponible:"))
         self.label_Transport.setText(_translate("Invoice_Window", "Transporte:"))
         self.label_Comments.setText(_translate("Invoice_Window", "Comentario:"))
@@ -2370,9 +2705,6 @@ class Ui_InvoiceNew_Window(object):
         self.label_ValCot.setText(_translate("Invoice_Window", "Cot. 1€ ="))
         self.label_Date.setText(_translate("Invoice_Window", "Fecha Fct.:"))
         self.label_IDInvoice.setText(_translate("Invoice_Window", ""))
-        self.label_UnitValueEur.setText(_translate("Invoice_Window", "Val. Un.(€):"))
-        self.label_UnitValueDollar.setText(_translate("Invoice_Window", "Val. Un.($):"))
-        self.label_IDRecord.setText(_translate("Invoice_Window", ""))
         self.label_IVA.setText(_translate("Invoice_Window", "IVA CL:"))
         self.label_Destination.setText(_translate("Invoice_Window", "Destino:"))
         self.label_GrossWeight.setText(_translate("Invoice_Window", "Peso Bruto:"))
@@ -2380,10 +2712,8 @@ class Ui_InvoiceNew_Window(object):
         self.label_14.setText(_translate("Invoice_Window", "$"))
         self.label_DestCountry.setText(_translate("Invoice_Window", "País Dest:"))
         self.label_Total.setText(_translate("Invoice_Window", "Total:"))
-        self.label_Qty.setText(_translate("Invoice_Window", "Cantidad:"))
         self.label_PayDate.setText(_translate("Invoice_Window", "Fch PAGO:"))
         self.label_Application.setText(_translate("Invoice_Window", "Aplicación:"))
-        self.label_Item.setText(_translate("Invoice_Window", "Item:"))
         self.label_NetWeight.setText(_translate("Invoice_Window", "Peso Neto:"))
         self.label_Dimensions.setText(_translate("Invoice_Window", "Dimensiones:"))
         self.label_ClAlb.setText(_translate("Invoice_Window", "Cl. Alb:"))
@@ -2402,28 +2732,10 @@ class Ui_InvoiceNew_Window(object):
         self.Button_EditInvoice.setText(_translate("Invoice_Window", "Editar Factura"))
         self.Button_SearchInvoice.setText(_translate("Invoice_Window", "Buscar Factura"))
         self.Button_AddReg.setText(_translate("Invoice_Window", "Agregar"))
-        self.Button_EditReg.setText(_translate("Invoice_Window", "Editar"))
-        self.Button_DeleteReg.setText(_translate("Invoice_Window", "Eliminar"))
         self.Button_ImportReg.setText(_translate("Invoice_Window", "Importar"))
         self.Button_DelivNote.setText(_translate("Invoice_Window", "Albarán"))
         self.Button_FactDollar.setText(_translate("Invoice_Window", "Fact.$"))
         self.Button_FactEuro.setText(_translate("Invoice_Window", "Fact. €"))
-        item = self.tableRecords.horizontalHeaderItem(0)
-        item.setText(_translate("Invoice_Window", "ID"))
-        item = self.tableRecords.horizontalHeaderItem(1)
-        item.setText(_translate("Invoice_Window", "Item"))
-        item = self.tableRecords.horizontalHeaderItem(2)
-        item.setText(_translate("Invoice_Window", "Cantidad"))
-        item = self.tableRecords.horizontalHeaderItem(3)
-        item.setText(_translate("Invoice_Window", "Descripción"))
-        item = self.tableRecords.horizontalHeaderItem(4)
-        item.setText(_translate("Invoice_Window", "Valor Unit. €"))
-        item = self.tableRecords.horizontalHeaderItem(5)
-        item.setText(_translate("Invoice_Window", "Sbtot. €"))
-        item = self.tableRecords.horizontalHeaderItem(6)
-        item.setText(_translate("Invoice_Window", "Valor Unit. $"))
-        item = self.tableRecords.horizontalHeaderItem(7)
-        item.setText(_translate("Invoice_Window", "Sbtot. $"))
         item = self.tableInvoice.horizontalHeaderItem(0)
         item.setText(_translate("Invoice_Window", "ID"))
         item = self.tableInvoice.horizontalHeaderItem(1)
@@ -2451,9 +2763,33 @@ class Ui_InvoiceNew_Window(object):
         item = self.tableInvoice.horizontalHeaderItem(12)
         item.setText(_translate("Invoice_Window", "Grupo"))
 
+# Function to save changes into database
+    def saveChanges(self):
+        """
+        Saves changes made to the data models and updates unique values for each column.
+        """
+        if self.model.submitAll():
+            print("Cambios guardados correctamente.")
+        else:
+            print(f"Error al guardar cambios: {self.model.lastError().text()}")
+
+        for column in range(self.model.columnCount()):
+            list_valuesUnique = []
+            for row in range(self.model.rowCount()):
+                value = self.model.record(row).value(column)
+                if value not in list_valuesUnique:
+                    if isinstance(value, QtCore.QDate):
+                        value = value.toString("dd/MM/yyyy")
+                    list_valuesUnique.append(str(value))
+                    if value not in self.checkbox_states[column]:
+                        self.checkbox_states[column][value] = True
+            self.dict_valuesuniques[column] = list_valuesUnique
 
 # Function to create new invoice
     def createinvoice(self):
+        """
+        Creates a new entry in database after validating form inputs.
+        """
         invoice_date = self.Date_Invoice.text()
         invoice_number = self.InvoiceNumber_Invoice.text()
         client_name = self.Client_Invoice.currentText()
@@ -2548,9 +2884,11 @@ class Ui_InvoiceNew_Window(object):
         self.loadinvoicetable()
         self.loadrecordstable()
 
-
 # Function to modify invoice data
     def modifyinvoice(self):
+        """
+        Modify the selected entry in database after validating form inputs.
+        """
         id_invoice = self.label_IDInvoice.text()
 
         if id_invoice == '':
@@ -2697,9 +3035,11 @@ class Ui_InvoiceNew_Window(object):
 
         self.loadinvoicetable()
 
-
 # Function to submit euro invoice
     def submiteuroinvoice(self):
+        """
+        Submit the information to the invoice and generates the pdf of the corresponding invoice in euros
+        """
         self.calculate_totalorder()
         id_invoice = self.label_IDInvoice.text()
 
@@ -2998,9 +3338,11 @@ class Ui_InvoiceNew_Window(object):
 
             self.loadinvoicetable()
 
-
 # Function to submit dollar invoice
     def submitdollarinvoice(self):
+        """
+        Submit the information to the invoice and generates the pdf of the corresponding invoice in dollars
+        """
         self.calculate_totalorder()
         id_invoice = self.label_IDInvoice.text()
         valcotdollar = self.ValCotDollar_Invoice.text()
@@ -3316,6 +3658,9 @@ class Ui_InvoiceNew_Window(object):
 
 # Function to search invoice
     def search_invoice(self, Invoice_Window):
+        """
+        Opens the 'search_invoice' window. Sets up the UI for the user.
+        """
         from InvoiceSearch_Window import Ui_InvoiceSearch_Window
         self.invoicesearch_window=QtWidgets.QMainWindow()
         self.ui=Ui_InvoiceSearch_Window()
@@ -3325,6 +3670,10 @@ class Ui_InvoiceNew_Window(object):
 
 # Function to load invoice table
     def loadinvoicetable(self):
+        """
+        Queries the database for invoices, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         commands_querytableinvoice = ("""
                         SELECT invoice."id_invoice", invoice."num_invoice", invoice."num_delivnote", TO_CHAR(invoice."date_invoice",'DD-MM-YYYY'),
                         clients."name", invoice."our_ref", invoice."their_ref", invoice."obs_delivnote", TO_CHAR(invoice."date_delivnote",'DD-MM-YYYY'),
@@ -3387,10 +3736,14 @@ class Ui_InvoiceNew_Window(object):
         self.tableInvoice.setSortingEnabled(False)
         self.tableInvoice.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
-        self.calculate_totalorder()
+        # self.calculate_totalorder()
 
 # Function to filter invoice table
     def filterinvoicetable(self):
+        """
+        Queries the database for filtered invoices, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         filter = self.Filter_Invoice.text()
         commands_querytableinvoice = ("""
                         SELECT invoice."id_invoice", invoice."num_invoice", invoice."num_delivnote", TO_CHAR(invoice."date_invoice",'DD-MM-YYYY'),
@@ -3457,76 +3810,362 @@ class Ui_InvoiceNew_Window(object):
 
 # Function to load records table
     def loadrecordstable(self):
+        """
+        Queries the database for items based on invoice number, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         id_invoice = self.label_IDInvoice.text()
 
-        commands_querytablerecords = ("""
-                        SELECT detail."id_detail", detail."item", detail."quantity", detail."description", detail."price",
-                        detail."quantity" * detail."price" AS "t_price_eur", detail."price_usd", detail."quantity" * detail."price_usd" AS "t_price_dollar"
-                        FROM purch_fact.invoice_detail AS detail
-                        WHERE detail."inv_head_id" = %s
-                        ORDER BY detail."id_detail"
-                        """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_querytablerecords, (id_invoice,))
-            results_records=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+        self.model.clear()
+        self.model.setTable("purch_fact.invoice_detail")
+        self.tableRecords.setModel(None)
+        self.tableRecords.setModel(self.proxy)
+        self.model.setFilter(f"inv_head_id = '{id_invoice}'")
+        self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
+        self.model.select()
 
-        self.tableRecords.setRowCount(len(results_records))
-        tablerow=0
+        self.proxy.setSourceModel(self.model)
+        self.tableRecords.setModel(self.proxy)
 
-        font = QtGui.QFont()
-        font.setPointSize(int(10))
+    # Change all column names
+        headers = ["ID", "ID Factura", "Item", "Cantidad", "Descripción", "Precio Un. (€)", "Precio Un. ($)", "Precio Tot. (€)", "Precio Tot. ($)"]
+        self.model.setAllColumnHeaders(headers)
 
-    # fill the Qt Table with the query results
-        for row in results_records:
-            for column in range(8):
-                value = row[column]
-                if value is None:
-                    value = ''
-                it = QtWidgets.QTableWidgetItem(str(value))
-                # it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                it.setFlags(it.flags())
-                it.setFont(font)
-                self.tableRecords.setItem(tablerow, column, it)
+        columns_number = self.model.columnCount()
+        for column in range(columns_number):
+            self.tableRecords.setItemDelegateForColumn(column, None)
 
-            self.tableRecords.setItemDelegateForRow(tablerow, AlignDelegate(self.tableRecords))
-            tablerow+=1
-
-        self.tableRecords.verticalHeader().hide()
-        self.tableRecords.setSortingEnabled(False)
-        self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableRecords.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableRecords.setItemDelegate(AlignDelegate(self.tableRecords))
+        delegate = MultiLineDelegate(self.tableRecords)
+        self.tableRecords.setItemDelegateForColumn(4, delegate)
+        self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableRecords.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableRecords.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableRecords.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableRecords.setObjectName("tableRecords")
+        self.tableRecords.setSortingEnabled(False)
+        self.tableRecords.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableRecords, self.model, self.proxy))
+        self.gridLayout_4.addWidget(self.tableRecords, 8, 0, 1, 10)
+
+        self.tableRecords.hideColumn(0)
+        self.tableRecords.hideColumn(1)
+
+    # Getting the unique values for each column of the model
+        for column in range(self.model.columnCount()):
+            list_valuesUnique = []
+            if column not in self.checkbox_states:
+                self.checkbox_states[column] = {}
+                self.checkbox_states[column]["Seleccionar todo"] = True
+                for row in range(self.model.rowCount()):
+                    value = self.model.record(row).value(column)
+                    if value not in list_valuesUnique:
+                        if isinstance(value, QtCore.QDate):
+                            value = value.toString("dd/MM/yyyy")
+                        list_valuesUnique.append(str(value))
+                        self.checkbox_states[column][value] = True
+                self.dict_valuesuniques[column] = list_valuesUnique
 
         self.calculate_totalorder()
         self.calculate_elements()
 
+        self.model.dataChanged.connect(self.saveChanges)
+
+# Function when header is clicked
+    def on_view_horizontalHeader_sectionClicked(self, logicalIndex, table, model, proxy):
+        """
+        Displays a menu when a column header is clicked. The menu includes options for sorting, filtering, and managing column visibility.
+        
+        Args:
+            logicalIndex (int): Index of the clicked column.
+            table (QtWidgets.QTableView): The table view displaying the data.
+            model (QtGui.QStandardItemModel): The model associated with the table.
+            proxy (QtCore.QSortFilterProxyModel): The proxy model used for filtering and sorting.
+        """
+        self.logicalIndex = logicalIndex
+        self.menuValues = QtWidgets.QMenu(self)
+        self.signalMapper = QtCore.QSignalMapper(table)
+
+        valuesUnique_view = []
+        for row in range(table.model().rowCount()):
+            index = table.model().index(row, self.logicalIndex)
+            value = index.data(Qt.ItemDataRole.DisplayRole)
+            if value not in valuesUnique_view:
+                if isinstance(value, QtCore.QDate):
+                    value = value.toString("dd/MM/yyyy")
+                valuesUnique_view.append(value)
+
+        actionSortAscending = QtGui.QAction("Ordenar Ascendente", table)
+        actionSortAscending.triggered.connect(lambda: self.on_actionSortAscending_triggered(table))
+        self.menuValues.addAction(actionSortAscending)
+        actionSortDescending = QtGui.QAction("Ordenar Descendente", table)
+        actionSortDescending.triggered.connect(lambda: self.on_actionSortDescending_triggered(table))
+        self.menuValues.addAction(actionSortDescending)
+        self.menuValues.addSeparator()
+
+        actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro", table)
+        actionDeleteFilterColumn.triggered.connect(lambda: self.on_actionDeleteFilterColumn_triggered(table, model, proxy))
+        self.menuValues.addAction(actionDeleteFilterColumn)
+        self.menuValues.addSeparator()
+
+        actionTextFilter = QtGui.QAction("Buscar...", table)
+        actionTextFilter.triggered.connect(lambda: self.on_actionTextFilter_triggered(model, proxy))
+        self.menuValues.addAction(actionTextFilter)
+        self.menuValues.addSeparator()
+
+        scroll_menu = QtWidgets.QScrollArea()
+        if self.username == 'm.gil':
+            scroll_menu.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255)")
+        else:
+            scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
+        scroll_menu.setWidgetResizable(True)
+        scroll_widget = QtWidgets.QWidget(scroll_menu)
+        scroll_menu.setWidget(scroll_widget)
+        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+
+        checkbox_all_widget = QtWidgets.QCheckBox("Seleccionar todo")
+
+        if not self.checkbox_states[self.logicalIndex]["Seleccionar todo"] == True:
+            checkbox_all_widget.setChecked(False)
+        else:
+            checkbox_all_widget.setChecked(True)
+
+        checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled(checked, name, model))
+
+        scroll_layout.addWidget(checkbox_all_widget)
+        self.action_checkbox_map["Seleccionar todo"] = checkbox_all_widget
+
+        if len(self.dict_ordersort) != 0 and self.logicalIndex in self.dict_ordersort:
+            list_uniquevalues = sorted(list(set(self.dict_valuesuniques[self.logicalIndex])))
+        else:
+            list_uniquevalues = sorted(list(set(valuesUnique_view)))
+
+        for actionName in list_uniquevalues:
+            checkbox_widget = QtWidgets.QCheckBox(actionName)
+
+            if self.logicalIndex not in self.checkbox_filters:
+                checkbox_widget.setChecked(True)
+            elif actionName not in self.checkbox_filters[self.logicalIndex]:
+                checkbox_widget.setChecked(False)
+            else:
+                checkbox_widget.setChecked(True)
+
+            checkbox_widget.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled(checked, name, model))
+
+            scroll_layout.addWidget(checkbox_widget)
+            self.action_checkbox_map[actionName] = checkbox_widget
+
+        action_scroll_menu = QtWidgets.QWidgetAction(self.menuValues)
+        action_scroll_menu.setDefaultWidget(scroll_menu)
+        self.menuValues.addAction(action_scroll_menu)
+
+        self.menuValues.addSeparator()
+
+        accept_button = QtGui.QAction("ACEPTAR", table)
+        accept_button.triggered.connect(lambda: self.menu_acceptbutton_triggered(proxy))
+
+        cancel_button = QtGui.QAction("CANCELAR", table)
+        cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
+
+        self.menuValues.addAction(accept_button)
+        self.menuValues.addAction(cancel_button)
+
+        if self.username == 'm.gil':
+            self.menuValues.setStyleSheet("QMenu { color: white; }"
+                                            "QMenu { background-color: #121212; }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
+                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        else:
+            self.menuValues.setStyleSheet("QMenu { color: black; }"
+                                            "QMenu { background-color: rgb(255, 255, 255); }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
+                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+
+        headerPos = table.mapToGlobal(table.horizontalHeader().pos())
+
+        posY = headerPos.y() + table.horizontalHeader().height()
+        scrollX = table.horizontalScrollBar().value()
+        xInView = table.horizontalHeader().sectionViewportPosition(logicalIndex)
+        posX = headerPos.x() + xInView - scrollX
+
+        self.menuValues.exec(QtCore.QPoint(posX, posY))
+
+# Function when cancel button of menu is clicked
+    def menu_cancelbutton_triggered(self):
+        """
+        Hides the menu when the cancel button is clicked.
+        """
+        self.menuValues.hide()
+
+# Function when accept button of menu is clicked
+    def menu_acceptbutton_triggered(self, proxy):
+        """
+        Applies the selected filters and updates the table model with the new filters.
+        
+        Args:
+            proxy (QtCore.QSortFilterProxyModel): The proxy model used for filtering and sorting.
+        """
+        for column, filters in self.checkbox_filters.items():
+            if filters:
+                proxy.setFilter(filters, column)
+            else:
+                proxy.setFilter(None, column)
+
+        self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+
+# Function when select all checkbox is clicked
+    def on_select_all_toggled(self, checked, action_name, model):
+        """
+        Toggles the state of all checkboxes in the filter menu when the 'Select All' checkbox is toggled.
+        
+        Args:
+            checked (bool): The checked state of the 'Select All' checkbox.
+            action_name (str): The name of the action (usually 'Select All').
+            model (QtGui.QStandardItemModel): The model associated with the table.
+        """
+        filterColumn = self.logicalIndex
+        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
+
+        if checked:
+            for checkbox_name, checkbox_widget in self.action_checkbox_map.items():
+                checkbox_widget.setChecked(checked)
+                self.checkbox_states[self.logicalIndex][checkbox_name] = checked
+
+            if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map.values()):
+                model.setIconColumnHeader(filterColumn, icono)
+            else:
+                model.setIconColumnHeader(filterColumn, "")
+
+        else:
+            for checkbox_name, checkbox_widget in self.action_checkbox_map.items():
+                checkbox_widget.setChecked(checked)
+                self.checkbox_states[self.logicalIndex][checkbox_widget.text()] = checked
+
+# Function when checkbox of header menu is clicked
+    def on_checkbox_toggled(self, checked, action_name, model):
+        """
+        Updates the filter state when an individual checkbox is toggled.
+        
+        Args:
+            checked (bool): The checked state of the checkbox.
+            action_name (str): The name of the checkbox.
+            model (QtGui.QStandardItemModel): The model associated with the table.
+        """
+        filterColumn = self.logicalIndex
+        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+        icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
+
+        if checked:
+            if filterColumn not in self.checkbox_filters:
+                self.checkbox_filters[filterColumn] = [action_name]
+            else:
+                if action_name not in self.checkbox_filters[filterColumn]:
+                    self.checkbox_filters[filterColumn].append(action_name)
+        else:
+            if filterColumn in self.checkbox_filters and action_name in self.checkbox_filters[filterColumn]:
+                self.checkbox_filters[filterColumn].remove(action_name)
+
+        if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map.values()):
+            model.setIconColumnHeader(filterColumn, '')
+        else:
+            model.setIconColumnHeader(filterColumn, icono)
+
+# Function to delete individual column filter
+    def on_actionDeleteFilterColumn_triggered(self, table, model, proxy):
+        """
+        Removes the filter from the selected column and updates the table model.
+        
+        Args:
+            table (QtWidgets.QTableView): The table view displaying the data.
+            model (QtGui.QStandardItemModel): The model associated with the table.
+            proxy (QtCore.QSortFilterProxyModel): The proxy model used for filtering and sorting.
+        """
+        filterColumn = self.logicalIndex
+        if filterColumn in proxy.filters:
+            del proxy.filters[filterColumn]
+        model.setIconColumnHeader(filterColumn, "")
+        proxy.invalidateFilter()
+
+        table.setModel(None)
+        table.setModel(proxy)
+
+        if filterColumn in self.checkbox_filters:
+            del self.checkbox_filters[filterColumn]
+
+        self.checkbox_states[self.logicalIndex].clear()
+        self.checkbox_states[self.logicalIndex]["Seleccionar todo"] = True
+        for row in range(table.model().rowCount()):
+            value = model.record(row).value(filterColumn)
+            if isinstance(value, QtCore.QDate):
+                value = value.toString("dd/MM/yyyy")
+            self.checkbox_states[self.logicalIndex][str(value)] = True
+
+        table.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
+
+# Function to order column ascending
+    def on_actionSortAscending_triggered(self, table):
+        """
+        Sorts the selected column in ascending order.
+        
+        Args:
+            table (QtWidgets.QTableView): The table view displaying the data.
+        """
+        sortColumn = self.logicalIndex
+        sortOrder = Qt.SortOrder.AscendingOrder
+        table.sortByColumn(sortColumn, sortOrder)
+
+# Function to order column descending
+    def on_actionSortDescending_triggered(self, table):
+        """
+        Sorts the selected column in descending order.
+        
+        Args:
+            table (QtWidgets.QTableView): The table view displaying the data.
+        """
+        sortColumn = self.logicalIndex
+        sortOrder = Qt.SortOrder.DescendingOrder
+        table.sortByColumn(sortColumn, sortOrder)
+
+# Function when text is searched
+    def on_actionTextFilter_triggered(self, model, proxy):
+        """
+        Opens a dialog to enter a text filter and applies it to the selected column.
+        
+        Args:
+            model (QtGui.QStandardItemModel): The model associated with the table.
+            proxy (QtCore.QSortFilterProxyModel): The proxy model used for filtering and sorting.
+        """
+        filterColumn = self.logicalIndex
+        dlg = QtWidgets.QInputDialog()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle("Buscar")
+        clickedButton = dlg.exec()
+
+        if clickedButton == 1:
+            stringAction = dlg.textValue()
+            if re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', stringAction):
+                stringAction=QtCore.QDate.fromString(stringAction,"dd/MM/yyyy")
+                stringAction=stringAction.toString("yyyy-MM-dd")
+
+            filterString = QtCore.QRegularExpression(stringAction, QtCore.QRegularExpression.PatternOption(0))
+            # del self.proxy.filters[filterColumn]
+            proxy.setFilter([stringAction], filterColumn)
+
+            imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+            icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
+            model.setIconColumnHeader(filterColumn, icono)
+
 # Function to load invoice form
     def loadforminvoice(self, item=None, ID_invoice=None):
+        """
+        Loads the invoice details from the database and populates the corresponding fields in the form. 
+
+        Args:
+            item (QTableWidgetItem, optional): Table item containing the row of the invoice. Defaults to None.
+            ID_invoice (str, optional): ID of the invoice to load if no table item is provided. Defaults to None.
+        """
         if item is None:
             invoice_id = ID_invoice
         else:
@@ -3655,12 +4294,11 @@ class Ui_InvoiceNew_Window(object):
 
 # Function to add record
     def addrecord(self):
+        """
+        Inserts a new empty entry into the machines_workshop table.
+        Commits the changes to the database and handles any errors.
+        """
         id_invoice = self.label_IDInvoice.text()
-        item = self.Item_Invoice.text()
-        quantity = self.Qty_Invoice.text()
-        description = self.Description_Invoice.toPlainText()
-        val_euro = self.UnitValueEur_Invoice.text() if self.UnitValueEur_Invoice.text() != '' else None
-        val_dollar = self.UnitValueDollar_Invoice.text() if self.UnitValueDollar_Invoice.text() != '' else None
 
         if id_invoice == '':
             dlg = QtWidgets.QMessageBox()
@@ -3673,244 +4311,99 @@ class Ui_InvoiceNew_Window(object):
             dlg.exec()
             del dlg, new_icon
 
-        elif item == '' or (quantity == '' or description == ''):
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Rellena los campos")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
-
         else:
-            commands_insert_record = ("""
-                        INSERT INTO purch_fact.invoice_detail (
-                        "inv_head_id", "item", "quantity", "description", "price", "price_usd"
-                        )
-                        VALUES (%s, %s, %s, %s, %s, %s)
-                        """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                data = (id_invoice, item, quantity, description, val_euro, val_dollar,)
-                cur.execute(commands_insert_record, data)
+            dlg3 = QtWidgets.QInputDialog()
+            new_icon3 = QtGui.QIcon()
+            new_icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg3.setWindowIcon(new_icon3)
+            dlg3.setWindowTitle('Facturación')
+            dlg3.setLabelText('Introduce cuantos equipos quieres introducir:')
+            
+            while True:
+                clickedButton3 = dlg3.exec()
+                if clickedButton3 == 1:
+                    qty = dlg3.textValue()
+                    if qty != '' and (qty.isdigit() and int(qty) > 0):
+                        conn = None
+                        try:
+                        # read the connection parameters
+                            params = config()
+                        # connect to the PostgreSQL server
+                            conn = psycopg2.connect(**params)
+                            cur = conn.cursor()
 
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
+                        # execution of commands
+                            for i in range(int(qty)):
+                                commands_insert_record = ("""
+                                    INSERT INTO purch_fact.invoice_detail ("inv_head_id")
+                                    VALUES (%s)
+                                    """)
+                                data = (id_invoice,)
+                                cur.execute(commands_insert_record, data)
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Registro añadido con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
+                        # close communication with the PostgreSQL database server
+                            cur.close()
+                        # commit the changes
+                            conn.commit()
 
-            except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("Facturación")
+                            dlg.setText("Datos insertados con éxito")
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                            dlg.exec()
+                            del dlg,new_icon
+
+                        except (Exception, psycopg2.DatabaseError) as error:
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("ERP EIPSA")
+                            dlg.setText("Ha ocurrido el siguiente error:\n"
+                                        + str(error))
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                            dlg.exec()
+                            del dlg, new_icon
+                        finally:
+                            if conn is not None:
+                                conn.close()
+                        break
+                    dlg_error = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg_error.setWindowIcon(new_icon)
+                    dlg_error.setWindowTitle("Facturación")
+                    dlg_error.setText("La cantidad no puede estar vacía o no es un valor válido")
+                    dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg_error.exec()
+                    del dlg_error,new_icon
+                else:
+                    break
 
             self.loadrecordstable()
-
-# Function to modify record
-    def modifyrecord(self):
-        id_record = self.label_IDRecord.text()
-        item = self.Item_Invoice.text()
-        quantity = self.Qty_Invoice.text()
-        description = self.Description_Invoice.toPlainText()
-        val_euro = self.UnitValueEur_Invoice.text() if self.UnitValueEur_Invoice.text() != '' else None
-        val_dollar = self.UnitValueDollar_Invoice.text() if self.UnitValueDollar_Invoice.text() != '' else None
-
-        if id_record == '':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Selecciona un registro para modificar")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
-        else:
-            commands_modify_record = ("""
-                        UPDATE purch_fact.invoice_detail
-                        SET "item" = %s, "quantity" = %s, "description" = %s, "price" = %s, "price_usd" = %s
-                        WHERE "id_detail" = %s
-                        """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                data = (item, quantity, description, val_euro, val_dollar, id_record)
-                cur.execute(commands_modify_record, data)
-
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Registro editado con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
-
-            except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
-
-            self.loadrecordstable()
-
-# Function to delete record
-    def deleterecord(self):
-        id_record = self.label_IDRecord.text()
-
-        if id_record == '':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Selecciona un registro para eliminar")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
-
-        else:
-            commands_delete_record = ("""
-                        DELETE FROM purch_fact.invoice_detail
-                        WHERE "id_detail" = %s
-                        """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                data = (id_record,)
-                cur.execute(commands_delete_record, data)
-
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Registro eliminado con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
-
-            except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
-
-            self.loadrecordstable()
-
-            self.Item_Invoice.setText("")
-            self.Qty_Invoice.setText("")
-            self.Description_Invoice.setText("")
-            self.UnitValueEur_Invoice.setText("")
-            self.UnitValueDollar_Invoice.setText("")
-
-# Function to load invoice form
-    def loadformrecords(self, item):
-        data_order=[]
-
-        for column in range(8):
-            item_text=self.tableRecords.item(item.row(), column).text()
-            data_order.append(item_text)
-
-        self.label_IDRecord.setText(data_order[0])
-        self.Item_Invoice.setText(data_order[1])
-        self.Qty_Invoice.setText(data_order[2])
-        self.Description_Invoice.setText(data_order[3])
-        self.UnitValueEur_Invoice.setText(data_order[4])
-        self.UnitValueDollar_Invoice.setText(data_order[6])
 
 # Function to calculate the order total amount
     def calculate_totalorder(self):
-        # locale.setlocale(locale.LC_ALL, '')
+        """
+        Calculates the total values for euro and dollar amounts in the invoice based on the data in the table model.
+        """
         total_euro = 0
-        for row in range(self.tableRecords.rowCount()):
-            item = self.tableRecords.item(row, 5)
+        for row in range(self.model.rowCount()):
+            item = self.model.data(self.model.index(row, 7))
             if item is not None:
-                value = item.text() if item.text() != '' else 0
-                # value=value.replace(".","")
-                # value=value.replace(",",".")
-                # value=value[:value.find(" €")]
+                value = item if item != None else 0
                 total_euro += float(value)
-        # total_euro = locale.format_string("%.2f", total_euro, grouping=True)
         self.TotalEur_Invoice.setText('{:.2f}'.format(total_euro))
 
         total_dollar = 0
-        for row in range(self.tableRecords.rowCount()):
-            item = self.tableRecords.item(row, 7)
+        for row in range(self.model.rowCount()):
+            item = self.model.data(self.model.index(row, 8))
             if item is not None:
-                value = item.text() if item.text() != '' else 0
-                # value=value.replace(".","")
-                # value=value.replace(",",".")
-                # value=value[:value.find(" €")]
+                value = item if item != None else 0
                 total_dollar += float(value)
-        # total_dollar = locale.format_string("%.2f", total_dollar, grouping=True)
         total_dollar = total_dollar
         self.TotalDollar_Invoice.setText('{:.2f}'.format(total_dollar))
 
@@ -3922,16 +4415,22 @@ class Ui_InvoiceNew_Window(object):
 
 # Function to calculate the total number of elements
     def calculate_elements(self):
+        """
+        Calculates the total number of elements in the table by summing up the values in the third column.
+        """
         total_elements = 0
-        for row in range(self.tableRecords.rowCount()):
-            item = self.tableRecords.item(row, 2)
+        for row in range(self.model.rowCount()):
+            item = self.model.data(self.model.index(row, 3)) #self.tableRecords.item(row, 2)
             if item is not None:
-                value = item.text()
+                value = item #item.text()
                 total_elements += int(value)
         self.Qty_Elements.setText(str(total_elements))
 
 # Function when client combobox is changed
     def clientchange(self):
+        """
+        Updates the client information (intermediary agent, client group, VAT value, IBAN, and BIC) based on the selected client.
+        """
         client_name = self.Client_Invoice.currentText()
 
         commands_clientsdata = ("""
@@ -3991,6 +4490,9 @@ class Ui_InvoiceNew_Window(object):
 
 # Function when destination country combobox is changed
     def destcountrychange(self):
+        """
+        Updates the intermediary agent information based on the selected destination country.
+        """
         dest_country_name = self.DestCountry_Invoice.currentText()
 
         commands_destcountry = ("""
@@ -4031,20 +4533,20 @@ class Ui_InvoiceNew_Window(object):
 
 # Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
+        """
+        Handles the click event on the table header.
+        Displays a context menu for unique values in the clicked column header.
+        """
         header_pos = self.tableInvoice.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.tableInvoice.horizontalHeader().height()
         popup_pos = self.tableInvoice.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableInvoice.show_unique_values_menu(logical_index, popup_pos, header_height)
 
-# Function when clicking on table header
-    def on_headerrecords_section_clicked(self, logical_index):
-        header_pos = self.tableRecords.horizontalHeader().sectionViewportPosition(logical_index)
-        header_height = self.tableRecords.horizontalHeader().height()
-        popup_pos = self.tableRecords.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
-        self.tableRecords.show_unique_values_menu(logical_index, popup_pos, header_height)
-
 # Function to generate delivery note
     def generate_delivnote(self):
+        """
+        Generates the pdf of the corresponding delivery note
+        """
         invoice_id = self.label_IDInvoice.text()
 
         if invoice_id == '':
@@ -4137,6 +4639,9 @@ class Ui_InvoiceNew_Window(object):
 
 # Function to import data into and existing table from and Excel where first row is column name
     def import_tags(self):
+        """
+        Imports data from an Excel file into the database for the current invoice.
+        """
         id_invoice = self.label_IDInvoice.text()
         table_name='purch_fact.invoice_detail'
 
@@ -4202,12 +4707,107 @@ class Ui_InvoiceNew_Window(object):
                     if conn is not None:
                         conn.close()
 
+# Function to delete register of database
+    def delete_register(self, table, name):
+        """
+        Deletes selected records from the specified table.
+
+        Args:
+            table (QtWidgets.QTableView): The table widget from which records are selected.
+            name (str): The name of the table from which records will be deleted.
+        """
+        selection_model = table.selectionModel()
+
+        if not selection_model.hasSelection():
+            return
+
+        model = table.model()
+
+        id_values = []
+        selected_indexes = selection_model.selectedRows()
+        for index in selected_indexes:
+            # Obtaining first columns values
+            item_index = model.index(index.row(), 0)
+            if item_index.isValid():
+                value = model.data(item_index)
+                id_values.append(value)
+
+
+        if len(id_values) != 0:
+            dlg_yes_no = QtWidgets.QMessageBox()
+            new_icon_yes_no = QtGui.QIcon()
+            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+            dlg_yes_no.setWindowTitle("ERP EIPSA")
+            dlg_yes_no.setText("¿Estás seguro de que deseas eliminar los registros?\n")
+            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            result = dlg_yes_no.exec()
+            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    for id_value in id_values:
+                        commands_delete = f"""DELETE FROM {name} WHERE id_detail = '{id_value}'"""
+                        cur.execute(commands_delete)
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Facturación")
+                    dlg.setText("Registros eliminados con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg,new_icon
+
+                    self.loadrecordstable()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+            del dlg_yes_no, new_icon_yes_no
+
+
+
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
-    Invoice_Window = QtWidgets.QMainWindow()
-    ui = Ui_InvoiceNew_Window()
-    ui.setupUi(Invoice_Window)
-    Invoice_Window.show()
+    config_obj = configparser.ConfigParser()
+    config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+    dbparam = config_obj["postgresql"]
+    # set your parameters for the database connection URI using the keys from the configfile.ini
+    user_database = dbparam["user"]
+    password_database = dbparam["password"]
+
+    db = createConnection_name(user_database, password_database, 'facturation')
+    if not db:
+        sys.exit()
+
+    InvoiceNew_Window = Ui_InvoiceNew_Window(db, 'm.sahuquillo')
+    InvoiceNew_Window.show()
     sys.exit(app.exec())

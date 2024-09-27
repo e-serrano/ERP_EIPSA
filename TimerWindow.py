@@ -190,7 +190,11 @@ class Ui_TimerWindow(QtWidgets.QMainWindow):
         self.reset_button.clicked.connect(self.reset_action)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, TimerWindow):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         TimerWindow.setWindowTitle(_translate("TimerWindow", "Temporizador"))
         self.start_button.setText(_translate("TimerWindow", "Start"))

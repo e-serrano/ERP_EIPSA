@@ -10,12 +10,40 @@ import re
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 class ColorDelegate(QtWidgets.QItemDelegate):
+    """
+    A custom item delegate for applying background colors to cells in a QTableView or QTableWidget.
+
+    Inherits from:
+        QtWidgets.QItemDelegate: Provides custom rendering for table items.
+    """
     def paint(self, painter, option, index: QtCore.QModelIndex):
+        """
+        Paints the background color of the item based on its column and value.
+
+        Args:
+            painter (QtGui.QPainter): The painter used for painting.
+            option (QtWidgets.QStyleOptionViewItem): The style option for the item.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
         # if index.column() == 16 and value <= 50 and value >= 1:
         #     background_color = QtGui.QColor(255, 255, 0) #Yellow
@@ -32,16 +60,47 @@ class ColorDelegate(QtWidgets.QItemDelegate):
 
 
 class CustomProxyModel(QtCore.QSortFilterProxyModel):
+    """
+    A custom proxy model that filters table rows based on expressions set for specific columns.
+
+    Attributes:
+        _filters (dict): A dictionary to store filter expressions for columns.
+        header_names (dict): A dictionary to store header names for the table.
+
+    Properties:
+        filters: Getter for the current filter dictionary.
+
+    """
     def __init__(self, parent=None):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
         super().__init__(parent)
         self._filters = dict()
         self.header_names = {}
 
     @property
     def filters(self):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
         return self._filters
 
     def setFilter(self, list_expresions, column, action_name=None):
+        """
+        Apply a filter expression to a specific column, or remove it if necessary.
+
+        Args:
+            expresion (str): The filter expression.
+            column (int): The index of the column to apply the filter to.
+            action_name (str, optional): Name of the action, can be empty. Defaults to None.
+        """
         for expresion in list_expresions:
             if expresion or expresion == '':
                 if column in self.filters:
@@ -60,8 +119,17 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                     del self.filters[column]
         self.invalidateFilter()
 
-
     def filterAcceptsRow(self, source_row, source_parent):
+        """
+        Check if a row passes the filter criteria based on the column filters.
+
+        Args:
+            source_row (int): The row number in the source model.
+            source_parent (QModelIndex): The parent index of the row.
+
+        Returns:
+            bool: True if the row meets the filter criteria, False otherwise.
+        """
         for column, expresions in self.filters.items():
             text = self.sourceModel().index(source_row, column, source_parent).data()
 
@@ -89,29 +157,82 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
         return True
 
 class EditableTableModel(QtSql.QSqlTableModel):
+    """
+    A custom SQL table model that supports editable columns, headers, and special flagging behavior based on user permissions.
+
+    Signals:
+        updateFailed (str): Signal emitted when an update to the model fails.
+    """
     updateFailed = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None, column_range=None):
+        """
+        Initialize the model with user permissions and optional database and column range.
+
+        Args:
+            username (str): The username for permission-based actions.
+            parent (QObject, optional): Parent object for the model. Defaults to None.
+            column_range (list, optional): A list specifying the range of columns. Defaults to None.
+        """
         super().__init__(parent)
         self.column_range = column_range
 
-
     def setAllColumnHeaders(self, headers):
+        """
+        Set headers for all columns in the model.
+
+        Args:
+            headers (list): A list of header names.
+        """
         for column, header in enumerate(headers):
             self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
 
     def setIndividualColumnHeader(self, column, header):
+        """
+        Set the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            header (str): The header name.
+        """
         self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
 
     def setIconColumnHeader(self, column, icon):
+        """
+        Set an icon in the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            icon (QIcon): The icon to display in the header.
+        """
         self.setHeaderData(column, QtCore.Qt.Orientation.Horizontal, icon, Qt.ItemDataRole.DecorationRole)
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        """
+        Retrieve the header data for a specific section of the model.
+
+        Args:
+            section (int): The section index (column or row).
+            orientation (Qt.Orientation): The orientation (horizontal or vertical).
+            role (Qt.ItemDataRole, optional): The role for the header data. Defaults to DisplayRole.
+
+        Returns:
+            QVariant: The header data for the specified section.
+        """
         if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
             return super().headerData(section, orientation, role)
         return super().headerData(section, orientation, role)
 
     def flags(self, index):
+        """
+        Get the item flags for a given index, controlling editability and selection based on user permissions.
+
+        Args:
+            index (QModelIndex): The index of the item.
+
+        Returns:
+            Qt.ItemFlags: The flags for the specified item.
+        """
         flags = super().flags(index)
         if index.column() < 54:
             flags &= ~Qt.ItemFlag.ItemIsEditable
@@ -120,12 +241,40 @@ class EditableTableModel(QtSql.QSqlTableModel):
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
     def getColumnHeaders(self, visible_columns):
+        """
+        Retrieve the headers for the specified visible columns.
+
+        Args:
+            visible_columns (list): List of column indices that are visible.
+
+        Returns:
+            list: A list of column headers for the visible columns.
+        """
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
 
-
 class Ui_Dispatch_Window(QtWidgets.QMainWindow):
+    """
+    A window for editing technical tags in the application.
+
+    Attributes:
+        model (EditableTableModel): The data model for the table.
+        proxy (CustomProxyModel): The proxy model for filtering and sorting.
+        db (object): Database connection.
+        checkbox_states (dict): States of checkboxes.
+        dict_valuesuniques (dict): Unique values for columns.
+        dict_ordersort (dict): Sorting order for columns.
+        hiddencolumns (list): List of hidden column indices.
+        action_checkbox_map (dict): Map of actions to checkboxes.
+        checkbox_filters (dict): Filters based on checkbox states.
+    """
     def __init__(self, db):
+        """
+        Initializes the Ui_EditTags_Technical_Window with the specified name and database connection.
+
+        Args:
+            db (object): Database connection.
+        """
         super().__init__()
         self.model = EditableTableModel()
         self.proxy = CustomProxyModel()
@@ -139,13 +288,21 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         self.setupUi(self)
 
     def closeEvent(self, event):
-    # Closing database connection
+        """
+        Handles the event triggered when the window is closed. Ensures models are cleared and database connections are closed.
+
+        Args:
+            event (QCloseEvent): The close event triggered when the window is about to close.
+        """
         if self.model:
             self.model.clear()
         self.closeConnection()
 
     def closeConnection(self):
-    # Closing database connection
+        """
+        Closes the database connection and clears any references to the models.
+        Also removes the 'drawing_index' database connection from Qt's connection list if it exists.
+        """
         self.tableDispatch.setModel(None)
         del self.model
         if self.db:
@@ -154,8 +311,13 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
             if QtSql.QSqlDatabase.contains("qt_sql_default_connection"):
                 QtSql.QSqlDatabase.removeDatabase("qt_sql_default_connection")
 
-
     def setupUi(self, Dispatch_Window):
+        """
+        Sets up the user interface for the Dispatch_Window.
+
+        Args:
+            Dispatch_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         self.id_list = []
         data_list = []
         Dispatch_Window.setObjectName("Dispatch_Window")
@@ -311,13 +473,21 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         self.model.dataChanged.connect(self.saveChanges)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, Dispatch_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         Dispatch_Window.setWindowTitle(_translate("EditTags_Window", "Despachos"))
         self.Button_All.setText(_translate("EditTags_Window", "Ver Todos"))
 
-
+# Function to load all dispatch
     def query_all_Dispatch(self):
+        """
+        Queries the database for all orders, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         self.model.dataChanged.disconnect(self.saveChanges)
         self.model.setTable("purch_fact.invoice_header")
         # self.model.setFilter("num_order LIKE 'P-%' AND num_order NOT LIKE '%R%' AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)")
@@ -373,6 +543,9 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
 
 # Function to delete all filters when tool button is clicked
     def delete_allFilters(self):
+        """
+        Resets all filters and updates the table model with unique values for each column.
+        """
         columns_number=self.model.columnCount()
         for index in range(columns_number):
             if index in self.proxy.filters:
@@ -409,6 +582,9 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
 
 # Function to save changes into database
     def saveChanges(self):
+        """
+        Saves changes made to the data models and updates unique values for each column.
+        """
         self.model.submitAll()
 
         for column in range(self.model.columnCount()):
@@ -425,6 +601,12 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
+        """
+        Displays a menu when a column header is clicked. The menu includes options for sorting, filtering, and managing column visibility.
+        
+        Args:
+            logicalIndex (int): Index of the clicked column.
+        """
         self.logicalIndex = logicalIndex
         self.menuValues = QtWidgets.QMenu(self)
         self.signalMapper = QtCore.QSignalMapper(self.tableDispatch)
@@ -526,10 +708,16 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
 
 # Function when cancel button of menu is clicked
     def menu_cancelbutton_triggered(self):
+        """
+        Hides the menu when the cancel button is clicked.
+        """
         self.menuValues.hide()
 
 # Function when accept button of menu is clicked
     def menu_acceptbutton_triggered(self):
+        """
+        Applies the selected filters and updates the table model with the new filters.
+        """
         for column, filters in self.checkbox_filters.items():
             if filters:
                 self.proxy.setFilter(filters, column)
@@ -549,6 +737,13 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
 
 # Function when select all checkbox is clicked
     def on_select_all_toggled(self, checked, action_name):
+        """
+        Toggles the state of all checkboxes in the filter menu when the 'Select All' checkbox is toggled.
+        
+        Args:
+            checked (bool): The checked state of the 'Select All' checkbox.
+            action_name (str): The name of the action (usually 'Select All').
+        """
         filterColumn = self.logicalIndex
         imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
@@ -570,6 +765,13 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
 
 # Function when checkbox of header menu is clicked
     def on_checkbox_toggled(self, checked, action_name):
+        """
+        Updates the filter state when an individual checkbox is toggled.
+        
+        Args:
+            checked (bool): The checked state of the checkbox.
+            action_name (str): The name of the checkbox.
+        """
         filterColumn = self.logicalIndex
         imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
@@ -591,6 +793,9 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
 
 # Function to delete individual column filter
     def on_actionDeleteFilterColumn_triggered(self):
+        """
+        Removes the filter from the selected column and updates the table model.
+        """
         filterColumn = self.logicalIndex
         if filterColumn in self.proxy.filters:
             del self.proxy.filters[filterColumn]
@@ -624,18 +829,27 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
 
 # Function to order column ascending
     def on_actionSortAscending_triggered(self):
+        """
+        Sorts the selected column in ascending order.
+        """
         sortColumn = self.logicalIndex
         sortOrder = Qt.SortOrder.AscendingOrder
         self.tableDispatch.sortByColumn(sortColumn, sortOrder)
 
 # Function to order column descending
     def on_actionSortDescending_triggered(self):
+        """
+        Sorts the selected column in descending order.
+        """
         sortColumn = self.logicalIndex
         sortOrder = Qt.SortOrder.DescendingOrder
         self.tableDispatch.sortByColumn(sortColumn, sortOrder)
 
 # Function when text is searched
     def on_actionTextFilter_triggered(self):
+        """
+        Opens a dialog to enter a text filter and applies it to the selected column.
+        """
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()

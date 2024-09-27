@@ -17,13 +17,31 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_ExportOffer_Form(object):
+    """
+    UI class for the Export Offer Form window.
+    """
     def __init__(self, responsible, num_offer, rev, variable):
+        """
+        Initializes the Ui_ExportOffer_Form
+
+        Parameters:
+            responsible (str): The name of the person responsible for the offer.
+            num_offer (str): The unique number identifying the offer.
+            rev (str): The revision number of the offer.
+            variable (str): The product type or variable associated with the offer.
+        """
         self.responsible = responsible
         self.num_offer = num_offer
         self.rev = rev
         self.variable = variable
 
     def setupUi(self, ExportOffer_Form):
+        """
+        Sets up the user interface for the ExportOffer_Form.
+
+        Args:
+            ExportOffer_Form (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         ExportOffer_Form.setObjectName("ExportOffer_Form")
         ExportOffer_Form.resize(670, 425)
         ExportOffer_Form.setMinimumSize(QtCore.QSize(750, 425))
@@ -413,8 +431,11 @@ class Ui_ExportOffer_Form(object):
 
         self.queryofferdata()
 
-
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, ExportOffer_Form):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         ExportOffer_Form.setWindowTitle(_translate("ExportOffer_Form", "Exportar Oferta"))
         self.label_NumOffer.setText(_translate("ExportOffer_Form", "Nº Oferta:"))
@@ -438,8 +459,10 @@ class Ui_ExportOffer_Form(object):
         self.longformat.setText(_translate("ExportOffer_Form", "Formato Largo"))
         self.shortformat.setText(_translate("ExportOffer_Form", "Formato Corto"))
 
-
     def ExportOffer_Form(self):
+        """
+        Exports the offer based on user inserted data and selections and updates the relevant data in the database.
+        """
         numoffer = self.NumOffer_ExportOffer_Form.text()
         rev = self.Revision_ExportOffer_Form.text()
         validity = self.Validity_ExportOffer_Form.text()
@@ -536,6 +559,9 @@ class Ui_ExportOffer_Form(object):
                     elif self.variable == 'Caudal+Temp':
                         offer_flow(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                         offer_temp(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                    elif self.variable == 'Caudal+Nivel':
+                        offer_flow(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                        offer_level(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
 
                 elif format_offer == 'Short':
                     if self.variable == 'Caudal':
@@ -584,6 +610,19 @@ class Ui_ExportOffer_Form(object):
                         else:
                             offer_short_flow_english(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                             offer_short_temp_english(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                    elif self.variable == 'Caudal+Nivel':
+                        msgbox = QtWidgets.QMessageBox()
+                        msgbox.setWindowTitle("Oferta Corta")
+                        msgbox.setText('¿En qué idioma quieres generar la oferta?')
+                        msgbox.addButton('Español', QtWidgets.QMessageBox.ButtonRole.YesRole)
+                        msgbox.addButton('Inglés', QtWidgets.QMessageBox.ButtonRole.NoRole)
+                        bttn = msgbox.exec()
+                        if bttn == 0:
+                            offer_short_flow_spanish(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                            offer_short_level_spanish(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                        else:
+                            offer_short_flow_english(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                            offer_short_level_english(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
 
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
@@ -613,6 +652,10 @@ class Ui_ExportOffer_Form(object):
                     conn.close()
 
     def queryofferdata(self):
+        """
+        Queries the database for offer data based on the offer number provided by the user. It displays the retrieved information 
+        in the corresponding form fields.
+        """
         numoffer=self.NumOffer_ExportOffer_Form.text()
     #SQL Query for loading existing data in database
         commands_loaddataoffer = ("""

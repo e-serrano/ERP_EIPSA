@@ -20,7 +20,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_ImportTAG_Window(object):
+    """
+    UI class for the Import tag window.
+    """
     def setupUi(self, ImportTAG_Window):
+        """
+        Sets up the user interface for the ImportTAG_Window.
+
+        Args:
+            ImportTAG_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         ImportTAG_Window.setObjectName("ImportTAG_Window")
         ImportTAG_Window.resize(640, 330)
         ImportTAG_Window.setMinimumSize(QtCore.QSize(640, 330))
@@ -162,7 +171,11 @@ class Ui_ImportTAG_Window(object):
         QtCore.QMetaObject.connectSlotsByName(ImportTAG_Window)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, ImportTAG_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         ImportTAG_Window.setWindowTitle(_translate("ImportTAG_Window", "Importar TAG"))
         self.label_SelectFile.setText(_translate("ImportTAG_Window", "Seleccionar archivo:"))
@@ -178,6 +191,9 @@ class Ui_ImportTAG_Window(object):
 
 
     def browsefiles(self):
+        """
+        Opens a file dialog for the user to select an Excel file.
+        """
         self.fname = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")],
                             title="Seleccionar archivo Excel")
         if self.fname:
@@ -185,6 +201,9 @@ class Ui_ImportTAG_Window(object):
 
 
     def importtag(self):
+        """
+        Imports excel file and insert tags data.
+        """
         if self.label_name_file.text()=='':
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()

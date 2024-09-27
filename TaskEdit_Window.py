@@ -15,7 +15,17 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_EditTask_Window(object):
+    """
+    UI class for the Edit Task window.
+    """
     def __init__(self, id, task, date, state):
+        """
+        Initializes the Ui_QueryTask_Window.
+
+        Args:
+            name (str): The name of the user or entity querying the tasks.
+            date (QDate, optional): The selected date for querying tasks, formatted as "yyyy-MM-dd".
+        """
         self.dateselected = QtCore.QDate.fromString(date, "dd-MM-yyyy")
         self.id = id
         self.task = task
@@ -24,6 +34,12 @@ class Ui_EditTask_Window(object):
     #     self.name="Luis Bravo"
 
     def setupUi(self, EditTask_Window):
+        """
+        Sets up the user interface for the EditTask_Window.
+
+        Args:
+            EditTask_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         EditTask_Window.setObjectName("EditTask_Window")
         EditTask_Window.resize(400, 561)
         EditTask_Window.setMinimumSize(QtCore.QSize(400, 375))
@@ -228,7 +244,11 @@ class Ui_EditTask_Window(object):
         QtCore.QMetaObject.connectSlotsByName(EditTask_Window)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, EditTask_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         EditTask_Window.setWindowTitle(_translate("EditTask_Window", "Editar Tarea"))
         self.labelValue.setText(_translate("EditTask_Window", "Tarea:"))
@@ -239,6 +259,9 @@ class Ui_EditTask_Window(object):
 
 
     def EditTask(self):
+        """
+        Modifies the selected entry in database after validating form inputs.
+        """
         task_value = self.lineEdit.toPlainText()
         state_date_checkbox = "Checked" if self.checkbox_date.isChecked() else "Unchecked"
         date_task = self.comboBox.date().toString(QtCore.Qt.DateFormat.ISODate) if state_date_checkbox == "Checked" else None
@@ -290,6 +313,12 @@ class Ui_EditTask_Window(object):
 
 
     def toggle_combo_box(self, state):
+        """
+        Toggles the visibility of a combo box based on the provided state.
+
+        Args:
+            state (int): The state of the checkbox (2 for checked, otherwise unchecked).
+        """
         if state == 2:
             self.comboBox.setVisible(True)
         else:

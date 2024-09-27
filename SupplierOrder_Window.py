@@ -21,32 +21,28 @@ from datetime import *
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
-class CustomComboBox(QtWidgets.QComboBox):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.setEditable(True)
-        self.lineEdit().textEdited.connect(self.on_text_edited)
-
-    def showPopup(self):
-        super().showPopup()
-        self.adjust_scroll()
-
-    def on_text_edited(self):
-        completer = self.completer()
-        if completer:
-            completer.complete()
-            QtCore.QTimer.singleShot(0, self.adjust_scroll)
-
-    def adjust_scroll(self):
-        text = self.lineEdit().text().upper()
-        index = self.findText(text, QtCore.Qt.MatchFlag.MatchStartsWith | QtCore.Qt.MatchFlag.MatchCaseSensitive)
-        # Nos aseguramos de que el índice sea válido
-        if index >= 0:
-            model_index = self.model().index(index, 0)
-            self.view().scrollTo(model_index, hint=self.view().ScrollHint.PositionAtBottom)
-
 class CustomTableWidgetOrder(QtWidgets.QTableWidget):
+    """
+    Custom QTableWidget that supports filtering and sorting features.
+
+    Attributes:
+        list_filters (list): Stores filters applied to the table.
+        column_filters (dict): Maps column indices to sets of applied filters.
+        column_actions (dict): Maps column indices to actions related to columns.
+        checkbox_states (dict): Stores the state of checkboxes for filtering.
+        rows_hidden (dict): Maps column indices to sets of hidden row indices.
+        general_rows_to_hide (set): Set of row indices that are hidden across the table.
+    """
     def __init__(self, parent=None):
+        """
+        Initializes the CustomTableWidget.
+
+        Sets up the initial state of the widget, including filters, checkbox states, 
+        and hidden rows.
+
+        Args:
+            parent (QWidget, optional): The parent widget of this table. Defaults to None.
+        """
         super().__init__(parent)
         self.list_filters=[]
         self.column_filters = {}
@@ -57,6 +53,17 @@ class CustomTableWidgetOrder(QtWidgets.QTableWidget):
 
 # Function to show the menu
     def show_unique_values_menu(self, column_index, header_pos, header_height):
+        """
+        Displays a context menu for unique values in a specified column.
+
+        The menu includes options to remove filters, sort the column, and filter by text. 
+        It also allows the user to select/unselect unique values via checkboxes.
+
+        Args:
+            column_index (int): The index of the column for which the menu is displayed.
+            header_pos (QPoint): The position of the header in the viewport.
+            header_height (int): The height of the header.
+        """
         menu = QtWidgets.QMenu(self)
         actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro")
         actionDeleteFilterColumn.triggered.connect(lambda: self.delete_filter(column_index))
@@ -125,6 +132,14 @@ class CustomTableWidgetOrder(QtWidgets.QTableWidget):
 
 # Function to delete filter on selected column
     def delete_filter(self,column_index):
+        """
+        Removes the filter applied to the specified column.
+
+        Unhides previously hidden rows and resets the checkbox state for the column.
+
+        Args:
+            column_index (int): The index of the column from which to delete the filter.
+        """
         if column_index in self.column_filters:
             del self.column_filters[column_index]
         if column_index in self.checkbox_states:
@@ -141,6 +156,14 @@ class CustomTableWidgetOrder(QtWidgets.QTableWidget):
 
 # Function to set all checkboxes state
     def set_all_checkboxes_state(self, checkboxes, state, column_index):
+        """
+        Sets the state of all checkboxes in the filter menu for a specific column.
+
+        Args:
+            checkboxes (list): List of checkboxes to update.
+            state (Qt.CheckState): The desired state for the checkboxes.
+            column_index (int): The index of the column for which the checkboxes are set.
+        """
         if column_index not in self.checkbox_states:
             self.checkbox_states[column_index] = {}
 
@@ -152,6 +175,16 @@ class CustomTableWidgetOrder(QtWidgets.QTableWidget):
 
 # Function to apply filters to table
     def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
+        """
+        Applies a filter to the specified column based on the checkbox state and optional text filter.
+
+        Args:
+            column_index (int): The index of the column to filter.
+            value (str): The value to filter by.
+            checked (bool): Indicates if the filter should be applied (True) or removed (False).
+            text_filter (str, optional): Additional text filter for filtering items. Defaults to None.
+            filter_dialog (QDialog, optional): The dialog used for the text filter. Defaults to None.
+        """
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
 
@@ -219,8 +252,14 @@ class CustomTableWidgetOrder(QtWidgets.QTableWidget):
         else:
             header_item.setIcon(QtGui.QIcon())
 
-
+# Function to apply filters to table based on a desired text
     def filter_by_text(self, column_index):
+        """
+        Opens a dialog for filtering the specified column by text input.
+
+        Args:
+            column_index (int): The index of the column to filter.
+        """
         filter_dialog = QtWidgets.QDialog(self)
         filter_dialog.setWindowTitle("Filtrar por texto")
         
@@ -268,6 +307,15 @@ class CustomTableWidgetOrder(QtWidgets.QTableWidget):
 
 # Function to obtain the unique matching applied filters 
     def get_unique_values(self, column_index):
+        """
+        Retrieves unique values from the specified column, taking into account any active filters on other columns.
+
+        Args:
+            column_index (int): The index of the column from which to retrieve unique values.
+
+        Returns:
+            set: A set of unique values from the specified column that are visible based on the current filters.
+        """
         unique_values = set()
         for row in range(self.rowCount()):
             show_row = True
@@ -287,6 +335,12 @@ class CustomTableWidgetOrder(QtWidgets.QTableWidget):
 
 # Function to get values filtered by all columns
     def get_filtered_values(self):
+        """
+        Gets the current filter values for all columns.
+
+        Returns:
+            dict: A dictionary where each key is a column index and the value is a set of filters applied to that column.
+        """
         filtered_values = {}
         for col, filters in self.column_filters.items():
             filtered_values[col] = filters
@@ -294,27 +348,37 @@ class CustomTableWidgetOrder(QtWidgets.QTableWidget):
 
 # Function to sort column
     def sort_column(self, column_index, sortOrder):
+        """
+        Sorts the specified column based on the given order. If the column is a date column, a custom sort method is used.
+
+        Args:
+            column_index (int): The index of the column to sort.
+            sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         if column_index in [3, 4, 12, 14, 16]:
             self.custom_sort(column_index, sortOrder)
         else:
             self.sortByColumn(column_index, sortOrder)
 
+# Function to sort column based on integer datatypes
     def custom_sort_int(self, column, order):
-    # Obtén la cantidad de filas en la tabla
+        """
+        Custom sorting method for integer columns. Sorts the specified column based on integer values.
+
+        Args:
+            column (int): The index of the column to sort.
+            order (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         row_count = self.rowCount()
 
-        # Crea una lista de índices ordenados según las fechas
         indexes = list(range(row_count))
         indexes.sort(key=lambda i: int(self.item(i, column).text()))
 
-        # Si el orden es descendente, invierte la lista
         if order == QtCore.Qt.SortOrder.DescendingOrder:
             indexes.reverse()
 
-        # Guarda el estado actual de las filas ocultas
         hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
 
-        # Actualiza las filas en la tabla en el orden ordenado
         rows = self.rowCount()
         for i in range(rows):
             self.insertRow(i)
@@ -330,23 +394,25 @@ class CustomTableWidgetOrder(QtWidgets.QTableWidget):
         for row in hidden_rows:
             self.setRowHidden(row, True)
 
-
+# Function to sort column based on date datatypes
     def custom_sort(self, column, order):
-    # Obtén la cantidad de filas en la tabla
+        """
+        Custom sorting method for date columns. Sorts the specified column based on date values.
+
+        Args:
+            column (int): The index of the column to sort.
+            order (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         row_count = self.rowCount()
 
-        # Crea una lista de índices ordenados según las fechas
         indexes = list(range(row_count))
         indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd-MM-yyyy"))
 
-        # Si el orden es descendente, invierte la lista
         if order == QtCore.Qt.SortOrder.DescendingOrder:
             indexes.reverse()
 
-        # Guarda el estado actual de las filas ocultas
         hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
 
-        # Actualiza las filas en la tabla en el orden ordenado
         rows = self.rowCount()
         for i in range(rows):
             self.insertRow(i)
@@ -364,6 +430,12 @@ class CustomTableWidgetOrder(QtWidgets.QTableWidget):
 
 # Function with the menu configuration
     def contextMenuEvent(self, event):
+        """
+        Handles the context menu event for the table. Shows a menu for filtering unique values when the header is right-clicked.
+
+        Args:
+            event (QEvent): The event triggered by the context menu action.
+        """
         if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
             logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
             header_pos = self.mapToGlobal(self.horizontalHeader().pos())
@@ -373,7 +445,27 @@ class CustomTableWidgetOrder(QtWidgets.QTableWidget):
             super().contextMenuEvent(event)
 
 class CustomTableWidgetRecord(QtWidgets.QTableWidget):
+    """
+    Custom QTableWidget that supports filtering and sorting features.
+
+    Attributes:
+        list_filters (list): Stores filters applied to the table.
+        column_filters (dict): Maps column indices to sets of applied filters.
+        column_actions (dict): Maps column indices to actions related to columns.
+        checkbox_states (dict): Stores the state of checkboxes for filtering.
+        rows_hidden (dict): Maps column indices to sets of hidden row indices.
+        general_rows_to_hide (set): Set of row indices that are hidden across the table.
+    """
     def __init__(self, parent=None):
+        """
+        Initializes the CustomTableWidget.
+
+        Sets up the initial state of the widget, including filters, checkbox states, 
+        and hidden rows.
+
+        Args:
+            parent (QWidget, optional): The parent widget of this table. Defaults to None.
+        """
         super().__init__(parent)
         self.list_filters=[]
         self.column_filters = {}
@@ -384,6 +476,17 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
 
 # Function to show the menu
     def show_unique_values_menu(self, column_index, header_pos, header_height):
+        """
+        Displays a context menu for unique values in a specified column.
+
+        The menu includes options to remove filters, sort the column, and filter by text. 
+        It also allows the user to select/unselect unique values via checkboxes.
+
+        Args:
+            column_index (int): The index of the column for which the menu is displayed.
+            header_pos (QPoint): The position of the header in the viewport.
+            header_height (int): The height of the header.
+        """
         menu = QtWidgets.QMenu(self)
         actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro")
         actionDeleteFilterColumn.triggered.connect(lambda: self.delete_filter(column_index))
@@ -452,6 +555,14 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
 
 # Function to delete filter on selected column
     def delete_filter(self,column_index):
+        """
+        Removes the filter applied to the specified column.
+
+        Unhides previously hidden rows and resets the checkbox state for the column.
+
+        Args:
+            column_index (int): The index of the column from which to delete the filter.
+        """
         if column_index in self.column_filters:
             del self.column_filters[column_index]
         if column_index in self.checkbox_states:
@@ -468,6 +579,14 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
 
 # Function to set all checkboxes state
     def set_all_checkboxes_state(self, checkboxes, state, column_index):
+        """
+        Sets the state of all checkboxes in the filter menu for a specific column.
+
+        Args:
+            checkboxes (list): List of checkboxes to update.
+            state (Qt.CheckState): The desired state for the checkboxes.
+            column_index (int): The index of the column for which the checkboxes are set.
+        """
         if column_index not in self.checkbox_states:
             self.checkbox_states[column_index] = {}
 
@@ -479,6 +598,16 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
 
 # Function to apply filters to table
     def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
+        """
+        Applies a filter to the specified column based on the checkbox state and optional text filter.
+
+        Args:
+            column_index (int): The index of the column to filter.
+            value (str): The value to filter by.
+            checked (bool): Indicates if the filter should be applied (True) or removed (False).
+            text_filter (str, optional): Additional text filter for filtering items. Defaults to None.
+            filter_dialog (QDialog, optional): The dialog used for the text filter. Defaults to None.
+        """
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
 
@@ -546,8 +675,14 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
         else:
             header_item.setIcon(QtGui.QIcon())
 
-
+# Function to apply filters to table based on a desired text
     def filter_by_text(self, column_index):
+        """
+        Opens a dialog for filtering the specified column by text input.
+
+        Args:
+            column_index (int): The index of the column to filter.
+        """
         filter_dialog = QtWidgets.QDialog(self)
         filter_dialog.setWindowTitle("Filtrar por texto")
         
@@ -595,6 +730,15 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
 
 # Function to obtain the unique matching applied filters 
     def get_unique_values(self, column_index):
+        """
+        Retrieves unique values from the specified column, taking into account any active filters on other columns.
+
+        Args:
+            column_index (int): The index of the column from which to retrieve unique values.
+
+        Returns:
+            set: A set of unique values from the specified column that are visible based on the current filters.
+        """
         unique_values = set()
         for row in range(self.rowCount()):
             show_row = True
@@ -614,6 +758,12 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
 
 # Function to get values filtered by all columns
     def get_filtered_values(self):
+        """
+        Gets the current filter values for all columns.
+
+        Returns:
+            dict: A dictionary where each key is a column index and the value is a set of filters applied to that column.
+        """
         filtered_values = {}
         for col, filters in self.column_filters.items():
             filtered_values[col] = filters
@@ -621,27 +771,37 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
 
 # Function to sort column
     def sort_column(self, column_index, sortOrder):
+        """
+        Sorts the specified column based on the given order. If the column is a date column, a custom sort method is used.
+
+        Args:
+            column_index (int): The index of the column to sort.
+            sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         if column_index in [1]:
             self.custom_sort_int(column_index, sortOrder)
         else:
             self.sortByColumn(column_index, sortOrder)
 
+# Function to sort column based on integer datatypes
     def custom_sort_int(self, column, order):
-    # Obtén la cantidad de filas en la tabla
+        """
+        Custom sorting method for integer columns. Sorts the specified column based on integer values.
+
+        Args:
+            column (int): The index of the column to sort.
+            order (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         row_count = self.rowCount()
 
-        # Crea una lista de índices ordenados según las fechas
         indexes = list(range(row_count))
         indexes.sort(key=lambda i: int(self.item(i, column).text()))
 
-        # Si el orden es descendente, invierte la lista
         if order == QtCore.Qt.SortOrder.DescendingOrder:
             indexes.reverse()
 
-        # Guarda el estado actual de las filas ocultas
         hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
 
-        # Actualiza las filas en la tabla en el orden ordenado
         rows = self.rowCount()
         for i in range(rows):
             self.insertRow(i)
@@ -657,22 +817,25 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
         for row in hidden_rows:
             self.setRowHidden(row, True)
 
+# Function to sort column based on date datatypes
     def custom_sort(self, column, order):
-    # Obtén la cantidad de filas en la tabla
+        """
+        Custom sorting method for date columns. Sorts the specified column based on date values.
+
+        Args:
+            column (int): The index of the column to sort.
+            order (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         row_count = self.rowCount()
 
-        # Crea una lista de índices ordenados según las fechas
         indexes = list(range(row_count))
         indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd-MM-yyyy"))
 
-        # Si el orden es descendente, invierte la lista
         if order == QtCore.Qt.SortOrder.DescendingOrder:
             indexes.reverse()
 
-        # Guarda el estado actual de las filas ocultas
         hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
 
-        # Actualiza las filas en la tabla en el orden ordenado
         rows = self.rowCount()
         for i in range(rows):
             self.insertRow(i)
@@ -690,6 +853,12 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
 
 # Function with the menu configuration
     def contextMenuEvent(self, event):
+        """
+        Handles the context menu event for the table. Shows a menu for filtering unique values when the header is right-clicked.
+
+        Args:
+            event (QEvent): The event triggered by the context menu action.
+        """
         if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
             logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
             header_pos = self.mapToGlobal(self.horizontalHeader().pos())
@@ -699,19 +868,51 @@ class CustomTableWidgetRecord(QtWidgets.QTableWidget):
             super().contextMenuEvent(event)
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
 class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
+    """
+    UI class for the Supplier Order window.
+    """
     def __init__(self, username):
+        """
+        Initializes the Ui_SupplierOrder_Window object with a user-specific username.
+
+        Args:
+            username (str): The username of the current user.
+
+        Side Effects:
+            Creates an instance of the PDF_Viewer class for PDF handling.
+        """
         super().__init__()
         self.username=username
         self.pdf_viewer = PDF_Viewer()
         self.setupUi(self)
 
     def setupUi(self, SupplierOrder_Window):
+        """
+        Sets up the user interface for the SupplierOrder_Window.
+
+        Args:
+            SupplierOrder_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         SupplierOrder_Window.setObjectName("SupplierOrder_Window")
         SupplierOrder_Window.resize(1534, 722)
         icon = QtGui.QIcon()
@@ -1646,7 +1847,11 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.tableSupplierOrders.itemDoubleClicked.connect(self.item_double_clicked)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, SupplierOrder_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         SupplierOrder_Window.setWindowTitle(_translate("SupplierOrder_Window", "Pedido Proveedor"))
         self.Button_CreateOrder.setText(_translate("SupplierOrder_Window", "Cr. Ped."))
@@ -1692,22 +1897,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         item.setText(_translate("SupplierOrder_Window", "Nº Pedido"))
         item = self.tableSupplierOrders.horizontalHeaderItem(2)
         item.setText(_translate("SupplierOrder_Window", "Proveedor"))
-        # item = self.tableSupplierOrders.horizontalHeaderItem(3)
-        # item.setText(_translate("SupplierOrder_Window", "Fecha Pedido"))
-        # item = self.tableSupplierOrders.horizontalHeaderItem(4)
-        # item.setText(_translate("SupplierOrder_Window", "Fecha Entrega"))
-        # item = self.tableSupplierOrders.horizontalHeaderItem(5)
-        # item.setText(_translate("SupplierOrder_Window", "S/Referencia"))
-        # item = self.tableSupplierOrders.horizontalHeaderItem(6)
-        # item.setText(_translate("SupplierOrder_Window", "Obs."))
-        # item = self.tableSupplierOrders.horizontalHeaderItem(7)
-        # item.setText(_translate("SupplierOrder_Window", "Plazo Entrega"))
-        # item = self.tableSupplierOrders.horizontalHeaderItem(8)
-        # item.setText(_translate("SupplierOrder_Window", "Forma Envío"))
-        # item = self.tableSupplierOrders.horizontalHeaderItem(9)
-        # item.setText(_translate("SupplierOrder_Window", "Total (€)"))
-        # item = self.tableSupplierOrders.horizontalHeaderItem(10)
-        # item.setText(_translate("SupplierOrder_Window", "Forma Pago"))
         item = self.tableRecords.horizontalHeaderItem(0)
         item.setText(_translate("SupplierOrder_Window", "ID"))
         item = self.tableRecords.horizontalHeaderItem(1)
@@ -1736,6 +1925,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to create order
     def createorder(self):
+        """
+        Creates a new entry in database after validating form inputs.
+        """
         num_order=self.NumOrder_SupplierOrder.text()
         supplier_name=self.Supplier_SupplierOrder.currentText()
         delivway=self.DelivWay_SupplierOrder.text()
@@ -1886,6 +2078,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to modify order data
     def modifyorder(self):
+        """
+        Edit the corresponding entry in database after validating form inputs.
+        """
         order_id=self.label_IDOrd.text()
         num_order=self.NumOrder_SupplierOrder.text()
         supplier_name=self.Supplier_SupplierOrder.currentText()
@@ -1995,6 +2190,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to create record
     def addrecord(self):
+        """
+        Creates a new entry in database after validating form inputs.
+        """
         order_id=self.label_IDOrd.text()
         supply_name=self.Supply_SupplierOrder.currentText()
         supply_name=supply_name[:supply_name.find(" |")]
@@ -2145,6 +2343,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to modify record data
     def modifyrecord(self):
+        """
+        Edit the corresponding entry in database after validating form inputs.
+        """
         record_id=self.label_IDRecord.text()
         supply_name=self.Supply_SupplierOrder.currentText()
         supply_name=supply_name[:supply_name.find(" |")]
@@ -2268,6 +2469,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to delete record data
     def deleterecord(self):
+        """
+        Delete the corresponding entry in database after validating form inputs.
+        """
         record_id=self.label_IDRecord.text()
         supply_name=self.Supply_SupplierOrder.currentText()
         supply_name=supply_name[:supply_name.find(" |")]
@@ -2342,6 +2546,15 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to load client order form
     def loadformorder(self,item):
+        """
+        Loads the order details from a selected row in the table and populates the order form fields.
+
+        Args:
+            item (QTableWidgetItem): The specific item (row) selected in the table.
+
+        Raises:
+            psycopg2.DatabaseError: If an error occurs while querying the PostgreSQL database.
+        """
         data_order=[]
 
         item_text=self.tableSupplierOrders.item(item.row(), 0).text()
@@ -2442,6 +2655,12 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to load record form
     def loadformsupply(self,item):
+        """
+        Loads supply data from the selected row in the supply table and populates the form fields.
+
+        Args:
+            item (QTableWidgetItem): The item representing the selected row in the supply table.
+        """
         data_supply=[]
 
         for column in range(13):
@@ -2502,8 +2721,10 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to load table of orders
     def loadtableorders(self):
-        # TO_CHAR(so_header."order_date",'DD-MM-YYYY'), TO_CHAR(so_header.delivery_date,'DD-MM-YYYY'),
-        #                 so_header.their_ref, so_header.notes, so_header.delivery_term, so_header.delivery_way, so_header.total_amount, so_header.pay_way
+        """
+        Loads and displays orders data in a table widget.
+        Handles errors with a message box and updates the table widget with the data.
+        """
         commands_querytableorders = ("""
                         SELECT so_header.id, so_header.supplier_order_num, suppliers."name"
                         
@@ -2574,6 +2795,10 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to load table of records
     def loadtablerecords(self):
+        """
+        Loads and displays items data in a table widget.
+        Handles errors with a message box and updates the table widget with the data.
+        """
         locale.setlocale(locale.LC_ALL, '')
         order_id=self.label_IDOrd.text()
         commands_querytablerecords = ("""
@@ -2664,6 +2889,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to add delivery 1 data
     def adddeliv1(self):
+        """
+        Adds the first delivery details for a supplier order.
+        """
         # self.root = tk.Tk()
         # self.root.withdraw()
         date=self.DelivDate1_SupplierOrder.text()
@@ -2782,11 +3010,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         supply_id = self.tableRecords.item(row, 12).text()
                         quant_1 = self.tableRecords.item(row, 8).text()
 
-                        # while True:
-                        #     quant_1 = self.show_popup(supply_name, supply_description)
-                        #     if quant_1 < pending:
-                        #         break
-
                         commands_add_deliv_quant_1 = ("""
                                                         UPDATE purch_fact.supplier_ord_detail
                                                         SET "deliv_quant_1" = %s
@@ -2850,6 +3073,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to add delivery 2 data
     def adddeliv2(self):
+        """
+        Adds the second delivery details for a supplier order.
+        """
         # self.root = tk.Tk()
         # self.root.withdraw()
         date=self.DelivDate2_SupplierOrder.text()
@@ -2968,11 +3194,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         supply_id = self.tableRecords.item(row, 12).text()
                         quant_2 = self.tableRecords.item(row, 8).text()
 
-                        # while True:
-                        #     quant_2 = self.show_popup(supply_name, supply_description)
-                        #     if quant_2 < pending:
-                        #         break
-
                         commands_add_deliv_quant_2 = ("""
                                                     UPDATE purch_fact.supplier_ord_detail
                                                     SET "deliv_quant_2" = %s
@@ -3037,6 +3258,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to add delivery 3 data
     def adddeliv3(self):
+        """
+        Adds the third delivery details for a supplier order.
+        """
         # self.root = tk.Tk()
         # self.root.withdraw()
         date=self.DelivDate3_SupplierOrder.text()
@@ -3155,11 +3379,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         supply_id = self.tableRecords.item(row, 12).text()
                         quant_3 = self.tableRecords.item(row, 8).text()
 
-                        # while True:
-                        #     quant_3 = self.show_popup(supply_name, supply_description)
-                        #     if quant_3 < pending:
-                        #         break
-
                         commands_add_deliv_quant_3 = ("""
                             UPDATE purch_fact.supplier_ord_detail
                             SET "deliv_quant_3" = %s
@@ -3223,6 +3442,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to load stock values
     def loadstocks(self):
+        """
+        Loads stock information for the selected supply.
+        """
         supply_name=self.Supply_SupplierOrder.currentText()
         if supply_name != '':
             supply_name=supply_name[:supply_name.find(" |")]
@@ -3273,6 +3495,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 #  Function to calculate the order total amount
     def calculate_totalorder(self):
+        """
+        Calculates the total values for euro amount in the order based on the data in the table model.
+        """
         locale.setlocale(locale.LC_ALL, '')
         total = 0
         for row in range(self.tableRecords.rowCount()):
@@ -3289,6 +3514,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to print in PDF the supplier order
     def printsupplierorder(self):
+        """
+        Generates the pdf of the order for supplier with prices and other without them for verification.
+        """
         order_id=self.label_IDOrd.text()
 
         if order_id=="":
@@ -3412,6 +3640,14 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             currency_totalorder=float(total_order[:total_order.find(" €")].replace(".","").replace(",","."))
             currency_totalorder=currency_totalorder * currency_eurovalue
             currency_totalorder=locale.format_string("%.2f", currency_totalorder, grouping=True) + " " + currency_symbol
+
+            pdf.set_fill_color(231, 231, 226)
+            pdf.cell(13.75, 0.50, "")
+            pdf.set_font('Helvetica', 'U', 8)
+            pdf.cell(2.3, 0.50, "Total del pedido:", fill=True)
+            pdf.set_font('DejaVuSansCondensed-Bold', size=10)
+            pdf.cell(3.32, 0.50, currency_totalorder, align='R', fill=True)
+            pdf.ln(1)
             
             y_position = pdf.get_y()
 
@@ -3421,13 +3657,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             # Verify if exists enough space on actual page
             if y_position + total_content_height < 29.8:
                 # If exists, add content on actual page
-                pdf.set_fill_color(231, 231, 226)
-                pdf.cell(13.75, 0.50, "")
-                pdf.set_font('Helvetica', 'U', 8)
-                pdf.cell(2.3, 0.50, "Total del pedido:", fill=True)
-                pdf.set_font('DejaVuSansCondensed-Bold', size=10)
-                pdf.cell(3.32, 0.50, currency_totalorder, align='R', fill=True)
-                pdf.ln(1)
                 pdf.set_font('DejaVuSansCondensed-Bold', size=8)
                 x_position = pdf.get_x()
                 pdf.multi_cell(13.795, 0.3, coments) if coments is not None else pdf.cell(13.795, 0.3, coments)
@@ -3551,47 +3780,17 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             if output_path:
                 pdf_verification.output(output_path)
 
-# Function of popup window to enter quantities of deliveries
-    def show_popup(self, supply_name, supply_description):
-        popup = tk.Toplevel()
-        popup.title("Cantidades entregas")
-
-        popup.iconbitmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico")))
-
-        x = (popup.winfo_screenwidth() - popup.winfo_reqwidth()) // 2
-        y = (popup.winfo_screenheight() - popup.winfo_reqheight()) // 2
-        popup.geometry("+{}+{}".format(x, y))
-
-        popup.grab_set()
-        
-        label = tk.Label(popup, text=f"Cantidad recibida de:\n"
-                        f"{supply_name} | {supply_description}")
-        label.pack(padx=10, pady=10)
-        
-        entry = tk.Entry(popup)
-        entry.pack(padx=10, pady=5)
-        
-        quantity = None  # Saving entered value
-        
-        def accept():
-            nonlocal quantity
-            quantity = entry.get()
-            try:
-                quantity = float(quantity)
-                popup.destroy()
-                self.root.quit()
-            except ValueError:
-                print("¡Valor no válido!")
-        
-        button = tk.Button(popup, text="Aceptar", command=accept)
-        button.pack(padx=10, pady=10)
-        
-        popup.protocol("WM_DELETE_WINDOW", accept)
-        popup.mainloop()
-        return quantity  # Returning entered value
-
 # Function to check date format
     def is_valid_date(self, date_str):
+        """
+        Checks if the given date string is in a valid format.
+
+        Args:
+            date_str (str): The date string to validate.
+
+        Returns:
+            bool: True if the date format is valid, False otherwise.
+        """
         formats = ['%d/%m/%Y', '%d-%m-%Y']
         
         for fmt in formats:
@@ -3605,6 +3804,10 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
+        """
+        Handles the click event on the table header.
+        Displays a context menu for unique values in the clicked column header.
+        """
         header_pos = self.tableSupplierOrders.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.tableSupplierOrders.horizontalHeader().height()
         popup_pos = self.tableSupplierOrders.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
@@ -3612,6 +3815,10 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function when clicking on table header
     def on_headerrecords_section_clicked(self, logical_index):
+        """
+        Handles the click event on the table header.
+        Displays a context menu for unique values in the clicked column header.
+        """
         header_pos = self.tableRecords.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.tableRecords.horizontalHeader().height()
         popup_pos = self.tableRecords.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
@@ -3619,6 +3826,10 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to add a new pay way
     def add_payway(self):
+        """
+        Opens a dialog for adding a new payment method, inserts it into the database, 
+        and updates the payment methods list.
+        """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -3724,7 +3935,10 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.PayWay_SupplierOrder.addItems([''] + sorted(list_payway))
 
 # Function to move table to specific item by text search
-    def position_table(self):
+    def position_table_P(self):
+        """
+        Selects and scrolls to the row in the Client Order P- table based on the input position.
+        """
         text_position = self.Position.text()
 
         self.tableSupplierOrders.clearSelection()
@@ -3738,6 +3952,12 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to events for keys
     def keyPressEvent(self, event: QtGui.QKeyEvent):
+        """Handles key press events for clearing input fields or resetting combo boxes.
+
+        Args:
+            event (QtGui.QKeyEvent): The key press event containing information 
+                                    about the key that was pressed.
+        """
         if event.key() == QtCore.Qt.Key.Key_Escape:
             focused_widget = QtWidgets.QApplication.focusWidget()
             if isinstance(focused_widget, QtWidgets.QLineEdit) or isinstance(focused_widget, QtWidgets.QTextEdit):
@@ -3747,6 +3967,10 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to show dialog to insert order comments
     def show_dialog(self):
+        """
+        Displays a dialog window allowing the user to view and edit order comments.
+        The dialog is only shown if the order ID (`label_IDOrd`) is not empty.
+        """
         if self.label_IDOrd.text() != '':
             
             dlg = QtWidgets.QDialog()
@@ -3768,6 +3992,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to save order comments
     def save_order_comments(self):
+        """
+        Saves the supplier order comments to the database.
+        """
         id_order = self.label_IDOrd.text()
         self.Coms_SupplierOrder = self.te.toPlainText()
 
@@ -3807,6 +4034,12 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to load file
     def item_double_clicked(self, item):
+        """
+        Handles double-click events on items in a QTableWidget. Opens the corresponding PDF
+        
+        Args:
+            item (QtWidgets.QTableWidgetItem): The item that was double-clicked.
+        """
         if item.column() == 1:
             item_number = self.tableSupplierOrders.item(item.row(), 1).text()
 
@@ -3853,6 +4086,12 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to load comboboxes
     def load_comboboxes(self):
+        """
+        Loads the list of clients and supplies from the database into the selection widget.
+
+        Raises:
+            psycopg2.DatabaseError: If a database error occurs during the SQL execution.
+        """
         commands_suppliers = ("""
                         SELECT * 
                         FROM purch_fact.suppliers
@@ -3901,6 +4140,12 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
 # Function to load tables and comboboxes
     def load_all(self):
+        """
+        Loads initial data for the application.
+
+        This function calls `loadtableorders()` to populate the table with order data and 
+        `load_comboboxes()` to initialize and populate comboboxes with relevant data.
+        """
         self.loadtableorders()
         self.load_comboboxes()
 

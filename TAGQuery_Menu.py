@@ -18,10 +18,25 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_TAGQuery_Menu(object):
+    """
+    UI class for the Tag Query Menu window.
+    """
     def __init__(self,role):
+        """
+        Initializes the Ui_TAGQuery_Menu with the specified role.
+
+        Args:
+            role (str): role associated with the user.
+        """
         self.role=role
 
     def setupUi(self, TAGQuery_Menu):
+        """
+        Sets up the user interface for the TAGQuery_Menu.
+
+        Args:
+            TAGQuery_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         TAGQuery_Menu.setObjectName("TAGQuery_Menu")
         TAGQuery_Menu.resize(300, 336)
         TAGQuery_Menu.setMinimumSize(QtCore.QSize(300, 400))
@@ -136,14 +151,18 @@ class Ui_TAGQuery_Menu(object):
 
         self.retranslateUi(TAGQuery_Menu)
         self.Button_Cancel.clicked.connect(TAGQuery_Menu.close) # type: ignore
-        self.Button_Flow.clicked.connect(lambda: self.query_flow(TAGQuery_Menu))
-        self.Button_Temp.clicked.connect(lambda: self.query_temp(TAGQuery_Menu))
-        self.Button_Level.clicked.connect(lambda: self.query_level(TAGQuery_Menu))
-        self.Button_Others.clicked.connect(lambda: self.query_others(TAGQuery_Menu))
+        self.Button_Flow.clicked.connect(self.query_flow)
+        self.Button_Temp.clicked.connect(self.query_temp)
+        self.Button_Level.clicked.connect(self.query_level)
+        self.Button_Others.clicked.connect(self.query_others)
         QtCore.QMetaObject.connectSlotsByName(TAGQuery_Menu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, TAGQuery_Menu):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         TAGQuery_Menu.setWindowTitle(_translate("TAGQuery_Menu", "Consultar TAGS"))
         self.Button_Flow.setText(_translate("TAGQuery_Menu", "Caudal"))
@@ -153,40 +172,44 @@ class Ui_TAGQuery_Menu(object):
         self.Button_Cancel.setText(_translate("TAGQuery_Menu", "Cancelar"))
 
 
-    def query_flow(self,TAGQuery_Menu):
+    def query_flow(self):
+        """
+        Opens the 'Tag Query Flow' window. Sets up the UI for the user.
+        """
         self.query_flow_window=QtWidgets.QMainWindow()
         self.ui=Ui_TAGQueryFlow_Window(self.role)
         self.ui.setupUi(self.query_flow_window)
         self.query_flow_window.showMaximized()
-        # TAGQuery_Menu.hide()
-        # self.ui.Button_Cancel.clicked.connect(TAGQuery_Menu.show)
 
 
-    def query_temp(self,TAGQuery_Menu):
+    def query_temp(self):
+        """
+        Opens the 'Tag Query Temp' window. Sets up the UI for the user.
+        """
         self.query_temp_window=QtWidgets.QMainWindow()
         self.ui=Ui_TAGQueryTemp_Window(self.role)
         self.ui.setupUi(self.query_temp_window)
         self.query_temp_window.showMaximized()
-        # TAGQuery_Menu.hide()
-        # self.ui.Button_Cancel.clicked.connect(TAGQuery_Menu.show)
 
 
-    def query_level(self,TAGQuery_Menu):
+    def query_level(self):
+        """
+        Opens the 'Tag Query Level' window. Sets up the UI for the user.
+        """
         self.query_level_window=QtWidgets.QMainWindow()
         self.ui=Ui_TAGQueryLevel_Window(self.role)
         self.ui.setupUi(self.query_level_window)
         self.query_level_window.showMaximized()
-        # TAGQuery_Menu.hide()
-        # self.ui.Button_Cancel.clicked.connect(TAGQuery_Menu.show)
 
 
-    def query_others(self,TAGQuery_Menu):
+    def query_others(self):
+        """
+        Opens the 'Tag Query Others' window. Sets up the UI for the user.
+        """
         self.query_others_window=QtWidgets.QMainWindow()
         self.ui=Ui_TAGQueryOthers_Window(self.role)
         self.ui.setupUi(self.query_others_window)
         self.query_others_window.showMaximized()
-        # TAGQuery_Menu.hide()
-        # self.ui.Button_Cancel.clicked.connect(TAGQuery_Menu.show)
 
 
 # if __name__ == "__main__":

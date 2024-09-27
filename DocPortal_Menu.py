@@ -17,8 +17,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_PortalDoc_Menu(object):
-
+    """
+    UI class for the Document Portal Menu window.
+    """
     def setupUi(self, PortalDoc_Menu):
+        """
+        Sets up the user interface for the PortalDoc_Menu.
+
+        Args:
+            PortalDoc_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         PortalDoc_Menu.setObjectName("PortalDoc_Menu")
         PortalDoc_Menu.resize(300, 336)
         PortalDoc_Menu.setMinimumSize(QtCore.QSize(300, 300))
@@ -124,7 +132,11 @@ class Ui_PortalDoc_Menu(object):
         QtCore.QMetaObject.connectSlotsByName(PortalDoc_Menu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, PortalDoc_Menu):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         PortalDoc_Menu.setWindowTitle(_translate("PortalDoc_Menu", "Documentación"))
         self.Button_Creation.setText(_translate("PortalDoc_Menu", "Creación Líneas"))
@@ -133,6 +145,11 @@ class Ui_PortalDoc_Menu(object):
 
 
     def creation(self):
+        """
+        Handles the creation process of document lines for an order. Prompts the user 
+        to enter an order number and a date, then updates the database with the provided 
+        information if valid input is received.
+        """
         dlg1 = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -270,6 +287,11 @@ class Ui_PortalDoc_Menu(object):
 
 
     def activation(self):
+        """
+        Handles the activation process of document lines for an order. Prompts the user 
+        to enter an order number and a date, then updates the database with the provided 
+        information if valid input is received.
+        """
         dlg1 = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)

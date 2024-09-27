@@ -20,19 +20,47 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
 class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
+    """
+    UI class for the History Notifications window.
+    """
     def __init__(self, username):
+        """
+        Initializes the Ui_HistoryNotifications_Window with the specified username.
+
+        Args:
+            username (str): username associated with the window.
+        """
         super().__init__()
         self.username = username
         self.setupUi(self)
 
-
     def setupUi(self, HistoryNotifications_Window):
+        """
+        Sets up the user interface for the HistoryNotifications_Window.
+
+        Args:
+            HistoryNotifications_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         HistoryNotifications_Window.setObjectName("HistoryNotifications_Window")
         HistoryNotifications_Window.resize(400, 561)
         HistoryNotifications_Window.setMinimumSize(QtCore.QSize(600, 575))
@@ -146,7 +174,11 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
         self.QueryNotification()
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, HistoryNotifications_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         HistoryNotifications_Window.setWindowTitle(_translate("HistoryNotifications_Window", "Notificaciones"))
         item = self.tableNotifications.horizontalHeaderItem(0)
@@ -158,6 +190,10 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
 
 
     def QueryNotification(self):
+        """
+        Queries the database for notifications, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         query_tables_notifications = """SELECT table_name
                                 FROM information_schema.tables
                                 WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
@@ -226,59 +262,15 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
                 conn.close()
 
 
-    # def export_to_excel(self):
-    #     file_name, _ = QFileDialog.getSaveFileName(self, "Guardar como Excel", "", "Archivos Excel (*.xlsx);;Todos los archivos (*)")
-
-    #     if file_name:
-    #         df = pd.DataFrame()
-    #         for col in range(self.tableNotifications.columnCount()):
-    #             header = self.tableNotifications.horizontalHeaderItem(col).text()
-    #             column_data = [self.tableNotifications.item(row, col).text() for row in range(self.tableNotifications.rowCount())]
-    #             df[header] = column_data
-
-    #         with pd.ExcelWriter(file_name, engine='openpyxl') as writer:
-    #             df.to_excel(writer, index=False)
-
-
-    # def keyPressEvent(self, event):
-    #     super().keyPressEvent(event)
-    #     if event.matches(QtGui.QKeySequence.StandardKey.Copy):
-    #         selected_indexes = self.tableNotifications.selectedIndexes()
-    #         if selected_indexes:
-    #             clipboard = QApplication.clipboard()
-    #             text = self.get_selected_text(selected_indexes)
-    #             clipboard.setText(text)
-
-
-    # def get_selected_text(self, indexes):
-    #     rows = set()
-    #     cols = set()
-    #     for index in indexes:
-    #         rows.add(index.row())
-    #         cols.add(index.column())
-
-    #     text_doc = QTextDocument()
-    #     cursor = QTextCursor(text_doc)
-
-    #     header_labels = [self.tableNotifications.horizontalHeaderItem(col).text() for col in sorted(cols)]
-    #     for label in header_labels:
-    #         cursor.insertText(label)
-    #         cursor.insertText('\t')  # Tab separador de columnas
-    #     cursor.insertText('\n')   # Salto de línea después de las cabeceras
-
-    #     for row in sorted(rows):
-    #         for col in sorted(cols):
-    #             cell_data = self.tableNotifications.item(row, col).data(Qt.ItemDataRole.DisplayRole)
-    #             cursor.insertText(cell_data)
-    #             cursor.insertText('\t')  # Tab separador de columnas
-    #         cursor.insertText('\n')  # Salto de línea al final de la fila
-
-    #     return text_doc.toPlainText()
-
-
     def on_button_clicked(self, row):
-        button = self.sender()  # Obtener el botón que emitió la señal
-        index = self.tableNotifications.indexAt(button.pos())  # Obtener la posición de la celda
+        """
+        Handles the event when a notification button is clicked.
+
+        Args:
+            row (int): The index of the clicked row in the notifications table.
+        """
+        button = self.sender()  
+        index = self.tableNotifications.indexAt(button.pos()) 
         if index.isValid():
             row = index.row()
             table_name = self.tableNotifications.item(row, 0).text()

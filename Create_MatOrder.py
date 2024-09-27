@@ -12,6 +12,20 @@ import re
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
+    """
+    Processes material raw orders for flow items by inserting new entries into the fabrication orders database.
+
+    Args:
+        proxy (QAbstractProxyModel): The proxy model containing the current data view.
+        model (QAbstractItemModel): The model containing the main data.
+        numorder (str): The order number to process.
+        numorder_pedmat (str): The base order number for material orders.
+        variable (str): A variable that determines the type of processing to be done. The specific usage
+                        of this variable is not detailed in the function.
+
+    Returns:
+        None: This function does not return a value but modifies the database state.
+    """
     id_list=[]
     orifice_flange_list = []
     line_flange_list = []
@@ -63,7 +77,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
         if len(results) == 0:
             data=(numorder_pedmat + '-PEDMAT', numorder_pedmat, 'PEDIDO DE MATERIALES', 1, '{:06}'.format(int(num_ot) + 1), len(id_list), date.today().strftime("%d/%m/%Y"))
             cur.execute(commands_otpedmat, data)
-            worksheet['B2'].value = num_ot + 1
+            worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
             workbook.save(excel_file_path)
     # close communication with the PostgreSQL database server
         cur.close()
@@ -77,6 +91,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
         dlg.setWindowTitle("ERP EIPSA")
         dlg.setText("Ha ocurrido el siguiente error:\n"
                     + str(error))
+        print(error)
         dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
         dlg.exec()
         del dlg, new_icon
@@ -218,7 +233,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 designplug = ''
                 processplug = ''
                 materialplug = 'ASTM A105' if model.data(model.index(target_row, 85))[-2:] == 'C1' else model.data(model.index(target_row, 13))
-                qtyplug = model.data(model.index(target_row, 55))
+                qtyplug = int(model.data(model.index(target_row, 55)))
                 plugs_list.append([code_plugs,codefab_plugs,tradcodplug,modelplug,designplug,processplug,materialplug,qtyplug])
                 all_list_parts.append(plugs_list)
 
@@ -263,6 +278,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
                                 + str(error))
+                    print(error)
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                     dlg.exec()
                     del dlg, new_icon
@@ -305,6 +321,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
                                 + str(error))
+                    print(error)
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                     dlg.exec()
                     del dlg, new_icon
@@ -350,6 +367,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                     dlg.setWindowTitle("ERP EIPSA")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
                                 + str(error))
+                    print(error)
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                     dlg.exec()
                     del dlg, new_icon
@@ -441,6 +459,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Ha ocurrido el siguiente error:\n"
                             + str(error))
+                print(error)
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
                 del dlg, new_icon
@@ -504,6 +523,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
         dlg.setWindowTitle("ERP EIPSA")
         dlg.setText("Ha ocurrido el siguiente error:\n"
                     + str(error))
+        print(error)
         dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
         dlg.exec()
         del dlg, new_icon
@@ -515,6 +535,20 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
 
 
 def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
+    """
+    Processes material raw orders for temp items by inserting new entries into the fabrication orders database.
+
+    Args:
+        proxy (QAbstractProxyModel): The proxy model containing the current data view.
+        model (QAbstractItemModel): The model containing the main data.
+        numorder (str): The order number to process.
+        numorder_pedmat (str): The base order number for material orders.
+        variable (str): A variable that determines the type of processing to be done. The specific usage
+                        of this variable is not detailed in the function.
+
+    Returns:
+        None: This function does not return a value but modifies the database state.
+    """
     id_list=[]
     bar_list = []
     tube_list = []
@@ -566,7 +600,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
         if len(results) == 0:
             data=(numorder_pedmat + '-PEDMAT', numorder_pedmat, 'PEDIDO DE MATERIALES', 1, '{:06}'.format(int(num_ot) + 1), len(id_list), date.today().strftime("%d/%m/%Y"))
             cur.execute(commands_otpedmat, data)
-            worksheet['B2'].value = num_ot + 1
+            worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
             workbook.save(excel_file_path)
     # close communication with the PostgreSQL database server
         cur.close()
@@ -620,8 +654,8 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
             all_list_parts =[]
 
             if code_bar != '':
-                tradcodbar = model.data(model.index(target_row, 120))
-                modelbar = ('U=' + model.data(model.index(target_row, 16)) + ' /L=' + model.data(model.index(target_row, 15)) if model.data(model.index(target_row, 9)) == 'Van-Stone TW'
+                tradcodbar = model.data(model.index(target_row, 120)) if 'Helical' not in model.data(model.index(target_row, 9)) else 'VAINA HELICOIDAL' + (' BRIDADA ' + model.data(model.index(target_row, 10)) + ' ' + model.data(model.index(target_row, 11)) + ' ' + model.data(model.index(target_row, 12)) if model.data(model.index(target_row, 9)) == 'Flanged Helical' else '')
+                modelbar = ('U=' + model.data(model.index(target_row, 16)) + ' /L=' + model.data(model.index(target_row, 15)) if 'Stone' in model.data(model.index(target_row, 9)) or 'Helical' in model.data(model.index(target_row, 9))
                             else 'Barra ø=' + '35' if float(model.data(model.index(target_row, 17)).replace(',','.'))<=33.5 else model.data(model.index(target_row, 17)))
                 notesbar = ('RAÍZ ø=' + model.data(model.index(target_row, 17)) if model.data(model.index(target_row, 9)) == 'Van-Stone TW'
                             else '')
@@ -642,13 +676,13 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 all_list_parts.append(tube_list)
 
             if code_flange != '':
-                tradcodflange = model.data(model.index(target_row, 122))
+                tradcodflange = model.data(model.index(target_row, 122)) if 'Helical' not in model.data(model.index(target_row, 9)) else ''
                 modelflange = ''
                 notesflange = ''
                 processflange = ''
                 materialflange = (model.data(model.index(target_row, 30)) if model.data(model.index(target_row, 9)) == 'Van-Stone TW'
-                                    else model.data(model.index(target_row, 14)))
-                qtyflange = 1
+                                    else model.data(model.index(target_row, 14))) if 'Helical' not in model.data(model.index(target_row, 9)) else ''
+                qtyflange = 1 if 'Helical' not in model.data(model.index(target_row, 9)) else ''
                 flange_list.append([code_flange,codefab_flange,tradcodflange,modelflange,notesflange,processflange,materialflange,qtyflange])
                 all_list_parts.append(flange_list)
 
@@ -859,7 +893,6 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
         if data_list:
             sublists = [sublist[2:] for sublist in data_list]
             df = pd.DataFrame(sublists)
-            print(df)
             df = df.groupby([0, 1, 2, 3, 4])[5].sum().reset_index()
             data_frames_with_data.append(df)
 
@@ -906,6 +939,20 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
 
 
 def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
+    """
+    Processes material raw orders for level items by inserting new entries into the fabrication orders database.
+
+    Args:
+        proxy (QAbstractProxyModel): The proxy model containing the current data view.
+        model (QAbstractItemModel): The model containing the main data.
+        numorder (str): The order number to process.
+        numorder_pedmat (str): The base order number for material orders.
+        variable (str): A variable that determines the type of processing to be done. The specific usage
+                        of this variable is not detailed in the function.
+
+    Returns:
+        None: This function does not return a value but modifies the database state.
+    """
     id_list = []
     body_list = []
     cover_list = []
@@ -959,7 +1006,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
         if len(results) == 0:
             data=(numorder_pedmat + '-PEDMAT', numorder_pedmat, 'PEDIDO DE MATERIALES', 1, '{:06}'.format(int(num_ot) + 1), len(id_list), date.today().strftime("%d/%m/%Y"))
             cur.execute(commands_otpedmat, data)
-            worksheet['B2'].value = num_ot + 1
+            worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
             workbook.save(excel_file_path)
     # close communication with the PostgreSQL database server
         cur.close()
@@ -1125,7 +1172,7 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
 
             if code_nipplehex != '':
                 tradcodnipplehex = model.data(model.index(target_row, 124))
-                modelnipplehex = (str((cc_length-int(get_number_before_mm(tradcodbody))-72)/2+20) + ' mm')
+                modelnipplehex = (str((cc_length-int(get_number_before_mm(tradcodbody))-72)/2+22) + ' mm')
                 designnipplehex = ''
                 processnipplehex = ''
                 materialnipplehex = 'A-105' if model.data(model.index(target_row, 10)) == 'Carbon Steel' else model.data(model.index(target_row, 10))
@@ -1363,7 +1410,231 @@ def level_matorder(proxy, model, numorder, numorder_pedmat, variable):
     excel_mat_order.save_excel()
 
 
+def others_matorder(proxy, model, numorder, numorder_pedmat, variable):
+    """
+    Processes material raw orders for others items by inserting new entries into the fabrication orders database.
+
+    Args:
+        proxy (QAbstractProxyModel): The proxy model containing the current data view.
+        model (QAbstractItemModel): The model containing the main data.
+        numorder (str): The order number to process.
+        numorder_pedmat (str): The base order number for material orders.
+        variable (str): A variable that determines the type of processing to be done. The specific usage
+                        of this variable is not detailed in the function.
+
+    Returns:
+        None: This function does not return a value but modifies the database state.
+    """
+    id_list = []
+
+    list_valves_210 = ['V-9305','V-9575','V-9576','2V-210']
+
+    for row in range(proxy.rowCount()):
+        first_column_value = proxy.data(proxy.index(row, 0))
+        description = proxy.data(proxy.index(row, 8))
+
+        if any(valve in description for valve in list_valves_210):
+            id_list.append(first_column_value)
+
+    commands_numot = ("""SELECT "ot_num"
+                        FROM fabrication.fab_order
+                        WHERE NOT "ot_num" LIKE '90%'
+                        ORDER BY "ot_num" ASC
+                        """)
+    check_otpedmat = f"SELECT * FROM fabrication.fab_order WHERE id = '{numorder_pedmat + '-PEDMAT'}'"
+    commands_otpedmat = ("""
+                            INSERT INTO fabrication.fab_order (
+                            "id","tag","element","qty_element",
+                            "ot_num","qty_ot","start_date")
+                            VALUES (%s,%s,%s,%s,%s,%s,%s)
+                            """)
+    conn = None
+    try:
+    # read the connection parameters
+        params = config()
+    # connect to the PostgreSQL server
+        conn = psycopg2.connect(**params)
+        cur = conn.cursor()
+    # execution of commands
+        cur.execute(commands_numot)
+        results=cur.fetchall()
+        num_ot=results[-1][0]
+
+        excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+        workbook = openpyxl.load_workbook(excel_file_path)
+        worksheet = workbook.active
+        num_ot = worksheet['B2'].value
+        cur.execute(check_otpedmat)
+        results=cur.fetchall()
+        if len(results) == 0:
+            data=(numorder_pedmat + '-PEDMAT', numorder_pedmat, 'PEDIDO DE MATERIALES', 1, '{:06}'.format(int(num_ot) + 1), len(id_list), date.today().strftime("%d/%m/%Y"))
+            cur.execute(commands_otpedmat, data)
+            worksheet['B2'].value = num_ot + 1
+            workbook.save(excel_file_path)
+    # close communication with the PostgreSQL database server
+        cur.close()
+    # commit the changes
+        conn.commit()
+    except (Exception, psycopg2.DatabaseError) as error:
+        dlg = QtWidgets.QMessageBox()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle("ERP EIPSA")
+        dlg.setText("Ha ocurrido el siguiente error:\n"
+                    + str(error))
+        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+        dlg.exec()
+        del dlg, new_icon
+    finally:
+        if conn is not None:
+            conn.close()
+
+    if len(id_list) != 0:
+        valve_model_list = []
+        list_1 = []
+        list_2 = []
+        list_3 = []
+        list_4 = []
+        list_5 = []
+        list_6 = []
+        list_7 = []
+        list_8 = []
+        list_9 = []
+        list_10 = []
+        list_11 = []
+        list_12 = []
+        list_13 = []
+        list_14 = []
+        list_15 = []
+        list_16 = []
+        list_17 = []
+        list_18 = []
+        for element in id_list:
+            for row in range(model.rowCount()):
+                if model.data(model.index(row, 0)) == element:
+                    target_row = row
+                    break
+            if target_row is not None:
+                description = model.data(model.index(target_row, 8))
+
+                if any(valve in description for valve in list_valves_210):
+
+                    model_valve = re.match(r'(V-\d+-[A-Za-z0-9]+)', description).group(0)
+                    material_valve = (re.match(r'(V-\d+-[A-Za-z0-9]+)(.*)', description).group(2).lstrip(' - ').strip()).split(' / ')[0]
+                    sch_valve = re.search(r'V-\d+-(\w+)', description).group(1)
+
+                    tradcodvalve = 'VÁLVULA 2V-210 SCH ' + sch_valve + (' BRIDADA ' + description.split(' / ')[1].strip()) if '# RF' in description else ''
+                    schvalve = 'MOD.: ' + model_valve
+                    designvalve = ''
+                    processvalve = ''
+                    materialvalve = material_valve
+                    qtyvalve = 1
+                    valve_model_list.append([tradcodvalve,schvalve,designvalve,processvalve,materialvalve,qtyvalve])
+
+                    list_1.append(['VOLANTE','VÁLVULA 2V-210 - 1500#','','',materialvalve,1])
+                    list_2.append(['ARANDELA VÁLVULA','VÁLVULA 2V-210 - 1500#','','','AC. INOX',1])
+                    list_3.append(['VÁSTAGO','VÁLVULA 2V-210 - 1500#','','','AISI-316 + STELLITE',1])
+                    list_4.append(['GUÍA VÁSTAGO/TUERCA (ø25 x LONG 37 mm) (EXAG 22 ec/ x 6 mm)','VÁLVULA 2V-210 - 1500#','','','AC. INOX' if materialvalve == '316' else 'AC. CARBONO',1])
+                    list_5.append(['CAPELLI (HORQUILLA)','VÁLVULA 2V-210 - 1500#','','',materialvalve,1])
+                    list_6.append(['FLANGETE','VÁLVULA 2V-210 - 1500#','','',materialvalve,1])
+                    list_7.append(['PRENSA (ø25 x LONG 20 mm)','VÁLVULA 2V-210 - 1500#','','','AC. INOX' if materialvalve == '316' else 'AC. CARBONO',1])
+                    list_8.append(['EMPAQUETADURA','VÁLVULA 2V-210 - 1500#','','','GRAFITO',1])
+                    list_9.append(['TORNILLO CUADRADO (2 ud. POR VÁLVULA)','VÁLVULA 2V-210 - 1500#','','','AC. INOX',2])
+                    list_10.append(['TORNILLO REDONDO (4 ud. POR VÁLVULA)','VÁLVULA 2V-210 - 1500#','','','AC. INOX',4])
+                    list_11.append(['TUERCAS M10 2H','VÁLVULA 2V-210 - 1500#','','','A1942H',4])
+                    list_12.append(['JUNTA ESPIROMETÁLICA 42x30x3,2mm','VÁLVULA 2V-210 - 1500#','','','AISI-316 + GRAFITO',1])
+                    list_13.append(['CUERPO VÁLVULA 2V-210 - 1500#','','','',materialvalve,1])
+                    list_14.append(['ASIENTO (ø20 x 16 mm)','VÁLVULA 2V-210 - 1500#','','','AISI-316 + STELLITE',1])
+                    list_15.append(['BRIDA VÁLVULA '+ description.split(' / ')[1].strip(),'VÁLVULA 2V-210 - 1500#','','',materialvalve,1]) if '# RF' in description else ''
+                    list_16.append(['TAPÓN PURGADOR 1/2" NPT-M','','','',materialvalve,1])
+                    list_17.append(['TORNILLO TAPÓN PURGADOR','','','','AC. INOX',1])
+                    if len(description.split(' / ')) > 2: 
+                        list_18.append(['NIPLO ' + description.split(' / ')[2],'','','','AC. INOX' if materialvalve == '316' else 'AC. CARBONO',1]) 
+
+
+        data_lists = [
+        (valve_model_list, "df_valvemodel"),
+        (list_1, "df_list1"),
+        (list_2, "df_list2"),
+        (list_3, "df_list3"),
+        (list_4, "df_list4"),
+        (list_5, "df_list5"),
+        (list_6, "df_list6"),
+        (list_7, "df_list7"),
+        (list_8, "df_list8"),
+        (list_9, "df_list9"),
+        (list_10, "df_list10"),
+        (list_11, "df_list11"),
+        (list_12, "df_list12"),
+        (list_13, "df_list13"),
+        (list_14, "df_list14"),
+        (list_15, "df_list15"),
+        (list_16, "df_list16"),
+        (list_17, "df_list17"),
+        (list_18, "df_list18")]
+
+        data_frames_with_data = []
+
+        for data_list, df_name in data_lists:
+            if data_list:
+                sublists = [sublist for sublist in data_list]
+                df = pd.DataFrame(sublists)
+                df = df.groupby([0, 1, 2, 3, 4])[5].sum().reset_index()
+                data_frames_with_data.append(df)
+
+        if data_frames_with_data:
+            df_combined = pd.concat(data_frames_with_data, ignore_index=True)
+
+        commands_client = ("""
+                            SELECT orders."num_order",orders."num_offer",offers."client"
+                            FROM offers
+                            INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
+                            WHERE UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
+                            """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands_client,(numorder,))
+            results=cur.fetchone()
+            client=results[2]
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+        excel_mat_order = material_order(df_combined,numorder_pedmat,client,variable,num_ot)
+        excel_mat_order.save_excel()
+
+
 def get_number_before_mm(text):
+    """
+    Extracts the integer value that appears before the 'mm' substring in the given text.
+
+    Args:
+        text (str): The input string to search for the number.
+
+    Returns:
+        int or None: The extracted integer value if found, or None if no match is found.
+    """
     match = re.search(r'(\d+)\s*mm', text)
     if match:
         return int(match.group(1))

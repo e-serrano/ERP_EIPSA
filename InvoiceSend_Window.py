@@ -17,7 +17,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_InvoiceSend_Window(object):
+    """
+    UI class for the Send Invoice window.
+    """
     def setupUi(self, InvoiceSend_Window):
+        """
+        Sets up the user interface for the InvoiceSend_Window.
+
+        Args:
+            InvoiceSend_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         InvoiceSend_Window.setObjectName("InvoiceSend_Window")
         InvoiceSend_Window.resize(450, 325)
         InvoiceSend_Window.setMinimumSize(QtCore.QSize(450, 325))
@@ -186,7 +195,11 @@ class Ui_InvoiceSend_Window(object):
         QtCore.QMetaObject.connectSlotsByName(InvoiceSend_Window)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, InvoiceSend_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         InvoiceSend_Window.setWindowTitle(_translate("InvoiceSend_Window", "Envío Factura"))
         self.Button_Insert.setText(_translate("InvoiceSend_Window", "Insertar"))
@@ -196,6 +209,9 @@ class Ui_InvoiceSend_Window(object):
         self.label_num_invoice.setText(_translate("InvoiceSend_Window", "Nº Factura:"))
 
     def insert_data(self):
+        """
+        Inserts or updates invoice data in the database after verifying the input.
+        """
         num_invoice = self.num_invoice.text()
         verif_date = self.verif_date.text()
         method = self.method.text()

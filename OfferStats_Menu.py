@@ -13,7 +13,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_StatsOffer_Menu(object):
+    """
+    UI class for the Stats Offer Menu window.
+    """
     def setupUi(self, StatsOffer_Menu):
+        """
+        Sets up the user interface for the StatsOffer_Menu.
+
+        Args:
+            StatsOffer_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         StatsOffer_Menu.setObjectName("StatsOffer_Menu")
         StatsOffer_Menu.resize(300, 336)
         StatsOffer_Menu.setMinimumSize(QtCore.QSize(300, 400))
@@ -67,7 +76,6 @@ class Ui_StatsOffer_Menu(object):
         self.frame.setObjectName("frame")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        
         self.Button_GeneralGraphs = QtWidgets.QPushButton(parent=self.frame)
         self.Button_GeneralGraphs.setMinimumSize(QtCore.QSize(250, 35))
         self.Button_GeneralGraphs.setMaximumSize(QtCore.QSize(250, 35))
@@ -82,21 +90,6 @@ class Ui_StatsOffer_Menu(object):
         self.Button_CommercialStats.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_CommercialStats.setObjectName("Button_CommercialStats")
         self.gridLayout_2.addWidget(self.Button_CommercialStats, 3, 0, 1, 1)
-        
-        # self.Button_RecToOfficial = QtWidgets.QPushButton(parent=self.frame)
-        # self.Button_RecToOfficial.setMinimumSize(QtCore.QSize(250, 35))
-        # self.Button_RecToOfficial.setMaximumSize(QtCore.QSize(250, 35))
-        # self.Button_RecToOfficial.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        # self.Button_RecToOfficial.setObjectName("Button_RecToOfficial")
-        # spacerItem2 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        # self.gridLayout_2.addItem(spacerItem2, 4, 0, 1, 1)
-        # self.gridLayout_2.addWidget(self.Button_RecToOfficial, 5, 0, 1, 1)
-        # self.Button_EditRec = QtWidgets.QPushButton(parent=self.frame)
-        # self.Button_EditRec.setMinimumSize(QtCore.QSize(250, 35))
-        # self.Button_EditRec.setMaximumSize(QtCore.QSize(250, 35))
-        # self.Button_EditRec.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        # self.Button_EditRec.setObjectName("Button_EditRec")
-        # self.gridLayout_2.addWidget(self.Button_EditRec, 6, 0, 1, 1)
         spacerItem3 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem3, 7, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 80, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -132,22 +125,28 @@ class Ui_StatsOffer_Menu(object):
         self.Button_Cancel.clicked.connect(StatsOffer_Menu.close) # type: ignore
         self.Button_GeneralGraphs.clicked.connect(lambda: self.General_Graphs(StatsOffer_Menu))
         self.Button_CommercialStats.clicked.connect(lambda: self.Commercial_Stats(StatsOffer_Menu))
-        # self.Button_RecToOfficial.clicked.connect(lambda: self.RecOfferToOf(StatsOffer_Menu))
-        # self.Button_EditRec.clicked.connect(lambda: self.EditOfferRec(StatsOffer_Menu))
         QtCore.QMetaObject.connectSlotsByName(StatsOffer_Menu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, StatsOffer_Menu):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         StatsOffer_Menu.setWindowTitle(_translate("StatsOffer_Menu", "Editar Oferta"))
         self.Button_GeneralGraphs.setText(_translate("StatsOffer_Menu", "Gráficos Generales"))
         self.Button_CommercialStats.setText(_translate("StatsOffer_Menu", "Estadísticas Comercial"))
         self.Button_Cancel.setText(_translate("StatsOffer_Menu", "Cancelar"))
-        # self.Button_RecToOfficial.setText(_translate("StatsOffer_Menu", "Pasar Recibida a Oficial"))
-        # self.Button_EditRec.setText(_translate("StatsOffer_Menu", "Editar Oferta Recibida"))
 
 
     def General_Graphs(self,StatsOffer_Menu):
+        """
+        Opens the 'General_Graphs' window and closes the current menu. Sets up the UI for the user.
+        
+        Args:
+            StatsOffer_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         from OfferGraphs_Window import Ui_GraphsOffer_Window
         self.graphswindow=QtWidgets.QMainWindow()
         self.ui=Ui_GraphsOffer_Window()
@@ -157,30 +156,18 @@ class Ui_StatsOffer_Menu(object):
 
 
     def Commercial_Stats(self,StatsOffer_Menu):
+        """
+        Opens the 'Commercial_Stats' window and closes the current menu. Sets up the UI for the user.
+        
+        Args:
+            StatsOffer_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         from OfferStats_Window import Ui_StatsOffer_Window
         self.commercialstats_window=QtWidgets.QMainWindow()
         self.ui=Ui_StatsOffer_Window()
         self.ui.setupUi(self.commercialstats_window)
         self.commercialstats_window.show()
         StatsOffer_Menu.close()
-
-
-    # def RecOfferToOf(self,StatsOffer_Menu):
-    #     self.recoffer_window=QtWidgets.QMainWindow()
-    #     self.ui=Ui_QueryOfferReceived_Window('Oficial')
-    #     self.ui.setupUi(self.recoffer_window)
-    #     self.recoffer_window.show()
-    #     StatsOffer_Menu.hide()
-    #     self.ui.Button_Cancel.clicked.connect(StatsOffer_Menu.show)
-
-
-    # def EditOfferRec(self,StatsOffer_Menu):
-    #     self.recoffer_window=QtWidgets.QMainWindow()
-    #     self.ui=Ui_QueryOfferReceived_Window('Editar')
-    #     self.ui.setupUi(self.recoffer_window)
-    #     self.recoffer_window.show()
-    #     StatsOffer_Menu.hide()
-    #     self.ui.Button_Cancel.clicked.connect(StatsOffer_Menu.show)
 
 
 

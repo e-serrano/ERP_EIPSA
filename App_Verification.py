@@ -19,7 +19,26 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_App_Verification(object):
+    """
+    Class representing the user interface for application verification.
+
+    Attributes:
+        name (str): The name of the application or user.
+        username (str): The username of the user.
+        edit_tags_app (Optional[QtWidgets.QWidget]): A reference to the tag editing application window, initialized as None.
+        calibration_window (Optional[QtWidgets.QWidget]): A reference to the calibration window, initialized as None.
+    """
+
     def __init__(self, name, username):
+        """
+        Initializes the UI_App_Verification class with the application name and username.
+
+        Args:
+            name (str): The name associated with the application or user.
+            username (str): The username of the user.
+
+        Sets the locale for time formatting to Spanish (Spain).
+        """
         self.name=name
         self.username=username
         self.edit_tags_app = None
@@ -28,6 +47,12 @@ class Ui_App_Verification(object):
 
 
     def setupUi(self, App_Verification):
+        """
+        Sets up the user interface components for the main application window.
+
+        Args:
+            App_Verification (QtWidgets.QMainWindow): The main window object to set up.
+        """
         App_Verification.setObjectName("App_Verification")
         App_Verification.resize(1254, 860)
         App_Verification.setMinimumSize(QtCore.QSize(945, 860))
@@ -179,16 +204,15 @@ class Ui_App_Verification(object):
         self.Button_Timer.setIconSize(QtCore.QSize(40, 40))
         self.Button_Timer.setObjectName("Button_Timer")
         self.Header.addWidget(self.Button_Timer)
-
         spacerItem5 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem5)
-        self.Button_Machines = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Machines.setMinimumSize(QtCore.QSize(50, 50))
-        self.Button_Machines.setMaximumSize(QtCore.QSize(50, 50))
-        self.Button_Machines.setToolTip('Máquinas')
-        self.Button_Machines.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Revisions = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Revisions.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Revisions.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Revisions.setToolTip('Revisiones')
+        self.Button_Revisions.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         if self.username == 'm.gil':
-            self.Button_Machines.setStyleSheet("QPushButton{\n"
+            self.Button_Revisions.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
     "    background-color: rgb(38, 38, 38);\n"
@@ -211,7 +235,7 @@ class Ui_App_Verification(object):
     "    border-radius: 10px;\n"
     "}")
         else:
-            self.Button_Machines.setStyleSheet("QPushButton{\n"
+            self.Button_Revisions.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
     "    background-color: rgb(255, 255, 255);\n"
@@ -233,145 +257,22 @@ class Ui_App_Verification(object):
     "    background-color: rgb(200, 200, 200);\n"
     "    border-radius: 10px;\n"
     "}")
-        self.Button_Machines.setText("")
+        self.Button_Revisions.setText("")
         icon10 = QtGui.QIcon()
-        icon10.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Machines.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Machines.setIcon(icon10)
-        self.Button_Machines.setIconSize(QtCore.QSize(int(40), int(40)))
-        self.Button_Machines.setObjectName("Button_Machines")
-        self.Header.addWidget(self.Button_Machines)
-
-        spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem8)
-        self.Button_HandTools = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_HandTools.setMinimumSize(QtCore.QSize(50, 50))
-        self.Button_HandTools.setMaximumSize(QtCore.QSize(50, 50))
-        self.Button_HandTools.setToolTip('Herramientas de Mano')
-        self.Button_HandTools.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'm.gil':
-            self.Button_HandTools.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_HandTools.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        self.Button_HandTools.setText("")
-        icon11 = QtGui.QIcon()
-        icon11.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Handtool.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_HandTools.setIcon(icon11)
-        self.Button_HandTools.setIconSize(QtCore.QSize(int(40), int(40)))
-        self.Button_HandTools.setObjectName("Button_HandTools")
-        self.Header.addWidget(self.Button_HandTools)
-
-        spacerItem9 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem9)
-        self.Button_Caliber = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Caliber.setMinimumSize(QtCore.QSize(50, 50))
-        self.Button_Caliber.setMaximumSize(QtCore.QSize(50, 50))
-        self.Button_Caliber.setToolTip('Equipos Medida')
-        self.Button_Caliber.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'm.gil':
-            self.Button_Caliber.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_Caliber.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        self.Button_Caliber.setText("")
-        icon12 = QtGui.QIcon()
-        icon12.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Caliber.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Caliber.setIcon(icon12)
-        self.Button_Caliber.setIconSize(QtCore.QSize(int(40), int(40)))
-        self.Button_Caliber.setObjectName("Button_Caliber")
-        self.Header.addWidget(self.Button_Caliber)
-
+        icon10.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Revision.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Revisions.setIcon(icon10)
+        self.Button_Revisions.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Revisions.setObjectName("Button_Revisions")
+        self.Header.addWidget(self.Button_Revisions)
         spacerItem4 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem4)
-        self.Button_Hardness = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Hardness.setMinimumSize(QtCore.QSize(50, 50))
-        self.Button_Hardness.setMaximumSize(QtCore.QSize(50, 50))
-        self.Button_Hardness.setToolTip('Prueba Dureza')
-        self.Button_Hardness.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Tests = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Tests.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Tests.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Tests.setToolTip('Pruebas')
+        self.Button_Tests.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         if self.username == 'm.gil':
-            self.Button_Hardness.setStyleSheet("QPushButton{\n"
+            self.Button_Tests.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
     "    background-color: rgb(38, 38, 38);\n"
@@ -394,7 +295,7 @@ class Ui_App_Verification(object):
     "    border-radius: 10px;\n"
     "}")
         else:
-            self.Button_Hardness.setStyleSheet("QPushButton{\n"
+            self.Button_Tests.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
     "    background-color: rgb(255, 255, 255);\n"
@@ -416,23 +317,22 @@ class Ui_App_Verification(object):
     "    background-color: rgb(200, 200, 200);\n"
     "    border-radius: 10px;\n"
     "}")
-        self.Button_Hardness.setText("")
+        self.Button_Tests.setText("")
         icon9 = QtGui.QIcon()
-        icon9.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Hardness.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Hardness.setIcon(icon9)
-        self.Button_Hardness.setIconSize(QtCore.QSize(int(40), int(40)))
-        self.Button_Hardness.setObjectName("Button_Hardness")
-        self.Header.addWidget(self.Button_Hardness)
-
+        icon9.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Hydro.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Tests.setIcon(icon9)
+        self.Button_Tests.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Tests.setObjectName("Button_Tests")
+        self.Header.addWidget(self.Button_Tests)
         spacerItem3 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem3)
-        self.Button_Hydro = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Hydro.setMinimumSize(QtCore.QSize(50, 50))
-        self.Button_Hydro.setMaximumSize(QtCore.QSize(50, 50))
-        self.Button_Hydro.setToolTip('Prueba Hidrostática')
-        self.Button_Hydro.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Warehouse_Pieces = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Warehouse_Pieces.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Warehouse_Pieces.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Warehouse_Pieces.setToolTip('Piezas Almacén')
+        self.Button_Warehouse_Pieces.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         if self.username == 'm.gil':
-            self.Button_Hydro.setStyleSheet("QPushButton{\n"
+            self.Button_Warehouse_Pieces.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
     "    background-color: rgb(38, 38, 38);\n"
@@ -455,7 +355,7 @@ class Ui_App_Verification(object):
     "    border-radius: 10px;\n"
     "}")
         else:
-            self.Button_Hydro.setStyleSheet("QPushButton{\n"
+            self.Button_Warehouse_Pieces.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
     "    background-color: rgb(255, 255, 255);\n"
@@ -477,75 +377,13 @@ class Ui_App_Verification(object):
     "    background-color: rgb(200, 200, 200);\n"
     "    border-radius: 10px;\n"
     "}")
-        self.Button_Hydro.setText("")
+        self.Button_Warehouse_Pieces.setText("")
         icon8 = QtGui.QIcon()
-        icon8.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Hydro.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Hydro.setIcon(icon8)
-        self.Button_Hydro.setIconSize(QtCore.QSize(int(40), int(40)))
-        self.Button_Hydro.setObjectName("Button_Hydro")
-        self.Header.addWidget(self.Button_Hydro)
-
-        spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem2)
-        self.Button_Liquid = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Liquid.setMinimumSize(QtCore.QSize(50, 50))
-        self.Button_Liquid.setMaximumSize(QtCore.QSize(50, 50))
-        self.Button_Liquid.setToolTip('Líquidos Penetrantes')
-        self.Button_Liquid.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'm.gil':
-            self.Button_Liquid.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_Liquid.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        self.Button_Liquid.setText("")
-        icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Liquid.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Liquid.setIcon(icon6)
-        self.Button_Liquid.setIconSize(QtCore.QSize(int(40), int(40)))
-        self.Button_Liquid.setObjectName("Button_Liquid")
-        self.Header.addWidget(self.Button_Liquid)
-
+        icon8.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Warehouse_Pieces.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Warehouse_Pieces.setIcon(icon8)
+        self.Button_Warehouse_Pieces.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Warehouse_Pieces.setObjectName("Button_Warehouse_Pieces")
+        self.Header.addWidget(self.Button_Warehouse_Pieces)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -836,9 +674,7 @@ class Ui_App_Verification(object):
 
         self.Button_QueryTag.clicked.connect(self.query_tag)
         self.Button_Verification.clicked.connect(self.verification)
-        self.Button_Hydro.clicked.connect(self.hydrotest)
-        self.Button_Liquid.clicked.connect(self.liquidtest)
-        self.Button_Hardness.clicked.connect(self.hardtest)
+        self.Button_Tests.clicked.connect(self.tests)
         self.Button_Calibration.clicked.connect(self.calibration)
         self.Button_Suppliers.clicked.connect(self.suppliers_delivnote)
         self.Button_DBEdit.clicked.connect(self.editdb)
@@ -846,12 +682,16 @@ class Ui_App_Verification(object):
         self.Button_Verif_Order.clicked.connect(self.verif_order)
         self.Button_Index_Drawings.clicked.connect(self.index_drawing)
         self.Button_NCReports.clicked.connect(self.nc_report)
-        self.Button_Machines.clicked.connect(self.workshop_machines)
-        self.Button_HandTools.clicked.connect(self.workshop_handtools)
+        self.Button_Revisions.clicked.connect(self.revisions)
+        self.Button_Warehouse_Pieces.clicked.connect(self.aditional_pieces)
         self.Button_Profile.clicked.connect(self.showMenu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, App_Verification):
+        """
+        Translates and updates the text of various UI elements in the given App_Comercial.
+        """
         _translate = QtCore.QCoreApplication.translate
         App_Verification.setWindowTitle(_translate("App_Verification", "ERP EIPSA"))
         self.HeaderName.setText(_translate("App_Verification", self.name))
@@ -863,18 +703,20 @@ class Ui_App_Verification(object):
         self.Button_Calibration.setText(_translate("App_Verification", "    Calibraciones"))
         self.Button_Suppliers.setText(_translate("App_Verification", "    Proveedores"))
 
-
 # Function to show the current time on screen
     def showTime(self):
-        # getting current time
-        current_time = QtCore.QTime.currentTime()
-        # converting QTime object to string
-        label_time = current_time.toString('hh:mm')
-        # showing it to the label
-        self.clock_indicator.setText(label_time)
+        """
+        Updates the clock indicator with the current time.
+        """
+        current_time = QtCore.QTime.currentTime() # getting current time
+        label_time = current_time.toString('hh:mm') # converting QTime object to string
+        self.clock_indicator.setText(label_time) # showing it to the label
 
 # Function to open corresponding window when Edit DB button is clicked
     def editdb(self):
+        """
+        Open the database editing window.
+        """
         from DBEditRegVerif_Window import Ui_DBEditRegVerif_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -892,6 +734,9 @@ class Ui_App_Verification(object):
 
 # Function to open corresponding window when Query Tags button is clicked
     def query_tag(self):
+        """
+        Open a new window for querying tags.
+        """
         from TAGEdit_Verification_Window import Ui_EditTags_Verification_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -913,37 +758,28 @@ class Ui_App_Verification(object):
 
 # Function to open corresponding window when Verification button is clicked
     def verification(self):
+        """
+        Open a new window for verification actions.
+        """
         from VerificationInsert_Window import Ui_VerificationInsert_Window
         self.Verificationinsert_window=QtWidgets.QMainWindow()
         self.ui=Ui_VerificationInsert_Window(self.username)
         self.ui.showMaximized()
 
-# Function to open corresponding window when Hydrostatic Test button is clicked
-    def hydrotest(self):
-        from TestHydro_Menu import Ui_TestHydro_Menu
-        self.testhydro_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_TestHydro_Menu(self.username)
-        self.ui.setupUi(self.testhydro_menu)
-        self.testhydro_menu.show()
-
-# Function to open corresponding window when Liquid Test button is clicked
-    def liquidtest(self):
-        from TestLiquid_Menu import Ui_TestLiquid_Menu
-        self.testliquid_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_TestLiquid_Menu(self.username)
-        self.ui.setupUi(self.testliquid_menu)
-        self.testliquid_menu.show()
-
-# Function to open corresponding window when Hardness Test button is clicked
-    def hardtest(self):
-        from TestHard_Menu import Ui_TestHard_Menu
-        self.testhard_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_TestHard_Menu(self.username)
-        self.ui.setupUi(self.testhard_menu)
-        self.testhard_menu.show()
+# Function to open corresponding window when Test button is clicked
+    def tests(self):
+        """Open the Test menu."""
+        from Verif_Tests_Menu import Ui_Verif_Tests_Menu
+        self.tests_menu=QtWidgets.QMainWindow()
+        self.ui=Ui_Verif_Tests_Menu(self.username)
+        self.ui.setupUi(self.tests_menu)
+        self.tests_menu.show()
 
 # Function to open corresponding window when Calibration button is clicked
     def calibration(self):
+        """
+        Open a new window for calibrating thermo elements.
+        """
         from Calibration_ThermoElements_Window import Ui_Calibration_ThermoElements_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -966,6 +802,9 @@ class Ui_App_Verification(object):
 
 # Function to open corresponding window when Suppliers button is clicked
     def suppliers_delivnote(self):
+        """
+        Open a new window for suppliers delivery notes.
+        """
         from VerifSupplierInsert_Window import Ui_VerifSupplierInsert_Window
         self.verifsupplier_window=QtWidgets.QMainWindow()
         self.ui=Ui_VerifSupplierInsert_Window(self.username)
@@ -974,6 +813,10 @@ class Ui_App_Verification(object):
 
 # Function to show menu when Profile button is clicked 
     def showMenu(self):
+        """
+        Displays a context menu when the profile button is clicked. 
+        Provides options to edit the password.
+        """
         menu = QMenu(self.centralwidget)
         if self.username == 'm.gil':
             menu.setStyleSheet("QMenu { background-color: rgb(255, 255, 255); border: 1px solid black; width: 125px; right: -1px; }"
@@ -989,6 +832,9 @@ class Ui_App_Verification(object):
 
 # Function to open corresponding window when Edit Password option is clicked
     def editpassword(self):
+        """
+        Opens a new window for editing the user's password. 
+        """
         from PasswordEdit_Window import Ui_EditPasswordWindow
         self.edit_password_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditPasswordWindow(self.username)
@@ -997,12 +843,18 @@ class Ui_App_Verification(object):
 
 # Function to open window with timer
     def timer(self):
+        """
+        Displays the timer window for the current user.
+        """
         from TimerWindow import Ui_TimerWindow
         self.timerwindow=Ui_TimerWindow(self.username)
         self.timerwindow.show()
 
 # Function to open window to check order drawings
     def index_drawing(self):
+        """
+        Loads and displays the workshop drawing index window after establishing a database connection.
+        """
         from WorkshopDrawingIndex_Window import Ui_WorkshopDrawingIndex_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -1020,6 +872,9 @@ class Ui_App_Verification(object):
 
 # Function to open window to check order verification
     def verif_order(self):
+        """
+        Prompts the user to input an order number and displays the order verification window if valid.
+        """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -1052,6 +907,9 @@ class Ui_App_Verification(object):
 
 # Function to open window with nc reports
     def nc_report(self):
+        """
+        Establishes a database connection and opens the NC report window for the current user.
+        """
         from NC_Report_Window import Ui_NC_Report_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -1067,40 +925,27 @@ class Ui_App_Verification(object):
         self.nc_window = Ui_NC_Report_Window(db_nc, self.username)
         self.nc_window.showMaximized()
 
-# Function to open window with workshop machines
-    def workshop_machines(self):
-        from Workshop_Machines_Window import Ui_Workshop_Machines_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
-        user_database = dbparam["user"]
-        password_database = dbparam["password"]
+# Function to open menu with different types of revisions
+    def revisions(self):
+        """
+        Initializes and displays the revisions menu for the current user.
+        """
+        from Verif_Revisions_Menu import Ui_Verif_Revisions_Menu
+        self.revisions_menu=QtWidgets.QMainWindow()
+        self.ui=Ui_Verif_Revisions_Menu(self.username)
+        self.ui.setupUi(self.revisions_menu)
+        self.revisions_menu.show()
 
-        db_machines = createConnection(user_database, password_database)
-        if not db_machines:
-            sys.exit()
-
-        self.machines_window = Ui_Workshop_Machines_Window(db_machines, self.username)
-        self.machines_window.showMaximized()
-
-# Function to open window with workshop machines
-    def workshop_handtools(self):
-        from Workshop_Handtools_Window import Ui_Workshop_Handtools_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
-        user_database = dbparam["user"]
-        password_database = dbparam["password"]
-
-        db_handtools = createConnection(user_database, password_database)
-        if not db_handtools:
-            sys.exit()
-
-        self.handtool_window = Ui_Workshop_Handtools_Window(db_handtools, self.username)
-        self.handtool_window.showMaximized()
-
+# Function to open window with for insert additional pieces manufactured
+    def aditional_pieces(self):
+        """
+        Sets up and opens the window for inserting additional manufactured pieces.
+        """
+        from VerifPiecesInsert_Window import Ui_VerifPiecesInsert_Window
+        self.verifpieces_window=QtWidgets.QMainWindow()
+        self.ui=Ui_VerifPiecesInsert_Window(self.username)
+        self.ui.setupUi(self.verifpieces_window)
+        self.verifpieces_window.show()
 
 
 

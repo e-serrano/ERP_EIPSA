@@ -18,10 +18,25 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_New_OfferReceived_Window(object):
+    """
+    UI class for the New Offer Received window.
+    """
     def __init__(self,username):
+        """
+        Initializes the Ui_New_OfferReceived_Window with the specified username.
+
+        Args:
+            username (str): username associated with the window.
+        """
         self.username=username
 
     def setupUi(self, New_OfferReceived):
+        """
+        Sets up the user interface for the New_OfferReceived.
+
+        Args:
+            New_OfferReceived (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         New_OfferReceived.setObjectName("New_OfferReceived")
         New_OfferReceived.resize(670, 425)
         New_OfferReceived.setMinimumSize(QtCore.QSize(700, 550))
@@ -363,7 +378,11 @@ class Ui_New_OfferReceived_Window(object):
         self.load_clients()
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, New_OfferReceived):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         New_OfferReceived.setWindowTitle(_translate("New_OfferReceived", "Nueva Oferta"))
         self.label_Description.setText(_translate("New_OfferReceived", "Descripción:"))
@@ -380,6 +399,12 @@ class Ui_New_OfferReceived_Window(object):
         self.Button_NewClient.setText(_translate("New_OfferReceived", "+"))
 
     def load_clients(self):
+        """
+        Loads the list of clients from the database into the client selection widget.
+
+        Raises:
+            psycopg2.DatabaseError: If a database error occurs during the SQL execution.
+        """
         self.Client_NewOffer.clear()
         commands_clients = ("""
                         SELECT * 
@@ -420,6 +445,9 @@ class Ui_New_OfferReceived_Window(object):
 
 
     def NewOffer(self):
+        """
+        Creates a new entry in database after validating form inputs.
+        """
         client=self.Client_NewOffer.currentText()
         finalclient=self.FinalClient_NewOffer.text()
         numref=self.NumRef_NewOffer.text()
@@ -523,6 +551,9 @@ class Ui_New_OfferReceived_Window(object):
 
 
     def NewClient(self):
+        """
+        Opens the 'NewClient' window. Sets up the UI for the user.
+        """
         self.new_client_window=QtWidgets.QMainWindow()
         self.ui=Ui_OfferClientAdd_Window()
         self.ui.setupUi(self.new_client_window)

@@ -15,7 +15,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_CreateTag_Menu(object):
+    """
+    UI class for the Create Tag Menu window.
+    """
     def setupUi(self, Create_Tag_Menu):
+        """
+        Sets up the user interface for the Create_Tag_Menu.
+
+        Args:
+            Create_Tag_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         Create_Tag_Menu.setObjectName("Create_Tag_Menu")
         Create_Tag_Menu.resize(300, 340)
         Create_Tag_Menu.setMinimumSize(QtCore.QSize(300, 340))
@@ -119,7 +128,11 @@ class Ui_CreateTag_Menu(object):
         QtCore.QMetaObject.connectSlotsByName(Create_Tag_Menu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, Create_Tag_Menu):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         Create_Tag_Menu.setWindowTitle(_translate("Create_Tag_Menu", "Crear TAG"))
         self.Button_Create.setText(_translate("Create_Tag_Menu", "Crear TAG"))
@@ -128,6 +141,12 @@ class Ui_CreateTag_Menu(object):
 
 
     def create_tag(self,Create_Tag_Menu):
+        """
+        Opens the 'create_tag' window and hides the current menu. Sets up the UI for the user and connects the cancel button to re-show the previous menu.
+        
+        Args:
+            Create_Tag_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.typetag_window=QtWidgets.QMainWindow()
         self.ui=Ui_TypeTagCreation_Menu()
         self.ui.setupUi(self.typetag_window)
@@ -137,6 +156,12 @@ class Ui_CreateTag_Menu(object):
 
 
     def import_tag(self,Create_Tag_Menu):
+        """
+        Opens the 'import_tag' window and closes the current menu. Sets up the UI for the user and connects the cancel button to re-show the previous menu.
+        
+        Args:
+            Create_Tag_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.import_tag_window=QtWidgets.QMainWindow()
         self.ui=Ui_ImportTAG_Window()
         self.ui.setupUi(self.import_tag_window)

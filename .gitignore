@@ -4,11 +4,6 @@ dist/
 *.spec
 *.pyc
 
-Manuals/
-*.pdf
-
-.env
-
 icon.ico
 
 setup.ico
@@ -24,6 +19,10 @@ Database_Connection.py
 UpdateTableExist_Window.py
 
 import_tables.py
+
+ImportTableNew_Window.py
+
+ImportTableExist_Window.py
 
 zz test1.py
 
@@ -45,6 +44,4 @@ zz test9.py
 
 zz test10.py
 
-
-
-
+help_info.docx

@@ -20,10 +20,25 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_ClientResume_Window(object):
+    """
+    UI class for the Client Resume window.
+    """
     def __init__(self, clientname):
+        """
+        Initializes the Ui_ClientResume_Window with the specified clientname.
+
+        Args:
+            clientname (str): client name associated with the window.
+        """
         self.clientname=clientname
 
     def setupUi(self, ClientResume_Window):
+        """
+        Sets up the user interface for the ClientResume_Window.
+
+        Args:
+            ClientResume_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         ClientResume_Window.setObjectName("ClientResume_Window")
         ClientResume_Window.resize(1165, 945)
         ClientResume_Window.setMinimumSize(QtCore.QSize(1165, 945))
@@ -195,7 +210,11 @@ class Ui_ClientResume_Window(object):
         self.year2_CustomerResume.currentIndexChanged.connect(self.loadresults)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, ClientResume_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         ClientResume_Window.setWindowTitle(_translate("ClientResume_Window", "Resumen Cliente"))
         self.label_client.setText(_translate("ClientResume_Window", "Cliente:"))
@@ -204,6 +223,15 @@ class Ui_ClientResume_Window(object):
 
 
     def loadresults(self):
+        """
+        Loads and displays results based on the selected year range.
+        It aggregates the results for offered, awarded, and dismissed offers, updating the UI with the results.
+
+        The function also creates a bar chart to visualize the amounts offered and awarded by year.
+
+        Raises:
+            QMessageBox: Shows error messages in case of database errors or invalid inputs.
+        """
         if not self.year2_CustomerResume.currentText() == '':
             year1 = int(self.year1_CustomerResume.currentText())
             year2 = int(self.year2_CustomerResume.currentText())
@@ -852,6 +880,12 @@ class Ui_ClientResume_Window(object):
 
 #Function to remove the layout to update it when combobox changes
     def remove_layout(self, layout):
+        """
+        Recursively removes all widgets from a given layout.
+
+        Args:
+            layout (QtWidgets.QLayout): The layout from which to remove widgets.
+    """
         if layout is not None:
             while layout.count():
                 item = layout.takeAt(0)
@@ -862,9 +896,18 @@ class Ui_ClientResume_Window(object):
                 else:
                     self.remove_layout(item.layout())
 
-
 #Function for formatting the y axis of the graphs
     def format_y_ticks(self, y, pos):
+        """
+        Formats the y-axis ticks for display based on their magnitude.
+
+        Args:
+            y (float): The y-value to format.
+            pos (int): The position of the tick (unused in the formatting).
+
+        Returns:
+            str: The formatted tick label.
+        """
         if y >= 1e6:
             return '{:.0f}M'.format(y * 1e-6)
         elif y >= 1e3:

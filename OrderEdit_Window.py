@@ -15,7 +15,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Edit_Order_Window(object):
+    """
+    UI class for the Edit Order window.
+    """
     def setupUi(self, Edit_Order_Window):
+        """
+        Sets up the user interface for the Edit_Order_Window.
+
+        Args:
+            Edit_Order_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         Edit_Order_Window.setObjectName("Edit_Order_Window")
         Edit_Order_Window.resize(680, 425)
         Edit_Order_Window.setMinimumSize(QtCore.QSize(680, 425))
@@ -296,7 +305,11 @@ class Ui_Edit_Order_Window(object):
         QtCore.QMetaObject.connectSlotsByName(Edit_Order_Window)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, Edit_Order_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         Edit_Order_Window.setWindowTitle(_translate("Edit_Order_Window", "Editar Pedido"))
         self.label_NumOrder.setText(_translate("Edit_Order_Window", "Nº Pedido:"))
@@ -311,6 +324,9 @@ class Ui_Edit_Order_Window(object):
 
 
     def editorder(self):
+        """
+        Edit the corresponding entry in database after validating form inputs.
+        """
         numorder=self.NumOrder_EditOrder.text()
         numoffer=self.NumOffer_EditOrder.text()
         numref=self.NumRef_EditOrder.text()
@@ -435,6 +451,10 @@ class Ui_Edit_Order_Window(object):
 
 
     def queryorderdata(self):
+        """
+        Queries the database for order data based on the order number provided by the user. It displays the retrieved information 
+        in the corresponding form fields.
+        """
         numorder=self.NumOrder_EditOrder.text()
     #SQL Query for loading existing data in database
         commands_loaddataorder = ("""

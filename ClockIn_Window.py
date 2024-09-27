@@ -10,7 +10,22 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class ImageCalendarWidget(QtWidgets.QCalendarWidget):
+    """
+    A custom calendar widget that displays worker-specific tasks and work times.
+
+    Attributes:
+        worker_id (int): The ID of the worker for whom the calendar is displaying data.
+        task_dates (list): A list of dates that correspond to task entries.
+        week_data (dict): Data on weekly work times for comparison with the expected work hours.
+    """
     def __init__(self, worker_id, parent=None):
+        """
+        Initializes the ImageCalendarWidget.
+
+        Args:
+            worker_id (int): The ID of the worker whose data will be displayed.
+            parent (QWidget, optional): The parent widget, if any.
+        """
         super().__init__(parent)
         self.task_dates = []
         self.week_data = {} 
@@ -18,10 +33,24 @@ class ImageCalendarWidget(QtWidgets.QCalendarWidget):
         self.currentPageChanged.connect(self.updateWeekNumber)
 
     def set_task_dates(self, dates):
+        """
+        Sets the task dates for the worker.
+
+        Args:
+            dates (list): A list of dates representing tasks for the worker.
+        """
         self.task_dates = dates
         self.updateCells()
 
     def paintCell(self, painter, rect, date):
+        """
+        Customizes the rendering of a calendar cell.
+
+        Args:
+            painter (QPainter): The painter object used to draw on the calendar.
+            rect (QRect): The rectangle area of the cell being painted.
+            date (QDate): The date represented by the current cell.
+        """
         super().paintCell(painter, rect, date)
 
         if date.toPyDate() in self.task_dates:
@@ -113,6 +142,9 @@ class ImageCalendarWidget(QtWidgets.QCalendarWidget):
 
 
     def updateWeekNumber(self):
+        """
+        Updates the data related to the weeks in the currently displayed month.
+        """
         current_month = self.monthShown()
         current_year = self.yearShown()
 
@@ -205,12 +237,27 @@ class ImageCalendarWidget(QtWidgets.QCalendarWidget):
 
 
 class MyCalendarApp(QMainWindow):
+    """
+    UI class for the ClockIn Calendar window.
+    """
     def __init__(self, username):
+        """
+        Initializes the MyCalendarApp with the specified username.
+
+        Args:
+            username (str): username associated with the window.
+        """
         super().__init__()
         self.username = username
         self.setupUi(self)
 
     def setupUi(self, Calendar_window):
+        """
+        Sets up the user interface for the Calendar_window.
+
+        Args:
+            Calendar_window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         Calendar_window.setObjectName("Calendar_window")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -321,12 +368,28 @@ class MyCalendarApp(QMainWindow):
         self.Calendar.activated.connect(self.show_selected_date)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, Calendar_window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         Calendar_window.setWindowTitle(_translate("Calendar_window", "Calendario Fichajes"))
 
 
     def load_data(self, personal_id):
+        """
+        Loads clock-in dates for a specific worker based on their ID.
+
+        Args:
+            personal_id (str): The ID of the worker whose clock-in dates are being retrieved.
+
+        Returns:
+            list: A list of clock-in dates for the worker in 'yyyy-MM-dd' format.
+
+        Raises:
+            psycopg2.DatabaseError: If an error occurs while querying the PostgreSQL database.
+        """
         commands = ("""
                         SELECT TO_CHAR("workday",'yyyy-MM-dd')
                         FROM clock_in_times
@@ -368,6 +431,12 @@ class MyCalendarApp(QMainWindow):
 
 
     def show_selected_date(self):
+        """
+        Displays the clock-in times for the selected date from the calendar.
+
+        Raises:
+            psycopg2.DatabaseError: If an error occurs while querying the PostgreSQL database.
+        """
         selected_date = self.Calendar.selectedDate().toString("yyyy-MM-dd")
         returned = self.get_times_date(self.worker_id, selected_date)
 
@@ -394,6 +463,19 @@ class MyCalendarApp(QMainWindow):
             del dlg, new_icon
 
     def get_times_date(self, id, date):
+        """
+        Retrieves the clock-in times for a worker on a specific date.
+
+        Args:
+            id (str): The worker's ID.
+            date (str): The specific date for which clock-in times are being retrieved.
+
+        Returns:
+            list: A list containing the notes and four clock-in times for the specified date.
+
+        Raises:
+            psycopg2.DatabaseError: If an error occurs while querying the PostgreSQL database.
+        """
         commands = ("""
                         SELECT TRIM(notes), time_1, time_2, time_3, time_4
                         FROM clock_in_times

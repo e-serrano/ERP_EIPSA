@@ -15,7 +15,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_CreateTAGFlow_Window(object):
+    """
+    UI class for the Create Tag Flow window.
+    """
     def setupUi(self, CreateTAGFlow_Window):
+        """
+        Sets up the user interface for the CreateTAGFlow_Window.
+
+        Args:
+            CreateTAGFlow_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         CreateTAGFlow_Window.setObjectName("CreateTAGFlow_Window")
         CreateTAGFlow_Window.resize(1255, 511)
         CreateTAGFlow_Window.setMinimumSize(QtCore.QSize(1255, 555))
@@ -692,7 +701,11 @@ class Ui_CreateTAGFlow_Window(object):
         QtCore.QMetaObject.connectSlotsByName(CreateTAGFlow_Window)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, CreateTAGFlow_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         CreateTAGFlow_Window.setWindowTitle(_translate("CreateTAGFlow_Window", "Crear TAG Caudal"))
         self.label_TAG.setText(_translate("CreateTAGFlow_Window", "*TAG:"))
@@ -728,6 +741,9 @@ class Ui_CreateTAGFlow_Window(object):
 
 
     def createtagF(self):
+        """
+        Creates a new flow TAG entry after validating form inputs.
+        """
         tag=self.TAG_CreatetagQ.text()
         tag_state='QUOTED'
         numoffer=self.NumOffer_CreatetagQ.text()
@@ -828,6 +844,12 @@ class Ui_CreateTAGFlow_Window(object):
 
 
     def queryoffernumber(self):
+        """
+        Queries the database to retrieve offer and PO numbers associated with a given order number.
+
+        Raises:
+            psycopg2.DatabaseError: If a database error occurs during the SQL execution.
+        """
         numorder=self.NumOrder_CreatetagQ.text()
     #SQL Query for loading existing data in database
         commands_loadofferorder = ("""

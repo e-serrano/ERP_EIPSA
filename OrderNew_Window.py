@@ -19,10 +19,25 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_New_Order_Window(object):
+    """
+    UI class for the New Order window.
+    """
     def __init__(self, num_offer):
+        """
+        Initializes the Ui_NewOffer_Menu with the specified offer number.
+
+        Args:
+            num_offer (str): offer number associated with the window.
+        """
         self.num_offer = num_offer
 
     def setupUi(self, New_Order):
+        """
+        Sets up the user interface for the New_Order.
+
+        Args:
+            New_Order (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         New_Order.setObjectName("New_Order")
         New_Order.resize(680, 425)
         New_Order.setMinimumSize(QtCore.QSize(775, 425))
@@ -294,7 +309,11 @@ class Ui_New_Order_Window(object):
         QtCore.QMetaObject.connectSlotsByName(New_Order)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, New_Order):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         New_Order.setWindowTitle(_translate("New_Order", "Nuevo Pedido"))
         self.label_NumOrder.setText(_translate("New_Order", "Nº Pedido:"))
@@ -311,6 +330,9 @@ class Ui_New_Order_Window(object):
 
 
     def NewOrder(self):
+        """
+        Creates a new entry after validating form inputs.
+        """
         numorder=self.NumOrder_NewOrder.text()
         numoffer=self.NumOffer_NewOrder.text()
         numref=self.NumRef_NewOrder.text()
@@ -325,7 +347,7 @@ class Ui_New_Order_Window(object):
         if numorder=="" or (numoffer=="" or  (numref=="" or (initial_amount=="" or (num_items=="" or (self.euromoney.isChecked()==False and self.dollarmoney.isChecked()==False))))):
             self.label_error_neworder.setText('Rellene todos los campos y seleccione el tipo de moneda. Solo el campo notas pueden estar en blanco')
 
-        elif not re.match(r'^(P-\d{2}/\d{3}-S\d{2}R?|PA-\d{2}/\d{3})$', numorder):
+        elif not re.match(r'^(P-\d{2}/\d{3}-S\d{2}R?|PA-\d{2}/\d{3}[A-Za-z]*)$', numorder):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -494,9 +516,68 @@ class Ui_New_Order_Window(object):
                     if conn is not None:
                         conn.close()
 
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+
+                    commands_usernames = ("""SELECT username FROM users_data.registration
+                        WHERE profile IN ('Técnico', 'Compras','Taller')
+                        """)
+                    commands_notification_neworder = ("""INSERT INTO notifications.notifications_orders (
+                                            "username","message","state","date_creation"
+                                            )
+                                            VALUES (%s,%s,%s,%s)
+                                            """)
+
+                    cur.execute(commands_usernames)
+                    results_usernames=cur.fetchall()
+                    results_usernames.append('m.sahuquillo',)
+
+                    if numorder[-1] != 'R':
+                        for user_data in results_usernames:
+                            data = (user_data[0], "Nuevo pedido: " + numorder, "Pendiente", actual_date)
+                            cur.execute(commands_notification_neworder, data)
+                    else:
+                        data = ('m.sahuquillo', "Nuevo pedido: " + numorder, "Pendiente", actual_date)
+                        cur.execute(commands_notification_neworder, data)
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
 
 # Function to convert dollars to euros
     def dollars_to_euros(self, dollar_amount):
+        """
+        Converts a dollar amount to euros using the current exchange rate.
+
+        Args:
+            dollar_amount (float): The amount in dollars to be converted.
+        
+        Returns:
+            list: A list containing the converted euro amount and the exchange rate used.
+            None: If the exchange rate cannot be obtained.
+        """
         change_type = obtain_money_change()
 
         if change_type is not None:

@@ -16,7 +16,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_EditOffer_Menu(object):
+    """
+    UI class for the Edit Offer Menu window.
+    """
     def setupUi(self, EditOffer_Menu):
+        """
+        Sets up the user interface for the EditOffer_Menu.
+
+        Args:
+            EditOffer_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         EditOffer_Menu.setObjectName("EditOffer_Menu")
         EditOffer_Menu.resize(300, 336)
         EditOffer_Menu.setMinimumSize(QtCore.QSize(300, 400))
@@ -139,7 +148,11 @@ class Ui_EditOffer_Menu(object):
         QtCore.QMetaObject.connectSlotsByName(EditOffer_Menu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, EditOffer_Menu):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         EditOffer_Menu.setWindowTitle(_translate("EditOffer_Menu", "Editar Oferta"))
         self.Button_Submit.setText(_translate("EditOffer_Menu", "Presentar Oferta"))
@@ -150,6 +163,12 @@ class Ui_EditOffer_Menu(object):
 
 
     def SubmitOffer(self,EditOffer_Menu):
+        """
+        Opens the 'SubmitOffer' window and hides the current menu. Sets up the UI for the user and connects the cancel button to re-show the previous menu.
+
+        Args:
+            EditOffer_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.submitoffer_window=QtWidgets.QMainWindow()
         self.ui=Ui_SubmitOffer_Window()
         self.ui.setupUi(self.submitoffer_window)
@@ -159,6 +178,12 @@ class Ui_EditOffer_Menu(object):
 
 
     def EditOffer(self,EditOffer_Menu):
+        """
+        Opens the 'EditOffer' window and hides the current menu. Sets up the UI for the user and connects the cancel button to re-show the previous menu.
+
+        Args:
+            EditOffer_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.editoffer_window=QtWidgets.QMainWindow()
         self.ui=Ui_Edit_Offer_Window()
         self.ui.setupUi(self.editoffer_window)
@@ -168,6 +193,12 @@ class Ui_EditOffer_Menu(object):
 
 
     def RecOfferToOf(self,EditOffer_Menu):
+        """
+        Opens the 'RecOfferToOf' window and hides the current menu. Sets up the UI for the user and connects the cancel button to re-show the previous menu.
+
+        Args:
+            EditOffer_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.recoffer_window=QtWidgets.QMainWindow()
         self.ui=Ui_QueryOfferReceived_Window('Oficial')
         self.ui.setupUi(self.recoffer_window)
@@ -177,6 +208,12 @@ class Ui_EditOffer_Menu(object):
 
 
     def EditOfferRec(self,EditOffer_Menu):
+        """
+        Opens the 'EditOfferRec' window and hides the current menu. Sets up the UI for the user and connects the cancel button to re-show the previous menu.
+
+        Args:
+            EditOffer_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.recoffer_window=QtWidgets.QMainWindow()
         self.ui=Ui_QueryOfferReceived_Window('Editar')
         self.ui.setupUi(self.recoffer_window)

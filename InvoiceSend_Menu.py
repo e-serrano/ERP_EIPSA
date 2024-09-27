@@ -15,7 +15,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_InvoiceSend_Menu(object):
+    """
+    UI class for the Invoice Send Menu window.
+    """
     def setupUi(self, InvoiceSend_Menu):
+        """
+        Sets up the user interface for the InvoiceSend_Menu.
+
+        Args:
+            InvoiceSend_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         InvoiceSend_Menu.setObjectName("InvoiceSend_Menu")
         InvoiceSend_Menu.resize(300, 336)
         InvoiceSend_Menu.setMinimumSize(QtCore.QSize(300, 300))
@@ -121,7 +130,11 @@ class Ui_InvoiceSend_Menu(object):
         QtCore.QMetaObject.connectSlotsByName(InvoiceSend_Menu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, InvoiceSend_Menu):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         InvoiceSend_Menu.setWindowTitle(_translate("InvoiceSend_Menu", "Enviar"))
         self.Button_Factory.setText(_translate("InvoiceSend_Menu", "Enviar A Fábrica"))
@@ -130,6 +143,12 @@ class Ui_InvoiceSend_Menu(object):
 
 
     def SendFactory(self,InvoiceSend_Menu):
+        """
+        Opens the 'SendFactory' window and hides the current menu. Sets up the UI for the user and connects the cancel button to re-show the previous menu.
+
+        Args:
+            InvoiceSend_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.Factorysend_window=QtWidgets.QMainWindow()
         self.ui=Ui_PAtoFactory()
         self.ui.setupUi(self.Factorysend_window)
@@ -139,6 +158,12 @@ class Ui_InvoiceSend_Menu(object):
 
 
     def SendInvoice(self,InvoiceSend_Menu):
+        """
+        Opens the 'SendInvoice' window and hides the current menu. Sets up UI for the user and connects the cancel button to re-show the previous menu.
+
+        Args:
+            InvoiceSend_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.invoicesend_window=QtWidgets.QMainWindow()
         self.ui=Ui_InvoiceSend_Window()
         self.ui.setupUi(self.invoicesend_window)

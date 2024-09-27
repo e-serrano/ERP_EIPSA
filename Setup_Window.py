@@ -18,7 +18,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_SetupWindow(object):
+    """
+    UI class for the Setup window.
+    """
     def setupUi(self, SetupWindow):
+        """
+        Sets up the user interface for the SetupWindow.
+
+        Args:
+            SetupWindow (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         SetupWindow.setObjectName("SetupWindow")
         SetupWindow.resize(270, 365)
         SetupWindow.setMinimumSize(QtCore.QSize(270, 490))
@@ -212,7 +221,11 @@ class Ui_SetupWindow(object):
         QtCore.QMetaObject.connectSlotsByName(SetupWindow)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, SetupWindow):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         SetupWindow.setWindowTitle(_translate("SetupWindow", "Instalación"))
         self.labelText.setText(_translate("SetupWindow", "Introduce el usuario proporcionado por el administrador y una contraseña para la instalación."))
@@ -223,6 +236,9 @@ class Ui_SetupWindow(object):
 
 
     def setup(self):
+        """
+        Sets up the system by creating a database configuration file with the provided username and password.
+        """
         username=self.username_regdb.text()
         password=self.password_regdb.text()
     # Execute the function to create the .ini file
@@ -233,6 +249,9 @@ class Ui_SetupWindow(object):
 
 
     def create_ini_file(self, username, password):
+        """
+        Creates a configuration file (.ini) for the database connection and sets up a new database user.
+        """
         # Obtaining the full path to set the file
         base_dir = r"C:\Program Files\ERP EIPSA"
 
@@ -331,10 +350,13 @@ class Ui_SetupWindow(object):
 
 #Function to execute the script as admin
 def is_admin():
-        try:
-            return ctypes.windll.shell32.IsUserAnAdmin()
-        except:
-            return False
+    """
+    Check if user has admin privileges
+    """
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
 
 
 if __name__ == "__main__":

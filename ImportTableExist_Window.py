@@ -188,6 +188,7 @@ class Ui_ImportTableExist_Window(object):
         self.TableName_ImportTableExist.addItems(tables_names)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, ImportTableExist_Window):
         _translate = QtCore.QCoreApplication.translate
         ImportTableExist_Window.setWindowTitle(_translate("ImportTableExist_Window", "Importar Tabla Existente"))

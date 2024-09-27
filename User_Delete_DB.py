@@ -2,6 +2,12 @@ import psycopg2
 from config import config
 
 def delete_user_database(email):
+    """
+    Deletes a user from the database based on the provided email.
+
+    Args:
+        email (str): The email of the user to be deleted.
+    """
     params = config()
     conn = psycopg2.connect(**params)
     cur = conn.cursor()
@@ -18,15 +24,23 @@ def delete_user_database(email):
     user_db=match[0][3]
 
     # Revoke all privileges and delete user from database
-    commands_delete_privileges = """
-        REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA logging FROM "{}";
-        REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM "{}";
-        REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM "{}";
-        REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA logging FROM "{}";
-        DROP USER  "{}";
-    """.format(user_db, user_db, user_db, user_db, user_db)
+    cur.execute("""
+        SELECT nspname FROM pg_catalog.pg_namespace;
+    """)
+    schemas = cur.fetchall()
 
-    cur.execute(commands_delete_privileges)
+    commands_delete_privileges = []
+
+    for schema in schemas:
+        schema_name = schema[0]
+        commands_delete_privileges.append(f"REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA {schema_name} FROM \"{user_db}\";")
+        commands_delete_privileges.append(f"REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA {schema_name} FROM \"{user_db}\";")
+
+    commands_delete_privileges.append(f"REVOKE ALL PRIVILEGES ON DATABASE \"ERP_EIPSA\" FROM \"{user_db}\";")
+    commands_delete_privileges.append(f"DROP USER \"{user_db}\";")
+
+    for command in commands_delete_privileges:
+        cur.execute(command)
 
     conn.commit()
 

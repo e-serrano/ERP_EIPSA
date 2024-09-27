@@ -15,7 +15,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_CreateTAGOthers_Window(object):
+    """
+    UI class for the Create Tag Flow window.
+    """
     def setupUi(self, CreateTAGOthers_Window):
+        """
+        Sets up the user interface for the CreateTAGOthers_Window.
+
+        Args:
+            CreateTAGOthers_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         CreateTAGOthers_Window.setObjectName("CreateTAGOthers_Window")
         CreateTAGOthers_Window.resize(1255, 511)
         CreateTAGOthers_Window.setMinimumSize(QtCore.QSize(1000, 555))
@@ -321,7 +330,11 @@ class Ui_CreateTAGOthers_Window(object):
         QtCore.QMetaObject.connectSlotsByName(CreateTAGOthers_Window)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, CreateTAGOthers_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         CreateTAGOthers_Window.setWindowTitle(_translate("CreateTAGOthers_Window", "Crear TAG Otros"))
         self.label_TAG.setText(_translate("CreateTAGOthers_Window", "*TAG:"))
@@ -340,6 +353,9 @@ class Ui_CreateTAGOthers_Window(object):
 
 
     def createtagO(self):
+        """
+        Creates a new others TAG entry after validating form inputs.
+        """
         tag=self.TAG_CreatetagO.text()
         tag_state='QUOTED'
         numoffer=self.NumOffer_CreatetagO.text()
@@ -416,6 +432,12 @@ class Ui_CreateTAGOthers_Window(object):
 
 
     def queryoffernumber(self):
+        """
+        Queries the database to retrieve offer and PO numbers associated with a given order number.
+
+        Raises:
+            psycopg2.DatabaseError: If a database error occurs during the SQL execution.
+        """
         numorder=self.NumOrder_CreatetagO.text()
     #SQL Query for loading existing data in database
         commands_loadofferorder = ("""

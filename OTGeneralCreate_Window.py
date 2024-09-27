@@ -16,7 +16,27 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class CustomTableWidget(QtWidgets.QTableWidget):
+    """
+    Custom QTableWidget that supports filtering and sorting features.
+
+    Attributes:
+        list_filters (list): Stores filters applied to the table.
+        column_filters (dict): Maps column indices to sets of applied filters.
+        column_actions (dict): Maps column indices to actions related to columns.
+        checkbox_states (dict): Stores the state of checkboxes for filtering.
+        rows_hidden (dict): Maps column indices to sets of hidden row indices.
+        general_rows_to_hide (set): Set of row indices that are hidden across the table.
+    """
     def __init__(self, parent=None):
+        """
+        Initializes the CustomTableWidget.
+
+        Sets up the initial state of the widget, including filters, checkbox states, 
+        and hidden rows.
+
+        Args:
+            parent (QWidget, optional): The parent widget of this table. Defaults to None.
+        """
         super().__init__(parent)
         self.list_filters=[]
         self.column_filters = {}
@@ -27,6 +47,17 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to show the menu
     def show_unique_values_menu(self, column_index, header_pos, header_height):
+        """
+        Displays a context menu for unique values in a specified column.
+
+        The menu includes options to remove filters, sort the column, and filter by text. 
+        It also allows the user to select/unselect unique values via checkboxes.
+
+        Args:
+            column_index (int): The index of the column for which the menu is displayed.
+            header_pos (QPoint): The position of the header in the viewport.
+            header_height (int): The height of the header.
+        """
         menu = QtWidgets.QMenu(self)
         actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro")
         actionDeleteFilterColumn.triggered.connect(lambda: self.delete_filter(column_index))
@@ -93,9 +124,16 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         menu.exec(header_pos - QtCore.QPoint(0, header_height))
 
-
 # Function to delete filter on selected column
     def delete_filter(self,column_index):
+        """
+        Removes the filter applied to the specified column.
+
+        Unhides previously hidden rows and resets the checkbox state for the column.
+
+        Args:
+            column_index (int): The index of the column from which to delete the filter.
+        """
         if column_index in self.column_filters:
             del self.column_filters[column_index]
         if column_index in self.checkbox_states:
@@ -109,9 +147,16 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         header_item = self.horizontalHeaderItem(column_index)
         header_item.setIcon(QtGui.QIcon())
 
-
 # Function to set all checkboxes state
     def set_all_checkboxes_state(self, checkboxes, state, column_index):
+        """
+        Sets the state of all checkboxes in the filter menu for a specific column.
+
+        Args:
+            checkboxes (list): List of checkboxes to update.
+            state (Qt.CheckState): The desired state for the checkboxes.
+            column_index (int): The index of the column for which the checkboxes are set.
+        """
         if column_index not in self.checkbox_states:
             self.checkbox_states[column_index] = {}
 
@@ -120,9 +165,18 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         self.checkbox_states[column_index]["Seleccionar todo"] = state
 
-
 # Function to apply filters to table
     def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
+        """
+        Applies a filter to the specified column based on the checkbox state and optional text filter.
+
+        Args:
+            column_index (int): The index of the column to filter.
+            value (str): The value to filter by.
+            checked (bool): Indicates if the filter should be applied (True) or removed (False).
+            text_filter (str, optional): Additional text filter for filtering items. Defaults to None.
+            filter_dialog (QDialog, optional): The dialog used for the text filter. Defaults to None.
+        """
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
 
@@ -190,8 +244,14 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         else:
             header_item.setIcon(QtGui.QIcon())
 
-
+# Function to apply filters to table based on a desired text
     def filter_by_text(self, column_index):
+        """
+        Opens a dialog for filtering the specified column by text input.
+
+        Args:
+            column_index (int): The index of the column to filter.
+        """
         filter_dialog = QtWidgets.QDialog(self)
         filter_dialog.setWindowTitle("Filtrar por texto")
         
@@ -236,9 +296,17 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         filter_dialog.setLayout(layout)
         filter_dialog.exec()
 
-
 # Function to obtain the unique matching applied filters 
     def get_unique_values(self, column_index):
+        """
+        Retrieves unique values from the specified column, taking into account any active filters on other columns.
+
+        Args:
+            column_index (int): The index of the column from which to retrieve unique values.
+
+        Returns:
+            set: A set of unique values from the specified column that are visible based on the current filters.
+        """
         unique_values = set()
         for row in range(self.rowCount()):
             show_row = True
@@ -258,6 +326,12 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to get values filtered by all columns
     def get_filtered_values(self):
+        """
+        Gets the current filter values for all columns.
+
+        Returns:
+            dict: A dictionary where each key is a column index and the value is a set of filters applied to that column.
+        """
         filtered_values = {}
         for col, filters in self.column_filters.items():
             filtered_values[col] = filters
@@ -265,28 +339,38 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to sort column
     def sort_column(self, column_index, sortOrder):
+        """
+        Sorts the specified column based on the given order. If the column is a date column, a custom sort method is used.
+
+        Args:
+            column_index (int): The index of the column to sort.
+            sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         if column_index == 2:
             self.custom_sort(column_index, sortOrder)
         else:
             self.sortByColumn(column_index, sortOrder)
 
 
+# Function to sort column based on special datatypes
     def custom_sort(self, column, order):
-    # Obtén la cantidad de filas en la tabla
+        """
+        Custom sorting method for date columns. Sorts the specified column based on date values.
+
+        Args:
+            column (int): The index of the column to sort.
+            order (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         row_count = self.rowCount()
 
-        # Crea una lista de índices ordenados según las fechas
         indexes = list(range(row_count))
         indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd-MM-yyyy"))
 
-        # Si el orden es descendente, invierte la lista
         if order == QtCore.Qt.SortOrder.DescendingOrder:
             indexes.reverse()
 
-        # Guarda el estado actual de las filas ocultas
         hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
 
-        # Actualiza las filas en la tabla en el orden ordenado
         rows = self.rowCount()
         for i in range(rows):
             self.insertRow(i)
@@ -304,6 +388,12 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function with the menu configuration
     def contextMenuEvent(self, event):
+        """
+        Handles the context menu event for the table. Shows a menu for filtering unique values when the header is right-clicked.
+
+        Args:
+            event (QEvent): The event triggered by the context menu action.
+        """
         if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
             logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
             header_pos = self.mapToGlobal(self.horizontalHeader().pos())
@@ -314,13 +404,36 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
 class Ui_OTGeneralCreate_Window(object):
+    """
+    UI class for the OT General Create window.
+    """
     def setupUi(self, OTGeneralCreate_Window):
+        """
+        Sets up the user interface for the OTGeneralCreate_Window.
+
+        Args:
+            OTGeneralCreate_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         OTGeneralCreate_Window.setObjectName("OTGeneralCreate_Window")
         OTGeneralCreate_Window.resize(800, 561)
         OTGeneralCreate_Window.setMinimumSize(QtCore.QSize(1000, 775))
@@ -541,6 +654,13 @@ class Ui_OTGeneralCreate_Window(object):
         self.hLayout2.addWidget(self.Button_OTGeneralCreate)
         spacerItem3 = QtWidgets.QSpacerItem(50, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hLayout2.addItem(spacerItem3)
+        self.Button_OTGeneralEdit = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_OTGeneralEdit.setMinimumSize(QtCore.QSize(100, 35))
+        self.Button_OTGeneralEdit.setMaximumSize(QtCore.QSize(100, 35))
+        self.Button_OTGeneralEdit.setObjectName("Button_OTGeneralEdit")
+        self.hLayout2.addWidget(self.Button_OTGeneralEdit)
+        spacerItem1 = QtWidgets.QSpacerItem(50, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hLayout2.addItem(spacerItem1)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(100, 35))
         self.Button_Cancel.setMaximumSize(QtCore.QSize(100, 35))
@@ -576,67 +696,18 @@ class Ui_OTGeneralCreate_Window(object):
         self.retranslateUi(OTGeneralCreate_Window)
         self.Button_Cancel.clicked.connect(OTGeneralCreate_Window.close) # type: ignore
         self.Button_OTGeneralCreate.clicked.connect(self.OTGeneralCreate)
+        self.Button_OTGeneralEdit.clicked.connect(self.OTGeneralEdit)
         self.tableWidget.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
+        self.tableWidget.itemClicked.connect(lambda item: self.load_form(item))
         QtCore.QMetaObject.connectSlotsByName(OTGeneralCreate_Window)
         self.loadtable()
 
 
-        # query_tablechanges = """SELECT id, ot_num, TO_CHAR(start_date, 'DD-MM-YYYY'), tag, qty_ot, tag, element
-        #                         FROM fabrication.fab_order
-        #                         WHERE "ot_num" LIKE '90%'
-        #                         ORDER BY "ot_num" DESC
-        #                         """
-
-        # conn = None
-        # try:
-        # # read the connection parameters
-        #     params = config()
-        # # connect to the PostgreSQL server
-        #     conn = psycopg2.connect(**params)
-        #     cur = conn.cursor()
-        # # execution of commands one by one
-        #     cur.execute(query_tablechanges)
-        #     results=cur.fetchall()
-        # # close communication with the PostgreSQL database server
-        #     cur.close()
-        # # commit the changes
-        #     conn.commit()
-
-        #     self.tableWidget.setRowCount(len(results))
-        #     tablerow=0
-
-        # # fill the Qt Table with the query results
-        #     for row in results:
-        #         for column in range(7):
-        #             value = row[column]
-        #             if value is None:
-        #                 value = ''
-        #             it = QtWidgets.QTableWidgetItem(str(value))
-        #             it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-        #             self.tableWidget.setItem(tablerow, column, it)
-
-        #         tablerow+=1
-
-        #     self.tableWidget.verticalHeader().hide()
-        #     self.tableWidget.setItemDelegate(AlignDelegate(self.tableWidget))
-
-        # except (Exception, psycopg2.DatabaseError) as error:
-        #     dlg = QtWidgets.QMessageBox()
-        #     new_icon = QtGui.QIcon()
-        #     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        #     dlg.setWindowIcon(new_icon)
-        #     dlg.setWindowTitle("ERP EIPSA")
-        #     dlg.setText("Ha ocurrido el siguiente error:\n"
-        #                 + str(error))
-        #     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        #     dlg.exec()
-        #     del dlg, new_icon
-        # finally:
-        #     if conn is not None:
-        #         conn.close()
-
-
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, OTGeneralCreate_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         OTGeneralCreate_Window.setWindowTitle(_translate("OTGeneralCreate_Window", "Crear Orden de Trabajo"))
         self.labelCode.setText(_translate("OTGeneralCreate_Window", "Código:"))
@@ -647,6 +718,7 @@ class Ui_OTGeneralCreate_Window(object):
         self.labelWarehouse.setText(_translate("OTGeneralCreate_Window", "Prox. Almacén:"))
         self.labelWarehouse3.setText(_translate("OTGeneralCreate_Window", "Prox. Nº Plano:"))
         self.Button_OTGeneralCreate.setText(_translate("OTGeneralCreate_Window", "Agregar"))
+        self.Button_OTGeneralEdit.setText(_translate("OTGeneralCreate_Window", "Editar"))
         self.Button_Cancel.setText(_translate("OTGeneralCreate_Window", "Cancelar"))
         item = self.tableWidget.horizontalHeaderItem(0)
         item.setText(_translate("OTGeneralCreate_Window", "IdOT"))
@@ -665,6 +737,9 @@ class Ui_OTGeneralCreate_Window(object):
 
 # Function to create new OT
     def OTGeneralCreate(self):
+        """
+        Creates a new entry after validating form inputs.
+        """
         code = self.lineEdit_Code.text()
         order = self.lineEdit_Order.text()
         qty_ot = self.lineEdit_Qty.text()
@@ -723,8 +798,83 @@ class Ui_OTGeneralCreate_Window(object):
 
         self.loadtable()
 
+# Function to edit new OT
+    def OTGeneralEdit(self):
+        """
+        Modifies the corresponding entry after validating form inputs.
+        """
+
+        code = self.lineEdit_Code.text()
+        order = self.lineEdit_Order.text()
+        qty_ot = self.lineEdit_Qty.text()
+        equipment = self.lineEdit_Equipment.text()
+        detail = self.textEdit_Details.toPlainText()
+        id = order + '-' + code
+
+        commands_OTGeneralEdit = ("""UPDATE fabrication.fab_order
+                                    SET "id" = %s, "tag" = %s, "element" = %s, "qty_ot" = %s, "type_equipment" = %s
+                                    WHERE "ot_num" = %s
+                                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            data=(id, order, detail, qty_ot, equipment, code)
+            cur.execute(commands_OTGeneralEdit,data)
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        self.loadtable()
+
+# Function to edit new OT
+    def load_form(self,item):
+        """
+        Loads supply data from the selected row in the supply table and populates the form fields.
+
+        Args:
+            item (QTableWidgetItem): The item representing the selected row in the supply table.
+        """
+        data_supply=[]
+
+        for column in range(7):
+            item_text=self.tableWidget.item(item.row(), column).text()
+            data_supply.append(item_text)
+
+        self.lineEdit_Code.setText(data_supply[1])
+        self.lineEdit_Order.setText(data_supply[3])
+        self.lineEdit_Qty.setText(data_supply[4])
+        self.lineEdit_Equipment.setText(data_supply[5])
+        self.textEdit_Details.setText(data_supply[6])
+
 # Function to load data in table
     def loadtable(self):
+        """
+        Loads fabrication order data from the database into the table widget.
+
+        Raises:
+            psycopg2.DatabaseError: If a database error occurs during the SQL execution.
+        """
         query_tablechanges = """SELECT id, ot_num, TO_CHAR(start_date, 'DD/MM/YYYY'), tag, qty_ot, type_equipment, element
                                 FROM fabrication.fab_order
                                 WHERE "ot_num" LIKE '90%'
@@ -802,10 +952,15 @@ class Ui_OTGeneralCreate_Window(object):
 
 # Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
+        """
+        Handles the click event on the table header.
+        Displays a context menu for unique values in the clicked column header.
+        """
         header_pos = self.tableWidget.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.tableWidget.horizontalHeader().height()
         popup_pos = self.tableWidget.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableWidget.show_unique_values_menu(logical_index, popup_pos, header_height)
+
 
 if __name__ == "__main__":
     import sys

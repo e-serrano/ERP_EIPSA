@@ -151,7 +151,7 @@ class Ui_UpdateTableExist_Window(object):
 
         query_databasetables = """SELECT table_name
                                 FROM information_schema.tables
-                                WHERE table_schema = 'fabrication' AND table_type = 'BASE TABLE';"""
+                                WHERE table_schema = 'public' AND table_type = 'BASE TABLE';"""
 
         conn = None
         try:
@@ -201,7 +201,7 @@ class Ui_UpdateTableExist_Window(object):
 
 #Function to import data into and existing table from and Excel where first row is column name
     def importtableexist(self):
-        table_name='fabrication.' + self.TableName_ImportTableExist.currentText()
+        table_name='public.' + self.TableName_ImportTableExist.currentText()
 
         if self.label_name_file.text() == "":
             dlg = QtWidgets.QMessageBox()

@@ -15,7 +15,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_New_Doc_Window(object):
+    """
+    UI class for the New Document window.
+    """
     def setupUi(self, New_Doc_Window):
+        """
+        Sets up the user interface for the New_Doc_Window.
+
+        Args:
+            New_Doc_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         New_Doc_Window.setObjectName("New_Doc_Window")
         New_Doc_Window.resize(670, 425)
         New_Doc_Window.setMinimumSize(QtCore.QSize(670, 425))
@@ -261,7 +270,7 @@ class Ui_New_Doc_Window(object):
 
         self.retranslateUi(New_Doc_Window)
         self.Button_Cancel.clicked.connect(New_Doc_Window.close) # type: ignore
-        self.Button_NewDoc.clicked.connect(lambda: self.NewDoc(New_Doc_Window))
+        self.Button_NewDoc.clicked.connect(self.NewDoc)
         QtCore.QMetaObject.connectSlotsByName(New_Doc_Window)
 
         conn = None
@@ -299,7 +308,11 @@ class Ui_New_Doc_Window(object):
         self.Critical_NewDoc.addItems(list_critical)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, New_Doc_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         New_Doc_Window.setWindowTitle(_translate("New_Doc_Window", "Nuevo Documento"))
         self.label_NumOrder.setText(_translate("New_Doc_Window", "Nº Pedido:"))
@@ -312,7 +325,10 @@ class Ui_New_Doc_Window(object):
         self.Button_Cancel.setText(_translate("New_Doc_Window", "Cancelar"))
 
 
-    def NewDoc(self,New_Doc_Window):
+    def NewDoc(self):
+        """
+        Creates a new document entry after validating form inputs and checking for existing document numbers.
+        """
         neworder=self.NumOrder_NewDoc.text()
         numdoceipsa=self.NumDocEipsa_NewDoc.text()
         doctype=self.DocType_NewDoc.currentText()

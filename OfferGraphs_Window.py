@@ -20,7 +20,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_GraphsOffer_Window(object):
+    """
+    UI class for the Graphs Offer window.
+    """
     def setupUi(self, GraphsOffer_Window):
+        """
+        Sets up the user interface for the GraphsOffer_Window.
+
+        Args:
+            GraphsOffer_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         GraphsOffer_Window.setObjectName("GraphsOffer_Window")
         GraphsOffer_Window.resize(1500, 800)
         icon = QtGui.QIcon()
@@ -298,12 +307,26 @@ class Ui_GraphsOffer_Window(object):
             pass
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, GraphsOffer_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         GraphsOffer_Window.setWindowTitle(_translate("GraphsOffer_Window", "Gráficos Ofertas"))
 
 
     def format_y_ticks(self, y, pos):
+        """
+        Formats y-axis ticks for graphs.
+        
+        Args:
+            y (float): The y-axis value to format.
+            pos (int): The tick position (not used).
+        
+        Returns:
+            str: The formatted y-axis value.
+        """
         if y >= 1e6:
             return '{:.1f}M'.format(y * 1e-6)
         elif y >= 1e3:

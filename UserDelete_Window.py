@@ -16,28 +16,37 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_DeleteUser_Window(object):
-    def setupUi(self, ForgetPass_Window):
-        ForgetPass_Window.setObjectName("ForgetPass_Window")
-        ForgetPass_Window.resize(275, 340)
+    """
+    UI class for the Delete User window.
+    """
+    def setupUi(self, DeleteUser_Window):
+        """
+        Sets up the user interface for the DeleteUser_Window.
+
+        Args:
+            DeleteUser_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
+        DeleteUser_Window.setObjectName("DeleteUser_Window")
+        DeleteUser_Window.resize(275, 340)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.MinimumExpanding, QtWidgets.QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(ForgetPass_Window.sizePolicy().hasHeightForWidth())
-        ForgetPass_Window.setSizePolicy(sizePolicy)
-        ForgetPass_Window.setMaximumSize(QtCore.QSize(275, 340))
+        sizePolicy.setHeightForWidth(DeleteUser_Window.sizePolicy().hasHeightForWidth())
+        DeleteUser_Window.setSizePolicy(sizePolicy)
+        DeleteUser_Window.setMaximumSize(QtCore.QSize(275, 340))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        ForgetPass_Window.setWindowIcon(icon)
-        ForgetPass_Window.setAutoFillBackground(False)
-        ForgetPass_Window.setStyleSheet("QWidget {\n"
+        DeleteUser_Window.setWindowIcon(icon)
+        DeleteUser_Window.setAutoFillBackground(False)
+        DeleteUser_Window.setStyleSheet("QWidget {\n"
 "background-color: rgb(255, 255, 255);\n"
 "}\n"
 "\n"
 ".QFrame {\n"
 "    border: 2px solid black;\n"
 "}")
-        ForgetPass_Window.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly)
-        self.centralwidget = QtWidgets.QWidget(parent=ForgetPass_Window)
+        DeleteUser_Window.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly)
+        self.centralwidget = QtWidgets.QWidget(parent=DeleteUser_Window)
         self.centralwidget.setEnabled(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -199,28 +208,34 @@ class Ui_DeleteUser_Window(object):
         self.Button_cancel.setObjectName("Button_cancel")
         self.verticalLayout.addWidget(self.Button_cancel, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
         self.gridLayout_2.addWidget(self.frame, 0, 0, 1, 1, QtCore.Qt.AlignmentFlag.AlignHCenter)
-        ForgetPass_Window.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=ForgetPass_Window)
+        DeleteUser_Window.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=DeleteUser_Window)
         self.menubar.setEnabled(True)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 275, 22))
         self.menubar.setObjectName("menubar")
-        ForgetPass_Window.setMenuBar(self.menubar)
+        DeleteUser_Window.setMenuBar(self.menubar)
 
-        self.retranslateUi(ForgetPass_Window)
+        self.retranslateUi(DeleteUser_Window)
         self.Button_deleteuser.clicked.connect(self.delete_user)
-        self.Button_cancel.clicked.connect(ForgetPass_Window.close)
-        QtCore.QMetaObject.connectSlotsByName(ForgetPass_Window)
+        self.Button_cancel.clicked.connect(DeleteUser_Window.close)
+        QtCore.QMetaObject.connectSlotsByName(DeleteUser_Window)
 
-
-    def retranslateUi(self, ForgetPass_Window):
+# Function to translate and updates the text of various UI elements
+    def retranslateUi(self, DeleteUser_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
-        ForgetPass_Window.setWindowTitle(_translate("ForgetPass_Window", "Eliminar Usuario"))
-        self.label_email_deleteuser.setText(_translate("ForgetPass_Window", "Correo electrónico:"))
-        self.Button_deleteuser.setText(_translate("ForgetPass_Window", "Eliminar"))
-        self.Button_cancel.setText(_translate("ForgetPass_Window", "Cancelar"))
+        DeleteUser_Window.setWindowTitle(_translate("DeleteUser_Window", "Eliminar Usuario"))
+        self.label_email_deleteuser.setText(_translate("DeleteUser_Window", "Correo electrónico:"))
+        self.Button_deleteuser.setText(_translate("DeleteUser_Window", "Eliminar"))
+        self.Button_cancel.setText(_translate("DeleteUser_Window", "Cancelar"))
 
 
     def delete_user(self):
+        """
+        Deletes the user from the database
+        """
         email=self.email_deleteuser.text()
         commands_checkemail = ("""
                     SELECT *
@@ -318,8 +333,8 @@ class Ui_DeleteUser_Window(object):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    ForgetPass_Window = QtWidgets.QMainWindow()
+    DeleteUser_Window = QtWidgets.QMainWindow()
     ui = Ui_DeleteUser_Window()
-    ui.setupUi(ForgetPass_Window)
-    ForgetPass_Window.show()
+    ui.setupUi(DeleteUser_Window)
+    DeleteUser_Window.show()
     sys.exit(app.exec())

@@ -16,12 +16,27 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Tests_Menu(QtWidgets.QMainWindow):
+    """
+    UI class for the Test Menu window.
+    """
     def __init__(self, username):
+        """
+        Initializes the Ui_Tests_Menu with the specified username.
+
+        Args:
+            username (str): username associated with the window.
+        """
         super().__init__()
         self.username = username
         self.setupUi(self)
 
     def setupUi(self, Tests_Menu):
+        """
+        Sets up the user interface for the Tests_Menu.
+
+        Args:
+            Tests_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         Tests_Menu.setObjectName("Tests_Menu")
         Tests_Menu.resize(680, 425)
         Tests_Menu.setMinimumSize(QtCore.QSize(280, 425))
@@ -182,19 +197,31 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(Tests_Menu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, Tests_Menu):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         Tests_Menu.setWindowTitle(_translate("Tests_Menu", "Pruebas"))
         self.Button_Cancel.setText(_translate("Tests_Menu", "Cancelar"))
 
 # Function to show window to insert PMI test
     def insert_pmi(self):
+        """
+        Opens the 'insert_pmi' window. Sets up the UI for the user.
+        """
         from TestPmiInsert_Window import Ui_PmiInsert_Window
         self.Pmiinsert_window=Ui_PmiInsert_Window(self.username)
         self.Pmiinsert_window.show()
 
 # Function to show dialog to insert x-ray test
     def insert_xray(self):
+        """
+        Handles the insertion process for xray test. Prompts the user 
+        to enter an order number and a date, then updates the database with the provided 
+        information if valid input is received.
+        """
         dlg1 = QtWidgets.QInputDialog()
         new_icon1 = QtGui.QIcon()
         new_icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -333,6 +360,11 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
 
 # Function to show dialog to insert ultrasound test
     def insert_ultrasound(self):
+        """
+        Handles the insertion process for ultrasound test. Prompts the user 
+        to enter an order number and a date, then updates the database with the provided 
+        information if valid input is received.
+        """
         dlg1 = QtWidgets.QInputDialog()
         new_icon1 = QtGui.QIcon()
         new_icon1.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -471,6 +503,9 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
 
 # Function to show window with all tests
     def query_test(self):
+        """
+        Opens the 'query_test' window. Sets up the UI for the user.
+        """
         from TestAllQuery_Window import Ui_TestAllQuery_Window
         self.testquery_window=QtWidgets.QMainWindow()
         self.ui=Ui_TestAllQuery_Window()
@@ -479,6 +514,15 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
 
     # Function to check date format
     def is_valid_date(self, date_str):
+        """
+        Checks if the provided date string is in a valid format.
+
+        Args:
+            date_str (str): The date string to validate.
+
+        Returns:
+            bool: True if the date string is valid according to the specified formats, False otherwise.
+        """
         formats = ['%d/%m/%Y', '%d-%m-%Y']
         for fmt in formats:
             try:

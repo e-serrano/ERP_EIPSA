@@ -18,6 +18,14 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
+    """
+    Converts an image in PNG format to a base64 encoded string.
+
+    Args:
+        imagen: An instance of QImage or QPixmap to be converted.
+    Return: 
+        A base64 encoded string representing the image in PNG format.
+    """
     buffer = QtCore.QBuffer()
     buffer.open(QtCore.QIODevice.OpenModeFlag.WriteOnly)
     imagen.save(buffer, ".png")
@@ -26,7 +34,21 @@ def imagen_to_base64(imagen):
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
@@ -110,6 +132,14 @@ class CustomTableWidget_Tags(QtWidgets.QTableWidget):
 
 # Function to delete filter on selected column
     def delete_filter(self,column_index):
+        """
+        Removes the filter applied to the specified column.
+
+        Unhides previously hidden rows and resets the checkbox state for the column.
+
+        Args:
+            column_index (int): The index of the column from which to delete the filter.
+        """
         if column_index in self.column_filters:
             del self.column_filters[column_index]
         if column_index in self.checkbox_states:
@@ -126,6 +156,14 @@ class CustomTableWidget_Tags(QtWidgets.QTableWidget):
 
 # Function to set all checkboxes state
     def set_all_checkboxes_state(self, checkboxes, state, column_index):
+        """
+        Sets the state of all checkboxes in the filter menu for a specific column.
+
+        Args:
+            checkboxes (list): List of checkboxes to update.
+            state (Qt.CheckState): The desired state for the checkboxes.
+            column_index (int): The index of the column for which the checkboxes are set.
+        """
         if column_index not in self.checkbox_states:
             self.checkbox_states[column_index] = {}
 
@@ -137,6 +175,16 @@ class CustomTableWidget_Tags(QtWidgets.QTableWidget):
 
 # Function to apply filters to table
     def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
+        """
+        Applies a filter to the specified column based on the checkbox state and optional text filter.
+
+        Args:
+            column_index (int): The index of the column to filter.
+            value (str): The value to filter by.
+            checked (bool): Indicates if the filter should be applied (True) or removed (False).
+            text_filter (str, optional): Additional text filter for filtering items. Defaults to None.
+            filter_dialog (QDialog, optional): The dialog used for the text filter. Defaults to None.
+        """
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
 
@@ -204,8 +252,14 @@ class CustomTableWidget_Tags(QtWidgets.QTableWidget):
         else:
             header_item.setIcon(QtGui.QIcon())
 
-
+# Function to apply filters to table based on a desired text
     def filter_by_text(self, column_index):
+        """
+        Opens a dialog for filtering the specified column by text input.
+
+        Args:
+            column_index (int): The index of the column to filter.
+        """
         filter_dialog = QtWidgets.QDialog(self)
         filter_dialog.setWindowTitle("Filtrar por texto")
         
@@ -253,6 +307,15 @@ class CustomTableWidget_Tags(QtWidgets.QTableWidget):
 
 # Function to obtain the unique matching applied filters 
     def get_unique_values(self, column_index):
+        """
+        Retrieves unique values from the specified column, taking into account any active filters on other columns.
+
+        Args:
+            column_index (int): The index of the column from which to retrieve unique values.
+
+        Returns:
+            set: A set of unique values from the specified column that are visible based on the current filters.
+        """
         unique_values = set()
         for row in range(self.rowCount()):
             show_row = True
@@ -272,6 +335,12 @@ class CustomTableWidget_Tags(QtWidgets.QTableWidget):
 
 # Function to get values filtered by all columns
     def get_filtered_values(self):
+        """
+        Gets the current filter values for all columns.
+
+        Returns:
+            dict: A dictionary where each key is a column index and the value is a set of filters applied to that column.
+        """
         filtered_values = {}
         for col, filters in self.column_filters.items():
             filtered_values[col] = filters
@@ -279,6 +348,13 @@ class CustomTableWidget_Tags(QtWidgets.QTableWidget):
 
 # Function to sort column
     def sort_column(self, column_index, sortOrder):
+        """
+        Sorts the specified column based on the given order. If the column is a date column, a custom sort method is used.
+
+        Args:
+            column_index (int): The index of the column to sort.
+            sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         if column_index in [6, 11]:
             self.custom_sort_date(column_index, sortOrder)
         elif self.horizontalHeaderItem(column_index).text() == 'Cantidad':
@@ -288,21 +364,23 @@ class CustomTableWidget_Tags(QtWidgets.QTableWidget):
 
 
     def custom_sort_date(self, column, order):
-    # Obtén la cantidad de filas en la tabla
+        """
+        Custom sorting method for date columns. Sorts the specified column based on date values.
+
+        Args:
+            column (int): The index of the column to sort.
+            order (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         row_count = self.rowCount()
 
-        # Crea una lista de índices ordenados según las fechas
         indexes = list(range(row_count))
-        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd/MM/yyyy"))
+        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd-MM-yyyy"))
 
-        # Si el orden es descendente, invierte la lista
         if order == QtCore.Qt.SortOrder.DescendingOrder:
             indexes.reverse()
 
-        # Guarda el estado actual de las filas ocultas
         hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
 
-        # Actualiza las filas en la tabla en el orden ordenado
         rows = self.rowCount()
         for i in range(rows):
             self.insertRow(i)
@@ -319,21 +397,23 @@ class CustomTableWidget_Tags(QtWidgets.QTableWidget):
             self.setRowHidden(row, True)
 
     def custom_sort_int(self, column, order):
-    # Obtén la cantidad de filas en la tabla
+        """
+        Custom sorting method for integer columns. Sorts the specified column based on integer values.
+
+        Args:
+            column (int): The index of the column to sort.
+            order (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         row_count = self.rowCount()
 
-        # Crea una lista de índices ordenados según las fechas
         indexes = list(range(row_count))
         indexes.sort(key=lambda i: int(self.item(i, column).text()))
 
-        # Si el orden es descendente, invierte la lista
         if order == QtCore.Qt.SortOrder.DescendingOrder:
             indexes.reverse()
 
-        # Guarda el estado actual de las filas ocultas
         hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
 
-        # Actualiza las filas en la tabla en el orden ordenado
         rows = self.rowCount()
         for i in range(rows):
             self.insertRow(i)
@@ -351,6 +431,12 @@ class CustomTableWidget_Tags(QtWidgets.QTableWidget):
 
 # Function with the menu configuration
     def contextMenuEvent(self, event):
+        """
+        Handles the context menu event for the table. Shows a menu for filtering unique values when the header is right-clicked.
+
+        Args:
+            event (QEvent): The event triggered by the context menu action.
+        """
         if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
             logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
             header_pos = self.mapToGlobal(self.horizontalHeader().pos())
@@ -439,6 +525,14 @@ class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
 
 # Function to delete filter on selected column
     def delete_filter(self,column_index):
+        """
+        Removes the filter applied to the specified column.
+
+        Unhides previously hidden rows and resets the checkbox state for the column.
+
+        Args:
+            column_index (int): The index of the column from which to delete the filter.
+        """
         if column_index in self.column_filters:
             del self.column_filters[column_index]
         if column_index in self.checkbox_states:
@@ -455,6 +549,14 @@ class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
 
 # Function to set all checkboxes state
     def set_all_checkboxes_state(self, checkboxes, state, column_index):
+        """
+        Sets the state of all checkboxes in the filter menu for a specific column.
+
+        Args:
+            checkboxes (list): List of checkboxes to update.
+            state (Qt.CheckState): The desired state for the checkboxes.
+            column_index (int): The index of the column for which the checkboxes are set.
+        """
         if column_index not in self.checkbox_states:
             self.checkbox_states[column_index] = {}
 
@@ -466,6 +568,16 @@ class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
 
 # Function to apply filters to table
     def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
+        """
+        Applies a filter to the specified column based on the checkbox state and optional text filter.
+
+        Args:
+            column_index (int): The index of the column to filter.
+            value (str): The value to filter by.
+            checked (bool): Indicates if the filter should be applied (True) or removed (False).
+            text_filter (str, optional): Additional text filter for filtering items. Defaults to None.
+            filter_dialog (QDialog, optional): The dialog used for the text filter. Defaults to None.
+        """
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
 
@@ -533,8 +645,14 @@ class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
         else:
             header_item.setIcon(QtGui.QIcon())
 
-
+# Function to apply filters to table based on a desired text
     def filter_by_text(self, column_index):
+        """
+        Opens a dialog for filtering the specified column by text input.
+
+        Args:
+            column_index (int): The index of the column to filter.
+        """
         filter_dialog = QtWidgets.QDialog(self)
         filter_dialog.setWindowTitle("Filtrar por texto")
         
@@ -582,6 +700,15 @@ class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
 
 # Function to obtain the unique matching applied filters 
     def get_unique_values(self, column_index):
+        """
+        Retrieves unique values from the specified column, taking into account any active filters on other columns.
+
+        Args:
+            column_index (int): The index of the column from which to retrieve unique values.
+
+        Returns:
+            set: A set of unique values from the specified column that are visible based on the current filters.
+        """
         unique_values = set()
         for row in range(self.rowCount()):
             show_row = True
@@ -601,6 +728,12 @@ class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
 
 # Function to get values filtered by all columns
     def get_filtered_values(self):
+        """
+        Gets the current filter values for all columns.
+
+        Returns:
+            dict: A dictionary where each key is a column index and the value is a set of filters applied to that column.
+        """
         filtered_values = {}
         for col, filters in self.column_filters.items():
             filtered_values[col] = filters
@@ -608,6 +741,13 @@ class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
 
 # Function to sort column
     def sort_column(self, column_index, sortOrder):
+        """
+        Sorts the specified column based on the given order. If the column is a date column, a custom sort method is used.
+
+        Args:
+            column_index (int): The index of the column to sort.
+            sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         if self.horizontalHeaderItem(column_index).text() == 'Fecha':
             self.custom_sort_date(column_index, sortOrder)
         elif self.horizontalHeaderItem(column_index).text() == 'Cantidad':
@@ -617,21 +757,23 @@ class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
 
 
     def custom_sort_date(self, column, order):
-    # Obtén la cantidad de filas en la tabla
+        """
+        Custom sorting method for date columns. Sorts the specified column based on date values.
+
+        Args:
+            column (int): The index of the column to sort.
+            order (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         row_count = self.rowCount()
 
-        # Crea una lista de índices ordenados según las fechas
         indexes = list(range(row_count))
-        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd/MM/yyyy"))
+        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd-MM-yyyy"))
 
-        # Si el orden es descendente, invierte la lista
         if order == QtCore.Qt.SortOrder.DescendingOrder:
             indexes.reverse()
 
-        # Guarda el estado actual de las filas ocultas
         hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
 
-        # Actualiza las filas en la tabla en el orden ordenado
         rows = self.rowCount()
         for i in range(rows):
             self.insertRow(i)
@@ -648,21 +790,23 @@ class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
             self.setRowHidden(row, True)
 
     def custom_sort_int(self, column, order):
-    # Obtén la cantidad de filas en la tabla
+        """
+        Custom sorting method for integer columns. Sorts the specified column based on integer values.
+
+        Args:
+            column (int): The index of the column to sort.
+            order (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         row_count = self.rowCount()
 
-        # Crea una lista de índices ordenados según las fechas
         indexes = list(range(row_count))
         indexes.sort(key=lambda i: int(self.item(i, column).text()))
 
-        # Si el orden es descendente, invierte la lista
         if order == QtCore.Qt.SortOrder.DescendingOrder:
             indexes.reverse()
 
-        # Guarda el estado actual de las filas ocultas
         hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
 
-        # Actualiza las filas en la tabla en el orden ordenado
         rows = self.rowCount()
         for i in range(rows):
             self.insertRow(i)
@@ -680,6 +824,12 @@ class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
 
 # Function with the menu configuration
     def contextMenuEvent(self, event):
+        """
+        Handles the context menu event for the table. Shows a menu for filtering unique values when the header is right-clicked.
+
+        Args:
+            event (QEvent): The event triggered by the context menu action.
+        """
         if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
             logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
             header_pos = self.mapToGlobal(self.horizontalHeader().pos())
@@ -768,6 +918,14 @@ class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
 
 # Function to delete filter on selected column
     def delete_filter(self,column_index):
+        """
+        Removes the filter applied to the specified column.
+
+        Unhides previously hidden rows and resets the checkbox state for the column.
+
+        Args:
+            column_index (int): The index of the column from which to delete the filter.
+        """
         if column_index in self.column_filters:
             del self.column_filters[column_index]
         if column_index in self.checkbox_states:
@@ -784,6 +942,14 @@ class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
 
 # Function to set all checkboxes state
     def set_all_checkboxes_state(self, checkboxes, state, column_index):
+        """
+        Sets the state of all checkboxes in the filter menu for a specific column.
+
+        Args:
+            checkboxes (list): List of checkboxes to update.
+            state (Qt.CheckState): The desired state for the checkboxes.
+            column_index (int): The index of the column for which the checkboxes are set.
+        """
         if column_index not in self.checkbox_states:
             self.checkbox_states[column_index] = {}
 
@@ -795,6 +961,16 @@ class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
 
 # Function to apply filters to table
     def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
+        """
+        Applies a filter to the specified column based on the checkbox state and optional text filter.
+
+        Args:
+            column_index (int): The index of the column to filter.
+            value (str): The value to filter by.
+            checked (bool): Indicates if the filter should be applied (True) or removed (False).
+            text_filter (str, optional): Additional text filter for filtering items. Defaults to None.
+            filter_dialog (QDialog, optional): The dialog used for the text filter. Defaults to None.
+        """
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
 
@@ -862,8 +1038,14 @@ class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
         else:
             header_item.setIcon(QtGui.QIcon())
 
-
+# Function to apply filters to table based on a desired text
     def filter_by_text(self, column_index):
+        """
+        Opens a dialog for filtering the specified column by text input.
+
+        Args:
+            column_index (int): The index of the column to filter.
+        """
         filter_dialog = QtWidgets.QDialog(self)
         filter_dialog.setWindowTitle("Filtrar por texto")
         
@@ -911,6 +1093,15 @@ class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
 
 # Function to obtain the unique matching applied filters 
     def get_unique_values(self, column_index):
+        """
+        Retrieves unique values from the specified column, taking into account any active filters on other columns.
+
+        Args:
+            column_index (int): The index of the column from which to retrieve unique values.
+
+        Returns:
+            set: A set of unique values from the specified column that are visible based on the current filters.
+        """
         unique_values = set()
         for row in range(self.rowCount()):
             show_row = True
@@ -930,6 +1121,12 @@ class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
 
 # Function to get values filtered by all columns
     def get_filtered_values(self):
+        """
+        Gets the current filter values for all columns.
+
+        Returns:
+            dict: A dictionary where each key is a column index and the value is a set of filters applied to that column.
+        """
         filtered_values = {}
         for col, filters in self.column_filters.items():
             filtered_values[col] = filters
@@ -937,6 +1134,13 @@ class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
 
 # Function to sort column
     def sort_column(self, column_index, sortOrder):
+        """
+        Sorts the specified column based on the given order. If the column is a date column, a custom sort method is used.
+
+        Args:
+            column_index (int): The index of the column to sort.
+            sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         if self.horizontalHeaderItem(column_index).text() == 'Fecha':
             self.custom_sort_date(column_index, sortOrder)
         elif self.horizontalHeaderItem(column_index).text() == 'Cantidad':
@@ -946,21 +1150,23 @@ class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
 
 
     def custom_sort_date(self, column, order):
-    # Obtén la cantidad de filas en la tabla
+        """
+        Custom sorting method for date columns. Sorts the specified column based on date values.
+
+        Args:
+            column (int): The index of the column to sort.
+            order (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         row_count = self.rowCount()
 
-        # Crea una lista de índices ordenados según las fechas
         indexes = list(range(row_count))
-        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd/MM/yyyy"))
+        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd-MM-yyyy"))
 
-        # Si el orden es descendente, invierte la lista
         if order == QtCore.Qt.SortOrder.DescendingOrder:
             indexes.reverse()
 
-        # Guarda el estado actual de las filas ocultas
         hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
 
-        # Actualiza las filas en la tabla en el orden ordenado
         rows = self.rowCount()
         for i in range(rows):
             self.insertRow(i)
@@ -977,21 +1183,23 @@ class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
             self.setRowHidden(row, True)
 
     def custom_sort_int(self, column, order):
-    # Obtén la cantidad de filas en la tabla
+        """
+        Custom sorting method for integer columns. Sorts the specified column based on integer values.
+
+        Args:
+            column (int): The index of the column to sort.
+            order (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         row_count = self.rowCount()
 
-        # Crea una lista de índices ordenados según las fechas
         indexes = list(range(row_count))
         indexes.sort(key=lambda i: int(self.item(i, column).text()))
 
-        # Si el orden es descendente, invierte la lista
         if order == QtCore.Qt.SortOrder.DescendingOrder:
             indexes.reverse()
 
-        # Guarda el estado actual de las filas ocultas
         hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
 
-        # Actualiza las filas en la tabla en el orden ordenado
         rows = self.rowCount()
         for i in range(rows):
             self.insertRow(i)
@@ -1009,6 +1217,12 @@ class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
 
 # Function with the menu configuration
     def contextMenuEvent(self, event):
+        """
+        Handles the context menu event for the table. Shows a menu for filtering unique values when the header is right-clicked.
+
+        Args:
+            event (QEvent): The event triggered by the context menu action.
+        """
         if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
             logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
             header_pos = self.mapToGlobal(self.horizontalHeader().pos())
@@ -1278,7 +1492,11 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         self.query_data()
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, Verif_Order_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         Verif_Order_Window.setWindowTitle(_translate("Verif_Order_Window", "Verificación Pedido"))
         item = self.table_tags.horizontalHeaderItem(0)
@@ -1561,93 +1779,94 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
 # Function to insert expedition data
     def expedition(self):
-        num_order = self.numorder
-        verif_date = date.today().strftime("%d/%m/%Y")
-        verif_state = 'Realizado por Mario'
+        if self.username == 'm.gil':
+            num_order = self.numorder
+            verif_date = date.today().strftime("%d/%m/%Y")
+            verif_state = 'Realizado por Mario'
 
-        if num_order == "" or verif_date == "":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Verificación EXP")
-            dlg.setText("Rellene todos los campos. Solo el campo de observaciones puede quedar vacío")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-
-        else:
-            commands_select_exp = ("""
-                        SELECT verif_exp_date, id
-                        FROM verification."exp_verification"
-                        WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
-                        """)
-            commands_insert_exp = ("""
-                        UPDATE verification."exp_verification"
-                        SET "verif_exp_date" = %s, "verif_exp_state" = %s
-                        WHERE "id" = %s
-                        """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(commands_select_exp, (num_order, ))
-                results = cur.fetchall()
-
-                if len(results) != 0:
-                    if results[0][0] is None:
-                        cur.execute(commands_insert_exp, (verif_date, verif_state, results[0][1], ))
-
-                    else:
-                        dlg_yes_no = QtWidgets.QMessageBox()
-                        new_icon_yes_no = QtGui.QIcon()
-                        new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_yes_no.setWindowIcon(new_icon_yes_no)
-                        dlg_yes_no.setWindowTitle("ERP EIPSA")
-                        dlg_yes_no.setText("Ya ha datos existentes en el aviso de expedición\n"
-                                            "¿Deseas sobreescribirlos?\n")
-                        dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                        result = dlg_yes_no.exec()
-                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                            cur.execute(commands_insert_exp, (verif_date, verif_state, results[0][1], ))
-
-                        del dlg_yes_no, new_icon_yes_no
-
-                else:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("EXP")
-                    dlg.setText("No hay EXP creado para este pedido")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
-            except (Exception, psycopg2.DatabaseError) as error:
+            if num_order == "" or verif_date == "":
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Verificación EXP")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.setText("Rellene todos los campos. Solo el campo de observaciones puede quedar vacío")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg.exec()
-                del dlg, new_icon
 
-            finally:
-                if conn is not None:
-                    conn.close()
+            else:
+                commands_select_exp = ("""
+                            SELECT verif_exp_date, id
+                            FROM verification."exp_verification"
+                            WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
+                            """)
+                commands_insert_exp = ("""
+                            UPDATE verification."exp_verification"
+                            SET "verif_exp_date" = %s, "verif_exp_state" = %s
+                            WHERE "id" = %s
+                            """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(commands_select_exp, (num_order, ))
+                    results = cur.fetchall()
 
-        self.query_data()
+                    if len(results) != 0:
+                        if results[0][0] is None:
+                            cur.execute(commands_insert_exp, (verif_date, verif_state, results[0][1], ))
+
+                        else:
+                            dlg_yes_no = QtWidgets.QMessageBox()
+                            new_icon_yes_no = QtGui.QIcon()
+                            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                            dlg_yes_no.setWindowTitle("ERP EIPSA")
+                            dlg_yes_no.setText("Ya ha datos existentes en el aviso de expedición\n"
+                                                "¿Deseas sobreescribirlos?\n")
+                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                            result = dlg_yes_no.exec()
+                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                cur.execute(commands_insert_exp, (verif_date, verif_state, results[0][1], ))
+
+                            del dlg_yes_no, new_icon_yes_no
+
+                    else:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("EXP")
+                        dlg.setText("No hay EXP creado para este pedido")
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Verificación EXP")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+            self.query_data()
 
 # Function when item of table is double clicked
     def item_double_click(self, item):
@@ -1852,7 +2071,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                                 "9PR5: " + results[0][2] + "\n"
                                 "9D1B: " + results[0][3] + "\n"
                                 "996PB: " + results[0][4] + "\n"
-                                "Obs.: " + results[0][4])
+                                "Obs.: " + results[0][5])
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
                     del dlg, new_icon
@@ -1907,6 +2126,6 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    Verif_Order_Window = Ui_Verif_Order_Window('m.gil','PA-24/057')
+    Verif_Order_Window = Ui_Verif_Order_Window('j.valtierra','PA-24/057')
     Verif_Order_Window.show()
     sys.exit(app.exec())

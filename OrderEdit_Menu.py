@@ -15,7 +15,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_EditOrder_Menu(object):
+    """
+    UI class for the Edit Order Menu window.
+    """
     def setupUi(self, EditOrder_Menu):
+        """
+        Sets up the user interface for the EditOrder_Menu.
+
+        Args:
+            EditOrder_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         EditOrder_Menu.setObjectName("EditOrder_Menu")
         EditOrder_Menu.resize(300, 336)
         EditOrder_Menu.setMinimumSize(QtCore.QSize(300, 300))
@@ -121,7 +130,11 @@ class Ui_EditOrder_Menu(object):
         QtCore.QMetaObject.connectSlotsByName(EditOrder_Menu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, EditOrder_Menu):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         EditOrder_Menu.setWindowTitle(_translate("EditOrder_Menu", "Editar Pedido"))
         self.Button_Activate.setText(_translate("EditOrder_Menu", "Activar Pedido"))
@@ -130,6 +143,9 @@ class Ui_EditOrder_Menu(object):
 
 
     def activateorder(self):
+        """
+        Opens the 'activateorder' window. Sets up the UI for the user.
+        """
         self.activateorder_window=QtWidgets.QMainWindow()
         self.ui=Ui_OrderActivation_Window()
         self.ui.setupUi(self.activateorder_window)
@@ -139,6 +155,12 @@ class Ui_EditOrder_Menu(object):
 
 
     def EditOrder(self,EditOrder_Menu):
+        """
+        Opens the 'EditOrder' window and hides the current menu. Sets up the UI for the user and connects the cancel button to re-show the previous menu.
+        
+        Args:
+            EditOrder_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.editOrder_window=QtWidgets.QMainWindow()
         self.ui=Ui_Edit_Order_Window()
         self.ui.setupUi(self.editOrder_window)

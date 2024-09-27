@@ -21,7 +21,21 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
@@ -37,12 +51,27 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
 
 class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
+    """
+    UI class for the Task History window.
+    """
     def __init__(self, name):
+        """
+        Initializes the Ui_HistoryTask_Window with the specified name.
+
+        Args:
+            name (str): name associated with the window.
+        """
         super().__init__()
         self.name = name
         self.setupUi(self)
 
     def setupUi(self, HistoryTask_Window):
+        """
+        Sets up the user interface for the HistoryTask_Window.
+
+        Args:
+            HistoryTask_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         HistoryTask_Window.setObjectName("HistoryTask_Window")
         HistoryTask_Window.resize(400, 561)
         HistoryTask_Window.setMinimumSize(QtCore.QSize(600, 575))
@@ -180,7 +209,11 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
         self.QueryTask()
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, HistoryTask_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         HistoryTask_Window.setWindowTitle(_translate("HistoryTask_Window", "Tareas"))
         item = self.tableTasks.horizontalHeaderItem(0)
@@ -201,6 +234,10 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
 
 
     def QueryTask(self):
+        """
+        Queries the database for tasks, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         conn = None
         commands_QueryTask_All_LB = ("""
                                     SELECT "id", "creator", "task", TO_CHAR("task_date", 'DD-MM-YYYY'), "state", "responsible"
@@ -222,7 +259,7 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands one by one
-            if self.name in ['Luis Bravo', 'Fernando Gallego']:
+            if self.name in ['Fernando Gallego']:
                 cur.execute(commands_QueryTask_All_LB)
             else:
                 cur.execute(commands_QueryTask_All, (self.name,))
@@ -237,7 +274,7 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                if self.name in ['Luis Bravo', 'Fernando Gallego']:
+                if self.name in ['Fernando Gallego']:
                     for column in range(6):
                         value = row[column]
                         if value is None:
@@ -276,6 +313,9 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
 
 
     def export_to_excel(self):
+        """
+        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
+        """
         file_name, _ = QFileDialog.getSaveFileName(self, "Guardar como Excel", "", "Archivos Excel (*.xlsx);;Todos los archivos (*)")
 
         if file_name:
@@ -290,12 +330,25 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
 
 
     def on_item_double_clicked(self, item):
+        """
+        Handles double-click events on items in a QTableWidget. Opens different forms based on the column of the clicked item.
+        
+        Args:
+            item (QtWidgets.QTableWidgetItem): The item that was double-clicked.
+        """
         if item.column() == 2:
             self.expand_cell(item)
         elif item.column() == 4:
             self.edittask(item)
 
     def expand_cell(self, item):
+        """
+        Displays the content of a cell in a dialog box. Useful for viewing larger text fields 
+        in a table more comfortably.
+
+        Args:
+            item (QTableWidgetItem): The table item to be expanded.
+        """
         if item.column() == 2:
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
@@ -307,6 +360,12 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
             dlg.exec()
 
     def edittask(self, item):
+        """
+        Opens a window to edit the selected task details.
+
+        Args:
+            item (QTableWidgetItem): The table widget item containing task information.
+        """
         task = item.tableWidget().item(item.row(), 2).text()
         id = item.tableWidget().item(item.row(), 0).text()
         date = item.tableWidget().item(item.row(), 3).text()
@@ -317,6 +376,7 @@ class Ui_HistoryTask_Window(QtWidgets.QMainWindow):
         self.ui.setupUi(self.edittaskwindow)
         self.edittaskwindow.show()
         self.ui.Button_Cancel.clicked.connect(self.QueryTask)
+
 
 if __name__ == "__main__":
     import sys

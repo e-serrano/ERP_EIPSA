@@ -15,10 +15,25 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_TestHydro_Menu(object):
+    """
+    UI class for the Hydro Test Menu window.
+    """
     def __init__(self, username):
+        """
+        Initializes the Ui_TestHydro_Menu with the specified username.
+
+        Args:
+            username (str): username associated with the window.
+        """
         self.username=username
 
     def setupUi(self, TestHydro_Menu):
+        """
+        Sets up the user interface for the TestHydro_Menu.
+
+        Args:
+            TestHydro_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         TestHydro_Menu.setObjectName("TestHydro_Menu")
         TestHydro_Menu.resize(300, 336)
         TestHydro_Menu.setMinimumSize(QtCore.QSize(300, 300))
@@ -162,7 +177,11 @@ class Ui_TestHydro_Menu(object):
         QtCore.QMetaObject.connectSlotsByName(TestHydro_Menu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, TestHydro_Menu):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         TestHydro_Menu.setWindowTitle(_translate("TestHydro_Menu", "Prueba Hidrostática"))
         self.Button_Query.setText(_translate("TestHydro_Menu", "Consultar"))
@@ -171,12 +190,24 @@ class Ui_TestHydro_Menu(object):
 
 
     def insert_hydro(self,TestHydro_Menu):
+        """
+        Opens the 'insert_hydro' window and closes the current menu. Sets up the UI for the user.
+        
+        Args:
+            TestHydro_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.hydroinsert_window=Ui_TestHydroInsert_Window(self.username)
         self.hydroinsert_window.show()
         TestHydro_Menu.close()
 
 
     def query_hydro(self,TestHydro_Menu):
+        """
+        Opens the 'query_hydro' window and closes the current menu. Sets up the UI for the user.
+        
+        Args:
+            TestHydro_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.hydroquery_window=QtWidgets.QMainWindow()
         self.ui=Ui_TestHydroQuery_Window(self.username)
         self.ui.setupUi(self.hydroquery_window)

@@ -11,20 +11,69 @@ import psycopg2
 from config import config
 import os
 from datetime import *
+import pandas as pd
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter | QtCore.Qt.AlignmentFlag.AlignVCenter
 
+        if index.column() == 0:  # Getting data
+            row = index.row()
+            al_check = self.parent().item(row, 1).text()
+            dim_check = self.parent().item(row, 2).text()
+            of_check = self.parent().item(row, 3).text()
+            m_check = self.parent().item(row, 4).text()
+
+            if all(flag == 'YES' for (flag) in [al_check, dim_check,of_check,m_check]): # Checking if all data is 'YES'
+                color = QtGui.QColor(191, 122, 21)
+                option.backgroundBrush = color
+
 class AlignDelegate_drawings(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate_drawings, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter
 
     def paint(self, painter, option, index):
+        """
+        Custom paint method to render the cell content and apply background colors 
+        based on specific conditions for a column's value.
+
+        Args:
+            painter (QPainter): The painter used to render the cell.
+            option (QStyleOptionViewItem): The style options for the cell.
+            index (QModelIndex): The index of the cell being painted.
+        """
         super().paint(painter, option, index)
 
         if index.column() == 3:  # Column to paint
@@ -485,7 +534,27 @@ class AlignDelegate_drawings(QtWidgets.QStyledItemDelegate):
                 painter.drawText(horizontalPosition, verticalPosition, original_text)
 
 class CustomTableWidget(QtWidgets.QTableWidget):
+    """
+    Custom QTableWidget that supports filtering and sorting features.
+
+    Attributes:
+        list_filters (list): Stores filters applied to the table.
+        column_filters (dict): Maps column indices to sets of applied filters.
+        column_actions (dict): Maps column indices to actions related to columns.
+        checkbox_states (dict): Stores the state of checkboxes for filtering.
+        rows_hidden (dict): Maps column indices to sets of hidden row indices.
+        general_rows_to_hide (set): Set of row indices that are hidden across the table.
+    """
     def __init__(self, parent=None):
+        """
+        Initializes the CustomTableWidget.
+
+        Sets up the initial state of the widget, including filters, checkbox states, 
+        and hidden rows.
+
+        Args:
+            parent (QWidget, optional): The parent widget of this table. Defaults to None.
+        """
         super().__init__(parent)
         self.list_filters=[]
         self.column_filters = {}
@@ -496,6 +565,17 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to show the menu
     def show_unique_values_menu(self, column_index, header_pos, header_height):
+        """
+        Displays a context menu for unique values in a specified column.
+
+        The menu includes options to remove filters, sort the column, and filter by text. 
+        It also allows the user to select/unselect unique values via checkboxes.
+
+        Args:
+            column_index (int): The index of the column for which the menu is displayed.
+            header_pos (QPoint): The position of the header in the viewport.
+            header_height (int): The height of the header.
+        """
         menu = QtWidgets.QMenu(self)
         actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro")
         actionDeleteFilterColumn.triggered.connect(lambda: self.delete_filter(column_index))
@@ -561,9 +641,16 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         menu.exec(header_pos - QtCore.QPoint(0, header_height))
 
-
 # Function to delete filter on selected column
     def delete_filter(self,column_index):
+        """
+        Removes the filter applied to the specified column.
+
+        Unhides previously hidden rows and resets the checkbox state for the column.
+
+        Args:
+            column_index (int): The index of the column from which to delete the filter.
+        """
         if column_index in self.column_filters:
             del self.column_filters[column_index]
         if column_index in self.checkbox_states:
@@ -577,9 +664,16 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         header_item = self.horizontalHeaderItem(column_index)
         header_item.setIcon(QtGui.QIcon())
 
-
 # Function to set all checkboxes state
     def set_all_checkboxes_state(self, checkboxes, state, column_index):
+        """
+        Sets the state of all checkboxes in the filter menu for a specific column.
+
+        Args:
+            checkboxes (list): List of checkboxes to update.
+            state (Qt.CheckState): The desired state for the checkboxes.
+            column_index (int): The index of the column for which the checkboxes are set.
+        """
         if column_index not in self.checkbox_states:
             self.checkbox_states[column_index] = {}
 
@@ -588,9 +682,18 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         self.checkbox_states[column_index]["Seleccionar todo"] = state
 
-
 # Function to apply filters to table
     def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
+        """
+        Applies a filter to the specified column based on the checkbox state and optional text filter.
+
+        Args:
+            column_index (int): The index of the column to filter.
+            value (str): The value to filter by.
+            checked (bool): Indicates if the filter should be applied (True) or removed (False).
+            text_filter (str, optional): Additional text filter for filtering items. Defaults to None.
+            filter_dialog (QDialog, optional): The dialog used for the text filter. Defaults to None.
+        """
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
 
@@ -658,8 +761,14 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         else:
             header_item.setIcon(QtGui.QIcon())
 
-
+# Function to apply filters to table based on a desired text
     def filter_by_text(self, column_index):
+        """
+        Opens a dialog for filtering the specified column by text input.
+
+        Args:
+            column_index (int): The index of the column to filter.
+        """
         filter_dialog = QtWidgets.QDialog(self)
         filter_dialog.setWindowTitle("Filtrar por texto")
         
@@ -704,9 +813,17 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         filter_dialog.setLayout(layout)
         filter_dialog.exec()
 
-
 # Function to obtain the unique matching applied filters 
     def get_unique_values(self, column_index):
+        """
+        Retrieves unique values from the specified column, taking into account any active filters on other columns.
+
+        Args:
+            column_index (int): The index of the column from which to retrieve unique values.
+
+        Returns:
+            set: A set of unique values from the specified column that are visible based on the current filters.
+        """
         unique_values = set()
         for row in range(self.rowCount()):
             show_row = True
@@ -726,6 +843,12 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to get values filtered by all columns
     def get_filtered_values(self):
+        """
+        Gets the current filter values for all columns.
+
+        Returns:
+            dict: A dictionary where each key is a column index and the value is a set of filters applied to that column.
+        """
         filtered_values = {}
         for col, filters in self.column_filters.items():
             filtered_values[col] = filters
@@ -733,28 +856,37 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to sort column
     def sort_column(self, column_index, sortOrder):
+        """
+        Sorts the specified column based on the given order. If the column is a date column, a custom sort method is used.
+
+        Args:
+            column_index (int): The index of the column to sort.
+            sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         if self.horizontalHeaderItem(column_index).text() in ['Fecha Dim.', 'Fecha OF Vaina', 'Fecha OF Sensor', 'Fecha OF']:
             self.custom_sort(column_index, sortOrder)
         else:
             self.sortByColumn(column_index, sortOrder)
 
-
+# Function to sort column based on special datatypes
     def custom_sort(self, column, order):
-    # Obtén la cantidad de filas en la tabla
+        """
+        Custom sorting method for date columns. Sorts the specified column based on date values.
+
+        Args:
+            column (int): The index of the column to sort.
+            order (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         row_count = self.rowCount()
 
-        # Crea una lista de índices ordenados según las fechas
         indexes = list(range(row_count))
         indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd-MM-yyyy"))
 
-        # Si el orden es descendente, invierte la lista
         if order == QtCore.Qt.SortOrder.DescendingOrder:
             indexes.reverse()
 
-        # Guarda el estado actual de las filas ocultas
         hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
 
-        # Actualiza las filas en la tabla en el orden ordenado
         rows = self.rowCount()
         for i in range(rows):
             self.insertRow(i)
@@ -772,6 +904,12 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function with the menu configuration
     def contextMenuEvent(self, event):
+        """
+        Handles the context menu event for the table. Shows a menu for filtering unique values when the header is right-clicked.
+
+        Args:
+            event (QEvent): The event triggered by the context menu action.
+        """
         if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
             logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
             header_pos = self.mapToGlobal(self.horizontalHeader().pos())
@@ -781,12 +919,31 @@ class CustomTableWidget(QtWidgets.QTableWidget):
             super().contextMenuEvent(event)
 
 class Ui_App_Warehouse(object):
+    """
+    Main application window for the warehouse app.
+
+        Args:
+        name (str): The name of the user.
+        username (str): The username of the user.
+    """
     def __init__(self, name, username):
+        """
+        Initializes the main window, setting up the user interface and storing user-specific details.
+
+        Args:
+            name (str): The name of the user.
+            username (str): The username of the user.
+        """
         self.name=name
         self.username=username
 
-
     def setupUi(self, App_Warehouse):
+        """
+        Sets up the user interface components for the main application window.
+
+        Args:
+            App_Warehouse (QtWidgets.QMainWindow): The main window object to set up.
+        """
         App_Warehouse.setObjectName("App_Warehouse")
         App_Warehouse.resize(945, 860)
         App_Warehouse.setMinimumSize(QtCore.QSize(945, 860))
@@ -894,6 +1051,67 @@ class Ui_App_Warehouse(object):
         self.Header.addWidget(self.LogoIcon)
         spacerItem = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem)
+        self.Button_Update = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Update.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Update.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Update.setToolTip('Actualizar Pedidos')
+        self.Button_Update.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'j.tena':
+            self.Button_Update.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        
+        else:
+            self.Button_Update.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Update.setText("")
+        icon20 = QtGui.QIcon()
+        icon20.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Update.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Update.setIcon(icon20)
+        self.Button_Update.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Update.setObjectName("Button_Update")
+        self.Header.addWidget(self.Button_Update)
+        spacerItem6 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem6)
         self.Button_Suppliers = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Suppliers.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_Suppliers.setMaximumSize(QtCore.QSize(50, 50))
@@ -953,8 +1171,66 @@ class Ui_App_Warehouse(object):
         self.Button_Suppliers.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_Suppliers.setObjectName("Button_Suppliers")
         self.Header.addWidget(self.Button_Suppliers)
-        spacerItem6 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem6)
+        spacerItem3 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem3)
+        self.Button_Warehouse_Pieces = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Warehouse_Pieces.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Warehouse_Pieces.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Warehouse_Pieces.setToolTip('Piezas Almacén')
+        self.Button_Warehouse_Pieces.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'm.gil':
+            self.Button_Warehouse_Pieces.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Warehouse_Pieces.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Warehouse_Pieces.setText("")
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Warehouse_Pieces.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Warehouse_Pieces.setIcon(icon8)
+        self.Button_Warehouse_Pieces.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Warehouse_Pieces.setObjectName("Button_Warehouse_Pieces")
+        self.Header.addWidget(self.Button_Warehouse_Pieces)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -1036,7 +1312,7 @@ class Ui_App_Warehouse(object):
         self.table_orders.setMinimumSize(QtCore.QSize(int(220), 0))
         self.table_orders.setMaximumSize(QtCore.QSize(int(220), 16777215))
         self.table_orders.setObjectName("table")
-        self.table_orders.setColumnCount(1)
+        self.table_orders.setColumnCount(4)
         self.table_orders.setRowCount(0)
         self.table_orders.verticalHeader().setVisible(False)
         self.PrincipalScreen.addWidget(self.table_orders)
@@ -1203,34 +1479,96 @@ class Ui_App_Warehouse(object):
         self.Button_Profile.clicked.connect(self.showMenu)
         self.Button_AddState.clicked.connect(self.add_state)
         self.Button_Insert.clicked.connect(self.add_general_data)
+        self.Button_Update.clicked.connect(self.query_all_order)
+        self.Button_Warehouse_Pieces.clicked.connect(self.aditional_pieces)
 
         self.query_all_order()
         self.load_values()
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, App_Warehouse):
+        """
+        Translates and updates the text of various UI elements in the given App_Comercial.
+        """
         _translate = QtCore.QCoreApplication.translate
         App_Warehouse.setWindowTitle(_translate("App_Warehouse", "ERP EIPSA - Almacén"))
         self.HeaderName.setText(_translate("App_Warehouse", self.name))
         self.Button_Insert.setText(_translate("App_Warehouse", "Insertar"))
 
-
 # Function to open window to insert drawing
     def query_all_order(self):
+        """
+        Retrieves all orders and their delivery status from the database, 
+        populating the orders table with the results.
+        """
         self.table_orders.setRowCount(0)
         commands_queryorder = ("""
-                    SELECT num_order
+                    SELECT num_order, 'YES' as al_date_check
                     FROM orders
                     WHERE num_order NOT LIKE '%R%' AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)
 
                     UNION
 
-                    SELECT num_order
+                    SELECT num_order,
+                    CASE 
+                        WHEN warehouse_date IS NOT NULL THEN 'YES'
+                        ELSE 'NO'
+                    END AS al_date_check
                     FROM verification.al_drawing_verification
-                    WHERE warehouse_date is NULL
+                    WHERE verif_al_drawing_date is NULL
 
                     ORDER BY num_order
                     """)
+        
+        commands_querydates = ("""
+                    WITH dim_check AS (
+                        SELECT 
+                            num_order,
+                            CASE 
+                                WHEN COUNT(warehouse_date) = COUNT(*) THEN 'YES'
+                                ELSE 'NO'
+                            END AS all_dates_dim_drawings
+                        FROM verification.workshop_dim_drawings
+                        GROUP BY num_order
+                    ),
+                    of_check AS (
+                        SELECT 
+                            num_order,
+                            CASE 
+                                WHEN COUNT(warehouse_date) = COUNT(*) THEN 'YES'
+                                ELSE 'NO'
+                            END AS all_dates_of_drawings
+                        FROM verification.workshop_of_drawings
+                        GROUP BY num_order
+                    ),
+                    m_check AS (
+                        SELECT 
+                            num_order,
+                            CASE 
+                                WHEN COUNT(warehouse_date) = COUNT(*) THEN 'YES'
+                                ELSE 'NO'
+                            END AS all_dates_m_drawings
+                        FROM verification.m_drawing_verification
+                        GROUP BY num_order
+                    ),
+                    combined AS (
+                        SELECT 
+                            COALESCE(d.num_order, o.num_order, m.num_order) AS num_order,
+                            COALESCE(d.all_dates_dim_drawings, 'YES') AS all_dates_dim_drawings,
+                            COALESCE(o.all_dates_of_drawings, 'YES') AS all_dates_of_drawings,
+                            COALESCE(m.all_dates_m_drawings, 'YES') AS all_dates_m_drawings
+                        FROM dim_check d
+                        FULL OUTER JOIN of_check o 
+                            ON d.num_order = o.num_order
+                        FULL OUTER JOIN m_check m
+                            ON COALESCE(d.num_order, o.num_order) = m.num_order
+                    )
+                    SELECT *
+                    FROM combined
+                    ORDER BY num_order
+                    """)
+
         conn = None
         try:
         # read the connection parameters
@@ -1242,24 +1580,39 @@ class Ui_App_Warehouse(object):
             cur.execute(commands_queryorder)
             results=cur.fetchall()
 
-            self.table_orders.setRowCount(len(results))
-            tablerow=0
+            cur.execute(commands_querydates)
+            results_dates=cur.fetchall()
+
+            df_orders=pd.DataFrame(results, columns=['num_order','al_check'])
+            df_dates=pd.DataFrame(results_dates, columns=['num_order','dim_check', 'of_check', 'm_check'])
+
+            df_result = pd.merge(df_orders, df_dates, on='num_order', how='left')
+
+            mask = (df_result['num_order'].str.startswith('AL'))
+            df_result.loc[mask, 'dim_check'] = df_result.loc[mask, 'dim_check'].fillna('YES')
+            df_result.loc[mask, 'of_check'] = df_result.loc[mask, 'of_check'].fillna('YES')
+            df_result.loc[mask, 'm_check'] = df_result.loc[mask, 'm_check'].fillna('YES')
+
+            self.table_orders.setRowCount(df_result.shape[0])
+            self.table_orders.setColumnCount(df_result.shape[1])
 
         # fill the Qt Table with the query results
-            for row in results:
-                for column in range(1):
-                    value = row[column]
-                    if value is None:
-                        value = ''
+            for row_idx in range(df_result.shape[0]):
+                row = df_result.iloc[row_idx]
+                for column_idx in range(df_result.shape[1]):
+                    value = row.iloc[column_idx]
+                    if pd.isna(value):
+                        value = ''  # o cualquier otro valor por defecto que desees
                     it = QtWidgets.QTableWidgetItem(str(value))
                     it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                    self.table_orders.setItem(tablerow, column, it)
-
-                tablerow+=1
+                    self.table_orders.setItem(row_idx, column_idx, it)
 
             self.table_orders.setItemDelegate(AlignDelegate(self.table_orders))
             self.table_orders.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-            self.table_orders.setHorizontalHeaderLabels(['Nº Pedido'])
+            self.table_orders.setHorizontalHeaderLabels(['Nº Pedido','','','',''])
+
+            for i in range (1,5):
+                self.table_orders.hideColumn(i)
 
         # close communication with the PostgreSQL database server
             cur.close()
@@ -1273,6 +1626,7 @@ class Ui_App_Warehouse(object):
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
                         + str(error))
+            print(error)
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
             del dlg, new_icon
@@ -1284,11 +1638,22 @@ class Ui_App_Warehouse(object):
 
 # Function when item in table orders is clicked
     def item_clicked(self, item):
+        """
+        Responds to item clicks in the orders table, triggering a query 
+        for the drawings associated with the selected order.
+        """
         self.num_order_toquery = item.text()
         self.query_drawings(self.num_order_toquery)
 
 # Function to query drawings
     def query_drawings(self, num_order):
+        """
+        Queries the database for drawings related to the specified order number.
+        Populates multiple tables with the results based on the type of order.
+        
+        Args:
+            num_order (str): The order number used to filter the drawing records.
+        """
         if num_order[:2] != 'AL':
             query_m_dwg = (""" SELECT '', id, num_order, drawing_number, drawing_description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
                             FROM verification.m_drawing_verification WHERE UPPER(num_order) LIKE UPPER('%%'||%s||'%%')
@@ -1461,6 +1826,8 @@ class Ui_App_Warehouse(object):
 
                 self.tableDimDwg.setRowCount(len(results_al))
                 self.tableDimDwg.setColumnCount(8)
+                self.tableOfDwg.setColumnCount(0)
+                self.tableMDwg.setColumnCount(0)
                 tablerow=0
 
             # fill the Qt Table with the query results
@@ -1507,6 +1874,9 @@ class Ui_App_Warehouse(object):
 
 # Function to open corresponding window when Suppliers button is clicked
     def suppliers_delivnote(self):
+        """
+        Opens the supplier delivery note window for the current user.
+        """
         from VerifSupplierInsert_Window import Ui_VerifSupplierInsert_Window
         self.verifsupplier_window=QtWidgets.QMainWindow()
         self.ui=Ui_VerifSupplierInsert_Window(self.username)
@@ -1515,6 +1885,10 @@ class Ui_App_Warehouse(object):
 
 # Function to show menu when Profile button is clicked 
     def showMenu(self):
+        """
+        Displays a context menu when the profile button is clicked. 
+        Provides options to edit the password.
+        """
         menu = QtWidgets.QMenu(self.centralwidget)
         if self.username == 'm.gil':
             menu.setStyleSheet("QMenu { background-color: rgb(255, 255, 255); border: 1px solid black; width: 125px; right: -1px; }"
@@ -1530,6 +1904,9 @@ class Ui_App_Warehouse(object):
 
 # Function to open corresponding window when Edit Password option is clicked
     def editpassword(self):
+        """
+        Opens a new window for editing the user's password. 
+        """
         from PasswordEdit_Window import Ui_EditPasswordWindow
         self.edit_password_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditPasswordWindow(self.username)
@@ -1538,6 +1915,10 @@ class Ui_App_Warehouse(object):
 
 # Function to update all drawings
     def add_general_data(self):
+        """
+        Adds general data related to drawings for the specified order number,
+        updating the appropriate drawing types based on the order number.
+        """
         if self.num_order_toquery[:2] != 'AL':
             date_insert = self.date.text()
             state = self.state.currentText()
@@ -1561,6 +1942,15 @@ class Ui_App_Warehouse(object):
 
 # Function to insert data on dimensional drawings
     def add_data_dim_drawings(self, date, state, notes):
+        """
+        Inserts or updates data for dimensional drawings based on selected rows
+        in the dimensional drawings table.
+
+        Args:
+            date (str): The warehouse date to be set for the drawings.
+            state (str): The warehouse state to be updated.
+            notes (str): Any additional notes related to the drawings.
+        """
         if self.tableDimDwg.rowCount() > 0:
             row_list = []
             for row in range(self.tableDimDwg.rowCount()):
@@ -1644,6 +2034,15 @@ class Ui_App_Warehouse(object):
 
 # Function to insert data on OF drawings
     def add_data_of_drawings(self, date, state, notes):
+        """
+        Inserts or updates data for OF drawings based on selected rows
+        in the OF drawings table.
+
+        Args:
+            date (str): The warehouse date to be set for the drawings.
+            state (str): The warehouse state to be updated.
+            notes (str): Any additional notes related to the drawings.
+        """
         if self.tableOfDwg.rowCount() > 0:
             row_list = []
             for row in range(self.tableOfDwg.rowCount()):
@@ -1727,6 +2126,15 @@ class Ui_App_Warehouse(object):
 
 # Function to insert data on M drawings
     def add_data_m_drawings(self, date, state, notes):
+        """
+        Inserts or updates data for M drawings based on selected rows
+        in the M drawings table.
+
+        Args:
+            date (str): The warehouse date to be set for the drawings.
+            state (str): The warehouse state to be updated.
+            notes (str): Any additional notes related to the drawings.
+        """
         if self.tableMDwg.rowCount() > 0:
             row_list = []
             for row in range(self.tableMDwg.rowCount()):
@@ -1810,6 +2218,15 @@ class Ui_App_Warehouse(object):
 
 # Function to insert data on dimensional drawings
     def add_data_al_drawings(self, date, state, notes):
+        """
+        Inserts or updates data for AL drawings based on selected rows
+        in the AL drawings table.
+
+        Args:
+            date (str): The warehouse date to be set for the drawings.
+            state (str): The warehouse state to be updated.
+            notes (str): Any additional notes related to the drawings.
+        """
         if self.tableDimDwg.rowCount() > 0:
             row_list = []
             for row in range(self.tableDimDwg.rowCount()):
@@ -1891,10 +2308,12 @@ class Ui_App_Warehouse(object):
                     if conn is not None:
                         conn.close()
 
-
-
 # Function to add new state
     def add_state(self):
+        """
+        Prompts the user to enter a new state and inserts it into the database if valid.
+        Displays success or error messages based on the outcome of the operation.
+        """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -1967,6 +2386,10 @@ class Ui_App_Warehouse(object):
 
 # Function to update fixed values
     def load_values(self):
+        """
+        Loads and updates fixed values, including the current date and available states
+        from the database to populate the UI elements.
+        """
         self.state.clear()
 
         actual_date=date.today()
@@ -2007,6 +2430,16 @@ class Ui_App_Warehouse(object):
 
         self.state.addItems(list_states)
 
+# Function to open window with for insert additional pieces manufactured
+    def aditional_pieces(self):
+        """
+        Opens a new window for inserting additional manufactured pieces.
+        """
+        from VerifPiecesInsert_Window import Ui_VerifPiecesInsert_Window
+        self.verifpieces_window=QtWidgets.QMainWindow()
+        self.ui=Ui_VerifPiecesInsert_Window(self.username)
+        self.ui.setupUi(self.verifpieces_window)
+        self.verifpieces_window.show()
 
 
 

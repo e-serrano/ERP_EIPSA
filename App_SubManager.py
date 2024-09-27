@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'App_ManagerF.ui'
+# Form implementation generated from reading ui file 'App_SubManager.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.1
 #
@@ -20,21 +20,76 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
 class ImageCalendarWidget(QtWidgets.QCalendarWidget):
+    """
+    A custom QCalendarWidget that highlights specific dates by painting an image on the calendar cells.
+
+    This widget allows the user to set a list of dates (`task_dates`) and draws a custom image 
+    on the corresponding calendar cells when these dates are displayed.
+
+    Attributes:
+    -----------
+    task_dates : list
+        A list of QDate objects that represent the dates on which the image will be displayed.
+    """
     def __init__(self, parent=None):
+        """
+        Initializes the ImageCalendarWidget instance.
+
+        Args:
+        -----------
+        parent : QWidget, optional
+            The parent widget, if any. Defaults to None.
+
+        Initializes the `task_dates` attribute as an empty list.
+        """
         super().__init__(parent)
         self.task_dates = []
 
     def set_task_dates(self, dates):
+        """
+        Sets the dates on which the custom image will be drawn and refreshes the calendar.
+
+        Args:
+        -----------
+        dates : list of QDate
+            A list of QDate objects representing the dates on which the image should appear.
+        """
         self.task_dates = dates
         self.updateCells()
 
     def paintCell(self, painter, rect, date):
+        """
+        Customizes the painting of calendar cells to include a flag image on specific dates.
+
+        Args:
+        -----------
+        painter : QPainter
+            The QPainter object responsible for rendering the cell.
+        rect : QRect
+            The rectangular area of the cell to be painted.
+        date : QDate
+            The date associated with the cell being painted.
+        """
         QtWidgets.QCalendarWidget.paintCell(self, painter, rect, date)
 
         if date in self.task_dates:
@@ -47,21 +102,41 @@ class ImageCalendarWidget(QtWidgets.QCalendarWidget):
                 painter.drawImage(image_rect, image_scaled)
 
 
-class Ui_App_ManagerF(object):
+class Ui_App_SubManager(object):
+    """
+    Main application window for the submanager app.
+
+        Args:
+        name (str): The name of the user.
+        username (str): The username of the user.
+    """
     def __init__(self, name, username):
+        """
+        Initializes the main window, setting up the user interface and storing user-specific details.
+
+        Args:
+            name (str): The name of the user.
+            username (str): The username of the user.
+        """
         self.name=name
         self.username=username
 
 
-    def setupUi(self, App_ManagerF):
-        App_ManagerF.setObjectName("App_ManagerF")
-        App_ManagerF.resize(945, 860)
-        App_ManagerF.setMinimumSize(QtCore.QSize(945, 860))
+    def setupUi(self, App_SubManager):
+        """
+        Sets up the user interface components for the main application window.
+
+        Args:
+            App_SubManager (QtWidgets.QMainWindow): The main window object to set up.
+        """
+        App_SubManager.setObjectName("App_SubManager")
+        App_SubManager.resize(945, 860)
+        App_SubManager.setMinimumSize(QtCore.QSize(945, 860))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        App_ManagerF.setWindowIcon(icon)
-        App_ManagerF.setStyleSheet("background-color: rgb(255, 255, 255);")
-        self.centralwidget = QtWidgets.QWidget(parent=App_ManagerF)
+        App_SubManager.setWindowIcon(icon)
+        App_SubManager.setStyleSheet("background-color: rgb(255, 255, 255);")
+        self.centralwidget = QtWidgets.QWidget(parent=App_SubManager)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_2.setObjectName("gridLayout_2")
@@ -456,18 +531,18 @@ class Ui_App_ManagerF(object):
         self.FrameApp.addLayout(self.PrincipalScreen)
         self.gridLayout.addLayout(self.FrameApp, 3, 0, 1, 1)
         self.gridLayout_2.addWidget(self.frame, 0, 0, 1, 1)
-        App_ManagerF.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=App_ManagerF)
+        App_SubManager.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=App_SubManager)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 945, 22))
         self.menubar.setObjectName("menubar")
-        App_ManagerF.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=App_ManagerF)
+        App_SubManager.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=App_SubManager)
         self.statusbar.setObjectName("statusbar")
-        App_ManagerF.setStatusBar(self.statusbar)
+        App_SubManager.setStatusBar(self.statusbar)
         self.tableOffer.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
-        self.retranslateUi(App_ManagerF)
-        QtCore.QMetaObject.connectSlotsByName(App_ManagerF)
+        self.retranslateUi(App_SubManager)
+        QtCore.QMetaObject.connectSlotsByName(App_SubManager)
 
         self.Button_QueryOffer.clicked.connect(self.query_offer)
         self.Button_QueryOrder.clicked.connect(self.query_order)
@@ -475,7 +550,7 @@ class Ui_App_ManagerF(object):
         self.Button_QueryDoc.clicked.connect(self.query_documents)
         self.Button_Purchasing.clicked.connect(self.query_purchase)
         self.Button_Invoice.clicked.connect(self.query_invoice)
-        self.Button_Graphs.clicked.connect(self.graphs)
+        self.Button_Graphs.clicked.connect(self.stats_offers)
         self.Button_ClientsResume.clicked.connect(self.clients_generalresume)
         self.Button_Profile.clicked.connect(self.showMenu)
         self.tableOffer.itemDoubleClicked.connect(self.on_item_double_clicked)
@@ -543,62 +618,77 @@ class Ui_App_ManagerF(object):
                 conn.close()
 
 
-    def retranslateUi(self, App_ManagerF):
+# Function to translate and updates the text of various UI elements
+    def retranslateUi(self, App_SubManager):
+        """
+        Translates and updates the text of various UI elements in the given App_Comercial.
+        """
         _translate = QtCore.QCoreApplication.translate
-        App_ManagerF.setWindowTitle(_translate("App_ManagerF", "ERP EIPSA - Dirección"))
-        self.HeaderName.setText(_translate("App_ManagerF", self.name))
-        self.Button_QueryOffer.setText(_translate("App_ManagerF", "    Consultar Ofertas"))
-        self.Button_QueryOrder.setText(_translate("App_ManagerF", "   Consultar Pedidos"))
-        self.Button_QueryTag.setText(_translate("App_ManagerF", "    Consultar TAG(s)"))
-        self.Button_QueryDoc.setText(_translate("App_ManagerF", "    Consultar Docs."))
-        self.Button_Purchasing.setText(_translate("App_ManagerF", "   Consultar Compras"))
-        self.Button_Invoice.setText(_translate("App_ManagerF", "   Consultar Facturas"))
+        App_SubManager.setWindowTitle(_translate("App_SubManager", "ERP EIPSA - Dirección"))
+        self.HeaderName.setText(_translate("App_SubManager", self.name))
+        self.Button_QueryOffer.setText(_translate("App_SubManager", "    Consultar Ofertas"))
+        self.Button_QueryOrder.setText(_translate("App_SubManager", "   Consultar Pedidos"))
+        self.Button_QueryTag.setText(_translate("App_SubManager", "    Consultar TAG(s)"))
+        self.Button_QueryDoc.setText(_translate("App_SubManager", "    Consultar Docs."))
+        self.Button_Purchasing.setText(_translate("App_SubManager", "   Consultar Compras"))
+        self.Button_Invoice.setText(_translate("App_SubManager", "   Consultar Facturas"))
         self.tableOffer.setSortingEnabled(True)
         item = self.tableOffer.horizontalHeaderItem(0)
-        item.setText(_translate("App_ManagerF", "Nº Oferta"))
+        item.setText(_translate("App_SubManager", "Nº Oferta"))
         item = self.tableOffer.horizontalHeaderItem(1)
-        item.setText(_translate("App_ManagerF", "Estado"))
+        item.setText(_translate("App_SubManager", "Estado"))
         item = self.tableOffer.horizontalHeaderItem(2)
-        item.setText(_translate("App_ManagerF", "Responsable"))
+        item.setText(_translate("App_SubManager", "Responsable"))
         item = self.tableOffer.horizontalHeaderItem(3)
-        item.setText(_translate("App_ManagerF", "Cliente"))
+        item.setText(_translate("App_SubManager", "Cliente"))
         item = self.tableOffer.horizontalHeaderItem(4)
-        item.setText(_translate("App_ManagerF", "Cliente Final"))
+        item.setText(_translate("App_SubManager", "Cliente Final"))
         item = self.tableOffer.horizontalHeaderItem(5)
-        item.setText(_translate("App_ManagerF", "Fecha Pres."))
+        item.setText(_translate("App_SubManager", "Fecha Pres."))
         item = self.tableOffer.horizontalHeaderItem(6)
-        item.setText(_translate("App_ManagerF", "Material"))
+        item.setText(_translate("App_SubManager", "Material"))
         item = self.tableOffer.horizontalHeaderItem(7)
-        item.setText(_translate("App_ManagerF", "Importe"))
+        item.setText(_translate("App_SubManager", "Importe"))
         item = self.tableOffer.horizontalHeaderItem(8)
-        item.setText(_translate("App_ManagerF", "Notas"))
+        item.setText(_translate("App_SubManager", "Notas"))
         item = self.tableOffer.horizontalHeaderItem(9)
-        item.setText(_translate("App_ManagerF", "Ptos. Importantes"))
+        item.setText(_translate("App_SubManager", "Ptos. Importantes"))
         item = self.tableOffer.horizontalHeaderItem(10)
-        item.setText(_translate("App_ManagerF", "Seguimiento"))
+        item.setText(_translate("App_SubManager", "Seguimiento"))
         __sortingEnabled = self.tableOffer.isSortingEnabled()
         self.tableOffer.setSortingEnabled(False)
         self.tableOffer.setSortingEnabled(__sortingEnabled)
 
 # Function to open window with offer query
     def query_offer(self):
+        """
+        Opens a new window for querying offers. 
+        Displays the UI to search and view details of existing offers.
+        """
         from OfferQuery_Window import Ui_QueryOffer_Window
         self.query_offer_window=QtWidgets.QMainWindow()
         self.ui=Ui_QueryOffer_Window()
         self.ui.setupUi(self.query_offer_window)
         self.query_offer_window.show()
 
-# Function to open window with order query
+# Function to open window for query orders
     def query_order(self):
+        """
+        Opens a new window for querying orders. 
+        Displays the UI to search and view details of existing orders.
+        """
         from OrderQuery_Window import Ui_QueryOrder_Window
         self.query_order_window=QtWidgets.QMainWindow()
         self.ui=Ui_QueryOrder_Window()
         self.ui.setupUi(self.query_order_window)
         self.query_order_window.show()
 
-# Function to open window with tags query
+# Function to open window for query tags
     def query_tag(self):
-        from TAGEdit_Workshop_Window import Ui_EditTags_Workshop_Window
+        """
+        Opens a window for editing tags.
+        """
+        from TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
@@ -606,15 +696,18 @@ class Ui_App_ManagerF(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_tags_tech = createConnection(user_database, password_database)
-        if not db_tags_tech:
+        db_tag_com = createConnection(user_database, password_database)
+        if not db_tag_com:
             sys.exit()
 
-        self.edit_tags_app = Ui_EditTags_Workshop_Window(self.name, db_tags_tech)
-        self.edit_tags_app.show()
+        self.edit_tags_app = Ui_EditTags_Commercial_Window(db_tag_com, self.name)
+        self.edit_tags_app.showMaximized()
 
-# Function to open window with documents query
+# Function to open window for query documents
     def query_documents(self):
+        """
+        Opens a new window for querying documents. 
+        """
         from DocQuery_Window import Ui_QueryDoc_Window
         self.querydoc_menu=QtWidgets.QMainWindow()
         self.ui=Ui_QueryDoc_Window()
@@ -623,6 +716,9 @@ class Ui_App_ManagerF(object):
 
 # Function to open window with purchase query
     def query_purchase(self):
+        """
+        Opens a window for querying purchases.
+        """
         from PurchasingGeneralQuery_Window import Ui_PurchasingGeneralQuery_Window
         self.purchasegeneral_query_window=QtWidgets.QMainWindow()
         self.ui=Ui_PurchasingGeneralQuery_Window()
@@ -631,22 +727,31 @@ class Ui_App_ManagerF(object):
 
 # Function to open window with invoice query
     def query_invoice(self):
+        """
+        Opens a window for querying invoices.
+        """
         from InvoiceGeneralQuery_Window import Ui_InvoiceGeneralQuery_Window
         self.invoice_query_window=QtWidgets.QMainWindow()
         self.ui=Ui_InvoiceGeneralQuery_Window()
         self.ui.setupUi(self.invoice_query_window)
         self.invoice_query_window.showMaximized()
 
-# Function to open graphs window
-    def graphs(self):
-        from OfferGraphs_Window import Ui_GraphsOffer_Window
-        self.graphswindow=QtWidgets.QMainWindow()
-        self.ui=Ui_GraphsOffer_Window()
-        self.ui.setupUi(self.graphswindow)
-        self.graphswindow.show()
+# Function to open menu of offer statistics
+    def stats_offers(self):
+        """
+        Opens a new window for viewing offer statistics. 
+        """
+        from OfferStats_Menu import Ui_StatsOffer_Menu
+        self.statswindow=QtWidgets.QMainWindow()
+        self.ui=Ui_StatsOffer_Menu()
+        self.ui.setupUi(self.statswindow)
+        self.statswindow.show()
 
 # Function to open clien resume window
     def clients_generalresume(self):
+        """
+        Opens a new window to display a general resume of client data. 
+        """
         from ClientsGeneralResume_Window import Ui_ClientsGeneralResume_Window
         self.clients_general_resume_window=QtWidgets.QMainWindow()
         self.ui=Ui_ClientsGeneralResume_Window()
@@ -655,6 +760,12 @@ class Ui_App_ManagerF(object):
 
 # Function to open window with tasks query
     def querytask(self, date=None):
+        """
+        Opens a new window for querying tasks. 
+        
+        Args:
+            date (QDate, optional): The date to filter tasks. Defaults to None.
+        """
         from TaskQuery_Window import Ui_QueryTask_Window
         self.querytaskwindow=Ui_QueryTask_Window(self.name, date)
         self.querytaskwindow.show()
@@ -662,6 +773,12 @@ class Ui_App_ManagerF(object):
 
 # Function to add a new task
     def newtask(self, date):
+        """
+        Opens a new window for creating a new task. 
+        
+        Args:
+            date (QDate): The date associated with the new task.
+        """
         from TaskAdd_Window import Ui_AddTask_Window
         self.newtaskwindow=QtWidgets.QMainWindow()
         self.ui=Ui_AddTask_Window(self.name, date)
@@ -671,6 +788,13 @@ class Ui_App_ManagerF(object):
 
 # Function to open calendar menu
     def show_context_menu(self, point):
+        """
+        Displays a context menu at the specified point in the calendar widget. 
+        Provides options to add or edit tasks for the selected date.
+        
+        Args:
+            point (QPoint): The location where the context menu will appear.
+        """
         selected_date = self.Calendar.selectedDate()
         menu = QMenu(self.centralwidget)
 
@@ -686,6 +810,10 @@ class Ui_App_ManagerF(object):
 
 # Function to open context menu when profile button is clicked
     def showMenu(self):
+        """
+        Displays a context menu when the profile button is clicked. 
+        Provides options to edit the password.
+        """
         menu = QMenu(self.centralwidget)
         menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; }"
         "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
@@ -697,77 +825,23 @@ class Ui_App_ManagerF(object):
 
 # Function to open window for editing password
     def editpassword(self):
+        """
+        Opens a new window for editing the user's password. 
+        """
         from PasswordEdit_Window import Ui_EditPasswordWindow
         self.edit_password_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditPasswordWindow(self.username)
         self.ui.setupUi(self.edit_password_window)
         self.edit_password_window.show()
 
-# Function to update the table
-    def update_table(self):
-        commands_appcomercial = ("""
-                    SELECT "num_offer","state","responsible","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","notes","important","tracking"
-                    FROM offers
-                    WHERE ("responsible" = %s
-                    AND
-                    ("state" = 'Presentada'
-                    OR
-                    "state" = 'Registrada'
-                    ))
-                    ORDER BY "num_offer"
-                    """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            if self.name == 'Carlos Crespo':
-                cur.execute(commands_appcomercial,(self.name[0] + self.name[self.name.find(' ')+1] + 'H',))
-            else:
-                cur.execute(commands_appcomercial,(self.name[0] + self.name[self.name.find(' ')+1],))
-            results=cur.fetchall()
-            self.tableOffer.setRowCount(len(results))
-            tablerow=0
-
-        # fill the Qt Table with the query results
-            for row in results:
-                for column in range(11):
-                    value = row[column]
-                    if value is None:
-                        value = ''
-                    it = QtWidgets.QTableWidgetItem(str(value))
-                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                    self.tableOffer.setItem(tablerow, column, it)
-
-                tablerow+=1
-
-            self.tableOffer.verticalHeader().hide()
-            self.tableOffer.setItemDelegate(AlignDelegate(self.tableOffer))
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
 # Function to check if column index of double clicked cell is equal to first column index
     def on_item_double_clicked(self, item):
+        """
+        Handles the double-click event on items in a table.
+
+        Args:
+            item (QTableWidgetItem): The item that was double-clicked.
+        """
         if item.column() == 2:
             self.clientresume(item)
 
@@ -783,6 +857,12 @@ class Ui_App_ManagerF(object):
 
 # Function when double clicked cell is in first column
     def clientresume(self, item):
+        """
+        Opens a window displaying the resume of a selected client.
+
+        Args:
+            item (QTableWidgetItem): The item containing the client's name.
+        """
         from ClientResume_Window import Ui_ClientResume_Window
         clientname=item.text()
         self.client_resume_window=QtWidgets.QMainWindow()
@@ -792,6 +872,10 @@ class Ui_App_ManagerF(object):
 
 # Function to stablish dates with task assigned to put icon on calendar
     def setup_task_dates(self):
+        """
+        Sets up task dates for the calendar widget.
+        Handles errors with a message box and updates the calendar with task dates.
+        """
         commands_loaddatestasks_LB = ("""
                     SELECT "task_date","task"
                     FROM tasks
@@ -838,6 +922,10 @@ class Ui_App_ManagerF(object):
 
 # Function to show tasks of the selected date
     def show_selected_date_tasks(self):
+        """
+        Displays tasks for the selected date in a message box.
+        Handles errors with a message box.
+        """
         self.click_count = 0
         selected_date = self.Calendar.selectedDate()
         if self.name == 'Carlos Crespo':
@@ -867,6 +955,16 @@ class Ui_App_ManagerF(object):
 
 #Function to obtain tasks associated to a date
     def get_tasks_for_date(self, creator, date):
+        """
+        Retrieves tasks for a specific date.
+        
+        Args:
+            creator (str): The creator or responsible person for the tasks.
+            date (QDate): The date for which tasks are being retrieved.
+        
+        Returns:
+            list: A list of tasks for the specified date.
+        """
         commands_loaddatestasks_LB = ("""
                     SELECT "responsible","task_date","task","state","creator"
                     FROM tasks
@@ -938,8 +1036,8 @@ class Ui_App_ManagerF(object):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    App_ManagerF = QtWidgets.QMainWindow()
-    ui = Ui_App_ManagerF('Fernando Gallego','f.gallego')
-    ui.setupUi(App_ManagerF)
-    App_ManagerF.showMaximized()
+    App_SubManager = QtWidgets.QMainWindow()
+    ui = Ui_App_SubManager('Fernando Gallego','f.gallego')
+    ui.setupUi(App_SubManager)
+    App_SubManager.showMaximized()
     sys.exit(app.exec())

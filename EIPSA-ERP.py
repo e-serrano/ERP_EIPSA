@@ -8,6 +8,16 @@ import os
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 if __name__ == "__main__":
+    """
+    Entry point for the application. Initializes the Qt application and displays the login window if the configuration
+    file exists. If the configuration file is not found, displays an error message.
+
+    - Checks if the configuration file `database.ini` exists in the specified directory.
+    - If the file exists, creates and shows the login window.
+    - If the file does not exist, displays an error message indicating that the configuration file is missing.
+
+    Exits the application when the login window is closed or if the configuration file is missing.
+    """
     base_dir = r"C:\Program Files\ERP EIPSA"
 
     # Full path of .ini file

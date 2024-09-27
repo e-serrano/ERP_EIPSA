@@ -15,7 +15,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_EditUser_Menu(object):
+    """
+    UI class for the User Edit Menu window.
+    """
     def setupUi(self, EditUser_Menu):
+        """
+        Sets up the user interface for the EditUser_Menu.
+
+        Args:
+            EditUser_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         EditUser_Menu.setObjectName("EditUser_Menu")
         EditUser_Menu.resize(300, 340)
         EditUser_Menu.setMinimumSize(QtCore.QSize(300, 340))
@@ -115,7 +124,11 @@ class Ui_EditUser_Menu(object):
         QtCore.QMetaObject.connectSlotsByName(EditUser_Menu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, EditUser_Menu):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         EditUser_Menu.setWindowTitle(_translate("EditUser_Menu", "Editar Usuarios"))
         self.Button_Register.setText(_translate("EditUser_Menu", "Registrar Usuario"))
@@ -124,6 +137,12 @@ class Ui_EditUser_Menu(object):
 
 
     def user_register(self,EditUser_Menu):
+        """
+        Opens the 'user_register' window and hides the current menu. Sets up the UI for the user and connects the cancel button to re-show the previous menu.
+        
+        Args:
+            EditUser_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.user_register_window=QtWidgets.QMainWindow()
         self.ui=Ui_RegistrationWindow()
         self.ui.setupUi(self.user_register_window)
@@ -133,6 +152,12 @@ class Ui_EditUser_Menu(object):
 
 
     def user_delete(self,EditUser_Menu):
+        """
+        Opens the 'user_delete' window and hides the current menu. Sets up the UI for the user and connects the cancel button to re-show the previous menu.
+        
+        Args:
+            EditUser_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.user_delete_window=QtWidgets.QMainWindow()
         self.ui=Ui_DeleteUser_Window()
         self.ui.setupUi(self.user_delete_window)

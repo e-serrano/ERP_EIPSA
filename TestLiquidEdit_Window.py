@@ -17,13 +17,46 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
-
 class CustomTableWidget(QtWidgets.QTableWidget):
+    """
+    Custom QTableWidget that supports filtering and sorting features.
+
+    Attributes:
+        list_filters (list): Stores filters applied to the table.
+        column_filters (dict): Maps column indices to sets of applied filters.
+        column_actions (dict): Maps column indices to actions related to columns.
+        checkbox_states (dict): Stores the state of checkboxes for filtering.
+        rows_hidden (dict): Maps column indices to sets of hidden row indices.
+        general_rows_to_hide (set): Set of row indices that are hidden across the table.
+    """
     def __init__(self, parent=None):
+        """
+        Initializes the CustomTableWidget.
+
+        Sets up the initial state of the widget, including filters, checkbox states, 
+        and hidden rows.
+
+        Args:
+            parent (QWidget, optional): The parent widget of this table. Defaults to None.
+        """
         super().__init__(parent)
         self.list_filters=[]
         self.column_filters = {}
@@ -34,6 +67,17 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to show the menu
     def show_unique_values_menu(self, column_index, header_pos, header_height):
+        """
+        Displays a context menu for unique values in a specified column.
+
+        The menu includes options to remove filters, sort the column, and filter by text. 
+        It also allows the user to select/unselect unique values via checkboxes.
+
+        Args:
+            column_index (int): The index of the column for which the menu is displayed.
+            header_pos (QPoint): The position of the header in the viewport.
+            header_height (int): The height of the header.
+        """
         menu = QtWidgets.QMenu(self)
         actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro")
         actionDeleteFilterColumn.triggered.connect(lambda: self.delete_filter(column_index))
@@ -102,6 +146,14 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to delete filter on selected column
     def delete_filter(self,column_index):
+        """
+        Removes the filter applied to the specified column.
+
+        Unhides previously hidden rows and resets the checkbox state for the column.
+
+        Args:
+            column_index (int): The index of the column from which to delete the filter.
+        """
         if column_index in self.column_filters:
             del self.column_filters[column_index]
         if column_index in self.checkbox_states:
@@ -118,6 +170,14 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to set all checkboxes state
     def set_all_checkboxes_state(self, checkboxes, state, column_index):
+        """
+        Sets the state of all checkboxes in the filter menu for a specific column.
+
+        Args:
+            checkboxes (list): List of checkboxes to update.
+            state (Qt.CheckState): The desired state for the checkboxes.
+            column_index (int): The index of the column for which the checkboxes are set.
+        """
         if column_index not in self.checkbox_states:
             self.checkbox_states[column_index] = {}
 
@@ -129,6 +189,16 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to apply filters to table
     def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
+        """
+        Applies a filter to the specified column based on the checkbox state and optional text filter.
+
+        Args:
+            column_index (int): The index of the column to filter.
+            value (str): The value to filter by.
+            checked (bool): Indicates if the filter should be applied (True) or removed (False).
+            text_filter (str, optional): Additional text filter for filtering items. Defaults to None.
+            filter_dialog (QDialog, optional): The dialog used for the text filter. Defaults to None.
+        """
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
 
@@ -196,8 +266,14 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         else:
             header_item.setIcon(QtGui.QIcon())
 
-
+# Function to apply filters to table based on a desired text
     def filter_by_text(self, column_index):
+        """
+        Opens a dialog for filtering the specified column by text input.
+
+        Args:
+            column_index (int): The index of the column to filter.
+        """
         filter_dialog = QtWidgets.QDialog(self)
         filter_dialog.setWindowTitle("Filtrar por texto")
         
@@ -245,6 +321,15 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to obtain the unique matching applied filters 
     def get_unique_values(self, column_index):
+        """
+        Retrieves unique values from the specified column, taking into account any active filters on other columns.
+
+        Args:
+            column_index (int): The index of the column from which to retrieve unique values.
+
+        Returns:
+            set: A set of unique values from the specified column that are visible based on the current filters.
+        """
         unique_values = set()
         for row in range(self.rowCount()):
             show_row = True
@@ -264,6 +349,12 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to get values filtered by all columns
     def get_filtered_values(self):
+        """
+        Gets the current filter values for all columns.
+
+        Returns:
+            dict: A dictionary where each key is a column index and the value is a set of filters applied to that column.
+        """
         filtered_values = {}
         for col, filters in self.column_filters.items():
             filtered_values[col] = filters
@@ -271,6 +362,13 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function to sort column
     def sort_column(self, column_index, sortOrder):
+        """
+        Sorts the specified column based on the given order. If the column is a date column, a custom sort method is used.
+
+        Args:
+            column_index (int): The index of the column to sort.
+            sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
         if self.horizontalHeaderItem(column_index).text() == 'Fecha':
             self.custom_sort(column_index, sortOrder)
         else:
@@ -310,6 +408,12 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
 # Function with the menu configuration
     def contextMenuEvent(self, event):
+        """
+        Handles the context menu event for the table. Shows a menu for filtering unique values when the header is right-clicked.
+
+        Args:
+            event (QEvent): The event triggered by the context menu action.
+        """
         if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
             logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
             header_pos = self.mapToGlobal(self.horizontalHeader().pos())
@@ -318,9 +422,28 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-
 class Ui_TestLiquidEdit_Window(QtWidgets.QMainWindow):
+    """
+    UI class for the Edit Test Liquid window.
+    """
     def __init__(self, username, id_item, num_order, tag, description, test_date, liq1, liq2, liq3, state, qty, obs):
+        """
+        Initializes the Ui_TestLiquidEdit_Window.
+
+        Args:
+            username (str): The username of the user editing the test.
+            id_item (str): The ID of the item being tested.
+            num_order (str): The order number associated with the test.
+            tag (str): The tag identifier for the test.
+            description (str): A description of the item or test.
+            test_date (str): The date of the liquid test.
+            liq1 (str): The first liquid test parameter.
+            liq2 (str): The second liquid test parameter.
+            liq3 (str): The third liquid test parameter.
+            state (str): The state or status of the test.
+            qty (int): The quantity associated with the test.
+            obs (str): Additional observations or comments about the test.
+        """
         super().__init__()
         self.username = username
         self.id_item = id_item
@@ -336,8 +459,13 @@ class Ui_TestLiquidEdit_Window(QtWidgets.QMainWindow):
         self.obs = obs
         self.setupUi(self)
 
-
     def setupUi(self, TestLiquidEdit_Window):
+        """
+        Sets up the user interface for the TestLiquidEdit_Window.
+
+        Args:
+            TestLiquidEdit_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         TestLiquidEdit_Window.setObjectName("TestLiquidEdit_Window")
         TestLiquidEdit_Window.resize(400, 561)
         TestLiquidEdit_Window.setMinimumSize(QtCore.QSize(800, 675))
@@ -661,8 +789,11 @@ class Ui_TestLiquidEdit_Window(QtWidgets.QMainWindow):
 
         self.load_values()
 
-
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, TestLiquidEdit_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         TestLiquidEdit_Window.setWindowTitle(_translate("TestLiquidEdit_Window", "Líquidos Penetrantes"))
         self.label_order.setText(_translate("TestLiquidEdit_Window", "Nº Pedido:"))
@@ -681,6 +812,9 @@ class Ui_TestLiquidEdit_Window(QtWidgets.QMainWindow):
 
 
     def update_liquid(self):
+        """
+        Updates the data for the specific element.
+        """
         id_element = int(self.id_test.text())
         num_order = self.num_order_test.text().upper()
         tag = self.tag_test.text()
@@ -864,6 +998,9 @@ class Ui_TestLiquidEdit_Window(QtWidgets.QMainWindow):
                         conn.close()
 
     def load_values(self):
+        """
+        Loads the test values into the corresponding UI elements and populates the state dropdown with available states.
+        """
         self.id_test.setText(self.id_item)
         self.num_order_test.setText(self.num_order)
         self.tag_test.setText(self.tag)

@@ -20,7 +20,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_ForgetPass_Window(object):
+    """
+    UI class for the Forget Password window.
+    """
     def setupUi(self, ForgetPass_Window):
+        """
+        Sets up the user interface for the ForgetPass_Window.
+
+        Args:
+            ForgetPass_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         ForgetPass_Window.setObjectName("ForgetPass_Window")
         ForgetPass_Window.resize(275, 340)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.MinimumExpanding, QtWidgets.QSizePolicy.Policy.Preferred)
@@ -158,7 +167,11 @@ class Ui_ForgetPass_Window(object):
         QtCore.QMetaObject.connectSlotsByName(ForgetPass_Window)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, ForgetPass_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         ForgetPass_Window.setWindowTitle(_translate("ForgetPass_Window", "Recordar Contraseña"))
         self.label_email_forgetpass.setText(_translate("ForgetPass_Window", "Correo electrónico:"))
@@ -166,6 +179,9 @@ class Ui_ForgetPass_Window(object):
 
 
     def send_email(self):
+        """
+        Sends a temporary password to the user's email if found in the database.
+        """
         recipient_email=self.email_forgetpass.text()
     #SQL Query for loading existing data in database
         commands = ("""

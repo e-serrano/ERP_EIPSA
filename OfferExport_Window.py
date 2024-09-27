@@ -16,10 +16,25 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_ExportOffer_Window(object):
+    """
+    UI class for the Export Offer window.
+    """
     def __init__(self, username=None):
+        """
+        Initializes the Ui_ExportOffer_Window with the specified username.
+
+        Args:
+            username (str): username associated with the window.
+        """
         self.username=username
 
     def setupUi(self, ExportOffer_Window):
+        """
+        Sets up the user interface for the ExportOffer_Window.
+
+        Args:
+            ExportOffer_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         ExportOffer_Window.setObjectName("ExportOffer_Window")
         ExportOffer_Window.resize(275, 340)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.MinimumExpanding, QtWidgets.QSizePolicy.Policy.Preferred)
@@ -155,7 +170,11 @@ class Ui_ExportOffer_Window(object):
         QtCore.QMetaObject.connectSlotsByName(ExportOffer_Window)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, ExportOffer_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         ExportOffer_Window.setWindowTitle(_translate("ExportOffer_Window", "ERP EIPSA"))
         self.label_numoffer_expoffer.setText(_translate("ExportOffer_Window", "Número Oferta:"))
@@ -164,6 +183,14 @@ class Ui_ExportOffer_Window(object):
 
 
     def exportoffer(self, ExportOffer_Window):
+        """
+        Exports offer data for a specified offer number and displays a new 
+        window for exporting the offer if it exists.
+
+        Args:
+            ExportOffer_Window (QtWidgets.QMainWindow): The window instance from which 
+            the export offer function is called.
+        """
         numoffer=self.numoffer_expoffer.text()
         revision=self.revision_expoffer.text()
 

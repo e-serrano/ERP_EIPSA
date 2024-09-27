@@ -17,11 +17,26 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_EditPasswordWindow(object):
+    """
+    UI class for the Edit Password window.
+    """
     def __init__(self, username):
+        """
+        Initializes the Ui_EditPasswordWindow with the specified username.
+
+        Args:
+            username (str): username associated with the window.
+        """
         self.username=username
 
 
     def setupUi(self, EditPasswordWindow):
+        """
+        Sets up the user interface for the EditPasswordWindow.
+
+        Args:
+            EditPasswordWindow (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         EditPasswordWindow.setObjectName("EditPasswordWindow")
         EditPasswordWindow.resize(270, 511)
         EditPasswordWindow.setMinimumSize(QtCore.QSize(270, 475))
@@ -241,7 +256,11 @@ class Ui_EditPasswordWindow(object):
         QtCore.QMetaObject.connectSlotsByName(EditPasswordWindow)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, EditPasswordWindow):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         EditPasswordWindow.setWindowTitle(_translate("EditPasswordWindow", "Editar Contraseña"))
         self.label_password_new.setText(_translate("EditPasswordWindow", "Nueva Contraseña:"))
@@ -251,6 +270,9 @@ class Ui_EditPasswordWindow(object):
 
 
     def editpassword(self):
+        """
+        Updates the user's password in the database after validating the input.
+        """
         new_password=self.password_new.text()
         confirm_password=self.password_confirm.text()
 

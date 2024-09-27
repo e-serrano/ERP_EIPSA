@@ -25,18 +25,47 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
 class Ui_DeliveriesOrder_Window(QtWidgets.QMainWindow):
+    """
+    UI class for the Deliveries Order window.
+    """
     def __init__(self, num_order):
+        """
+        Initializes the Ui_DeliveriesOrder_Window with the specified order number.
+
+        Args:
+            num_order (str): order number associated with the window.
+        """
         super().__init__()
         self.numorder = num_order
         self.setupUi(self)
 
     def setupUi(self, DeliveriesOrder_Window):
+        """
+        Sets up the user interface for the DeliveriesOrder_Window.
+
+        Args:
+            DeliveriesOrder_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         DeliveriesOrder_Window.setObjectName("DeliveriesOrder_Window")
         DeliveriesOrder_Window.resize(950, 700)
         DeliveriesOrder_Window.setMinimumSize(QtCore.QSize(950, 700))
@@ -396,7 +425,11 @@ class Ui_DeliveriesOrder_Window(QtWidgets.QMainWindow):
         self.query_order()
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, DeliveriesOrder_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         DeliveriesOrder_Window.setWindowTitle(_translate("DeliveriesOrder_Window", "Consultar Pedido"))
         self.tableQueryOrder.setSortingEnabled(True)
@@ -421,6 +454,10 @@ class Ui_DeliveriesOrder_Window(QtWidgets.QMainWindow):
 
 
     def query_order(self):
+        """
+        Queries the database of desired data for selected order, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         self.tableQueryOrder.setRowCount(0)
         commands_queryorder = ("""
                     SELECT dispatch."our_ref", dispatch."num_invoice", dispatch."num_delivnote", dispatch."destination_dispatch", dispatch."boxes_dispatch", dispatch."weight_dispatch", dispatch."description_dispatch", dispatch."transportation_dispatch", dispatch."date_dispatch"
@@ -482,6 +519,13 @@ class Ui_DeliveriesOrder_Window(QtWidgets.QMainWindow):
                 conn.close()
 
     def expand_cell(self, item):
+        """
+        Displays the content of a cell in a dialog box. Useful for viewing larger text fields 
+        in a table more comfortably.
+
+        Args:
+            item (QTableWidgetItem): The table item to be expanded.
+        """
         if item.column() in [6]:
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
@@ -493,6 +537,9 @@ class Ui_DeliveriesOrder_Window(QtWidgets.QMainWindow):
             dlg.exec()
 
     def export_data(self):
+        """
+        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
+        """
         num_rows = self.tableQueryOrder.rowCount()
         if num_rows > 0:
             num_columns = 12

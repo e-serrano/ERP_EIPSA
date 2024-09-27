@@ -23,10 +23,25 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_CalibrationPrintCertificate_Window(object):
+    """
+    UI class for the Print Calibration Certificate window.
+    """
     def __init__(self, username):
+        """
+        Initializes the Ui_CalibrationPrintCertificate_Window with the specified username.
+
+        Args:
+            username (str): username associated with the window.
+        """
         self.username = username
 
     def setupUi(self, CalibrationPrintCertificate_Window):
+        """
+        Sets up the user interface for the CalibrationPrintCertificate_Window.
+
+        Args:
+            CalibrationPrintCertificate_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         CalibrationPrintCertificate_Window.setObjectName("CalibrationPrintCertificate_Window")
         CalibrationPrintCertificate_Window.resize(450, 325)
         CalibrationPrintCertificate_Window.setMinimumSize(QtCore.QSize(450, 325))
@@ -221,7 +236,11 @@ class Ui_CalibrationPrintCertificate_Window(object):
         QtCore.QMetaObject.connectSlotsByName(CalibrationPrintCertificate_Window)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, CalibrationPrintCertificate_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         CalibrationPrintCertificate_Window.setWindowTitle(_translate("CalibrationPrintCertificate_Window", "Imprimir Certificado"))
         self.Button_Print.setText(_translate("CalibrationPrintCertificate_Window", "Imprimir"))
@@ -233,6 +252,9 @@ class Ui_CalibrationPrintCertificate_Window(object):
 
 # Function to export certificate in pdf file
     def CalibrationPrintCertificate(self):
+        """
+        Generates a PDF datasheet for the calibration with details.
+        """
         numorder=self.num_order_print.text()
         sensor_type=self.Sensor.currentText()
         cert_date = self.Cert_Date.currentText()
@@ -378,7 +400,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                     del dlg, new_icon
                 else:
                     master_element = df.iloc[0,1]
-                    isolation = df.iloc[0,18] + "-" + df.iloc[0,19]
+                    isolation = "" if df.iloc[0,18] is None else df.iloc[0,18] + "-" + "" if df.iloc[0,19] is None else df.iloc[0,19]
 
                     pdf = calibration_certificate(numorder, cert_date, sensor_type, master_element, isolation)
                     # pdf = calibration_certificate_spanish(numorder, cert_date, sensor_type, master_element)
@@ -574,6 +596,16 @@ class Ui_CalibrationPrintCertificate_Window(object):
 
 # Function to include the quality stamp for new pdf
     def new_content(self, y_position):
+        """
+        Generates a PDF document with a quality control stamp at a specified vertical position.
+
+        Args:
+            y_position (float): The vertical position (in centimeters) where the 
+                                quality control stamp image will be placed on the page.
+
+        Returns:
+            io.BytesIO: A byte stream containing the generated PDF document.
+        """
         fpdf = FPDF('L', 'cm', 'A4')
         fpdf.add_page()
         fpdf.set_font("helvetica", size=36)
@@ -582,6 +614,10 @@ class Ui_CalibrationPrintCertificate_Window(object):
 
 # Function to load calibration dates for selected order
     def charge_dates(self):
+        """
+        Loads calibration dates for a selected order number into the date dropdown.
+        """
+        self.Cert_Date.clear()
         numorder=self.num_order_print.text().upper()
 
         if numorder=="":
@@ -640,7 +676,11 @@ class Ui_CalibrationPrintCertificate_Window(object):
 
 # Function to load calibration sensor for selected order
     def charge_sensor(self):
-        numorder=self.num_order_print.text().upper()
+        """
+        Loads calibration sensors for a selected order number and date into the sensor dropdown.
+        """
+        self.Sensor.clear()
+        numorder = self.num_order_print.text().upper()
         date_test = self.Cert_Date.currentText()
 
         if numorder=="":
@@ -697,6 +737,16 @@ class Ui_CalibrationPrintCertificate_Window(object):
 
 # Function to calculate master values of resistance
     def calculate_master(self, temp, master):
+        """Calculates the final value of tolerance for master element based on temperature and the selected master type.
+
+        Args:
+            temp (float or None): The temperature value used for calculation.
+            master (str): The type of master ('EIPSA-020', 'EIPSA-TE-01' for PT100 or TC types).
+
+        Returns:
+            float or str: The calculated final value rounded to three decimal places 
+                        or 'N/A' if the temperature is None.
+        """
         if temp is not None:
             if master in ['EIPSA-020', 'EIPSA-TE-01']:
                 column_select = 'inta_pt100_values.' + master.replace('-','_')
@@ -799,6 +849,16 @@ class Ui_CalibrationPrintCertificate_Window(object):
 
 # Function to calculate element values of resistance
     def calculate_element(self, temp, sensor):
+        """Calculates the final value of tolerance for manufactured element based on temperature and the selected master type.
+
+        Args:
+            temp (float or None): The temperature value used for calculation.
+            sensor (str): The type of sensor.
+
+        Returns:
+            float or str: The calculated final value rounded to three decimal places 
+                        or 'N/A' if the temperature is None.
+        """
         if temp is not None:
             if 'PT100' in sensor:
                 commands_stdvalues = ("""

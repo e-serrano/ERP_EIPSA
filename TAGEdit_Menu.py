@@ -20,7 +20,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_EditTags_Menu(object):
+    """
+    UI class for the Edit Tags Menu window.
+    """
     def setupUi(self, EditTags_Menu):
+        """
+        Sets up the user interface for the EditTags_Menu.
+
+        Args:
+            EditTags_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         EditTags_Menu.setObjectName("EditTags_Menu")
         EditTags_Menu.setWindowModality(QtCore.Qt.WindowModality.WindowModal)
         EditTags_Menu.resize(615, 400)
@@ -139,7 +148,11 @@ class Ui_EditTags_Menu(object):
         QtCore.QMetaObject.connectSlotsByName(EditTags_Menu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, EditTags_Menu):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         EditTags_Menu.setWindowTitle(_translate("EditTags_Menu", "ERP EIPSA - Comercial"))
         self.Button_OfferToOrder.setText(_translate("EditTags_Menu", "Tags de Oferta a Pedido"))
@@ -149,6 +162,12 @@ class Ui_EditTags_Menu(object):
 
 
     def tag_order_to_offer(self,EditTags_Menu):
+        """
+        Opens the 'tag_order_to_offer' window and closes the current menu. Sets up the UI for the user and connects the cancel button to re-show the previous menu.
+        
+        Args:
+            EditTags_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.tagordertooffer_window=QtWidgets.QMainWindow()
         self.ui=Ui_TAGOfferToOrder_Window()
         self.ui.setupUi(self.tagordertooffer_window)
@@ -156,6 +175,12 @@ class Ui_EditTags_Menu(object):
         EditTags_Menu.close()
 
     def tag_update(self,EditTags_Menu):
+        """
+        Opens the 'tag_update' window and closes the current menu. Sets up the UI for the user and connects the cancel button to re-show the previous menu.
+        
+        Args:
+            EditTags_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.tagupdate_window=QtWidgets.QMainWindow()
         self.ui=Ui_TAGUpdate_Window()
         self.ui.setupUi(self.tagupdate_window)
@@ -163,6 +188,12 @@ class Ui_EditTags_Menu(object):
         EditTags_Menu.close()
 
     def edit_tag(self,EditTags_Menu):
+        """
+        Opens the "Edit Tags Commercial" window, establishes a database connection and closes the current menu.
+
+        Args:
+            EditTags_Menu (QtWidgets.QMainWindow): The Edit Tags menu window to be closed after opening the new window.
+        """
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]

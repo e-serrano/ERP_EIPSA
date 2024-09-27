@@ -20,13 +20,36 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
 class Ui_ClientsGeneralResume_Window(object):
+    """
+    UI class for the Clients General Resume window.
+    """
     def setupUi(self, ClientsGeneralResume_Window):
+        """
+        Sets up the user interface for the ClientsGeneralResume_Window.
+
+        Args:
+            ClientsGeneralResume_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         ClientsGeneralResume_Window.setObjectName("ClientsGeneralResume_Window")
         ClientsGeneralResume_Window.resize(790, 595)
         ClientsGeneralResume_Window.setMinimumSize(QtCore.QSize(1200, 900))
@@ -238,7 +261,11 @@ class Ui_ClientsGeneralResume_Window(object):
         self.tableClientsResume.itemDoubleClicked.connect(self.on_item_double_clicked) #Asign function wjen double click on cell
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, ClientsGeneralResume_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         ClientsGeneralResume_Window.setWindowTitle(_translate("ClientsGeneralResume_Window", "Resumen Clientes"))
         self.tableClientsResume.setSortingEnabled(True)
@@ -256,6 +283,12 @@ class Ui_ClientsGeneralResume_Window(object):
 
 
     def graphsclientsselected(self):
+        """
+        Generates a pie chart showing the proportion of products sold for clients with checked rows in the table.
+
+        Raises:
+            psycopg2.DatabaseError: If an error occurs while querying the PostgreSQL database.
+        """
         for row in range(self.tableClientsResume.rowCount()):
             if self.tableClientsResume.item(row,0).checkState() == QtCore.Qt.CheckState.Checked:
                 print([self.tableClientsResume.item(row,col).text() for col in range(2)])#range(self.tableClientsResume.columnCount())]) #PRINTA UNA LISTA POR CADA FILA CON TODOS LOS VALORES DE LA FILA
@@ -317,12 +350,24 @@ class Ui_ClientsGeneralResume_Window(object):
 
 # Function to check if column index of double clicked cell is equal to first column index
     def on_item_double_clicked(self, item):
+        """
+        Triggers the `clientresume` function if a double-clicked cell is in the first column.
+
+        Args:
+            item (QTableWidgetItem): The item that was double-clicked in the table.
+        """
         if item.column() == 0:
             self.clientresume(item)
 
 
 # Function when double clicked cell is in first column
     def clientresume(self, item):
+        """
+        Opens the client resume window for the selected client.
+
+        Args:
+            item (QTableWidgetItem): The item representing the client's name.
+        """
         clientname=item.text()
         self.client_resume_window=QtWidgets.QMainWindow()
         self.ui=Ui_ClientResume_Window(clientname)

@@ -5,11 +5,34 @@ import os
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
     def paint(self, painter, option, index):
+        """
+        Custom paint method to render the cell content and apply background colors 
+        based on specific conditions for a column's value.
+
+        Args:
+            painter (QPainter): The painter used to render the cell.
+            option (QStyleOptionViewItem): The style options for the cell.
+            index (QModelIndex): The index of the cell being painted.
+        """
         super().paint(painter, option, index)
 
         if index.column() == 0:  # Column to paint
@@ -312,7 +335,16 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
 
 class Ui_PaletteColourT_Window(object):
+    """
+    Main window class for the PaletteColourT. Manages the UI and interactions with the database.
+    """
     def setupUi(self, PaletteColourT_Window):
+        """
+        Sets up the user interface components for the main application window.
+
+        Args:
+            PaletteColourT_Window (QtWidgets.QMainWindow): The main window object to set up.
+        """
         PaletteColourT_Window.setWindowTitle("Paleta de colores")
         PaletteColourT_Window.setObjectName("PaletteColourT_Window")
         PaletteColourT_Window.resize(790, 595)
@@ -347,6 +379,7 @@ class Ui_PaletteColourT_Window(object):
         self.populate_table()
 
     def populate_table(self):
+        """Fills the table with data, applies alignment, and adjusts column widths."""
         num_rows = len(self.data_list)
         self.table.setRowCount(num_rows)
 
@@ -365,12 +398,12 @@ class Ui_PaletteColourT_Window(object):
 
 
 
-if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
-    window = QtWidgets.QMainWindow()
-    ui = Ui_PaletteColourT_Window()
-    ui.setupUi(window)
-    window.show()
-    sys.exit(app.exec())
+# if __name__ == '__main__':
+#     app = QtWidgets.QApplication(sys.argv)
+#     window = QtWidgets.QMainWindow()
+#     ui = Ui_PaletteColourT_Window()
+#     ui.setupUi(window)
+#     window.show()
+#     sys.exit(app.exec())
 
 

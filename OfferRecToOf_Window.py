@@ -15,10 +15,25 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_OfferRecToOf_Window(object):
+    """
+    UI class for the Offer rec to of window.
+    """
     def __init__(self, id_offer = None):
+        """
+        Initializes the Ui_OfferRecToOf_Window with the specified offer id.
+
+        Args:
+            id_offer (str): offer id associated with the window.
+        """
         self.id_offer = id_offer
 
     def setupUi(self, OfferRecToOf_Window):
+        """
+        Sets up the user interface for the OfferRecToOf_Window.
+
+        Args:
+            OfferRecToOf_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         OfferRecToOf_Window.setObjectName("OfferRecToOf_Window")
         OfferRecToOf_Window.resize(670, 425)
         OfferRecToOf_Window.setMinimumSize(QtCore.QSize(1100, 500))
@@ -548,7 +563,11 @@ class Ui_OfferRecToOf_Window(object):
             self.queryofferdata()
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, OfferRecToOf_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         OfferRecToOf_Window.setWindowTitle(_translate("OfferRecToOf_Window", "Oferta"))
         self.label_NumOffer.setText(_translate("OfferRecToOf_Window", "Nº Oferta:"))
@@ -577,6 +596,9 @@ class Ui_OfferRecToOf_Window(object):
 
 
     def editoffer(self):
+        """
+        Edit the corresponding entry in database after validating form inputs.
+        """
         numoffer=self.NumOffer_EditOffer.text()
         client=self.Client_EditOffer.text()
         finalclient=self.FinalClient_EditOffer.text()
@@ -724,6 +746,10 @@ class Ui_OfferRecToOf_Window(object):
 
 
     def queryofferdata(self):
+        """
+        Queries the database for offer data based on the offer number provided by the user. It displays the retrieved information 
+        in the corresponding form fields.
+        """
     #SQL Query for loading existing data in database
         commands_loaddataoffer = ("""
                     SELECT received_offers."client", received_offers."final_client", received_offers."num_ref_offer", received_offers."state", received_offers."material",

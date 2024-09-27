@@ -23,7 +23,21 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
@@ -205,7 +219,11 @@ class Ui_ArtMov_Window(object):
         self.ItemName.currentIndexChanged.connect(self.loaddata)
         self.Button_Export.clicked.connect(self.generate_excel)
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, ReportArtMov):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         ReportArtMov.setWindowTitle(_translate("ReportArtMov", "Mov. Artículo"))
         item = self.tableWidget.horizontalHeaderItem(0)
@@ -222,6 +240,10 @@ class Ui_ArtMov_Window(object):
 
 # Function to load data in table
     def loaddata(self):
+        """
+        Queries the database based on selected item, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         supply_name=self.ItemName.currentText()
         supply_name=supply_name[:supply_name.find(" |")]
 
@@ -305,6 +327,9 @@ class Ui_ArtMov_Window(object):
 
 # Function to calculate total
     def calculate_totalqty(self):
+            """
+            Calculates the total quantity of elements based on the data in the table widget.
+            """
             locale.setlocale(locale.LC_ALL, '')
             total = 0
             for row in range(self.tableWidget.rowCount()):
@@ -317,6 +342,9 @@ class Ui_ArtMov_Window(object):
 
 # Function to generate excel
     def generate_excel(self):
+        """
+        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
+        """
         output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
 
         if output_path:

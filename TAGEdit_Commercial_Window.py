@@ -26,57 +26,138 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
+    """
+    Converts an image in PNG format to a base64 encoded string.
+
+    Args:
+        imagen: An instance of QImage or QPixmap to be converted.
+    Return: 
+        A base64 encoded string representing the image in PNG format.
+    """
     buffer = QtCore.QBuffer()
     buffer.open(QtCore.QIODevice.OpenModeFlag.WriteOnly)
     imagen.save(buffer, ".png")
     base64_data = buffer.data().toBase64().data().decode()
     return base64_data
 
-
-class CheckboxWidget(QtWidgets.QWidget):
-    def __init__(self, text):
-        super().__init__()
-        layout = QtWidgets.QHBoxLayout(self)
-        self.checkbox = QtWidgets.QCheckBox(text)
-        layout.addWidget(self.checkbox)
-
-
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
-
 class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A delegate for editing combobox items in a view.
+
+    Attributes:
+        options (list): List of options to populate the combobox.
+    """
     def __init__(self, parent=None, options=None):
+        """
+        Initializes the EditableComboBoxDelegate with the specified options.
+
+        Args:
+            parent (QtWidgets.QWidget, optional): Parent widget.
+            options (list, optional): List of options for the combobox.
+        """
         super().__init__(parent)
         self.options = options
 
     def createEditor(self, parent, option, index):
+        """
+        Creates an editor for the combobox.
+
+        Args:
+            parent (QtWidgets.QWidget): Parent widget.
+            option (QtWidgets.QStyleOptionViewItem): Style options for the item.
+            index (QtCore.QModelIndex): Index of the item in the model.
+
+        Returns:
+            QtWidgets.QComboBox: The created combobox editor.
+        """
         editor = QtWidgets.QComboBox(parent)
         editor.setEditable(True)
         return editor
 
     def setEditorData(self, editor, index):
+        """
+        Sets the data for the combobox editor.
+
+        Args:
+            editor (QtWidgets.QComboBox): The combobox editor.
+            index (QtCore.QModelIndex): Index of the item in the model.
+        """
         text = index.data(Qt.ItemDataRole.DisplayRole)
         editor.addItems(self.options)
         editor.setEditText(text)
 
     def setModelData(self, editor, model, index):
+        """
+        Updates the model with the data from the combobox editor.
+
+        Args:
+            editor (QtWidgets.QComboBox): The combobox editor.
+            model (QtGui.QAbstractItemModel): The model to update.
+            index (QtCore.QModelIndex): Index of the item in the model.
+        """
         model.setData(index, editor.currentText(), Qt.ItemDataRole.EditRole)
 
-
 class CustomProxyModel(QtCore.QSortFilterProxyModel):
+    """
+    A custom proxy model that filters table rows based on expressions set for specific columns.
+
+    Attributes:
+        _filters (dict): A dictionary to store filter expressions for columns.
+        header_names (dict): A dictionary to store header names for the table.
+
+    Properties:
+        filters: Getter for the current filter dictionary.
+
+    """
     def __init__(self, parent=None):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
         super().__init__(parent)
         self._filters = dict()
         self.header_names = {}
 
     @property
     def filters(self):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
         return self._filters
 
     def setFilter(self, expresion, column, action_name=None):
+        """
+        Apply a filter expression to a specific column, or remove it if necessary.
+
+        Args:
+            expresion (str): The filter expression.
+            column (int): The index of the column to apply the filter to.
+            action_name (str, optional): Name of the action, can be empty. Defaults to None.
+        """
         if expresion or expresion == '':
             if column in self.filters:
                 if action_name or action_name == '':
@@ -95,6 +176,16 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
         self.invalidateFilter()
 
     def filterAcceptsRow(self, source_row, source_parent):
+        """
+        Check if a row passes the filter criteria based on the column filters.
+
+        Args:
+            source_row (int): The row number in the source model.
+            source_parent (QModelIndex): The parent index of the row.
+
+        Returns:
+            bool: True if the row meets the filter criteria, False otherwise.
+        """
         for column, expresions in self.filters.items():
             text = self.sourceModel().index(source_row, column, source_parent).data()
 
@@ -121,30 +212,83 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                 return False
         return True
 
-
 class EditableTableModel(QtSql.QSqlTableModel):
+    """
+    A custom SQL table model that supports editable columns, headers, and special flagging behavior based on user permissions.
+
+    Signals:
+        updateFailed (str): Signal emitted when an update to the model fails.
+    """
     updateFailed = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None, column_range=None):
+        """
+        Initialize the model with user permissions and optional database and column range.
+
+        Args:
+            username (str): The username for permission-based actions.
+            parent (QObject, optional): Parent object for the model. Defaults to None.
+            column_range (list, optional): A list specifying the range of columns. Defaults to None.
+        """
         super().__init__(parent)
         self.column_range = column_range
 
     def setAllColumnHeaders(self, headers):
+        """
+        Set headers for all columns in the model.
+
+        Args:
+            headers (list): A list of header names.
+        """
         for column, header in enumerate(headers):
             self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
 
     def setIndividualColumnHeader(self, column, header):
+        """
+        Set the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            header (str): The header name.
+        """
         self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
 
     def setIconColumnHeader(self, column, icon):
+        """
+        Set an icon in the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            icon (QIcon): The icon to display in the header.
+        """
         self.setHeaderData(column, QtCore.Qt.Orientation.Horizontal, icon, Qt.ItemDataRole.DecorationRole)
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        """
+        Retrieve the header data for a specific section of the model.
+
+        Args:
+            section (int): The section index (column or row).
+            orientation (Qt.Orientation): The orientation (horizontal or vertical).
+            role (Qt.ItemDataRole, optional): The role for the header data. Defaults to DisplayRole.
+
+        Returns:
+            QVariant: The header data for the specified section.
+        """
         if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
             return super().headerData(section, orientation, role)
         return super().headerData(section, orientation, role)
 
     def flags(self, index):
+        """
+        Get the item flags for a given index, controlling editability and selection based on user permissions.
+
+        Args:
+            index (QModelIndex): The index of the item.
+
+        Returns:
+            Qt.ItemFlags: The flags for the specified item.
+        """
         flags = super().flags(index)
         if index.column() in self.column_range:
             flags &= ~Qt.ItemFlag.ItemIsEditable
@@ -153,31 +297,43 @@ class EditableTableModel(QtSql.QSqlTableModel):
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
     def getColumnHeaders(self, visible_columns):
+        """
+        Retrieve the headers for the specified visible columns.
+
+        Args:
+            visible_columns (list): List of column indices that are visible.
+
+        Returns:
+            list: A list of column headers for the visible columns.
+        """
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
 
-
-class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
-    def __init__(self, parent=None, options=None):
-        super().__init__(parent)
-        self.options = options
-
-    def createEditor(self, parent, option, index):
-        editor = QtWidgets.QComboBox(parent)
-        editor.setEditable(True)
-        return editor
-
-    def setEditorData(self, editor, index):
-        text = index.data(Qt.ItemDataRole.DisplayRole)
-        editor.addItems(self.options)
-        editor.setEditText(text)
-
-    def setModelData(self, editor, model, index):
-        model.setData(index, editor.currentText(), Qt.ItemDataRole.EditRole)
-
-
 class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
-    def __init__(self, db):
+    """
+    A window for editing tags in the application for commercial.
+
+    Attributes:
+        model (EditableTableModel): The data model for the table.
+        proxy (CustomProxyModel): The proxy model for filtering and sorting.
+        db (object): Database connection.
+        checkbox_states (dict): States of checkboxes.
+        dict_valuesuniques (dict): Unique values for columns.
+        dict_ordersort (dict): Sorting order for columns.
+        hiddencolumns (list): List of hidden column indices.
+        action_checkbox_map (dict): Map of actions to checkboxes.
+        checkbox_filters (dict): Filters based on checkbox states.
+        name (str): Name associated with the window.
+        variable (str): Variable used in the window.
+    """
+    def __init__(self, db, name=None):
+        """
+        Initializes the Ui_EditTags_Commercial_Window with the specified name and database connection.
+
+        Args:
+            name (str): Name associated with the window.
+            db (object): Database connection.
+        """
         super().__init__()
         self.model = EditableTableModel()
         self.proxy = CustomProxyModel()
@@ -189,17 +345,26 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.variable = ''
         self.action_checkbox_map = {}
         self.checkbox_filters = {}
+        self.name = name
         self.setupUi(self)
         self.model.dataChanged.connect(self.saveChanges)
 
     def closeEvent(self, event):
-    # Closing database connection
+        """
+        Handles the event triggered when the window is closed. Ensures models are cleared and database connections are closed.
+
+        Args:
+            event (QCloseEvent): The close event triggered when the window is about to close.
+        """
         if self.model:
             self.model.clear()
         self.closeConnection()
 
     def closeConnection(self):
-    # Closing database connection
+        """
+        Closes the database connection and clears any references to the models.
+        Also removes the 'drawing_index' database connection from Qt's connection list if it exists.
+        """
         self.tableEditTags.setModel(None)
         del self.model
         if self.db:
@@ -208,18 +373,24 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             if QtSql.QSqlDatabase.contains("qt_sql_default_connection"):
                 QtSql.QSqlDatabase.removeDatabase("qt_sql_default_connection")
 
-    def setupUi(self, EditTags_Window):
-        EditTags_Window.setObjectName("EditTags_Window")
-        EditTags_Window.resize(790, 595)
-        EditTags_Window.setMinimumSize(QtCore.QSize(790, 595))
+    def setupUi(self, EditTagsCommercial_Window):
+        """
+        Sets up the user interface for the EditTagsCommercial_Window.
+
+        Args:
+            EditTagsCommercial_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
+        EditTagsCommercial_Window.setObjectName("EditTagsCommercial_Window")
+        EditTagsCommercial_Window.resize(790, 595)
+        EditTagsCommercial_Window.setMinimumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        EditTags_Window.setWindowIcon(icon)
-        EditTags_Window.setStyleSheet(
+        EditTagsCommercial_Window.setWindowIcon(icon)
+        EditTagsCommercial_Window.setStyleSheet(
 ".QFrame {\n"
 "    border: 2px solid black;\n"
 "}")
-        self.centralwidget = QtWidgets.QWidget(parent=EditTags_Window)
+        self.centralwidget = QtWidgets.QWidget(parent=EditTagsCommercial_Window)
         self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -429,17 +600,17 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
-        EditTags_Window.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=EditTags_Window)
+        EditTagsCommercial_Window.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=EditTagsCommercial_Window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 790, 22))
         self.menubar.setObjectName("menubar")
-        EditTags_Window.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=EditTags_Window)
+        EditTagsCommercial_Window.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=EditTagsCommercial_Window)
         self.statusbar.setObjectName("statusbar")
-        EditTags_Window.setStatusBar(self.statusbar)
+        EditTagsCommercial_Window.setStatusBar(self.statusbar)
 
-        self.retranslateUi(EditTags_Window)
-        QtCore.QMetaObject.connectSlotsByName(EditTags_Window)
+        self.retranslateUi(EditTagsCommercial_Window)
+        QtCore.QMetaObject.connectSlotsByName(EditTagsCommercial_Window)
         self.Button_Clean.clicked.connect(self.clean_boxes)
         self.Button_Query.clicked.connect(self.query_tags)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
@@ -590,22 +761,35 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-    def retranslateUi(self, EditTags_Window):
+# Function to translate and updates the text of various UI elements
+    def retranslateUi(self, EditTagsCommercial_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
-        EditTags_Window.setWindowTitle(_translate("EditTags_Window", "Editar Tags"))
+        EditTagsCommercial_Window.setWindowTitle(_translate("EditTagsCommercial_Window", "Editar Tags"))
         self.tableEditTags.setSortingEnabled(True)
-        self.label_NumOffer.setText(_translate("EditTags_Window", "Nº Oferta:"))
-        self.Button_Query.setText(_translate("EditTags_Window", "Buscar"))
-        self.label_NumOrder.setText(_translate("EditTags_Window", "Nº Pedido:"))
-        self.Button_Clean.setText(_translate("EditTags_Window", "Vaciar Cuadros"))
+        self.label_NumOffer.setText(_translate("EditTagsCommercial_Window", "Nº Oferta:"))
+        self.Button_Query.setText(_translate("EditTagsCommercial_Window", "Buscar"))
+        self.label_NumOrder.setText(_translate("EditTagsCommercial_Window", "Nº Pedido:"))
+        self.Button_Clean.setText(_translate("EditTagsCommercial_Window", "Vaciar Cuadros"))
 
 # Function to clear the text boxes
     def clean_boxes(self):
+        """
+        Clear text boxes to write new data
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
         self.Numorder_EditTags.setText("")
         self.Numoffer_EditTags.setText("")
 
 # Function to delete all filters when tool button is clicked
     def delete_allFilters(self):
+        """
+        Resets all filters and updates the table model with unique values for each column.
+        """
         if self.proxy.rowCount() != 0:
             columns_number=self.model.columnCount()
             for index in range(columns_number):
@@ -643,6 +827,9 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
 # Function to save changes into database
     def saveChanges(self):
+        """
+        Saves changes made to the data models and updates unique values for each column.
+        """
         self.model.submitAll()
 
         for column in range(self.model.columnCount()):
@@ -659,6 +846,10 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
 # Function to load table and setting in the window
     def query_tags(self):
+        """
+        Queries the database for tags based on the number order, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         self.checkbox_states = {}
         self.dict_valuesuniques = {}
         self.dict_ordersort = {}
@@ -1128,7 +1319,10 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             columns_number=self.model.columnCount()
             for column in range(columns_number):
                 self.tableEditTags.setItemDelegateForColumn(column, None)
-            self.model.column_range = range(self.initial_column,columns_number)
+            if self.name is not None:
+                self.model.column_range = range(0,columns_number)
+            else:
+                self.model.column_range = range(self.initial_column,columns_number)
 
             if self.variable == 'Caudal':
                 for i in range(44,67):
@@ -1394,17 +1588,39 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_others[0]]))
                 self.tableEditTags.setItemDelegateForColumn(10, self.combo_itemtype)
 
+            self.tableEditTags.sortByColumn(1, QtCore.Qt.SortOrder.AscendingOrder)
+
             self.model.dataChanged.connect(self.saveChanges)
             self.selection_model = self.tableEditTags.selectionModel()
             self.selection_model.selectionChanged.connect(self.countSelectedCells)
         else:
             self.model.dataChanged.connect(self.saveChanges)
 
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("No hay TAGS introducidos para este pedido u oferta")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
+
 
         self.tableEditTags.doubleClicked.connect(lambda index: self.open_pics(index, self.variable))
 
 # Function to open equipment photos
     def open_pics(self, index, variable):
+        """
+        Opens a file based on the provided index and variable.
+
+        Args:
+            index (QModelIndex): The index representing the selected cell in the table.
+            variable (str): The variable type to determine the relevant column (e.g., 'Caudal', 'Temperatura', 'Nivel', 'Otros').
+
+        Raises:
+            Exception: If there is an error while trying to open the file, a message box displays the error details.
+        """
         if ((variable == 'Caudal' and index.column() == 156)
         or (variable == 'Temperatura' and index.column() == 166)
         or (variable == 'Nivel' and index.column() == 169)
@@ -1430,6 +1646,12 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
+        """
+        Displays a menu when a column header is clicked. The menu includes options for sorting, filtering, and managing column visibility.
+        
+        Args:
+            logicalIndex (int): Index of the clicked column.
+        """
         self.logicalIndex = logicalIndex
         self.menuValues = QtWidgets.QMenu(self)
         self.signalMapper = QtCore.QSignalMapper(self.tableEditTags)
@@ -1531,10 +1753,16 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
 # Function when cancel button of menu is clicked
     def menu_cancelbutton_triggered(self):
+        """
+        Hides the menu when the cancel button is clicked.
+        """
         self.menuValues.hide()
 
 # Function when accept button of menu is clicked
     def menu_acceptbutton_triggered(self):
+        """
+        Applies the selected filters and updates the table model with the new filters.
+        """
         for column, filters in self.checkbox_filters.items():
             if filters:
                 self.proxy.setFilter(filters, column)
@@ -1547,6 +1775,13 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
 # Function when select all checkbox is clicked
     def on_select_all_toggled(self, checked, action_name):
+        """
+        Toggles the state of all checkboxes in the filter menu when the 'Select All' checkbox is toggled.
+        
+        Args:
+            checked (bool): The checked state of the 'Select All' checkbox.
+            action_name (str): The name of the action (usually 'Select All').
+        """
         filterColumn = self.logicalIndex
         imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
@@ -1568,6 +1803,13 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
 # Function when checkbox of header menu is clicked
     def on_checkbox_toggled(self, checked, action_name):
+        """
+        Updates the filter state when an individual checkbox is toggled.
+        
+        Args:
+            checked (bool): The checked state of the checkbox.
+            action_name (str): The name of the checkbox.
+        """
         filterColumn = self.logicalIndex
         imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
@@ -1589,6 +1831,9 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
 # Function to delete individual column filter
     def on_actionDeleteFilterColumn_triggered(self):
+        """
+        Removes the filter from the selected column and updates the table model.
+        """
         filterColumn = self.logicalIndex
         if filterColumn in self.proxy.filters:
                 del self.proxy.filters[filterColumn]
@@ -1615,18 +1860,27 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
 # Function to order column ascending
     def on_actionSortAscending_triggered(self):
+        """
+        Sorts the selected column in ascending order.
+        """
         sortColumn = self.logicalIndex
         sortOrder = Qt.SortOrder.AscendingOrder
         self.tableEditTags.sortByColumn(sortColumn, sortOrder)
 
 # Function to order column descending
     def on_actionSortDescending_triggered(self):
+        """
+        Sorts the selected column in descending order.
+        """
         sortColumn = self.logicalIndex
         sortOrder = Qt.SortOrder.DescendingOrder
         self.tableEditTags.sortByColumn(sortColumn, sortOrder)
 
 # Function when text is searched
     def on_actionTextFilter_triggered(self):
+        """
+        Opens a dialog to enter a text filter and applies it to the selected column.
+        """
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
@@ -1651,18 +1905,29 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
 # Function to hide column when action clicked
     def hide_column(self):
+        """
+        Hides the selected column in the table view.
+        """
         filterColumn = self.logicalIndex
         self.tableEditTags.setColumnHidden(filterColumn, True)
         self.hiddencolumns.append(filterColumn)
 
 # Function to show all hidden columns
     def show_columns(self):
+        """
+        Makes all previously hidden columns visible in the table and clears the list of hidden columns.
+        """
         for column in self.hiddencolumns:
             self.tableEditTags.setColumnHidden(column, False)
         self.hiddencolumns.clear()
 
 # Function to export data to excel
     def exporttoexcel(self):
+        """
+        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
+
+        Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
+        """
         if self.proxy.rowCount() == 0:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
@@ -1698,6 +1963,12 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
 # Function to enable copy and paste cells
     def keyPressEvent(self, event):
+        """
+        Handles custom key events for cell operations in the table.
+
+        Args:
+            event (QtGui.QKeyEvent): The key event to handle.
+        """
         if event.matches(QKeySequence.StandardKey.Copy):
             if self.tableEditTags.selectionModel() != None:
                 selected_indexes = self.tableEditTags.selectionModel().selectedIndexes()
@@ -1709,6 +1980,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     clipboard.setText(text)
 
         elif event.matches(QKeySequence.StandardKey.Paste):
+            self.model.dataChanged.disconnect(self.saveChanges)
             if self.tableEditTags.selectionModel() != None:
                 selected_indexes = self.tableEditTags.selectionModel().selectedIndexes()
                 if selected_indexes:
@@ -1728,10 +2000,21 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                             self.model.setData(target_index, text, Qt.ItemDataRole.EditRole)
                     self.model.submitAll()
 
+            self.model.dataChanged.connect(self.saveChanges)
+
         super().keyPressEvent(event)
 
 # Function to get the text of the selected cells
     def get_selected_text(self, indexes):
+        """
+        Retrieves the text from the selected cells and returns it as a plain text string.
+
+        Args:
+            indexes (list of QModelIndex): A list of QModelIndex objects representing the selected cells.
+        
+        Returns:
+            str: A string containing the text from the selected cells.
+        """
         if len(indexes) == 1:  # For only one cell selected
             index = indexes[0]
             cell_data = index.data(Qt.ItemDataRole.DisplayRole)
@@ -1758,6 +2041,9 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
 # Function to count selected cells and sum its values
     def countSelectedCells(self):
+        """
+        Counts the number of selected cells and sums their values. Updates the UI labels with the count and sum.
+        """
         if len(self.tableEditTags.selectedIndexes()) > 1:
             locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
             self.label_SumItems.setText("")
@@ -1781,6 +2067,15 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
 # Function to format money string values
     def euro_string_to_float(self, euro_str):
+        """
+        Converts a string representing an amount in euros to a float.
+
+        Args:
+            euro_str (str): A string representing the amount in euros (e.g., "1.234,56 €").
+        
+        Returns:
+            float: The numeric value of the amount as a float.
+        """
         match = re.match(r'^([\d.,]+)\s€$', euro_str)
         if match:
             number_str = match.group(1)
@@ -1791,18 +2086,30 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
 # Function for creating context menu
     def createContextMenu(self):
+        """
+        Creates a context menu with options for hiding selected columns.
+        """
         self.context_menu = QtWidgets.QMenu(self)
         hide_columns_action = self.context_menu.addAction("Ocultar Columnas")
         hide_columns_action.triggered.connect(self.hideSelectedColumns)
 
 # Function to show context menu when right-click
     def showColumnContextMenu(self, pos):
+        """
+        Displays the context menu at the specified position for column operations.
+
+        Args:
+            pos (QPoint): The position at which to display the context menu.
+        """
         header = self.tableEditTags.horizontalHeader()
         column = header.logicalIndexAt(pos)
         self.context_menu.exec(self.tableEditTags.mapToGlobal(pos))
 
 # Function to hide selected columns
     def hideSelectedColumns(self):
+        """
+        Hides the currently selected columns in the table and updates the list of hidden columns.
+        """
         selected_columns = set()
         header = self.tableEditTags.horizontalHeader()
         for index in header.selectionModel().selectedColumns():
@@ -1829,6 +2136,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    EditTags_Window = Ui_EditTags_Commercial_Window(db)
-    EditTags_Window.show()
+    EditTagsCommercial_Window = Ui_EditTags_Commercial_Window(db)
+    EditTagsCommercial_Window.show()
     sys.exit(app.exec())

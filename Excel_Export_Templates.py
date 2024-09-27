@@ -22,7 +22,39 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 # Templates for orders
 
 class offer_flow:
+    """
+    A class to manage export offer details for flow equipments.
+    
+    Attributes:
+        numoffer (str): Offer number.
+        username (str): Name of the user creating the offer.
+        rev (str): Revision number of the offer.
+        project (str): Name of the project.
+        delivery_term (str): Delivery terms for the offer.
+        delivery_time (str): Expected delivery time.
+        validity (str): Validity period of the offer.
+        pay_term (str): Payment terms.
+        testinspection (str): Information about testing and inspection.
+        revchanges (str): Details of changes made in the revision.
+        notes (str): Additional notes, split by line.
+    """
     def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
+        """
+        Initializes the offer.
+
+        Args:
+            numoffer (str): Offer number.
+            username (str): Name of the user creating the offer.
+            rev (str): Revision number of the offer.
+            project (str): Name of the project.
+            delivery_term (str): Delivery terms for the offer.
+            delivery_time (str): Expected delivery time.
+            validity (str): Validity period of the offer.
+            pay_term (str): Payment terms.
+            testinspection (str): Information about testing and inspection.
+            revchanges (str): Details of changes made in the revision.
+            notes (str): Additional notes, split by line.
+        """
         notes = notes.split('\n')
         
         date_offer = date.today().strftime("%d/%m/%Y")
@@ -690,12 +722,24 @@ class offer_flow:
                 conn.close()
 
     def euros_to_float(self, value):
+        """
+        Converts a string value representing an amount in euros to a float.
+        
+        Args:
+            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
+        
+        Returns:
+            float: The numeric value of the amount in euros.
+        """
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
         return float(value)
 
     def save_excel_commercial(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
         output_path_commercial = asksaveasfilename(
             defaultextension=".xlsx",
@@ -707,6 +751,9 @@ class offer_flow:
             return output_path_commercial
 
     def save_excel_technical(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         output_path_technical = asksaveasfilename(
             defaultextension=".xlsx",
             filetypes=[("Archivos de Excel", "*.xlsx")],
@@ -716,11 +763,49 @@ class offer_flow:
             self.wb_technical.save(output_path_technical)
 
     def adjust_images(self, sheet):
+        """
+        Adjusts the width of all images in the provided spreadsheet sheet by decreasing each by 22 units.
+        
+        Args:
+            sheet: The spreadsheet sheet containing images to be adjusted.
+        """
         for image in sheet._images:
             image.width -= 22
 
 class offer_short_flow_spanish:
+    """
+    A class to manage export offer (short format in spanish) details for flow equipments.
+    
+    Attributes:
+        numoffer (str): Offer number.
+        username (str): Name of the user creating the offer.
+        rev (str): Revision number of the offer.
+        project (str): Name of the project.
+        delivery_term (str): Delivery terms for the offer.
+        delivery_time (str): Expected delivery time.
+        validity (str): Validity period of the offer.
+        pay_term (str): Payment terms.
+        testinspection (str): Information about testing and inspection.
+        revchanges (str): Details of changes made in the revision.
+        notes (str): Additional notes, split by line.
+    """
     def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
+        """
+        Initializes the offer.
+
+        Args:
+            numoffer (str): Offer number.
+            username (str): Name of the user creating the offer.
+            rev (str): Revision number of the offer.
+            project (str): Name of the project.
+            delivery_term (str): Delivery terms for the offer.
+            delivery_time (str): Expected delivery time.
+            validity (str): Validity period of the offer.
+            pay_term (str): Payment terms.
+            testinspection (str): Information about testing and inspection.
+            revchanges (str): Details of changes made in the revision.
+            notes (str): Additional notes, split by line.
+        """
         notes = notes.split('\n')
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
@@ -1304,12 +1389,24 @@ class offer_short_flow_spanish:
                 conn.close()
 
     def euros_to_float(self, value):
+        """
+        Converts a string value representing an amount in euros to a float.
+        
+        Args:
+            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
+        
+        Returns:
+            float: The numeric value of the amount in euros.
+        """
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
         return float(value)
 
     def save_excel_commercial(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
         output_path_commercial = asksaveasfilename(
             defaultextension=".xlsx",
@@ -1321,6 +1418,9 @@ class offer_short_flow_spanish:
             return output_path_commercial
 
     def save_excel_technical(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         output_path_technical = asksaveasfilename(
             defaultextension=".xlsx",
             filetypes=[("Archivos de Excel", "*.xlsx")],
@@ -1330,11 +1430,49 @@ class offer_short_flow_spanish:
             self.wb_technical.save(output_path_technical)
 
     def adjust_images(self, sheet):
+        """
+        Adjusts the width of all images in the provided spreadsheet sheet by decreasing each by 22 units.
+        
+        Args:
+            sheet: The spreadsheet sheet containing images to be adjusted.
+        """
         for image in sheet._images:
             image.width -= 22
 
 class offer_short_flow_english:
+    """
+    A class to manage export offer (short format in english) details for flow equipments.
+    
+    Attributes:
+        numoffer (str): Offer number.
+        username (str): Name of the user creating the offer.
+        rev (str): Revision number of the offer.
+        project (str): Name of the project.
+        delivery_term (str): Delivery terms for the offer.
+        delivery_time (str): Expected delivery time.
+        validity (str): Validity period of the offer.
+        pay_term (str): Payment terms.
+        testinspection (str): Information about testing and inspection.
+        revchanges (str): Details of changes made in the revision.
+        notes (str): Additional notes, split by line.
+    """
     def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
+        """
+        Initializes the offer.
+
+        Args:
+            numoffer (str): Offer number.
+            username (str): Name of the user creating the offer.
+            rev (str): Revision number of the offer.
+            project (str): Name of the project.
+            delivery_term (str): Delivery terms for the offer.
+            delivery_time (str): Expected delivery time.
+            validity (str): Validity period of the offer.
+            pay_term (str): Payment terms.
+            testinspection (str): Information about testing and inspection.
+            revchanges (str): Details of changes made in the revision.
+            notes (str): Additional notes, split by line.
+        """
         notes = notes.split('\n')
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
@@ -2002,12 +2140,24 @@ class offer_short_flow_english:
                 conn.close()
 
     def euros_to_float(self, value):
+        """
+        Converts a string value representing an amount in euros to a float.
+        
+        Args:
+            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
+        
+        Returns:
+            float: The numeric value of the amount in euros.
+        """
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
         return float(value)
 
     def save_excel_commercial(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
         output_path_commercial = asksaveasfilename(
             defaultextension=".xlsx",
@@ -2019,6 +2169,9 @@ class offer_short_flow_english:
             return output_path_commercial
 
     def save_excel_technical(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         output_path_technical = asksaveasfilename(
             defaultextension=".xlsx",
             filetypes=[("Archivos de Excel", "*.xlsx")],
@@ -2028,11 +2181,49 @@ class offer_short_flow_english:
             self.wb_technical.save(output_path_technical)
 
     def adjust_images(self, sheet):
+        """
+        Adjusts the width of all images in the provided spreadsheet sheet by decreasing each by 22 units.
+        
+        Args:
+            sheet: The spreadsheet sheet containing images to be adjusted.
+        """
         for image in sheet._images:
             image.width -= 22
 
 class offer_temp:
+    """
+    A class to manage export offer details for temp equipments.
+    
+    Attributes:
+        numoffer (str): Offer number.
+        username (str): Name of the user creating the offer.
+        rev (str): Revision number of the offer.
+        project (str): Name of the project.
+        delivery_term (str): Delivery terms for the offer.
+        delivery_time (str): Expected delivery time.
+        validity (str): Validity period of the offer.
+        pay_term (str): Payment terms.
+        testinspection (str): Information about testing and inspection.
+        revchanges (str): Details of changes made in the revision.
+        notes (str): Additional notes, split by line.
+    """
     def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
+        """
+        Initializes the offer.
+
+        Args:
+            numoffer (str): Offer number.
+            username (str): Name of the user creating the offer.
+            rev (str): Revision number of the offer.
+            project (str): Name of the project.
+            delivery_term (str): Delivery terms for the offer.
+            delivery_time (str): Expected delivery time.
+            validity (str): Validity period of the offer.
+            pay_term (str): Payment terms.
+            testinspection (str): Information about testing and inspection.
+            revchanges (str): Details of changes made in the revision.
+            notes (str): Additional notes, split by line.
+        """
         notes = notes.split('\n')
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
@@ -2748,12 +2939,24 @@ class offer_temp:
                 conn.close()
 
     def euros_to_float(self, value):
+        """
+        Converts a string value representing an amount in euros to a float.
+        
+        Args:
+            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
+        
+        Returns:
+            float: The numeric value of the amount in euros.
+        """
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
         return float(value)
 
     def save_excel_commercial(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
         output_path_commercial = asksaveasfilename(
             defaultextension=".xlsx",
@@ -2765,6 +2968,9 @@ class offer_temp:
             return output_path_commercial
 
     def save_excel_technical(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         output_path_technical = asksaveasfilename(
             defaultextension=".xlsx",
             filetypes=[("Archivos de Excel", "*.xlsx")],
@@ -2774,7 +2980,39 @@ class offer_temp:
             self.wb_technical.save(output_path_technical)
 
 class offer_short_temp_spanish:
+    """
+    A class to manage export offer (short format in spanish) details for temp equipments.
+    
+    Attributes:
+        numoffer (str): Offer number.
+        username (str): Name of the user creating the offer.
+        rev (str): Revision number of the offer.
+        project (str): Name of the project.
+        delivery_term (str): Delivery terms for the offer.
+        delivery_time (str): Expected delivery time.
+        validity (str): Validity period of the offer.
+        pay_term (str): Payment terms.
+        testinspection (str): Information about testing and inspection.
+        revchanges (str): Details of changes made in the revision.
+        notes (str): Additional notes, split by line.
+    """
     def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
+        """
+        Initializes the offer.
+
+        Args:
+            numoffer (str): Offer number.
+            username (str): Name of the user creating the offer.
+            rev (str): Revision number of the offer.
+            project (str): Name of the project.
+            delivery_term (str): Delivery terms for the offer.
+            delivery_time (str): Expected delivery time.
+            validity (str): Validity period of the offer.
+            pay_term (str): Payment terms.
+            testinspection (str): Information about testing and inspection.
+            revchanges (str): Details of changes made in the revision.
+            notes (str): Additional notes, split by line.
+        """
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
         offername_technical = numoffer + "-" + "Technical.Rev" + rev
@@ -3408,12 +3646,24 @@ class offer_short_temp_spanish:
                 conn.close()
 
     def euros_to_float(self, value):
+        """
+        Converts a string value representing an amount in euros to a float.
+        
+        Args:
+            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
+        
+        Returns:
+            float: The numeric value of the amount in euros.
+        """
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
         return float(value)
 
     def save_excel_commercial(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
         output_path_commercial = asksaveasfilename(
             defaultextension=".xlsx",
@@ -3425,6 +3675,9 @@ class offer_short_temp_spanish:
             return output_path_commercial
 
     def save_excel_technical(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         output_path_technical = asksaveasfilename(
             defaultextension=".xlsx",
             filetypes=[("Archivos de Excel", "*.xlsx")],
@@ -3434,7 +3687,39 @@ class offer_short_temp_spanish:
             self.wb_technical.save(output_path_technical)
 
 class offer_short_temp_english:
+    """
+    A class to manage export offer (short format in english) details for temp equipments.
+    
+    Attributes:
+        numoffer (str): Offer number.
+        username (str): Name of the user creating the offer.
+        rev (str): Revision number of the offer.
+        project (str): Name of the project.
+        delivery_term (str): Delivery terms for the offer.
+        delivery_time (str): Expected delivery time.
+        validity (str): Validity period of the offer.
+        pay_term (str): Payment terms.
+        testinspection (str): Information about testing and inspection.
+        revchanges (str): Details of changes made in the revision.
+        notes (str): Additional notes, split by line.
+    """
     def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes):
+        """
+        Initializes the offer.
+
+        Args:
+            numoffer (str): Offer number.
+            username (str): Name of the user creating the offer.
+            rev (str): Revision number of the offer.
+            project (str): Name of the project.
+            delivery_term (str): Delivery terms for the offer.
+            delivery_time (str): Expected delivery time.
+            validity (str): Validity period of the offer.
+            pay_term (str): Payment terms.
+            testinspection (str): Information about testing and inspection.
+            revchanges (str): Details of changes made in the revision.
+            notes (str): Additional notes, split by line.
+        """
         notes = notes.split('\n')
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
@@ -4150,12 +4435,24 @@ class offer_short_temp_english:
                 conn.close()
 
     def euros_to_float(self, value):
+        """
+        Converts a string value representing an amount in euros to a float.
+        
+        Args:
+            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
+        
+        Returns:
+            float: The numeric value of the amount in euros.
+        """
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
         return float(value)
 
     def save_excel_commercial(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
         output_path_commercial = asksaveasfilename(
             defaultextension=".xlsx",
@@ -4167,6 +4464,9 @@ class offer_short_temp_english:
             return output_path_commercial
 
     def save_excel_technical(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         output_path_technical = asksaveasfilename(
             defaultextension=".xlsx",
             filetypes=[("Archivos de Excel", "*.xlsx")],
@@ -4176,7 +4476,39 @@ class offer_short_temp_english:
             self.wb_technical.save(output_path_technical)
 
 class offer_level:
+    """
+    A class to manage export offer details for level equipments.
+    
+    Attributes:
+        numoffer (str): Offer number.
+        username (str): Name of the user creating the offer.
+        rev (str): Revision number of the offer.
+        project (str): Name of the project.
+        delivery_term (str): Delivery terms for the offer.
+        delivery_time (str): Expected delivery time.
+        validity (str): Validity period of the offer.
+        pay_term (str): Payment terms.
+        testinspection (str): Information about testing and inspection.
+        revchanges (str): Details of changes made in the revision.
+        notes (str): Additional notes, split by line.
+    """
     def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes,):
+        """
+        Initializes the offer.
+
+        Args:
+            numoffer (str): Offer number.
+            username (str): Name of the user creating the offer.
+            rev (str): Revision number of the offer.
+            project (str): Name of the project.
+            delivery_term (str): Delivery terms for the offer.
+            delivery_time (str): Expected delivery time.
+            validity (str): Validity period of the offer.
+            pay_term (str): Payment terms.
+            testinspection (str): Information about testing and inspection.
+            revchanges (str): Details of changes made in the revision.
+            notes (str): Additional notes, split by line.
+        """
         notes = notes.split('\n')
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
@@ -4729,12 +5061,24 @@ class offer_level:
                 conn.close()
 
     def euros_to_float(self, value):
+        """
+        Converts a string value representing an amount in euros to a float.
+        
+        Args:
+            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
+        
+        Returns:
+            float: The numeric value of the amount in euros.
+        """
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
         return float(value)
 
     def save_excel_commercial(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
         output_path_commercial = asksaveasfilename(
             defaultextension=".xlsx",
@@ -4746,6 +5090,9 @@ class offer_level:
             return output_path_commercial
 
     def save_excel_technical(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         output_path_technical = asksaveasfilename(
             defaultextension=".xlsx",
             filetypes=[("Archivos de Excel", "*.xlsx")],
@@ -4755,7 +5102,39 @@ class offer_level:
             self.wb_technical.save(output_path_technical)
 
 class offer_short_level_spanish:
+    """
+    A class to manage export offer (short format in spanish) details for level equipments.
+    
+    Attributes:
+        numoffer (str): Offer number.
+        username (str): Name of the user creating the offer.
+        rev (str): Revision number of the offer.
+        project (str): Name of the project.
+        delivery_term (str): Delivery terms for the offer.
+        delivery_time (str): Expected delivery time.
+        validity (str): Validity period of the offer.
+        pay_term (str): Payment terms.
+        testinspection (str): Information about testing and inspection.
+        revchanges (str): Details of changes made in the revision.
+        notes (str): Additional notes, split by line.
+    """
     def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes,):
+        """
+        Initializes the offer.
+
+        Args:
+            numoffer (str): Offer number.
+            username (str): Name of the user creating the offer.
+            rev (str): Revision number of the offer.
+            project (str): Name of the project.
+            delivery_term (str): Delivery terms for the offer.
+            delivery_time (str): Expected delivery time.
+            validity (str): Validity period of the offer.
+            pay_term (str): Payment terms.
+            testinspection (str): Information about testing and inspection.
+            revchanges (str): Details of changes made in the revision.
+            notes (str): Additional notes, split by line.
+        """
         notes = notes.split('\n')
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
@@ -5226,12 +5605,24 @@ class offer_short_level_spanish:
                 conn.close()
 
     def euros_to_float(self, value):
+        """
+        Converts a string value representing an amount in euros to a float.
+        
+        Args:
+            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
+        
+        Returns:
+            float: The numeric value of the amount in euros.
+        """
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
         return float(value)
 
     def save_excel_commercial(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
         output_path_commercial = asksaveasfilename(
             defaultextension=".xlsx",
@@ -5243,6 +5634,9 @@ class offer_short_level_spanish:
             return output_path_commercial
 
     def save_excel_technical(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         output_path_technical = asksaveasfilename(
             defaultextension=".xlsx",
             filetypes=[("Archivos de Excel", "*.xlsx")],
@@ -5252,7 +5646,39 @@ class offer_short_level_spanish:
             self.wb_technical.save(output_path_technical)
 
 class offer_short_level_english:
+    """
+    A class to manage export offer (short format in english) details for level equipments.
+    
+    Attributes:
+        numoffer (str): Offer number.
+        username (str): Name of the user creating the offer.
+        rev (str): Revision number of the offer.
+        project (str): Name of the project.
+        delivery_term (str): Delivery terms for the offer.
+        delivery_time (str): Expected delivery time.
+        validity (str): Validity period of the offer.
+        pay_term (str): Payment terms.
+        testinspection (str): Information about testing and inspection.
+        revchanges (str): Details of changes made in the revision.
+        notes (str): Additional notes, split by line.
+    """
     def __init__(self, numoffer, username, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes,):
+        """
+        Initializes the offer.
+
+        Args:
+            numoffer (str): Offer number.
+            username (str): Name of the user creating the offer.
+            rev (str): Revision number of the offer.
+            project (str): Name of the project.
+            delivery_term (str): Delivery terms for the offer.
+            delivery_time (str): Expected delivery time.
+            validity (str): Validity period of the offer.
+            pay_term (str): Payment terms.
+            testinspection (str): Information about testing and inspection.
+            revchanges (str): Details of changes made in the revision.
+            notes (str): Additional notes, split by line.
+        """
         notes = notes.split('\n')
         date_offer = date.today().strftime("%d/%m/%Y")
         offername_commercial = numoffer + "-" + "Commercial.Rev" + rev
@@ -5805,12 +6231,33 @@ class offer_short_level_english:
                 conn.close()
 
     def euros_to_float(self, value):
+        """
+        Converts a string value representing an amount in euros to a float.
+        
+        Args:
+            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
+        
+        Returns:
+            float: The numeric value of the amount in euros.
+        """
+        """
+        Converts a string value representing an amount in euros to a float.
+        
+        Args:
+            value (str): The string representation of an amount in euros, with commas for decimal separation and ' €' for currency indication.
+        
+        Returns:
+            float: The numeric value of the amount in euros.
+        """
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]
         return float(value)
 
     def save_excel_commercial(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
         output_path_commercial = asksaveasfilename(
             defaultextension=".xlsx",
@@ -5822,6 +6269,9 @@ class offer_short_level_english:
             return output_path_commercial
 
     def save_excel_technical(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         output_path_technical = asksaveasfilename(
             defaultextension=".xlsx",
             filetypes=[("Archivos de Excel", "*.xlsx")],
@@ -5832,7 +6282,20 @@ class offer_short_level_english:
 
 # Templates for commercials
 class order_ovr:
+    """
+    A class to manage order OVR.
+    
+    Attributes:
+        num_order (str): The order number.
+        dict_orders (dict): A dictionary to store additional order details.
+    """
     def __init__(self, num_order):
+        """
+        Initializes an order_ovr instance with order number and an empty dictionary for storing orders.
+        
+        Args:
+            num_order (str): The order number.
+        """
         self.num_order = num_order
         dict_orders ={}
 
@@ -5948,7 +6411,9 @@ class order_ovr:
             last_row = last_row + 1
 
     def save_excel_ovr(self):
-        # Dialog window to select folder and file name; if path is selected, excel file is saved
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         output_path = asksaveasfilename(
             defaultextension=".xlsx",
             filetypes=[("Archivos de Excel", "*.xlsx")],
@@ -5959,7 +6424,21 @@ class order_ovr:
             return output_path
 
 class doc_situation:
+    """
+    A class to manage document situation of an order
+    
+    Attributes:
+        num_ref (str): The reference number for the document.
+        project (str): The name or identifier of the project.
+    """
     def __init__(self, num_ref, project):
+        """
+        Initializes a doc_situation instance with document reference and project information.
+        
+        Args:
+            num_ref (str): The reference number for the document.
+            project (str): The name or identifier of the project.
+        """
         self.num_ref = num_ref
         self.project = project
 
@@ -6036,6 +6515,9 @@ class doc_situation:
             last_row = ws.max_row
 
     def save_excel_doc(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
         # Dialog window to select folder and file name; if path is selected, excel file is saved
         output_path = asksaveasfilename(
             defaultextension=".xlsx",
@@ -6075,7 +6557,27 @@ class doc_situation:
 
 # Templates for technicals
 class nuclear_annexes:
+    """
+    A class to manage nuclear annex details.
+    
+    Attributes:
+        annex (str): The annex identifier.
+        numorder (str): The order number associated with the annex.
+        ana_code (str): The A.N.A. code.
+        ana_order (str): The A.N.A. order.
+        line (int): The line number within the annex.
+    """
     def __init__(self, annex, numorder, ana_code, ana_order, line):
+        """
+        Initializes a nuclear_annexes instance with annex details.
+        
+        Args:
+            annex (str): The annex identifier.
+            numorder (str): The order number associated with the annex.
+            ana_code (str): The A.N.A. code.
+            ana_order (str): The A.N.A. order.
+            line (int): The line number within the annex.
+        """
         self.annex = annex
         self.numorder = numorder
         self.ana_code = ana_code
@@ -6206,9 +6708,11 @@ class nuclear_annexes:
 
             ws_copy["B40"] = "PATRÓN " + new_df.iloc[0,2] + ", FLUKE 8842A(030), MEGHOMETRO (022)"
 
-
     def save_excel_doc(self):
-        # Dialog window to select folder and file name; if path is selected, excel file is saved
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
+        #Dialog window to select folder and file name; if path is selected, excel file is saved
         output_path = asksaveasfilename(
             defaultextension=".xlsx",
             filetypes=[("Archivos de Excel", "*.xlsx")],
@@ -6223,8 +6727,17 @@ class nuclear_annexes:
 
             return output_path
 
-
     def calculate_master(self, temp, master):
+        """
+        Calculates the standard value based on temperature and the type of master sensor.
+
+        Args:
+            temp (float or None): The temperature value to calculate the standard value for. If None, returns 'N/A'.
+            master (str): The master sensor type (e.g., 'EIPSA-020', 'EIPSA-TE-01').
+
+        Returns:
+            float or str: The calculated standard value, or 'N/A' if the temperature is None.
+        """
         if temp is not None:
             if master in ['EIPSA-020', 'EIPSA-TE-01']:
                 column_select = 'inta_pt100_values.' + master.replace('-','_')
@@ -6326,8 +6839,17 @@ class nuclear_annexes:
 
         return final_value
 
-
     def calculate_element(self, temp, sensor):
+        """
+        Calculates the standard value based on temperature and sensor type.
+
+        Args:
+            temp (float or None): The temperature value to calculate the standard value for. If None, returns 'N/A'.
+            sensor (str): The type of sensor used for the calculation (e.g., 'PT100', 'K', 'J', etc.).
+
+        Returns:
+            float or str: The calculated standard value, or 'N/A' if the temperature is None.
+        """
         if temp is not None:
             if 'PT100' in sensor:
                 commands_stdvalues = ("""
@@ -6463,7 +6985,21 @@ class nuclear_annexes:
         return final_value
 
 class material_order:
+    """Class for creating and saving an Excel order for raw materials.
+
+    Attributes:
+        wb (Workbook): The loaded Excel workbook.
+    """
     def __init__(self, df, num_order, client, variable, num_ot):
+        """Initializes the material order by loading a template and filling it with data.
+
+        Args:
+            df (DataFrame): DataFrame containing the data to populate the Excel template.
+            num_order (str): The order number.
+            client (str): The client name.
+            variable (str): Additional variable information.
+            num_ot (str): The order task number.
+        """
         # Loading Excel Template
         self.wb = load_workbook(
             r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Pedido Materia Prima.xlsx"
@@ -6488,14 +7024,17 @@ class material_order:
         ws["L4"] = num_order
         ws["C5"] = client
         ws["C6"] = variable
-        ws["H1"] = int(num_ot+1)
+        ws["H1"] = int(int(num_ot)+1)
         ws["H9"] = date.today().strftime("%d/%m/%Y")
 
         root = Tk()
         root.withdraw()  # Hiding main window Tkinter
 
     def save_excel(self):
-        # Dialog window to select folder and file name; if path is selected, excel file is saved
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
+        #Dialog window to select folder and file name; if path is selected, excel file is saved
         output_path = asksaveasfilename(
             defaultextension=".xlsx",
             filetypes=[("Archivos de Excel", "*.xlsx")],

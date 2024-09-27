@@ -15,13 +15,36 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
 class Ui_QueryTableChanges_Window(object):
+    """
+    UI class for the Quey changes in tables window.
+    """
     def setupUi(self, QueryTableChanges_Window):
+        """
+        Sets up the user interface for the QueryTableChanges_Window.
+
+        Args:
+            QueryTableChanges_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         QueryTableChanges_Window.setObjectName("QueryTableChanges_Window")
         QueryTableChanges_Window.resize(1000, 590)
         QueryTableChanges_Window.setMinimumSize(QtCore.QSize(845, 590))
@@ -184,7 +207,11 @@ class Ui_QueryTableChanges_Window(object):
         #self.tableQueryTableChanges.resizeColumnsToContents()
         #self.tableQueryTableChanges.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, QueryTableChanges_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         QueryTableChanges_Window.setWindowTitle(_translate("QueryTableChanges_Window", "Consultar Tablas Cambios"))
         self.label_TableChanges.setText(_translate("QueryTableChanges_Window", "Tabla:"))
@@ -210,6 +237,10 @@ class Ui_QueryTableChanges_Window(object):
 
 
     def querytablechanges(self):
+        """
+        Queries the database for selected table, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         table_selected = self.Table_QueryTableChanges.currentText()
         commands_queryoffer = f"SELECT * FROM logging.{table_selected}"
 
@@ -260,6 +291,10 @@ class Ui_QueryTableChanges_Window(object):
         finally:
             if conn is not None:
                 conn.close()
+
+
+
+
 
 if __name__ == "__main__":
     import sys

@@ -20,18 +20,52 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
 class Ui_App_Workshop(object):
+    """
+    Main application window for the workshop app.
+
+        Args:
+        name (str): The name of the user.
+        username (str): The username of the user.
+    """
     def __init__(self, name, username):
+        """
+        Initializes the main window, setting up the user interface and storing user-specific details.
+
+        Args:
+            name (str): The name of the user.
+            username (str): The username of the user.
+        """
         self.name=name
         self.username=username
 
 
     def setupUi(self, App_Workshop):
+        """
+        Sets up the user interface components for the main application window.
+
+        Args:
+            App_Workshop (QtWidgets.QMainWindow): The main window object to set up.
+        """
         App_Workshop.setObjectName("App_Workshop")
         App_Workshop.resize(945, 860)
         App_Workshop.setMinimumSize(QtCore.QSize(945, 860))
@@ -542,66 +576,6 @@ class Ui_App_Workshop(object):
         self.BottomLayout = QtWidgets.QHBoxLayout()
         self.BottomLayout.setContentsMargins(-1, 0, -1, -1)
         self.BottomLayout.setObjectName("BottomLayout")
-#         self.Calendar = QtWidgets.QCalendarWidget(parent=self.frame)
-#         self.Calendar.setEnabled(True)
-#         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
-#         sizePolicy.setHorizontalStretch(0)
-#         sizePolicy.setVerticalStretch(0)
-#         sizePolicy.setHeightForWidth(self.Calendar.sizePolicy().hasHeightForWidth())
-#         self.Calendar.setSizePolicy(sizePolicy)
-#         self.Calendar.setMinimumSize(QtCore.QSize(int(200), int(400)))
-#         self.Calendar.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
-#         font = QtGui.QFont()
-#         font.setPointSize(int(10))
-#         self.Calendar.setFont(font)
-#         self.Calendar.setStyleSheet("QCalendarWidget QWidget{\n"
-# "background-color: rgb(3, 174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QTableView{\n"
-# "    background-color: white;\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton {\n"
-# "    color: white;\n"
-# "    font-size:15px;\n"
-# "    icon-size:20px 20px;\n"
-# "    background-color:rgb(3, 174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton::hover {\n"
-# "    background-color : #019ad2;\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton::pressed {\n"
-# "    background-color: rgb(1, 140, 190);\n"
-# "    border: 3px solid;\n"
-# "    border-color: rgb(255, 255, 255);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QSpinBox{\n"
-# "    background-color: rgb(255, 255, 255);\n"
-# "    border: 2px solid;\n"
-# "    border-color: rgb(3,174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QAbstractItemView:enabled{\n"
-# "    selection-background-color: rgb(3, 174, 236);\n"
-# "    selection-color: white;\n"
-# "}\n"
-# "\n"
-# "#qt_calendar_prevmonth {\n"
-# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
-# "}\n"
-# "#qt_calendar_nextmonth {\n"
-# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
-# "}")
-#         self.Calendar.setSelectedDate(QtCore.QDate.currentDate())
-#         self.Calendar.setGridVisible(True)
-#         self.Calendar.setNavigationBarVisible(True)
-#         self.Calendar.setDateEditEnabled(True)
-#         self.Calendar.setObjectName("Calendar")
-#         self.BottomLayout.addWidget(self.Calendar)
         self.MainLayout.addLayout(self.BottomLayout)
         self.PrincipalScreen.addLayout(self.MainLayout)
         self.FrameApp.addLayout(self.PrincipalScreen)
@@ -636,7 +610,11 @@ class Ui_App_Workshop(object):
         self.load_notifications()
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, App_Workshop):
+        """
+        Translates and updates the text of various UI elements in the given App_Comercial.
+        """
         _translate = QtCore.QCoreApplication.translate
         App_Workshop.setWindowTitle(_translate("App_Workshop", "ERP EIPSA - Taller"))
         self.HeaderName.setText(_translate("App_Workshop", self.name))
@@ -649,6 +627,9 @@ class Ui_App_Workshop(object):
 
 # Function to open window to check notifications
     def notifications(self):
+        """
+        Opens a new window to show active notifications. 
+        """
         from NotificationsHistory_Window import Ui_HistoryNotifications_Window
         self.notification_window=Ui_HistoryNotifications_Window(self.username)
         self.notification_window.show()
@@ -656,6 +637,9 @@ class Ui_App_Workshop(object):
 
 # Function to open window to check tags
     def query_tag(self):
+        """
+        Opens a window for querying tags.
+        """
         from TAGEdit_Workshop_Window import Ui_EditTags_Workshop_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -673,6 +657,9 @@ class Ui_App_Workshop(object):
 
 # Function to open window with manufacture table
     def manufacture(self):
+        """
+        Opens the workshop window for manufacturing operations.
+        """
         from Workshop_Window import Ui_Workshop_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -692,6 +679,9 @@ class Ui_App_Workshop(object):
 
 # Function to open window with assembly table
     def assembly(self):
+        """
+        Opens the assembly window for managing assembly operations.
+        """
         from Assembly_Window import Ui_Assembly_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -709,6 +699,9 @@ class Ui_App_Workshop(object):
 
 # Function to open window with dispatch table
     def dispatch(self):
+        """
+        Opens the dispatch window for managing dispatch operations.
+        """
         from Dispatch_Window import Ui_Dispatch_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -730,6 +723,10 @@ class Ui_App_Workshop(object):
 
 # Function to show menu when Profile button is clicked 
     def showMenu(self):
+        """
+        Displays a context menu when the profile button is clicked. 
+        Provides options to edit the password.
+        """
         menu = QMenu(self.centralwidget)
         menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; font: 10px}"
         "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
@@ -741,6 +738,9 @@ class Ui_App_Workshop(object):
 
 # Function to open corresponding window when Edit Password option is clicked
     def editpassword(self):
+        """
+        Opens a new window for editing the user's password. 
+        """
         self.edit_password_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditPasswordWindow(self.username)
         self.ui.setupUi(self.edit_password_window)
@@ -748,6 +748,9 @@ class Ui_App_Workshop(object):
 
 # Function to load number of notifications
     def load_notifications(self):
+        """
+        Loads and displays notifications for the user from various tables in the 'notifications' schema.
+        """
         query_tables_notifications = """SELECT table_name
                                 FROM information_schema.tables
                                 WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
@@ -803,6 +806,9 @@ class Ui_App_Workshop(object):
 
 # Function to open window to check order drawings
     def index_drawing(self):
+        """
+        Loads and displays the workshop drawing index window after establishing a database connection.
+        """
         from WorkshopDrawingIndex_Window import Ui_WorkshopDrawingIndex_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -820,6 +826,9 @@ class Ui_App_Workshop(object):
 
 # Function to open colour palette table
     def colour_palette_M(self):
+        """
+        Opens the material colour palette table window.
+        """
         from ColourPaletteM_Window import Ui_PaletteColourM_Window
 
         self.palettecolourm_window = QtWidgets.QMainWindow()
@@ -829,6 +838,9 @@ class Ui_App_Workshop(object):
 
 # Function to open bolts colour palette table
     def colour_palette_T(self):
+        """
+        Opens the bolts colour palette table window.
+        """
         from ColourPaletteT_Window import Ui_PaletteColourT_Window
 
         self.palettecolourt_window = QtWidgets.QMainWindow()
@@ -838,6 +850,9 @@ class Ui_App_Workshop(object):
 
 # Function to open corresponding window when Verification button is clicked
     def verification(self):
+        """
+        Prompts the user to input an order number and displays the order verification window if valid.
+        """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -870,6 +885,9 @@ class Ui_App_Workshop(object):
 
 # Function to open window with workshop machines
     def workshop_machines(self):
+        """
+        Opens the workshop machines window for managing workshop machinery.
+        """
         from Workshop_Machines_Window import Ui_Workshop_Machines_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
@@ -887,6 +905,9 @@ class Ui_App_Workshop(object):
 
 # Function to open window with workshop machines
     def workshop_handtools(self):
+        """
+        Opens the workshop handtools window for managing hand tools.
+        """
         from Workshop_Handtools_Window import Ui_Workshop_Handtools_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")

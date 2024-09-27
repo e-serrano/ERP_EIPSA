@@ -15,11 +15,27 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_AddTask_Window(object):
+    """
+    UI class for the Add Task window.
+    """
     def __init__(self, name, date):
+        """
+        Initializes the Ui_AddTask_Window with a task name and selected date.
+
+        Args:
+            name (str): The name of the task.
+            date (str): The selected date for the task.
+        """
         self.name=name
         self.dateselected = date
 
     def setupUi(self, AddTask_Window):
+        """
+        Sets up the user interface for the QueryDoc_Window.
+
+        Args:
+            QueryDoc_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         AddTask_Window.setObjectName("AddTask_Window")
         AddTask_Window.resize(400, 561)
         AddTask_Window.setMinimumSize(QtCore.QSize(400, 375))
@@ -224,7 +240,11 @@ class Ui_AddTask_Window(object):
         QtCore.QMetaObject.connectSlotsByName(AddTask_Window)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, AddTask_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         AddTask_Window.setWindowTitle(_translate("AddTask_Window", "Crear Tarea"))
         self.labelValue.setText(_translate("AddTask_Window", "Tarea:"))
@@ -234,11 +254,14 @@ class Ui_AddTask_Window(object):
 
 
     def AddTask(self):
+        """
+        Creates a new entry in database after validating form inputs.
+        """
         task_value = self.lineEdit.toPlainText()
         state_date_checkbox = "Checked" if self.checkbox.isChecked() else "Unchecked"
         date_task = self.comboBox.date().toString(QtCore.Qt.DateFormat.ISODate) if state_date_checkbox == "Checked" else None
 
-        if self.name in ['Luis Bravo', 'Fernando Gallego']:
+        if self.name in ['Fernando Gallego']:
             responsible = self.Responsible_Task.currentText()
 
         else:
@@ -305,6 +328,12 @@ class Ui_AddTask_Window(object):
                     conn.close()
 
     def toggle_combo_box(self, state):
+        """
+        Toggles the visibility of a combo box based on the provided state.
+
+        Args:
+            state (int): The state of the checkbox (2 for checked, otherwise unchecked).
+        """
         if state == 2:
             self.comboBox.setVisible(True)
         else:

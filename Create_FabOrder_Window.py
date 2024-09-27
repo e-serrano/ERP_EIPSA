@@ -15,18 +15,54 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
 class Ui_CreateFabOrder_Window(object):
+    """
+    UI class for creating a Fabrication Order window.
+
+    Attributes:
+        variable (str): Represents the variable that will be used within the window.
+        proxy (QSortFilterProxyModel): Proxy model for filtering or sorting data.
+        model (QAbstractTableModel): The model holding the data for the fabrication order.
+    """
     def __init__(self, variable, proxy, model):
+        """
+        Initializes the Ui_CreateFabOrder_Window class.
+
+        Args:
+            variable (str): The variable relevant to the fabrication order.
+            proxy (QSortFilterProxyModel): The proxy model for sorting or filtering data.
+            model (QAbstractTableModel): The data model for the fabrication order window.
+        """
         self.variable = variable
         self.proxy = proxy
         self.model = model
 
     def setupUi(self, ElementsFabOrder_Window):
+        """
+        Sets up the user interface for the EditTagsTechnical_Window.
+
+        Args:
+            EditTagsTechnical_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         self.id_list = []
         data_list = []
         ElementsFabOrder_Window.setObjectName("ElementsFabOrder_Window")
@@ -323,7 +359,11 @@ class Ui_CreateFabOrder_Window(object):
         self.Button_Generate.clicked.connect(self.generate_ot)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, ElementsFabOrder_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         ElementsFabOrder_Window.setWindowTitle(_translate("ElementsFabOrder_Window", "Orden de Fabricación"))
         self.Button_Cancel.setText(_translate("ElementsFabOrder_Window", "Salir"))

@@ -17,7 +17,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_New_OrderAddData_Window(object):
+    """
+    UI class for the New Order Additional Data window.
+    """
     def setupUi(self, New_OrderAddData):
+        """
+        Sets up the user interface for the New_OrderAddData.
+
+        Args:
+            New_OrderAddData (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         New_OrderAddData.setObjectName("New_OrderAddData")
         New_OrderAddData.resize(680, 425)
         New_OrderAddData.setMinimumSize(QtCore.QSize(775, 425))
@@ -222,7 +231,11 @@ class Ui_New_OrderAddData_Window(object):
         QtCore.QMetaObject.connectSlotsByName(New_OrderAddData)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, New_OrderAddData):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         New_OrderAddData.setWindowTitle(_translate("New_OrderAddData", "Info Adicional"))
         self.label_Validity.setText(_translate("New_OrderAddData", "Validez Of. (días):"))
@@ -236,6 +249,9 @@ class Ui_New_OrderAddData_Window(object):
 
 
     def NewOrder(self, New_OrderAddData):
+        """
+        Creates a new entry in database after validating form inputs.
+        """
         numoffer=self.NumOffer_NewOrder.text()
         validity=self.Validity_NewOrder.text()
         project=self.Project_NewOrder.text()
@@ -245,7 +261,7 @@ class Ui_New_OrderAddData_Window(object):
                     else ('100_order' if self.PayTerm_NewOrder.currentText() == '100% pedido'
                     else ('90_10' if self.PayTerm_NewOrder.currentText() == '90%-10%'
                     else ('50_50' if self.PayTerm_NewOrder.currentText() == '50%-50%'
-                    else ('Others' if self.PayTerm_NewOrder.currentText() == 'Otros 'else '')))))
+                    else ('Others' if self.PayTerm_NewOrder.currentText() == 'Otros' else '')))))
 
         if numoffer=="" or (validity=="" or  (delivterm=="" or (delivtime=="" or payterm==""))):
             dlg = QtWidgets.QMessageBox()
@@ -353,6 +369,9 @@ class Ui_New_OrderAddData_Window(object):
 
 
     def queryofferdata(self):
+        """
+        Loads the form with the data of the offer inserted
+        """
         numoffer=self.NumOffer_NewOrder.text()
     #SQL Query for loading existing data in database
         commands_loaddataoffer = ("""

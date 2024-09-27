@@ -17,9 +17,6 @@ import psycopg2
 import pandas as pd
 from PDF_Viewer import PDF_Viewer
 from PDF_Styles import welding_homologation
-import configparser
-from Database_Connection import createConnection
-from TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
 from openpyxl import Workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
@@ -28,19 +25,57 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
 class Ui_App_Purchasing(object):
+    """
+    Ui_App_Invoicing represents the invoicing application interface.
+
+    Attributes:
+        name (str): The name of the application or user.
+        username (str): The username of the logged-in user.
+        pdf_viewer (PDF_Viewer): An instance of the PDF_Viewer class used to display PDFs.
+    """
     def __init__(self, name, username):
+        """
+        Initializes the Ui_App_Invoicing object with a user-specific name and username.
+
+        Args:
+            name (str): The name associated with the application or user.
+            username (str): The username of the current user.
+
+        Side Effects:
+            Creates an instance of the PDF_Viewer class for PDF handling.
+        """
         self.name=name
         self.username=username
         self.pdf_viewer = PDF_Viewer()
 
 
     def setupUi(self, App_Purchasing):
+        """
+        Sets up the user interface components for the main application window.
+
+        Args:
+            App_Purchasing (QtWidgets.QMainWindow): The main window object to set up.
+        """
         App_Purchasing.setObjectName("App_Purchasing")
         App_Purchasing.resize(945, 860)
         App_Purchasing.setMinimumSize(QtCore.QSize(945, 860))
@@ -136,66 +171,6 @@ class Ui_App_Purchasing(object):
         self.Header.addWidget(self.Button_Welding)
         spacerItem11 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem11)
-    #     self.Button_Backup = QtWidgets.QPushButton(parent=self.frame)
-    #     self.Button_Backup.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-    #     self.Button_Backup.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
-    #     self.Button_Backup.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-    #     if self.username == 'd.marquez':
-    #         self.Button_Backup.setStyleSheet("QPushButton{\n"
-    # "    border: 1px solid transparent;\n"
-    # "    border-color: rgb(3, 174, 236);\n"
-    # "    background-color: rgb(38, 38, 38);\n"
-    # "    border-radius: 10px;\n"
-    # "}\n"
-    # "\n"
-    # "QPushButton:hover{\n"
-    # "    border: 1px solid transparent;\n"
-    # "    border-color: rgb(0, 0, 0);\n"
-    # "    color: rgb(0,0,0);\n"
-    # "    background-color: rgb(255, 255, 255);\n"
-    # "    border-radius: 10px;\n"
-    # "}\n"
-    # "\n"
-    # "QPushButton:pressed{\n"
-    # "    border: 1px solid transparent;\n"
-    # "    border-color: rgb(0, 0, 0);\n"
-    # "    color: rgb(0,0,0);\n"
-    # "    background-color: rgb(200, 200, 200);\n"
-    # "    border-radius: 10px;\n"
-    # "}")
-    #     else:
-    #         self.Button_Backup.setStyleSheet("QPushButton{\n"
-    # "    border: 1px solid transparent;\n"
-    # "    border-color: rgb(3, 174, 236);\n"
-    # "    background-color: rgb(255, 255, 255);\n"
-    # "    border-radius: 10px;\n"
-    # "}\n"
-    # "\n"
-    # "QPushButton:hover{\n"
-    # "    border: 1px solid transparent;\n"
-    # "    border-color: rgb(0, 0, 0);\n"
-    # "    color: rgb(0,0,0);\n"
-    # "    background-color: rgb(255, 255, 255);\n"
-    # "    border-radius: 10px;\n"
-    # "}\n"
-    # "\n"
-    # "QPushButton:pressed{\n"
-    # "    border: 1px solid transparent;\n"
-    # "    border-color: rgb(0, 0, 0);\n"
-    # "    color: rgb(0,0,0);\n"
-    # "    background-color: rgb(200, 200, 200);\n"
-    # "    border-radius: 10px;\n"
-    # "}")
-    #     self.Button_Backup.setText("")
-    #     icon14 = QtGui.QIcon()
-    #     icon14.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Database_Backup.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-    #     self.Button_Backup.setIcon(icon14)
-    #     self.Button_Backup.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
-    #     self.Button_Backup.setObjectName("Button_Backup")
-    #     self.Button_Backup.setToolTip("BackUp Datos")
-    #     self.Header.addWidget(self.Button_Backup)
-    #     spacerItem12 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-    #     self.Header.addItem(spacerItem12)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -351,20 +326,6 @@ class Ui_App_Purchasing(object):
         self.Button_Purchasing.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
         self.Button_Purchasing.setObjectName("Button_Purchasing")
         self.verticalLayout_3.addWidget(self.Button_Purchasing)
-        # self.Button_PurchaseOrder = QtWidgets.QPushButton(parent=self.ButtonFrame)
-        # self.Button_PurchaseOrder.setMinimumSize(QtCore.QSize(200, 50))
-        # self.Button_PurchaseOrder.setMaximumSize(QtCore.QSize(200, 50))
-        # font = QtGui.QFont()
-        # font.setPointSize(int(12//1.5))
-        # font.setBold(True)
-        # self.Button_PurchaseOrder.setFont(font)
-        # self.Button_PurchaseOrder.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        # icon2 = QtGui.QIcon()
-        # icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Purchase_Order.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        # self.Button_PurchaseOrder.setIcon(icon2)
-        # self.Button_PurchaseOrder.setIconSize(QtCore.QSize(40, 40))
-        # self.Button_PurchaseOrder.setObjectName("Button_PurchaseOrder")
-        # self.verticalLayout_3.addWidget(self.Button_PurchaseOrder)
         self.Button_QueryOffer = QtWidgets.QPushButton(parent=self.ButtonFrame)
         self.Button_QueryOffer.setMinimumSize(QtCore.QSize(int(200//1.5), int(50//1.5)))
         self.Button_QueryOffer.setMaximumSize(QtCore.QSize(int(200//1.5), int(50//1.5)))
@@ -424,66 +385,6 @@ class Ui_App_Purchasing(object):
         self.BottomLayout = QtWidgets.QHBoxLayout()
         self.BottomLayout.setContentsMargins(-1, 0, -1, -1)
         self.BottomLayout.setObjectName("BottomLayout")
-#         self.Calendar = QtWidgets.QCalendarWidget(parent=self.frame)
-#         self.Calendar.setEnabled(True)
-#         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
-#         sizePolicy.setHorizontalStretch(0)
-#         sizePolicy.setVerticalStretch(0)
-#         sizePolicy.setHeightForWidth(self.Calendar.sizePolicy().hasHeightForWidth())
-#         self.Calendar.setSizePolicy(sizePolicy)
-#         self.Calendar.setMinimumSize(QtCore.QSize(int(200//1.5), int(400//1.5)))
-#         self.Calendar.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
-#         font = QtGui.QFont()
-#         font.setPointSize(int(10//1.5))
-#         self.Calendar.setFont(font)
-#         self.Calendar.setStyleSheet("QCalendarWidget QWidget{\n"
-# "background-color: rgb(3, 174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QTableView{\n"
-# "    background-color: white;\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton {\n"
-# "    color: white;\n"
-# "    font-size:15px;\n"
-# "    icon-size:20px 20px;\n"
-# "    background-color:rgb(3, 174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton::hover {\n"
-# "    background-color : #019ad2;\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QToolButton::pressed {\n"
-# "    background-color: rgb(1, 140, 190);\n"
-# "    border: 3px solid;\n"
-# "    border-color: rgb(255, 255, 255);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QSpinBox{\n"
-# "    background-color: rgb(255, 255, 255);\n"
-# "    border: 2px solid;\n"
-# "    border-color: rgb(3,174, 236);\n"
-# "}\n"
-# "\n"
-# "QCalendarWidget QAbstractItemView:enabled{\n"
-# "    selection-background-color: rgb(3, 174, 236);\n"
-# "    selection-color: white;\n"
-# "}\n"
-# "\n"
-# "#qt_calendar_prevmonth {\n"
-# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/back_arrow.png);\n"
-# "}\n"
-# "#qt_calendar_nextmonth {\n"
-# "    qproperty-icon: url(//nas01/DATOS/Comunes/EIPSA-ERP/Resources/Iconos/forward_arrow.png);\n"
-# "}")
-#         self.Calendar.setSelectedDate(QtCore.QDate.currentDate())
-#         self.Calendar.setGridVisible(True)
-#         self.Calendar.setNavigationBarVisible(True)
-#         self.Calendar.setDateEditEnabled(True)
-#         self.Calendar.setObjectName("Calendar")
-#         self.BottomLayout.addWidget(self.Calendar)
         self.MainLayout.addLayout(self.BottomLayout)
         self.PrincipalScreen.addLayout(self.MainLayout)
         self.FrameApp.addLayout(self.PrincipalScreen)
@@ -501,31 +402,34 @@ class Ui_App_Purchasing(object):
         self.retranslateUi(App_Purchasing)
         QtCore.QMetaObject.connectSlotsByName(App_Purchasing)
         self.Button_Purchasing.clicked.connect(self.purchase)
-        # self.Button_PurchaseOrder.clicked.connect(self.purchase_order)
         self.Button_QueryOffer.clicked.connect(self.query_offer)
         self.Button_QueryOrder.clicked.connect(self.query_order)
         self.Button_QueryTag.clicked.connect(self.query_tag)
         self.Button_Profile.clicked.connect(self.showMenu)
         self.Button_Welding.clicked.connect(self.welding_data)
-        # self.Button_Backup.clicked.connect(self.backup_data)
 
         self.backup_data()
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, App_Purchasing):
+        """
+        Translates and updates the text of various UI elements in the given App_Comercial.
+        """
         _translate = QtCore.QCoreApplication.translate
         App_Purchasing.setWindowTitle(_translate("App_Purchasing", "ERP EIPSA - Compras"))
         self.HeaderName.setText(_translate("App_Purchasing", self.name))
         self.Button_Purchasing.setText(_translate("App_Purchasing", "    Compras"))
-        # self.Button_PurchaseOrder.setText(_translate("App_Purchasing", " Orden de Compra"))
         self.Button_QueryOffer.setText(_translate("App_Purchasing", "    Consultar Ofertas"))
         self.Button_QueryOrder.setText(_translate("App_Purchasing", "   Consultar Pedidos"))
         self.Button_QueryTag.setText(_translate("App_Purchasing", "    Consultar TAG(s)"))
         self.table.setSortingEnabled(True)
 
-
 # Function to open menu with purchase department functions
     def purchase(self):
+        """
+        Opens a new window for open purchase menu. 
+        """
         from Purchasing_Menu import Ui_Purchasing_Menu
         self.purchasing_window=QtWidgets.QMainWindow()
         self.ui=Ui_Purchasing_Menu(self.name, self.username)
@@ -534,6 +438,9 @@ class Ui_App_Purchasing(object):
 
 # Function to open window for query offers
     def query_offer(self):
+        """
+        Opens a new window for querying offers. 
+        """
         from OfferQuery_Window import Ui_QueryOffer_Window
         self.query_offer_window=QtWidgets.QMainWindow()
         self.ui=Ui_QueryOffer_Window()
@@ -542,6 +449,9 @@ class Ui_App_Purchasing(object):
 
 # Function to open window for query orders
     def query_order(self):
+        """
+        Opens a new window for querying orders. 
+        """
         from OrderQuery_Window import Ui_QueryOrder_Window
         self.query_order_window=QtWidgets.QMainWindow()
         self.ui=Ui_QueryOrder_Window()
@@ -550,22 +460,21 @@ class Ui_App_Purchasing(object):
 
 # Function to open window for query tags
     def query_tag(self):
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
-        user_database = dbparam["user"]
-        password_database = dbparam["password"]
-
-        db_tag_com = createConnection(user_database, password_database)
-        if not db_tag_com:
-            sys.exit()
-
-        self.edit_tags_app = Ui_EditTags_Commercial_Window(db_tag_com)
-        self.edit_tags_app.showMaximized()
+        """
+        Opens a new window for querying tags. 
+        """
+        from TAGQuery_Menu import Ui_TAGQuery_Menu
+        self.querytag_window=QtWidgets.QMainWindow()
+        self.ui=Ui_TAGQuery_Menu('Comercial')
+        self.ui.setupUi(self.querytag_window)
+        self.querytag_window.show()
 
 # Function to show menu when profile button is pressed
     def showMenu(self):
+        """
+        Displays a context menu when the profile button is clicked. 
+        Provides options to edit the password.
+        """
         menu = QMenu(self.centralwidget)
         menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; font: 10px; color: white}"
         "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
@@ -577,6 +486,9 @@ class Ui_App_Purchasing(object):
 
 # Function to edit user password
     def editpassword(self):
+        """
+        Opens a new window for editing the user's password. 
+        """
         from PasswordEdit_Window import Ui_EditPasswordWindow
         self.edit_password_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditPasswordWindow(self.username)
@@ -585,6 +497,9 @@ class Ui_App_Purchasing(object):
 
 # Function to query data related to welding operation
     def welding_data(self):
+        """
+        Fetches welding data from the database and generates a PDF report of homologation status.
+        """
         commands_welding = ("""
                         SELECT personal."name", TO_CHAR(Max(imp_ot."date_ot"), 'dd/mm/yyyy') as max_date, operations."name_eipsa",
                         TO_CHAR(Max(imp_ot."date_ot") + INTERVAL '180 days', 'dd/mm/yyyy') AS hom_date,
@@ -688,6 +603,15 @@ class Ui_App_Purchasing(object):
 
 # Function to format date to long in spanish
     def format_date_spanish(self, date_toformat):
+        """
+        Formats a date object to a long string in Spanish.
+
+        Args:
+            date_toformat (date): The date to format.
+            
+        Returns:
+            str: The formatted date as a string in the format "day de month de year".
+        """
         months = ("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre")
         day = date_toformat.day
         month = months[date_toformat.month - 1]
@@ -698,6 +622,9 @@ class Ui_App_Purchasing(object):
 
 # Function to save all data related to purchasing departmen in Excel files
     def backup_data(self):
+        """
+        Backs up data by creating an Excel file for various purchase-related tables.
+        """
         base_path = Path.home() / "Documents" / "00 BACKUP-ERP"
         new_folder_path = base_path / (date.today().strftime("%Y-%m-%d"))
 
@@ -969,6 +896,9 @@ class Ui_App_Purchasing(object):
 
 # Function to transform euros to float values
     def euros_to_float(self, value):
+        """
+        Converts a euro-formatted string to a float.
+        """
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]

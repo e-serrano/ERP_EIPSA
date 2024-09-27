@@ -17,7 +17,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Login_Window(object):
+    """
+    Main window class for the Login Window. Manages the UI and interactions with the database.
+    """
     def setupUi(self, Login_Window):
+        """
+        Sets up the user interface components for the main application window.
+
+        Args:
+            Login_Window (QtWidgets.QMainWindow): The main window object to set up.
+        """
         self.Login_Window = Login_Window
         Login_Window.setObjectName("Login_Window")
         Login_Window.resize(670, 400)
@@ -272,7 +281,11 @@ class Ui_Login_Window(object):
         self.show_password.pressed.connect(self.start_show_timer)
         self.show_password.released.connect(self.stop_show_timer)
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, Login_Window):
+        """
+        Translates and updates the text of various UI elements in the given Login_Window.
+        """
         _translate = QtCore.QCoreApplication.translate
         Login_Window.setWindowTitle(_translate("Login_Window", "ERP EIPSA"))
         self.label_username_login.setText(_translate("Login_Window", "Nombre de Usuario:"))
@@ -282,6 +295,12 @@ class Ui_Login_Window(object):
 
 # Function to verify the login
     def verification_login(self):
+        """
+        Validates the user's login credentials. If the username or password fields are empty, 
+        displays a warning message. If credentials are provided, queries the database to verify 
+        the username and password. Depending on the user's role, opens the corresponding application 
+        window. Displays error messages for invalid username, incorrect password, or unrecognized roles.
+        """
         login_username = self.username_login.text().lower()
         login_password = self.password_login.text()
 
@@ -413,10 +432,10 @@ class Ui_Login_Window(object):
                     self.app_window.showMaximized()
                     self.Login_Window.close()
 
-                elif rol_app == "DirecciónF":
-                    from App_ManagerF import Ui_App_ManagerF
+                elif rol_app == "SubDirección":
+                    from App_SubManager import Ui_App_SubManager
                     self.app_window = QtWidgets.QMainWindow()
-                    self.ui_managerf = Ui_App_ManagerF(match[0][1]+' '+match[0][2], login_username)
+                    self.ui_managerf = Ui_App_SubManager(match[0][1]+' '+match[0][2], login_username)
                     self.ui_managerf.setupUi(self.app_window)
                     self.app_window.showMaximized()
                     self.Login_Window.close()
@@ -437,12 +456,6 @@ class Ui_Login_Window(object):
                     self.app_window.showMaximized()
                     self.Login_Window.close()
 
-                elif rol_app == 'Técnico-Comercial':
-                    from App_Technical_Commercial import Ui_App_Technical_Commerical
-                    self.ui_tech_comm = Ui_App_Technical_Commerical(match[0][1]+' '+match[0][2], login_username)
-                    self.ui_tech_comm.showMaximized()
-                    self.Login_Window.close()
-
                 else:
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
@@ -456,28 +469,27 @@ class Ui_Login_Window(object):
 
 # Function when password has been forgotten
     def forgetpassword(self):
+        """
+        Opens a window for password recovery.
+        """
         from PasswordForget_Window import Ui_ForgetPass_Window
         self.forgetpass_window=QtWidgets.QMainWindow()
         self.ui=Ui_ForgetPass_Window()
         self.ui.setupUi(self.forgetpass_window)
         self.forgetpass_window.show()
 
-        # dlg = QtWidgets.QMessageBox()
-        # new_icon = QtGui.QIcon()
-        # new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        # dlg.setWindowIcon(new_icon)
-        # dlg.setWindowTitle("ERP EIPSA")
-        # dlg.setText("Este módulo aún no está disponible. Póngase en contacto con el administrador del sistema.\nDisculpe las molestias")
-        # dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-        # dlg.exec()
-        # del dlg, new_icon
-
 # Function to start timer when password view button is clicked
     def start_show_timer(self):
+        """
+        Sets the password field to normal mode, showing the password in plain text.
+        """
         self.password_login.setEchoMode(QtWidgets.QLineEdit.EchoMode.Normal)
 
 # Function to stop timer when password view button is clicked
     def stop_show_timer(self):
+        """
+        Sets the password field to password mode, hiding the password.
+        """
         self.password_login.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
 
 

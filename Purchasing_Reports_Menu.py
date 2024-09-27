@@ -28,7 +28,24 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
+    """
+    UI class for the Purchasing Reports Menu window.
+
+    Attributes:
+        name (str): The name of the user or the report being handled.
+        username (str): The username of the logged-in user.
+        pdf_viewer (PDF_Viewer): An instance of `PDF_Viewer` to view PDF reports.
+    """
     def __init__(self, name, username):
+        """
+        Initializes the `Ui_Purchasing_Reports_Menu` window with the provided user information and sets up the UI.
+
+        Args:
+            name (str): The name of the user or report.
+            username (str): The username of the logged-in user.
+
+        The `PDF_Viewer` component is initialized for viewing reports in PDF format.
+        """
         super().__init__() 
         self.name=name
         self.username=username
@@ -36,6 +53,12 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
         self.setupUi(self)
 
     def setupUi(self, Purchasing_Reports_Menu):
+        """
+        Sets up the user interface for the Purchasing_Reports_Menu.
+
+        Args:
+            Purchasing_Reports_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         Purchasing_Reports_Menu.setObjectName("Purchasing_Reports_Menu")
         Purchasing_Reports_Menu.setWindowModality(QtCore.Qt.WindowModality.WindowModal)
         Purchasing_Reports_Menu.resize(615, 400)
@@ -209,7 +232,11 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(Purchasing_Reports_Menu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, Purchasing_Reports_Menu):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         Purchasing_Reports_Menu.setWindowTitle(_translate("Purchasing_Reports_Menu", "Informes"))
         self.Button_ArtMov.setText(_translate("Purchasing_Reports_Menu", "Mov. Artículo"))
@@ -221,13 +248,22 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
 
 
     def artmov(self):
-        self.supplies_window=QtWidgets.QMainWindow()
+        """
+        Opens the 'artmov' window. Sets up the UI for the user.
+        """
+        self.artmov_window=QtWidgets.QMainWindow()
         self.ui=Ui_ArtMov_Window()
-        self.ui.setupUi(self.supplies_window)
-        self.supplies_window.showMaximized()
+        self.ui.setupUi(self.artmov_window)
+        self.artmov_window.showMaximized()
 
 
     def artpend_delivery_client(self):
+        """
+        Retrieves a report of pending deliveries to clients from the database, and allows the user to export it as an Excel or PDF file.
+
+        Raises:
+            Exception: If there is an issue with the database connection or query execution.
+        """
         try:
         # read the connection parameters
             params = config()
@@ -287,13 +323,22 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
 
 
     def purchaserefdate(self):
-        self.supplierorder_window=QtWidgets.QMainWindow()
+        """
+        Opens the 'purchaserefdate' window. Sets up the UI for the user.
+        """
+        self.purchaserefdate_window=QtWidgets.QMainWindow()
         self.ui=Ui_ReportPurRefDate_Window()
-        self.ui.setupUi(self.supplierorder_window)
-        self.supplierorder_window.showMaximized()
+        self.ui.setupUi(self.purchaserefdate_window)
+        self.purchaserefdate_window.showMaximized()
 
 
     def artpend_recep_supplier(self):
+        """
+        Retrieves a report of pending receptions from suppliers from the database, and allows the user to export it as an Excel or PDF file.
+
+        Raises:
+            Exception: If there is an issue with the database connection or query execution.
+        """
         try:
         # read the connection parameters
             params = config()
@@ -354,13 +399,19 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
 
 
     def stockval(self):
-        self.purchase_DB_window=QtWidgets.QMainWindow()
+        """
+        Opens the 'stockval' window. Sets up the UI for the user.
+        """
+        self.stockval_window=QtWidgets.QMainWindow()
         self.ui=Ui_StockVal_Window()
-        self.ui.setupUi(self.purchase_DB_window)
-        self.purchase_DB_window.showMaximized()
+        self.ui.setupUi(self.stockval_window)
+        self.stockval_window.showMaximized()
 
 
     def pending_delivery_client_pdf(self, df):
+        """
+        Generates the pdf a report of pending deliveries to clients
+        """
         df = df.sort_values(by = ['Referencia', 'Cliente'])
         list_references= df['Referencia'].unique().tolist()
 
@@ -427,6 +478,9 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
         self.pdf_viewer.showMaximized()
 
     def pending_delivery_client_excel(self, df):
+        """
+        Generates the excel a report of pending deliveries to clients
+        """
         df = df.sort_values(by = ['Referencia', 'Cliente'])
         output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
 
@@ -456,6 +510,9 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
 
 
     def pending_recep_supplier_pdf(self, df):
+        """
+        Generates the pdf a report of pending receptions from suppliers
+        """
         list_references= df['Suministrador'].unique().tolist()
 
         pdf = pending_orders()
@@ -527,6 +584,9 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
         self.pdf_viewer.showMaximized()
 
     def pending_recep_supplier_excel(self, df):
+        """
+        Generates the excel a report of pending receptions from suppliers
+        """
         output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos Excel", "*.xlsx")], title="Guardar Excel")
 
         # df["Val. Un."] = df["Val. Un."].apply(self.euros_to_float)
@@ -565,6 +625,15 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
 
 # Function to format date to long in spanish
     def format_date_spanish(self, date_toformat):
+        """
+        Formats a given date object into a Spanish date string (e.g., "25 de diciembre de 2024").
+        
+        Args:
+            date_toformat (datetime.date): The date to format.
+        
+        Returns:
+            str: The formatted date string in Spanish.
+        """
         months = ("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre")
         day = date_toformat.day
         month = months[date_toformat.month - 1]
@@ -575,10 +644,18 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
 
 
     def format_number(self, number):
-    # Convertir el número a una cadena con el formato deseado
+        """
+        Formats a number to a Spanish-style format with two decimal places.
+        The function replaces dots with commas and vice versa to match the Spanish number formatting.
+
+        Args:
+            number (float): The number to format.
+        
+        Returns:
+            str: The formatted number as a string (e.g., "1.234,56").
+        """
         formatted_number = '{:,.2f}'.format(number)
 
-        # Reemplazar el punto decimal por coma
         formatted_number = formatted_number.replace('.', ':')
         formatted_number = formatted_number.replace(',', '.')
         formatted_number = formatted_number.replace(':', ',')
@@ -587,19 +664,18 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
 
 
     def format_value(self, number):
-        # values = number.replace("€", "").split()
+        """
+        Formats a number to a Spanish-style currency format, adding the euro sign ("€") at the end.
 
-        total_euro = 0
-
-        # for value in values:
-        # value=number.replace(".","")
-        # value=value.replace(",",".")
-        # decimal = float(value)
-        # total_euro += decimal
+        Args:
+            number (float): The number to format.
+        
+        Returns:
+            str: The formatted currency value (e.g., "1.234,56 €").
+        """
 
         formatted_number = '{:,.2f}'.format(number)
 
-        # Reemplazar el punto decimal por coma
         formatted_number = formatted_number.replace('.', ':')
         formatted_number = formatted_number.replace(',', '.')
         formatted_number = formatted_number.replace(':', ',')
@@ -609,6 +685,15 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
 
 # Function to transform euros to float values
     def euros_to_float(self, value):
+        """
+        Converts a Spanish-formatted euro string (e.g., "1.234,56 €") to a float.
+        
+        Args:
+            value (str): The euro value as a string.
+        
+        Returns:
+            float: The value as a float.
+        """
         value = value.replace(".", "")
         value = value.replace(",", ".")
         value = value[: value.find(" €")]

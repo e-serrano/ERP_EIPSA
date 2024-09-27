@@ -17,18 +17,37 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
 class Ui_InvoiceSearch_Window(object):
-    # def __init__(self):
-        # self.dpto_value=dpto
-    # def __init__(self):
-    #     self.dpto_value='Comercial'
+    """
+    UI class for the Invoice Search window.
+    """
 
     def setupUi(self, InvoiceSearch_Window):
+        """
+        Sets up the user interface for the InvoiceSearch_Window.
+
+        Args:
+            InvoiceSearch_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         InvoiceSearch_Window.setObjectName("InvoiceSearch_Window")
         InvoiceSearch_Window.resize(790, 595)
         InvoiceSearch_Window.setMinimumSize(QtCore.QSize(790, 595))
@@ -156,7 +175,11 @@ class Ui_InvoiceSearch_Window(object):
         self.load_invoices()
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, InvoiceSearch_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         InvoiceSearch_Window.setWindowTitle(_translate("InvoiceSearch_Window", "Buscar Factura"))
         self.tableInvoices.setSortingEnabled(True)
@@ -175,6 +198,10 @@ class Ui_InvoiceSearch_Window(object):
 
 
     def load_invoices(self):
+        """
+        Queries the database for all invoices, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         commands_searchinvoice = (f"""
                                 SELECT invoice."num_invoice", invoice."our_ref", detail."description", detail."price", detail."price_usd"
                                 FROM purch_fact.invoice_header AS invoice
@@ -238,6 +265,10 @@ class Ui_InvoiceSearch_Window(object):
 
 
     def search_invoice(self):
+        """
+        Queries the database for filtered invoices, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         filter=self.Filter.text()
 
         if filter=="" or filter==" ":
@@ -312,6 +343,14 @@ class Ui_InvoiceSearch_Window(object):
 
 
     def edit_invoice(self, item, InvoiceSearch_Window):
+        """
+        Opens the invoice editing window when the user selects an invoice from the search results.
+
+        Args:
+            item: The selected item in the invoice table, representing the invoice to be edited.
+            InvoiceSearch_Window: The window that contains the search results, which will be closed after the invoice
+                                editing window is opened.
+        """
         if item.column() == 0:
             num_invoice = self.tableInvoices.item(item.row(), 0).text()
 

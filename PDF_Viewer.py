@@ -1,7 +1,7 @@
 import os
 import math
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox, QLineEdit
+from PyQt6.QtWidgets import QMainWindow, QMessageBox, QLineEdit
 from PyQt6.QtCore import QPointF, QEvent, Qt, QUrl, pyqtSlot
 from PyQt6.QtPdf import QPdfDocument
 from PyQt6.QtPdfWidgets import QPdfView
@@ -9,7 +9,6 @@ from PyQt6.QtGui import QIcon, QPixmap
 from PDFViewer_ZoomSelector import ZoomSelector
 from PDFViewer_ui import Ui_MainWindow
 from tkinter.filedialog import asksaveasfilename
-from PDF_Styles import pruebas
 import shutil
 import win32api
 import psutil
@@ -20,8 +19,13 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 ZOOM_MULTIPLIER = math.sqrt(2.0)
 
 class PDF_Viewer(QMainWindow):
-
+    """
+    A PDF viewer application with functionalities for zooming, navigating pages, printing, and saving PDF documents.
+    """
     def __init__(self, parent=None):
+        """
+        Initializes the PDF viewer, sets up UI components, and connects signals and slots.
+        """
         super().__init__(parent)
         self.ui = Ui_MainWindow()
         self.m_zoomSelector = ZoomSelector(self)
@@ -64,6 +68,12 @@ class PDF_Viewer(QMainWindow):
 
     @pyqtSlot(QUrl)
     def open(self, doc_location):
+        """
+        Opens and loads a PDF document from the given local file URL.
+
+        Args:
+            doc_location (QUrl): The URL of the local file to open.
+        """
         if doc_location.isLocalFile():
             self.m_document.load(doc_location.toLocalFile())
             document_title = self.m_document.metaData(QPdfDocument.MetaDataField.Title)
@@ -74,6 +84,9 @@ class PDF_Viewer(QMainWindow):
             QMessageBox.critical(self, "Failed to open", message)
 
     def closeEvent(self, event):
+        """
+        Handles the close event of the main window, including optional cleanup.
+        """
         # Eliminar el archivo temporal cuando se cierra la ventana
         pass
         # if self.temp_file_path:
@@ -87,6 +100,9 @@ class PDF_Viewer(QMainWindow):
 
 
     def page_selected(self):
+        """
+        Navigates to the page specified in the page selector.
+        """
         page = int(self.m_pageSelector.text())
         nav = self.ui.pdfView.pageNavigator()
         nav.jump(page - 1, QPointF(), nav.currentZoom())
@@ -96,23 +112,35 @@ class PDF_Viewer(QMainWindow):
 
     @pyqtSlot()
     def on_actionQuit_triggered(self):
+        """
+        Closes the application.
+        """
         self.close()
 
 
     @pyqtSlot()
     def on_actionZoom_In_triggered(self):
+        """
+        Zooms in on the PDF view.
+        """
         factor = self.ui.pdfView.zoomFactor() * ZOOM_MULTIPLIER
         self.ui.pdfView.setZoomFactor(factor)
 
 
     @pyqtSlot()
     def on_actionZoom_Out_triggered(self):
+        """
+        Zooms out on the PDF view.
+        """
         factor = self.ui.pdfView.zoomFactor() / ZOOM_MULTIPLIER
         self.ui.pdfView.setZoomFactor(factor)
 
 
     @pyqtSlot()
     def on_actionPrevious_Page_triggered(self):
+        """
+        Navigates to the previous page in the PDF.
+        """
         nav = self.ui.pdfView.pageNavigator()
         current_page = nav.currentPage()
 
@@ -130,6 +158,9 @@ class PDF_Viewer(QMainWindow):
 
     @pyqtSlot()
     def on_actionNext_Page_triggered(self):
+        """
+        Navigates to the next page in the PDF.
+        """
         nav = self.ui.pdfView.pageNavigator()
         current_page = nav.currentPage()
         total_pages = self.m_document.pageCount()
@@ -148,6 +179,9 @@ class PDF_Viewer(QMainWindow):
 
     @pyqtSlot()
     def on_actionContinuous_triggered(self):
+        """
+        Toggles between continuous and single-page view modes.
+        """
         cont_checked = self.ui.actionContinuous.isChecked()
         mode = QPdfView.PageMode.MultiPage if cont_checked else QPdfView.PageMode.SinglePage
         self.ui.pdfView.setPageMode(mode)
@@ -155,6 +189,9 @@ class PDF_Viewer(QMainWindow):
 
     @pyqtSlot()
     def on_actionBack_triggered(self):
+        """
+        Navigates to the previous page or view.
+        """
         nav = self.ui.pdfView.pageNavigator()
         current_page = nav.currentPage()
 
@@ -172,6 +209,9 @@ class PDF_Viewer(QMainWindow):
 
     @pyqtSlot()
     def on_actionForward_triggered(self):
+        """
+        Navigates to the next page or view.
+        """
         nav = self.ui.pdfView.pageNavigator()
         current_page = nav.currentPage()
         total_pages = self.m_document.pageCount()
@@ -189,6 +229,9 @@ class PDF_Viewer(QMainWindow):
 
     @pyqtSlot()
     def on_actionSave_triggered(self):
+        """
+        Saves the current PDF to a specified location.
+        """
         temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
         output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar PDF")
 
@@ -209,6 +252,9 @@ class PDF_Viewer(QMainWindow):
 
     @pyqtSlot()
     def on_actionPrint_triggered(self):
+        """
+        Prints the current PDF.
+        """
         temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
         try:
             win32api.ShellExecute(0, "print", temp_file_path, None, ".", 0) # Printing the temp file
@@ -227,6 +273,9 @@ class PDF_Viewer(QMainWindow):
         self.close_adobe_reader()
 
     def close_adobe_reader(self):
+        """
+        Closes any running Adobe Reader processes.
+        """
         time.sleep(5)
         for process in psutil.process_iter(['pid', 'name']):
             try:
@@ -242,6 +291,12 @@ class PDF_Viewer(QMainWindow):
 
 
     def keyPressEvent(self, event):
+        """
+        Handles custom key events for page navigation.
+
+        Args:
+            event (QtGui.QKeyEvent): The key event to handle.
+        """
         if event.key() == Qt.Key.Key_Right:
             self.on_actionNext_Page_triggered()
         elif event.key() == Qt.Key.Key_Left:
@@ -250,39 +305,22 @@ class PDF_Viewer(QMainWindow):
 
 
     def set_main_window_focus(self):
+        """
+        Sets focus to the main window.
+        """
         self.setFocus()
 
     def eventFilter(self, obj, event):
+        """
+        Filters events to ensure focus is set to the main window on mouse clicks.
+
+        Args:
+            obj (QObject): The object that received the event.
+            event (QEvent): The event to filter.
+
+        Returns:
+            bool: True if the event is handled; otherwise, False.
+        """
         if event.type() == QEvent.Type.MouseButtonPress:
             self.set_main_window_focus()
         return super().eventFilter(obj, event)
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = PDF_Viewer()
-
-    pdf = pruebas()
-    pdf.set_auto_page_break(auto=True, margin=1)
-    pdf.add_page()
-    pdf.set_font("Helvetica", size=12)
-    for i in range(1, 50):
-        pdf.cell(20, 1, f"This is line {i} of the PDF")
-        pdf.ln(1)
-
-    pdf_buffer = pdf.output()
-
-    temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
-
-    with open(temp_file_path, "wb") as temp_file:
-        temp_file.write(pdf_buffer)
-        window.temp_file_path = temp_file.name
-
-    pdf.close()
-
-    window.open(QUrl.fromLocalFile(temp_file_path))
-
-    window.showMaximized()
-
-    window.setFocus()
-    sys.exit(app.exec())

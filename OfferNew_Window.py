@@ -18,10 +18,25 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_New_Offer_Window(object):
+    """
+    UI class for the New Offer window.
+    """
     def __init__(self,username):
+        """
+        Initializes the Ui_New_Offer_Window with the specified username.
+
+        Args:
+            username (str): username associated with the window.
+        """
         self.username=username
 
     def setupUi(self, New_Offer):
+        """
+        Sets up the user interface for the New_Offer.
+
+        Args:
+            New_Offer (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         New_Offer.setObjectName("New_Offer")
         New_Offer.resize(670, 425)
         New_Offer.setMinimumSize(QtCore.QSize(700, 650))
@@ -599,7 +614,11 @@ class Ui_New_Offer_Window(object):
         self.load_clients()
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, New_Offer):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         New_Offer.setWindowTitle(_translate("New_Offer", "Nueva Oferta"))
         self.label_NumOffer.setText(_translate("New_Offer", "*Nº Oferta:"))
@@ -623,6 +642,12 @@ class Ui_New_Offer_Window(object):
         self.label_error_newoffer.setText(_translate("New_Offer", ""))
 
     def load_clients(self):
+        """
+        Loads the list of clients from the database into the client selection widget.
+
+        Raises:
+            psycopg2.DatabaseError: If a database error occurs during the SQL execution.
+        """
         self.Client_NewOffer.clear()
         commands_clients = ("""
                         SELECT * 
@@ -701,6 +726,9 @@ class Ui_New_Offer_Window(object):
 
 # Function to create a new offer
     def NewOffer(self):
+        """
+        Creates a new entry in database after validating form inputs.
+        """
         numoffer=self.NumOffer_NewOffer.text()
         client=self.Client_NewOffer.currentText()
         finalclient=self.FinalClient_NewOffer.text()
@@ -872,6 +900,9 @@ class Ui_New_Offer_Window(object):
 
 # Function to open window to create a new client
     def NewClient(self):
+        """
+        Opens the 'NewClient' window. Sets up the UI for the user.
+        """
         self.new_client_window=QtWidgets.QMainWindow()
         self.ui=Ui_OfferClientAdd_Window()
         self.ui.setupUi(self.new_client_window)

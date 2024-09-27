@@ -15,10 +15,25 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_NewOffer_Menu(object):
+    """
+    UI class for the New Offer Menu window.
+    """
     def __init__(self,username):
+        """
+        Initializes the Ui_NewOffer_Menu with the specified username.
+
+        Args:
+            username (str): username associated with the window.
+        """
         self.username=username
 
     def setupUi(self, NewOffer_Menu):
+        """
+        Sets up the user interface for the NewOffer_Menu.
+
+        Args:
+            NewOffer_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         NewOffer_Menu.setObjectName("NewOffer_Menu")
         NewOffer_Menu.resize(300, 336)
         NewOffer_Menu.setMinimumSize(QtCore.QSize(300, 300))
@@ -124,7 +139,11 @@ class Ui_NewOffer_Menu(object):
         QtCore.QMetaObject.connectSlotsByName(NewOffer_Menu)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, NewOffer_Menu):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         NewOffer_Menu.setWindowTitle(_translate("NewOffer_Menu", "Nueva Oferta"))
         self.Button_Project.setText(_translate("NewOffer_Menu", "Oferta Proyecto"))
@@ -133,6 +152,12 @@ class Ui_NewOffer_Menu(object):
 
 
     def ProjectOffer(self,NewOffer_Menu):
+        """
+        Opens the 'New Project Offer' window and hides the current menu. Sets up the UI for the user and connects the cancel button to re-show the previous menu.
+        
+        Args:
+            NewOffer_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.projectoffer_window=QtWidgets.QMainWindow()
         self.ui=Ui_New_Offer_Window(self.username)
         self.ui.setupUi(self.projectoffer_window)
@@ -142,6 +167,12 @@ class Ui_NewOffer_Menu(object):
 
 
     def ReceivedOffer(self,NewOffer_Menu):
+        """
+        Opens the 'Received Offer' window and hides the current menu. Sets up UI for the user and connects the cancel button to re-show the previous menu.
+
+        Args:
+            NewOffer_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
+        """
         self.editoffer_window=QtWidgets.QMainWindow()
         self.ui=Ui_New_OfferReceived_Window(self.username)
         self.ui.setupUi(self.editoffer_window)

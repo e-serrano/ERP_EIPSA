@@ -23,20 +23,74 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 class ImageCalendarWidget(QtWidgets.QCalendarWidget):
+    """
+    A custom QCalendarWidget that highlights specific dates by painting an image on the calendar cells.
+
+    This widget allows the user to set a list of dates (`task_dates`) and draws a custom image 
+    on the corresponding calendar cells when these dates are displayed.
+
+    Attributes:
+    -----------
+    task_dates : list
+        A list of QDate objects that represent the dates on which the image will be displayed.
+    """
     def __init__(self, parent=None):
+        """
+        Initializes the ImageCalendarWidget instance.
+
+        Args:
+        -----------
+        parent : QWidget, optional
+            The parent widget, if any. Defaults to None.
+
+        Initializes the `task_dates` attribute as an empty list.
+        """
         super().__init__(parent)
         self.task_dates = []
 
     def set_task_dates(self, dates):
+        """
+        Sets the dates on which the custom image will be drawn and refreshes the calendar.
+
+        Args:
+        -----------
+        dates : list of QDate
+            A list of QDate objects representing the dates on which the image should appear.
+        """
         self.task_dates = dates
         self.updateCells()
 
     def paintCell(self, painter, rect, date):
+        """
+        Customizes the painting of calendar cells to include a flag image on specific dates.
+
+        Args:
+        -----------
+        painter : QPainter
+            The QPainter object responsible for rendering the cell.
+        rect : QRect
+            The rectangular area of the cell to be painted.
+        date : QDate
+            The date associated with the cell being painted.
+        """
         QtWidgets.QCalendarWidget.paintCell(self, painter, rect, date)
 
         if date in self.task_dates:
@@ -49,13 +103,29 @@ class ImageCalendarWidget(QtWidgets.QCalendarWidget):
                 painter.drawImage(image_rect, image_scaled)
 
 class Ui_App_Comercial(QtWidgets.QMainWindow):
+    """
+    Main application window for the commercial app.
+    """
     def __init__(self, name, username):
+        """
+        Initializes the main window, setting up the user interface and storing user-specific details.
+
+        Args:
+            name (str): The name of the user.
+            username (str): The username of the user.
+        """
         super(Ui_App_Comercial, self).__init__()
         self.name=name
         self.username=username
         self.setupUi(self)
 
     def setupUi(self, App_Comercial):
+        """
+        Sets up the user interface components for the main application window.
+
+        Args:
+            App_Comercial (QtWidgets.QMainWindow): The main window object to set up.
+        """
         App_Comercial.setObjectName("App_Comercial")
         App_Comercial.resize(945, 860)
         App_Comercial.setMinimumSize(QtCore.QSize(945, 860))
@@ -418,17 +488,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem2)
-        # self.HeaderGif = QtWidgets.QLabel(parent=self.frame)
-        # self.HeaderGif.setStyleSheet("color:rgb(255, 255, 255)")
-        # self.HeaderGif.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        # self.HeaderGif.setMinimumSize(QtCore.QSize(200, 40))
-        # self.HeaderGif.setMaximumSize(QtCore.QSize(200, 40))
-        # self.HeaderGif.setObjectName("HeaderGif")
-        # self.movie = QtGui.QMovie(os.path.abspath(os.path.join(basedir, "Resources/Iconos/xmas.gif")))
-        # self.movie.setScaledSize(QtCore.QSize(self.HeaderGif.width(), self.HeaderGif.height()))
-        # self.HeaderGif.setMovie(self.movie)
-        # self.movie.start()
-        # self.Header.addWidget(self.HeaderGif)
         self.HeaderUserName = QtWidgets.QLabel(parent=self.frame)
         font = QtGui.QFont()
         font.setPointSize(12)
@@ -834,6 +893,13 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 
     def show_context_menu(self, point):
+        """
+        Displays a context menu at the specified point in the calendar widget. 
+        Provides options to add or edit tasks for the selected date.
+        
+        Args:
+            point (QPoint): The location where the context menu will appear.
+        """
         selected_date = self.Calendar.selectedDate()
         menu = QMenu(self.centralwidget)
         menu.setStyleSheet("QMenu { border: 1px solid black; width: 150px; right: -1px; }"
@@ -847,7 +913,11 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         menu.exec(self.Calendar.mapToGlobal(point))
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, App_Comercial):
+        """
+        Translates and updates the text of various UI elements in the given App_Comercial.
+        """
         _translate = QtCore.QCoreApplication.translate
         App_Comercial.setWindowTitle(_translate("App_Comercial", "ERP EIPSA - Comercial"))
         self.HeaderName.setText(_translate("App_Comercial", self.name))
@@ -888,6 +958,9 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to open window for create offers
     def new_offer(self):
+        """
+        Opens a new window for creating a new offer in the application. 
+        """
         from OfferNew_Menu import Ui_NewOffer_Menu
         self.new_offer_menu=QtWidgets.QMainWindow()
         self.ui=Ui_NewOffer_Menu(self.username)
@@ -897,6 +970,9 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to open window for edit offers
     def edit_offer(self):
+        """
+        Opens a new window for editing an existing offer. 
+        """
         from OfferEdit_Menu import Ui_EditOffer_Menu
         self.edit_offer_menu=QtWidgets.QMainWindow()
         self.ui=Ui_EditOffer_Menu()
@@ -906,12 +982,18 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to open window for query offers
     def query_offer(self):
+        """
+        Opens a new window for querying offers. 
+        """
         from OfferQuery_Window import Ui_QueryOffer_Window
         self.query_offer_window=Ui_QueryOffer_Window()
         self.query_offer_window.show()
 
 # Function to open window for create orders
     def new_order(self):
+        """
+        Opens a new window for creating a new order. 
+        """
         from OrderNewAddData_Window import Ui_New_OrderAddData_Window
         self.new_orderAddData_window=QtWidgets.QMainWindow()
         self.ui=Ui_New_OrderAddData_Window()
@@ -921,6 +1003,9 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to open window for edit orders
     def edit_order(self):
+        """
+        Opens a new window for editing an existing order. 
+        """
         from OrderEdit_Menu import Ui_EditOrder_Menu
         self.edit_order_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditOrder_Menu()
@@ -930,12 +1015,18 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to open window for query orders
     def query_order(self):
+        """
+        Opens a new window for querying orders. 
+        """
         from OrderQuery_Window import Ui_QueryOrder_Window
         self.query_order_window=Ui_QueryOrder_Window()
         self.query_order_window.show()
 
 # Function to open window for create tags
     def new_tag(self):
+        """
+        Opens a new window for creating new tags. 
+        """
         from TAGCreate_Menu import Ui_CreateTag_Menu
         self.new_tag_window=QtWidgets.QMainWindow()
         self.ui=Ui_CreateTag_Menu()
@@ -944,6 +1035,9 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to open window for edit tags
     def edit_tag(self):
+        """
+        Opens a new menu for different types of editing existing tags. 
+        """
         from TAGEdit_Menu import Ui_EditTags_Menu
         self.edittags_menu=QtWidgets.QMainWindow()
         self.ui=Ui_EditTags_Menu()
@@ -952,6 +1046,9 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to open window for query tags
     def query_tag(self):
+        """
+        Opens a new window for querying tags. 
+        """
         from TAGQuery_Menu import Ui_TAGQuery_Menu
         self.querytag_window=QtWidgets.QMainWindow()
         self.ui=Ui_TAGQuery_Menu('Comercial')
@@ -960,6 +1057,9 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to open menu for export documents
     def export_menu(self):
+        """
+        Opens a new window for exporting documents. 
+        """
         self.exportdocs_menu=QtWidgets.QMainWindow()
         self.ui=Ui_ExportDocs_Menu(self.username)
         self.ui.setupUi(self.exportdocs_menu)
@@ -967,12 +1067,18 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to open window for query documents
     def query_documents(self):
+        """
+        Opens a new window for querying documents. 
+        """
         from DocQuery_Window import Ui_QueryDoc_Window
         self.querydoc_menu=Ui_QueryDoc_Window()
         self.querydoc_menu.show()
 
 # Function to open menu of offer statistics
     def stats_offers(self):
+        """
+        Opens a new window for viewing offer statistics. 
+        """
         from OfferStats_Menu import Ui_StatsOffer_Menu
         self.statswindow=QtWidgets.QMainWindow()
         self.ui=Ui_StatsOffer_Menu()
@@ -981,6 +1087,9 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to open window with clients data resume
     def clients_generalresume(self):
+        """
+        Opens a new window to display a general resume of client data. 
+        """
         from ClientsGeneralResume_Window import Ui_ClientsGeneralResume_Window
         self.clients_general_resume_window=QtWidgets.QMainWindow()
         self.ui=Ui_ClientsGeneralResume_Window()
@@ -989,6 +1098,12 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to open window for query tasks
     def querytask(self, date=None):
+        """
+        Opens a new window for querying tasks. 
+        
+        Args:
+            date (QDate, optional): The date to filter tasks. Defaults to None.
+        """
         from TaskQuery_Window import Ui_QueryTask_Window
         self.querytaskwindow=Ui_QueryTask_Window(self.name, date)
         self.querytaskwindow.show()
@@ -996,6 +1111,12 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to open window for create a new task
     def newtask(self, date):
+        """
+        Opens a new window for creating a new task. 
+        
+        Args:
+            date (QDate): The date associated with the new task.
+        """
         from TaskAdd_Window import Ui_AddTask_Window
         self.newtaskwindow=QtWidgets.QMainWindow()
         self.ui=Ui_AddTask_Window(self.name, date)
@@ -1005,6 +1126,10 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to show menu when profile button is clicked
     def showMenu(self):
+        """
+        Displays a context menu when the profile button is clicked. 
+        Provides options to edit the password.
+        """
         menu = QMenu(self.centralwidget)
         menu.setStyleSheet("QMenu { border: 1px solid black; width: 125px; right: -1px; }"
         "QMenu::item:selected { background-color: rgb(3, 174, 236); color: white; }")
@@ -1016,6 +1141,9 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to open window for password edition
     def editpassword(self):
+        """
+        Opens a new window for editing the user's password. 
+        """
         from PasswordEdit_Window import Ui_EditPasswordWindow
         self.edit_password_window=QtWidgets.QMainWindow()
         self.ui=Ui_EditPasswordWindow(self.username)
@@ -1024,6 +1152,9 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to open window for user edition
     def user_edition(self):
+        """
+        Opens a new window for editing user details. 
+        """
         from UserEdit_Menu import Ui_EditUser_Menu
         self.edit_user_menu=QtWidgets.QMainWindow()
         self.ui=Ui_EditUser_Menu()
@@ -1032,6 +1163,9 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to open window to show active notifications
     def notifications(self):
+        """
+        Opens a new window to show active notifications. 
+        """
         from NotificationsHistory_Window import Ui_HistoryNotifications_Window
         self.notification_window=Ui_HistoryNotifications_Window(self.username)
         self.notification_window.show()
@@ -1039,11 +1173,18 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to update table and graphs at the same time
     def update_principal_screen(self):
+        """
+        Updates the main screen by reloading the table data and updating the graphs.
+        """
         self.load_table()
         self.load_graphs()
 
 # Function to load values on graphs
     def load_graphs(self):
+        """
+        Loads and displays graphs for the current year's sales data and product type proportions.
+        Handles errors with a message box and updates the UI with the graphs.
+        """
         try:
             commands_responsible = ("""
                         SELECT *
@@ -1183,6 +1324,10 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to load values on table
     def load_table(self):
+        """
+        Loads and displays offer data in a table widget.
+        Handles errors with a message box and updates the table widget with the data.
+        """
         self.tableOffer.setRowCount(0)
         commands_responsible = ("""
                         SELECT *
@@ -1254,6 +1399,10 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to stablish dates with task assigned to put icon on calendar
     def setup_task_dates(self):
+        """
+        Sets up task dates for the calendar widget.
+        Handles errors with a message box and updates the calendar with task dates.
+        """
         commands_loaddatestasks_LB = ("""
                     SELECT "task_date","task"
                     FROM tasks
@@ -1278,10 +1427,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            if self.name == 'Luis Bravo':
-                cur.execute(commands_loaddatestasks_LB)
-            else:
-                cur.execute(commands_loaddatestasks,(self.name,))
+            cur.execute(commands_loaddatestasks,(self.name,))
             results=cur.fetchall()
         # close communication with the PostgreSQL database server
             cur.close()
@@ -1311,6 +1457,10 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to show task of the selected date
     def show_selected_date_tasks(self):
+        """
+        Displays tasks for the selected date in a message box.
+        Handles errors with a message box.
+        """
         self.click_count = 0
         selected_date = self.Calendar.selectedDate()
         if self.name == 'Carlos Crespo':
@@ -1340,6 +1490,16 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 #Function to obtain tasks associated to a date
     def get_tasks_for_date(self, creator, date):
+        """
+        Retrieves tasks for a specific date.
+        
+        Args:
+            creator (str): The creator or responsible person for the tasks.
+            date (QDate): The date for which tasks are being retrieved.
+        
+        Returns:
+            list: A list of tasks for the specified date.
+        """
         commands_loaddatestasks_LB = ("""
                     SELECT "responsible","task_date","task","state","creator"
                     FROM tasks
@@ -1368,10 +1528,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            if self.name == 'Luis Bravo':
-                cur.execute(commands_loaddatestasks_LB)
-            else:
-                cur.execute(commands_loaddatestasks,(self.name,))
+            cur.execute(commands_loaddatestasks,(self.name,))
             results=cur.fetchall()
         # close communication with the PostgreSQL database server
             cur.close()
@@ -1421,6 +1578,10 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 #Function to show dialog showing delayed offers
     def alert_offers(self):
+        """
+        Shows a message box with delayed offers.
+        Handles errors with a message box.
+        """
         delay_date=QtCore.QDate.currentDate().addDays(-10)
 
         commands_responsible = ("""
@@ -1488,6 +1649,16 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 #Function to formatting y axis of graps
     def format_y_ticks(self, y, pos):
+        """
+        Formats y-axis ticks for graphs.
+        
+        Args:
+            y (float): The y-axis value to format.
+            pos (int): The tick position (not used).
+        
+        Returns:
+            str: The formatted y-axis value.
+        """
         if y >= 1e6:
             return '{:.1f}M'.format(y * 1e-6)
         elif y >= 1e3:
@@ -1497,6 +1668,12 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to check if column index of double clicked cell is equal to first column index
     def on_item_double_clicked(self, item):
+        """
+        Handles double-click events on items in a QTableWidget. Opens different forms based on the column of the clicked item.
+        
+        Args:
+            item (QtWidgets.QTableWidgetItem): The item that was double-clicked.
+        """
         if item.column() == 2:
             self.clientresume(item)
         elif item.column() == 0:
@@ -1504,6 +1681,12 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function when double clicked cell is in client column
     def clientresume(self, item):
+        """
+        Opens the client resume window for the client whose name is displayed in the clicked item.
+
+        Args:
+            item (QtWidgets.QTableWidgetItem): The item containing the client name.
+        """
         from ClientResume_Window import Ui_ClientResume_Window
         clientname=item.text()
         self.client_resume_window=QtWidgets.QMainWindow()
@@ -1513,6 +1696,12 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function when double clicked cell is in client column
     def editofferform(self, item):
+        """
+        Opens the offer edit form for the offer number displayed in the clicked item.
+        
+        Args:
+            item (QtWidgets.QTableWidgetItem): The item containing the offer number.
+        """
         from OfferEdit_Window import Ui_Edit_Offer_Window
         num_offer=item.text()
         self.edit_offer_window=QtWidgets.QMainWindow()
@@ -1523,6 +1712,9 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to open reclamation window
     def reclamation_offer(self):
+        """
+        Opens the reclamation window to handle offers that need reclamation.
+        """
         from OfferReclamation_Window import Ui_ReclamationOffer_Window
         self.reclamationoffer_window=QtWidgets.QMainWindow()
         self.ui=Ui_ReclamationOffer_Window(self.name, self.username)
@@ -1531,6 +1723,9 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to show pop-up with offers to reclaim
     def alert_reclamation_offers(self):
+        """
+        Shows a pop-up alerting the user if there are offers to reclaim that are overdue.
+        """
         conn = None
         commands_responsible = ("""
                         SELECT *
@@ -1601,6 +1796,9 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to load number of notifications
     def load_notifications(self):
+        """
+        Loads and displays notifications for the user from various tables in the 'notifications' schema.
+        """
         query_tables_notifications = """SELECT table_name
                                 FROM information_schema.tables
                                 WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
@@ -1656,12 +1854,18 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
 # Function to open window with clock-ins
     def clockin(self):
+        """
+        Opens the clock-in window where the user can manage their clock-ins.
+        """
         from ClockIn_Window import MyCalendarApp
         self.clockin_window = MyCalendarApp(self.username)
         self.clockin_window.showMaximized()
 
 # Function to upload excel file with offer or order information
     def upload_offer_order(self):
+        """
+        Uploads offer or order information from an Excel file and inserts it into the corresponding database table.
+        """
         while True:
             item, ok = QtWidgets.QInputDialog.getItem(self, "Cargar Info", "Selecciona que quieres cargar:", ['Ofertas', 'Pedidos'], 0, False)
             if ok and item:

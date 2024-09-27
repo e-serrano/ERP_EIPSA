@@ -16,7 +16,16 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_OfferClientAdd_Window(object):
+    """
+    UI class for the Offer client add window.
+    """
     def setupUi(self, OfferClientAdd_Window):
+        """
+        Sets up the user interface for the OfferClientAdd_Window.
+
+        Args:
+            OfferClientAdd_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         OfferClientAdd_Window.setObjectName("OfferClientAdd_Window")
         OfferClientAdd_Window.resize(275, 340)
         OfferClientAdd_Window.setMinimumSize(QtCore.QSize(275, 340))
@@ -233,7 +242,11 @@ class Ui_OfferClientAdd_Window(object):
         self.country_OfferClientAdd.addItems(list_countries)
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, OfferClientAdd_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         OfferClientAdd_Window.setWindowTitle(_translate("OfferClientAdd_Window", "Añadir Cliente"))
         self.label_name_OfferClientAdd.setText(_translate("OfferClientAdd_Window", "Nombre Cliente:"))
@@ -243,6 +256,9 @@ class Ui_OfferClientAdd_Window(object):
 
 
     def add_client(self):
+        """
+        Adds a new client to the database.
+        """
         client_name=self.name_OfferClientAdd.text()
         country=self.country_OfferClientAdd.currentText()
 

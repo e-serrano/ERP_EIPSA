@@ -18,23 +18,49 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
+
+    Inherits from:
+        QtWidgets.QStyledItemDelegate: Provides custom rendering and editing for table items.
+
+    """
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
 class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
+    """
+    UI class for the Reclamation Offer window.
+    """
     def __init__(self, name, username):
+        """
+        Initializes the Ui_ReclamationOffer_Window with the specified name and username.
+
+        Args:
+            name (str): name associated with the window.
+            username (str): username associated with the window.
+        """
         super().__init__()
         self.name=name
         self.username=username
         self.setupUi(self)
-    # def __init__(self):
-    #     super().__init__()
-    #     self.name="Carlos Crespo"
-    #     self.setupUi(self)
 
     def setupUi(self, ReclamationOffer_Window):
+        """
+        Sets up the user interface for the ReclamationOffer_Window.
+
+        Args:
+            ReclamationOffer_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         ReclamationOffer_Window.setObjectName("ReclamationOffer_Window")
         ReclamationOffer_Window.resize(400, 561)
         ReclamationOffer_Window.setMinimumSize(QtCore.QSize(800, 700))
@@ -140,7 +166,11 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         self.ReclamationOffer()
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, ReclamationOffer_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         ReclamationOffer_Window.setWindowTitle(_translate("ReclamationOffer_Window", "Reclamación Ofertas"))
         item = self.tableReclamation.horizontalHeaderItem(0)
@@ -172,6 +202,10 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
 
 
     def ReclamationOffer(self):
+        """
+        Queries the database for offers to reclaim, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         conn = None
         commands_responsible = ("""
                         SELECT *
@@ -250,6 +284,10 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                 conn.close()
 
     def sendmails(self):
+        """
+        Sends emails regarding selected offers based on user reclamations using the appropriate templates 
+        (Rec1 or Rec2) based on the selected checkboxes.
+        """
         actual_date=date.today()
         actual_date= actual_date.strftime("%d/%m/%Y")
         commands_responsiblemail = ("""
@@ -385,6 +423,13 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
             self.ReclamationOffer()
 
     def expand_cell(self, item):
+        """
+        Displays the content of a cell in a dialog box. Useful for viewing larger text fields 
+        in a table more comfortably.
+
+        Args:
+            item (QTableWidgetItem): The table item to be expanded.
+        """
         if item.column() in [7]:
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()

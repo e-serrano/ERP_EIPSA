@@ -15,10 +15,25 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_Edit_OfferRec_Window(object):
+    """
+    UI class for the Edit Offer Received window.
+    """
     def __init__(self, id_offer = None):
+        """
+        Initializes the Ui_OfferRecToOf_Window with the specified offer id.
+
+        Args:
+            id_offer (str): offer id associated with the window.
+        """
         self.id_offer = id_offer
 
     def setupUi(self, Edit_OfferReceived):
+        """
+        Sets up the user interface for the Edit_OfferReceived.
+
+        Args:
+            Edit_OfferReceived (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         Edit_OfferReceived.setObjectName("Edit_OfferReceived")
         Edit_OfferReceived.resize(670, 425)
         Edit_OfferReceived.setMinimumSize(QtCore.QSize(700, 550))
@@ -402,7 +417,11 @@ class Ui_Edit_OfferRec_Window(object):
         self.queryofferdata()
 
 
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, Edit_OfferReceived):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         Edit_OfferReceived.setWindowTitle(_translate("Edit_OfferReceived", "Editar Oferta"))
         self.label_Description.setText(_translate("Edit_OfferReceived", "Descripción:"))
@@ -422,6 +441,12 @@ class Ui_Edit_OfferRec_Window(object):
 
 
     def load_clients(self):
+        """
+        Loads the list of clients from the database into the client selection widget.
+
+        Raises:
+            psycopg2.DatabaseError: If a database error occurs during the SQL execution.
+        """
         self.Client_Edit_Offer.clear()
         commands_clients = ("""
                         SELECT * 
@@ -462,6 +487,9 @@ class Ui_Edit_OfferRec_Window(object):
 
 
     def editoffer(self):
+        """
+        Edit the corresponding entry in database after validating form inputs.
+        """
         id_offer=self.IDOffer_Edit_Offer.text()
         client=self.Client_Edit_Offer.currentText()
         finalclient=self.FinalClient_Edit_Offer.text()
@@ -559,6 +587,10 @@ class Ui_Edit_OfferRec_Window(object):
 
 
     def queryofferdata(self):
+        """
+        Queries the database for offer data based on the offer number provided by the user. It displays the retrieved information 
+        in the corresponding form fields.
+        """
     #SQL Query for loading existing data in database
         commands_loaddataoffer = ("""
                     SELECT received_offers."client", received_offers."final_client", received_offers."num_ref_offer", received_offers."state", received_offers."material",
@@ -610,6 +642,9 @@ class Ui_Edit_OfferRec_Window(object):
 
 
     def NewClient(self):
+        """
+        Opens the 'NewClient' window. Sets up the UI for the user.
+        """
         from OfferClientAdd_Window import Ui_OfferClientAdd_Window
         self.new_client_window=QtWidgets.QMainWindow()
         self.ui=Ui_OfferClientAdd_Window()

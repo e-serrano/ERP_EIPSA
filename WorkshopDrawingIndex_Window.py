@@ -18,6 +18,7 @@ from config import config
 import psycopg2
 import locale
 import os
+import sys
 from datetime import *
 import pandas as pd
 from tkinter.filedialog import asksaveasfilename
@@ -26,6 +27,14 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 def imagen_to_base64(imagen):
+    """
+    Converts an image in PNG format to a base64 encoded string.
+
+    Args:
+        imagen: An instance of QImage or QPixmap to be converted.
+    Return: 
+        A base64 encoded string representing the image in PNG format.
+    """
     buffer = QtCore.QBuffer()
     buffer.open(QtCore.QIODevice.OpenModeFlag.WriteOnly)
     imagen.save(buffer, ".png")
@@ -34,18 +43,49 @@ def imagen_to_base64(imagen):
 
 
 class CheckboxWidget(QtWidgets.QWidget):
+    """
+    A custom QWidget class that creates a widget with a checkbox.
+
+     Args:
+        text (str): The label text to display next to the checkbox.
+    """
     def __init__(self, text):
+        """
+        Initialize the CheckboxWidget.
+
+        Args:
+            text (str): The label text for the checkbox.
+        """
         super().__init__()
         layout = QtWidgets.QHBoxLayout(self)
         self.checkbox = QtWidgets.QCheckBox(text)
         layout.addWidget(self.checkbox)
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom delegate that aligns the content of table cells and paints specific columns based on conditions.
+    """
     def initStyleOption(self, option, index):
+        """
+        Initialize the style options for the table cell with specific alignment.
+
+        Args:
+            option (QStyleOptionViewItem): The style options for the table cell.
+            index (QModelIndex): The index of the table cell being styled.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter
 
     def paint(self, painter, option, index):
+        """
+        Custom paint method to render the cell content and apply background colors 
+        based on specific conditions for a column's value.
+
+        Args:
+            painter (QPainter): The painter used to render the cell.
+            option (QStyleOptionViewItem): The style options for the cell.
+            index (QModelIndex): The index of the cell being painted.
+        """
         super().paint(painter, option, index)
 
         if index.column() == 2:  # Column to paint
@@ -62,6 +102,26 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 if "STELLITE" in value_check:
                     start_color = QtGui.QColor(24, 146, 97)  # Dark Green
                     end_color = QtGui.QColor(92, 197, 229)  # Blue
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'MONEL' in value_check:
+                    start_color = QtGui.QColor(160, 120, 182)  # Purple
+                    end_color = QtGui.QColor(160, 120, 182)  # Purple
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.fillRect(rect_top, start_color)
+                    painter.fillRect(rect_bottom, end_color)
+
+                elif 'HASTELLOY' in value_check:
+                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
+                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
 
                     rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
                     rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
@@ -202,26 +262,6 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 elif '446' in value_check:
                     start_color = QtGui.QColor(255, 255, 0)  # Yellow
                     end_color = QtGui.QColor(92, 197, 229)  # Blue
-
-                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                    painter.fillRect(rect_top, start_color)
-                    painter.fillRect(rect_bottom, end_color)
-
-                elif 'MONEL' in value_check:
-                    start_color = QtGui.QColor(160, 120, 182)  # Purple
-                    end_color = QtGui.QColor(160, 120, 182)  # Purple
-
-                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                    painter.fillRect(rect_top, start_color)
-                    painter.fillRect(rect_bottom, end_color)
-
-                elif 'HASTELLOY' in value_check:
-                    start_color = QtGui.QColor(146, 208, 80)  # Light Green
-                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
 
                     rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
                     rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
@@ -506,11 +546,30 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 painter.drawText(horizontalPosition, verticalPosition, original_text)
 
 class AlignDelegate_M(QtWidgets.QStyledItemDelegate):
+    """
+    A custom delegate that aligns the content of table cells and paints specific columns based on conditions. Used for M drawings
+    """
     def initStyleOption(self, option, index):
+        """
+        Initialize the style options for the table cell with specific alignment.
+
+        Args:
+            option (QStyleOptionViewItem): The style options for the table cell.
+            index (QModelIndex): The index of the table cell being styled.
+        """
         super(AlignDelegate_M, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter
 
     def paint(self, painter, option, index):
+        """
+        Custom paint method to render the cell content and apply background colors 
+        based on specific conditions for a column's value.
+
+        Args:
+            painter (QPainter): The painter used to render the cell.
+            option (QStyleOptionViewItem): The style options for the cell.
+            index (QModelIndex): The index of the cell being painted.
+        """
         super().paint(painter, option, index)
 
         if index.column() == 2:  # Column to paint
@@ -974,16 +1033,48 @@ class AlignDelegate_M(QtWidgets.QStyledItemDelegate):
                 painter.drawText(horizontalPosition, verticalPosition, original_text)
 
 class CustomProxyModelDim(QtCore.QSortFilterProxyModel):
+    """
+    A custom proxy model that filters table rows based on expressions set for specific columns.
+
+    Attributes:
+        _filters (dict): A dictionary to store filter expressions for columns.
+        header_names (dict): A dictionary to store header names for the table.
+
+    Properties:
+        filters: Getter for the current filter dictionary.
+
+    """
     def __init__(self, parent=None):
+        """
+        Initialize the proxy model and the filter attributes.
+
+        Args:
+            parent (QObject, optional): Parent object for the model. Defaults to None.
+        """
         super().__init__(parent)
         self._filters = dict()
         self.header_names = {}
 
     @property
     def filters(self):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
         return self._filters
 
     def setFilter(self, expresion, column, action_name=None):
+        """
+        Apply a filter expression to a specific column, or remove it if necessary.
+
+        Args:
+            expresion (str): The filter expression.
+            column (int): The index of the column to apply the filter to.
+            action_name (str, optional): Name of the action, can be empty. Defaults to None.
+        """
+        # Filtering logic based on expresion and action_name
         if expresion or expresion == "":
             if column in self.filters:
                 if action_name or action_name == "":
@@ -1002,6 +1093,17 @@ class CustomProxyModelDim(QtCore.QSortFilterProxyModel):
         self.invalidateFilter()
 
     def filterAcceptsRow(self, source_row, source_parent):
+        """
+        Check if a row passes the filter criteria based on the column filters.
+
+        Args:
+            source_row (int): The row number in the source model.
+            source_parent (QModelIndex): The parent index of the row.
+
+        Returns:
+            bool: True if the row meets the filter criteria, False otherwise.
+        """
+        # Filtering logic for rows
         for column, expresions in self.filters.items():
             text = self.sourceModel().index(source_row, column, source_parent).data()
 
@@ -1030,32 +1132,98 @@ class CustomProxyModelDim(QtCore.QSortFilterProxyModel):
         return True
 
 class EditableTableModelDim(QtSql.QSqlTableModel):
+    """
+    A custom SQL table model that supports editable columns, headers, and special flagging behavior based on user permissions.
+
+    Signals:
+        updateFailed (str): Signal emitted when an update to the model fails.
+    """
     updateFailed = QtCore.pyqtSignal(str)
 
     def __init__(self, username, parent=None, column_range=None, database=None):
+        """
+        Initialize the model with user permissions and optional database and column range.
+
+        Args:
+            username (str): The username for permission-based actions.
+            parent (QObject, optional): Parent object for the model. Defaults to None.
+            column_range (list, optional): A list specifying the range of columns. Defaults to None.
+            database (QSqlDatabase, optional): The database to use. Defaults to None.
+        """
         super().__init__(parent, database)
         self.column_range = column_range
         self.username = username
 
     def setQuery(self, query):
+        """
+        Set the SQL query for the model.
+
+        Args:
+            query (QSqlQuery): The query to populate the model.
+        """
         super().setQuery(query)
 
     def setAllColumnHeaders(self, headers):
+        """
+        Set headers for all columns in the model.
+
+        Args:
+            headers (list): A list of header names.
+        """
+        # Setting headers logic
         for column, header in enumerate(headers):
             self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
 
     def setIndividualColumnHeader(self, column, header):
+        """
+        Set the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            header (str): The header name.
+        """
+        # Setting individual header logic
         self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
 
     def setIconColumnHeader(self, column, icon):
+        """
+        Set an icon in the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            icon (QIcon): The icon to display in the header.
+        """
+        # Setting icon header logic
         self.setHeaderData(column, QtCore.Qt.Orientation.Horizontal, icon, Qt.ItemDataRole.DecorationRole)
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        """
+        Retrieve the header data for a specific section of the model.
+
+        Args:
+            section (int): The section index (column or row).
+            orientation (Qt.Orientation): The orientation (horizontal or vertical).
+            role (Qt.ItemDataRole, optional): The role for the header data. Defaults to DisplayRole.
+
+        Returns:
+            QVariant: The header data for the specified section.
+        """
+        # Header data retrieval logic
         if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
             return super().headerData(section, orientation, role)
         return super().headerData(section, orientation, role)
 
     def flags(self, index):
+        """
+        Get the item flags for a given index, controlling editability and selection based on user permissions.
+
+        Args:
+            index (QModelIndex): The index of the item.
+
+        Returns:
+            Qt.ItemFlags: The flags for the specified item.
+        """
+        # Flags logic based on user permissions
         flags = super().flags(index)
         if self.username in ['j.sanz', 'j.zofio']:
             if index.column() >= 5:
@@ -1068,20 +1236,61 @@ class EditableTableModelDim(QtSql.QSqlTableModel):
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
     def getColumnHeaders(self, visible_columns):
+        """
+        Retrieve the headers for the specified visible columns.
+
+        Args:
+            visible_columns (list): List of column indices that are visible.
+
+        Returns:
+            list: A list of column headers for the visible columns.
+        """
+        # Column headers retrieval logic
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
 
 class CustomProxyModelOf(QtCore.QSortFilterProxyModel):
+    """
+    A custom proxy model that filters table rows based on expressions set for specific columns.
+
+    Attributes:
+        _filters (dict): A dictionary to store filter expressions for columns.
+        header_names (dict): A dictionary to store header names for the table.
+
+    Properties:
+        filters: Getter for the current filter dictionary.
+
+    """
     def __init__(self, parent=None):
+        """
+        Initialize the proxy model and the filter attributes.
+
+        Args:
+            parent (QObject, optional): Parent object for the model. Defaults to None.
+        """
         super().__init__(parent)
         self._filters = dict()
         self.header_names = {}
 
     @property
     def filters(self):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
         return self._filters
 
     def setFilter(self, expresion, column, action_name=None):
+        """
+        Apply a filter expression to a specific column, or remove it if necessary.
+
+        Args:
+            expresion (str): The filter expression.
+            column (int): The index of the column to apply the filter to.
+            action_name (str, optional): Name of the action, can be empty. Defaults to None.
+        """
         if expresion or expresion == "":
             if column in self.filters:
                 if action_name or action_name == "":
@@ -1100,6 +1309,16 @@ class CustomProxyModelOf(QtCore.QSortFilterProxyModel):
         self.invalidateFilter()
 
     def filterAcceptsRow(self, source_row, source_parent):
+        """
+        Check if a row passes the filter criteria based on the column filters.
+
+        Args:
+            source_row (int): The row number in the source model.
+            source_parent (QModelIndex): The parent index of the row.
+
+        Returns:
+            bool: True if the row meets the filter criteria, False otherwise.
+        """
         for column, expresions in self.filters.items():
             text = self.sourceModel().index(source_row, column, source_parent).data()
 
@@ -1128,32 +1347,93 @@ class CustomProxyModelOf(QtCore.QSortFilterProxyModel):
         return True
 
 class EditableTableModelOf(QtSql.QSqlTableModel):
+    """
+    A custom SQL table model that supports editable columns, headers, and special flagging behavior based on user permissions.
+
+    Signals:
+        updateFailed (str): Signal emitted when an update to the model fails.
+    """
     updateFailed = QtCore.pyqtSignal(str)
 
     def __init__(self, username, parent=None, column_range=None, database=None):
+        """
+        Initialize the model with user permissions and optional database and column range.
+
+        Args:
+            username (str): The username for permission-based actions.
+            parent (QObject, optional): Parent object for the model. Defaults to None.
+            column_range (list, optional): A list specifying the range of columns. Defaults to None.
+            database (QSqlDatabase, optional): The database to use. Defaults to None.
+        """
         super().__init__(parent, database)
         self.column_range = column_range
         self.username = username
 
     def setQuery(self, query):
+        """
+        Set the SQL query for the model.
+
+        Args:
+            query (QSqlQuery): The query to populate the model.
+        """
         super().setQuery(query)
 
     def setAllColumnHeaders(self, headers):
+        """
+        Set headers for all columns in the model.
+
+        Args:
+            headers (list): A list of header names.
+        """
         for column, header in enumerate(headers):
             self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
 
     def setIndividualColumnHeader(self, column, header):
+        """
+        Set the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            header (str): The header name.
+        """
         self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
 
     def setIconColumnHeader(self, column, icon):
+        """
+        Set an icon in the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            icon (QIcon): The icon to display in the header.
+        """
         self.setHeaderData(column, QtCore.Qt.Orientation.Horizontal, icon, Qt.ItemDataRole.DecorationRole)
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        """
+        Retrieve the header data for a specific section of the model.
+
+        Args:
+            section (int): The section index (column or row).
+            orientation (Qt.Orientation): The orientation (horizontal or vertical).
+            role (Qt.ItemDataRole, optional): The role for the header data. Defaults to DisplayRole.
+
+        Returns:
+            QVariant: The header data for the specified section.
+        """
         if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
             return super().headerData(section, orientation, role)
         return super().headerData(section, orientation, role)
 
     def flags(self, index):
+        """
+        Get the item flags for a given index, controlling editability and selection based on user permissions.
+
+        Args:
+            index (QModelIndex): The index of the item.
+
+        Returns:
+            Qt.ItemFlags: The flags for the specified item.
+        """
         flags = super().flags(index)
         if self.username in ['j.sanz', 'j.zofio']:
             if index.column() >= 5:
@@ -1166,20 +1446,60 @@ class EditableTableModelOf(QtSql.QSqlTableModel):
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
     def getColumnHeaders(self, visible_columns):
+        """
+        Retrieve the headers for the specified visible columns.
+
+        Args:
+            visible_columns (list): List of column indices that are visible.
+
+        Returns:
+            list: A list of column headers for the visible columns.
+        """
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
 
 class CustomProxyModelM(QtCore.QSortFilterProxyModel):
+    """
+    A custom proxy model that filters table rows based on expressions set for specific columns.
+
+    Attributes:
+        _filters (dict): A dictionary to store filter expressions for columns.
+        header_names (dict): A dictionary to store header names for the table.
+
+    Properties:
+        filters: Getter for the current filter dictionary.
+    """
     def __init__(self, parent=None):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
         super().__init__(parent)
         self._filters = dict()
         self.header_names = {}
 
     @property
     def filters(self):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
         return self._filters
 
     def setFilter(self, expresion, column, action_name=None):
+        """
+        Apply a filter expression to a specific column, or remove it if necessary.
+
+        Args:
+            expresion (str): The filter expression.
+            column (int): The index of the column to apply the filter to.
+            action_name (str, optional): Name of the action, can be empty. Defaults to None.
+        """
+        # Filtering logic based on expresion and action_name
         if expresion or expresion == "":
             if column in self.filters:
                 if action_name or action_name == "":
@@ -1198,6 +1518,17 @@ class CustomProxyModelM(QtCore.QSortFilterProxyModel):
         self.invalidateFilter()
 
     def filterAcceptsRow(self, source_row, source_parent):
+        """
+        Check if a row passes the filter criteria based on the column filters.
+
+        Args:
+            source_row (int): The row number in the source model.
+            source_parent (QModelIndex): The parent index of the row.
+
+        Returns:
+            bool: True if the row meets the filter criteria, False otherwise.
+        """
+        # Filtering logic for rows
         for column, expresions in self.filters.items():
             text = self.sourceModel().index(source_row, column, source_parent).data()
 
@@ -1226,32 +1557,93 @@ class CustomProxyModelM(QtCore.QSortFilterProxyModel):
         return True
 
 class EditableTableModelM(QtSql.QSqlTableModel):
+    """
+    A custom SQL table model that supports editable columns, headers, and special flagging behavior based on user permissions.
+
+    Signals:
+        updateFailed (str): Signal emitted when an update to the model fails.
+    """
     updateFailed = QtCore.pyqtSignal(str)
 
     def __init__(self, username, parent=None, column_range=None, database=None):
+        """
+        Initialize the model with user permissions and optional database and column range.
+
+        Args:
+            username (str): The username for permission-based actions.
+            parent (QObject, optional): Parent object for the model. Defaults to None.
+            column_range (list, optional): A list specifying the range of columns. Defaults to None.
+            database (QSqlDatabase, optional): The database to use. Defaults to None.
+        """
         super().__init__(parent, database)
         self.column_range = column_range
         self.username = username
 
     def setQuery(self, query):
+        """
+        Set the SQL query for the model.
+
+        Args:
+            query (QSqlQuery): The query to populate the model.
+        """
         super().setQuery(query)
 
     def setAllColumnHeaders(self, headers):
+        """
+        Set headers for all columns in the model.
+
+        Args:
+            headers (list): A list of header names.
+        """
         for column, header in enumerate(headers):
             self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
 
     def setIndividualColumnHeader(self, column, header):
+        """
+        Set the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            header (str): The header name.
+        """
         self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
 
     def setIconColumnHeader(self, column, icon):
+        """
+        Set an icon in the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            icon (QIcon): The icon to display in the header.
+        """
         self.setHeaderData(column, QtCore.Qt.Orientation.Horizontal, icon, Qt.ItemDataRole.DecorationRole)
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        """
+        Retrieve the header data for a specific section of the model.
+
+        Args:
+            section (int): The section index (column or row).
+            orientation (Qt.Orientation): The orientation (horizontal or vertical).
+            role (Qt.ItemDataRole, optional): The role for the header data. Defaults to DisplayRole.
+
+        Returns:
+            QVariant: The header data for the specified section.
+        """
         if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
             return super().headerData(section, orientation, role)
         return super().headerData(section, orientation, role)
 
     def flags(self, index):
+        """
+        Get the item flags for a given index, controlling editability and selection based on user permissions.
+
+        Args:
+            index (QModelIndex): The index of the item.
+
+        Returns:
+            Qt.ItemFlags: The flags for the specified item.
+        """
         flags = super().flags(index)
         if self.username in ['j.sanz', 'j.zofio']:
             if index.column() >= 5:
@@ -1264,12 +1656,46 @@ class EditableTableModelM(QtSql.QSqlTableModel):
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
     def getColumnHeaders(self, visible_columns):
+        """
+        Retrieve the headers for the specified visible columns.
+
+        Args:
+            visible_columns (list): List of column indices that are visible.
+
+        Returns:
+            list: A list of column headers for the visible columns.
+        """
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
 
 
 class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
+    """
+    Main window class for the Workshop Drawing Index. Manages the UI and interactions with the database.
+
+    Attributes:
+        db (QSqlDatabase): The database connection.
+        username (str): The current username for session-specific actions.
+        num_order (int, optional): The order number associated with the window.
+        modelDim, proxyDim (EditableTableModelDim, CustomProxyModelDim): Models and proxies for dimension data.
+        modelOf, proxyOf (EditableTableModelOf, CustomProxyModelOf): Models and proxies for other fields data.
+        modelM, proxyM (EditableTableModelM, CustomProxyModelM): Models and proxies for another set of data.
+        checkbox_states (dict): Stores the state of checkboxes in the UI.
+        dict_valuesuniques (dict): Stores unique values for filters.
+        dict_ordersort (dict): Stores sorting order preferences.
+        hiddencolumns (list): List of hidden columns in the tables.
+        action_checkbox_map (dict): Maps actions to checkboxes for filters.
+        checkbox_filters (dict): Stores active checkbox filters.
+    """
     def __init__(self, db, username=None, num_order=None):
+        """
+        Initialize the Workshop Drawing Index window and setup models, proxies, and connections.
+
+        Args:
+            db (QSqlDatabase): The database connection.
+            username (str, optional): The current username. Defaults to None.
+            num_order (int, optional): The order number for filtering data. Defaults to None.
+        """
         super(Ui_WorkshopDrawingIndex_Window, self).__init__()
         self.username = username
         self.modelDim = EditableTableModelDim(self.username, database=db)
@@ -1293,7 +1719,12 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.modelM.dataChanged.connect(self.saveChanges)
 
     def closeEvent(self, event):
-        # Closing database connection
+        """
+        Handles the event triggered when the window is closed. Ensures models are cleared and database connections are closed.
+
+        Args:
+            event (QCloseEvent): The close event triggered when the window is about to close.
+        """
         if self.modelDim:
             self.modelDim.clear()
         if self.modelOf:
@@ -1303,7 +1734,10 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.closeConnection()
 
     def closeConnection(self):
-        # Closing database connection
+        """
+        Closes the database connection and clears any references to the models.
+        Also removes the 'drawing_index' database connection from Qt's connection list if it exists.
+        """
         self.tableDimDwg.setModel(None)
         del self.modelDim
         self.tableOfDwg.setModel(None)
@@ -1316,8 +1750,13 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             if QtSql.QSqlDatabase.contains("drawing_index"):
                 QtSql.QSqlDatabase.removeDatabase("drawing_index")
 
-
     def setupUi(self, WorkshopDrawingIndex_Window):
+        """
+        Sets up the user interface of the Workshop Drawing Index window.
+
+        Args:
+            WorkshopDrawingIndex_Window (QMainWindow): The main window object to setup.
+        """
         WorkshopDrawingIndex_Window.setObjectName("WorkshopDrawingIndex_Window")
         WorkshopDrawingIndex_Window.resize(790, 595)
         WorkshopDrawingIndex_Window.setMinimumSize(QtCore.QSize(790, 595))
@@ -1708,8 +2147,11 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.tableMDwg.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
         self.tableMDwg.addActions([delete_action_m])
 
-
+# Function to translate and updates the text of various UI elements
     def retranslateUi(self, WorkshopDrawingIndex_Window):
+        """
+        Translates and updates the text of various UI elements.
+        """
         _translate = QtCore.QCoreApplication.translate
         WorkshopDrawingIndex_Window.setWindowTitle(_translate("WorkshopDrawingIndex_Window", "Indice Planos"))
         self.tableDimDwg.setSortingEnabled(True)
@@ -1720,9 +2162,11 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.label_DateWorkshop.setText(_translate("WorkshopDrawingIndex_Window", "Fecha Baja Taller:"))
         self.label_DateAssembly.setText(_translate("WorkshopDrawingIndex_Window", "Fecha Baja Montaje:"))
 
-
 # Function to save changes into database
     def saveChanges(self):
+        """
+        Saves changes made to the data models and updates unique values for each column.
+        """
         self.modelDim.submitAll()
 
         for column in range(self.modelDim.columnCount()):
@@ -1767,6 +2211,10 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function to load table and setting in the window
     def query_drawings(self):
+        """
+        Queries the database for drawings based on the number order, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         num_order = self.Numorder_IndexDwg.text().upper()
 
         commands_queryorder = """
@@ -2002,9 +2450,28 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             self.tableDimDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableDimDwg, self.modelDim, self.proxyDim)
             self.tableOfDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableOfDwg, self.modelOf, self.proxyOf)
             self.tableMDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableMDwg, self.modelM, self.proxyM)
+        else:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("El pedido introducido no existe")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex, table, model, proxy):
+        """
+        Displays a menu when a column header is clicked. The menu includes options for sorting, filtering, and managing column visibility.
+        
+        Args:
+            logicalIndex (int): Index of the clicked column.
+            table (QtWidgets.QTableView): The table view displaying the data.
+            model (QtGui.QStandardItemModel): The model associated with the table.
+            proxy (QtCore.QSortFilterProxyModel): The proxy model used for filtering and sorting.
+        """
         self.logicalIndex = logicalIndex
         self.menuValues = QtWidgets.QMenu(self)
         self.signalMapper = QtCore.QSignalMapper(table)
@@ -2115,10 +2582,19 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function when cancel button of menu is clicked
     def menu_cancelbutton_triggered(self):
+        """
+        Hides the menu when the cancel button is clicked.
+        """
         self.menuValues.hide()
 
 # Function when accept button of menu is clicked
     def menu_acceptbutton_triggered(self, proxy):
+        """
+        Applies the selected filters and updates the table model with the new filters.
+        
+        Args:
+            proxy (QtCore.QSortFilterProxyModel): The proxy model used for filtering and sorting.
+        """
         for column, filters in self.checkbox_filters.items():
             if filters:
                 proxy.setFilter(filters, column)
@@ -2129,6 +2605,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function when select all checkbox is clicked
     def on_select_all_toggled(self, checked, action_name, model):
+        """
+        Toggles the state of all checkboxes in the filter menu when the 'Select All' checkbox is toggled.
+        
+        Args:
+            checked (bool): The checked state of the 'Select All' checkbox.
+            action_name (str): The name of the action (usually 'Select All').
+            model (QtGui.QStandardItemModel): The model associated with the table.
+        """
         filterColumn = self.logicalIndex
         imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
@@ -2150,6 +2634,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function when checkbox of header menu is clicked
     def on_checkbox_toggled(self, checked, action_name, model):
+        """
+        Updates the filter state when an individual checkbox is toggled.
+        
+        Args:
+            checked (bool): The checked state of the checkbox.
+            action_name (str): The name of the checkbox.
+            model (QtGui.QStandardItemModel): The model associated with the table.
+        """
         filterColumn = self.logicalIndex
         imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
@@ -2171,6 +2663,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function to delete individual column filter
     def on_actionDeleteFilterColumn_triggered(self, table, model, proxy):
+        """
+        Removes the filter from the selected column and updates the table model.
+        
+        Args:
+            table (QtWidgets.QTableView): The table view displaying the data.
+            model (QtGui.QStandardItemModel): The model associated with the table.
+            proxy (QtCore.QSortFilterProxyModel): The proxy model used for filtering and sorting.
+        """
         filterColumn = self.logicalIndex
         if filterColumn in proxy.filters:
             del proxy.filters[filterColumn]
@@ -2195,18 +2695,37 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function to order column ascending
     def on_actionSortAscending_triggered(self, table):
+        """
+        Sorts the selected column in ascending order.
+        
+        Args:
+            table (QtWidgets.QTableView): The table view displaying the data.
+        """
         sortColumn = self.logicalIndex
         sortOrder = Qt.SortOrder.AscendingOrder
         table.sortByColumn(sortColumn, sortOrder)
 
 # Function to order column descending
     def on_actionSortDescending_triggered(self, table):
+        """
+        Sorts the selected column in descending order.
+        
+        Args:
+            table (QtWidgets.QTableView): The table view displaying the data.
+        """
         sortColumn = self.logicalIndex
         sortOrder = Qt.SortOrder.DescendingOrder
         table.sortByColumn(sortColumn, sortOrder)
 
 # Function when text is searched
     def on_actionTextFilter_triggered(self, model, proxy):
+        """
+        Opens a dialog to enter a text filter and applies it to the selected column.
+        
+        Args:
+            model (QtGui.QStandardItemModel): The model associated with the table.
+            proxy (QtCore.QSortFilterProxyModel): The proxy model used for filtering and sorting.
+        """
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
@@ -2231,18 +2750,29 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function to hide column when action clicked
     def hide_column(self):
+        """
+        Hides the selected column in the table view.
+        """
         filterColumn = self.logicalIndex
         self.tableDimDwg.setColumnHidden(filterColumn, True)
         self.hiddencolumns.append(filterColumn)
 
 # Function to show all hidden columns
     def show_columns(self):
+        """
+        Makes all previously hidden columns visible in the table and clears the list of hidden columns.
+        """
         for column in self.hiddencolumns:
             self.tableDimDwg.setColumnHidden(column, False)
         self.hiddencolumns.clear()
 
 # Function to export data to excel
     def exporttoexcel(self):
+        """
+        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
+
+        Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
+        """
         if self.proxy.rowCount() == 0:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
@@ -2282,6 +2812,15 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function to enable copy and paste cells
     def custom_keyPressEvent(self, event, table, model, proxy):
+        """
+        Handles custom key events for cell operations in the table, including delete, copy, paste, and custom shortcuts.
+
+        Args:
+            event (QtGui.QKeyEvent): The key event to handle.
+            table (QtWidgets.QTableView or QtWidgets.QTableWidget): The table that is handling the event.
+            model (QtCore.QAbstractItemModel): The model associated with the table.
+            proxy (QtCore.QSortFilterProxyModel): The proxy model used for filtering or sorting, if applicable.
+        """
         if event.key() == QtCore.Qt.Key.Key_Delete:
             selected_indexes = table.selectionModel().selectedIndexes()
             if not selected_indexes:
@@ -2480,6 +3019,16 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function to get the text of the selected cells
     def get_selected_text(self, indexes, model):
+        """
+        Retrieves the text from the selected cells and returns it as a plain text string.
+
+        Args:
+            indexes (list of QModelIndex): A list of QModelIndex objects representing the selected cells.
+            model (QtCore.QAbstractItemModel): The model associated with the table.
+        
+        Returns:
+            str: A string containing the text from the selected cells.
+        """
         if len(indexes) == 1:  # For only one cell selected
             index = indexes[0]
             cell_data = index.data(Qt.ItemDataRole.DisplayRole)
@@ -2506,6 +3055,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function to count selected cells and sum its values
     def countSelectedCells(self):
+        """
+        Counts the number of selected cells and sums their values. Updates the UI labels with the count and sum.
+        """
         if len(self.tableDimDwg.selectedIndexes()) > 1:
             locale.setlocale(locale.LC_ALL, "es_ES.UTF-8")
             self.label_SumItems.setText("")
@@ -2529,6 +3081,15 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function to format money string values
     def euro_string_to_float(self, euro_str):
+        """
+        Converts a string representing an amount in euros to a float.
+
+        Args:
+            euro_str (str): A string representing the amount in euros (e.g., "1.234,56 €").
+        
+        Returns:
+            float: The numeric value of the amount as a float.
+        """
         match = re.match(r"^([\d.,]+)\s€$", euro_str)
         if match:
             number_str = match.group(1)
@@ -2539,18 +3100,30 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function for creating context menu
     def createContextMenu(self):
+        """
+        Creates a context menu with options for hiding selected columns.
+        """
         self.context_menu = QtWidgets.QMenu(self)
         hide_columns_action = self.context_menu.addAction("Ocultar Columnas")
         hide_columns_action.triggered.connect(self.hideSelectedColumns)
 
 # Function to show context menu when right-click
     def showColumnContextMenu(self, pos):
+        """
+        Displays the context menu at the specified position for column operations.
+
+        Args:
+            pos (QPoint): The position at which to display the context menu.
+        """
         header = self.tableDimDwg.horizontalHeader()
         column = header.logicalIndexAt(pos)
         self.context_menu.exec(self.tableDimDwg.mapToGlobal(pos))
 
 # Function to hide selected columns
     def hideSelectedColumns(self):
+        """
+        Hides the currently selected columns in the table and updates the list of hidden columns.
+        """
         selected_columns = set()
         header = self.tableDimDwg.horizontalHeader()
         for index in header.selectionModel().selectedColumns():
@@ -2564,6 +3137,11 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function to add lines on tables
     def add_lines(self):
+        """
+        Handles the addition of lines based on user input. It validates the input order number and performs database operations based on the specified item type.
+        If the number of drawings to insert is valid, it inserts the records into the appropriate table. 
+        Displays relevant message boxes for error handling, warnings, and successful operations.
+        """
         if self.username == 'm.gil':
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
@@ -2584,19 +3162,6 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Indice Planos")
                 dlg.setText("Introduce un número de pedido")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg,new_icon
-
-            elif not re.match(r'^(P-\d{2}/\d{3}-S\d{2}|PA-\d{2}/\d{3})$', num_order):
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Indice Planos")
-                dlg.setText("El número de pedido debe tener el siguiente formato\n" +
-                            "- P-XX/YYY-SZZ\n" + 
-                            "- PA-XX/YYY")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg.exec()
                 del dlg,new_icon
@@ -2819,6 +3384,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function to open material colour palette table
     def colour_palette_M(self):
+        """
+        Opens the material colour palette table window.
+        """
         from ColourPaletteM_Window import Ui_PaletteColourM_Window
 
         self.palettecolourm_window = QtWidgets.QMainWindow()
@@ -2828,6 +3396,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function to open bolts colour palette table
     def colour_palette_T(self):
+        """
+        Opens the bolts colour palette table window.
+        """
         from ColourPaletteT_Window import Ui_PaletteColourT_Window
 
         self.palettecolourt_window = QtWidgets.QMainWindow()
@@ -2837,6 +3408,13 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function to delete register of database
     def delete_register(self, table, name):
+        """
+        Deletes selected records from the specified table.
+
+        Args:
+            table (QtWidgets.QTableView): The table widget from which records are selected.
+            name (str): The name of the table from which records will be deleted.
+        """
         selection_model = table.selectionModel()
 
         if not selection_model.hasSelection():
@@ -2913,6 +3491,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function to add descriptions to drawings
     def add_description(self):
+        """
+        Adds descriptions on tables based on drawing number
+        """
         self.numorder = self.Numorder_IndexDwg.text()
 
         if self.numorder=="":
@@ -3109,8 +3690,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
                                                     " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][8] +
                                                     ((" BRIDAS " + results_description[0][9]) if results_description[0][0] == 'M.RUN' else " ") +
-                                                    " TOMAS: " + results_description[0][10] + " " + "Junta " +
-                                                    ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else 22,2))))
+                                                    " TOMAS: " + results_description[0][10][:-1] + ' x brida)' + " " + "Junta " +
+                                                    ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else '22,2'))))
 
                                     elif item_type in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW']:
                                         description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
@@ -3149,6 +3730,89 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 finally:
                                     if conn is not None:
                                         conn.close()
+
+                        if self.proxyOf.rowCount() != 0:
+                            for row in range(self.proxyOf.rowCount()):
+                                num_of_drawing = self.proxyOf.data(self.proxyOf.index(row, 2))
+
+                                query_data_flow = ('''
+                                    SELECT "item_type"
+                                    FROM tags_data.tags_flow
+                                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("of_drawing") = %s
+                                    ''')
+                                conn = None
+                                try:
+                                # read the connection parameters
+                                    params = config()
+                                # connect to the PostgreSQL server
+                                    conn = psycopg2.connect(**params)
+                                    cur = conn.cursor()
+                                # execution of commands
+                                    cur.execute(query_data_flow,(self.numorder, num_of_drawing,))
+                                    results_flow=cur.fetchall()
+
+                                    item_type = results_flow[0][0]
+
+                                    query_description = ('''
+                                    SELECT item_type, line_size, rating, facing, schedule, element_material,
+                                    plate_type, plate_thk, flange_material, flange_type, tapping_num_size,
+                                    gasket_material, tube_material, stages_number
+                                    FROM tags_data.tags_flow
+                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_drawing) = %s
+                                    ''')
+                                    cur.execute(query_description,(self.numorder, num_of_drawing,))
+                                    results_description=cur.fetchall()
+
+                                    if item_type in ['C. RING', 'F+C.RING', 'F+P', 'M.RUN', 'P', 'RO']:
+                                        description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                    " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][5] + " " +
+                                                    results_description[0][6] + " ESPESOR " + results_description[0][7])
+
+                                    elif item_type in ['F', 'F+C.RING', 'F+P', 'M.RUN']:
+                                        description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                    " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][8] +
+                                                    ((" BRIDAS " + results_description[0][9]) if results_description[0][0] == 'M.RUN' else " ") +
+                                                    " TOMAS: " + results_description[0][10][:-1] + ' x brida)' + " " + "Junta " +
+                                                    ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else 22,2))))
+
+                                    # elif item_type in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW']:
+                                    #     description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                    #                 " " + results_description[0][3] + " SCH " + results_description[0][4] + " B:" + results_description[0][8] +
+                                    #                 ((" BRIDAS " + results_description[0][9]) if results_description[0][0] in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6'] else " ") +
+                                    #                 "E:" + results_description[0][5] + 
+                                    #                 (" TOMAS: " + results_description[0][10] + '(Conjunto)' if results_description[0][0] in ['NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW'] else "") +
+                                    #                 (results_description[0][13] + " SALTOS: " if results_description[0][0] == 'MULTISTAGE RO' else ""))
+
+                                    # elif item_type in ['NOZZLE BW', 'VWM', 'VWW']:
+                                    #     description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                    #                 " " + (results_description[0][3] if results_description[0][0] in ['VWM', 'VWW'] else "") +
+                                    #                 " SCH " + results_description[0][4] + " T:" + results_description[0][12] +
+                                    #                 "E:" + results_description[0][5] + " TOMAS: " + results_description[0][10] + '(Conjunto)')
+
+                                    commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
+                                                                SET "drawing_description" = '{description}'
+                                                                WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_of_drawing}'"""
+                                    cur.execute(commands_insert_drawing)
+
+                                # close communication with the PostgreSQL database server
+                                    cur.close()
+                                # commit the changes
+                                    conn.commit()
+                                except (Exception, psycopg2.DatabaseError) as error:
+                                    dlg = QtWidgets.QMessageBox()
+                                    new_icon = QtGui.QIcon()
+                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg.setWindowIcon(new_icon)
+                                    dlg.setWindowTitle("ERP EIPSA")
+                                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                + str(error))
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                    dlg.exec()
+                                    del dlg, new_icon
+                                finally:
+                                    if conn is not None:
+                                        conn.close()
+
 
                     elif self.table_toquery == "tags_data.tags_temp":
                         if self.proxyDim.rowCount() != 0:
@@ -3195,12 +3859,12 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     results_description[0][1] + " " +
                                                     results_description[0][2] + results_description[0][3] + results_description[0][4] + " " +
                                                     results_description[0][5] + " " + results_description[0][6] + " Ins:" + results_description[0][7] + "mm ø:" + results_description[0][8] + " " +
-                                                    results_description[0][9] + " " + results_description[0][10] + " " + results_description[0][11] + " " + results_description[0][12] + " " + 
+                                                    results_description[0][9] + " " + results_description[0][10] + " " + results_description[0][11] + " " + (" a masa" if results_description[0][12] == 'Grounded' else (" no masa" if results_description[0][12] == 'Ungrounded' else "")) + " " + 
                                                     results_description[0][13] + " " + results_description[0][14] + " " + results_description[0][15])
 
                                     elif item_type in ['TE']:
                                         description = (str(len(results_temp)) + " " + results_description[0][9] + " " + results_description[0][10] + " " + 
-                                                    results_description[0][11] + " " + results_description[0][12])
+                                                    results_description[0][11] + " " + " a masa" if results_description[0][12] == 'Grounded' else (" no masa" if results_description[0][12] == 'Unrounded' else ""))
 
                                     commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
                                                                 SET "drawing_description" = '{description}'
@@ -3225,6 +3889,136 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 finally:
                                     if conn is not None:
                                         conn.close()
+
+                        if self.proxyOf.rowCount() != 0:
+                            for row in range(self.proxyOf.rowCount()):
+                                of_drawing = self.proxyOf.data(self.proxyOf.index(row, 2))
+
+                                query_data_temp = ('''
+                                    SELECT "item_type"
+                                    FROM tags_data.tags_temp
+                                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("of_drawing") = %s
+                                    ''')
+                                conn = None
+                                try:
+                                # read the connection parameters
+                                    params = config()
+                                # connect to the PostgreSQL server
+                                    conn = psycopg2.connect(**params)
+                                    cur = conn.cursor()
+                                # execution of commands
+                                    cur.execute(query_data_temp,(self.numorder, of_drawing,))
+                                    results_temp=cur.fetchall()
+
+                                    if len(results_temp) != 0:
+                                        item_type = results_temp[0][0]
+
+                                        query_description = ('''
+                                        SELECT item_type, tw_type, flange_size, flange_rating, flange_facing, geometry, material_tw,
+                                        ins_length, root_diam
+                                        FROM tags_data.tags_temp
+                                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_drawing) = %s
+                                        ''')
+                                        cur.execute(query_description,(self.numorder, of_drawing,))
+                                        results_description=cur.fetchall()
+
+                                        if item_type in ['TW', 'TW+BIM','TW+TE', 'TW+TE+TIT']:
+                                            description = (str(len(results_temp)) + " " + results_description[0][0] + " " +
+                                                        results_description[0][1] + " " +
+                                                        results_description[0][2] + results_description[0][3] + results_description[0][4] + " " +
+                                                        results_description[0][5] + " " + results_description[0][6] + " Ins:" + results_description[0][7] + "mm ø:" + results_description[0][8])
+
+                                            commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
+                                                                        SET "drawing_description" = '{description}'
+                                                                        WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{of_drawing}'"""
+                                            cur.execute(commands_insert_drawing)
+
+                                    # close communication with the PostgreSQL database server
+                                        cur.close()
+                                    # commit the changes
+                                        conn.commit()
+                                except (Exception, psycopg2.DatabaseError) as error:
+                                    dlg = QtWidgets.QMessageBox()
+                                    new_icon = QtGui.QIcon()
+                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg.setWindowIcon(new_icon)
+                                    dlg.setWindowTitle("ERP EIPSA")
+                                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                + str(error))
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                    dlg.exec()
+                                    del dlg, new_icon
+                                finally:
+                                    if conn is not None:
+                                        conn.close()
+
+
+                                query_data_temp = ('''
+                                    SELECT "item_type"
+                                    FROM tags_data.tags_temp
+                                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("of_sensor_drawing") = %s
+                                    ''')
+                                conn = None
+                                try:
+                                # read the connection parameters
+                                    params = config()
+                                # connect to the PostgreSQL server
+                                    conn = psycopg2.connect(**params)
+                                    cur = conn.cursor()
+                                # execution of commands
+                                    cur.execute(query_data_temp,(self.numorder, of_drawing,))
+                                    results_temp=cur.fetchall()
+
+                                    if len(results_temp) != 0:
+                                        item_type = results_temp[0][0]
+
+                                        query_description = ('''
+                                        SELECT item_type, sensor_element, sheath_stem_material, sheath_stem_diam, insulation,
+                                        nipple_ext_material, head_case_material, tt_cerblock
+                                        FROM tags_data.tags_temp
+                                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_sensor_drawing) = %s
+                                        ''')
+                                        cur.execute(query_description,(self.numorder, of_drawing,))
+                                        results_description=cur.fetchall()
+
+                                        if item_type in ['TW+TE','TW+TE+TIT']:
+                                            description = (str(len(results_temp)) + " " + 
+                                                        results_description[0][1] + " " + results_description[0][2] + " " + results_description[0][3] + " " + (" a masa" if results_description[0][4] == 'Grounded' else (" no masa" if results_description[0][4] == 'Ungrounded' else "")) + " " + 
+                                                        results_description[0][5] + " " + results_description[0][6] + " " + results_description[0][7])
+
+                                            commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
+                                                                    SET "drawing_description" = '{description}'
+                                                                    WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{of_drawing}'"""
+                                            cur.execute(commands_insert_drawing)
+
+                                        elif item_type in ['TE']:
+                                            description = (str(len(results_temp)) + " " + results_description[0][1] + " " + results_description[0][2] + " " + 
+                                                        results_description[0][3] + " " + (" a masa" if results_description[0][4] == 'Grounded' else (" no masa" if results_description[0][4] == 'Ungrounded' else "")))
+
+                                            commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
+                                                                        SET "drawing_description" = '{description}'
+                                                                        WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{of_drawing}'"""
+                                            cur.execute(commands_insert_drawing)
+
+                                    # close communication with the PostgreSQL database server
+                                        cur.close()
+                                    # commit the changes
+                                        conn.commit()
+                                except (Exception, psycopg2.DatabaseError) as error:
+                                    dlg = QtWidgets.QMessageBox()
+                                    new_icon = QtGui.QIcon()
+                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg.setWindowIcon(new_icon)
+                                    dlg.setWindowTitle("ERP EIPSA")
+                                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                + str(error))
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                    dlg.exec()
+                                    del dlg, new_icon
+                                finally:
+                                    if conn is not None:
+                                        conn.close()
+
 
                     elif self.table_toquery == "tags_data.tags_level":
                         if self.proxyDim.rowCount() != 0:
@@ -3295,18 +4089,85 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     if conn is not None:
                                         conn.close()
 
+                    elif self.table_toquery == "tags_data.others":
+                        if self.proxyDim.rowCount() != 0:
+                            for row in range(self.proxyDim.rowCount()):
+                                num_dim_drawing = self.proxyDim.data(self.proxyDim.index(row, 2))
+
+                                query_data_level = ('''
+                                    SELECT "description"
+                                    FROM tags_data.others
+                                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s
+                                    ''')
+                                conn = None
+                                try:
+                                # read the connection parameters
+                                    params = config()
+                                # connect to the PostgreSQL server
+                                    conn = psycopg2.connect(**params)
+                                    cur = conn.cursor()
+                                # execution of commands
+                                    cur.execute(query_data_level,(self.numorder, num_dim_drawing,))
+                                    results_level=cur.fetchall()
+
+                                    description = (str(len(results_level)) + " " + results_level[0][0])
+
+                                    commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
+                                                                SET "drawing_description" = '{description}'
+                                                                WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
+                                    cur.execute(commands_insert_drawing)
+
+                                # close communication with the PostgreSQL database server
+                                    cur.close()
+                                # commit the changes
+                                    conn.commit()
+                                except (Exception, psycopg2.DatabaseError) as error:
+                                    dlg = QtWidgets.QMessageBox()
+                                    new_icon = QtGui.QIcon()
+                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg.setWindowIcon(new_icon)
+                                    dlg.setWindowTitle("ERP EIPSA")
+                                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                + str(error))
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                    dlg.exec()
+                                    del dlg, new_icon
+                                finally:
+                                    if conn is not None:
+                                        conn.close()
+
+
                     self.query_drawings()
 
 # Function to execute query function when tags window is closed
     def on_close_event(self, event):
+        """
+        Handles the event when the window is closed. 
+
+        Calls the `query_drawings` method to update the drawing data before accepting the close event.
+
+        Args:
+            event (QtGui.QCloseEvent): The close event object that is processed.
+        """
         self.query_drawings()
         event.accept()
 
 # Function to extract thickness of gasket
     def extract_thickness(self, gasket):
+        """
+        Extracts the thickness of a gasket from a given string using regular expressions.
+
+        Searches for patterns matching thickness in the format of digits followed by 'mm' (e.g., '12.5mm', '10,2mm').
+
+        Args:
+            gasket (str): The string containing the gasket information.
+
+        Returns:
+            str: The extracted thickness if found, otherwise an empty string.
+        """
         pattern = re.compile(r'\d+,\d+mm|\d+\.\d+mm|\d+mm')
         match = pattern.search(gasket)
-        return match.group() if match else ""
+        return match.group() if match is not None else ""
 
 
 
