@@ -239,7 +239,9 @@ class Ui_UpdateTableExist_Window(object):
 
                     # Creating the SET  and WHERE clause with proper formatting
                         set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
-                        where_clause = f'"id" = \'{id_value}\''
+                        # print(set_clause)
+
+                        where_clause = f"id = '{id_value}'"
 
                     # Creating the update query and executing it after checking existing tags and id
                         sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
