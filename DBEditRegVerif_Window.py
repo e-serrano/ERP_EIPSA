@@ -525,20 +525,22 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
 
         tables_db_names = [x[0] for x in results]
 
-        tables_names = ['Verif. Planos AL', 'Valores Fuerza Bola', 'Calibraciones', 'Albaranes', 'Verif. Planos DIM',
-                        'Herramientas Taller', 'Revisiones Herramientas', 'Verif. EXP', 'Tabla 5 Dureza', 'Tabla 6 Dureza', 'Valores PT100 INTA', 'Valores TC INTA',
+        print(tables_db_names)
+
+        tables_names = ['Verif. Planos AL', 'Valores Fuerza Bola', 'Calibres Taller', 'Revisiones Calibres', 'Patrones Calibrados', 'Calibraciones', 'Albaranes', 'Verif. Planos DIM',
+                        'Verif. EXP', 'Herramientas Taller', 'Revisiones Herramientas', 'Tabla 5 Dureza', 'Tabla 6 Dureza', 'Valores PT100 INTA', 'Valores TC INTA',
                         'Coladas Liq. Penetrantes', 'Verif. Planos M', 'Máquinas Taller',
-                        'Revisiones Máquinas', 'Manometros', 'Patrones Calibración', 'Patrones Termoelementos',
+                        'Revisiones Máquinas', 'Manometros', 'Patrones Termoelementos',
                         'Desplegables No-Conformidad', 'Informes No-Conformidad', 'Verif. Planos OF', 'Equipos. Verif.', 'Verif. PPI',
                         'Valores PT100 Norma', 'Valores TC B Norma', 'Valores TC C Norma', 'Valores TC E Norma', 'Valores TC J Norma',
                         'Valores TC K Norma', 'Valores TC N Norma', 'Valores TC R Norma', 'Valores TC S Norma', 'Valores TC T Norma',
                         'Estados Verif.', 'Estados Almacén', 'Proveedores Albaranes', 'Pruebas Dureza', 'Pruebas Hidróstaticas',
-                        'Pruebas Líquidos Penetrantes', 'Pruebas Otros', 'Tolerancias Termoelementos', 'Piezas Adicionales Taller', 'Piezas Taller',
-                        'Planos DIM Taller', 'Planos OF Taller']
+                        'Pruebas Líquidos Penetrantes', 'Pruebas Otros', 'Patrones Roscas', 'Tolerancias Termoelementos', 'Piezas Adicionales Taller', 'Piezas Taller',
+                        'Equipos Soldadura', 'Planos DIM Taller', 'Planos OF Taller']
 
         self.dict_tables = dict(zip(tables_db_names, tables_names))
 
-        tables_to_delete = ['al_drawing_verification', 'calibration_thermoelements', 'delivnote_suppliers', 'dim_drawing_verification',
+        tables_to_delete = ['al_drawing_verification', 'calibers_workshop_revisions', 'calibration_thermoelements', 'delivnote_suppliers', 'dim_drawing_verification',
                             'handtools_workshop','handtools_workshop_revisions','exp_verification', 'm_drawing_verification', 'machines_workshop',
                             'machines_workshop_revisions', 'nc_report', 'of_drawing_verification',
                             'ppi_verification', 'suppliers_verification', 'test_hardness', 'test_hydro',

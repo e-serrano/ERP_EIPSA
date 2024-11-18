@@ -802,10 +802,12 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
             # self.tableQueryOrder.verticalHeader().hide()
             self.tableQueryOrder.setItemDelegate(AlignDelegate(self.tableQueryOrder))
             self.tableQueryOrder.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableQueryOrder.horizontalHeader().setDefaultSectionSize(150)
             # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(9,QtWidgets.QHeaderView.ResizeMode.Interactive)
             # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(10,QtWidgets.QHeaderView.ResizeMode.Interactive)
             # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(17,QtWidgets.QHeaderView.ResizeMode.Interactive)
-            self.tableQueryOrder.horizontalHeader().setMinimumSectionSize(120)
+            self.tableQueryOrder.horizontalHeader().setSectionResizeMode(26,QtWidgets.QHeaderView.ResizeMode.Stretch)
+            # self.tableQueryOrder.horizontalHeader().setMinimumSectionSize(120)
 
             if self.rol_app == 'Técnico':
                 self.tableQueryOrder.hideColumn(14)
@@ -936,10 +938,11 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
                 # self.tableQueryOrder.verticalHeader().hide()
                 self.tableQueryOrder.setItemDelegate(AlignDelegate(self.tableQueryOrder))
                 self.tableQueryOrder.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+                self.tableQueryOrder.horizontalHeader().setDefaultSectionSize(150)
                 # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(9,QtWidgets.QHeaderView.ResizeMode.Interactive)
                 # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(10,QtWidgets.QHeaderView.ResizeMode.Interactive)
                 # self.tableQueryOrder.horizontalHeader().setSectionResizeMode(17,QtWidgets.QHeaderView.ResizeMode.Interactive)
-                self.tableQueryOrder.horizontalHeader().setMinimumSectionSize(120)
+                self.tableQueryOrder.horizontalHeader().setSectionResizeMode(26,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
                 if self.rol_app == 'Técnico':
                     self.tableQueryOrder.hideColumn(14)
@@ -1135,7 +1138,7 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
         self.order_deliveries_window=QtWidgets.QMainWindow()
         self.ui=Ui_DeliveriesOrder_Window(order_num)
         self.ui.setupUi(self.order_deliveries_window)
-        self.order_deliveries_window.show()
+        self.order_deliveries_window.showMaximized()
 
 #Function when clicking on table header
     def on_header_section_clicked(self, logical_index):

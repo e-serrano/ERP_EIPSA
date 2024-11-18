@@ -16,6 +16,10 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from PyQt6.QtWidgets import QApplication
 import os
+from config import config
+import pandas as pd
+import psycopg2
+from tkinter.filedialog import askopenfilename
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -34,7 +38,6 @@ def imagen_to_base64(imagen):
     imagen.save(buffer, ".png")
     base64_data = buffer.data().toBase64().data().decode()
     return base64_data
-
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     """
@@ -135,26 +138,186 @@ class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
         super().paint(painter, option, index)
 
+# class CustomProxyModel(QtCore.QSortFilterProxyModel):
+#     """
+#     A custom proxy model that filters table rows based on expressions set for specific columns.
+
+#     Attributes:
+#         _filters (dict): A dictionary to store filter expressions for columns.
+#         header_names (dict): A dictionary to store header names for the table.
+
+#     Properties:
+#         filters: Getter for the current filter dictionary.
+
+#     """
+#     def __init__(self, parent=None):
+#         """
+#         Get the current filter expressions applied to columns.
+
+#         Returns:
+#             dict: Dictionary of column filters.
+#         """
+#         super().__init__(parent)
+#         self._filters = dict()
+#         self.header_names = {}
+
+#     @property
+#     def filters(self):
+#         """
+#         Get the current filter expressions applied to columns.
+
+#         Returns:
+#             dict: Dictionary of column filters.
+#         """
+#         return self._filters
+
+#     def setFilter(self, list_expresions, column, action_name=None):
+#         """
+#         Apply a filter expression to a specific column, or remove it if necessary.
+
+#         Args:
+#             expresion (str): The filter expression.
+#             column (int): The index of the column to apply the filter to.
+#             action_name (str, optional): Name of the action, can be empty. Defaults to None.
+#         """
+#         for expresion in list_expresions:
+#             if expresion or expresion == '':
+#                 if column in self.filters:
+#                     if action_name or action_name == '':
+#                         self.filters[column].remove(expresion)
+#                     else:
+#                         self.filters[column].append(expresion)
+#                 else:
+#                     self.filters[column] = [expresion]
+#             elif column in self.filters:
+#                 if action_name or action_name == '':
+#                     self.filters[column].remove(expresion)
+#                     if not self.filters[column]:
+#                         del self.filters[column]
+#                 else:
+#                     del self.filters[column]
+#         self.invalidateFilter()
+
+
+#     def filterAcceptsRow(self, source_row, source_parent):
+#         """
+#         Check if a row passes the filter criteria based on the column filters.
+
+#         Args:
+#             source_row (int): The row number in the source model.
+#             source_parent (QModelIndex): The parent index of the row.
+
+#         Returns:
+#             bool: True if the row meets the filter criteria, False otherwise.
+#         """
+#         for column, expresions in self.filters.items():
+#             text = self.sourceModel().index(source_row, column, source_parent).data()
+
+#             if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
+#                 text = text.toString("yyyy-MM-dd")
+
+#             for expresion in expresions:
+#                 if expresion == '':  # Si la expresión es vacía, coincidir con celdas vacías
+#                     if text == '':
+#                         break
+
+#                 elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', str(expresion)):
+#                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
+#                     expresion = expresion.toString("yyyy-MM-dd")
+#                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+#                     if regex.match(str(text)).hasMatch():
+#                         break
+
+#                 else:
+#                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+#                     if regex.match(str(text)).hasMatch():
+#                         break
+#             else:
+#                 return False
+#         return True
+
+# class EditableTableModel(QtSql.QSqlTableModel):
+#     """
+#     A custom SQL table model that supports editable columns, headers, and special flagging behavior based on user permissions.
+
+#     Signals:
+#         updateFailed (str): Signal emitted when an update to the model fails.
+#     """
+#     updateFailed = QtCore.pyqtSignal(str)
+#     def __init__(self, parent=None):
+#         """
+#         Initialize the model with user permissions
+#         """
+#         super().__init__(parent)
+#         self.originalData = {}
+#         self.relations={}
+
+#     def setAllColumnHeaders(self, headers):
+#         """
+#         Set headers for all columns in the model.
+
+#         Args:
+#             headers (list): A list of header names.
+#         """
+#         for column, header in enumerate(headers):
+#             self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
+
+#     def setIndividualColumnHeader(self, column, header):
+#         """
+#         Set the header for a specific column.
+
+#         Args:
+#             column (int): The column index.
+#             header (str): The header name.
+#         """
+#         self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
+
+#     def setIconColumnHeader(self, column, icon):
+#         """
+#         Set an icon in the header for a specific column.
+
+#         Args:
+#             column (int): The column index.
+#             icon (QIcon): The icon to display in the header.
+#         """
+#         self.setHeaderData(column, QtCore.Qt.Orientation.Horizontal, icon, Qt.ItemDataRole.DecorationRole)
+
+#     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+#         """
+#         Retrieve the header data for a specific section of the model.
+
+#         Args:
+#             section (int): The section index (column or row).
+#             orientation (Qt.Orientation): The orientation (horizontal or vertical).
+#             role (Qt.ItemDataRole, optional): The role for the header data. Defaults to DisplayRole.
+
+#         Returns:
+#             QVariant: The header data for the specified section.
+#         """
+#         if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
+#             return super().headerData(section, orientation, role)
+#         return super().headerData(section, orientation, role)
+
+#     def flags(self, index):
+#         """
+#         Get the item flags for a given index, controlling editability and selection based on user permissions.
+
+#         Args:
+#             index (QModelIndex): The index of the item.
+
+#         Returns:
+#             Qt.ItemFlags: The flags for the specified item.
+#         """
+#         flags = super().flags(index)
+#         return flags | QtCore.Qt.ItemFlag.ItemIsEditable
+
 class CustomProxyModel(QtCore.QSortFilterProxyModel):
     """
     A custom proxy model that filters table rows based on expressions set for specific columns.
-
-    Attributes:
-        _filters (dict): A dictionary to store filter expressions for columns.
-        header_names (dict): A dictionary to store header names for the table.
-
-    Properties:
-        filters: Getter for the current filter dictionary.
-
     """
-    def __init__(self, parent=None):
-        """
-        Get the current filter expressions applied to columns.
-
-        Returns:
-            dict: Dictionary of column filters.
-        """
+    def __init__(self, column_display_mapping, parent=None):
         super().__init__(parent)
+        self.column_display_mapping = column_display_mapping 
         self._filters = dict()
         self.header_names = {}
 
@@ -168,7 +331,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
         """
         return self._filters
 
-    def setFilter(self, list_expresions, column, action_name=None):
+    def setFilter(self, expresion, column, action_name=None, exact_match=False):
         """
         Apply a filter expression to a specific column, or remove it if necessary.
 
@@ -176,23 +339,23 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
             expresion (str): The filter expression.
             column (int): The index of the column to apply the filter to.
             action_name (str, optional): Name of the action, can be empty. Defaults to None.
+            exact_match (bool, optional): If True, use exact matching for the filter. Defaults to False.
         """
-        for expresion in list_expresions:
-            if expresion or expresion == '':
-                if column in self.filters:
-                    if action_name or action_name == '':
-                        self.filters[column].remove(expresion)
-                    else:
-                        self.filters[column].append(expresion)
-                else:
-                    self.filters[column] = [expresion]
-            elif column in self.filters:
+        if expresion or expresion == '':
+            if column in self.filters:
                 if action_name or action_name == '':
                     self.filters[column].remove(expresion)
-                    if not self.filters[column]:
-                        del self.filters[column]
                 else:
+                    self.filters[column].append((expresion, exact_match))
+            else:
+                self.filters[column] = [(expresion, exact_match)]
+        elif column in self.filters:
+            if action_name or action_name == '':
+                self.filters[column].remove(expresion)
+                if not self.filters[column]:
                     del self.filters[column]
+            else:
+                del self.filters[column]
         self.invalidateFilter()
 
 
@@ -213,27 +376,86 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
             if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
                 text = text.toString("yyyy-MM-dd")
 
-            for expresion in expresions:
-                if expresion == '':  # Si la expresión es vacía, coincidir con celdas vacías
+            match_found = False 
+
+            for expresion, exact_match in expresions:
+                if expresion == '':  # If expression is empty, match empty cells
                     if text == '':
                         break
 
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', str(expresion)):
-                    expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
+                if exact_match:
+                    if re.fullmatch(r'^\d{4}([\-/.])(0[1-9]|1[0-2])\1(3[01]|[12][0-9]|0[1-9])$', text):
+                        text = QtCore.QDate.fromString(text, "yyyy-MM-dd")
+                        text = text.toString("dd/MM/yyyy")
+
+                    if text in expresion:  # Verificar si `text` está en la lista `expresion`
+                        match_found = True
+                        break
+                
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion[0]):
+                    expresion = QtCore.QDate.fromString(expresion[0], "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
 
                 else:
-                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion[0]))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
-            else:
+
+            if not match_found:
                 return False
         return True
 
-class EditableTableModel(QtSql.QSqlTableModel):
+
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        """
+        Override the data method to handle relational columns correctly when using a QSortFilterProxyModel.
+
+        Args:
+            index (QModelIndex): The index in the source model.
+            role (Qt.ItemDataRole): The role for which data is requested.
+
+        Returns:
+            QVariant: The data for the given role and index, with support for relational columns.
+        """
+        # Get the source model (assumed to be QSqlRelationalTableModel)
+        source_model = self.sourceModel()
+
+        if isinstance(source_model, QtSql.QSqlRelationalTableModel):
+            # Check if the column has a relation
+            relation = source_model.relation(index.column())
+            if relation.isValid() and role == Qt.ItemDataRole.DisplayRole:
+                # Get the related model for the column
+                related_model = source_model.relationModel(index.column())
+
+                # Get the related index using the value from the source model's column
+                related_value = source_model.data(source_model.index(index.row(), index.column()), Qt.ItemDataRole.EditRole)
+
+                # Get the column index to display from the mapping
+                display_column_index = self.column_display_mapping.get(index.column())
+
+                if display_column_index is not None:
+                    # Look up the related display value using the mapped display_column_index
+                    related_index = related_model.match(
+                        related_model.index(0, 0),  # Match the first column (id column)
+                        Qt.ItemDataRole.EditRole, 
+                        related_value, 
+                        1,  # Only one match expected
+                        QtCore.Qt.MatchFlag.MatchExactly
+                    )
+
+                    if related_index:
+                        return related_model.data(related_model.index(related_index[0].row(), display_column_index), role)
+
+        # Fall back to the default behavior if it's not a relational column
+        return super().data(index, role)
+
+
+class EditableTableModel(QtSql.QSqlRelationalTableModel):
     """
     A custom SQL table model that supports editable columns, headers, and special flagging behavior based on user permissions.
 
@@ -241,13 +463,26 @@ class EditableTableModel(QtSql.QSqlTableModel):
         updateFailed (str): Signal emitted when an update to the model fails.
     """
     updateFailed = QtCore.pyqtSignal(str)
-    def __init__(self, parent=None):
+
+    def __init__(self, parent=None, column_range=None, database=None):
         """
-        Initialize the model with user permissions
+        Initialize the model with user permissions and optional database and column range.
+
+        Args:
+            parent (QObject, optional): Parent object for the model. Defaults to None.
+            column_range (list, optional): A list specifying the range of columns. Defaults to None.
         """
-        super().__init__(parent)
-        self.originalData = {}
-        self.relations={}
+        super().__init__(parent, database)
+        self.column_range = column_range
+
+    def setQuery(self, query):
+        """
+        Set the SQL query for the model.
+
+        Args:
+            query (QSqlQuery): The query to populate the model.
+        """
+        super().setQuery(query)
 
     def setAllColumnHeaders(self, headers):
         """
@@ -306,8 +541,99 @@ class EditableTableModel(QtSql.QSqlTableModel):
             Qt.ItemFlags: The flags for the specified item.
         """
         flags = super().flags(index)
-        return flags | QtCore.Qt.ItemFlag.ItemIsEditable
+        if index.column() in [0]:
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        else:
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
+    def getColumnHeaders(self, visible_columns):
+        """
+        Retrieve the headers for the specified visible columns.
+
+        Args:
+            visible_columns (list): List of column indices that are visible.
+
+        Returns:
+            list: A list of column headers for the visible columns.
+        """
+        column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
+        return column_headers
+
+
+class ComboBoxDelegate_Relational(QtSql.QSqlRelationalDelegate):
+    def __init__(self, column_to_display, parent=None):
+        """
+        Initializes the delegate with index column to be displayed in QComboBox
+
+        Args:
+            column_to_display (int): Index column to be displayed in QComboBox
+            parent (QWidget, optional): Parent Widget. Defaults to None.
+        """
+        super().__init__(parent)
+        self.column_to_display = column_to_display
+
+    def createEditor(self, parent, option, index):
+        """
+        Create the editor for a relational column, typically a QComboBox.
+
+        Args:
+            parent (QWidget): The parent widget.
+            option (QStyleOptionViewItem): The option for the item.
+            index (QModelIndex): The index of the item being edited.
+
+        Returns:
+            QWidget: The editor widget, a QComboBox for relational columns.
+        """
+        combo_box = QtWidgets.QComboBox(parent)
+
+        # Obtain model from index
+        source_model = index.model().sourceModel()
+        
+        # Checking relational model
+        if isinstance(source_model, QtSql.QSqlRelationalTableModel):
+            # Establish relational model
+            relation_model = source_model.relationModel(index.column())
+            if relation_model:
+                # Fill combobox
+                for row in range(relation_model.rowCount()):
+                    combo_box.addItem(relation_model.data(relation_model.index(row, self.column_to_display)),  # display name
+                    relation_model.data(relation_model.index(row, 0)))  # Store ID
+
+        return combo_box
+
+    def setModelData(self, editor, model, index):
+        """
+        Set the model data from the editor.
+
+        Args:
+            editor (QWidget): The editor widget (QComboBox for relational columns).
+            model (QAbstractItemModel): The model to update.
+            index (QModelIndex): The index in the model to update.
+        """
+        # Get the source model from the proxy
+        if isinstance(model, QtCore.QSortFilterProxyModel):
+            source_index = model.mapToSource(index)  # Mapea al índice fuente
+            source_model = model.sourceModel()
+        else:
+            source_index = index
+            source_model = model
+
+        selected_foreign_key = editor.currentData()
+
+        # Update source model
+        success = source_model.setData(source_index, selected_foreign_key, Qt.ItemDataRole.EditRole)
+
+        # Confirm changes
+        if isinstance(source_model, QtSql.QSqlRelationalTableModel):
+            if source_model.submitAll():
+                print("Changes saved to database")
+            else:
+                print("Failed to save changes to database")
+
+        # Invalidate filter to update view
+        if isinstance(model, QtCore.QSortFilterProxyModel):
+            model.invalidateFilter()
 
 class Ui_EditDoc_Window(QtWidgets.QMainWindow):
     """
@@ -332,14 +658,16 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
             db (object): Database connection.
         """
         super().__init__()
-        self.model = EditableTableModel()
-        self.proxy = CustomProxyModel()
         self.db = db
+        self.column_display_mapping = {4: 1}
+        self.model = EditableTableModel(database=db)
+        self.proxy = CustomProxyModel(self.column_display_mapping,self)
         self.checkbox_states = {}
         self.dict_valuesuniques = {}
         self.dict_ordersort = {}
         self.action_checkbox_map = {}
         self.checkbox_filters = {}
+        self.hiddencolumns = []
         self.model.dataChanged.connect(self.saveChanges)
         self.setupUi(self)
 
@@ -399,11 +727,32 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.hcab=QtWidgets.QHBoxLayout()
         self.hcab.setObjectName("hcab")
         self.toolDeleteFilter = QtWidgets.QToolButton(self.frame)
-        self.toolDeleteFilter.setObjectName("Save_Button")
-        self.hcab.addWidget(self.toolDeleteFilter)
+        self.toolDeleteFilter.setObjectName("Delete_Filters")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolDeleteFilter.setIcon(icon)
+        self.toolDeleteFilter.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolDeleteFilter)
+        self.hcabspacer3=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer3)
+        self.toolShow = QtWidgets.QToolButton(self.frame)
+        self.toolShow.setObjectName("Show_Button")
+        self.toolShow.setToolTip("Mostrar columnas")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolShow.setIcon(icon)
+        self.toolShow.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolShow)
+        self.hcabspacer4=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer4)
+        self.toolUpdateExcel = QtWidgets.QToolButton(self.frame)
+        self.toolUpdateExcel.setObjectName("Update_Excel")
+        self.toolUpdateExcel.setToolTip("Actualizar con Excel")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Update_Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolUpdateExcel.setIcon(icon)
+        self.toolUpdateExcel.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolUpdateExcel)
         self.hcabspacer2=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer2)
         self.gridLayout_2.addLayout(self.hcab, 0, 0, 1, 1)
@@ -444,7 +793,6 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.hLayout.addWidget(self.Button_All)
         self.gridLayout_2.addLayout(self.hLayout, 1, 0, 1, 1)
         self.tableEditDocs=QtWidgets.QTableView(parent=self.frame)
-        self.model = EditableTableModel()
         self.tableEditDocs.setObjectName("tableEditDocs")
         self.gridLayout_2.addWidget(self.tableEditDocs, 2, 0, 1, 1)
         self.hLayout3 = QtWidgets.QHBoxLayout()
@@ -494,7 +842,11 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.model.dataChanged.connect(self.saveChanges)
         self.query_documents()
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
+        self.toolShow.clicked.connect(self.show_columns)
+        self.toolUpdateExcel.clicked.connect(self.update_documents)
         self.Button_All.clicked.connect(self.query_all_documents)
+
+        self.createContextMenu()
 
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, EditDocs_Window):
@@ -523,7 +875,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.checkbox_filters = {}
 
         self.proxy.invalidateFilter()
-        self.tableEditDocs.setModel(None)
+        # self.tableEditDocs.setModel(None)
         self.tableEditDocs.setModel(self.proxy)
 
         # Getting the unique values for each column of the model
@@ -546,6 +898,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableEditDocs.hideColumn(10)
 
 # Function to save changes into database
     def saveChanges(self):
@@ -572,22 +925,27 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         Queries the database for filtered documents, configures and populates tables with the query results, 
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
-        self.model.dataChanged.disconnect(self.saveChanges)
-        self.model.setTable("documentation")
-        self.model.setFilter(f"state NOT IN ('Aprobado', 'Eliminado')")
-        self.model.select()
+        self.checkbox_states = {}
+        self.dict_valuesuniques = {}
+        self.dict_ordersort = {}
+        self.action_checkbox_map = {}
+        self.checkbox_filters = {}
+        self.hiddencolumns = []
 
-        column_names = ["doc_type_id"] # Hidding column by name
-        for column_index in range(self.model.columnCount(),-1,-1):
-            column_name = self.model.record().fieldName(column_index)
-            if column_name in column_names:
-                self.model.removeColumn(column_index)
+        self.model.dataChanged.disconnect(self.saveChanges)
+        self.model.clear()
+        self.model.setTable("documentation")
+        self.tableEditDocs.setModel(None)
+        self.model.setFilter(f"state NOT IN ('Aprobado', 'Eliminado')")
+        self.model.setRelation(4, QtSql.QSqlRelation("document_type", "id", "doc_type"))
+        self.model.select()
 
         self.proxy.setSourceModel(self.model)
         self.tableEditDocs.setModel(self.proxy)
 
         # self.tableEditDocs.verticalHeader().hide()
         self.tableEditDocs.setItemDelegate(AlignDelegate(self.tableEditDocs))
+        self.tableEditDocs.setItemDelegateForColumn(4,ComboBoxDelegate_Relational(1,self.tableEditDocs))
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -598,14 +956,14 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addWidget(self.tableEditDocs, 3, 0, 1, 1)
         self.tableEditDocs.setSortingEnabled(False)
         self.tableEditDocs.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked)
-        self.tableEditDocs.hideColumn(9)
+        self.tableEditDocs.hideColumn(10)
 
         # Change all column names
-        headers = ["Nº Doc. EIPSA", "Nº Doc. Cliente", "Nº Pedido", "Título", "Crítico", "Nº Revisión", "Fecha Estado", "Estado", "Seguimiento"]
+        headers = ["Nº Doc. EIPSA", "Nº Doc. Cliente", "Nº Pedido", "Título", "Tipo Doc.", "Crítico", "Nº Revisión", "Fecha Estado", "Estado", "Seguimiento"]
         self.model.setAllColumnHeaders(headers)
 
         self.combo_itemtype = EditableComboBoxDelegate(self.tableEditDocs, sorted(['Aprobado','Comentado','Com. Mayores','Com. Menores','Eliminado','Enviado','Rechazado']))
-        self.tableEditDocs.setItemDelegateForColumn(7, self.combo_itemtype)
+        self.tableEditDocs.setItemDelegateForColumn(8, self.combo_itemtype)
 
     # Getting the unique values for each column of the model
         for column in range(self.model.columnCount()):
@@ -626,6 +984,9 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.selection_model = self.tableEditDocs.selectionModel()
         self.selection_model.selectionChanged.connect(self.countSelectedCells)
 
+        self.tableEditDocs.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+        self.tableEditDocs.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+
 # Function to query alldocuments data into table
     def query_all_documents(self):
         """
@@ -634,8 +995,11 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         """
         self.model.dataChanged.disconnect(self.saveChanges)
         self.delete_allFilters()
+        self.model.clear()
         self.model.setTable("documentation")
+        self.tableEditDocs.setModel(None)
         # self.model.setFilter(f"state NOT IN ('Enviado', 'Comentado')")
+        self.model.setRelation(4, QtSql.QSqlRelation("document_type", "id", "doc_type"))
         self.model.select()
 
         column_names = ["doc_type_id"] # Hidding column by name
@@ -649,6 +1013,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
 
         # self.tableEditDocs.verticalHeader().hide()
         self.tableEditDocs.setItemDelegate(AlignDelegate(self.tableEditDocs))
+        self.tableEditDocs.setItemDelegateForColumn(4,ComboBoxDelegate_Relational(1,self.tableEditDocs))
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -661,12 +1026,12 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.tableEditDocs.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked)
 
         # Change all column names
-        headers = ["Nº Doc. EIPSA", "Nº Doc. Cliente", "Nº Pedido", "Título", "Crítico", "Nº Revisión", "Fecha Estado", "Estado", "Seguimiento"]
+        headers = ["Nº Doc. EIPSA", "Nº Doc. Cliente", "Nº Pedido", "Título", "Tipo Doc.", "Crítico", "Nº Revisión", "Fecha Estado", "Estado", "Seguimiento"]
         self.model.setAllColumnHeaders(headers)
 
         self.combo_itemtype = EditableComboBoxDelegate(self.tableEditDocs, sorted(['Aprobado','Comentado','Com. Mayores','Com. Menores','Eliminado','Enviado','Rechazado']))
-        self.tableEditDocs.setItemDelegateForColumn(7, self.combo_itemtype)
-        self.tableEditDocs.hideColumn(9)
+        self.tableEditDocs.setItemDelegateForColumn(8, self.combo_itemtype)
+        self.tableEditDocs.hideColumn(10)
 
     # Getting the unique values for each column of the model
         for column in range(self.model.columnCount()):
@@ -808,7 +1173,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         """
         for column, filters in self.checkbox_filters.items():
             if filters:
-                self.proxy.setFilter(filters, column)
+                self.proxy.setFilter(filters, column, exact_match=True)
             else:
                 self.proxy.setFilter(None, column)
 
@@ -904,6 +1269,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableEditDocs.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableEditDocs.hideColumn(10)
 
 # Function to order column ascending
     def on_actionSortAscending_triggered(self):
@@ -944,7 +1310,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
 
             filterString = QtCore.QRegularExpression(stringAction, QtCore.QRegularExpression.PatternOption(0))
             # del self.proxy.filters[filterColumn]
-            self.proxy.setFilter([stringAction], filterColumn)
+            self.proxy.setFilter([stringAction], filterColumn, None)
 
             imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
@@ -966,14 +1332,12 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
             mime_data = QtCore.QMimeData()
             data = bytearray()
 
-            if isinstance(self.model, QtCore.QSortFilterProxyModel):
+            if self.proxy.filters:
                 for index in selected_indexes:
                     source_index = self.proxy.mapToSource(index)
-                    print(self.model.sourceModel().data(source_index))
-                    data += str(self.model.sourceModel().data(source_index) if not isinstance(self.model.sourceModel().data(source_index), QtCore.QDate) else self.model.sourceModel().data(source_index).toString("dd/MM/yyyy")).encode('utf-8') + b'\t'
+                    data += str(self.proxy.sourceModel().data(source_index) if not isinstance(self.proxy.sourceModel().data(source_index), QtCore.QDate) else self.proxy.sourceModel().data(source_index).toString("dd/MM/yyyy")).encode('utf-8') + b'\t'
             else:
                 for index in selected_indexes:
-                    print(self.model.data(index))
                     data += str(self.model.data(index) if not isinstance(self.model.data(index), QtCore.QDate) else self.model.data(index).toString("dd/MM/yyyy")).encode('utf-8') + b'\t'
 
             mime_data.setData("text/plain", data)
@@ -997,15 +1361,17 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
                 if not selected_indexes:
                     return
 
-                if isinstance(self.model, QtCore.QSortFilterProxyModel):
+                if self.proxy.filters:
+                    print('a')
                     model_indexes = [self.proxy.mapToSource(index) for index in selected_indexes]
                     if len(values) == 2:
                         for index in model_indexes:
-                            self.model.sourceModel().setData(index, values[0].decode('utf-8'))
+                            self.proxy.sourceModel().setData(index, values[0].decode('utf-8'))
                     else:
                         for index, value in zip(model_indexes, values):
-                            self.model.sourceModel().setData(index, value.decode('utf-8'))
+                            self.proxy.sourceModel().setData(index, value.decode('utf-8'))
                 else:
+                    print('b')
                     model_indexes = selected_indexes
                     if len(values) == 2:
                         for index in model_indexes:
@@ -1052,7 +1418,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
 
             return text_doc.toPlainText()
 
-    # Function to count selected cells and sum its values
+# Function to count selected cells and sum its values
     def countSelectedCells(self):
         """
         Counts the number of selected cells and sums their values. Updates the UI labels with the count and sum.
@@ -1097,6 +1463,132 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
             return float(number_str)
         else:
             return 0.0
+
+# Function for creating context menu
+    def createContextMenu(self):
+        """
+        Creates a context menu with options for hiding selected columns.
+        """
+        self.context_menu = QtWidgets.QMenu(self)
+        hide_columns_action = self.context_menu.addAction("Ocultar Columnas")
+        hide_columns_action.triggered.connect(self.hideSelectedColumns)
+
+# Function to show context menu when right-click
+    def showColumnContextMenu(self, pos):
+        """
+        Displays the context menu at the specified position for column operations.
+
+        Args:
+            pos (QPoint): The position at which to display the context menu.
+        """
+        header = self.tableEditDocs.horizontalHeader()
+        column = header.logicalIndexAt(pos)
+        self.context_menu.exec(self.tableEditDocs.mapToGlobal(pos))
+
+# Function to hide selected columns
+    def hideSelectedColumns(self):
+        """
+        Hides the currently selected columns in the table and updates the list of hidden columns.
+        """
+        selected_columns = set()
+        header = self.tableEditDocs.horizontalHeader()
+        for index in header.selectionModel().selectedColumns():
+            selected_columns.add(index.column())
+
+        for column in selected_columns:
+            self.tableEditDocs.setColumnHidden(column, True)
+            self.hiddencolumns.append(column)
+
+        self.context_menu.close()
+
+# Function to show all hidden columns
+    def show_columns(self):
+        """
+        Makes all previously hidden columns visible in the table and clears the list of hidden columns.
+        """
+        for column in self.hiddencolumns:
+            self.tableEditDocs.setColumnHidden(column, False)
+        self.hiddencolumns.clear()
+
+# Function to update documents with an excel
+    def update_documents(self):
+        """
+        Updates document information by importing an excel file with the data
+        """
+        fname = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")],
+                            title="Seleccionar archivo Excel")
+        if fname:
+
+            params = config()
+            conn = psycopg2.connect(**params)
+            cursor = conn.cursor()
+            table_name = 'public.documentation'
+
+        #Importing excel file into dataframe
+            df_table = pd.read_excel(fname, na_values=['N/A'], keep_default_na=False)
+            df_table = df_table.astype(str)
+            df_table.replace('nan', 'N/A', inplace=True)
+
+            df_table['state_date'] = df_table['state_date'].apply(self.format_date)
+
+            try:
+        # Loop through each row of the DataFrame and insert the data into the table
+                for index, row in df_table.iterrows():
+                    if "num_doc_eipsa" in row:
+                        id_value = row["num_doc_eipsa"]
+                    # Create a list of pairs (column_name, column_value) for each column with value
+                        columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
+
+                    # Creating string for columns names
+                        columns = ', '.join([column for column, _ in columns_values])
+
+                    # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
+                        values = ', '.join(['NULL' if value == '' and column in ['revision','state_date']
+                                            else (f"'{value}'" if column in ['state','state_date'] else "'{}'".format(value.replace('\'', '\'\''))) for column, value in columns_values])
+
+                        set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
+
+                        where_clause = f"num_doc_eipsa = '{id_value}'"
+
+                    # Creating the update query and executing it after checking existing tags and id
+                        sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
+                        cursor.execute(sql_update)
+                        conn.commit()
+
+                cursor.close()
+
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Datos importados con éxito")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+                del dlg, new_icon
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+            finally:
+                if conn is not None:
+                    conn.close()
+
+# Function to format values to date
+    def format_date(self, value):
+        """
+        Formats to date the specified value.
+
+        Args:
+            name (str): Value to format
+        """
+        if value == '' or value is None:  # If value is empty, return 'NULL'
+            return ''
+        try:
+            # Try to convert value to date
+            date = pd.to_datetime(value, errors='raise')
+            return date.strftime('%Y-%m-%d')  # Apply format if it is a date
+        except (ValueError, TypeError):
+            return value # If it is not valid, return value
 
 
 

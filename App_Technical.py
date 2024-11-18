@@ -13,7 +13,7 @@ from datetime import *
 import psycopg2
 import sys
 import configparser
-from Database_Connection import createConnection
+from Database_Connection import createConnection, createConnection_name
 from tkinter.filedialog import askopenfilename
 import pandas as pd
 import os
@@ -59,7 +59,6 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                     color = QtGui.QColor(255, 255, 255)  # White for rest
 
                 option.backgroundBrush = color
-
 
 class CustomTableWidget(QtWidgets.QTableWidget):
     """
@@ -447,7 +446,6 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-
 class Ui_App_Technical(QtWidgets.QMainWindow):
     """
     Main application window for the technical app.
@@ -544,746 +542,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.Header.addWidget(self.Button_PortalDoc)
         spacerItem11 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem11)
-        if self.name in ["Ernesto Carrillo","Enrique Serrano"]:
-            self.Button_ImportTimes = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_ImportTimes.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_ImportTimes.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_ImportTimes.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_ImportTimes.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-            self.Button_ImportTimes.setText("")
-            icon5 = QtGui.QIcon()
-            icon5.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Import_Time.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_ImportTimes.setIcon(icon5)
-            self.Button_ImportTimes.setIconSize(QtCore.QSize(40, 40))
-            self.Button_ImportTimes.setObjectName("Button_ImportTimes")
-            self.Button_ImportTimes.setToolTip("Importar Tiempos")
-            self.Header.addWidget(self.Button_ImportTimes)
-            spacerItem10 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.Header.addItem(spacerItem10)
-            self.Button_CheckTimes = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_CheckTimes.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_CheckTimes.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_CheckTimes.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_CheckTimes.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-            self.Button_CheckTimes.setText("")
-            icon15 = QtGui.QIcon()
-            icon15.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Clock.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_CheckTimes.setIcon(icon15)
-            self.Button_CheckTimes.setIconSize(QtCore.QSize(40, 40))
-            self.Button_CheckTimes.setObjectName("Button_CheckTimes")
-            self.Button_CheckTimes.setToolTip("Tiempos")
-            self.Header.addWidget(self.Button_CheckTimes)
-            spacerItem7 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.Header.addItem(spacerItem7)
-            self.Button_DB_Manuf = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_DB_Manuf.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_DB_Manuf.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_DB_Manuf.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_DB_Manuf.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-            self.Button_DB_Manuf.setText("")
-            icon7 = QtGui.QIcon()
-            icon7.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Worker.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_DB_Manuf.setIcon(icon7)
-            self.Button_DB_Manuf.setIconSize(QtCore.QSize(40, 40))
-            self.Button_DB_Manuf.setObjectName("Button_DB_Manuf")
-            self.Button_DB_Manuf.setToolTip("Personal/Operaciones")
-            self.Header.addWidget(self.Button_DB_Manuf)
-            spacerItem6 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.Header.addItem(spacerItem6)
-            self.Button_DBEdit = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_DBEdit.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_DBEdit.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_DBEdit.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_DBEdit.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-            self.Button_DBEdit.setText("")
-            icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Database_Admin.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_DBEdit.setIcon(icon2)
-            self.Button_DBEdit.setIconSize(QtCore.QSize(40, 40))
-            self.Button_DBEdit.setObjectName("Button_DBEdit")
-            self.Header.addWidget(self.Button_DBEdit)
-            spacerItem13 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.Header.addItem(spacerItem13)
-            self.Button_PDFEdit = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_PDFEdit.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_PDFEdit.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_PDFEdit.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_PDFEdit.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-            self.Button_PDFEdit.setText("")
-            icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_PDFEdit.setIcon(icon2)
-            self.Button_PDFEdit.setIconSize(QtCore.QSize(40, 40))
-            self.Button_PDFEdit.setObjectName("Button_PDFEdit")
-            self.Header.addWidget(self.Button_PDFEdit)
-            spacerItem14 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.Header.addItem(spacerItem14)
-            self.Button_OT = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_OT.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_OT.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_OT.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_OT.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-            self.Button_OT.setText("")
-            icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Barcode.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_OT.setIcon(icon2)
-            self.Button_OT.setIconSize(QtCore.QSize(40, 40))
-            self.Button_OT.setObjectName("Button_OT")
-            self.Button_OT.setToolTip("Ordenes de Trabajo 900")
-            self.Header.addWidget(self.Button_OT)
-            self.Button_DBEdit.clicked.connect(self.editdb)
-            self.Button_ImportTimes.clicked.connect(self.importtimes)
-            self.Button_CheckTimes.clicked.connect(self.checktimes)
-            self.Button_PDFEdit.clicked.connect(self.editpdf)
-            self.Button_DB_Manuf.clicked.connect(self.dbmanufedit)
-            self.Button_OT.clicked.connect(self.otorder)
-        elif self.name in ["Jorge Valtierra"]:
-            self.Button_Deliveries = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_Deliveries.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_Deliveries.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_Deliveries.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_Deliveries.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-            self.Button_Deliveries.setText("")
-            icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Deliveries.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_Deliveries.setIcon(icon2)
-            self.Button_Deliveries.setIconSize(QtCore.QSize(40, 40))
-            self.Button_Deliveries.setObjectName("Button_Deliveries")
-            self.Button_Deliveries.setToolTip("Envíos")
-            self.Header.addWidget(self.Button_Deliveries)
-            spacerItem14 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.Header.addItem(spacerItem14)
-            self.Button_OT = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_OT.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_OT.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_OT.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_OT.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-            self.Button_OT.setText("")
-            icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Barcode.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_OT.setIcon(icon2)
-            self.Button_OT.setIconSize(QtCore.QSize(40, 40))
-            self.Button_OT.setObjectName("Button_OT")
-            self.Button_OT.setToolTip("Ordenes de Trabajo 900")
-            self.Header.addWidget(self.Button_OT)
-            spacerItem12 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.Header.addItem(spacerItem12)
-            self.Button_TestMenu = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_TestMenu.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_TestMenu.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_TestMenu.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_TestMenu.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-            self.Button_TestMenu.setText("")
-            icon9 = QtGui.QIcon()
-            icon9.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Test_Menu.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_TestMenu.setIcon(icon9)
-            self.Button_TestMenu.setIconSize(QtCore.QSize(40, 40))
-            self.Button_TestMenu.setObjectName("Button_TestMenu")
-            self.Button_TestMenu.setToolTip("Insertar Pruebas")
-            self.Header.addWidget(self.Button_TestMenu)
-            spacerItem16 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.Header.addItem(spacerItem16)
-            self.Button_Test = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_Test.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_Test.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_Test.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_Test.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-            self.Button_Test.setText("")
-            icon14 = QtGui.QIcon()
-            icon14.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Tests.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_Test.setIcon(icon14)
-            self.Button_Test.setIconSize(QtCore.QSize(40, 40))
-            self.Button_Test.setObjectName("Button_Test")
-            self.Button_Test.setToolTip("Pruebas")
-            self.Header.addWidget(self.Button_Test)
-            spacerItem17 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.Header.addItem(spacerItem17)
-            self.Button_Nuclear = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_Nuclear.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_Nuclear.setMaximumSize(QtCore.QSize(50, 16777215))
-            self.Button_Nuclear.setToolTip('Anexos Nuclear')
-            self.Button_Nuclear.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_Nuclear.setStyleSheet(
-                "QPushButton{\n"
-                "    border: 1px solid transparent;\n"
-                "    border-color: rgb(3, 174, 236);\n"
-                "    background-color: rgb(255, 255, 255);\n"
-                "    border-radius: 10px;\n"
-                "}\n"
-                "\n"
-                "QPushButton:hover{\n"
-                "    border: 1px solid transparent;\n"
-                "    border-color: rgb(0, 0, 0);\n"
-                "    color: rgb(0,0,0);\n"
-                "    background-color: rgb(255, 255, 255);\n"
-                "    border-radius: 10px;\n"
-                "}\n"
-                "\n"
-                "QPushButton:pressed{\n"
-                "    border: 1px solid transparent;\n"
-                "    border-color: rgb(0, 0, 0);\n"
-                "    color: rgb(0,0,0);\n"
-                "    background-color: rgb(200, 200, 200);\n"
-                "    border-radius: 10px;\n"
-                "}"
-            )
-            self.Button_Nuclear.setText("")
-            icon17 = QtGui.QIcon()
-            icon17.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Nuclear.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_Nuclear.setIcon(icon17)
-            self.Button_Nuclear.setIconSize(QtCore.QSize(40, 40))
-            self.Button_Nuclear.setObjectName("Button_Nuclear")
-            self.Header.addWidget(self.Button_Nuclear)
-            self.Button_Deliveries.clicked.connect(self.deliveries)
-            self.Button_OT.clicked.connect(self.otorder)
-            self.Button_TestMenu.clicked.connect(self.insert_test)
-            self.Button_Test.clicked.connect(self.query_test)
-            self.Button_Nuclear.clicked.connect(self.nuclear_annex)
-        elif self.name in ["Jesús Martínez"]:
-            self.Button_Times = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_Times.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_Times.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_Times.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_Times.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-            self.Button_Times.setText("")
-            icon6 = QtGui.QIcon()
-            icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Clock.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_Times.setIcon(icon6)
-            self.Button_Times.setIconSize(QtCore.QSize(40, 40))
-            self.Button_Times.setObjectName("Button_Times")
-            self.Button_Times.setToolTip("Tiempos")
-            self.Header.addWidget(self.Button_Times)
-            spacerItem14 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.Header.addItem(spacerItem14)
-            self.Button_OT = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_OT.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_OT.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_OT.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_OT.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-            self.Button_OT.setText("")
-            icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Barcode.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_OT.setIcon(icon2)
-            self.Button_OT.setIconSize(QtCore.QSize(40, 40))
-            self.Button_OT.setObjectName("Button_OT")
-            self.Button_OT.setToolTip("Ordenes de Trabajo 900")
-            self.Header.addWidget(self.Button_OT)
-            spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.Header.addItem(spacerItem2)
-            self.Button_DB_Manuf = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_DB_Manuf.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_DB_Manuf.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_DB_Manuf.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_DB_Manuf.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-            self.Button_DB_Manuf.setText("")
-            icon7 = QtGui.QIcon()
-            icon7.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Worker.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_DB_Manuf.setIcon(icon7)
-            self.Button_DB_Manuf.setIconSize(QtCore.QSize(40, 40))
-            self.Button_DB_Manuf.setObjectName("Button_DB_Manuf")
-            self.Button_DB_Manuf.setToolTip("Personal/Operaciones")
-            self.Header.addWidget(self.Button_DB_Manuf)
-            spacerItem6 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.Header.addItem(spacerItem6)
-            self.Button_Test = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_Test.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_Test.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_Test.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_Test.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-            self.Button_Test.setText("")
-            icon14 = QtGui.QIcon()
-            icon14.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Tests.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_Test.setIcon(icon14)
-            self.Button_Test.setIconSize(QtCore.QSize(40, 40))
-            self.Button_Test.setObjectName("Button_Test")
-            self.Button_Test.setToolTip("Pruebas")
-            self.Header.addWidget(self.Button_Test)
-            spacerItem16 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.Header.addItem(spacerItem16)
-            self.Button_NCReport = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_NCReport.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_NCReport.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_NCReport.setToolTip('Informes NC')
-            self.Button_NCReport.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_NCReport.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-            self.Button_NCReport.setText("")
-            icon19 = QtGui.QIcon()
-            icon19.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/NC.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_NCReport.setIcon(icon19)
-            self.Button_NCReport.setIconSize(QtCore.QSize(40, 40))
-            self.Button_NCReport.setObjectName("Button_NCReport")
-            self.Header.addWidget(self.Button_NCReport)
-            spacerItem17 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.Header.addItem(spacerItem17)
-            self.Button_Nuclear = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_Nuclear.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_Nuclear.setMaximumSize(QtCore.QSize(50, 16777215))
-            self.Button_Nuclear.setToolTip('Anexos Nuclear')
-            self.Button_Nuclear.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_Nuclear.setStyleSheet(
-                "QPushButton{\n"
-                "    border: 1px solid transparent;\n"
-                "    border-color: rgb(3, 174, 236);\n"
-                "    background-color: rgb(255, 255, 255);\n"
-                "    border-radius: 10px;\n"
-                "}\n"
-                "\n"
-                "QPushButton:hover{\n"
-                "    border: 1px solid transparent;\n"
-                "    border-color: rgb(0, 0, 0);\n"
-                "    color: rgb(0,0,0);\n"
-                "    background-color: rgb(255, 255, 255);\n"
-                "    border-radius: 10px;\n"
-                "}\n"
-                "\n"
-                "QPushButton:pressed{\n"
-                "    border: 1px solid transparent;\n"
-                "    border-color: rgb(0, 0, 0);\n"
-                "    color: rgb(0,0,0);\n"
-                "    background-color: rgb(200, 200, 200);\n"
-                "    border-radius: 10px;\n"
-                "}"
-            )
-            self.Button_Nuclear.setText("")
-            icon17 = QtGui.QIcon()
-            icon17.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Nuclear.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_Nuclear.setIcon(icon17)
-            self.Button_Nuclear.setIconSize(QtCore.QSize(40, 40))
-            self.Button_Nuclear.setObjectName("Button_Nuclear")
-            self.Header.addWidget(self.Button_Nuclear)
-            spacerItem19 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.Header.addItem(spacerItem19)
-            self.Button_ClockIn_Import = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_ClockIn_Import.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_ClockIn_Import.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_ClockIn_Import.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_ClockIn_Import.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-            self.Button_ClockIn_Import.setText("")
-            icon7 = QtGui.QIcon()
-            icon7.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/ClockIn_Import.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_ClockIn_Import.setIcon(icon7)
-            self.Button_ClockIn_Import.setIconSize(QtCore.QSize(40, 40))
-            self.Button_ClockIn_Import.setObjectName("Button_ClockIn_Import")
-            self.Button_ClockIn_Import.setToolTip("Importar fichajes")
-            self.Header.addWidget(self.Button_ClockIn_Import)
-            spacerItem18 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-            self.Header.addItem(spacerItem18)
-            self.Button_ClockIn = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_ClockIn.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_ClockIn.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_ClockIn.setToolTip('Fichajes')
-            self.Button_ClockIn.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_ClockIn.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-            self.Button_ClockIn.setText("")
-            icon17 = QtGui.QIcon()
-            icon17.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/ClockIn.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_ClockIn.setIcon(icon17)
-            self.Button_ClockIn.setIconSize(QtCore.QSize(40, 40))
-            self.Button_ClockIn.setObjectName("Button_ClockIn")
-            self.Header.addWidget(self.Button_ClockIn)
-            
-            
-            self.Button_Times.clicked.connect(self.times)
-            self.Button_OT.clicked.connect(self.otorder)
-            self.Button_DB_Manuf.clicked.connect(self.dbmanufedit)
-            self.Button_Test.clicked.connect(self.query_test)
-            self.Button_NCReport.clicked.connect(self.nc_report)
-            self.Button_Nuclear.clicked.connect(self.nuclear_annex)
-            self.Button_ClockIn_Import.clicked.connect(self.importclockin)
-            self.Button_ClockIn.clicked.connect(self.clockin)
-        elif self.name in ["Santos Sánchez"]:
-            self.Button_TechOffice = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_TechOffice.setMinimumSize(QtCore.QSize(50, 50))
-            self.Button_TechOffice.setMaximumSize(QtCore.QSize(50, 50))
-            self.Button_TechOffice.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-            self.Button_TechOffice.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-            self.Button_TechOffice.setText("")
-            icon2 = QtGui.QIcon()
-            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/TechOffice.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            self.Button_TechOffice.setIcon(icon2)
-            self.Button_TechOffice.setIconSize(QtCore.QSize(40, 40))
-            self.Button_TechOffice.setObjectName("Button_TechOffice")
-            self.Button_TechOffice.setToolTip("Oficina Técnica")
-            self.Header.addWidget(self.Button_TechOffice)
-            self.Button_TechOffice.clicked.connect(self.techoffice)
+        self.set_header_buttons(self.username)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -1653,6 +912,685 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         item = self.tableDocs.horizontalHeaderItem(6)
         item.setText(_translate("App_Technical", "Seguimiento"))
 
+    def set_header_buttons(self, username):
+        if username in ["e.carrillo"]:
+            query_OTothers = """SELECT id, ot_num, TO_CHAR(start_date, 'DD/MM/YYYY'), tag, qty_ot, type_equipment, element
+                                FROM fabrication.fab_order
+                                WHERE "ot_num" NOT LIKE '90%'
+                                ORDER BY "ot_num" DESC
+                                """
+
+            query_OT900 = """SELECT id, ot_num, TO_CHAR(start_date, 'DD/MM/YYYY'), tag, qty_ot, type_equipment, element
+                                FROM fabrication.fab_order
+                                WHERE "ot_num" LIKE '90%'
+                                ORDER BY "ot_num" DESC
+                                """
+
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(query_OTothers)
+                results1=cur.fetchall()
+
+                cur.execute(query_OT900)
+                results2=cur.fetchall()
+
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
+
+            self.Button_ImportTimes = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_ImportTimes.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_ImportTimes.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_ImportTimes.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_ImportTimes.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_ImportTimes.setText("")
+            icon5 = QtGui.QIcon()
+            icon5.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Import_Time.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_ImportTimes.setIcon(icon5)
+            self.Button_ImportTimes.setIconSize(QtCore.QSize(40, 40))
+            self.Button_ImportTimes.setObjectName("Button_ImportTimes")
+            self.Button_ImportTimes.setToolTip("Importar Tiempos")
+            self.Header.addWidget(self.Button_ImportTimes)
+            spacerItem10 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem10)
+            self.Button_CheckTimes = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_CheckTimes.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_CheckTimes.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_CheckTimes.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_CheckTimes.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_CheckTimes.setText("")
+            icon15 = QtGui.QIcon()
+            icon15.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Clock.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_CheckTimes.setIcon(icon15)
+            self.Button_CheckTimes.setIconSize(QtCore.QSize(40, 40))
+            self.Button_CheckTimes.setObjectName("Button_CheckTimes")
+            self.Button_CheckTimes.setToolTip("Tiempos")
+            self.Header.addWidget(self.Button_CheckTimes)
+            spacerItem7 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem7)
+            self.Button_DB_Manuf = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_DB_Manuf.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_DB_Manuf.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_DB_Manuf.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_DB_Manuf.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_DB_Manuf.setText("")
+            icon7 = QtGui.QIcon()
+            icon7.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Worker.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_DB_Manuf.setIcon(icon7)
+            self.Button_DB_Manuf.setIconSize(QtCore.QSize(40, 40))
+            self.Button_DB_Manuf.setObjectName("Button_DB_Manuf")
+            self.Button_DB_Manuf.setToolTip("Personal/Operaciones")
+            self.Header.addWidget(self.Button_DB_Manuf)
+            spacerItem6 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem6)
+            self.Button_DBEdit = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_DBEdit.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_DBEdit.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_DBEdit.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_DBEdit.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_DBEdit.setText("")
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Database_Admin.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_DBEdit.setIcon(icon2)
+            self.Button_DBEdit.setIconSize(QtCore.QSize(40, 40))
+            self.Button_DBEdit.setObjectName("Button_DBEdit")
+            self.Header.addWidget(self.Button_DBEdit)
+            spacerItem13 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem13)
+            self.Button_PDFEdit = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_PDFEdit.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_PDFEdit.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_PDFEdit.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_PDFEdit.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_PDFEdit.setText("")
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_PDFEdit.setIcon(icon2)
+            self.Button_PDFEdit.setIconSize(QtCore.QSize(40, 40))
+            self.Button_PDFEdit.setObjectName("Button_PDFEdit")
+            self.Header.addWidget(self.Button_PDFEdit)
+            spacerItem14 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem14)
+            self.Button_OT = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_OT.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_OT.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_OT.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_OT.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_OT.setText("")
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Barcode.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_OT.setIcon(icon2)
+            self.Button_OT.setIconSize(QtCore.QSize(40, 40))
+            self.Button_OT.setObjectName("Button_OT")
+            self.Button_OT.setToolTip("Ordenes de Trabajo 900")
+            self.Header.addWidget(self.Button_OT)
+            spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem2)
+            self.HeaderOT = QtWidgets.QLabel(parent=self.frame)
+            font = QtGui.QFont()
+            font.setPointSize(10)
+            font.setBold(True)
+            self.HeaderOT.setFont(font)
+            self.HeaderOT.setStyleSheet("color:rgb(3, 174, 236)")
+            self.HeaderOT.setText("Ult. OT: " + str(results1[0][1]) + " / " + str(results2[0][1]))
+            self.HeaderOT.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
+            self.HeaderOT.setObjectName("HeaderOT")
+            self.Header.addWidget(self.HeaderOT)
+            spacerItem18 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem18)
+            self.HeaderOT_scp = QtWidgets.QLineEdit(parent=self.frame)
+            self.HeaderOT_scp.setObjectName("HeaderOT_scp")
+            self.Header.addWidget(self.HeaderOT_scp)
+
+            self.load_otscp()
+
+            self.Button_DBEdit.clicked.connect(self.editdb)
+            self.Button_ImportTimes.clicked.connect(self.importtimes)
+            self.Button_CheckTimes.clicked.connect(self.checktimes)
+            self.Button_PDFEdit.clicked.connect(self.editpdf)
+            self.Button_DB_Manuf.clicked.connect(self.dbmanufedit)
+            self.Button_OT.clicked.connect(self.otorder)
+            self.HeaderOT_scp.editingFinished.connect(self.save_otscp)
+
+        elif username in ["j.valtierra"]:
+            self.Button_Deliveries = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Deliveries.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Deliveries.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_Deliveries.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Deliveries.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_Deliveries.setText("")
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Deliveries.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Deliveries.setIcon(icon2)
+            self.Button_Deliveries.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Deliveries.setObjectName("Button_Deliveries")
+            self.Button_Deliveries.setToolTip("Envíos")
+            self.Header.addWidget(self.Button_Deliveries)
+            spacerItem14 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem14)
+            self.Button_OT = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_OT.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_OT.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_OT.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_OT.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_OT.setText("")
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Barcode.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_OT.setIcon(icon2)
+            self.Button_OT.setIconSize(QtCore.QSize(40, 40))
+            self.Button_OT.setObjectName("Button_OT")
+            self.Button_OT.setToolTip("Ordenes de Trabajo 900")
+            self.Header.addWidget(self.Button_OT)
+            spacerItem12 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem12)
+            self.Button_TestMenu = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_TestMenu.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_TestMenu.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_TestMenu.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_TestMenu.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_TestMenu.setText("")
+            icon9 = QtGui.QIcon()
+            icon9.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Test_Menu.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_TestMenu.setIcon(icon9)
+            self.Button_TestMenu.setIconSize(QtCore.QSize(40, 40))
+            self.Button_TestMenu.setObjectName("Button_TestMenu")
+            self.Button_TestMenu.setToolTip("Insertar Pruebas")
+            self.Header.addWidget(self.Button_TestMenu)
+            spacerItem16 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem16)
+            self.Button_Test = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Test.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Test.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_Test.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Test.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_Test.setText("")
+            icon14 = QtGui.QIcon()
+            icon14.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Tests.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Test.setIcon(icon14)
+            self.Button_Test.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Test.setObjectName("Button_Test")
+            self.Button_Test.setToolTip("Verificación")
+            self.Header.addWidget(self.Button_Test)
+            spacerItem17 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem17)
+            self.Button_Nuclear = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Nuclear.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Nuclear.setMaximumSize(QtCore.QSize(50, 16777215))
+            self.Button_Nuclear.setToolTip('Anexos Nuclear')
+            self.Button_Nuclear.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Nuclear.setStyleSheet(
+                "QPushButton{\n"
+                "    border: 1px solid transparent;\n"
+                "    border-color: rgb(3, 174, 236);\n"
+                "    background-color: rgb(255, 255, 255);\n"
+                "    border-radius: 10px;\n"
+                "}\n"
+                "\n"
+                "QPushButton:hover{\n"
+                "    border: 1px solid transparent;\n"
+                "    border-color: rgb(0, 0, 0);\n"
+                "    color: rgb(0,0,0);\n"
+                "    background-color: rgb(255, 255, 255);\n"
+                "    border-radius: 10px;\n"
+                "}\n"
+                "\n"
+                "QPushButton:pressed{\n"
+                "    border: 1px solid transparent;\n"
+                "    border-color: rgb(0, 0, 0);\n"
+                "    color: rgb(0,0,0);\n"
+                "    background-color: rgb(200, 200, 200);\n"
+                "    border-radius: 10px;\n"
+                "}"
+            )
+            self.Button_Nuclear.setText("")
+            icon17 = QtGui.QIcon()
+            icon17.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Nuclear.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Nuclear.setIcon(icon17)
+            self.Button_Nuclear.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Nuclear.setObjectName("Button_Nuclear")
+            self.Header.addWidget(self.Button_Nuclear)
+            self.Button_Deliveries.clicked.connect(self.deliveries)
+            self.Button_OT.clicked.connect(self.otorder)
+            self.Button_TestMenu.clicked.connect(self.insert_test)
+            self.Button_Test.clicked.connect(self.query_test)
+            self.Button_Nuclear.clicked.connect(self.nuclear_annex)
+        elif username in ["j.martinez"]:
+            self.Button_Factory = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Factory.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Factory.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_Factory.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Factory.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_Factory.setText("")
+            icon6 = QtGui.QIcon()
+            icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Factory.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Factory.setIcon(icon6)
+            self.Button_Factory.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Factory.setObjectName("Button_Factory")
+            self.Button_Factory.setToolTip("Fábrica")
+            self.Header.addWidget(self.Button_Factory)
+            spacerItem14 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem14)
+            self.Button_OT = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_OT.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_OT.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_OT.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_OT.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_OT.setText("")
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Barcode.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_OT.setIcon(icon2)
+            self.Button_OT.setIconSize(QtCore.QSize(40, 40))
+            self.Button_OT.setObjectName("Button_OT")
+            self.Button_OT.setToolTip("Ordenes de Trabajo 900")
+            self.Header.addWidget(self.Button_OT)
+            spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem2)
+            self.Button_ClockIn = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_ClockIn.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_ClockIn.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_ClockIn.setToolTip('Fichajes')
+            self.Button_ClockIn.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_ClockIn.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_ClockIn.setText("")
+            icon17 = QtGui.QIcon()
+            icon17.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/ClockIn.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_ClockIn.setIcon(icon17)
+            self.Button_ClockIn.setIconSize(QtCore.QSize(40, 40))
+            self.Button_ClockIn.setObjectName("Button_ClockIn")
+            self.Header.addWidget(self.Button_ClockIn)
+            spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem)
+            self.Button_Index_Drawings = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Index_Drawings.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Index_Drawings.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_Index_Drawings.setToolTip('Índice Planos')
+            self.Button_Index_Drawings.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Index_Drawings.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_Index_Drawings.setText("")
+            icon6 = QtGui.QIcon()
+            icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Drawing_Index.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Index_Drawings.setIcon(icon6)
+            self.Button_Index_Drawings.setIconSize(QtCore.QSize(int(40), int(40)))
+            self.Button_Index_Drawings.setObjectName("Button_Index_Drawings")
+            self.Header.addWidget(self.Button_Index_Drawings)
+            
+            self.Button_Factory.clicked.connect(self.factory)
+            self.Button_OT.clicked.connect(self.otorder)
+            self.Button_ClockIn.clicked.connect(self.clockin)
+            self.Button_Index_Drawings.clicked.connect(self.index_drawing)
+        elif username in ["s.sanchez"]:
+            self.Button_TechOffice = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_TechOffice.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_TechOffice.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_TechOffice.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_TechOffice.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_TechOffice.setText("")
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/TechOffice.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_TechOffice.setIcon(icon2)
+            self.Button_TechOffice.setIconSize(QtCore.QSize(40, 40))
+            self.Button_TechOffice.setObjectName("Button_TechOffice")
+            self.Button_TechOffice.setToolTip("Oficina Técnica")
+            self.Header.addWidget(self.Button_TechOffice)
+            self.Button_TechOffice.clicked.connect(self.techoffice)
+
+# Function to open window to check order drawings
+    def index_drawing(self):
+        """
+        Loads and displays the workshop drawing index window after establishing a database connection.
+        """
+        from WorkshopDrawingIndex_Window import Ui_WorkshopDrawingIndex_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_index = createConnection_name(user_database, password_database, 'drawing_index')
+        if not db_index:
+            sys.exit()
+
+        self.index_drawing_window = Ui_WorkshopDrawingIndex_Window(db_index, self.username)
+        self.index_drawing_window.showMaximized()
+
 # Function to edit database tables of technical section
     def editdb(self):
         """
@@ -1748,9 +1686,8 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         """
         Opens a new window for querying orders. 
         """
-        if self.name not in ['Jesús Martínez']:
-            from OrderQuery_Window import Ui_QueryOrder_Window
-            self.query_order_window=Ui_QueryOrder_Window('Técnico')
+        from OrderQuery_Window import Ui_QueryOrder_Window
+        self.query_order_window=Ui_QueryOrder_Window('Técnico')
 
         self.query_order_window.show()
 
@@ -2150,108 +2087,23 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                 if conn is not None:
                     conn.close()
 
-# Function to edit database tables of manufacturing section
-    def dbmanufedit(self):
-        """
-        Opens the database manufacturing editing window.
-        """
-        from DBManufEditReg_Window import Ui_DBEditRegManuf_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
-        user_database = dbparam["user"]
-        password_database = dbparam["password"]
-
-        db_manuf = createConnection(user_database, password_database)
-        if not db_manuf:
-            sys.exit()
-
-        self.dbedit_window=Ui_DBEditRegManuf_Window(db_manuf)
-        self.dbedit_window.show()
-
-# Function to import clock-in hours
-    def importclockin(self):
-        """
-        Imports clock-in hours from a selected text file into the database.
-
-        Prompts the user to select a text file, processes the data, 
-        and inserts it into the 'clock_in_times' table in the PostgreSQL database.
-
-        Raises:
-            Exception: If there is an error during the database operation.
-        """
-        fname = askopenfilename(filetypes=[("Archivos de Excel", "*.txt")],
-                        title="Seleccionar archivo Excel")
-
-        if fname:
-            try:
-                # Expected columns
-                column_names = ['worker_id', 'name', 'workday', 'type_day', 'notes', 'time_1', 'time_2', 'time_3', 'time_4','extra']
-                
-                df = pd.read_csv(fname, sep="|", header=None, names=column_names, encoding="latin-1")
-                df = df.astype(str)
-                df_final = df.iloc[1:,[0, 2, 4, 5, 6, 7, 8]].copy()
-                columns_update = ['time_1', 'time_2', 'time_3', 'time_4']
-
-                # Apply replace on selected columns
-                df_final[columns_update] = df_final[columns_update].apply(lambda x: x.str.replace(r'\(\d+\)', '', regex=True))
-                df_final[columns_update] = df_final[columns_update].apply(lambda x: x.str.replace('nan', '0:00', regex=True))
-
-                params = config()
-                conn = psycopg2.connect(**params)
-                cursor = conn.cursor()
-
-                for index, row in df_final.iterrows():
-                # Create a list of pairs (column_name, column_value) for each column with value
-                    columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
-
-                # Creating string for columns names
-                    columns = ', '.join([column for column, _ in columns_values])
-
-                # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
-                    values = ', '.join([f"'{values.replace(',', '.')}'" if column in ['time_ot'] else f"'{values}'" for column, values in columns_values])
-
-                    sql_insertion = f"INSERT INTO clock_in_times ({columns}) VALUES ({values})"
-
-                    cursor.execute(sql_insertion)
-
-                conn.commit()
-                cursor.close()
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Datos importados con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
-
-            except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
-
-# Function to show calendar with clock-in hours
+# Function to show clock-in menu
     def clockin(self):
         """
-        Opens the calendar window for viewing clock-in hours.
+        Opens the clock-in menu.
         """
-        from ClockIn_Window import MyCalendarApp
-        self.clockin_window = MyCalendarApp(self.username)
-        self.clockin_window.showMaximized()
+        from ClockIn_Menu import Ui_ClockIn_Menu
+        self.clockin_window = Ui_ClockIn_Menu(self.username)
+        self.clockin_window.show()
+
+# Function to show clock-in menu
+    def factory(self):
+        """
+        Opens the factory menu.
+        """
+        from Factory_Menu import Ui_Factory_Menu
+        self.factory_menu = Ui_Factory_Menu(self.username)
+        self.factory_menu.show()
 
 # Function to allow copy function in documents table
     def keyPressEvent(self, event):
@@ -2310,9 +2162,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Opens the document portal menu window.
         """
         from DocPortal_Menu import Ui_PortalDoc_Menu
-        self.portaldoc_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_PortalDoc_Menu()
-        self.ui.setupUi(self.portaldoc_menu)
+        self.portaldoc_menu=Ui_PortalDoc_Menu()
         self.portaldoc_menu.show()
 
 # Function to insert text on existing PDF
@@ -2578,12 +2428,12 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             else:
                 break
 
-# Function to open window of nc reports
-    def nc_report(self):
+# Function to edit database tables of manufacturing section
+    def dbmanufedit(self):
         """
-        Opens a window for viewing NC reports from the database.
+        Opens the database manufacturing editing window.
         """
-        from NC_Report_Window import Ui_NC_Report_Window
+        from DBManufEditReg_Window import Ui_DBEditRegManuf_Window
         config_obj = configparser.ConfigParser()
         config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
         dbparam = config_obj["postgresql"]
@@ -2591,23 +2441,29 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_nc = createConnection(user_database, password_database)
-        if not db_nc:
+        db_manuf = createConnection(user_database, password_database)
+        if not db_manuf:
             sys.exit()
 
-        self.nc_window = Ui_NC_Report_Window(db_nc, self.username)
-        self.nc_window.showMaximized()
+        self.dbedit_window=Ui_DBEditRegManuf_Window(db_manuf)
+        self.dbedit_window.show()
 
+    def load_otscp(self):
+        with open(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Resources\scpwin_ot.txt","rb") as ot_file:
+            ot_number = ot_file.read().decode('utf-8')
+            self.HeaderOT_scp.setText(str(ot_number))
 
-    def times(self):
-        print('tiempos')
+    def save_otscp(self):
+        ot_number = self.HeaderOT_scp.text()
+        with open(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Resources\scpwin_ot.txt", "wb") as ot_file:
+            ot_file.write(ot_number.encode('utf-8'))
 
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Login_Window = QtWidgets.QMainWindow()
-    ui = Ui_App_Technical('Jesús Martínez','j.martinez')
+    ui = Ui_App_Technical('Jesús Martínez','e.carrillo')
     ui.setupUi(Login_Window)
     Login_Window.show()
     sys.exit(app.exec())

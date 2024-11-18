@@ -779,7 +779,7 @@ class Ui_CreateTAGNiv_Window(object):
             "SELECT gasket FROM validation_data.level_gasket",
             "SELECT stud_nuts FROM validation_data.level_stud_nuts",
             "SELECT illuminator FROM validation_data.level_illuminator",
-            "SELECT nipple FROM validation_data.level_nipple",
+            "SELECT nipple FROM validation_data.level_nipple_hex",
             "SELECT antifrost FROM validation_data.level_antifrost",
             "SELECT scale_type FROM validation_data.level_scale",
             "SELECT float_mat FROM validation_data.level_float_mat",

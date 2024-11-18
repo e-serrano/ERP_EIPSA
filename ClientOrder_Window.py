@@ -1898,9 +1898,12 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
 
         self.Date_ClientOrder.setText(date.today().strftime("%d/%m/%Y"))
 
-        self.tableClientOrderP.itemClicked.connect(lambda item: self.loadformorder(self.tableClientOrderP, item))
-        self.tableClientOrderPA.itemClicked.connect(lambda item: self.loadformorder(self.tableClientOrderPA, item))
-        self.tableRecord.itemClicked.connect(self.loadformsupply)
+        self.tableClientOrderP.currentCellChanged.connect(lambda row, col, _, __: self.loadformorder(self.tableClientOrderP, row))
+        self.tableClientOrderPA.currentCellChanged.connect(lambda row, col, _, __: self.loadformorder(self.tableClientOrderPA, row))
+        self.tableClientOrderP.cellClicked.connect(lambda row, col: self.loadformorder(self.tableClientOrderP, row))
+        self.tableClientOrderPA.cellClicked.connect(lambda row, col: self.loadformorder(self.tableClientOrderPA, row))
+        self.tableRecord.currentCellChanged.connect(self.loadformsupply)
+        self.tableRecord.cellClicked.connect(self.loadformsupply)
         self.Button_CreateOrder.clicked.connect(self.createorder)
         self.Button_ModifyOrder.clicked.connect(self.modifyorder)
         self.Button_AddRecord.clicked.connect(self.addrecord)
@@ -1917,7 +1920,6 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         self.PositionP.textChanged.connect(self.position_table_P)
         self.PositionPA.textChanged.connect(self.position_table_PA)
         self.loadtableorders()
-
 
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, ClientOrder_Window):
@@ -2176,7 +2178,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
 
         else:
             #SQL Query for updating values in database
-            commands_checkorder=("""SELECT id FROM purch_fact.client_ord_header WHERE client_order_num = %s""")
+            commands_checkorder=("""SELECT id FROM purch_fact.client_ord_header WHERE id = %s""")
             commands_updateorder = ("""
                         UPDATE purch_fact.client_ord_header
                         SET "client_id" = %s, "order_date" = %s, "delivery_date" = %s,
@@ -2191,10 +2193,10 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                cur.execute(commands_checkorder, (num_client_order,))
+                cur.execute(commands_checkorder, (id_order,))
                 results = cur.fetchall()
 
-                if results[0][0] !=id_order:
+                if str(results[0][0]) != str(id_order):
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
                     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -2515,156 +2517,158 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
             self.loadstocks()
 
 # Function to load client order form
-    def loadformorder(self,table,item):
+    def loadformorder(self, table, current_row):
         """
         Loads the order details from a selected row in the given table and populates the order form fields.
 
         Args:
             table (QTableWidget): The table widget containing the order data.
-            item (QTableWidgetItem): The specific item (row) selected in the table.
+            current_row (int): Number of current row being processing
 
         Raises:
             psycopg2.DatabaseError: If an error occurs while querying the PostgreSQL database.
         """
-        data_order=[]
+        if current_row >= 0:
+            data_order=[]
 
-        for column in range(6):
-            item_text=table.item(item.row(), column).text()
-            data_order.append(item_text)
+            for column in range(6):
+                item_text=table.item(current_row, column).text()
+                data_order.append(item_text)
 
-        self.label_IDOrder.setText(data_order[0])
-        self.NumOrder_ClientOrder.setText(data_order[1])
-        self.Client_ClientOrder.setCurrentText(data_order[2])
-        self.Date_ClientOrder.setText(data_order[3])
-        self.DelivTerm_ClientOrder.setText(data_order[4])
-        self.Notes_ClientOrder.setText(data_order[5])
+            self.label_IDOrder.setText(data_order[0])
+            self.NumOrder_ClientOrder.setText(data_order[1])
+            self.Client_ClientOrder.setCurrentText(data_order[2])
+            self.Date_ClientOrder.setText(data_order[3])
+            self.DelivTerm_ClientOrder.setText(data_order[4])
+            self.Notes_ClientOrder.setText(data_order[5])
 
-        self.label_IDRecord.setText("")
-        self.Supply_ClientOrder.setCurrentIndex(0)
-        self.Stock_ClientOrder.setText("")
-        self.StockDsp_ClientOrder.setText("")
-        self.StockVrt_ClientOrder.setText("")
-        self.Quantity_ClientOrder.setText("")
-        self.Deliv1_ClientOrder.setText("")
-        self.Deliv2_ClientOrder.setText("")
-        self.Deliv3_ClientOrder.setText("")
+            self.label_IDRecord.setText("")
+            self.Supply_ClientOrder.setCurrentIndex(0)
+            self.Stock_ClientOrder.setText("")
+            self.StockDsp_ClientOrder.setText("")
+            self.StockVrt_ClientOrder.setText("")
+            self.Quantity_ClientOrder.setText("")
+            self.Deliv1_ClientOrder.setText("")
+            self.Deliv2_ClientOrder.setText("")
+            self.Deliv3_ClientOrder.setText("")
 
-        self.loadtablerecords()
+            self.loadtablerecords()
 
-        commands_querydeliveries = ("""
-                        SELECT TO_CHAR(purch_fact.client_ord_header.deliv_date_1,'DD-MM-YYYY'),
-                        purch_fact.client_ord_header.deliv_note_1,
-                        TO_CHAR(purch_fact.client_ord_header.deliv_date_2,'DD-MM-YYYY'),
-                        purch_fact.client_ord_header.deliv_note_2,
-                        TO_CHAR(purch_fact.client_ord_header.deliv_date_3,'DD-MM-YYYY'),
-                        purch_fact.client_ord_header.deliv_note_3
-                        FROM purch_fact.client_ord_header
-                        WHERE purch_fact.client_ord_header.id = %s
-                        ORDER BY purch_fact.client_ord_header.id
-                        """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_querydeliveries,(data_order[0],))
-            results_deliveries=cur.fetchone()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            commands_querydeliveries = ("""
+                            SELECT TO_CHAR(purch_fact.client_ord_header.deliv_date_1,'DD-MM-YYYY'),
+                            purch_fact.client_ord_header.deliv_note_1,
+                            TO_CHAR(purch_fact.client_ord_header.deliv_date_2,'DD-MM-YYYY'),
+                            purch_fact.client_ord_header.deliv_note_2,
+                            TO_CHAR(purch_fact.client_ord_header.deliv_date_3,'DD-MM-YYYY'),
+                            purch_fact.client_ord_header.deliv_note_3
+                            FROM purch_fact.client_ord_header
+                            WHERE purch_fact.client_ord_header.id = %s
+                            ORDER BY purch_fact.client_ord_header.id
+                            """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(commands_querydeliveries,(data_order[0],))
+                results_deliveries=cur.fetchone()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
 
-            self.DelivDate1_ClientOrder.setText(results_deliveries[0])
-            self.DelivNote1_ClientOrder.setText(results_deliveries[1])
-            self.DelivDate2_ClientOrder.setText(results_deliveries[2])
-            self.DelivNote2_ClientOrder.setText(results_deliveries[3])
-            self.DelivDate3_ClientOrder.setText(results_deliveries[4])
-            self.DelivNote3_ClientOrder.setText(results_deliveries[5])
+                self.DelivDate1_ClientOrder.setText(results_deliveries[0])
+                self.DelivNote1_ClientOrder.setText(results_deliveries[1])
+                self.DelivDate2_ClientOrder.setText(results_deliveries[2])
+                self.DelivNote2_ClientOrder.setText(results_deliveries[3])
+                self.DelivDate3_ClientOrder.setText(results_deliveries[4])
+                self.DelivNote3_ClientOrder.setText(results_deliveries[5])
 
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
 # Function to load record form
-    def loadformsupply(self,item):
+    def loadformsupply(self,current_row):
         """
         Loads supply data from the selected row in the supply table and populates the form fields.
 
         Args:
-            item (QTableWidgetItem): The item representing the selected row in the supply table.
+            current_row (int): Number of current row being processing
         """
-        data_supply=[]
+        if current_row >= 0:
+            data_supply=[]
 
-        for column in range(11):
-            item_text=self.tableRecord.item(item.row(), column).text()
-            data_supply.append(item_text)
+            for column in range(11):
+                item_text=self.tableRecord.item(current_row, column).text()
+                data_supply.append(item_text)
 
-        self.label_IDRecord.setText(data_supply[0])
-        self.Supply_ClientOrder.setCurrentText(data_supply[1] + " | " + data_supply[2])
-        self.Stock_ClientOrder.setText(data_supply[3])
-        self.StockDsp_ClientOrder.setText(data_supply[4])
-        self.Quantity_ClientOrder.setText(data_supply[5])
-        self.Deliv1_ClientOrder.setText(data_supply[7])
-        self.Deliv2_ClientOrder.setText(data_supply[8])
-        self.Deliv3_ClientOrder.setText(data_supply[9])
+            self.label_IDRecord.setText(data_supply[0])
+            self.Supply_ClientOrder.setCurrentText(data_supply[1] + " | " + data_supply[2])
+            self.Stock_ClientOrder.setText(data_supply[3])
+            self.StockDsp_ClientOrder.setText(data_supply[4])
+            self.Quantity_ClientOrder.setText(data_supply[5])
+            self.Deliv1_ClientOrder.setText(data_supply[7])
+            self.Deliv2_ClientOrder.setText(data_supply[8])
+            self.Deliv3_ClientOrder.setText(data_supply[9])
 
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            query_stocks = "SELECT pending_stock FROM purch_fact.supplies WHERE id = %s"
-            cur.execute(query_stocks, (data_supply[10],))
-            result_stocks = cur.fetchone()
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                query_stocks = "SELECT pending_stock FROM purch_fact.supplies WHERE id = %s"
+                cur.execute(query_stocks, (data_supply[10],))
+                result_stocks = cur.fetchone()
 
-            query_notes = "SELECT notes FROM purch_fact.client_ord_detail WHERE id = %s"
-            cur.execute(query_notes, (data_supply[0],))
-            result_notes = cur.fetchone()
+                query_notes = "SELECT notes FROM purch_fact.client_ord_detail WHERE id = %s"
+                cur.execute(query_notes, (data_supply[0],))
+                result_notes = cur.fetchone()
 
-        # get id from table
-            pending = result_stocks[0]
-            notes_supply = result_notes[0]
+            # get id from table
+                pending = result_stocks[0]
+                notes_supply = result_notes[0]
 
-            self.StockVrt_ClientOrder.setText(str(round(float(data_supply[4]) + float(pending),4)))
+                self.StockVrt_ClientOrder.setText(str(round(float(data_supply[4]) + float(pending),4)))
 
-            self.Supply_ClientOrder.setCurrentText(data_supply[1] + " | " + data_supply[2] + " | " + str(round(float(data_supply[3]),2)) + " | " + str(round(float(data_supply[4]),2)) + " | " + str(round(pending, 2)) + " | ID:" + data_supply[10])
-            self.ObsSupply_ClientOrder.setText(notes_supply)
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+                self.Supply_ClientOrder.setCurrentText(data_supply[1] + " | " + data_supply[2] + " | " + str(round(float(data_supply[3]),2)) + " | " + str(round(float(data_supply[4]),2)) + " | " + str(round(pending, 2)) + " | ID:" + data_supply[10])
+                self.ObsSupply_ClientOrder.setText(notes_supply)
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
 
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
 # Function to load table of orders
     def loadtableorders(self):
@@ -2879,8 +2883,8 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
             self.tableRecord.horizontalHeader().setSectionResizeMode(i,QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableRecord.setColumnWidth(i, 100)
         self.tableRecord.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableRecord.horizontalHeader().setSectionResizeMode(9, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableRecord.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableRecord.horizontalHeader().setSectionResizeMode(9, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableRecord.setColumnWidth(2,600)
         self.tableRecord.hideColumn(0)
         self.tableRecord.hideColumn(10)
 

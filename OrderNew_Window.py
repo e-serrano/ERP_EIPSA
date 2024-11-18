@@ -443,20 +443,20 @@ class Ui_New_Order_Window(object):
                             SET "state" = %s
                             WHERE "num_offer" = %s;
                             """)
-                commands_select_ppi = ("""
-                            SELECT * FROM verification."ppi_verification" WHERE "num_order" = %s
-                            """)
-                commands_select_exp = ("""
-                            SELECT * FROM verification."exp_verification" WHERE "num_order" = %s
-                            """)
-                commands_insert_ppi = ("""
-                            INSERT INTO verification."ppi_verification" (num_order) 
-                            VALUES(%s)
-                            """)
-                commands_insert_exp = ("""
-                            INSERT INTO verification."exp_verification" (num_order) 
-                            VALUES(%s)
-                            """)
+                # commands_select_ppi = ("""
+                #             SELECT * FROM verification."ppi_verification" WHERE "num_order" = %s
+                #             """)
+                # commands_select_exp = ("""
+                #             SELECT * FROM verification."exp_verification" WHERE "num_order" = %s
+                #             """)
+                # commands_insert_ppi = ("""
+                #             INSERT INTO verification."ppi_verification" (num_order) 
+                #             VALUES(%s)
+                #             """)
+                # commands_insert_exp = ("""
+                #             INSERT INTO verification."exp_verification" (num_order) 
+                #             VALUES(%s)
+                #             """)
                 conn = None
                 try:
                 # read the connection parameters
@@ -471,16 +471,16 @@ class Ui_New_Order_Window(object):
                     data = (numorder, numoffer, numref, actual_date, expectdate, notes, amount, num_items, state, numoffer)
                     cur.execute(commands_neworder, data)
 
-                    if numorder[-1] != 'R':
-                        cur.execute(commands_select_ppi, (numorder,))
-                        results_ppi = cur.fetchall()
-                        if len(results_ppi) == 0:
-                            cur.execute(commands_insert_ppi, (numorder,))
+                    # if numorder[-1] != 'R':
+                    #     cur.execute(commands_select_ppi, (numorder,))
+                    #     results_ppi = cur.fetchall()
+                    #     if len(results_ppi) == 0:
+                    #         cur.execute(commands_insert_ppi, (numorder,))
 
-                        cur.execute(commands_select_exp, (numorder,))
-                        results_exp = cur.fetchall()
-                        if len(results_exp) == 0:
-                            cur.execute(commands_insert_exp, (numorder,))
+                    #     cur.execute(commands_select_exp, (numorder,))
+                    #     results_exp = cur.fetchall()
+                    #     if len(results_exp) == 0:
+                    #         cur.execute(commands_insert_exp, (numorder,))
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
@@ -535,7 +535,7 @@ class Ui_New_Order_Window(object):
 
                     cur.execute(commands_usernames)
                     results_usernames=cur.fetchall()
-                    results_usernames.append('m.sahuquillo',)
+                    results_usernames.append(['m.sahuquillo',])
 
                     if numorder[-1] != 'R':
                         for user_data in results_usernames:

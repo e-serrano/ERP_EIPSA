@@ -220,7 +220,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
         """
         return self._filters
 
-    def setFilter(self, expresion, column, action_name=None):
+    def setFilter(self, expresion, column, action_name=None, exact_match=False):
         """
         Apply a filter expression to a specific column, or remove it if necessary.
 
@@ -228,15 +228,16 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
             expresion (str): The filter expression.
             column (int): The index of the column to apply the filter to.
             action_name (str, optional): Name of the action, can be empty. Defaults to None.
+            exact_match (bool, optional): If True, use exact matching for the filter. Defaults to False.
         """
         if expresion or expresion == '':
             if column in self.filters:
                 if action_name or action_name == '':
                     self.filters[column].remove(expresion)
                 else:
-                    self.filters[column].append(expresion)
+                    self.filters[column].append((expresion, exact_match))
             else:
-                self.filters[column] = [expresion]
+                self.filters[column] = [(expresion, exact_match)]
         elif column in self.filters:
             if action_name or action_name == '':
                 self.filters[column].remove(expresion)
@@ -263,23 +264,33 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
             if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
                 text = text.toString("yyyy-MM-dd")
 
-            for expresion in expresions[0]:
+            match_found = False 
+
+            for expresion, exact_match in expresions:
                 if expresion == '':  # If expression is empty, match empty cells
                     if text == '':
                         break
 
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
-                    expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
+                if exact_match:
+                    if text in expresion:  # Verificar si `text` está en la lista `expresion`
+                        match_found = True
+                        break
+                
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion[0]):
+                    expresion = QtCore.QDate.fromString(expresion[0], "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
 
                 else:
-                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion[0]))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
-            else:
+
+            if not match_found:
                 return False
         return True
 
@@ -1118,13 +1129,9 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         """
         for column, filters in self.checkbox_filters.items():
             if filters:
-                self.proxy.setFilter(filters, column)
+                self.proxy.setFilter(filters, column, exact_match=True)
             else:
                 self.proxy.setFilter(None, column)
-
-        self.tableEditCalibration.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableEditCalibration.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableEditCalibration.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
 # Function when select all checkbox is clicked
     def on_select_all_toggled(self, checked, action_name):
@@ -1250,7 +1257,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
 
             filterString = QtCore.QRegularExpression(stringAction, QtCore.QRegularExpression.PatternOption(0))
             # del self.proxy.filters[filterColumn]
-            self.proxy.setFilter([stringAction], filterColumn)
+            self.proxy.setFilter([stringAction], filterColumn, None)
 
             imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))

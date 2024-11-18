@@ -35,7 +35,6 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
-
 class CustomTableWidget(QtWidgets.QTableWidget):
     """
     Custom QTableWidget that supports filtering and sorting features.
@@ -425,15 +424,28 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-
 class Ui_PmiInsert_Window(QtWidgets.QMainWindow):
+    """
+    UI class for the Insert PMI window.
+    """
     def __init__(self, username):
+        """
+        Initializes the Ui_PmiInsert_Window with the specified username.
+
+        Args:
+            username (str): username associated with the window.
+        """
         super().__init__()
         self.username = username
         self.setupUi(self)
 
-
     def setupUi(self, PmiInsert_Window):
+        """
+        Sets up the user interface for the PmiInsert_Window.
+
+        Args:
+            PmiInsert_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         PmiInsert_Window.setObjectName("PmiInsert_Window")
         PmiInsert_Window.resize(400, 561)
         PmiInsert_Window.setMinimumSize(QtCore.QSize(1000, 675))
@@ -542,17 +554,7 @@ class Ui_PmiInsert_Window(QtWidgets.QMainWindow):
         self.num_order.setFont(font)
         self.num_order.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.num_order.setObjectName("num_order")
-        self.gridLayout_2.addWidget(self.num_order, 1, 1, 1, 3)
-        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.gridLayout_2.addItem(spacerItem3, 3, 1, 1, 1)
-        self.select_all = QtWidgets.QCheckBox('Seleccionar todos')
-        self.select_all.setLayoutDirection(QtCore.Qt.LayoutDirection.RightToLeft)
-        self.gridLayout_2.addWidget(self.select_all, 4, 3, 1, 1)
-        self.tableTags = CustomTableWidget()
-        self.tableTags.setObjectName("tableWidget")
-        self.tableTags.setColumnCount(0)
-        self.tableTags.setRowCount(0)
-        self.gridLayout_2.addWidget(self.tableTags, 5, 0, 1, 4)
+        self.gridLayout_2.addWidget(self.num_order, 1, 1, 1, 4)
         self.label_date = QtWidgets.QLabel(parent=self.frame)
         self.label_date.setMinimumSize(QtCore.QSize(105, 25))
         self.label_date.setMaximumSize(QtCore.QSize(105, 25))
@@ -562,7 +564,7 @@ class Ui_PmiInsert_Window(QtWidgets.QMainWindow):
         self.label_date.setFont(font)
         self.label_date.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_date.setObjectName("label_date1")
-        self.gridLayout_2.addWidget(self.label_date, 6, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_date, 2, 0, 1, 1)
         self.date_test = QtWidgets.QLineEdit(parent=self.frame)
         self.date_test.setMinimumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
@@ -570,19 +572,35 @@ class Ui_PmiInsert_Window(QtWidgets.QMainWindow):
         self.date_test.setFont(font)
         self.date_test.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.date_test.setObjectName("date_test")
-        self.gridLayout_2.addWidget(self.date_test, 6, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.date_test, 2, 1, 1, 4)
+        self.select_all = QtWidgets.QCheckBox('Seleccionar todos')
+        self.select_all.setLayoutDirection(QtCore.Qt.LayoutDirection.RightToLeft)
+        self.gridLayout_2.addWidget(self.select_all, 4, 4, 1, 1)
+        self.tableTags = CustomTableWidget()
+        self.tableTags.setObjectName("tableWidget")
+        self.tableTags.setColumnCount(0)
+        self.tableTags.setRowCount(0)
+        self.gridLayout_2.addWidget(self.tableTags, 5, 0, 1, 5)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.gridLayout_2.addItem(spacerItem1, 11, 1, 1, 1)
-        self.Button_Insert = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Insert.setMinimumSize(QtCore.QSize(100, 35))
-        # self.Button_Insert.setMaximumSize(QtCore.QSize(100, 35))
-        self.Button_Insert.setObjectName("Button_Insert")
-        self.gridLayout_2.addWidget(self.Button_Insert, 12, 0, 1, 1)
+        self.h_Layout = QtWidgets.QHBoxLayout()
+        self.h_Layout.setObjectName("h_Layout")
+        self.Button_Insert_Date = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Insert_Date.setMinimumSize(QtCore.QSize(100, 35))
+        # self.Button_Insert_Date.setMaximumSize(QtCore.QSize(100, 35))
+        self.Button_Insert_Date.setObjectName("Button_Insert_Date")
+        self.h_Layout.addWidget(self.Button_Insert_Date)
+        self.Button_Insert_HN = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Insert_HN.setMinimumSize(QtCore.QSize(100, 35))
+        # self.Button_Insert_HN.setMaximumSize(QtCore.QSize(100, 35))
+        self.Button_Insert_HN.setObjectName("Button_Insert_HN")
+        self.h_Layout.addWidget(self.Button_Insert_HN)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(100, 35))
         # self.Button_Cancel.setMaximumSize(QtCore.QSize(100, 35))
         self.Button_Cancel.setObjectName("Button_Cancel")
-        self.gridLayout_2.addWidget(self.Button_Cancel, 12, 3, 1, 1)
+        self.h_Layout.addWidget(self.Button_Cancel)
+        self.gridLayout_2.addLayout(self.h_Layout, 12, 0, 1, 5)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         PmiInsert_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=PmiInsert_Window)
@@ -607,12 +625,12 @@ class Ui_PmiInsert_Window(QtWidgets.QMainWindow):
 
         self.Button_Cancel.clicked.connect(PmiInsert_Window.close)
         self.num_order.returnPressed.connect(self.querytags)
-        self.Button_Insert.clicked.connect(self.insert)
+        self.Button_Insert_Date.clicked.connect(self.insert_date)
+        self.Button_Insert_HN.clicked.connect(self.insert_heat_number)
         self.tableTags.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
         self.select_all.clicked.connect(self.toggle_checkboxes)
 
         self.load_values()
-
 
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, PmiInsert_Window):
@@ -624,10 +642,15 @@ class Ui_PmiInsert_Window(QtWidgets.QMainWindow):
         self.label_order.setText(_translate("PmiInsert_Window", "Nº Pedido:"))
         self.label_date.setText(_translate("PmiInsert_Window", "Fecha:"))
         self.Button_Cancel.setText(_translate("PmiInsert_Window", "Cancelar"))
-        self.Button_Insert.setText(_translate("PmiInsert_Window", "Insertar"))
+        self.Button_Insert_Date.setText(_translate("PmiInsert_Window", "Insertar Fecha"))
+        self.Button_Insert_HN.setText(_translate("PmiInsert_Window", "Insertar Colada"))
 
 # Function to query tags of order
     def querytags(self):
+        """
+        Queries the database for tags based on an order number, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         self.tableTags.setRowCount(0)
         self.tableTags.setColumnCount(0)
         self.num_order_value = self.num_order.text().upper()
@@ -749,25 +772,25 @@ class Ui_PmiInsert_Window(QtWidgets.QMainWindow):
             if material == 'Caudal':
                 self.table_name = "tags_data.tags_flow"
                 self.column_id = "id_tag_flow"
-                commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, heat_number_plate, heat_number_flange, TO_CHAR(pmi_date, 'DD/MM/YYYY') FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
+                commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, heat_number_plate, heat_number_flange, TO_CHAR(pmi_date, 'DD/MM/YYYY') FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') and tag_state = 'PURCHASED' ORDER BY {self.column_id}"
                 self.num_columns = 8
                 column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Colada Placa', 'Colada Brida', 'Fecha PMI', '']
             elif material == 'Temperatura':
                 self.table_name = "tags_data.tags_temp"
                 self.column_id = "id_tag_temp"
-                commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, heat_number_bar, heat_number_flange, TO_CHAR(pmi_date, 'DD/MM/YYYY') FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
+                commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, heat_number_bar, heat_number_flange, TO_CHAR(pmi_date, 'DD/MM/YYYY') FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') and tag_state = 'PURCHASED' ORDER BY {self.column_id}"
                 self.num_columns = 8
                 column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Colada Barra', 'Colada Brida', 'Fecha PMI', '']
             elif material == 'Nivel':
                 self.table_name = "tags_data.tags_level"
                 self.column_id = "id_tag_level"
-                commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, heat_number_body, heat_number_body_vlv, heat_number_flange_vlv, TO_CHAR(pmi_date, 'DD/MM/YYYY') FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
+                commands_tags = f" SELECT {self.column_id}, tag, num_order, item_type, heat_number_body, heat_number_body_vlv, heat_number_flange_vlv, TO_CHAR(pmi_date, 'DD/MM/YYYY') FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') and tag_state = 'PURCHASED' ORDER BY {self.column_id}"
                 self.num_columns = 9
-                column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Colada Cuerpo', 'Colada Cuerpo Vlv', 'Colada Brida Vlv', 'Fecha PMI', '']
+                column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Colada Cuerpo', 'Colada Cuerpo Válvula', 'Colada Brida Válvula', 'Fecha PMI', '']
             elif material == 'Otros':
                 self.table_name = "tags_data.tags_others"
                 self.column_id = "id_tag_others"
-                commands_tags = f" SELECT {self.column_id}, tag, num_order, description, heat_number, TO_CHAR(pmi_date, 'DD/MM/YYYY') FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') ORDER BY {self.column_id}"
+                commands_tags = f" SELECT {self.column_id}, tag, num_order, description, heat_number, TO_CHAR(pmi_date, 'DD/MM/YYYY') FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') and tag_state = 'PURCHASED' ORDER BY {self.column_id}"
                 self.num_columns = 7
                 column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Colada', 'Fecha PMI', '']
 
@@ -831,8 +854,134 @@ class Ui_PmiInsert_Window(QtWidgets.QMainWindow):
                     if conn is not None:
                         conn.close()
 
+                self.heat_number_columns = [header for header in column_headers if 'Colada' in header]
+
+                if len(self.heat_number_columns) == 1:
+                    self.label_heat_number_1 = QtWidgets.QLabel(parent=self.frame)
+                    self.label_heat_number_1.setMinimumSize(QtCore.QSize(105, 25))
+                    font = QtGui.QFont()
+                    font.setPointSize(10)
+                    font.setBold(True)
+                    self.label_heat_number_1.setFont(font)
+                    self.label_heat_number_1.setText(self.heat_number_columns[0])
+                    self.label_heat_number_1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignCenter|QtCore.Qt.AlignmentFlag.AlignVCenter)
+                    self.label_heat_number_1.setObjectName("label_heat_number_1")
+                    self.gridLayout_2.addWidget(self.label_heat_number_1, 3, 1, 1, 3)
+                    self.heat_number_1 = QtWidgets.QLineEdit(parent=self.frame)
+                    self.heat_number_1.setMinimumSize(QtCore.QSize(105, 25))
+                    # self.heat_number_1.setMaximumSize(QtCore.QSize(105, 25))
+                    font = QtGui.QFont()
+                    font.setPointSize(10)
+                    self.heat_number_1.setFont(font)
+                    self.heat_number_1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+                    self.heat_number_1.setObjectName("heat_number_1")
+                    self.gridLayout_2.addWidget(self.heat_number_1, 4, 1, 1, 3)
+                elif len(self.heat_number_columns) == 2:
+                    self.label_heat_number_1 = QtWidgets.QLabel(parent=self.frame)
+                    self.label_heat_number_1.setMinimumSize(QtCore.QSize(105, 25))
+                    font = QtGui.QFont()
+                    font.setPointSize(10)
+                    font.setBold(True)
+                    self.label_heat_number_1.setFont(font)
+                    self.label_heat_number_1.setText(self.heat_number_columns[0])
+                    self.label_heat_number_1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignCenter|QtCore.Qt.AlignmentFlag.AlignVCenter)
+                    self.label_heat_number_1.setObjectName("label_heat_number_1")
+                    self.gridLayout_2.addWidget(self.label_heat_number_1, 3, 1, 1, 1)
+                    self.heat_number_1 = QtWidgets.QLineEdit(parent=self.frame)
+                    self.heat_number_1.setMinimumSize(QtCore.QSize(105, 25))
+                    # self.heat_number_1.setMaximumSize(QtCore.QSize(105, 25))
+                    font = QtGui.QFont()
+                    font.setPointSize(10)
+                    self.heat_number_1.setFont(font)
+                    self.heat_number_1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+                    self.heat_number_1.setObjectName("heat_number_1")
+                    self.gridLayout_2.addWidget(self.heat_number_1, 4, 1, 1, 1)
+                    self.label_heat_number_2 = QtWidgets.QLabel(parent=self.frame)
+                    self.label_heat_number_2.setMinimumSize(QtCore.QSize(105, 25))
+                    font = QtGui.QFont()
+                    font.setPointSize(10)
+                    font.setBold(True)
+                    self.label_heat_number_2.setFont(font)
+                    self.label_heat_number_2.setText(self.heat_number_columns[1])
+                    self.label_heat_number_2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignCenter|QtCore.Qt.AlignmentFlag.AlignVCenter)
+                    self.label_heat_number_2.setObjectName("label_heat_number_2")
+                    self.gridLayout_2.addWidget(self.label_heat_number_2, 3, 2, 1, 1)
+                    self.heat_number_2 = QtWidgets.QLineEdit(parent=self.frame)
+                    self.heat_number_2.setMinimumSize(QtCore.QSize(105, 25))
+                    # self.heat_number_2.setMaximumSize(QtCore.QSize(105, 25))
+                    font = QtGui.QFont()
+                    font.setPointSize(10)
+                    self.heat_number_2.setFont(font)
+                    self.heat_number_2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+                    self.heat_number_2.setObjectName("heat_number_2")
+                    self.gridLayout_2.addWidget(self.heat_number_2, 4, 2, 1, 1)
+                elif len(self.heat_number_columns) == 3:
+                    self.label_heat_number_1 = QtWidgets.QLabel(parent=self.frame)
+                    self.label_heat_number_1.setMinimumSize(QtCore.QSize(105, 25))
+                    font = QtGui.QFont()
+                    font.setPointSize(10)
+                    font.setBold(True)
+                    self.label_heat_number_1.setFont(font)
+                    self.label_heat_number_1.setText(self.heat_number_columns[0])
+                    self.label_heat_number_1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignCenter|QtCore.Qt.AlignmentFlag.AlignVCenter)
+                    self.label_heat_number_1.setObjectName("label_heat_number_1")
+                    self.gridLayout_2.addWidget(self.label_heat_number_1, 3, 1, 1, 1)
+                    self.heat_number_1 = QtWidgets.QLineEdit(parent=self.frame)
+                    self.heat_number_1.setMinimumSize(QtCore.QSize(105, 25))
+                    # self.heat_number_1.setMaximumSize(QtCore.QSize(105, 25))
+                    font = QtGui.QFont()
+                    font.setPointSize(10)
+                    self.heat_number_1.setFont(font)
+                    self.heat_number_1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+                    self.heat_number_1.setObjectName("heat_number_1")
+                    self.gridLayout_2.addWidget(self.heat_number_1, 4, 1, 1, 1)
+                    self.label_heat_number_2 = QtWidgets.QLabel(parent=self.frame)
+                    self.label_heat_number_2.setMinimumSize(QtCore.QSize(105, 25))
+                    font = QtGui.QFont()
+                    font.setPointSize(10)
+                    font.setBold(True)
+                    self.label_heat_number_2.setFont(font)
+                    self.label_heat_number_2.setText(self.heat_number_columns[1])
+                    self.label_heat_number_2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignCenter|QtCore.Qt.AlignmentFlag.AlignVCenter)
+                    self.label_heat_number_2.setObjectName("label_heat_number_2")
+                    self.gridLayout_2.addWidget(self.label_heat_number_2, 3, 2, 1, 1)
+                    self.heat_number_2 = QtWidgets.QLineEdit(parent=self.frame)
+                    self.heat_number_2.setMinimumSize(QtCore.QSize(105, 25))
+                    # self.heat_number_2.setMaximumSize(QtCore.QSize(105, 25))
+                    font = QtGui.QFont()
+                    font.setPointSize(10)
+                    self.heat_number_2.setFont(font)
+                    self.heat_number_2.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+                    self.heat_number_2.setObjectName("heat_number_2")
+                    self.gridLayout_2.addWidget(self.heat_number_2, 4, 2, 1, 1)
+                    self.label_heat_number_3 = QtWidgets.QLabel(parent=self.frame)
+                    self.label_heat_number_3.setMinimumSize(QtCore.QSize(105, 25))
+                    font = QtGui.QFont()
+                    font.setPointSize(10)
+                    font.setBold(True)
+                    self.label_heat_number_3.setFont(font)
+                    self.label_heat_number_3.setText(self.heat_number_columns[2])
+                    self.label_heat_number_3.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignCenter|QtCore.Qt.AlignmentFlag.AlignVCenter)
+                    self.label_heat_number_3.setObjectName("label_heat_number_3")
+                    self.gridLayout_2.addWidget(self.label_heat_number_3, 3, 3, 1, 1)
+                    self.heat_number_3 = QtWidgets.QLineEdit(parent=self.frame)
+                    self.heat_number_3.setMinimumSize(QtCore.QSize(105, 25))
+                    # self.heat_number_3.setMaximumSize(QtCore.QSize(105, 25))
+                    font = QtGui.QFont()
+                    font.setPointSize(10)
+                    self.heat_number_3.setFont(font)
+                    self.heat_number_3.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+                    self.heat_number_3.setObjectName("heat_number_3")
+                    self.gridLayout_2.addWidget(self.heat_number_3, 4, 3, 1, 1)
+
 # Function to activate or deactivate all checkboxes in table
     def toggle_checkboxes(self, state):
+        """
+        Toggles the state of all visible checkboxes in the table.
+
+        Args:
+            state (bool): The desired state of the checkboxes (True to check, False to uncheck).
+        """
         if state:
             for row in range(0, self.tableTags.rowCount()):
                 if not self.tableTags.isRowHidden(row):
@@ -844,8 +993,11 @@ class Ui_PmiInsert_Window(QtWidgets.QMainWindow):
                     checkbox = self.tableTags.cellWidget(row, (self.num_columns - 1))
                     checkbox.setChecked(False)
 
-# Function to insert data
-    def insert(self):
+# Function to insert date
+    def insert_date(self):
+        """
+        Updates the user data inputs in database based on selected items
+        """
         num_order = self.num_order.text().upper()
         test_date = self.date_test.text()
 
@@ -855,7 +1007,7 @@ class Ui_PmiInsert_Window(QtWidgets.QMainWindow):
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Rellena todos los campos. Solo el campo de observaciones puede quedarse vacío")
+            dlg.setText("Rellena todos los campos")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
             del dlg, new_icon
@@ -901,18 +1053,9 @@ class Ui_PmiInsert_Window(QtWidgets.QMainWindow):
                 # execution of commands
                     for element in id_list:
                         if element[1] == '':
-                            commands_hydrotest = f"UPDATE {self.table_name} SET pmi_date = '{test_date}' WHERE {self.column_id} = {element[0]}"
-                            cur.execute(commands_hydrotest)
+                            commands_pmi_date = f"UPDATE {self.table_name} SET pmi_date = '{test_date}' WHERE {self.column_id} = {element[0]}"
+                            cur.execute(commands_pmi_date)
 
-                            dlg = QtWidgets.QMessageBox()
-                            new_icon = QtGui.QIcon()
-                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                            dlg.setWindowIcon(new_icon)
-                            dlg.setWindowTitle("PMI")
-                            dlg.setText("Datos insertados con éxito")
-                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                            dlg.exec()
-                            del dlg,new_icon
                         else:
                             dlg_yes_no = QtWidgets.QMessageBox()
                             new_icon_yes_no = QtGui.QIcon()
@@ -926,8 +1069,8 @@ class Ui_PmiInsert_Window(QtWidgets.QMainWindow):
                             result = dlg_yes_no.exec()
 
                             if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                                commands_hydrotest = f"UPDATE {self.table_name} SET pmi_date = '{test_date}' WHERE {self.column_id} = {element[0]}"
-                                cur.execute(commands_hydrotest)
+                                commands_pmi_date = f"UPDATE {self.table_name} SET pmi_date = '{test_date}' WHERE {self.column_id} = {element[0]}"
+                                cur.execute(commands_pmi_date)
                                 dlg = QtWidgets.QMessageBox()
                                 new_icon = QtGui.QIcon()
                                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -938,6 +1081,145 @@ class Ui_PmiInsert_Window(QtWidgets.QMainWindow):
                                 dlg.exec()
                                 del dlg,new_icon
                             del dlg_yes_no, new_icon_yes_no
+                
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("PMI")
+                    dlg.setText("Datos insertados con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg,new_icon
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    self.querytags()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+# Function to insert heat_numbers
+    def insert_heat_number(self):
+        """
+        Updates the user data inputs in database based on selected items
+        """
+        num_order = self.num_order.text().upper()
+
+        if len(self.heat_number_columns) == 1:
+            hn_1 = self.heat_number_1.text()
+        elif len(self.heat_number_columns) == 2:
+            hn_1 = self.heat_number_1.text()
+            hn_2 = self.heat_number_2.text()
+        elif len(self.heat_number_columns) == 3:
+            hn_1 = self.heat_number_1.text()
+            hn_2 = self.heat_number_2.text()
+            hn_3 = self.heat_number_3.text()
+
+        if num_order == '' or self.tableTags.rowCount() == 0:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Rellena el número de pedido o carga los datos")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
+
+        else:
+            id_list = []
+            for row in range(0, self.tableTags.rowCount() + 1):
+                item = self.tableTags.cellWidget(row, (self.num_columns - 1))
+                if item is not None:
+                    if item.checkState() == QtCore.Qt.CheckState.Checked:
+                        if self.table_name == "tags_data.tags_others":
+                            id_list.append([int(self.tableTags.item(row, 0).text()), self.tableTags.item(row, 1).text(), self.tableTags.item(row, 4).text()])
+                        elif self.table_name == "tags_data.tags_level":
+                            id_list.append([int(self.tableTags.item(row, 0).text()), self.tableTags.item(row, 1).text(), self.tableTags.item(row, 4).text(), self.tableTags.item(row, 5).text(), self.tableTags.item(row, 6).text()])
+                        else:
+                            id_list.append([int(self.tableTags.item(row, 0).text()), self.tableTags.item(row, 1).text(), self.tableTags.item(row, 4).text(), self.tableTags.item(row, 5).text()])
+
+            if len(id_list) == 0:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("No has seleccionado ningún TAG")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg, new_icon
+            else:
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    for element in id_list:
+                        if self.table_name == "tags_data.tags_others":
+                            commands_pmi_hn = f"UPDATE {self.table_name} SET heat_number = '{hn_1}' WHERE {self.column_id} = {element[0]}"
+                        elif self.table_name == "tags_data.tags_level":
+                            commands_pmi_hn = f"UPDATE {self.table_name} SET heat_number_body = '{hn_1}', heat_number_body_vlv = '{hn_2}', heat_number_flange_vlv = '{hn_3}' WHERE {self.column_id} = {element[0]}"
+                        elif self.table_name == "tags_data.tags_temp":
+                            commands_pmi_hn = f"UPDATE {self.table_name} SET heat_number_bar = '{hn_1}', heat_number_flange = '{hn_2}' WHERE {self.column_id} = {element[0]}"
+                        else:
+                            commands_pmi_hn = f"UPDATE {self.table_name} SET heat_number_plate = '{hn_1}', heat_number_flange = '{hn_2}' WHERE {self.column_id} = {element[0]}"
+
+                        if any(e == '' for e in element[2:]):
+                            cur.execute(commands_pmi_hn)
+
+                        else:
+                            dlg_yes_no = QtWidgets.QMessageBox()
+                            new_icon_yes_no = QtGui.QIcon()
+                            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                            dlg_yes_no.setWindowTitle("ERP EIPSA")
+                            dlg_yes_no.setText(f"El tag {element[1]} ya tiene datos\n"
+                                                "¿Estás seguro de que deseas sobreescribir los datos?")
+                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                            result = dlg_yes_no.exec()
+
+                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                cur.execute(commands_pmi_hn)
+                                dlg = QtWidgets.QMessageBox()
+                                new_icon = QtGui.QIcon()
+                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                dlg.setWindowIcon(new_icon)
+                                dlg.setWindowTitle("PMI")
+                                dlg.setText("Datos insertados con éxito")
+                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                                dlg.exec()
+                                del dlg,new_icon
+                            del dlg_yes_no, new_icon_yes_no
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("PMI")
+                    dlg.setText("Datos insertados con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg,new_icon
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
@@ -973,6 +1255,9 @@ class Ui_PmiInsert_Window(QtWidgets.QMainWindow):
 
 # Function to load constant values
     def load_values(self):
+        """
+        Loads the actual date on UI elements
+        """
         actual_date=date.today()
         actual_date=actual_date.strftime("%d/%m/%Y")
         self.date_test.setText(actual_date)

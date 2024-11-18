@@ -891,18 +891,20 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
     """
     UI class for the Supplier Order window.
     """
-    def __init__(self, username):
+    def __init__(self, username, num_order = None):
         """
         Initializes the Ui_SupplierOrder_Window object with a user-specific username.
 
         Args:
             username (str): The username of the current user.
+            username (str, Optional): The username of the current user.
 
         Side Effects:
             Creates an instance of the PDF_Viewer class for PDF handling.
         """
         super().__init__()
-        self.username=username
+        self.username = username
+        self.num_order = num_order
         self.pdf_viewer = PDF_Viewer()
         self.setupUi(self)
 
@@ -1824,8 +1826,10 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.Position_SupplierOrder.setText('1')
         self.Date_SupplierOrder.setText(date.today().strftime("%d/%m/%Y"))
 
-        self.tableSupplierOrders.itemClicked.connect(self.loadformorder)
-        self.tableRecords.itemClicked.connect(self.loadformsupply)
+        self.tableSupplierOrders.currentCellChanged.connect(self.loadformorder)
+        self.tableSupplierOrders.cellClicked.connect(self.loadformorder)
+        self.tableRecords.currentCellChanged.connect(self.loadformsupply)
+        self.tableRecords.cellClicked.connect(self.loadformsupply)
         self.Button_CreateOrder.clicked.connect(self.createorder)
         self.Button_ModifyOrder.clicked.connect(self.modifyorder)
         self.Button_Reload.clicked.connect(self.load_all)
@@ -1845,6 +1849,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.loadtableorders()
 
         self.tableSupplierOrders.itemDoubleClicked.connect(self.item_double_clicked)
+
+        if self.num_order is not None:
+            self.position_table(self.num_order)
 
 
 # Function to translate and updates the text of various UI elements
@@ -1922,7 +1929,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         item = self.tableRecords.horizontalHeaderItem(11)
         item.setText(_translate("SupplierOrder_Window", "Cant 3"))
 
-
 # Function to create order
     def createorder(self):
         """
@@ -1943,13 +1949,13 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         total=self.Total_SupplierOrder.text()
         self.Coms_SupplierOrder = ''
 
-        if order_date=="" or (order_date==" " or (num_order==" " or num_order=="")):
+        if order_date=="" or (order_date==" " or (num_order==" " or (num_order=="" or supplier_name == ""))):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Crear Pedido")
-            dlg.setText("Rellena la fecha y el número de pédido")
+            dlg.setText("Rellena la fecha, el número de pédido y el proveedor")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
             del dlg, new_icon
@@ -1965,19 +1971,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             dlg.exec()
             del dlg, new_icon
 
-        # elif delivdate != '' and not self.is_valid_date(delivdate):
-        #     dlg = QtWidgets.QMessageBox()
-        #     new_icon = QtGui.QIcon()
-        #     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        #     dlg.setWindowIcon(new_icon)
-        #     dlg.setWindowTitle("Crear Pedido")
-        #     dlg.setText("La fecha de entrega no tiene el formato esperado (dd-mm-yyyy o dd/mm/yyyy)")
-        #     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-        #     dlg.exec()
-        #     del dlg, new_icon
-
         else:
             delivdate = None if delivdate == '' else delivdate
+            check_neworder = "SELECT id FROM purch_fact.supplier_ord_header WHERE supplier_order_num = %s"
             commands_neworder=("""
                             INSERT INTO purch_fact.supplier_ord_header (
                             supplier_id, order_date, delivery_date, notes, supplier_order_num, their_ref,
@@ -1996,7 +1992,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 query_supplier = "SELECT id FROM purch_fact.suppliers WHERE name = %s"
                 cur.execute(query_supplier, (supplier_name,))
                 result_supplier = cur.fetchone()
-
                 query_currency = "SELECT id FROM purch_fact.currency WHERE symbol_currency = %s"
                 cur.execute(query_currency, (currency,))
                 result_currency = cur.fetchone()
@@ -2004,23 +1999,37 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 supplier_id = result_supplier[0]
                 currency_id = result_currency[0]
             # execution of principal command
-                data=(supplier_id,order_date,delivdate,order_obs,num_order,their_ref,delivway,payway,delivterm,total,currency_id,)
-                cur.execute(commands_neworder, data)
+                cur.execute(check_neworder, (num_order,))
+                result_checkorder = cur.fetchall()
+
+                if len(result_checkorder) == 0:
+                    data=(supplier_id,order_date,delivdate,order_obs,num_order,their_ref,delivway,payway,delivterm,total,currency_id,)
+                    cur.execute(commands_neworder, data)
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Crear Pedido Proveedor")
+                    dlg.setText("Pedido creado con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+
+                    del dlg,new_icon
+                else:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Crear Pedido Proveedor")
+                    dlg.setText("El número de pedido ya existe")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+                    del dlg,new_icon
             # close communication with the PostgreSQL database server
                 cur.close()
             # commit the changes
                 conn.commit()
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Crear Pedido Proveedor")
-                dlg.setText("Pedido creado con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-
-                del dlg,new_icon
 
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
@@ -2030,6 +2039,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Ha ocurrido el siguiente error:\n"
                             + str(error))
+                print(error)
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
                 del dlg, new_icon
@@ -2545,179 +2555,181 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             self.loadstocks()
 
 # Function to load client order form
-    def loadformorder(self,item):
+    def loadformorder(self,current_row):
         """
         Loads the order details from a selected row in the table and populates the order form fields.
 
         Args:
-            item (QTableWidgetItem): The specific item (row) selected in the table.
+            current_row (int): Number of current row being processing
 
         Raises:
             psycopg2.DatabaseError: If an error occurs while querying the PostgreSQL database.
         """
-        data_order=[]
+        if current_row >= 0:
+            data_order=[]
 
-        item_text=self.tableSupplierOrders.item(item.row(), 0).text()
-        data_order.append(item_text)
+            item_text=self.tableSupplierOrders.item(current_row, 0).text()
+            data_order.append(item_text)
 
-        self.label_IDOrd.setText(data_order[0])
+            self.label_IDOrd.setText(data_order[0])
 
-        commands_querytableorders = ("""
-                        SELECT so_header.supplier_order_num, suppliers."name",
-                        TO_CHAR(so_header."order_date",'DD-MM-YYYY'), TO_CHAR(so_header.delivery_date,'DD-MM-YYYY'),
-                        so_header.their_ref, so_header.notes, so_header.delivery_term, so_header.delivery_way, 
-                        so_header.order_com, so_header.pay_way,
-                        TO_CHAR(so_header."deliv_date_1",'DD-MM-YYYY'), so_header."deliv_note_1",
-                        TO_CHAR(so_header."deliv_date_2",'DD-MM-YYYY'), so_header."deliv_note_2",
-                        TO_CHAR(so_header."deliv_date_3",'DD-MM-YYYY'), so_header."deliv_note_3"
-                        FROM purch_fact.supplier_ord_header AS so_header
-                        LEFT JOIN purch_fact.suppliers AS suppliers ON (suppliers."id" = so_header."supplier_id")
-                        WHERE so_header.id = %s
-                        ORDER BY so_header.supplier_order_num DESC
-                        """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_querytableorders,(data_order[0],))
-            results_orders=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            commands_querytableorders = ("""
+                            SELECT so_header.supplier_order_num, suppliers."name",
+                            TO_CHAR(so_header."order_date",'DD-MM-YYYY'), TO_CHAR(so_header.delivery_date,'DD-MM-YYYY'),
+                            so_header.their_ref, so_header.notes, so_header.delivery_term, so_header.delivery_way, 
+                            so_header.order_com, so_header.pay_way,
+                            TO_CHAR(so_header."deliv_date_1",'DD-MM-YYYY'), so_header."deliv_note_1",
+                            TO_CHAR(so_header."deliv_date_2",'DD-MM-YYYY'), so_header."deliv_note_2",
+                            TO_CHAR(so_header."deliv_date_3",'DD-MM-YYYY'), so_header."deliv_note_3"
+                            FROM purch_fact.supplier_ord_header AS so_header
+                            LEFT JOIN purch_fact.suppliers AS suppliers ON (suppliers."id" = so_header."supplier_id")
+                            WHERE so_header.id = %s
+                            ORDER BY so_header.supplier_order_num DESC
+                            """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(commands_querytableorders,(data_order[0],))
+                results_orders=cur.fetchall()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
-        self.NumOrder_SupplierOrder.setText(results_orders[0][0])
-        self.Supplier_SupplierOrder.setCurrentText(results_orders[0][1])
-        self.Date_SupplierOrder.setText(results_orders[0][2])
-        self.DelivDate_SupplierOrder.setDate(QtCore.QDate.fromString(results_orders[0][3], "dd-MM-yyyy"))
-        self.TheirRef_SupplierOrder.setText(results_orders[0][4])
-        self.OrderObs_SupplierOrder.setText(results_orders[0][5])
-        self.DelivTerm_SupplierOrder.setText(results_orders[0][6])
-        self.DelivWay_SupplierOrder.setText(results_orders[0][7])
-        self.Coms_SupplierOrder = results_orders[0][8]
-        # self.FinalComs_SupplierOrder.setText(data_order[10])
-        self.PayWay_SupplierOrder.setCurrentText(results_orders[0][9])
-        self.DelivDate1_SupplierOrder.setText(results_orders[0][10] if results_orders[0][10] != "None" else "")
-        self.DelivNote1_SupplierOrder.setText(results_orders[0][11] if results_orders[0][11] != "None" else "")
-        self.DelivDate2_SupplierOrder.setText(results_orders[0][12] if results_orders[0][12] != "None" else "")
-        self.DelivNote2_SupplierOrder.setText(results_orders[0][13] if results_orders[0][13] != "None" else "")
-        self.DelivDate3_SupplierOrder.setText(results_orders[0][14] if results_orders[0][14] != "None" else "")
-        self.DelivNote3_SupplierOrder.setText(results_orders[0][15] if results_orders[0][15] != "None" else "")
+            self.NumOrder_SupplierOrder.setText(results_orders[0][0])
+            self.Supplier_SupplierOrder.setCurrentText(results_orders[0][1])
+            self.Date_SupplierOrder.setText(results_orders[0][2])
+            self.DelivDate_SupplierOrder.setDate(QtCore.QDate.fromString(results_orders[0][3], "dd-MM-yyyy"))
+            self.TheirRef_SupplierOrder.setText(results_orders[0][4])
+            self.OrderObs_SupplierOrder.setText(results_orders[0][5])
+            self.DelivTerm_SupplierOrder.setText(results_orders[0][6])
+            self.DelivWay_SupplierOrder.setText(results_orders[0][7])
+            self.Coms_SupplierOrder = results_orders[0][8]
+            # self.FinalComs_SupplierOrder.setText(data_order[10])
+            self.PayWay_SupplierOrder.setCurrentText(results_orders[0][9])
+            self.DelivDate1_SupplierOrder.setText(results_orders[0][10] if results_orders[0][10] != "None" else "")
+            self.DelivNote1_SupplierOrder.setText(results_orders[0][11] if results_orders[0][11] != "None" else "")
+            self.DelivDate2_SupplierOrder.setText(results_orders[0][12] if results_orders[0][12] != "None" else "")
+            self.DelivNote2_SupplierOrder.setText(results_orders[0][13] if results_orders[0][13] != "None" else "")
+            self.DelivDate3_SupplierOrder.setText(results_orders[0][14] if results_orders[0][14] != "None" else "")
+            self.DelivNote3_SupplierOrder.setText(results_orders[0][15] if results_orders[0][15] != "None" else "")
 
-        self.label_IDRecord.setText("")
+            self.label_IDRecord.setText("")
 
-        self.Supply_SupplierOrder.setCurrentIndex(0)
-        self.Quantity_SupplierOrder.setText("")
-        self.UnitValue_SupplierOrder.setText("")
-        self.Discount_SupplierOrder.setText("")
-        self.Deliv1_SupplierOrder.setText("")
-        self.Deliv2_SupplierOrder.setText("")
-        self.Deliv3_SupplierOrder.setText("")
-        self.Stock_SupplierOrder.setText("")
-        self.StockDsp_SupplierOrder.setText("")
-        self.StockVrt_SupplierOrder.setText("")
+            self.Supply_SupplierOrder.setCurrentIndex(0)
+            self.Quantity_SupplierOrder.setText("")
+            self.UnitValue_SupplierOrder.setText("")
+            self.Discount_SupplierOrder.setText("")
+            self.Deliv1_SupplierOrder.setText("")
+            self.Deliv2_SupplierOrder.setText("")
+            self.Deliv3_SupplierOrder.setText("")
+            self.Stock_SupplierOrder.setText("")
+            self.StockDsp_SupplierOrder.setText("")
+            self.StockVrt_SupplierOrder.setText("")
 
-        self.loadtablerecords()
-        self.calculate_totalorder()
+            self.loadtablerecords()
+            self.calculate_totalorder()
 
-        total_rows = self.tableRecords.rowCount()
+            total_rows = self.tableRecords.rowCount()
 
-        if total_rows == 0:
-            self.Position_SupplierOrder.setText("1")
-        else:
-            biggest_value = None
-            for row in range(total_rows):
-                item = self.tableRecords.item(row, 1).text()
-                if item is not None:
-                    value = int(item)
-                    if biggest_value is None or value > biggest_value:
-                        biggest_value = value
+            if total_rows == 0:
+                self.Position_SupplierOrder.setText("1")
+            else:
+                biggest_value = None
+                for row in range(total_rows):
+                    item = self.tableRecords.item(row, 1).text()
+                    if item is not None:
+                        value = int(item)
+                        if biggest_value is None or value > biggest_value:
+                            biggest_value = value
 
-            self.Position_SupplierOrder.setText(str(biggest_value + 1))
+                self.Position_SupplierOrder.setText(str(biggest_value + 1))
 
 # Function to load record form
-    def loadformsupply(self,item):
+    def loadformsupply(self,current_row):
         """
         Loads supply data from the selected row in the supply table and populates the form fields.
 
         Args:
-            item (QTableWidgetItem): The item representing the selected row in the supply table.
+            current_row (int): Number of current row being processing
         """
-        data_supply=[]
+        if current_row >= 0:
+            data_supply=[]
 
-        for column in range(13):
-            item_text=self.tableRecords.item(item.row(), column).text()
-            data_supply.append(item_text)
+            for column in range(13):
+                item_text=self.tableRecords.item(current_row, column).text()
+                data_supply.append(item_text)
 
-        self.label_IDRecord.setText(data_supply[0])
-        self.Position_SupplierOrder.setText(data_supply[1])
-        self.Quantity_SupplierOrder.setText(data_supply[4])
-        self.UnitValue_SupplierOrder.setText(data_supply[5].replace(".","").replace(",",".").replace(" €",""))
-        self.Discount_SupplierOrder.setText('' if data_supply[6] == '0.00 %' else data_supply[6].replace(" %",""))
-        self.Deliv1_SupplierOrder.setText(data_supply[9])
-        self.Deliv2_SupplierOrder.setText(data_supply[10])
-        self.Deliv3_SupplierOrder.setText(data_supply[11])
+            self.label_IDRecord.setText(data_supply[0])
+            self.Position_SupplierOrder.setText(data_supply[1])
+            self.Quantity_SupplierOrder.setText(data_supply[4])
+            self.UnitValue_SupplierOrder.setText(data_supply[5].replace(".","").replace(",",".").replace(" €",""))
+            self.Discount_SupplierOrder.setText('' if data_supply[6] == '0.00 %' else data_supply[6].replace(" %",""))
+            self.Deliv1_SupplierOrder.setText(data_supply[9])
+            self.Deliv2_SupplierOrder.setText(data_supply[10])
+            self.Deliv3_SupplierOrder.setText(data_supply[11])
 
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            query_stocks = "SELECT physical_stock, available_stock, pending_stock FROM purch_fact.supplies WHERE id = %s"
-            cur.execute(query_stocks, (data_supply[12],))
-            result_stocks = cur.fetchone()
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                query_stocks = "SELECT physical_stock, available_stock, pending_stock FROM purch_fact.supplies WHERE id = %s"
+                cur.execute(query_stocks, (data_supply[12],))
+                result_stocks = cur.fetchone()
 
-        # get id from table
-            stock = result_stocks[0]
-            available = result_stocks[1]
-            pending = result_stocks[2]
+            # get id from table
+                stock = result_stocks[0]
+                available = result_stocks[1]
+                pending = result_stocks[2]
 
-            self.Stock_SupplierOrder.setText(str(stock))
-            self.StockDsp_SupplierOrder.setText(str(available))
-            self.StockVrt_SupplierOrder.setText(str(round(available + pending, 4)))
+                self.Stock_SupplierOrder.setText(str(stock))
+                self.StockDsp_SupplierOrder.setText(str(available))
+                self.StockVrt_SupplierOrder.setText(str(round(available + pending, 4)))
 
-            self.Supply_SupplierOrder.setCurrentText(data_supply[2] + " | " + data_supply[3] + " | " + str(round(stock,2)) + " | " + str(round(available,2)) + " | " + str(round(pending, 2)) + " | ID:" + data_supply[12])
+                self.Supply_SupplierOrder.setCurrentText(data_supply[2] + " | " + data_supply[3] + " | " + str(round(stock,2)) + " | " + str(round(available,2)) + " | " + str(round(pending, 2)) + " | ID:" + data_supply[12])
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
 
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
 # Function to load table of orders
     def loadtableorders(self):
@@ -2882,7 +2894,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         else:
             self.tableRecords.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
         self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableRecords.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableRecords.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableRecords.horizontalHeader().setSectionResizeMode(11, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableRecords.setColumnWidth(3,600)
         self.tableRecords.hideColumn(0)
         self.tableRecords.custom_sort_int(1, QtCore.Qt.SortOrder.AscendingOrder)
         # self.tableRecords.hideColumn(12)
@@ -3935,11 +3949,14 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.PayWay_SupplierOrder.addItems([''] + sorted(list_payway))
 
 # Function to move table to specific item by text search
-    def position_table_P(self):
+    def position_table(self, num_order_tocheck = None):
         """
         Selects and scrolls to the row in the Client Order P- table based on the input position.
         """
-        text_position = self.Position.text()
+        if num_order_tocheck is None:
+            text_position = self.Position.text()
+        else:
+            text_position = num_order_tocheck
 
         self.tableSupplierOrders.clearSelection()
 
@@ -3948,6 +3965,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             if item is not None and text_position.upper() in item.text().upper():
                 item.setSelected(True)
                 self.tableSupplierOrders.scrollToItem(item)
+                self.loadformorder(item.row())
                 return
 
 # Function to events for keys
@@ -4058,7 +4076,6 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             # execution of commands
                 cur.execute(query_path, (item_number,))
                 results=cur.fetchall()
-                print(results)
 
             # close communication with the PostgreSQL database server
                 cur.close()

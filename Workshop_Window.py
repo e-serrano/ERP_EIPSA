@@ -802,6 +802,7 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         self.checkbox_filters_AL = {}
         self.db = db
         self.username = username
+        self.open_windows = {}
         self.model_P.dataChanged.connect(self.saveChanges)
         self.model_PA.dataChanged.connect(self.saveChanges)
         self.model_AL.dataChanged.connect(self.saveChanges)
@@ -1400,13 +1401,27 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
             user_database = dbparam["user"]
             password_database = dbparam["password"]
 
-            db_index = createConnection_name(user_database, password_database, 'drawing' + num_order)
+            db_index = createConnection_name(user_database, password_database, 'drawing' + num_order + '-w')
 
             if not db_index:
                 sys.exit()
 
             self.index_drawing_window = Ui_WorkshopDrawingIndex_Window(db_index, self.username, num_order)
             self.index_drawing_window.showMaximized()
+
+            self.index_drawing_window.closeEvent = lambda event: self.close_drawing_window(num_order, event)
+
+    def close_drawing_window(self, num_order, event):
+        """
+        Handles the close event of index drawing window.
+
+        Args:
+            num_order (str): The order number associated with the window being closed.
+            event (QCloseEvent): The close event that should be accepted to allow the window to close properly.
+        """
+        if num_order in self.open_windows:
+            del self.open_windows[num_order]
+        event.accept()
 
 # Function to open colour picker
     def colour_picker(self, table):

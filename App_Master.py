@@ -368,7 +368,7 @@ class Ui_App_Master(object):
         Opens the commercial application window.
         """
         from App_Comercial import Ui_App_Comercial
-        self.commercial_window = Ui_App_Comercial('Luis Bravo', 'l.bravo')
+        self.commercial_window = Ui_App_Comercial('Ana Calvo', 'a.calvo')
         self.commercial_window.showMaximized()
 
     def technical_app(self):

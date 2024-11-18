@@ -673,12 +673,12 @@ class Ui_TAGQueryFlow_Window(QtWidgets.QMainWindow):
         """
         self.tableTags.setRowCount(0)
         query_material = ("""
-                        SELECT tags."tag", tags."item_type", tags."num_offer", tags."num_order", offers."client", tags."amount",
+                        SELECT tags."tag", tags."item_type", tags."plate_type", tags."num_offer", tags."num_order", offers."client", tags."amount",
                         tags."line_size", tags."rating", tags."facing", tags."flange_material", tags."element_material",
                         tags."dwg_num_doc_eipsa", tags."dim_drawing", tags."of_drawing"
                         FROM tags_data.tags_flow AS tags
                         JOIN offers ON (offers."num_offer" = tags."num_offer")
-                        ORDER BY tags."tag"
+                        ORDER BY tags."num_offer"
                         """)
 
         conn = None
@@ -697,12 +697,12 @@ class Ui_TAGQueryFlow_Window(QtWidgets.QMainWindow):
             conn.commit()
 
             self.tableTags.setRowCount(len(results))
-            self.tableTags.setColumnCount(14)
+            self.tableTags.setColumnCount(15)
             tablerow=0
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(14):
+                for column in range(15):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -712,15 +712,16 @@ class Ui_TAGQueryFlow_Window(QtWidgets.QMainWindow):
 
                 tablerow+=1
 
-            column_headers = ['TAG', 'Tipo', 'Nº Oferta', 'Nº Pedido', 'Cliente', 'Precio', 'Tamaño', 'Rating', 'Facing', 'Mat. Brida', 'Mat. Equipo', 'Nº Doc. Plano', 'Nº Plano Dim.', 'Nº Plano OF']
+            column_headers = ['TAG', 'Equipo', 'Tipo', 'Nº Oferta', 'Nº Pedido', 'Cliente', 'Precio', 'Tamaño', 'Rating', 'Facing', 'Mat. Brida', 'Mat. Equipo', 'Nº Doc. Plano', 'Nº Plano Dim.', 'Nº Plano OF']
             
             self.tableTags.verticalHeader().hide()
             self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
             self.tableTags.setSortingEnabled(False)
             self.tableTags.setHorizontalHeaderLabels(column_headers)
-            self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            # self.tableTags.horizontalHeader().setSectionResizeMode(12,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             if self.role != 'Comercial':
-                self.tableTags.hideColumn(5)
+                self.tableTags.hideColumn(6)
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -752,7 +753,7 @@ class Ui_TAGQueryFlow_Window(QtWidgets.QMainWindow):
         e_material = self.element_material.currentText()
 
         query_material = ("""
-                        SELECT tags."tag", tags."item_type", tags."num_offer", tags."num_order", offers."client", tags."amount",
+                        SELECT tags."tag", tags."item_type", tags."plate_type", tags."num_offer", tags."num_order", offers."client", tags."amount",
                         tags."line_size", tags."rating", tags."facing", tags."flange_material", tags."element_material",
                         tags."dwg_num_doc_eipsa", tags."dim_drawing", tags."of_drawing"
                         FROM tags_data.tags_flow AS tags
@@ -786,12 +787,12 @@ class Ui_TAGQueryFlow_Window(QtWidgets.QMainWindow):
             conn.commit()
 
             self.tableTags.setRowCount(len(results))
-            self.tableTags.setColumnCount(14)
+            self.tableTags.setColumnCount(15)
             tablerow=0
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(14):
+                for column in range(15):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -801,15 +802,16 @@ class Ui_TAGQueryFlow_Window(QtWidgets.QMainWindow):
 
                 tablerow+=1
 
-            column_headers = ['TAG', 'Tipo', 'Nº Oferta', 'Nº Pedido', 'Cliente', 'Precio', 'Tamaño', 'Rating', 'Facing', 'Mat. Brida', 'Mat. Equipo', 'Nº Doc. Plano', 'Nº Plano Dim.', 'Nº Plano OF']
+            column_headers = ['TAG', 'Equipo', 'Tipo', 'Nº Oferta', 'Nº Pedido', 'Cliente', 'Precio', 'Tamaño', 'Rating', 'Facing', 'Mat. Brida', 'Mat. Equipo', 'Nº Doc. Plano', 'Nº Plano Dim.', 'Nº Plano OF']
             
             self.tableTags.verticalHeader().hide()
             self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
             self.tableTags.setSortingEnabled(False)
             self.tableTags.setHorizontalHeaderLabels(column_headers)
             self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableTags.horizontalHeader().setSectionResizeMode(12,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             if self.role != 'Comercial':
-                self.tableTags.hideColumn(5)
+                self.tableTags.hideColumn(6)
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -908,9 +910,9 @@ class Ui_TAGQueryFlow_Window(QtWidgets.QMainWindow):
                 conn.close()
 
 
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     TAGQueryFlow_Window = Ui_TAGQueryFlow_Window('Comercial')
-#     TAGQueryFlow_Window.show()
-#     sys.exit(app.exec())
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    TAGQueryFlow_Window = Ui_TAGQueryFlow_Window('Comercial')
+    TAGQueryFlow_Window.show()
+    sys.exit(app.exec())

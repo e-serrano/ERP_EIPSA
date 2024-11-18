@@ -478,8 +478,8 @@ class Ui_OrderAccept_Window(object):
                 spanish_order_date = self.format_date_spanish(order_date)
 
                 if self.checkbox_bond.isChecked():
-                    note_bond_english = "The text of warranty bond will be according to the usual document agreed with " + client + " for the last projects."
-                    note_bond_spanish = "El texto del aval será de acuerdo al documento habitual acordado con " + client + " para los últimos proyectos"
+                    note_bond_english = "INCLUDE WARRANTY BOND NOTE"
+                    note_bond_spanish = "INCLUIR NOTA AVAL"
                 else:
                     note_bond_english = "Note that for orders with an amount lower than 30.000,00 €, warranty bonds are not issued."
                     note_bond_spanish = "Les hacemos notar que para pedidos con importe inferior a 30.000,00 € no se emiten avales bancarios de garantía"
@@ -487,7 +487,7 @@ class Ui_OrderAccept_Window(object):
                 if self.longformat.isChecked()==True:
                     doc = DocxTemplate(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Pedido.docx")
                     context = {'english_actual_date': english_actual_date,
-                                'num_ref_order': num_ref_order,
+                                'num_ref_order': str(num_ref_order).replace("&", "&amp;"),
                                 'num_order': num_order,
                                 'english_order_date': english_order_date,
                                 'spanish_order_date': spanish_order_date,
@@ -532,7 +532,7 @@ class Ui_OrderAccept_Window(object):
                     doc = DocxTemplate(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Corto Pedido.docx")
                     context = {'client': client,
                                 'spanish_actual_date': spanish_actual_date,
-                                'num_ref_order': num_ref_order,
+                                'num_ref_order': str(num_ref_order).replace("&", "&amp;"),
                                 'num_order': num_order,
                                 'spanish_order_date': spanish_order_date,
                                 'order_amount': order_amount,

@@ -545,12 +545,12 @@ class Ui_App_Invoicing(object):
         user_database = dbparam["user"]
         password_database = dbparam["password"]
 
-        db_tags_invoices = createConnection(user_database, password_database)
-        if not db_tags_invoices:
+        db_invoices = createConnection(user_database, password_database)
+        if not db_invoices:
             sys.exit()
 
-        self.invoices_app = Ui_InvoiceNew_Window(db_tags_invoices, self.username)
-        self.invoices_app.show()
+        self.invoices_app = Ui_InvoiceNew_Window(db_invoices, self.username)
+        self.invoices_app.showMaximized()
 
 # Function to open window for query all invoices
     def query_invoice(self):
@@ -1211,7 +1211,7 @@ class Ui_App_Invoicing(object):
             sys.exit()
 
         self.edit_tags_app = Ui_EditTags_Facturation_Window(self.name, db_tags_fact)
-        self.edit_tags_app.show()
+        self.edit_tags_app.showMaximized()
 
 # Function to open window to query orders
     def query_order(self):

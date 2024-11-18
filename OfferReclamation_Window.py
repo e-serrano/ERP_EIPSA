@@ -11,7 +11,7 @@ from config import config
 import psycopg2
 from PyQt6.QtWidgets import QAbstractItemView
 import os
-from Email_Styles import email_offer1, email_offer2
+from Email_Styles import email_offer1, email_offer2, email_offer3
 from datetime import *
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -119,9 +119,9 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 2)
         self.tableReclamation = QtWidgets.QTableWidget(parent=self.frame)
         self.tableReclamation.setObjectName("tableWidget")
-        self.tableReclamation.setColumnCount(12)
+        self.tableReclamation.setColumnCount(13)
         self.tableReclamation.setRowCount(0)
-        for i in range(12):
+        for i in range(13):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -197,6 +197,8 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         item.setText(_translate("ReclamationOffer_Window", "Rec. 1"))
         item = self.tableReclamation.horizontalHeaderItem(11)
         item.setText(_translate("ReclamationOffer_Window", "Rec. 2"))
+        item = self.tableReclamation.horizontalHeaderItem(12)
+        item.setText(_translate("ReclamationOffer_Window", "Rec. 3"))
         self.Button_Cancel.setText(_translate("ReclamationOffer_Window", "Salir"))
         self.Button_Send.setText(_translate("ReclamationOffer_Window", "Reclamar"))
 
@@ -248,8 +250,8 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(12):
-                    if column in [10,11]:
+                for column in range(13):
+                    if column in [10,11,12]:
                         radio_button = QtWidgets.QCheckBox()
                         self.tableReclamation.setCellWidget(tablerow, column, radio_button)
                     else:
@@ -286,7 +288,7 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
     def sendmails(self):
         """
         Sends emails regarding selected offers based on user reclamations using the appropriate templates 
-        (Rec1 or Rec2) based on the selected checkboxes.
+        (Rec1, Rec2 or Rec3) based on the selected checkboxes.
         """
         actual_date=date.today()
         actual_date= actual_date.strftime("%d/%m/%Y")
@@ -314,11 +316,14 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
             reclamation = None
             checkbox1  = self.tableReclamation.cellWidget(row, 10)
             checkbox2  = self.tableReclamation.cellWidget(row, 11)
+            checkbox3  = self.tableReclamation.cellWidget(row, 12)
 
             if checkbox1 and checkbox1.isChecked():
                 reclamation = 'Rec1'
             elif checkbox2 and checkbox2.isChecked():
                 reclamation = 'Rec2'
+            elif checkbox3 and checkbox3.isChecked():
+                reclamation = 'Rec3'
             offers_reclamation.append([offer,reclamation])
 
         list_checkboxes = [x[1] for x in offers_reclamation]
@@ -391,6 +396,70 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                             data = (actual_date, offer[1], tracking, rec_times, offer[0],)
                             cur.execute(commands_insertdataoffer,data)
 
+                        elif offer[1] == 'Rec3':
+                            dlg1 = QtWidgets.QInputDialog()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg1.setWindowIcon(new_icon)
+                            dlg1.setWindowTitle('Reclamación Oferta')
+                            dlg1.setLabelText('Introduce el asunto:')
+
+                            dlg2 = QtWidgets.QInputDialog()
+                            new_icon2 = QtGui.QIcon()
+                            new_icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg2.setWindowIcon(new_icon2)
+                            dlg2.setWindowTitle('Reclamación Oferta')
+                            dlg2.setLabelText('Introduce el cuerpo del correo:')
+                            dlg2.resize(200,500)
+
+                            while True:
+                                clickedButton = dlg1.exec()
+                                if clickedButton == 1:
+                                    subject_text = dlg1.textValue()
+                                    if subject_text != '':
+                                        while True:
+                                            body_text, ok = QtWidgets.QInputDialog.getMultiLineText(self, 'Reclamación Oferta', 'Introduce el cuerpo del correo:')#dlg2.textValue()
+                                            if ok:
+                                                if body_text != '':
+                                                    mail=email_offer3(results_offers[0][0], results_offers[0][1], results_offers[0][2], email, results_offers[0][3],subject_text,body_text)
+                                                    mail.send_email()
+
+                                                    if results_offers[0][4] is None:
+                                                        tracking = date.today().strftime("%d/%m/%Y") + ": Reclamada"
+                                                    elif results_offers[0][4]=='':
+                                                        tracking = date.today().strftime("%d/%m/%Y") + ": Reclamada"
+                                                    else:
+                                                        tracking = results_offers[0][4] + "\n" + date.today().strftime("%d/%m/%Y") + ": Reclamada"
+                                                    rec_times = int(results_offers[0][5]) + 1 if results_offers[0][5] is not None else 1
+                                                    data = (actual_date, offer[1], tracking, rec_times, offer[0],)
+                                                    cur.execute(commands_insertdataoffer,data)
+                                                    break
+                                                else:
+                                                    dlg_error = QtWidgets.QMessageBox()
+                                                    new_icon = QtGui.QIcon()
+                                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                                    dlg_error.setWindowIcon(new_icon)
+                                                    dlg_error.setWindowTitle('Reclamación Oferta')
+                                                    dlg_error.setText("El cuerpo no puede estar vacío")
+                                                    dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                                    dlg_error.exec()
+                                                    del dlg_error,new_icon
+                                            else:
+                                                break
+                                        break
+                                    else:
+                                        dlg_error = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg_error.setWindowIcon(new_icon)
+                                        dlg_error.setWindowTitle('Reclamación Oferta')
+                                        dlg_error.setText("El asunto no puede estar vacío")
+                                        dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                        dlg_error.exec()
+                                        del dlg_error,new_icon
+                                else:
+                                    break
+
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -436,7 +505,7 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Documentación")
+            dlg.setWindowTitle("Reclamación Ofertas")
             dlg.setText(cell_content)
             dlg.exec()
 

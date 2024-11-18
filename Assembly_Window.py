@@ -117,25 +117,27 @@ class ColorDelegate(QtWidgets.QItemDelegate):
         background_color = QtGui.QColor(255, 255, 255)
 
         if index.column() == 16:
-            if value <= 50 and value >= 1:
-                background_color = QtGui.QColor(255, 255, 0) #Yellow
-            elif value == 99:
-                background_color = QtGui.QColor(24, 146, 97) #Dark Green
-            elif value < 99  and value > 50:
-                background_color = QtGui.QColor(0, 255, 0) #Green
-            elif value == 100:
-                background_color = QtGui.QColor(0, 102, 204) #Blue
-            else:
-                background_color = QtGui.QColor(255, 255, 255) #White
+            if isinstance(value, int):
+                if value <= 50 and value >= 1:
+                    background_color = QtGui.QColor(255, 255, 0) #Yellow
+                elif value == 99:
+                    background_color = QtGui.QColor(24, 146, 97) #Dark Green
+                elif value < 99  and value > 50:
+                    background_color = QtGui.QColor(0, 255, 0) #Green
+                elif value == 100:
+                    background_color = QtGui.QColor(0, 102, 204) #Blue
+                else:
+                    background_color = QtGui.QColor(255, 255, 255) #White
 
 
         elif index.column() == 4:
-            if value <= QtCore.QDate.currentDate():
-                background_color = QtGui.QColor(255, 0, 0) #Red
-            elif (value.toPyDate() - QtCore.QDate.currentDate().toPyDate()).days <= 15:
-                background_color = QtGui.QColor(237, 125, 49) #Orange
-            elif (value.toPyDate() - QtCore.QDate.currentDate().toPyDate()).days <= 30:
-                background_color = QtGui.QColor(255, 125, 255) #Pink
+            if isinstance(value, (date, datetime)):
+                if value <= QtCore.QDate.currentDate():
+                    background_color = QtGui.QColor(255, 0, 0) #Red
+                elif (value.toPyDate() - QtCore.QDate.currentDate().toPyDate()).days <= 15:
+                    background_color = QtGui.QColor(237, 125, 49) #Orange
+                elif (value.toPyDate() - QtCore.QDate.currentDate().toPyDate()).days <= 30:
+                    background_color = QtGui.QColor(255, 125, 255) #Pink
 
         elif index.column() == 14:
             state_column_index = index.sibling(index.row(), 0)
@@ -238,23 +240,33 @@ class CustomProxyModel_P(QtCore.QSortFilterProxyModel):
             if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
                 text = text.toString("yyyy-MM-dd")
 
-            for expresion in expresions:
-                if expresion == '':  # Si la expresión es vacía, coincidir con celdas vacías
+            match_found = False 
+
+            for expresion, exact_match in expresions:
+                if expresion == '':  # If expression is empty, match empty cells
                     if text == '':
                         break
 
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', str(expresion)):
+                if exact_match:
+                    if text in expresion:  # Verificar si `text` está en la lista `expresion`
+                        match_found = True
+                        break
+                
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
 
                 else:
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
-            else:
+
+            if not match_found:
                 return False
         return True
 
@@ -433,23 +445,33 @@ class CustomProxyModel_PA(QtCore.QSortFilterProxyModel):
             if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
                 text = text.toString("yyyy-MM-dd")
 
-            for expresion in expresions:
-                if expresion == '':  # Si la expresión es vacía, coincidir con celdas vacías
+            match_found = False 
+
+            for expresion, exact_match in expresions:
+                if expresion == '':  # If expression is empty, match empty cells
                     if text == '':
                         break
 
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', str(expresion)):
+                if exact_match:
+                    if text in expresion:  # Verificar si `text` está en la lista `expresion`
+                        match_found = True
+                        break
+                
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
 
                 else:
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
-            else:
+
+            if not match_found:
                 return False
         return True
 
@@ -588,6 +610,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.checkbox_filters_PA = {}
         self.db = db
         self.username = username
+        self.open_windows = {}
         self.model_P.dataChanged.connect(self.saveChanges)
         self.model_PA.dataChanged.connect(self.saveChanges)
         self.setupUi(self)
@@ -864,7 +887,8 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         # self.tableAssembly_P.horizontalHeader().setSectionResizeMode(20, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableAssembly_P.horizontalHeader().setSectionResizeMode(25, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableAssembly_P.horizontalHeader().setDefaultSectionSize(80)
-        self.tableAssembly_P.horizontalHeader().resizeSection(20, 500)
+        self.tableAssembly_P.horizontalHeader().resizeSection(16, 60)
+        self.tableAssembly_P.horizontalHeader().resizeSection(20, 700)
         self.tableAssembly_P.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
         self.gridLayout_3.addWidget(self.tableAssembly_P, 3, 0, 1, 1)
 
@@ -893,7 +917,8 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         # self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(20, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(25, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableAssembly_PA.horizontalHeader().setDefaultSectionSize(80)
-        self.tableAssembly_PA.horizontalHeader().resizeSection(20, 500)
+        self.tableAssembly_PA.horizontalHeader().resizeSection(16, 60)
+        self.tableAssembly_PA.horizontalHeader().resizeSection(20, 700)
         self.tableAssembly_PA.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
         self.gridLayout_4.addWidget(self.tableAssembly_PA, 3, 0, 1, 1)
 
@@ -968,8 +993,9 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         # self.tableAssembly.horizontalHeader().setSectionResizeMode(19, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         # self.tableAssembly.horizontalHeader().setSectionResizeMode(20, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableAssembly_P.horizontalHeader().setSectionResizeMode(25, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableAssembly_P.horizontalHeader().setDefaultSectionSize(100)
-        self.tableAssembly_P.horizontalHeader().resizeSection(20, 900)
+        self.tableAssembly_P.horizontalHeader().setDefaultSectionSize(80)
+        self.tableAssembly_P.horizontalHeader().resizeSection(16, 60)
+        self.tableAssembly_P.horizontalHeader().resizeSection(20, 700)
         self.tableAssembly_P.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
         self.gridLayout_3.addWidget(self.tableAssembly_P, 2, 0, 1, 1)
 
@@ -1035,8 +1061,9 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         # self.tableAssembly.horizontalHeader().setSectionResizeMode(19, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         # self.tableAssembly.horizontalHeader().setSectionResizeMode(20, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableAssembly_PA.horizontalHeader().setSectionResizeMode(25, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableAssembly_PA.horizontalHeader().setDefaultSectionSize(100)
-        self.tableAssembly_PA.horizontalHeader().resizeSection(20, 900)
+        self.tableAssembly_PA.horizontalHeader().setDefaultSectionSize(80)
+        self.tableAssembly_PA.horizontalHeader().resizeSection(16, 60)
+        self.tableAssembly_PA.horizontalHeader().resizeSection(20, 700)
         self.tableAssembly_PA.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
         self.gridLayout_4.addWidget(self.tableAssembly_PA, 2, 0, 1, 1)
 
@@ -1669,7 +1696,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                 for index in model_indexes:
                     model.setData(index, None)
 
-        elif event.modifiers() and QtCore.Qt.KeyboardModifier.ControlModifier: # Event when ctrl + , is pressed
+        elif event.modifiers() and QtCore.Qt.KeyboardModifier.ControlModifier: # Event when ctrl + comma is pressed
             if event.key() == QtCore.Qt.Key.Key_Comma:
                 selected_indexes = table.selectionModel().selectedIndexes()
                 if not selected_indexes:
@@ -1812,13 +1839,28 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             user_database = dbparam["user"]
             password_database = dbparam["password"]
 
-            db_index = createConnection_name(user_database, password_database, 'drawing' + num_order)
+            db_index = createConnection_name(user_database, password_database, 'drawing' + num_order + '-a')
 
             if not db_index:
                 sys.exit()
 
             self.index_drawing_window = Ui_WorkshopDrawingIndex_Window(db_index, self.username, num_order)
             self.index_drawing_window.showMaximized()
+
+            self.index_drawing_window.closeEvent = lambda event: self.close_drawing_window(num_order, event)
+
+    def close_drawing_window(self, num_order, event):
+        """
+        Handles the close event of index drawing window.
+
+        Args:
+            num_order (str): The order number associated with the window being closed.
+            event (QCloseEvent): The close event that should be accepted to allow the window to close properly.
+        """
+        if num_order in self.open_windows:
+            del self.open_windows[num_order]
+        event.accept()
+
 
 # Function to open colour picker
     def colour_picker(self, table):

@@ -135,7 +135,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 tradcodbror = model.data(model.index(target_row, 113))
                 schbror = model.data(model.index(target_row, 12))
                 designbror = model.data(model.index(target_row, 111)).replace('.',',')
-                processbror = model.data(model.index(target_row, 37))
+                processbror = "" #model.data(model.index(target_row, 37))
                 materialbror = model.data(model.index(target_row, 13))
                 qtybror = model.data(model.index(target_row, 77))
                 orifice_flange_list.append([code_orifice_flange,codefab_orifice_flange,tradcodbror,schbror,designbror,processbror,materialbror,qtybror])
@@ -145,7 +145,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 tradcodbrline = model.data(model.index(target_row, 114))
                 schbrline = model.data(model.index(target_row, 12))
                 designbrline = model.data(model.index(target_row, 111)).replace('.',',')
-                processbrline = model.data(model.index(target_row, 37))
+                processbrline = "" #model.data(model.index(target_row, 37))
                 materialbrline = model.data(model.index(target_row, 13))
                 qtybrline = model.data(model.index(target_row, 80))
                 line_flange_list.append([code_line_flange,codefab_line_flange,tradcodbrline,schbrline,designbrline,processbrline,materialbrline,qtybrline])
@@ -182,7 +182,10 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                                 model.data(model.index(target_row, 11)))
                 designextractor = ('esp. placa ' + model.data(model.index(target_row, 19)))
                 processextractor = ''
-                materialextractor = model.data(model.index(target_row, 22))[:model.data(model.index(target_row, 22)).find(' / ')]
+                material_extractor = re.search(r"^(.*?) / (\S+)(?:\s(\S+))?(?:\s)?(?:\s(.+))?$", model.data(model.index(target_row, 22)))
+                term_1 = material_extractor.group(1)
+                term_4 = material_extractor.group(4) if material_extractor.group(4) else ""
+                materialextractor = f"{term_1} {term_4}"
                 qtyextractor = model.data(model.index(target_row, 66))
                 extractor_list.append([code_extractor,codefab_extractor,tradcodextractor,sizebrida,designextractor,processextractor,materialextractor,qtyextractor])
                 all_list_parts.append(extractor_list)
@@ -218,11 +221,11 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 all_list_parts.append(handle_list)
 
             if code_chring != '':
-                tradcodchring = model.data(model.index(target_row, 121))
-                schchring = 'ESP ' if model.data(model.index(target_row, 11)) != "RTJ" else 'ESP 38,1MM'
-                designchring = model.data(model.index(target_row, 61))
-                processchring = model.data(model.index(target_row, 37))
-                materialchring = model.data(model.index(target_row, 13))
+                tradcodchring = model.data(model.index(target_row, 122))
+                schchring = 'ESP ' if model.data(model.index(target_row, 11)) == "RTJ" else 'ESP 38,5mm ACABADO'
+                designchring = "ø" + str(model.data(model.index(target_row, 61)))
+                processchring = "" #model.data(model.index(target_row, 37))
+                materialchring = model.data(model.index(target_row, 17))
                 qtychring = 1
                 chring_list.append([code_chring,codefab_chring,tradcodchring,schchring,designchring,processchring,materialchring,qtychring])
                 all_list_parts.append(chring_list)
@@ -233,7 +236,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 designplug = ''
                 processplug = ''
                 materialplug = 'ASTM A105' if model.data(model.index(target_row, 85))[-2:] == 'C1' else model.data(model.index(target_row, 13))
-                qtyplug = int(model.data(model.index(target_row, 55)))
+                qtyplug = int(model.data(model.index(target_row, 55))) if model.data(model.index(target_row, 55)) != '' else 0
                 plugs_list.append([code_plugs,codefab_plugs,tradcodplug,modelplug,designplug,processplug,materialplug,qtyplug])
                 all_list_parts.append(plugs_list)
 

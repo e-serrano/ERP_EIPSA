@@ -32,7 +32,6 @@ def imagen_to_base64(imagen):
     base64_data = buffer.data().toBase64().data().decode()
     return base64_data
 
-
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     """
     A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
@@ -53,7 +52,27 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 class CustomTableWidget_Tags(QtWidgets.QTableWidget):
+    """
+    Custom QTableWidget that supports filtering and sorting features.
+
+    Attributes:
+        list_filters (list): Stores filters applied to the table.
+        column_filters (dict): Maps column indices to sets of applied filters.
+        column_actions (dict): Maps column indices to actions related to columns.
+        checkbox_states (dict): Stores the state of checkboxes for filtering.
+        rows_hidden (dict): Maps column indices to sets of hidden row indices.
+        general_rows_to_hide (set): Set of row indices that are hidden across the table.
+    """
     def __init__(self, parent=None):
+        """
+        Initializes the CustomTableWidget.
+
+        Sets up the initial state of the widget, including filters, checkbox states, 
+        and hidden rows.
+
+        Args:
+            parent (QWidget, optional): The parent widget of this table. Defaults to None.
+        """
         super().__init__(parent)
         self.list_filters=[]
         self.column_filters = {}
@@ -64,6 +83,17 @@ class CustomTableWidget_Tags(QtWidgets.QTableWidget):
 
 # Function to show the menu
     def show_unique_values_menu(self, column_index, header_pos, header_height):
+        """
+        Displays a context menu for unique values in a specified column.
+
+        The menu includes options to remove filters, sort the column, and filter by text. 
+        It also allows the user to select/unselect unique values via checkboxes.
+
+        Args:
+            column_index (int): The index of the column for which the menu is displayed.
+            header_pos (QPoint): The position of the header in the viewport.
+            header_height (int): The height of the header.
+        """
         menu = QtWidgets.QMenu(self)
         actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro")
         actionDeleteFilterColumn.triggered.connect(lambda: self.delete_filter(column_index))
@@ -446,7 +476,27 @@ class CustomTableWidget_Tags(QtWidgets.QTableWidget):
             super().contextMenuEvent(event)
 
 class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
+    """
+    Custom QTableWidget that supports filtering and sorting features.
+
+    Attributes:
+        list_filters (list): Stores filters applied to the table.
+        column_filters (dict): Maps column indices to sets of applied filters.
+        column_actions (dict): Maps column indices to actions related to columns.
+        checkbox_states (dict): Stores the state of checkboxes for filtering.
+        rows_hidden (dict): Maps column indices to sets of hidden row indices.
+        general_rows_to_hide (set): Set of row indices that are hidden across the table.
+    """
     def __init__(self, parent=None):
+        """
+        Initializes the CustomTableWidget.
+
+        Sets up the initial state of the widget, including filters, checkbox states, 
+        and hidden rows.
+
+        Args:
+            parent (QWidget, optional): The parent widget of this table. Defaults to None.
+        """
         super().__init__(parent)
         self.list_filters=[]
         self.column_filters = {}
@@ -457,6 +507,17 @@ class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
 
 # Function to show the menu
     def show_unique_values_menu(self, column_index, header_pos, header_height):
+        """
+        Displays a context menu for unique values in a specified column.
+
+        The menu includes options to remove filters, sort the column, and filter by text. 
+        It also allows the user to select/unselect unique values via checkboxes.
+
+        Args:
+            column_index (int): The index of the column for which the menu is displayed.
+            header_pos (QPoint): The position of the header in the viewport.
+            header_height (int): The height of the header.
+        """
         menu = QtWidgets.QMenu(self)
         actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro")
         actionDeleteFilterColumn.triggered.connect(lambda: self.delete_filter(column_index))
@@ -839,7 +900,27 @@ class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
             super().contextMenuEvent(event)
 
 class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
+    """
+    Custom QTableWidget that supports filtering and sorting features.
+
+    Attributes:
+        list_filters (list): Stores filters applied to the table.
+        column_filters (dict): Maps column indices to sets of applied filters.
+        column_actions (dict): Maps column indices to actions related to columns.
+        checkbox_states (dict): Stores the state of checkboxes for filtering.
+        rows_hidden (dict): Maps column indices to sets of hidden row indices.
+        general_rows_to_hide (set): Set of row indices that are hidden across the table.
+    """
     def __init__(self, parent=None):
+        """
+        Initializes the CustomTableWidget.
+
+        Sets up the initial state of the widget, including filters, checkbox states, 
+        and hidden rows.
+
+        Args:
+            parent (QWidget, optional): The parent widget of this table. Defaults to None.
+        """
         super().__init__(parent)
         self.list_filters=[]
         self.column_filters = {}
@@ -850,6 +931,17 @@ class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
 
 # Function to show the menu
     def show_unique_values_menu(self, column_index, header_pos, header_height):
+        """
+        Displays a context menu for unique values in a specified column.
+
+        The menu includes options to remove filters, sort the column, and filter by text. 
+        It also allows the user to select/unselect unique values via checkboxes.
+
+        Args:
+            column_index (int): The index of the column for which the menu is displayed.
+            header_pos (QPoint): The position of the header in the viewport.
+            header_height (int): The height of the header.
+        """
         menu = QtWidgets.QMenu(self)
         actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro")
         actionDeleteFilterColumn.triggered.connect(lambda: self.delete_filter(column_index))
@@ -1232,14 +1324,29 @@ class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
             super().contextMenuEvent(event)
 
 class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
+    """
+    UI class for the Order Verification window.
+    """
     def __init__(self, username, numorder):
+        """
+        Initializes the Ui_New_Offer_Window with the specified username and order number.
+
+        Args:
+            username (str): username associated with the window.
+            numorder (str): order number associated with the window.
+        """
         super().__init__()
         self.username = username
         self.numorder = numorder.upper()
         self.setupUi(self)
 
-
     def setupUi(self, Verif_Order_Window):
+        """
+        Sets up the user interface for the Verif_Order_Window.
+
+        Args:
+            Verif_Order_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         Verif_Order_Window.setObjectName("Verif_Order_Window")
         Verif_Order_Window.resize(790, 595)
         Verif_Order_Window.setMinimumSize(QtCore.QSize(790, 595))
@@ -1491,7 +1598,6 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
         self.query_data()
 
-
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, Verif_Order_Window):
         """
@@ -1547,9 +1653,12 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         item.setText(_translate("TestHardQuery_Window", "Fecha"))
         self.Button_Insert.setText(_translate("TestHardQuery_Window", "Expedir"))
 
-
 # Function to load table and setting in the window
     def query_data(self):
+        """
+        Queries the database for tags, drawings and calibrations for given order, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         query_tags = ("""
                         SELECT id_tag_flow, num_order, tag, item_type, dim_drawing, of_drawing, NULL as of_sensor_drawing, TO_CHAR(pmi_date, 'DD/MM/YYYY'), TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), TO_CHAR(hard_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), NULL as final_verif_of_sensor_date, tag_images, 'tags_data.tags_flow', 'id_tag_flow' FROM tags_data.tags_flow WHERE num_order LIKE ('%%'||%s||'%%')
                         UNION
@@ -1692,18 +1801,30 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
 # Function when header of different tables is clicked
     def on_header_section_clicked_tags(self, logical_index):
+        """
+        Handles the click event on the table header.
+        Displays a context menu for unique values in the clicked column header.
+        """
         header_pos = self.table_tags.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.table_tags.horizontalHeader().height()
         popup_pos = self.table_tags.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.table_tags.show_unique_values_menu(logical_index, popup_pos, header_height)
 
     def on_header_section_clicked_drawings(self, logical_index):
+        """
+        Handles the click event on the table header.
+        Displays a context menu for unique values in the clicked column header.
+        """
         header_pos = self.table_drawings.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.table_drawings.horizontalHeader().height()
         popup_pos = self.table_drawings.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.table_drawings.show_unique_values_menu(logical_index, popup_pos, header_height)
 
     def on_header_section_clicked_calibrations(self, logical_index):
+        """
+        Handles the click event on the table header.
+        Displays a context menu for unique values in the clicked column header.
+        """
         header_pos = self.table_calibrations.horizontalHeader().sectionViewportPosition(logical_index)
         header_height = self.table_calibrations.horizontalHeader().height()
         popup_pos = self.table_calibrations.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
@@ -1712,6 +1833,9 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
 # Functions to count selected cells of different tables
     def countSelectedCells_tags(self):
+        """
+        Counts the number of selected cells and sums their values of tags table. Updates the UI labels with the count and sum.
+        """
         if len(self.table_tags.selectedIndexes()) > 1:
             locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
             self.label_SumItems_tags.setText("")
@@ -1734,6 +1858,9 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
             self.label_CountValue_tags.setText("")
 
     def countSelectedCells_drawings(self):
+        """
+        Counts the number of selected cells and sums their values of drawings table. Updates the UI labels with the count and sum.
+        """
         if len(self.table_drawings.selectedIndexes()) > 1:
             locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
             self.label_SumItems_drawings.setText("")
@@ -1756,6 +1883,9 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
             self.label_CountValue_drawings.setText("")
 
     def countSelectedCells_calibration(self):
+        """
+        Counts the number of selected cells and sums their values of calibration table. Updates the UI labels with the count and sum.
+        """
         if len(self.table_calibrations.selectedIndexes()) > 1:
             locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
             self.label_SumItems_calibration.setText("")
@@ -1779,6 +1909,9 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
 # Function to insert expedition data
     def expedition(self):
+        """
+        Updates the expedition data
+        """
         if self.username == 'm.gil':
             num_order = self.numorder
             verif_date = date.today().strftime("%d/%m/%Y")
@@ -1870,6 +2003,9 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
 # Function when item of table is double clicked
     def item_double_click(self, item):
+        """
+        Opens detailed information when column is double-clicked.
+        """
         if item.text() != '':
             if item.column() == 2: # Msgbox for tag
                 cell_content = item.text()
@@ -2043,7 +2179,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                 table_name = self.table_tags.item(item.row(), 16).text()
                 column_id = self.table_tags.item(item.row(), 17).text()
 
-                query =f"SELECT tag, TO_CHAR(lp_date, 'DD/MM/YYYY'), lp_hn_liq1, lp_hn_liq2, lp_hn_liq3, lp_obs FROM {table_name} WHERE {column_id} = {item_id}"
+                query =f"SELECT tag, TO_CHAR(lp_date, 'DD/MM/YYYY'), lp_hn_liq1, lp_hn_liq2, lp_hn_liq3, lp_obs, lp_state FROM {table_name} WHERE {column_id} = {item_id}"
 
                 conn = None
                 try:
@@ -2071,6 +2207,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                                 "9PR5: " + results[0][2] + "\n"
                                 "9D1B: " + results[0][3] + "\n"
                                 "996PB: " + results[0][4] + "\n"
+                                + results[0][6] + "\n"
                                 "Obs.: " + results[0][5])
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
@@ -2126,6 +2263,6 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    Verif_Order_Window = Ui_Verif_Order_Window('j.valtierra','PA-24/057')
+    Verif_Order_Window = Ui_Verif_Order_Window('j.valtierra','P-24/069')
     Verif_Order_Window.show()
     sys.exit(app.exec())

@@ -13,13 +13,27 @@ basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
 class Ui_TimerWindow(QtWidgets.QMainWindow):
+    """
+    UI class for the Timer window.
+    """
     def __init__(self, username):
+        """
+        Initializes the Ui_TimerWindow with the specified username.
+
+        Args:
+            username (str): username associated with the window.
+        """
         super().__init__()
         self.username = username
         self.setupUi(self)
 
-
     def setupUi(self, TimerWindow):
+        """
+        Sets up the user interface for the TimerWindow.
+
+        Args:
+            TimerWindow (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         TimerWindow.setObjectName("TimerWindow")
         TimerWindow.resize(300, 336)
         TimerWindow.setMinimumSize(QtCore.QSize(1000, 700))
@@ -189,7 +203,6 @@ class Ui_TimerWindow(QtWidgets.QMainWindow):
         self.pause_button.clicked.connect(self.pause_action)
         self.reset_button.clicked.connect(self.reset_action)
 
-
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, TimerWindow):
         """
@@ -204,9 +217,11 @@ class Ui_TimerWindow(QtWidgets.QMainWindow):
         self.button.setText(_translate("TimerWindow", "SET"))
         self.label.setText(_translate("TimerWindow", "TIMER"))
 
-
 # method called by timer
     def showTime(self):
+        """
+        Updates the countdown timer display. 
+        """
 	# checking if flag is true
         if self.start:
 		# incrementing the counter
@@ -225,9 +240,12 @@ class Ui_TimerWindow(QtWidgets.QMainWindow):
             time_text = f"{minutes:02}:{seconds:02}"
             self.label.setText(time_text)
 
-
 # method called by the push button
     def get_seconds(self):
+        """
+        Prompts the user to input the number of minutes for the countdown timer.
+        The input is then converted into seconds, and the timer label is updated accordingly.
+        """
 	# making flag false
         self.start = False
 
@@ -240,21 +258,36 @@ class Ui_TimerWindow(QtWidgets.QMainWindow):
             self.label.setText(self.secs_to_minsec(minutes))
 
     def start_action(self):
+        """
+        Starts the countdown timer if the time is set. 
+        """
         self.start = True
 
         if self.count == 0:
             self.start = False
 
     def pause_action(self):
+        """
+        Pauses the countdown timer by setting the `start` flag to False.
+        """
         self.start = False
 
     def reset_action(self):
+        """
+        Resets the countdown timer to zero, stops it, and updates the display to show "TIMER".
+        """
         self.start = False
         self.count = 0
-        self.label.setText("TIME")
+        self.label.setText("TIMER")
         self.label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
     def secs_to_minsec(self, minutes: int):
+        """
+        Converts a given number of minutes into MM:SS format and returns the formatted time string.
+
+        Args:
+            minutes (integer): Minutes to be converted
+        """
         seconds = minutes * 60
         mins = seconds // 60
         secs = seconds % 60

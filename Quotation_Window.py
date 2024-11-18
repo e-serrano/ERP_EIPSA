@@ -1255,8 +1255,10 @@ class Ui_Quotation_Window(QtWidgets.QMainWindow):
 
         self.Date_Quotation.setText(date.today().strftime("%d/%m/%Y"))
 
-        self.tableQuotations.itemClicked.connect(self.loadformquotation)
-        self.tableRecords.itemClicked.connect(self.loadformsupply)
+        self.tableQuotations.currentCellChanged.connect(self.loadformquotation)
+        self.tableQuotations.cellClicked.connect(self.loadformquotation)
+        self.tableRecords.currentCellChanged.connect(self.loadformsupply)
+        self.tableRecords.cellClicked.connect(self.loadformsupply)
         self.tableQuotations.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
         self.tableRecords.horizontalHeader().sectionClicked.connect(self.on_header_sectionrecords_clicked)
         self.Button_AddQuot.clicked.connect(self.addquotation)
@@ -1319,7 +1321,6 @@ class Ui_Quotation_Window(QtWidgets.QMainWindow):
         self.label_Value.setText(_translate("Quotation_Window", "Valor:"))
         self.label_Obs.setText(_translate("Quotation_Window", "Obs:"))
         self.label_Currency.setText(_translate("Quotation_Window", "Divisa:"))
-
 
 # Function to add quotation data to database
     def addquotation(self):
@@ -1464,175 +1465,165 @@ class Ui_Quotation_Window(QtWidgets.QMainWindow):
             item_text=self.tableRecords.item(row, 8).text()
             data_id.append(item_text)
 
-        if supply_id in data_id:
+        if quotation_id == "":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Agregar Registros")
-            dlg.setText("El artículo ya está registrado")
+            dlg.setText("Por favor, para añadir registros elige una cotización existente o crea una nueva")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
             del dlg,new_icon
 
         else:
-            if quotation_id == "":
+            commands_newrecord = ("""
+                                INSERT INTO purch_fact.quotation_details (
+                                quot_header_id,supply_id,quantity,currency_id,currency_value,value,notes
+                                )
+                                VALUES (%s,%s,%s,%s,%s,%s,%s)
+                                """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                query_currencyid = "SELECT id,euro_value FROM purch_fact.currency WHERE symbol_currency = %s"
+                cur.execute(query_currencyid, (currency,))
+                result_currencyid = cur.fetchone()
+
+            # get id from table
+                currency_id = result_currencyid[0]
+                euro_value = result_currencyid[1]
+                euro_value=euro_value.replace(",",".")
+                euro_value=euro_value[:euro_value.find(" €")]
+                value = round(float(currency_value) * float(euro_value),3)
+            # execution of principal command
+                data=(quotation_id,supply_id,quantity,currency_id,currency_value,value,obsrecord,)
+                cur.execute(commands_newrecord, data)
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+            except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Agregar Registros")
-                dlg.setText("Por favor, para añadir registros elige una cotización existente o crea una nueva")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
-                del dlg,new_icon
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
-            else:
-                commands_newrecord = ("""
-                                    INSERT INTO purch_fact.quotation_details (
-                                    quot_header_id,supply_id,quantity,currency_id,currency_value,value,notes
-                                    )
-                                    VALUES (%s,%s,%s,%s,%s,%s,%s)
-                                    """)
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    query_currencyid = "SELECT id,euro_value FROM purch_fact.currency WHERE symbol_currency = %s"
-                    cur.execute(query_currencyid, (currency,))
-                    result_currencyid = cur.fetchone()
+            self.loadtablerecords()
 
-                # get id from table
-                    currency_id = result_currencyid[0]
-                    euro_value = result_currencyid[1]
-                    euro_value=euro_value.replace(",",".")
-                    euro_value=euro_value[:euro_value.find(" €")]
-                    value = round(float(currency_value) * float(euro_value),2)
-                # execution of principal command
-                    data=(quotation_id,supply_id,quantity,currency_id,currency_value,value,obsrecord,)
-                    cur.execute(commands_newrecord, data)
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+            self.Quantity_Quotation.setText("")
+            self.Value_Quotation.setText("")
+            self.ObsRecord_Quotation.setText("")
+            self.Supply_Quotation.setCurrentIndex(0)
 
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-                self.loadtablerecords()
-
-                self.Quantity_Quotation.setText("")
-                self.Value_Quotation.setText("")
-                self.ObsRecord_Quotation.setText("")
-                self.Supply_Quotation.setCurrentIndex(0)
-
-                self.Supply_Quotation.setFocus()
+            self.Supply_Quotation.setFocus()
 
 # Function to load data of quotation in form fields
-    def loadformquotation(self,item):
+    def loadformquotation(self,current_row):
         """
         Loads the quotation details from a selected row in the table and populates the quotation form fields.
 
         Args:
-            item (QTableWidgetItem): The specific item (row) selected in the table.
+            current_row (int): Number of current row being processing
 
         Raises:
             psycopg2.DatabaseError: If an error occurs while querying the PostgreSQL database.
         """
-        data_quotation=[]
+        if current_row >= 0:
+            data_quotation=[]
 
-        for column in range(6):
-            item_text=self.tableQuotations.item(item.row(), column).text()
-            data_quotation.append(item_text)
+            for column in range(6):
+                item_text=self.tableQuotations.item(current_row, column).text()
+                data_quotation.append(item_text)
 
-        self.label_IDCot.setText(data_quotation[0])
-        self.Supplier_Quotation.setCurrentText(data_quotation[1])
-        self.Date_Quotation.setText(data_quotation[2])
-        self.Notes_Quotation.setPlainText(data_quotation[5])
+            self.label_IDCot.setText(data_quotation[0])
+            self.Supplier_Quotation.setCurrentText(data_quotation[1])
+            self.Date_Quotation.setText(data_quotation[2])
+            self.Notes_Quotation.setPlainText(data_quotation[5])
 
-        self.label_IDRecord.setText("")
-        self.Supply_Quotation.setCurrentIndex(0)
-        self.Quantity_Quotation.setText("")
-        self.Value_Quotation.setText("")
-        self.Currency_Quotation.setCurrentText("€")
-        self.ObsRecord_Quotation.setText("")
+            self.label_IDRecord.setText("")
+            self.Supply_Quotation.setCurrentIndex(0)
+            self.Quantity_Quotation.setText("")
+            self.Value_Quotation.setText("")
+            self.Currency_Quotation.setCurrentText("€")
+            self.ObsRecord_Quotation.setText("")
 
-        self.loadtablerecords()
+            self.loadtablerecords()
 
 # Function to load data of supply in form fields
-    def loadformsupply(self,item):
+    def loadformsupply(self,current_row):
         """
         Loads supply data from the selected row in the supply table and populates the form fields.
 
         Args:
-            item (QTableWidgetItem): The item representing the selected row in the supply table.
+            current_row (int): Number of current row being processing
         """
-        data_supply=[]
+        if current_row >= 0:
+            data_supply=[]
 
-        for column in range(9):
-            item_text=self.tableRecords.item(item.row(), column).text()
-            data_supply.append(item_text)
+            for column in range(9):
+                item_text=self.tableRecords.item(current_row, column).text()
+                data_supply.append(item_text)
 
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            query_stocks = "SELECT physical_stock, available_stock, pending_stock FROM purch_fact.supplies WHERE id = %s"
-            cur.execute(query_stocks, (data_supply[8],))
-            result_stocks = cur.fetchone()
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                query_stocks = "SELECT physical_stock, available_stock, pending_stock FROM purch_fact.supplies WHERE id = %s"
+                cur.execute(query_stocks, (data_supply[8],))
+                result_stocks = cur.fetchone()
 
-        # get id from table
-            stock = result_stocks[0]
-            available = result_stocks[1]
-            pending = result_stocks[2]
+            # get id from table
+                stock = result_stocks[0]
+                available = result_stocks[1]
+                pending = result_stocks[2]
 
-            self.Supply_Quotation.setCurrentText(data_supply[1] + " | " + data_supply[2] + " | " + str(round(stock,2)) + " | " + str(round(available,2)) + " | " + str(round(pending, 2)) + " | ID:" + data_supply[8])
+                self.Supply_Quotation.setCurrentText(data_supply[1] + " | " + data_supply[2] + " | " + str(round(stock,2)) + " | " + str(round(available,2)) + " | " + str(round(pending, 2)) + " | ID:" + data_supply[8])
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
 
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
-        self.label_IDRecord.setText(data_supply[0])
-        self.Quantity_Quotation.setText(data_supply[3])
-        self.Value_Quotation.setText(data_supply[4])
-        self.Currency_Quotation.setCurrentText(data_supply[5])
-        self.ObsRecord_Quotation.setText(data_supply[7])
+            self.label_IDRecord.setText(data_supply[0])
+            self.Quantity_Quotation.setText(data_supply[3])
+            self.Value_Quotation.setText(data_supply[4])
+            self.Currency_Quotation.setCurrentText(data_supply[5])
+            self.ObsRecord_Quotation.setText(data_supply[7])
 
 # Function to modify quotation data
     def modifyquotation(self):
@@ -2022,8 +2013,8 @@ class Ui_Quotation_Window(QtWidgets.QMainWindow):
             self.tableRecords.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableRecords.setColumnWidth(i, 100)
         self.tableRecords.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableRecords.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableRecords.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableRecords.setColumnWidth(2,600)
         self.tableRecords.hideColumn(0)
         self.tableRecords.hideColumn(8)
 
@@ -2072,7 +2063,7 @@ class Ui_Quotation_Window(QtWidgets.QMainWindow):
         self.tableRecords.show_unique_values_menu(logical_index, popup_pos, header_height)
 
 # Function to move table to specific item by text search
-    def position_table_P(self):
+    def position_table(self):
         """
         Selects and scrolls to the row in the Client Order P- table based on the input position.
         """

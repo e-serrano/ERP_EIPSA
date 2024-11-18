@@ -14,6 +14,7 @@ from openpyxl.drawing.spreadsheet_drawing import AnchorMarker, TwoCellAnchor
 from PyQt6 import QtGui, QtWidgets
 import os
 from math import exp
+import re
 
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -481,7 +482,7 @@ class offer_flow:
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B49"] = rich_string
 
-                ws["A56"] = (
+                ws["A58"] = (
                     "If you require further information related with this offer, please do not hesitate to contact:\n"
                     + responsible
                     + "\n"
@@ -686,7 +687,7 @@ class offer_flow:
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B49"] = rich_string
 
-                ws["A56"] = (
+                ws["A58"] = (
                     "If you require further information related with this offer, please do not hesitate to contact:\n"
                     + responsible
                     + "\n"
@@ -4587,9 +4588,6 @@ class offer_level:
                         "position",
                         "subposition",
                         "proc_conn_type",
-                        "dv_size",
-                        "dv_rating",
-                        "dv_facing",
                         "flags",
                         "flange_type",
                         "nipple_hex",
@@ -4643,14 +4641,19 @@ class offer_level:
 
                     if eq_type == "LEVEL GAUGES ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
+                                "dv_size",
+                                "dv_rating",
+                                "dv_facing",
                                 "float_material"],
                             axis=1,)
                     elif eq_type == "MAGNETIC ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
-                                "gasket_mica",
-                                "stud_nuts_material",
+                                "dv_conn",
+                                "item_type",
+                                "valve_type",
+                                "case_cover_material",
                                 "illuminator",
-                                "antifrost"],
+                                "ip_code"],
                             axis=1,)
 
                     ws = self.wb_commercial[eq_type]
@@ -4678,32 +4681,32 @@ class offer_level:
                             cell = ws.cell(row=last_row + 1, column=col_num)
                             cell.value = value
                             if col_num == num_column_amount:
-                                cell._style = ws["AG1"]._style
+                                cell._style = ws["AH1"]._style
                             else:
-                                cell._style = ws["AB1"]._style
+                                cell._style = ws["AC1"]._style
 
                         last_row = ws.max_row
 
                     ws[f"A{last_row+3}"] = "OFFER VALIDITY: " + validity + " DAYS"
-                    ws[f"A{last_row+3}"]._style = ws["AI1"]._style
+                    ws[f"A{last_row+3}"]._style = ws["AJ1"]._style
                     ws[f"A{last_row+4}"] = (
                         "DELIVERY TIME: "
                         + delivery_time
                         + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
                     )
-                    ws[f"A{last_row+4}"]._style = ws["AI1"]._style
+                    ws[f"A{last_row+4}"]._style = ws["AJ1"]._style
 
                     if notes != "":
                         if isinstance(notes, list):
                             line = last_row + 5
                             for note in notes:
                                 ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["AI1"]._style
+                                ws[f"A{line}"]._style = ws["AJ1"]._style
                                 line += 1
                         else:
                             line = last_row + 5
                             ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["AI1"]._style
+                            ws[f"A{line}"]._style = ws["AJ1"]._style
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
@@ -4716,9 +4719,9 @@ class offer_level:
                     parts_key = key.split(" ")
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
                     ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AB1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AD1"]._style
 
                     row_amount += 2
 
@@ -4731,24 +4734,24 @@ class offer_level:
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
                 ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AA1"]._style
+                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AB1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AB1"]._style
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AD1"]._style
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["AC1"]._style
+                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["AD1"]._style
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["AC1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["AD1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["AD1"]._style
+                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["AD1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["AE1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["AE1"]._style
                 ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AE1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["AA1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AF1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["AB1"]._style
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AF1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AG1"]._style
 
             # Editing sheet NOTES
                 sheet_name = "NOTES"  # Selecting  sheet
@@ -4972,58 +4975,58 @@ class offer_level:
                 ws["B22"] = rich_string
 
                 if pay_term == "100_delivery":
-                    ws["B45"] = (
+                    ws["B42"] = (
                         "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
                         "Payment method: bank transfer"
                     )
-                    ws["B46"] = (
+                    ws["B43"] = (
                         "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
                         "Método de pago: Transferencia bancaria."
                     )
                 elif pay_term == "100_order":
-                    ws["B45"] = (
+                    ws["B42"] = (
                         "100 % of the total amount of purchase order upon receipt of purchase order.\n"
                         "Payment method: bank transfer"
                     )
-                    ws["B46"] = (
+                    ws["B43"] = (
                         "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
                         "Método de pago: Transferencia bancaria"
                     )
                 elif pay_term == "90_10":
-                    ws["B45"] = (
+                    ws["B42"] = (
                         "PAYMENT TERMS:\n"
                         "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
-                    ws["B46"] = (
+                    ws["B43"] = (
                         "TERMINOS DE PAGO:\n"
                         "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
                         "Transferencia Bancaria: 60 días desde emision de factura."
                     )
                 elif pay_term == "50_50":
-                    ws["B45"] = (
+                    ws["B42"] = (
                         "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
                         "Payment method: bank transfer."
                     )
-                    ws["B46"] = (
+                    ws["B43"] = (
                         "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
                         "Método de pago: Transferencia bancaria."
                     )
                 elif pay_term == "Others":
-                    ws["B45"] = "PAYMENT TERMS TO BE DEFINED"
-                    ws["B45"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                    ws["B46"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B46"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+                    ws["B42"] = "PAYMENT TERMS TO BE DEFINED"
+                    ws["B43"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
+                    ws["B42"] = "TERMINOS DE PAGO POR DEFINIR"
+                    ws["B43"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
 
                 rich_string = CellRichText(
                 'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
                 TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                ws["B48"] = rich_string
+                ws["B45"] = rich_string
 
                 rich_string = CellRichText(
                 'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B49"] = rich_string
+                ws["B46"] = rich_string
 
                 ws["A56"] = (
                     "If you require further information related with this offer, please do not hesitate to contact:\n"
@@ -5213,9 +5216,6 @@ class offer_short_level_spanish:
                         "position",
                         "subposition",
                         "proc_conn_type",
-                        "dv_size",
-                        "dv_rating",
-                        "dv_facing",
                         "flags",
                         "flange_type",
                         "nipple_hex",
@@ -5269,14 +5269,19 @@ class offer_short_level_spanish:
 
                     if eq_type == "LEVEL GAUGES ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
+                                "dv_size",
+                                "dv_rating",
+                                "dv_facing",
                                 "float_material"],
                             axis=1,)
                     elif eq_type == "MAGNETIC ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
-                                "gasket_mica",
-                                "stud_nuts_material",
+                                "dv_conn",
+                                "item_type",
+                                "valve_type",
+                                "case_cover_material",
                                 "illuminator",
-                                "antifrost"],
+                                "ip_code"],
                             axis=1,)
 
                     ws = self.wb_commercial[eq_type]
@@ -5757,9 +5762,6 @@ class offer_short_level_english:
                         "position",
                         "subposition",
                         "proc_conn_type",
-                        "dv_size",
-                        "dv_rating",
-                        "dv_facing",
                         "flags",
                         "flange_type",
                         "nipple_hex",
@@ -5813,14 +5815,19 @@ class offer_short_level_english:
 
                     if eq_type == "LEVEL GAUGES ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
+                                "dv_size",
+                                "dv_rating",
+                                "dv_facing",
                                 "float_material"],
                             axis=1,)
                     elif eq_type == "MAGNETIC ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
-                                "gasket_mica",
-                                "stud_nuts_material",
+                                "dv_conn",
+                                "item_type",
+                                "valve_type",
+                                "case_cover_material",
                                 "illuminator",
-                                "antifrost"],
+                                "ip_code"],
                             axis=1,)
 
                     ws = self.wb_commercial[eq_type]
@@ -6297,61 +6304,100 @@ class order_ovr:
             num_order (str): The order number.
         """
         self.num_order = num_order
-        dict_orders ={}
+        dict_orders = {}
 
-        if self.num_order[:2] == 'PA':
+        query_order_data = ("""
+                        SELECT orders."num_order", orders."order_date", orders."num_ref_order"
+                        FROM orders
+                        WHERE (
+                        UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
+                        )
+                        ORDER BY orders."num_order"
+                        """)
+
+        query_flow = ('''
+            SELECT tags_data.tags_flow."num_order"
+            FROM tags_data.tags_flow
+            WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
+            ''')
+        query_temp = ('''
+            SELECT tags_data.tags_temp."num_order"
+            FROM tags_data.tags_temp
+            WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
+            ''')
+        query_level = ('''
+            SELECT tags_data.tags_level."num_order"
+            FROM tags_data.tags_level
+            WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
+            ''')
+        query_others = ('''
+            SELECT tags_data.tags_others."num_order"
+            FROM tags_data.tags_others
+            WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
+            ''')
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(query_order_data,(self.num_order,))
+            results_orders=cur.fetchall()
+
+            for result in results_orders:
+                dict_orders[result[0]] = result[1]
+
+            cur.execute(query_flow,(self.num_order,))
+            results_flow=cur.fetchall()
+            cur.execute(query_temp,(self.num_order,))
+            results_temp=cur.fetchall()
+            cur.execute(query_level,(self.num_order,))
+            results_level=cur.fetchall()
+            cur.execute(query_others,(self.num_order,))
+            results_others=cur.fetchall()
+
+            if len(results_flow) != 0:
+                self.variable = 'Caudal'
+            elif len(results_temp) != 0:
+                self.variable = 'Temperatura'
+            elif len(results_level) != 0:
+                self.variable = 'Nivel'
+            elif len(results_others) != 0:
+                self.variable = 'Otros'
+            else:
+                self.variable = ''
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+            if self.variable == 'Caudal':
+                self.table_name = "tags_data.tags_flow"
+            elif self.variable == 'Temperatura':
+                self.table_name = "tags_data.tags_temp"
+            elif self.variable == 'Nivel':
+                self.table_name = "tags_data.tags_level"
+            elif self.variable == 'Otros':
                 self.table_name = "tags_data.tags_others"
-
-        else:
-            query_material = ("""
-                            SELECT orders."num_order",orders."num_offer",product_type."variable",orders."order_date",orders."num_ref_order"
-                            FROM offers
-                            INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
-                            INNER JOIN product_type ON (offers."material"=product_type."material")
-                            WHERE (UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
-                            )
-                            ORDER BY orders."num_order"
-                            """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(query_material,(self.num_order,))
-                results_orders=cur.fetchall()
-                material = results_orders[0][2]
-
-                for result in results_orders:
-                    dict_orders[result[0]] = result[3]
-
-            except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
-
-                if material == 'Caudal':
-                    self.table_name = "tags_data.tags_flow"
-                elif material == 'Temperatura':
-                    self.table_name = "tags_data.tags_temp"
-                elif material == 'Nivel':
-                    self.table_name = "tags_data.tags_level"
+            else:
+                self.table_name = ''
 
         commands_tags = f" SELECT num_order, position, subposition, tag, TO_CHAR(contractual_date, 'DD/MM/YYYY'), TO_CHAR(dwg_state_date, 'DD/MM/YYYY'), inspection, TO_CHAR(irc_date, 'DD/MM/YYYY'), TO_CHAR(rn_date, 'DD/MM/YYYY'), TO_CHAR(rn_date + INTERVAL '1 day' * 7, 'DD/MM/YYYY') AS rn_date_plus_7_days FROM {self.table_name} WHERE num_order LIKE UPPER ('%%'||'{self.num_order}'||'%%') ORDER BY num_order"
         self.num_columns = 10
-        column_headers = ['Sup.', 'Pos', 'SubPos.', 'TAG', 'DELIVERY DATE PO', 'DATE DRAWING APPROVAL', 'NOI', 'DATE IRC', 'DATE RN', 'NEW DELIVERY DATE']
+        column_headers = ['Sup.', 'Pos', 'SubPos.', 'TAG', 'PO DELIVERY DATE ', 'DRAWING APPROVAL DATE', 'INSPECTION NUMBER', 'INSPECTION DATE', 'DATE RN', 'NEW DELIVERY DATE']
 
         try:
         # read the connection parameters
@@ -6360,8 +6406,9 @@ class order_ovr:
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
 
-            cur.execute(commands_tags)
-            results=cur.fetchall()
+            if self.variable != '':
+                cur.execute(commands_tags)
+                results=cur.fetchall()
 
         # close communication with the PostgreSQL database server
             cur.close()
@@ -6383,32 +6430,45 @@ class order_ovr:
             if conn is not None:
                 conn.close()
 
+        if self.variable != '':
+            data_tags = pd.DataFrame(data=results, columns=column_headers)
 
-        data_tags = pd.DataFrame(data=results, columns=column_headers)
+            index_tags = data_tags.columns.get_loc('TAG')
+            data_tags.insert(index_tags + 1, 'PO DATE',0)
 
-        index_tags = data_tags.columns.get_loc('TAG')
-        data_tags.insert(index_tags + 1, 'PO DATE',0)
+            data_tags['PO DATE'] = data_tags['Sup.'].apply(lambda x: dict_orders[x])
+            data_tags['Sup.'] = data_tags['Sup.'].apply(lambda x: x[-1])
 
-        data_tags['PO DATE'] = data_tags['Sup.'].apply(lambda x: dict_orders[x])
-        data_tags['Sup.'] = data_tags['Sup.'].apply(lambda x: x[-1])
+            self.wb_ovr = load_workbook(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OVR.xlsx")
 
-        self.wb_ovr = load_workbook(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA OVR.xlsx")
+            sheet_name = "ANNEX I"
+            ws = self.wb_ovr[sheet_name]
 
-        sheet_name = "ANNEX I"
-        ws = self.wb_ovr[sheet_name]
+            if len(dict_orders) > 1:
+                ws["A1"] = "ANNEX I - " + results_orders[0][2] + " (" + re.match(r"([A-Z]+-\d+/\d+)", results_orders[0][0]).group(1) + "-S00 to S0" + str(len(dict_orders)) + ")"
+            else:
+                ws["A1"] = "ANNEX I - " + results_orders[0][2] + " (" + re.match(r"([A-Z]+-\d+/\d+)", results_orders[0][0]).group(1) + "-S00)"
 
-        if len(dict_orders) > 0:
-            ws["A1"] = "ANNEX I - " + results_orders[0][4] + " " + results_orders[0][4][8] + " (S00 to S0" + str(len(dict_orders)) + ")"
+            last_row = 4
+            for index, row in data_tags.iterrows():  # Data in desired row
+                for col_num, value in enumerate(row, start=1):
+                    cell = ws.cell(row=last_row, column=col_num)
+                    cell.value = value
+
+                last_row = last_row + 1
+
+            self.save_excel_ovr()
+
         else:
-            ws["A1"] = "ANNEX I - " + results_orders[0][4] + " " + results_orders[0][4][8] + " (S00)"
-
-        last_row = 4
-        for index, row in data_tags.iterrows():  # Data in desired row
-            for col_num, value in enumerate(row, start=1):
-                cell = ws.cell(row=last_row, column=col_num)
-                cell.value = value
-
-            last_row = last_row + 1
+            dlg_error = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg_error.setWindowIcon(new_icon)
+            dlg_error.setWindowTitle("Generar OVR")
+            dlg_error.setText("No existen tags de este pedido en el ERP")
+            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg_error.exec()
+            del dlg_error,new_icon
 
     def save_excel_ovr(self):
         """Saves the populated Excel workbook to a specified location.

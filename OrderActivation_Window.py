@@ -29,9 +29,9 @@ class Ui_OrderActivation_Window(object):
             OrderActivation_Window (QtWidgets.QMainWindow): The main window for the UI setup.
         """
         OrderActivation_Window.setObjectName("OrderActivation_Window")
-        OrderActivation_Window.resize(300, 450)
-        OrderActivation_Window.setMinimumSize(QtCore.QSize(300, 450))
-        OrderActivation_Window.setMaximumSize(QtCore.QSize(300, 450))
+        OrderActivation_Window.resize(300, 650)
+        OrderActivation_Window.setMinimumSize(QtCore.QSize(300, 650))
+        OrderActivation_Window.setMaximumSize(QtCore.QSize(300, 650))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         OrderActivation_Window.setWindowIcon(icon)
@@ -142,6 +142,87 @@ class Ui_OrderActivation_Window(object):
         self.info_orderactivation.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.info_orderactivation.setObjectName("info_orderactivation")
         self.verticalLayout.addWidget(self.info_orderactivation, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.label_tests = QtWidgets.QLabel(parent=self.frame)
+        self.label_tests.setEnabled(True)
+        self.label_tests.setMinimumSize(QtCore.QSize(200, 30))
+        self.label_tests.setMaximumSize(QtCore.QSize(200, 30))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.label_tests.setFont(font)
+        self.label_tests.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.label_tests.setObjectName("label_tests")
+        self.verticalLayout.addWidget(self.label_tests, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.checkbox_pmi = QtWidgets.QCheckBox(parent=self.frame)
+        self.checkbox_pmi.setEnabled(True)
+        self.checkbox_pmi.setMinimumSize(QtCore.QSize(200, 30))
+        self.checkbox_pmi.setMaximumSize(QtCore.QSize(200, 30))
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.checkbox_pmi.setFont(font)
+        self.checkbox_pmi.setObjectName("checkbox_pmi")
+        self.checkbox_pmi.setText('PMI')
+        self.verticalLayout.addWidget(self.checkbox_pmi, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.checkbox_ultrasound = QtWidgets.QCheckBox(parent=self.frame)
+        self.checkbox_ultrasound.setEnabled(True)
+        self.checkbox_ultrasound.setMinimumSize(QtCore.QSize(200, 30))
+        self.checkbox_ultrasound.setMaximumSize(QtCore.QSize(200, 30))
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.checkbox_ultrasound.setFont(font)
+        self.checkbox_ultrasound.setObjectName("checkbox_ultrasound")
+        self.checkbox_ultrasound.setText('Ultrasonidos')
+        self.verticalLayout.addWidget(self.checkbox_ultrasound, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.checkbox_xray = QtWidgets.QCheckBox(parent=self.frame)
+        self.checkbox_xray.setEnabled(True)
+        self.checkbox_xray.setMinimumSize(QtCore.QSize(200, 30))
+        self.checkbox_xray.setMaximumSize(QtCore.QSize(200, 30))
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.checkbox_xray.setFont(font)
+        self.checkbox_xray.setObjectName("checkbox_xray")
+        self.checkbox_xray.setText('Radiografías')
+        self.verticalLayout.addWidget(self.checkbox_xray, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.checkbox_ph_ext = QtWidgets.QCheckBox(parent=self.frame)
+        self.checkbox_ph_ext.setEnabled(True)
+        self.checkbox_ph_ext.setMinimumSize(QtCore.QSize(200, 30))
+        self.checkbox_ph_ext.setMaximumSize(QtCore.QSize(200, 30))
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.checkbox_ph_ext.setFont(font)
+        self.checkbox_ph_ext.setObjectName("checkbox_ph_ext")
+        self.checkbox_ph_ext.setText('Prueba Hidráulica Externa')
+        self.verticalLayout.addWidget(self.checkbox_ph_ext, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.checkbox_lp = QtWidgets.QCheckBox(parent=self.frame)
+        self.checkbox_lp.setEnabled(True)
+        self.checkbox_lp.setMinimumSize(QtCore.QSize(200, 30))
+        self.checkbox_lp.setMaximumSize(QtCore.QSize(200, 30))
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.checkbox_lp.setFont(font)
+        self.checkbox_lp.setObjectName("checkbox_lp")
+        self.checkbox_lp.setText('Líquidos Penetrantes')
+        self.verticalLayout.addWidget(self.checkbox_lp, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.checkbox_calibration = QtWidgets.QCheckBox(parent=self.frame)
+        self.checkbox_calibration.setEnabled(True)
+        self.checkbox_calibration.setMinimumSize(QtCore.QSize(200, 30))
+        self.checkbox_calibration.setMaximumSize(QtCore.QSize(200, 30))
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.checkbox_calibration.setFont(font)
+        self.checkbox_calibration.setObjectName("checkbox_calibration")
+        self.checkbox_calibration.setText('Calibración')
+        self.verticalLayout.addWidget(self.checkbox_calibration, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.checkbox_stress = QtWidgets.QCheckBox(parent=self.frame)
+        self.checkbox_stress.setEnabled(True)
+        self.checkbox_stress.setMinimumSize(QtCore.QSize(200, 30))
+        self.checkbox_stress.setMaximumSize(QtCore.QSize(200, 30))
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.checkbox_stress.setFont(font)
+        self.checkbox_stress.setObjectName("checkbox_stress")
+        self.checkbox_stress.setText('Cálculos Stress')
+        self.verticalLayout.addWidget(self.checkbox_stress, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
         self.generate_orderactivation = QtWidgets.QPushButton(parent=self.frame)
         self.generate_orderactivation.setEnabled(True)
         self.generate_orderactivation.setMinimumSize(QtCore.QSize(200, 35))
@@ -213,6 +294,7 @@ class Ui_OrderActivation_Window(object):
         self.label_numorder_orderactivation.setText(_translate("OrderActivation_Window", "Número Pedido:"))
         self.label_info_orderactivation.setText(_translate("OrderActivation_Window", "Info adicional:"))
         self.label_info_example.setText(_translate("OrderActivation_Window", "Mínimo indicar nº y tipo de equipo.\nEj: Son 25 bridas+placas"))
+        self.label_tests.setText(_translate("OrderActivation_Window", "Extras:"))
         self.generate_orderactivation.setText(_translate("OrderActivation_Window", "Activar"))
 
 
@@ -222,6 +304,31 @@ class Ui_OrderActivation_Window(object):
         """
         numorder=self.numorder_orderactivation.text()
         adit_info=self.info_orderactivation.toPlainText()
+
+        extras_list =[]
+
+        if self.checkbox_pmi.checkState() == QtCore.Qt.CheckState.Checked:
+            extras_list.append('PMI')
+
+        if self.checkbox_ultrasound.checkState() == QtCore.Qt.CheckState.Checked:
+            extras_list.append('Ultrasonidos')
+
+        if self.checkbox_xray.checkState() == QtCore.Qt.CheckState.Checked:
+            extras_list.append('Radiografías')
+
+        if self.checkbox_ph_ext.checkState() == QtCore.Qt.CheckState.Checked:
+            extras_list.append('Prueba Hidráulica Externa')
+
+        if self.checkbox_lp.checkState() == QtCore.Qt.CheckState.Checked:
+            extras_list.append('Líquidos Penetrantes')
+
+        if self.checkbox_calibration.checkState() == QtCore.Qt.CheckState.Checked:
+            extras_list.append('Calibración')
+
+        if self.checkbox_stress.checkState() == QtCore.Qt.CheckState.Checked:
+            extras_list.append('Cálculos Stress')
+
+        extras_text = '\n'.join(extras_list)
 
         if len(adit_info) == 0 or len(numorder) == 0:
             dlg = QtWidgets.QMessageBox()
@@ -250,7 +357,7 @@ class Ui_OrderActivation_Window(object):
             commands_mail_copy = ("""SELECT email FROM users_data.registration
                                 WHERE (profile = 'Dirección'
                                 OR
-                                profile = 'DirecciónF'
+                                profile = 'SubDirección'
                                 )
                                 """)
             commands_queryorder = ("""
@@ -307,8 +414,9 @@ class Ui_OrderActivation_Window(object):
                         cur.execute(commands_mail_copy)
                         results_mailcopy=cur.fetchall()
                         mails_copy = [x[0] for x in results_mailcopy]
+                        mails_copy.insert(0,'ana-calvo@eipsa.es')
 
-                        mail = email_order_activation(numorder, num_ref_order, client, final_client, expected_date, name_responsible, mails_sendto, mails_copy, adit_info, email_responsible)
+                        mail = email_order_activation(numorder, num_ref_order, client, final_client, expected_date, name_responsible, mails_sendto, mails_copy, adit_info, email_responsible, extras_text)
                         mail.send_email()
 
                     # close communication with the PostgreSQL database server

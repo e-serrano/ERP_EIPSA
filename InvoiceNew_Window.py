@@ -864,7 +864,7 @@ class MultiLineDelegate(QtWidgets.QStyledItemDelegate):
         """
         editor.setGeometry(option.rect)
 
-class CustomProxyModel(QtCore.QSortFilterProxyModel):
+class CustomProxyModel(QtCore.QSortFilterProxyModel): 
     """
     A custom proxy model that filters table rows based on expressions set for specific columns.
 
@@ -897,7 +897,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
         """
         return self._filters
 
-    def setFilter(self, expresion, column, action_name=None):
+    def setFilter(self, expresion, column, action_name=None, exact_match=False):
         """
         Apply a filter expression to a specific column, or remove it if necessary.
 
@@ -905,17 +905,18 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
             expresion (str): The filter expression.
             column (int): The index of the column to apply the filter to.
             action_name (str, optional): Name of the action, can be empty. Defaults to None.
+            exact_match (bool, optional): If True, use exact matching for the filter. Defaults to False.
         """
-        if expresion or expresion == "":
+        if expresion or expresion == '':
             if column in self.filters:
-                if action_name or action_name == "":
+                if action_name or action_name == '':
                     self.filters[column].remove(expresion)
                 else:
-                    self.filters[column].append(expresion)
+                    self.filters[column].append((expresion, exact_match))
             else:
-                self.filters[column] = [expresion]
+                self.filters[column] = [(expresion, exact_match)]
         elif column in self.filters:
-            if action_name or action_name == "":
+            if action_name or action_name == '':
                 self.filters[column].remove(expresion)
                 if not self.filters[column]:
                     del self.filters[column]
@@ -937,29 +938,192 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
         for column, expresions in self.filters.items():
             text = self.sourceModel().index(source_row, column, source_parent).data()
 
-            if isinstance(text, QtCore.QDate):  # Check if filters are QDate. If True, convert to text
+            if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
                 text = text.toString("yyyy-MM-dd")
 
-            for expresion in expresions[0]:
-                if expresion == "":  # If expression is empty, match empty cells
-                    if text == "":
+            match_found = False 
+
+            for expresion, exact_match in expresions:
+                if expresion == '':  # If expression is empty, match empty cells
+                    if text == '':
                         break
 
-                elif re.fullmatch(r"^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$", expresion):
+                if exact_match:
+                    if text in expresion:  # Verificar si `text` está en la lista `expresion`
+                        match_found = True
+                        break
+                
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
-
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
 
                 else:
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
-            else:
+
+            if not match_found:
                 return False
         return True
+
+class CustomProxyModel_relational(QtCore.QSortFilterProxyModel):
+    """
+    A custom proxy model that filters table rows based on expressions set for specific columns.
+
+    Attributes:
+        _filters (dict): A dictionary to store filter expressions for columns.
+        header_names (dict): A dictionary to store header names for the table.
+
+    Properties:
+        filters: Getter for the current filter dictionary.
+
+    """
+    def __init__(self, column_display_mapping, parent=None):
+        """
+        Get the current filter expressions applied to columns.
+
+        Args:
+            column_display_mapping (dict): Dictionary to map origin column index to column index to be displayed.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
+        super().__init__(parent)
+        self.column_display_mapping = column_display_mapping 
+        self._filters = dict()
+        self.header_names = {}
+
+    @property
+    def filters(self):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
+        return self._filters
+
+    def setFilter(self, expresion, column, action_name=None, exact_match=False):
+        """
+        Apply a filter expression to a specific column, or remove it if necessary.
+
+        Args:
+            expresion (str): The filter expression.
+            column (int): The index of the column to apply the filter to.
+            action_name (str, optional): Name of the action, can be empty. Defaults to None.
+            exact_match (bool, optional): If True, use exact matching for the filter. Defaults to False.
+        """
+        if expresion or expresion == '':
+            if column in self.filters:
+                if action_name or action_name == '':
+                    self.filters[column].remove(expresion)
+                else:
+                    self.filters[column].append((expresion, exact_match))
+            else:
+                self.filters[column] = [(expresion, exact_match)]
+        elif column in self.filters:
+            if action_name or action_name == '':
+                self.filters[column].remove(expresion)
+                if not self.filters[column]:
+                    del self.filters[column]
+            else:
+                del self.filters[column]
+        self.invalidateFilter()
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        """
+        Check if a row passes the filter criteria based on the column filters.
+
+        Args:
+            source_row (int): The row number in the source model.
+            source_parent (QModelIndex): The parent index of the row.
+
+        Returns:
+            bool: True if the row meets the filter criteria, False otherwise.
+        """
+        for column, expresions in self.filters.items():
+            text = self.sourceModel().index(source_row, column, source_parent).data()
+
+            if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
+                text = text.toString("yyyy-MM-dd")
+
+            match_found = False 
+
+            for expresion, exact_match in expresions:
+                if expresion == '':  # If expression is empty, match empty cells
+                    if text == '':
+                        break
+
+                if exact_match:
+                    if text in expresion:  # Verificar si `text` está en la lista `expresion`
+                        match_found = True
+                        break
+                
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
+                    expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
+                    expresion = expresion.toString("yyyy-MM-dd")
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    if regex.match(str(text)).hasMatch():
+                        match_found = True
+                        break
+
+                else:
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    if regex.match(str(text)).hasMatch():
+                        match_found = True
+                        break
+
+            if not match_found:
+                return False
+        return True
+
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        """
+        Override the data method to handle relational columns correctly when using a QSortFilterProxyModel.
+
+        Args:
+            index (QModelIndex): The index in the source model.
+            role (Qt.ItemDataRole): The role for which data is requested.
+
+        Returns:
+            QVariant: The data for the given role and index, with support for relational columns.
+        """
+        # Get the source model (assumed to be QSqlRelationalTableModel)
+        source_model = self.sourceModel()
+
+        if isinstance(source_model, QtSql.QSqlRelationalTableModel):
+            # Check if the column has a relation
+            relation = source_model.relation(index.column())
+            if relation.isValid() and role == Qt.ItemDataRole.DisplayRole:
+                # Get the related model for the column
+                related_model = source_model.relationModel(index.column())
+
+                # Get the related index using the value from the source model's column
+                related_value = source_model.data(source_model.index(index.row(), index.column()), Qt.ItemDataRole.EditRole)
+
+                # Get the column index to display from the mapping
+                display_column_index = self.column_display_mapping.get(index.column())
+
+                if display_column_index is not None:
+                    # Look up the related display value using the mapped display_column_index
+                    related_index = related_model.match(
+                        related_model.index(0, 0),  # Match the first column (id column)
+                        Qt.ItemDataRole.EditRole, 
+                        related_value, 
+                        1,  # Only one match expected
+                        QtCore.Qt.MatchFlag.MatchExactly
+                    )
+
+                    if related_index:
+                        return related_model.data(related_model.index(related_index[0].row(), display_column_index), role)
+
+        # Fall back to the default behavior if it's not a relational column
+        return super().data(index, role)
 
 class EditableTableModel(QtSql.QSqlTableModel):
     """
@@ -1068,6 +1232,243 @@ class EditableTableModel(QtSql.QSqlTableModel):
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
 
+class EditableTableModel_Invoice(QtSql.QSqlRelationalTableModel):
+    """
+    A custom SQL table model that supports editable columns, headers, and special flagging behavior based on user permissions.
+
+    Signals:
+        updateFailed (str): Signal emitted when an update to the model fails.
+    """
+    updateFailed = QtCore.pyqtSignal(str)
+
+    def __init__(self, username, parent=None, column_range=None, database=None):
+        """
+        Initialize the model with user permissions and optional database and column range.
+
+        Args:
+            username (str): The username for permission-based actions.
+            parent (QObject, optional): Parent object for the model. Defaults to None.
+            column_range (list, optional): A list specifying the range of columns. Defaults to None.
+        """
+        super().__init__(parent, database)
+        self.column_range = column_range
+        self.username = username
+
+    def setQuery(self, query):
+        """
+        Set the SQL query for the model.
+
+        Args:
+            query (QSqlQuery): The query to populate the model.
+        """
+        super().setQuery(query)
+
+    def setAllColumnHeaders(self, headers):
+        """
+        Set headers for all columns in the model.
+
+        Args:
+            headers (list): A list of header names.
+        """
+        for column, header in enumerate(headers):
+            self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
+
+    def setIndividualColumnHeader(self, column, header):
+        """
+        Set the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            header (str): The header name.
+        """
+        self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
+
+    def setIconColumnHeader(self, column, icon):
+        """
+        Set an icon in the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            icon (QIcon): The icon to display in the header.
+        """
+        self.setHeaderData(column, QtCore.Qt.Orientation.Horizontal, icon, Qt.ItemDataRole.DecorationRole)
+
+    def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        """
+        Retrieve the header data for a specific section of the model.
+
+        Args:
+            section (int): The section index (column or row).
+            orientation (Qt.Orientation): The orientation (horizontal or vertical).
+            role (Qt.ItemDataRole, optional): The role for the header data. Defaults to DisplayRole.
+
+        Returns:
+            QVariant: The header data for the specified section.
+        """
+        if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
+            return super().headerData(section, orientation, role)
+        return super().headerData(section, orientation, role)
+
+    def flags(self, index):
+        """
+        Get the item flags for a given index, controlling editability and selection based on user permissions.
+
+        Args:
+            index (QModelIndex): The index of the item.
+
+        Returns:
+            Qt.ItemFlags: The flags for the specified item.
+        """
+        flags = super().flags(index)
+        if index.column() in [0]:
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        else:
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+
+    def getColumnHeaders(self, visible_columns):
+        """
+        Retrieve the headers for the specified visible columns.
+
+        Args:
+            visible_columns (list): List of column indices that are visible.
+
+        Returns:
+            list: A list of column headers for the visible columns.
+        """
+        column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
+        return column_headers
+
+class ComboBoxDelegate_Relational(QtSql.QSqlRelationalDelegate):
+    def __init__(self, column_to_display, parent=None):
+        """
+        Initializes the delegate with index column to be displayed in QComboBox
+
+        Args:
+            column_to_display (int): Index column to be displayed in QComboBox
+            parent (QWidget, optional): Parent Widget. Defaults to None.
+        """
+        super().__init__(parent)
+        self.column_to_display = column_to_display
+
+    def createEditor(self, parent, option, index):
+        """
+        Create the editor for a relational column, typically a QComboBox.
+
+        Args:
+            parent (QWidget): The parent widget.
+            option (QStyleOptionViewItem): The option for the item.
+            index (QModelIndex): The index of the item being edited.
+
+        Returns:
+            QWidget: The editor widget, a QComboBox for relational columns.
+        """
+        combo_box = QtWidgets.QComboBox(parent)
+
+        # Obtain model from index
+        source_model = index.model().sourceModel()
+        
+        # Checking relational model
+        if isinstance(source_model, QtSql.QSqlRelationalTableModel):
+            # Establish relational model
+            relation_model = source_model.relationModel(index.column())
+            if relation_model:
+                # Fill combobox
+                for row in range(relation_model.rowCount()):
+                    combo_box.addItem(relation_model.data(relation_model.index(row, self.column_to_display)),  # display name
+                    relation_model.data(relation_model.index(row, 0)))  # Store ID
+
+        return combo_box
+
+    def setModelData(self, editor, model, index):
+        """
+        Set the model data from the editor.
+
+        Args:
+            editor (QWidget): The editor widget (QComboBox for relational columns).
+            model (QAbstractItemModel): The model to update.
+            index (QModelIndex): The index in the model to update.
+        """
+        # Get the source model from the proxy
+        if isinstance(model, QtCore.QSortFilterProxyModel):
+            source_index = model.mapToSource(index)  # Mapea al índice fuente
+            source_model = model.sourceModel()
+        else:
+            source_index = index
+            source_model = model
+
+        selected_foreign_key = editor.currentData()
+
+        # Update source model
+        success = source_model.setData(source_index, selected_foreign_key, Qt.ItemDataRole.EditRole)
+
+        # Confirm changes
+        if isinstance(source_model, QtSql.QSqlRelationalTableModel):
+            if source_model.submitAll():
+                print("Changes saved to database")
+            else:
+                print("Failed to save changes to database")
+
+        # Invalidate filter to update view
+        if isinstance(model, QtCore.QSortFilterProxyModel):
+            model.invalidateFilter()
+
+class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A delegate for editing combobox items in a view.
+
+    Attributes:
+        options (list): List of options to populate the combobox.
+    """
+    def __init__(self, parent=None, options=None):
+        """
+        Initializes the EditableComboBoxDelegate with the specified options.
+
+        Args:
+            parent (QtWidgets.QWidget, optional): Parent widget.
+            options (list, optional): List of options for the combobox.
+        """
+        super().__init__(parent)
+        self.options = options
+
+    def createEditor(self, parent, option, index):
+        """
+        Creates an editor for the combobox.
+
+        Args:
+            parent (QtWidgets.QWidget): Parent widget.
+            option (QtWidgets.QStyleOptionViewItem): Style options for the item.
+            index (QtCore.QModelIndex): Index of the item in the model.
+
+        Returns:
+            QtWidgets.QComboBox: The created combobox editor.
+        """
+        editor = QtWidgets.QComboBox(parent)
+        editor.setEditable(True)
+        return editor
+
+    def setEditorData(self, editor, index):
+        """
+        Sets the data for the combobox editor.
+
+        Args:
+            editor (QtWidgets.QComboBox): The combobox editor.
+            index (QtCore.QModelIndex): Index of the item in the model.
+        """
+        text = index.data(Qt.ItemDataRole.DisplayRole)
+        editor.addItems(self.options)
+        editor.setEditText(text)
+
+    def setModelData(self, editor, model, index):
+        """
+        Updates the model with the data from the combobox editor.
+
+        Args:
+            editor (QtWidgets.QComboBox): The combobox editor.
+            model (QtGui.QAbstractItemModel): The model to update.
+            index (QtCore.QModelIndex): Index of the item in the model.
+        """
+        model.setData(index, editor.currentText(), Qt.ItemDataRole.EditRole)
 
 class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
     """
@@ -1099,15 +1500,18 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.numinvoice = num_invoice
         self.db = db
         self.username = username
-        self.model = EditableTableModel(self.username, database=db)
-        self.proxy = CustomProxyModel()
+        self.model_records = EditableTableModel(self.username, database=db)
+        self.model_invoice = EditableTableModel_Invoice(self.username, database=db)
+        self.column_display_mapping = {4: 2, 11: 1}
+        self.proxy_records = CustomProxyModel()
+        self.proxy_invoices = CustomProxyModel_relational(self.column_display_mapping,self)
         self.checkbox_states = {}
         self.dict_valuesuniques = {}
         self.dict_ordersort = {}
         self.hiddencolumns = []
         self.action_checkbox_map = {}
         self.checkbox_filters = {}
-        # self.model.dataChanged.connect(self.saveChanges)
+        # self.model_records.dataChanged.connect(self.saveChanges)
         self.setupUi(self)
 
     def closeEvent(self, event):
@@ -1117,8 +1521,10 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         Args:
             event (QtGui.QCloseEvent): The close event.
         """
-        if self.model:
-            self.model.clear()
+        if self.model_records:
+            self.model_records.clear()
+        if self.model_invoice:
+            self.model_invoice.clear()
         self.closeConnection()
 
     def closeConnection(self):
@@ -1126,13 +1532,15 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         Closes the database connection and cleans up resources.
         """
         self.tableRecords.setModel(None)
-        del self.model
+        del self.model_records
+        # self.tableInvoice.setModel(None)
+        # del self.model_invoice
         if self.db:
             self.db.close()
             del self.db
             if QtSql.QSqlDatabase.contains("facturation"):
                 QtSql.QSqlDatabase.removeDatabase("facturation")
-    
+
     def setupUi(self, Invoice_Window):
         """
         Sets up the user interface for the Invoice_Window.
@@ -1153,25 +1561,24 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
-        self.frame_3 = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame_3.setStyleSheet(".QFrame {\n"
+        self.frame = QtWidgets.QFrame(parent=self.centralwidget)
+        self.frame.setStyleSheet(".QFrame {\n"
 "    border: 2px solid black;\n"
 "}")
-        self.frame_3.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
-        self.frame_3.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
-        self.frame_3.setObjectName("frame_3")
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.frame_3)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.scrollArea = QtWidgets.QScrollArea(parent=self.frame_3)
+        self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
+        self.frame.setObjectName("frame")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.layout_vertical = QtWidgets.QVBoxLayout()
+        self.splitter = QtWidgets.QSplitter(QtCore.Qt.Orientation.Vertical)
+        self.scrollArea = QtWidgets.QScrollArea(parent=self.frame)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 1417, 968))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.gridLayout_4 = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_4.setObjectName("gridLayout_4")
-        spacerItem = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_4.addItem(spacerItem, 0, 0, 1, 1)
         self.label_Date = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
         self.label_Date.setMinimumSize(QtCore.QSize(100, 25))
         self.label_Date.setMaximumSize(QtCore.QSize(100, 25))
@@ -1359,171 +1766,18 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.label_ClientGroup.setObjectName("label_ClientGroup")
         self.label_ClientGroup.setStyleSheet("color: rgb(255, 255, 255);")
         self.gridLayout_4.addWidget(self.label_ClientGroup, 3, 9, 1, 1)
-        self.Button_CreateInvoice = QtWidgets.QPushButton(parent=self.scrollAreaWidgetContents)
-        self.Button_CreateInvoice.setMinimumSize(QtCore.QSize(150, 35))
-        self.Button_CreateInvoice.setMaximumSize(QtCore.QSize(150, 35))
-        self.Button_CreateInvoice.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_CreateInvoice.setAutoDefault(True)
-        self.Button_CreateInvoice.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 8px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-"QPushButton:focus{\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:focus:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
-        self.Button_CreateInvoice.setObjectName("Button_CreateInvoice")
-        self.Button_CreateInvoice.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.gridLayout_4.addWidget(self.Button_CreateInvoice, 1, 9, 1, 1)
-        self.Button_EditInvoice = QtWidgets.QPushButton(parent=self.scrollAreaWidgetContents)
-        self.Button_EditInvoice.setMinimumSize(QtCore.QSize(150, 35))
-        self.Button_EditInvoice.setMaximumSize(QtCore.QSize(150, 35))
-        self.Button_EditInvoice.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_EditInvoice.setAutoDefault(True)
-        self.Button_EditInvoice.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 8px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-"QPushButton:focus{\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:focus:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
-        self.Button_EditInvoice.setObjectName("Button_EditInvoice")
-        self.Button_EditInvoice.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.gridLayout_4.addWidget(self.Button_EditInvoice, 2, 9, 1, 1)
-        self.AgInterm = QtWidgets.QLineEdit(parent=self.scrollAreaWidgetContents)
+        self.label_Details = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
+        self.label_Details.setMinimumSize(QtCore.QSize(95, 25))
+        self.label_Details.setMaximumSize(QtCore.QSize(95, 25))
         font = QtGui.QFont()
-        font.setPointSize(8)
+        font.setPointSize(11)
         font.setBold(True)
-        self.AgInterm.setFont(font)
-        self.AgInterm.setReadOnly(True)
-        self.AgInterm.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.AgInterm.setObjectName("AgInterm")
-        self.gridLayout_4.addWidget(self.AgInterm, 5, 4, 1, 1)
-        self.AgIntermOk = QtWidgets.QLineEdit(parent=self.scrollAreaWidgetContents)
-        font = QtGui.QFont()
-        font.setPointSize(8)
-        font.setBold(True)
-        self.AgIntermOk.setFont(font)
-        self.AgIntermOk.setReadOnly(True)
-        self.AgIntermOk.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.AgIntermOk.setObjectName("AgIntermOk")
-        self.gridLayout_4.addWidget(self.AgIntermOk, 5, 5, 1, 1)
-        self.AgIntermState = QtWidgets.QLineEdit(parent=self.scrollAreaWidgetContents)
-        font = QtGui.QFont()
-        font.setPointSize(8)
-        font.setBold(True)
-        self.AgIntermState.setFont(font)
-        self.AgIntermState.setReadOnly(True)
-        self.AgIntermState.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.AgIntermState.setObjectName("AgIntermState")
-        self.gridLayout_4.addWidget(self.AgIntermState, 5, 6, 1, 1)
-        self.Button_SearchInvoice = QtWidgets.QPushButton(parent=self.scrollAreaWidgetContents)
-        self.Button_SearchInvoice.setMinimumSize(QtCore.QSize(0, 35))
-        self.Button_SearchInvoice.setMaximumSize(QtCore.QSize(16777215, 500))
-        self.Button_SearchInvoice.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_SearchInvoice.setAutoDefault(True)
-        self.Button_SearchInvoice.setStyleSheet("QPushButton {\n"
-"background-color: #33bdef;\n"
-"  border: 1px solid transparent;\n"
-"  border-radius: 3px;\n"
-"  color: #fff;\n"
-"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
-"  font-weight: 800;\n"
-"  line-height: 1.15385;\n"
-"  margin: 0;\n"
-"  outline: none;\n"
-"  padding: 8px .8em;\n"
-"  text-align: center;\n"
-"  text-decoration: none;\n"
-"  vertical-align: baseline;\n"
-"  white-space: nowrap;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}\n"
-"\n"
-"QPushButton:focus{\n"
-"    background-color: #019ad2;\n"
-"    border-color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"QPushButton:focus:pressed {\n"
-"    background-color: rgb(1, 140, 190);\n"
-"    border-color: rgb(255, 255, 255);\n"
-"}")
-        self.Button_SearchInvoice.setObjectName("Button_SearchInvoice")
-        self.Button_SearchInvoice.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.gridLayout_4.addWidget(self.Button_SearchInvoice, 3, 9, 2, 1)
+        self.label_Details.setFont(font)
+        self.label_Details.setObjectName("label_Details")
+        self.gridLayout_4.addWidget(self.label_Details, 4, 0, 1, 1)
         self.Button_AddReg = QtWidgets.QPushButton(parent=self.scrollAreaWidgetContents)
         self.Button_AddReg.setMinimumSize(QtCore.QSize(150, 30))
-        self.Button_AddReg.setMaximumSize(QtCore.QSize(16777215, 30))
+        self.Button_AddReg.setMaximumSize(QtCore.QSize(150, 30))
         self.Button_AddReg.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_AddReg.setAutoDefault(True)
         self.Button_AddReg.setStyleSheet("QPushButton {\n"
@@ -1565,25 +1819,10 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 "}")
         self.Button_AddReg.setObjectName("Button_AddReg")
         self.Button_AddReg.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.gridLayout_4.addWidget(self.Button_AddReg, 5, 1, 1, 1)
-        self.label_Details = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
-        self.label_Details.setMinimumSize(QtCore.QSize(100, 25))
-        self.label_Details.setMaximumSize(QtCore.QSize(100, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_Details.setFont(font)
-        self.label_Details.setObjectName("label_Details")
-        self.gridLayout_4.addWidget(self.label_Details, 5, 0, 1, 1)
-        self.label_IDInvoice = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
-        self.label_IDInvoice.setMinimumSize(QtCore.QSize(150, 25))
-        self.label_IDInvoice.setMaximumSize(QtCore.QSize(150, 16777215))
-        self.label_IDInvoice.setObjectName("label_IDInvoice")
-        self.label_IDInvoice.setStyleSheet("color: rgb(255, 255, 255);")
-        self.gridLayout_4.addWidget(self.label_IDInvoice, 5, 3, 1, 1)
+        self.gridLayout_4.addWidget(self.Button_AddReg, 4, 1, 1, 1)
         self.Button_ImportReg = QtWidgets.QPushButton(parent=self.scrollAreaWidgetContents)
         self.Button_ImportReg.setMinimumSize(QtCore.QSize(150, 30))
-        self.Button_ImportReg.setMaximumSize(QtCore.QSize(16777215, 30))
+        self.Button_ImportReg.setMaximumSize(QtCore.QSize(150, 30))
         self.Button_ImportReg.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_ImportReg.setAutoDefault(True)
         self.Button_ImportReg.setStyleSheet("QPushButton {\n"
@@ -1625,11 +1864,93 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 "}")
         self.Button_ImportReg.setObjectName("Button_ImportReg")
         self.Button_ImportReg.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.gridLayout_4.addWidget(self.Button_ImportReg, 5, 2, 1, 1)
+        self.gridLayout_4.addWidget(self.Button_ImportReg, 4, 2, 1, 1)
+        self.AgInterm = QtWidgets.QLineEdit(parent=self.scrollAreaWidgetContents)
+        self.AgInterm.setMinimumSize(QtCore.QSize(150, 25))
+        font = QtGui.QFont()
+        font.setPointSize(8)
+        font.setBold(True)
+        self.AgInterm.setFont(font)
+        self.AgInterm.setReadOnly(True)
+        self.AgInterm.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.AgInterm.setObjectName("AgInterm")
+        self.gridLayout_4.addWidget(self.AgInterm, 4, 3, 1, 1)
+        self.AgIntermOk = QtWidgets.QLineEdit(parent=self.scrollAreaWidgetContents)
+        self.AgIntermOk.setMinimumSize(QtCore.QSize(150, 25))
+        self.AgIntermOk.setMaximumSize(QtCore.QSize(150, 25))
+        font = QtGui.QFont()
+        font.setPointSize(8)
+        font.setBold(True)
+        self.AgIntermOk.setFont(font)
+        self.AgIntermOk.setReadOnly(True)
+        self.AgIntermOk.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.AgIntermOk.setObjectName("AgIntermOk")
+        self.gridLayout_4.addWidget(self.AgIntermOk, 4, 4, 1, 1)
+        self.AgIntermState = QtWidgets.QLineEdit(parent=self.scrollAreaWidgetContents)
+        self.AgIntermState.setMinimumSize(QtCore.QSize(150, 25))
+        font = QtGui.QFont()
+        font.setPointSize(8)
+        font.setBold(True)
+        self.AgIntermState.setFont(font)
+        self.AgIntermState.setReadOnly(True)
+        self.AgIntermState.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.AgIntermState.setObjectName("AgIntermState")
+        self.gridLayout_4.addWidget(self.AgIntermState, 4, 5, 1, 1)
+        self.label_ClientGroup = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.label_ClientGroup.setFont(font)
+        self.label_ClientGroup.setObjectName("label_ClientGroup")
+        # self.label_ClientGroup.setStyleSheet("color: rgb(255, 255, 255);")
+        self.gridLayout_4.addWidget(self.label_ClientGroup, 4, 6, 1, 1)
+        self.Button_SearchInvoice = QtWidgets.QPushButton(parent=self.scrollAreaWidgetContents)
+        self.Button_SearchInvoice.setMinimumSize(QtCore.QSize(0, 30))
+        self.Button_SearchInvoice.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.Button_SearchInvoice.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_SearchInvoice.setAutoDefault(True)
+        self.Button_SearchInvoice.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 8px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}\n"
+"\n"
+"QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:focus:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        self.Button_SearchInvoice.setObjectName("Button_SearchInvoice")
+        self.Button_SearchInvoice.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.gridLayout_4.addWidget(self.Button_SearchInvoice, 4, 8, 1, 2)
         self.tableRecords = QtWidgets.QTableView(parent=self.scrollAreaWidgetContents)
         self.tableRecords.setObjectName("tableRecords")
-        self.tableRecords.setMinimumSize(QtCore.QSize(0, 300))
-        self.tableRecords.setMaximumSize(QtCore.QSize(16777215, 300))
+        self.tableRecords.setMaximumSize(QtCore.QSize(16777215, 250))
         self.gridLayout_4.addWidget(self.tableRecords, 8, 0, 1, 10)
         self.label_Qty_Elements = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
         self.label_Qty_Elements.setMinimumSize(QtCore.QSize(0, 25))
@@ -1648,17 +1969,24 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Qty_Elements.setFont(font)
-        self.Qty_Elements.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.Qty_Elements.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.Qty_Elements.setObjectName("Qty_Elements")
         self.gridLayout_4.addWidget(self.Qty_Elements, 9, 1, 1, 1)
+        self.label_IDInvoice = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
+        self.label_IDInvoice.setMinimumSize(QtCore.QSize(150, 25))
+        self.label_IDInvoice.setMaximumSize(QtCore.QSize(150, 16777215))
+        self.label_IDInvoice.setObjectName("label_IDInvoice")
+        self.label_IDInvoice.setText('labelID')
+        self.label_IDInvoice.setStyleSheet("color: rgb(255, 255, 255);")
+        self.gridLayout_4.addWidget(self.label_IDInvoice, 9, 2, 1, 1)
         self.label_Total = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
         self.label_Total.setMinimumSize(QtCore.QSize(150, 25))
-        self.label_Total.setMaximumSize(QtCore.QSize(150, 25))
+        self.label_Total.setMaximumSize(QtCore.QSize(16777215, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
         self.label_Total.setFont(font)
-        self.label_Total.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_Total.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
         self.label_Total.setObjectName("label_Total")
         self.gridLayout_4.addWidget(self.label_Total, 9, 5, 1, 1)
         self.TotalEur_Invoice = QtWidgets.QLineEdit(parent=self.scrollAreaWidgetContents)
@@ -1999,14 +2327,14 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.label_14.setFont(font)
         self.label_14.setObjectName("label_14")
         self.gridLayout_4.addWidget(self.label_14, 15, 2, 1, 1)
-        self.AditData3_Invoice = QtWidgets.QLineEdit(parent=self.scrollAreaWidgetContents)
-        self.AditData3_Invoice.setMinimumSize(QtCore.QSize(0, 25))
-        self.AditData3_Invoice.setMaximumSize(QtCore.QSize(16777215, 25))
+        self.AditData1_Invoice = QtWidgets.QLineEdit(parent=self.scrollAreaWidgetContents)
+        self.AditData1_Invoice.setMinimumSize(QtCore.QSize(0, 25))
+        self.AditData1_Invoice.setMaximumSize(QtCore.QSize(16777215, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.AditData3_Invoice.setFont(font)
-        self.AditData3_Invoice.setObjectName("AditData3_Invoice")
-        self.gridLayout_4.addWidget(self.AditData3_Invoice, 15, 3, 1, 3)
+        self.AditData1_Invoice.setFont(font)
+        self.AditData1_Invoice.setObjectName("AditData1_Invoice")
+        self.gridLayout_4.addWidget(self.AditData1_Invoice, 15, 3, 1, 3)
         self.label_TaxBase = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
         self.label_TaxBase.setMinimumSize(QtCore.QSize(150, 25))
         self.label_TaxBase.setMaximumSize(QtCore.QSize(150, 25))
@@ -2048,17 +2376,16 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.PayDate_Invoice = QtWidgets.QLineEdit(parent=self.scrollAreaWidgetContents)
         self.PayDate_Invoice.setMinimumSize(QtCore.QSize(100, 25))
         self.PayDate_Invoice.setMaximumSize(QtCore.QSize(100, 25))
-        self.PayDate_Invoice.setReadOnly(True)
         self.PayDate_Invoice.setObjectName("PayDate_Invoice")
         self.gridLayout_4.addWidget(self.PayDate_Invoice, 16, 1, 1, 1)
-        self.AditData4_Invoice = QtWidgets.QLineEdit(parent=self.scrollAreaWidgetContents)
-        self.AditData4_Invoice.setMinimumSize(QtCore.QSize(0, 25))
-        self.AditData4_Invoice.setMaximumSize(QtCore.QSize(16777215, 25))
+        self.AditData2_Invoice = QtWidgets.QLineEdit(parent=self.scrollAreaWidgetContents)
+        self.AditData2_Invoice.setMinimumSize(QtCore.QSize(0, 25))
+        self.AditData2_Invoice.setMaximumSize(QtCore.QSize(16777215, 25))
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.AditData4_Invoice.setFont(font)
-        self.AditData4_Invoice.setObjectName("AditData4_Invoice")
-        self.gridLayout_4.addWidget(self.AditData4_Invoice, 16, 3, 1, 3)
+        self.AditData2_Invoice.setFont(font)
+        self.AditData2_Invoice.setObjectName("AditData2_Invoice")
+        self.gridLayout_4.addWidget(self.AditData2_Invoice, 16, 3, 1, 3)
         self.label_IVA = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
         self.label_IVA.setMinimumSize(QtCore.QSize(150, 25))
         self.label_IVA.setMaximumSize(QtCore.QSize(150, 25))
@@ -2389,12 +2716,13 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.gridLayout_3.addWidget(self.ObsAlb_Invoice, 6, 1, 1, 5)
         self.gridLayout_4.addWidget(self.frame_2, 17, 3, 3, 7)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-        self.verticalLayout_2.addWidget(self.scrollArea)
+        self.splitter.addWidget(self.scrollArea)
+        # self.tableInvoice = QtWidgets.QTableView(parent=self.frame)
         self.tableInvoice = CustomTableWidgetInvoice()
-        self.tableInvoice.setMaximumSize(QtCore.QSize(16777215, 225))
         self.tableInvoice.setObjectName("tableInvoice")
+        self.tableInvoice.setMinimumSize(QtCore.QSize(0, 250))
+        self.tableInvoice.setMaximumSize(QtCore.QSize(16777215, 250))
         self.tableInvoice.setColumnCount(13)
-        self.tableInvoice.setRowCount(0)
         for i in range(13):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
@@ -2402,28 +2730,76 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             font.setBold(True)
             item.setFont(font)
             self.tableInvoice.setHorizontalHeaderItem(i, item)
-        self.verticalLayout_2.addWidget(self.tableInvoice)
+        self.tableInvoice.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        self.splitter.addWidget(self.tableInvoice)
+        self.layout_vertical.addWidget(self.splitter)
         self.gridLayout_bottom = QtWidgets.QGridLayout()
         self.gridLayout_bottom.setObjectName("gridLayout_bottom")
-        self.verticalLayout_2.addLayout(self.gridLayout_bottom)
-
-        self.label_filter = QtWidgets.QLabel(parent=self.frame_3)
-        self.label_filter.setMinimumSize(QtCore.QSize(100, 25))
-        self.label_filter.setMaximumSize(QtCore.QSize(100, 25))
+        self.Button_New= QtWidgets.QPushButton(parent=self.frame)
+        self.Button_New.setMinimumSize(QtCore.QSize(30, 25))
+        self.Button_New.setMaximumSize(QtCore.QSize(30, 25))
+        self.Button_New.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_New.setAutoDefault(True)
+        self.Button_New.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 8px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}\n"
+"\n"
+"QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:focus:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        self.Button_New.setObjectName("Button_New")
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Add_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_New.setIcon(icon3)
+        self.Button_New.setIconSize(QtCore.QSize(20, 20))
+        self.Button_New.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.gridLayout_bottom.addWidget(self.Button_New, 0, 0, 1, 1)
+        self.label_filter = QtWidgets.QLabel(parent=self.frame)
+        self.label_filter.setMinimumSize(QtCore.QSize(50, 25))
+        self.label_filter.setMaximumSize(QtCore.QSize(50, 25))
         font = QtGui.QFont()
         font.setPointSize(11)
         font.setBold(True)
         self.label_filter.setFont(font)
         self.label_filter.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_filter.setObjectName("label_filter")
-        self.gridLayout_bottom.addWidget(self.label_filter, 0, 0, 1, 1)
-        self.Filter_Invoice = QtWidgets.QLineEdit(parent=self.frame_3)
+        self.gridLayout_bottom.addWidget(self.label_filter, 0, 1, 1, 1)
+        self.Filter_Invoice = QtWidgets.QLineEdit(parent=self.frame)
         self.Filter_Invoice.setMinimumSize(QtCore.QSize(100, 25))
         self.Filter_Invoice.setMaximumSize(QtCore.QSize(100, 25))
         self.Filter_Invoice.setObjectName("Filter_Invoice")
-        self.gridLayout_bottom.addWidget(self.Filter_Invoice, 0, 1, 1, 1)
-
-        self.Button_AcceptFilter = QtWidgets.QPushButton(parent=self.frame_3)
+        self.gridLayout_bottom.addWidget(self.Filter_Invoice, 0, 2, 1, 1)
+        self.Button_AcceptFilter = QtWidgets.QPushButton(parent=self.frame)
         self.Button_AcceptFilter.setMinimumSize(QtCore.QSize(30, 25))
         self.Button_AcceptFilter.setMaximumSize(QtCore.QSize(30, 25))
         self.Button_AcceptFilter.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
@@ -2472,7 +2848,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.Button_AcceptFilter.setIconSize(QtCore.QSize(20, 20))
         self.Button_AcceptFilter.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.gridLayout_bottom.addWidget(self.Button_AcceptFilter, 0, 3, 1, 1)
-        self.Button_DeleteFilter = QtWidgets.QPushButton(parent=self.frame_3)
+        self.Button_DeleteFilter = QtWidgets.QPushButton(parent=self.frame)
         self.Button_DeleteFilter.setMinimumSize(QtCore.QSize(30, 25))
         self.Button_DeleteFilter.setMaximumSize(QtCore.QSize(30, 25))
         self.Button_DeleteFilter.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
@@ -2521,7 +2897,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.Button_DeleteFilter.setIconSize(QtCore.QSize(20, 20))
         self.Button_DeleteFilter.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.gridLayout_bottom.addWidget(self.Button_DeleteFilter, 0, 4, 1, 1)
-        self.label_filter_xxx = QtWidgets.QLabel(parent=self.frame_3)
+        self.label_filter_xxx = QtWidgets.QLabel(parent=self.frame)
         self.label_filter_xxx.setMinimumSize(QtCore.QSize(0, 25))
         self.label_filter_xxx.setMaximumSize(QtCore.QSize(16777215, 25))
         font = QtGui.QFont()
@@ -2531,7 +2907,9 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.label_filter_xxx.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_filter_xxx.setObjectName("label_filter_xxx")
         self.gridLayout_bottom.addWidget(self.label_filter_xxx, 0, 5, 1, 1)
-        self.gridLayout.addWidget(self.frame_3, 0, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.layout_vertical,0,0,1,1)
+        self.gridLayout_2.addLayout(self.gridLayout_bottom,1,0,1,1)
+        self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         Invoice_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=Invoice_Window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1476, 22))
@@ -2550,7 +2928,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(Invoice_Window)
 
         commands_clients = "SELECT * FROM purch_fact.clients ORDER BY name"
-        commands_destcountry = "SELECT * FROM purch_fact.destination_country ORDER BY id"
+        commands_destcountry = "SELECT * FROM purch_fact.destination_country ORDER BY name"
         conn = None
         try:
         # read the connection parameters
@@ -2585,32 +2963,47 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         list_clients=[x[2] for x in results_clients]
         list_destcountry=[x[1] for x in results_destcountry]
 
+        list_clients.insert(0, '')
+        list_destcountry.insert(0, '')
+
     # Adding items to comboboxes
         self.Client_Invoice.addItems(list_clients)
         self.DestCountry_Invoice.addItems(sorted(list_destcountry))
-        self.Application_Invoice.addItems(['CAUDAL','NIVELES','OTROS','TEMPERATURA'])
+        self.Application_Invoice.addItems(['','CAUDAL','NIVELES','OTROS','TEMPERATURA'])
     # Adding function when changing combobox value
-        self.Client_Invoice.currentIndexChanged.connect(self.clientchange)
-        self.DestCountry_Invoice.currentIndexChanged.connect(self.destcountrychange)
-    # Adding functions to tables
-        self.tableInvoice.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
-        self.tableInvoice.itemClicked.connect(self.loadforminvoice)
+        self.Client_Invoice.currentTextChanged.connect(self.clientchange)
+        self.DestCountry_Invoice.currentTextChanged.connect(self.destcountrychange)
+
     # Adding functions to buttons
-        self.Button_CreateInvoice.clicked.connect(self.createinvoice)
-        self.Button_EditInvoice.clicked.connect(self.modifyinvoice)
         self.Button_AddReg.clicked.connect(self.addrecord)
+        self.Button_ImportReg.clicked.connect(self.import_tags)
+
         self.Button_FactEuro.clicked.connect(self.submiteuroinvoice)
         self.Button_FactDollar.clicked.connect(self.submitdollarinvoice)
         self.Button_DelivNote.clicked.connect(self.generate_delivnote)
+
+        self.Button_New.clicked.connect(self.createinvoice)
         self.Button_AcceptFilter.clicked.connect(self.filterinvoicetable)
         self.Filter_Invoice.returnPressed.connect(self.filterinvoicetable)
         self.Button_DeleteFilter.clicked.connect(self.loadinvoicetable)
         self.Button_SearchInvoice.clicked.connect(lambda: self.search_invoice(Invoice_Window))
-        self.Button_ImportReg.clicked.connect(self.import_tags)
+
+        self.Filter_Invoice.textChanged.connect(self.position_table)
+
     # Adding function when editing the value of currency change €/$
         self.ValCotDollar_Invoice.returnPressed.connect(self.calculate_totalorder)
         self.ValCotDollar_Invoice.editingFinished.connect(self.calculate_totalorder)
     # Adding function when editing the value of aditional concepts
+        self.Date_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.InvoiceNumber_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.DelivNote_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.TheirRef_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.Destination_Invoice.editingFinished.connect(self.save_data_on_database)
+        # self.Comment_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.OurRef_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.Transport_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.PayDate_Invoice.editingFinished.connect(self.save_data_on_database)
+
         self.Con1Eur_Invoice.editingFinished.connect(self.calculate_totalorder)
         self.Con2Eur_Invoice.editingFinished.connect(self.calculate_totalorder)
         self.Con3Eur_Invoice.editingFinished.connect(self.calculate_totalorder)
@@ -2622,20 +3015,22 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.Con4Dollar_Invoice.editingFinished.connect(self.calculate_totalorder)
         self.Con5Dollar_Invoice.editingFinished.connect(self.calculate_totalorder)
 
-        delete_action_record = QtGui.QAction("Eliminar Fila", self)
-        delete_action_record.triggered.connect(lambda: self.delete_register(self.tableRecords, "purch_fact.invoice_detail"))
+        # delete_action_record = QtGui.QAction("Eliminar Fila", self)
+        # delete_action_record.triggered.connect(lambda: self.delete_register(self.tableRecords, "purch_fact.invoice_detail"))
 
-        self.context_menu_row = QtWidgets.QMenu(self)
-        self.context_menu_row.addAction(delete_action_record)
+        # self.context_menu_row = QtWidgets.QMenu(self)
+        # self.context_menu_row.addAction(delete_action_record)
         
-        self.tableRecords.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
-        self.tableRecords.addActions([delete_action_record])
+        # self.tableRecords.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
+        # self.tableRecords.addActions([delete_action_record])
 
         self.loadinvoicetable()
 
+        self.label_IDInvoice.setText('NUEVA')
+
         if self.numinvoice is not None:
             commands_querytableinvoice = ("""
-                        SELECT invoice."id_invoice"
+                        SELECT invoice."id"
                         FROM purch_fact.invoice_header AS invoice
                         WHERE invoice."num_invoice" = %s
                         """)
@@ -2669,6 +3064,8 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                     conn.close()
             
             self.label_IDInvoice.setText(str(results_invoices[0][0]))
+
+            self.Filter_Invoice.textChanged.connect(self.position_table(self.numinvoice))
 
             self.loadforminvoice(None, self.label_IDInvoice.text())
 
@@ -2709,7 +3106,6 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.label_Destination.setText(_translate("Invoice_Window", "Destino:"))
         self.label_GrossWeight.setText(_translate("Invoice_Window", "Peso Bruto:"))
         self.label_Client.setText(_translate("Invoice_Window", "Cliente:"))
-        self.label_14.setText(_translate("Invoice_Window", "$"))
         self.label_DestCountry.setText(_translate("Invoice_Window", "País Dest:"))
         self.label_Total.setText(_translate("Invoice_Window", "Total:"))
         self.label_PayDate.setText(_translate("Invoice_Window", "Fch PAGO:"))
@@ -2728,14 +3124,13 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.label_CountryAlb.setText(_translate("Invoice_Window", "País:"))
         self.label_Qty_Elements.setText(_translate("Invoice_Window", "Nº Elementos:"))
         self.label_filter.setText(_translate("Invoice_Window", "Filtrar:"))
-        self.Button_CreateInvoice.setText(_translate("Invoice_Window", "Crear Factura"))
-        self.Button_EditInvoice.setText(_translate("Invoice_Window", "Editar Factura"))
         self.Button_SearchInvoice.setText(_translate("Invoice_Window", "Buscar Factura"))
         self.Button_AddReg.setText(_translate("Invoice_Window", "Agregar"))
         self.Button_ImportReg.setText(_translate("Invoice_Window", "Importar"))
         self.Button_DelivNote.setText(_translate("Invoice_Window", "Albarán"))
         self.Button_FactDollar.setText(_translate("Invoice_Window", "Fact.$"))
         self.Button_FactEuro.setText(_translate("Invoice_Window", "Fact. €"))
+
         item = self.tableInvoice.horizontalHeaderItem(0)
         item.setText(_translate("Invoice_Window", "ID"))
         item = self.tableInvoice.horizontalHeaderItem(1)
@@ -2743,40 +3138,40 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         item = self.tableInvoice.horizontalHeaderItem(2)
         item.setText(_translate("Invoice_Window", "Nº Albarán"))
         item = self.tableInvoice.horizontalHeaderItem(3)
-        item.setText(_translate("Invoice_Window", "Fecha Fact."))
+        item.setText(_translate("Invoice_Window", "Fecha Factura"))
         item = self.tableInvoice.horizontalHeaderItem(4)
         item.setText(_translate("Invoice_Window", "Cliente"))
         item = self.tableInvoice.horizontalHeaderItem(5)
-        item.setText(_translate("Invoice_Window", "N/Ref"))
+        item.setText(_translate("Invoice_Window", "N/Ref."))
         item = self.tableInvoice.horizontalHeaderItem(6)
-        item.setText(_translate("Invoice_Window", "S/Ref"))
+        item.setText(_translate("Invoice_Window", "S/Ref."))
         item = self.tableInvoice.horizontalHeaderItem(7)
-        item.setText(_translate("Invoice_Window", "Obs."))
+        item.setText(_translate("Invoice_Window", "Comentarios"))
         item = self.tableInvoice.horizontalHeaderItem(8)
-        item.setText(_translate("Invoice_Window", "Fecha Alb."))
-        item = self.tableInvoice.horizontalHeaderItem(9)
         item.setText(_translate("Invoice_Window", "Aplicación"))
-        item = self.tableInvoice.horizontalHeaderItem(10)
+        item = self.tableInvoice.horizontalHeaderItem(9)
         item.setText(_translate("Invoice_Window", "País Destino"))
+        item = self.tableInvoice.horizontalHeaderItem(10)
+        item.setText(_translate("Invoice_Window", "Fecha Albarán"))
         item = self.tableInvoice.horizontalHeaderItem(11)
-        item.setText(_translate("Invoice_Window", "Fecha Pago"))
+        item.setText(_translate("Invoice_Window", "Grupo Cliente"))
         item = self.tableInvoice.horizontalHeaderItem(12)
-        item.setText(_translate("Invoice_Window", "Grupo"))
+        item.setText(_translate("Invoice_Window", "Fecha Pago"))
 
 # Function to save changes into database
     def saveChanges(self):
         """
         Saves changes made to the data models and updates unique values for each column.
         """
-        if self.model.submitAll():
+        if self.model_records.submitAll():
             print("Cambios guardados correctamente.")
         else:
-            print(f"Error al guardar cambios: {self.model.lastError().text()}")
+            print(f"Error al guardar cambios: {self.model_records.lastError().text()}")
 
-        for column in range(self.model.columnCount()):
+        for column in range(self.model_records.columnCount()):
             list_valuesUnique = []
-            for row in range(self.model.rowCount()):
-                value = self.model.record(row).value(column)
+            for row in range(self.model_records.rowCount()):
+                value = self.model_records.record(row).value(column)
                 if value not in list_valuesUnique:
                     if isinstance(value, QtCore.QDate):
                         value = value.toString("dd/MM/yyyy")
@@ -2785,45 +3180,170 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                         self.checkbox_states[column][value] = True
             self.dict_valuesuniques[column] = list_valuesUnique
 
+        if self.model_invoice.submitAll():
+            print("Cambios guardados correctamente.")
+        else:
+            print(f"Error al guardar cambios: {self.model_invoice.lastError().text()}")
+
+        for column in range(self.model_invoice.columnCount()):
+            list_valuesUnique = []
+            for row in range(self.model_invoice.rowCount()):
+                value = self.model_invoice.record(row).value(column)
+                if value not in list_valuesUnique:
+                    if isinstance(value, QtCore.QDate):
+                        value = value.toString("dd/MM/yyyy")
+                    list_valuesUnique.append(str(value))
+                    if value not in self.checkbox_states[column]:
+                        self.checkbox_states[column][value] = True
+            self.dict_valuesuniques[column] = list_valuesUnique
+
+        self.calculate_elements()
+        self.calculate_totalorder()
+
+# Function to save invoice data on database
+    def save_data_on_database(self):
+        id_invoice = self.label_IDInvoice.text()
+        if id_invoice == 'NUEVA':
+            invoice_date = self.Date_Invoice.text() if self.Date_Invoice.text() != '' else None
+            self.createinvoice(invoice_date)
+            id_invoice = self.label_IDInvoice.text()
+
+        if id_invoice != '':
+            invoice_date = self.Date_Invoice.text() if self.Date_Invoice.text() != '' else None
+            client = self.Client_Invoice.currentText()
+            invoice_number = self.InvoiceNumber_Invoice.text()
+            delivnote_number = self.DelivNote_Invoice.text()
+            if invoice_number != '' and delivnote_number == '':
+                delivnote_number = invoice_number.split('-')[1]
+                self.DelivNote_Invoice.setText(delivnote_number)
+            their_ref = self.TheirRef_Invoice.text()
+            destination = self.Destination_Invoice.text()
+            comment = self.Comment_Invoice.toPlainText()
+            our_ref = self.OurRef_Invoice.text()
+            transport = self.Transport_Invoice.text()
+            application = self.Application_Invoice.currentText()
+            destination_country = self.DestCountry_Invoice.currentText()
+            gross_weight = self.GrossWeight_Invoice.text()
+            net_weight = self.NetWeight_Invoice.text()
+            dimensions = self.Dimensions_Invoice.text()
+            merc_type = self.MercType_Invoice.text()
+            paydate = self.PayDate_Invoice.text() if self.PayDate_Invoice.text() != '' else None
+            txtcon1 = self.TxtCon1_Invoice.text()
+            txtcon2 = self.TxtCon2_Invoice.text()
+            txtcon3 = self.TxtCon3_Invoice.text()
+            txtcon4 = self.TxtCon4_Invoice.text()
+            txtcon5 = self.TxtCon5_Invoice.text()
+            con1_euro = self.Con1Eur_Invoice.text() if self.Con1Eur_Invoice.text() != '' else None
+            con2_euro = self.Con2Eur_Invoice.text() if self.Con2Eur_Invoice.text() != '' else None
+            con3_euro = self.Con3Eur_Invoice.text() if self.Con3Eur_Invoice.text() != '' else None
+            con4_euro = self.Con4Eur_Invoice.text() if self.Con4Eur_Invoice.text() != '' else None
+            con5_euro = self.Con5Eur_Invoice.text() if self.Con5Eur_Invoice.text() != '' else None
+            con1_dollar = self.Con1Dollar_Invoice.text() if self.Con1Dollar_Invoice.text() != '' else None
+            con2_dollar = self.Con2Dollar_Invoice.text() if self.Con2Dollar_Invoice.text() != '' else None
+            con3_dollar = self.Con3Dollar_Invoice.text() if self.Con3Dollar_Invoice.text() != '' else None
+            con4_dollar = self.Con4Dollar_Invoice.text() if self.Con4Dollar_Invoice.text() != '' else None
+            con5_dollar = self.Con5Dollar_Invoice.text() if self.Con5Dollar_Invoice.text() != '' else None
+            data_adic1 = self.AditData1_Invoice.text()
+            data_adic2 = self.AditData2_Invoice.text()
+            tax_base_amount = float(self.TaxBase_Invoice.text()) if self.TaxBase_Invoice.text() != '' else None
+            iva = self.IVACL_Invoice.text() if self.IVACL_Invoice.text() != '' else None
+            cl_delivnote = self.ClAlb_Invoice.text()
+            date_delivnote = self.DateAlb_Invoice.text() if self.DateAlb_Invoice.text() != '' else None
+            atte_delivnote = self.AtteAlb_Invoice.text()
+            dest_delivnote = self.DestAlb_Invoice.text()
+            address_delivnote = self.AddressAlb_Invoice.text()
+            zc_delivnote = self.ZCAlb_Invoice.text()
+            city_delivnote = self.CityAlb_Invoice.text()
+            province_delivnote = self.ProvinceAlb_Invoice.text()
+            country_delivnote = self.CountryAlb_Invoice.text()
+            obs_delivnote = self.ObsAlb_Invoice.toPlainText()
+            total_qty_elements = self.Qty_Elements.text() if self.Qty_Elements.text() != '' else None
+
+            commands_clientsid = ("""
+                            SELECT clients.id
+                            FROM purch_fact.clients AS clients
+                            WHERE clients.name = %s
+                            """)
+            commands_destcountryid = ("""
+                            SELECT dest_country.id
+                            FROM purch_fact.destination_country AS dest_country
+                            WHERE dest_country.name = %s
+                            """)
+
+            commands_submit_invoice = ("""
+                            UPDATE purch_fact.invoice_header
+                            SET "num_invoice" = %s, "num_delivnote" = %s, "date_invoice" = %s, "id_client" = %s, "our_ref" = %s, "their_ref" = %s,
+                            "invoice_comments" = %s, "destination" = %s, "transport" = %s, "application" = %s, "id_dest_country" = %s,
+                            "gross_weight" = %s, "net_weight" = %s, "dimensions" = %s, "merc_type" = %s, "pay_date" = %s,
+                            "txtcon1" = %s, "txtcon2" = %s, "txtcon3" = %s, "txtcon4" = %s, "txtcon5" = %s,
+                            "con1_euro" = %s, "con2_euro" = %s, "con3_euro" = %s, "con4_euro" = %s, "con5_euro" = %s,
+                            "con1_dollar" = %s, "con2_dollar" = %s, "con3_dollar" = %s, "con4_dollar" = %s, "con5_dollar" = %s,
+                            "data_adic1" = %s, "data_adic2" = %s, "iva" = %s, "cl_delivnote" = %s,
+                            "date_delivnote" = %s, "atte_delivnote" = %s, "dest_delivnote" = %s, "address_delivnote" = %s, "zc_delivnote" = %s,
+                            "city_delivnote" = %s, "province_delivnote" = %s, "country_delivnote" = %s, "obs_delivnote" = %s, "tax_base_amount" = %s,
+                            "total_qty_elements" = %s
+                            WHERE "id" = %s""")
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(commands_clientsid, (client,))
+                results_clients_id=cur.fetchall()
+                id_client = results_clients_id[0][0] if len(results_clients_id) != 0 else None
+
+                cur.execute(commands_destcountryid, (destination_country,))
+                results_destcountry_id=cur.fetchall()
+                id_dest_country = results_destcountry_id[0][0] if len(results_destcountry_id) != 0 else None
+
+                data = (invoice_number, delivnote_number, invoice_date, id_client, our_ref, their_ref,
+                        comment, destination, transport, application, id_dest_country,
+                        gross_weight, net_weight, dimensions, merc_type, paydate,
+                        txtcon1, txtcon2, txtcon3, txtcon4, txtcon5,
+                        con1_euro, con2_euro, con3_euro, con4_euro, con5_euro,
+                        con1_dollar, con2_dollar, con3_dollar, con4_dollar, con5_dollar,
+                        data_adic1, data_adic2, iva, cl_delivnote,
+                        date_delivnote, atte_delivnote, dest_delivnote, address_delivnote, zc_delivnote,
+                        city_delivnote, province_delivnote, country_delivnote, obs_delivnote, tax_base_amount,
+                        total_qty_elements, id_invoice)
+                cur.execute(commands_submit_invoice, data)
+
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("8Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                print(error)
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
+
+            # self.loadinvoicetable()
+
 # Function to create new invoice
-    def createinvoice(self):
+    def createinvoice(self, invoice_date=''):
         """
         Creates a new entry in database after validating form inputs.
         """
-        invoice_date = self.Date_Invoice.text()
-        invoice_number = self.InvoiceNumber_Invoice.text()
-        client_name = self.Client_Invoice.currentText()
-        delivnote_number = self.DelivNote_Invoice.text()
-        their_ref = self.TheirRef_Invoice.text()
-        comments = self.Comment_Invoice.toPlainText()
-        destination = self.Destination_Invoice.text()
-        transport = self.Transport_Invoice.text()
-        our_ref = self.OurRef_Invoice.text()
-        application = self.Application_Invoice.currentText()
-        dest_country = self.DestCountry_Invoice.currentText()
-        aginterm = self.AgInterm.text()
-        group = self.label_ClientGroup.text()
-
-        commands_clientsid = ("""
-                        SELECT clients.id
-                        FROM purch_fact.clients AS clients
-                        WHERE clients.name = %s
-                        """)
-        commands_destcountryid = ("""
-                        SELECT dest_country.id
-                        FROM purch_fact.destination_country AS dest_country
-                        WHERE dest_country.name = %s
-                        """)
         commands_insert_invoice = ("""
-                        INSERT INTO purch_fact.invoice_header (
-                        "num_invoice", "date_invoice", "id_client", "num_delivnote", "their_ref",
-                        "invoice_comments", "destination", "transport", "our_ref", "application",
-                        "id_dest_country", "aginterm", "client_group")
-                        VALUES (%s, %s, %s, %s, %s,
-                        %s, %s, %s, %s, %s,
-                        %s, %s, %s)
+                        INSERT INTO purch_fact.invoice_header ("num_invoice","date_invoice","id_client","id_dest_country")
+                        VALUES (%s,%s,%s,%s)
                         """)
-        query_idinvoice = "SELECT id_invoice FROM purch_fact.invoice_header ORDER BY id_invoice"
+        query_idinvoice = "SELECT id FROM purch_fact.invoice_header ORDER BY id"
         conn = None
         try:
         # read the connection parameters
@@ -2832,17 +3352,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands one by one
-            cur.execute(commands_clientsid, (client_name,))
-            results_clients_id=cur.fetchall()
-            client_id = results_clients_id[0][0]
-
-            cur.execute(commands_destcountryid, (dest_country,))
-            results_destcountry_id=cur.fetchall()
-            destcountry_id = results_destcountry_id[0][0]
-
-            data = (invoice_number, invoice_date, client_id, delivnote_number, their_ref,
-                        comments, destination, transport, our_ref, application,
-                        destcountry_id, aginterm, group,)
+            data = ('',invoice_date,1,1,)
             cur.execute(commands_insert_invoice, data)
 
             cur.execute(query_idinvoice)
@@ -2855,16 +3365,6 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             cur.close()
         # commit the changes
             conn.commit()
-
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Factura creada con éxito")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-            del dlg, new_icon
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -2883,163 +3383,14 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
         self.loadinvoicetable()
         self.loadrecordstable()
-
-# Function to modify invoice data
-    def modifyinvoice(self):
-        """
-        Modify the selected entry in database after validating form inputs.
-        """
-        id_invoice = self.label_IDInvoice.text()
-
-        if id_invoice == '':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Selecciona una factura para modificar")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg, new_icon
-        else:
-            invoice_date = self.Date_Invoice.text()
-            invoice_number = self.InvoiceNumber_Invoice.text()
-            client_name = self.Client_Invoice.currentText()
-            delivnote_number = self.DelivNote_Invoice.text()
-            their_ref = self.TheirRef_Invoice.text()
-            comments = self.Comment_Invoice.toPlainText()
-            destination = self.Destination_Invoice.text()
-            transport = self.Transport_Invoice.text()
-            our_ref = self.OurRef_Invoice.text()
-            application = self.Application_Invoice.currentText()
-            dest_country = self.DestCountry_Invoice.currentText()
-            aginterm = self.AgInterm.text()
-            group = self.label_ClientGroup.text()
-            gross_weight = self.GrossWeight_Invoice.text()
-            net_weight = self.NetWeight_Invoice.text()
-            dimensions = self.Dimensions_Invoice.text()
-            merc_type = self.MercType_Invoice.text()
-            txtcon1 = self.TxtCon1_Invoice.text()
-            txtcon2 = self.TxtCon2_Invoice.text()
-            txtcon3 = self.TxtCon3_Invoice.text()
-            txtcon4 = self.TxtCon4_Invoice.text()
-            txtcon5 = self.TxtCon5_Invoice.text()
-            con1_euro = self.Con1Eur_Invoice.text().replace('.',',') if self.Con1Eur_Invoice.text() != '' else None
-            con2_euro = self.Con2Eur_Invoice.text().replace('.',',') if self.Con2Eur_Invoice.text() != '' else None
-            con3_euro = self.Con3Eur_Invoice.text().replace('.',',') if self.Con3Eur_Invoice.text() != '' else None
-            con4_euro = self.Con4Eur_Invoice.text().replace('.',',') if self.Con4Eur_Invoice.text() != '' else None
-            con5_euro = self.Con5Eur_Invoice.text().replace('.',',') if self.Con5Eur_Invoice.text() != '' else None
-            con1_dollar = self.Con1Dollar_Invoice.text().replace('.',',') if self.Con1Dollar_Invoice.text() != '' else None
-            con2_dollar = self.Con2Dollar_Invoice.text().replace('.',',') if self.Con2Dollar_Invoice.text() != '' else None
-            con3_dollar = self.Con3Dollar_Invoice.text().replace('.',',') if self.Con3Dollar_Invoice.text() != '' else None
-            con4_dollar = self.Con4Dollar_Invoice.text().replace('.',',') if self.Con4Dollar_Invoice.text() != '' else None
-            con5_dollar = self.Con5Dollar_Invoice.text().replace('.',',') if self.Con5Dollar_Invoice.text() != '' else None
-            data_adic3 = self.AditData3_Invoice.text()
-            data_adic4 = self.AditData4_Invoice.text()
-            tax_base_amount = self.TaxBase_Invoice.text().replace('.',',') if self.TaxBase_Invoice.text() != '' else 0
-            iva = self.IVACL_Invoice.text() if self.IVACL_Invoice.text() != '' else 0
-            cl_delivnote = self.ClAlb_Invoice.text()
-            date_delivnote = self.DateAlb_Invoice.text() if self.DateAlb_Invoice.text() != '' else None
-            atte_delivnote = self.AtteAlb_Invoice.text()
-            dest_delivnote = self.DestAlb_Invoice.text()
-            address_delivnote = self.AddressAlb_Invoice.text()
-            zc_delivnote = self.ZCAlb_Invoice.text()
-            city_delivnote = self.CityAlb_Invoice.text()
-            province_delivnote = self.ProvinceAlb_Invoice.text()
-            country_delivnote = self.CountryAlb_Invoice.text()
-            obs_delivnote = self.ObsAlb_Invoice.toPlainText()
-            total_qty_elements = self.Qty_Elements.text()
-
-            commands_clientsid = ("""
-                        SELECT clients.id
-                        FROM purch_fact.clients AS clients
-                        WHERE clients.name = %s
-                        """)
-            commands_destcountryid = ("""
-                            SELECT dest_country.id
-                            FROM purch_fact.destination_country AS dest_country
-                            WHERE dest_country.name = %s
-                            """)
-            commands_modify_invoice = ("""
-                            UPDATE purch_fact.invoice_header
-                            SET "num_invoice" = %s, "date_invoice" = %s, "id_client" = %s, "num_delivnote" = %s, "their_ref" = %s,
-                            "invoice_comments" = %s, "destination" = %s, "transport" = %s, "our_ref" = %s, "application" = %s,
-                            "id_dest_country" = %s, "aginterm" = %s, "client_group" = %s,
-                            "gross_weight" = %s, "net_weight" = %s, "dimensions" = %s, "merc_type" = %s,
-                            "txtcon1" = %s, "txtcon2" = %s, "txtcon3" = %s, "txtcon4" = %s, "txtcon5" = %s,
-                            "con1_euro" = %s, "con2_euro" = %s, "con3_euro" = %s, "con4_euro" = %s, "con5_euro" = %s,
-                            "con1_dollar" = %s, "con2_dollar" = %s, "con3_dollar" = %s, "con4_dollar" = %s, "con5_dollar" = %s,
-                            "data_adic3" = %s, "data_adic4" = %s, "iva" = %s, "cl_delivnote" = %s,
-                            "date_delivnote" = %s, "atte_delivnote" = %s, "dest_delivnote" = %s, "address_delivnote" = %s, "zc_delivnote" = %s,
-                            "city_delivnote" = %s, "province_delivnote" = %s, "country_delivnote" = %s, "obs_delivnote" = %s, "tax_base_amount" = %s,
-                            "total_qty_elements" = %s
-                            WHERE "id_invoice" = %s""")
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_clientsid, (client_name,))
-                results_clients_id=cur.fetchall()
-                id_client = results_clients_id[0][0]
-
-                cur.execute(commands_destcountryid, (dest_country,))
-                results_destcountry_id=cur.fetchall()
-                id_dest_country = results_destcountry_id[0][0]
-
-                data = (invoice_number, invoice_date, id_client, delivnote_number, their_ref,
-                        comments, destination, transport, our_ref, application,
-                        id_dest_country, aginterm, group,
-                        gross_weight, net_weight, dimensions, merc_type,
-                        txtcon1, txtcon2, txtcon3, txtcon4, txtcon5,
-                        con1_euro, con2_euro, con3_euro, con4_euro, con5_euro,
-                        con1_dollar, con2_dollar, con3_dollar, con4_dollar, con5_dollar,
-                        data_adic3, data_adic4, iva, cl_delivnote,
-                        date_delivnote, atte_delivnote, dest_delivnote, address_delivnote, zc_delivnote,
-                        city_delivnote, province_delivnote, country_delivnote, obs_delivnote, tax_base_amount,
-                        total_qty_elements, id_invoice)
-                cur.execute(commands_modify_invoice, data)
-
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Factura editada con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
-
-            except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
-
-        self.loadinvoicetable()
+        self.loadforminvoice(None, idinvoice)
 
 # Function to submit euro invoice
     def submiteuroinvoice(self):
         """
         Submit the information to the invoice and generates the pdf of the corresponding invoice in euros
         """
+        self.calculate_elements()
         self.calculate_totalorder()
         id_invoice = self.label_IDInvoice.text()
 
@@ -3063,14 +3414,14 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             txtcon3 = self.TxtCon3_Invoice.text()
             txtcon4 = self.TxtCon4_Invoice.text()
             txtcon5 = self.TxtCon5_Invoice.text()
-            con1_euro = self.Con1Eur_Invoice.text().replace('.',',') if self.Con1Eur_Invoice.text() != '' else None
-            con2_euro = self.Con2Eur_Invoice.text().replace('.',',') if self.Con2Eur_Invoice.text() != '' else None
-            con3_euro = self.Con3Eur_Invoice.text().replace('.',',') if self.Con3Eur_Invoice.text() != '' else None
-            con4_euro = self.Con4Eur_Invoice.text().replace('.',',') if self.Con4Eur_Invoice.text() != '' else None
-            con5_euro = self.Con5Eur_Invoice.text().replace('.',',') if self.Con5Eur_Invoice.text() != '' else None
-            data_adic3 = self.AditData3_Invoice.text()
-            data_adic4 = self.AditData4_Invoice.text()
-            tax_base_amount = self.TaxBase_Invoice.text().replace('.',',') if self.TaxBase_Invoice.text() != '' else None
+            con1_euro = self.Con1Eur_Invoice.text() if self.Con1Eur_Invoice.text() != '' else None
+            con2_euro = self.Con2Eur_Invoice.text() if self.Con2Eur_Invoice.text() != '' else None
+            con3_euro = self.Con3Eur_Invoice.text() if self.Con3Eur_Invoice.text() != '' else None
+            con4_euro = self.Con4Eur_Invoice.text() if self.Con4Eur_Invoice.text() != '' else None
+            con5_euro = self.Con5Eur_Invoice.text() if self.Con5Eur_Invoice.text() != '' else None
+            data_adic1 = self.AditData1_Invoice.text()
+            data_adic2 = self.AditData2_Invoice.text()
+            tax_base_amount = float(self.TaxBase_Invoice.text()) if self.TaxBase_Invoice.text() != '' else None
             iva = self.IVACL_Invoice.text() if self.IVACL_Invoice.text() != '' else None
             cl_delivnote = self.ClAlb_Invoice.text()
             date_delivnote = self.DateAlb_Invoice.text() if self.DateAlb_Invoice.text() != '' else None
@@ -3089,11 +3440,11 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                             SET "gross_weight" = %s, "net_weight" = %s, "dimensions" = %s, "merc_type" = %s,
                             "txtcon1" = %s, "txtcon2" = %s, "txtcon3" = %s, "txtcon4" = %s, "txtcon5" = %s,
                             "con1_euro" = %s, "con2_euro" = %s, "con3_euro" = %s, "con4_euro" = %s, "con5_euro" = %s,
-                            "data_adic3" = %s, "data_adic4" = %s, "iva" = %s, "cl_delivnote" = %s,
+                            "data_adic1" = %s, "data_adic2" = %s, "iva" = %s, "cl_delivnote" = %s,
                             "date_delivnote" = %s, "atte_delivnote" = %s, "dest_delivnote" = %s, "address_delivnote" = %s, "zc_delivnote" = %s,
                             "city_delivnote" = %s, "province_delivnote" = %s, "country_delivnote" = %s, "obs_delivnote" = %s, "tax_base_amount" = %s,
                             "total_qty_elements" = %s
-                            WHERE "id_invoice" = %s""")
+                            WHERE "id" = %s""")
             conn = None
             try:
             # read the connection parameters
@@ -3105,7 +3456,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                 data = (gross_weight, net_weight, dimensions, merc_type,
                         txtcon1, txtcon2, txtcon3, txtcon4, txtcon5,
                         con1_euro, con2_euro, con3_euro, con4_euro, con5_euro,
-                        data_adic3, data_adic4, iva, cl_delivnote,
+                        data_adic1, data_adic2, iva, cl_delivnote,
                         date_delivnote, atte_delivnote, dest_delivnote, address_delivnote, zc_delivnote,
                         city_delivnote, province_delivnote, country_delivnote, obs_delivnote, tax_base_amount,
                         total_qty_elements, id_invoice)
@@ -3160,16 +3511,27 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                 pdf.add_page()
                 pdf.alias_nb_pages()
 
-                for row in range(self.tableRecords.rowCount()):
-                    item_text = self.tableRecords.item(row, 1).text()
-                    quantity_text = self.tableRecords.item(row, 2).text()
-                    description_text = self.tableRecords.item(row, 3).text()
-                    length_description=len(description_text)
+                id_list=[]
+
+                for row in range(self.proxy_records.rowCount()):
+                    first_column_value = self.proxy_records.data(self.proxy_records.index(row, 0))
+                    id_list.append(first_column_value)
+
+                for element in id_list:
+                    for row in range(self.model_records.rowCount()):
+                        if self.model_records.data(self.model_records.index(row, 0)) == element:
+                            target_row = row
+                            break
+                    if target_row is not None:
+                        position_text = str(self.model_records.data(self.model_records.index(target_row, 2)))
+                        quantity_text = str(self.model_records.data(self.model_records.index(target_row, 3)))
+                        description_text = str(self.model_records.data(self.model_records.index(target_row, 4)))
+                        length_description=len(description_text)
 
                     pdf.set_x(1.5)
                     y_position = pdf.get_y()
                     pdf.set_font('Helvetica', '', 9)
-                    pdf.cell(1, 0.53, item_text, align='C')
+                    pdf.cell(1, 0.53, position_text, align='C')
                     pdf.cell(0.2, 0.53, "")
                     pdf.cell(1.25, 0.53, quantity_text, align='C')
                     pdf.cell(0.2, 0.53, "")
@@ -3179,9 +3541,9 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                     pdf.set_x(x_position + 11.7)
                     pdf.set_font('DejaVuSansCondensed', size=9)
                     pdf.cell(0.2, 0.53, "")
-                    pdf.cell(1.94, 0.53, '{:,.2f}'.format(float(self.tableRecords.item(row, 4).text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+                    pdf.cell(1.94, 0.53, str('{:,.2f}'.format(float(self.model_records.data(self.model_records.index(target_row, 5))))).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
                     pdf.cell(0.2, 0.53, "")
-                    pdf.cell(2.05, 0.53, '{:,.2f}'.format(float(self.tableRecords.item(row, 5).text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+                    pdf.cell(2.05, 0.53, str('{:,.2f}'.format(float(self.model_records.data(self.model_records.index(target_row, 7))))).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
                     pdf.set_font('Helvetica', size=9)
                     pdf.ln(1.5)
                     y_position = pdf.get_y()
@@ -3343,7 +3705,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         """
         Submit the information to the invoice and generates the pdf of the corresponding invoice in dollars
         """
-        self.calculate_totalorder()
+        self.calculate_elements()
         id_invoice = self.label_IDInvoice.text()
         valcotdollar = self.ValCotDollar_Invoice.text()
 
@@ -3385,8 +3747,8 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             con3_dollar = self.Con3Dollar_Invoice.text().replace('.',',') if self.Con3Dollar_Invoice.text() != '' else None
             con4_dollar = self.Con4Dollar_Invoice.text().replace('.',',') if self.Con4Dollar_Invoice.text() != '' else None
             con5_dollar = self.Con5Dollar_Invoice.text().replace('.',',') if self.Con5Dollar_Invoice.text() != '' else None
-            data_adic3 = self.AditData3_Invoice.text()
-            data_adic4 = self.AditData4_Invoice.text()
+            data_adic1 = self.AditData1_Invoice.text()
+            data_adic2 = self.AditData2_Invoice.text()
             tax_base_amount = self.TaxBase_Invoice.text().replace('.',',') if self.TaxBase_Invoice.text() != '' else None
             iva = self.IVACL_Invoice.text() if self.IVACL_Invoice.text() != '' else None
             cl_delivnote = self.ClAlb_Invoice.text()
@@ -3406,11 +3768,11 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                             SET "gross_weight" = %s, "net_weight" = %s, "dimensions" = %s, "merc_type" = %s,
                             "txtcon1" = %s, "txtcon2" = %s, "txtcon3" = %s, "txtcon4" = %s, "txtcon5" = %s,
                             "con1_dollar" = %s, "con2_dollar" = %s, "con3_dollar" = %s, "con4_dollar" = %s, "con5_dollar" = %s,
-                            "data_adic3" = %s, "data_adic4" = %s, "iva" = %s, "cl_delivnote" = %s,
+                            "data_adic1" = %s, "data_adic2" = %s, "iva" = %s, "cl_delivnote" = %s,
                             "date_delivnote" = %s, "atte_delivnote" = %s, "dest_delivnote" = %s, "address_delivnote" = %s, "zc_delivnote" = %s,
                             "city_delivnote" = %s, "province_delivnote" = %s, "country_delivnote" = %s, "obs_delivnote" = %s, "tax_base_amount" = %s,
                             "total_qty_elements" = %s
-                            WHERE "id_invoice" = %s""")
+                            WHERE "id" = %s""")
             conn = None
             try:
             # read the connection parameters
@@ -3422,7 +3784,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                 data = (gross_weight, net_weight, dimensions, merc_type,
                         txtcon1, txtcon2, txtcon3, txtcon4, txtcon5,
                         con1_dollar, con2_dollar, con3_dollar, con4_dollar, con5_dollar,
-                        data_adic3, data_adic4, iva, cl_delivnote,
+                        data_adic1, data_adic2, iva, cl_delivnote,
                         date_delivnote, atte_delivnote, dest_delivnote, address_delivnote, zc_delivnote,
                         city_delivnote, province_delivnote, country_delivnote, obs_delivnote, tax_base_amount,
                         total_qty_elements, id_invoice)
@@ -3477,16 +3839,27 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                 pdf.add_page()
                 pdf.alias_nb_pages()
 
-                for row in range(self.tableRecords.rowCount()):
-                    item_text = self.tableRecords.item(row, 1).text()
-                    quantity_text = self.tableRecords.item(row, 2).text()
-                    description_text = self.tableRecords.item(row, 3).text()
-                    length_description=len(description_text)
+                id_list=[]
+
+                for row in range(self.proxy_records.rowCount()):
+                    first_column_value = self.proxy_records.data(self.proxy_records.index(row, 0))
+                    id_list.append(first_column_value)
+
+                for element in id_list:
+                    for row in range(self.model_records.rowCount()):
+                        if self.model_records.data(self.model_records.index(row, 0)) == element:
+                            target_row = row
+                            break
+                    if target_row is not None:
+                        position_text = str(self.model_records.data(self.model_records.index(target_row, 2)))
+                        quantity_text = str(self.model_records.data(self.model_records.index(target_row, 3)))
+                        description_text = str(self.model_records.data(self.model_records.index(target_row, 4)))
+                        length_description=len(description_text)
 
                     pdf.set_x(1.5)
                     y_position = pdf.get_y()
                     pdf.set_font('Helvetica', '', 9)
-                    pdf.cell(1, 0.53, item_text, align='C')
+                    pdf.cell(1, 0.53, position_text, align='C')
                     pdf.cell(0.2, 0.53, "")
                     pdf.cell(1.25, 0.53, quantity_text, align='C')
                     pdf.cell(0.2, 0.53, "")
@@ -3496,9 +3869,9 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                     pdf.set_x(x_position + 11.7)
                     pdf.set_font('DejaVuSansCondensed', size=9)
                     pdf.cell(0.2, 0.53, "")
-                    pdf.cell(1.94, 0.53, '{:,.2f}'.format(float(self.tableRecords.item(row, 4).text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
+                    pdf.cell(1.94, 0.53, str('{:,.2f}'.format(float(self.model_records.data(self.model_records.index(target_row, 5))))).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
                     pdf.cell(0.2, 0.53, "")
-                    pdf.cell(2.05, 0.53, '{:,.2f}'.format(float(self.tableRecords.item(row, 5).text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
+                    pdf.cell(2.05, 0.53, str('{:,.2f}'.format(float(self.model_records.data(self.model_records.index(target_row, 7))))).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
                     pdf.set_font('Helvetica', size=9)
                     pdf.ln(1.5)
                     y_position = pdf.get_y()
@@ -3663,26 +4036,93 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         """
         from InvoiceSearch_Window import Ui_InvoiceSearch_Window
         self.invoicesearch_window=QtWidgets.QMainWindow()
-        self.ui=Ui_InvoiceSearch_Window()
+        self.ui=Ui_InvoiceSearch_Window(self.username)
         self.ui.setupUi(self.invoicesearch_window)
         self.invoicesearch_window.show()
-        Invoice_Window.close()
+        # Invoice_Window.close()
 
 # Function to load invoice table
-    def loadinvoicetable(self):
+    def loadinvoicetable_editable(self):
         """
         Queries the database for invoices, configures and populates tables with the query results, 
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
-        commands_querytableinvoice = ("""
-                        SELECT invoice."id_invoice", invoice."num_invoice", invoice."num_delivnote", TO_CHAR(invoice."date_invoice",'DD-MM-YYYY'),
-                        clients."name", invoice."our_ref", invoice."their_ref", invoice."obs_delivnote", TO_CHAR(invoice."date_delivnote",'DD-MM-YYYY'),
-                        invoice."application", dest_country."name", TO_CHAR(invoice."pay_date",'DD-MM-YYYY'), invoice."client_group"
-                        FROM purch_fact.invoice_header AS invoice
-                        JOIN purch_fact.clients AS clients ON invoice."id_client" = clients."id"
-                        JOIN purch_fact.destination_country AS dest_country ON invoice."id_dest_country" = dest_country."id"
-                        ORDER BY invoice."num_invoice"
-                        """)
+        self.model_invoice.setTable("purch_fact.invoice_header")
+        # self.tableInvoice.setModel(None)
+        self.model_invoice.setRelation(4, QtSql.QSqlRelation("purch_fact.clients", "id", "name"))
+        self.model_invoice.setRelation(11, QtSql.QSqlRelation("purch_fact.destination_country", "id", "name"))
+        self.model_invoice.setSort(1, QtCore.Qt.SortOrder.DescendingOrder)
+        self.model_invoice.select()
+
+        self.proxy_invoices.setSourceModel(self.model_invoice)
+        self.tableInvoice.setModel(self.proxy_invoices)
+
+    # Change all column names
+        headers = ["ID", "Nº Factura", "Nº Albarán", "Fecha Factura", "Cliente", "N/Ref.", "S/Ref.", "Comentarios", "Destino", "Transporte", "Aplicación",
+                    "País Destino", "Peso Bruto", "Peso Neto", "Dimensiones", "Tipo Merc.", "Concepto 1", "Concepto 2", "Concepto 3", "Concepto 4", "Concepto 5",
+                    "€ Con. 1", "€ Con. 2", "€ Con. 3", "€ Con. 4", "€ Con. 5", "$ Con. 1", "$ Con. 2", "$ Con. 3", "$ Con. 4", "$ Con. 5", " Cot. €-$",
+                    "Dato Adic 1", "Dato Adic 2", "Total Elementos", "Base Imponible", "IVA",
+                    "Cliente Albarán", "Fecha Albarán", "Atte. Albarán", "Destino Albarán", "Dirección Albarán", "CP Albarán",
+                    "Ciudad Albarán", "Provincia Albarán", "País Albarán", "Notas Albarán", "Agente", "Fecha Agente", "Estado Agente", "Grupo Cliente", "Fecha Pago",
+                    "Destino Despacho", "Cajas Despacho", "Peso Despacho", "Descripción Despacho", "Transporte Despacho", "Fecha Despacho",
+                    "Fecha Envío Factura", "Método Envío Factura", "Estado Factura"]
+        self.model_invoice.setAllColumnHeaders(headers)
+
+        self.tableInvoice.setItemDelegate(AlignDelegate(self.tableInvoice))
+        delegate = MultiLineDelegate(self.tableRecords)
+        self.tableInvoice.setItemDelegateForColumn(7, delegate)
+        self.tableInvoice.setItemDelegateForColumn(4,ComboBoxDelegate_Relational(2,self.tableInvoice))
+        self.tableInvoice.setItemDelegateForColumn(11,ComboBoxDelegate_Relational(1,self.tableInvoice))
+        self.tableInvoice.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableInvoice.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableInvoice.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableInvoice.setObjectName("tableInvoice")
+        self.tableInvoice.setSortingEnabled(False)
+        self.tableInvoice.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableInvoice, self.model_invoice, self.proxy_invoices))
+
+        self.tableInvoice.hideColumn(0)
+        self.tableInvoice.hideColumn(8)
+        self.tableInvoice.hideColumn(9)
+        for i in range (12,38):
+            self.tableInvoice.hideColumn(i)
+        for i in range (39,50):
+            self.tableInvoice.hideColumn(i)
+        for i in range (52, self.model_invoice.columnCount()):
+            self.tableInvoice.hideColumn(i)
+
+    # Getting the unique values for each column of the model
+        for column in range(self.model_invoice.columnCount()):
+            list_valuesUnique = []
+            if column not in self.checkbox_states:
+                self.checkbox_states[column] = {}
+                self.checkbox_states[column]["Seleccionar todo"] = True
+                for row in range(self.model_invoice.rowCount()):
+                    value = self.model_invoice.record(row).value(column)
+                    if value not in list_valuesUnique:
+                        if isinstance(value, QtCore.QDate):
+                            value = value.toString("dd/MM/yyyy")
+                        list_valuesUnique.append(str(value))
+                        self.checkbox_states[column][value] = True
+                self.dict_valuesuniques[column] = list_valuesUnique
+
+        list_aplications = ['CAUDAL','TEMPERATURA','NIVELES', 'OTROS']
+        self.combo_itemtype = EditableComboBoxDelegate(self.tableInvoice, list_aplications)
+        self.tableInvoice.setItemDelegateForColumn(10, self.combo_itemtype)
+        
+        self.model_invoice.dataChanged.connect(self.saveChanges)
+        self.tableInvoice.selectionModel().currentChanged.connect(self.load_data)
+
+# Function to load invoice table
+    def loadinvoicetable(self):
+        commands_invoice = """SELECT fact.id, fact.num_invoice, fact.num_delivnote, TO_CHAR(fact.date_invoice,'DD/MM/YYYY'),
+                            client.name, fact.our_ref, fact.their_ref,
+                            fact.invoice_comments, fact.application, country.name,
+                            TO_CHAR(fact.date_delivnote,'DD/MM/YYYY'), fact.client_group, TO_CHAR(fact.pay_date,'DD/MM/YYYY')
+                            FROM purch_fact.invoice_header AS fact
+                            LEFT OUTER JOIN purch_fact.clients AS client ON fact.id_client = client.id
+                            LEFT OUTER JOIN purch_fact.destination_country AS country ON fact.id_dest_country = country.id
+                            ORDER BY fact.num_invoice ASC"""
+
         conn = None
         try:
         # read the connection parameters
@@ -3691,8 +4131,26 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands one by one
-            cur.execute(commands_querytableinvoice)
-            results_invoices=cur.fetchall()
+            cur.execute(commands_invoice)
+            results_invoice=cur.fetchall()
+
+            self.tableInvoice.setRowCount(len(results_invoice))
+            
+            tablerow=0
+
+        # fill the Qt Table with the query results
+            for row in results_invoice:
+                for column in range(13):
+                    value = row[column]
+                    if value is None:
+                        value = ''
+                    it = QtWidgets.QTableWidgetItem(str(value))
+                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                    self.tableInvoice.setItem(tablerow, column, it)
+
+                self.tableInvoice.setItemDelegateForRow(tablerow, AlignDelegate(self.tableInvoice))
+                tablerow+=1
+
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
@@ -3703,7 +4161,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
+            dlg.setText("1Ha ocurrido el siguiente error:\n"
                         + str(error))
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
@@ -3712,31 +4170,15 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-        self.tableInvoice.setRowCount(len(results_invoices))
-        tablerow=0
-
-        font = QtGui.QFont()
-        font.setPointSize(int(10))
-
-    # fill the Qt Table with the query results
-        for row in results_invoices:
-            for column in range(13):
-                value = row[column]
-                if value is None:
-                    value = ''
-                it = QtWidgets.QTableWidgetItem(str(value))
-                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                it.setFont(font)
-                self.tableInvoice.setItem(tablerow, column, it)
-
-            self.tableInvoice.setItemDelegateForRow(tablerow, AlignDelegate(self.tableInvoice))
-            tablerow+=1
-
-        self.tableInvoice.verticalHeader().hide()
-        self.tableInvoice.setSortingEnabled(False)
         self.tableInvoice.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableInvoice.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableInvoice.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableInvoice.verticalHeader().hide()
 
-        # self.calculate_totalorder()
+        self.tableInvoice.hideColumn(0)
+
+        self.tableInvoice.currentCellChanged.connect(self.loadforminvoice)
+        self.tableInvoice.cellClicked.connect(self.loadforminvoice)
 
 # Function to filter invoice table
     def filterinvoicetable(self):
@@ -3746,14 +4188,14 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         """
         filter = self.Filter_Invoice.text()
         commands_querytableinvoice = ("""
-                        SELECT invoice."id_invoice", invoice."num_invoice", invoice."num_delivnote", TO_CHAR(invoice."date_invoice",'DD-MM-YYYY'),
+                        SELECT invoice."id", invoice."num_invoice", invoice."num_delivnote", TO_CHAR(invoice."date_invoice",'DD-MM-YYYY'),
                         clients."name", invoice."our_ref", invoice."their_ref", invoice."obs_delivnote", TO_CHAR(invoice."date_delivnote",'DD-MM-YYYY'),
                         invoice."application", dest_country."name", TO_CHAR(invoice."pay_date",'DD-MM-YYYY'), invoice."client_group"
                         FROM purch_fact.invoice_header AS invoice
                         JOIN purch_fact.clients AS clients ON invoice."id_client" = clients."id"
                         JOIN purch_fact.destination_country AS dest_country ON invoice."id_dest_country" = dest_country."id"
                         WHERE invoice."num_invoice" LIKE ('%%'||%s||'%%')
-                        ORDER BY invoice."id_invoice"
+                        ORDER BY invoice."id"
                         """)
         conn = None
         try:
@@ -3816,22 +4258,21 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         """
         id_invoice = self.label_IDInvoice.text()
 
-        self.model.clear()
-        self.model.setTable("purch_fact.invoice_detail")
+        self.model_records.setTable("purch_fact.invoice_detail")
         self.tableRecords.setModel(None)
-        self.tableRecords.setModel(self.proxy)
-        self.model.setFilter(f"inv_head_id = '{id_invoice}'")
-        self.model.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
-        self.model.select()
+        self.tableRecords.setModel(self.proxy_records)
+        self.model_records.setFilter(f"invoice_header_id = '{id_invoice}'")
+        self.model_records.setSort(0, QtCore.Qt.SortOrder.AscendingOrder)
+        self.model_records.select()
 
-        self.proxy.setSourceModel(self.model)
-        self.tableRecords.setModel(self.proxy)
+        self.proxy_records.setSourceModel(self.model_records)
+        self.tableRecords.setModel(self.proxy_records)
 
     # Change all column names
         headers = ["ID", "ID Factura", "Item", "Cantidad", "Descripción", "Precio Un. (€)", "Precio Un. ($)", "Precio Tot. (€)", "Precio Tot. ($)"]
-        self.model.setAllColumnHeaders(headers)
+        self.model_records.setAllColumnHeaders(headers)
 
-        columns_number = self.model.columnCount()
+        columns_number = self.model_records.columnCount()
         for column in range(columns_number):
             self.tableRecords.setItemDelegateForColumn(column, None)
 
@@ -3844,20 +4285,20 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.tableRecords.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
         self.tableRecords.setObjectName("tableRecords")
         self.tableRecords.setSortingEnabled(False)
-        self.tableRecords.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableRecords, self.model, self.proxy))
+        self.tableRecords.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableRecords, self.model_records, self.proxy_records))
         self.gridLayout_4.addWidget(self.tableRecords, 8, 0, 1, 10)
 
         self.tableRecords.hideColumn(0)
         self.tableRecords.hideColumn(1)
 
     # Getting the unique values for each column of the model
-        for column in range(self.model.columnCount()):
+        for column in range(self.model_records.columnCount()):
             list_valuesUnique = []
             if column not in self.checkbox_states:
                 self.checkbox_states[column] = {}
                 self.checkbox_states[column]["Seleccionar todo"] = True
-                for row in range(self.model.rowCount()):
-                    value = self.model.record(row).value(column)
+                for row in range(self.model_records.rowCount()):
+                    value = self.model_records.record(row).value(column)
                     if value not in list_valuesUnique:
                         if isinstance(value, QtCore.QDate):
                             value = value.toString("dd/MM/yyyy")
@@ -3868,7 +4309,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.calculate_totalorder()
         self.calculate_elements()
 
-        self.model.dataChanged.connect(self.saveChanges)
+        self.model_records.dataChanged.connect(self.saveChanges)
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex, table, model, proxy):
@@ -3940,7 +4381,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             list_uniquevalues = sorted(list(set(valuesUnique_view)))
 
         for actionName in list_uniquevalues:
-            checkbox_widget = QtWidgets.QCheckBox(actionName)
+            checkbox_widget = QtWidgets.QCheckBox(str(actionName))
 
             if self.logicalIndex not in self.checkbox_filters:
                 checkbox_widget.setChecked(True)
@@ -4150,7 +4591,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                 stringAction=stringAction.toString("yyyy-MM-dd")
 
             filterString = QtCore.QRegularExpression(stringAction, QtCore.QRegularExpression.PatternOption(0))
-            # del self.proxy.filters[filterColumn]
+            # del self.proxy_records.filters[filterColumn]
             proxy.setFilter([stringAction], filterColumn)
 
             imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
@@ -4158,7 +4599,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             model.setIconColumnHeader(filterColumn, icono)
 
 # Function to load invoice form
-    def loadforminvoice(self, item=None, ID_invoice=None):
+    def loadforminvoice(self, current_row, ID_invoice=None, current=None):
         """
         Loads the invoice details from the database and populates the corresponding fields in the form. 
 
@@ -4166,131 +4607,185 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             item (QTableWidgetItem, optional): Table item containing the row of the invoice. Defaults to None.
             ID_invoice (str, optional): ID of the invoice to load if no table item is provided. Defaults to None.
         """
-        if item is None:
-            invoice_id = ID_invoice
-        else:
-            invoice_id = self.tableInvoice.item(item.row(), 0).text()
+        # self.block_signals(True)
 
-        commands_query_invoice = ("""
-                        SELECT "num_invoice", TO_CHAR("date_invoice", 'dd/MM/yyyy'), "id_client", "num_delivnote", "their_ref",
-                        "invoice_comments", "destination", "transport", "our_ref", "application",
-                        "id_dest_country", "gross_weight", "net_weight", "dimensions", "merc_type",
-                        "txtcon1", "txtcon2", "txtcon3", "txtcon4", "txtcon5",
-                        "con1_euro", "con2_euro", "con3_euro", "con4_euro", "con5_euro",
-                        "con1_dollar", "con2_dollar", "con3_dollar", "con4_dollar", "con5_dollar",
-                        "cot_euro_dollar", "data_adic3", "data_adic4", "iva", "cl_delivnote",
-                        TO_CHAR("date_delivnote", 'dd/MM/yyyy'), "atte_delivnote", "dest_delivnote", "address_delivnote", "zc_delivnote",
-                        "city_delivnote", "province_delivnote", "country_delivnote", "obs_delivnote", "aginterm",
-                        "client_group", "aginterm_ok", "aginterm_state", "pay_date", "total_qty_elements",
-                        "tax_base_amount"
-                        FROM purch_fact.invoice_header
-                        WHERE "id_invoice" = %s
-                        """)
-        commands_query_clients = ("""
-                        SELECT clients.name
-                        FROM purch_fact.clients AS clients
-                        WHERE clients.id = %s
-                        """)
-        commands_query_destcountry = ("""
-                        SELECT dest_country.name
-                        FROM purch_fact.destination_country AS dest_country
-                        WHERE dest_country.id = %s
-                        """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_query_invoice, (invoice_id,))
-            results_query_invoice=cur.fetchall()
+        # if current is None:
+        #     invoice_id = ID_invoice
+        #     source_index = self.obtain_source_index(ID_invoice)
+        #     if source_index is None:
+        #         return
+        # else:
+        #     source_index = self.proxy_invoices.mapToSource(current)
 
-            self.label_IDInvoice.setText(invoice_id)
+        # invoice_id = self.model_invoice.data(self.model_invoice.index(source_index.row(), 0))
 
-            self.InvoiceNumber_Invoice.setText(results_query_invoice[0][0])
-            self.Date_Invoice.setText(results_query_invoice[0][1])
+        # self.InvoiceNumber_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 1)))
+        # self.DelivNote_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 2)))
+        # self.Date_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 3)).toString("dd/MM/yyyy"))
+        # self.Client_Invoice.setCurrentText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 4)))
+        # self.OurRef_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 5)))
+        # self.TheirRef_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 6)))
+        # self.Comment_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 7)))
+        # self.Destination_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 8)))
+        # self.Transport_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 9)))
+        # self.Application_Invoice.setCurrentText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 10)))
+        # self.DestCountry_Invoice.setCurrentText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 11)))
+        # self.GrossWeight_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 12)))
+        # self.NetWeight_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 13)))
+        # self.Dimensions_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 14)))
+        # self.MercType_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 15)))
+        # self.TxtCon1_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 16)))
+        # self.TxtCon2_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 17)))
+        # self.TxtCon3_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 18)))
+        # self.TxtCon4_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 19)))
+        # self.TxtCon5_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 20)))
+        # self.Con1Eur_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 21))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 21)) is not None else '')
+        # self.Con2Eur_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 22))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 22)) is not None else '')
+        # self.Con3Eur_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 23))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 23)) is not None else '')
+        # self.Con4Eur_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 24))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 24)) is not None else '')
+        # self.Con5Eur_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 25))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 25)) is not None else '')
+        # self.Con1Dollar_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 26))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 26)) is not None else '')
+        # self.Con2Dollar_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 27))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 27)) is not None else '')
+        # self.Con3Dollar_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 28))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 28)) is not None else '')
+        # self.Con4Dollar_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 29))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 29)) is not None else '')
+        # self.Con5Dollar_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 30))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 30)) is not None else '')
+        # self.ValCotDollar_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 31))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 31)) is not None else '')
+        # self.AditData1_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 32)))
+        # self.AditData2_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 33)))
+        # self.Qty_Elements.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 34))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 34)) is not None else '')
+        # self.TaxBase_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 35)).replace(".","").replace(",",".")[:self.model_invoice.data(self.model_invoice.index(source_index.row(), 35)).find(" €")]) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 35)) is not None else '')
+        # self.IVACL_Invoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 36))) if self.model_invoice.data(self.model_invoice.index(source_index.row(), 36)) is not None else '')
+        # self.ClAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 37)))
+        # self.DateAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 38)).toString("dd/MM/yyyy"))
+        # self.AtteAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 39)))
+        # self.DestAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 40)))
+        # self.AddressAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 41)))
+        # self.ZCAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 42)))
+        # self.CityAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 43)))
+        # self.ProvinceAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 44)))
+        # self.CountryAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 45)))
+        # self.ObsAlb_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 46)))
+        # self.AgInterm.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 47)))
+        # self.AgIntermOk.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 48)).toString("dd/MM/yyyy"))
+        # self.AgIntermState.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 49)))
+        # self.label_ClientGroup.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 50)))
+        # self.PayDate_Invoice.setText(self.model_invoice.data(self.model_invoice.index(source_index.row(), 51)).toString("dd/MM/yyyy"))
 
-            client_id = results_query_invoice[0][2]
-            cur.execute(commands_query_clients, (client_id,))
-            results_client_id=cur.fetchall()
-            self.Client_Invoice.setCurrentText(results_client_id[0][0])
+        # self.block_signals(False)
+        
+        # self.label_IDInvoice.setText(str(invoice_id))
 
-            self.DelivNote_Invoice.setText(results_query_invoice[0][3])
-            self.TheirRef_Invoice.setText(results_query_invoice[0][4])
-            self.Comment_Invoice.setText(results_query_invoice[0][5])
-            self.Destination_Invoice.setText(results_query_invoice[0][6])
-            self.Transport_Invoice.setText(results_query_invoice[0][7])
-            self.OurRef_Invoice.setText(results_query_invoice[0][8])
-            self.Application_Invoice.setCurrentText(results_query_invoice[0][9])
+        if current_row is not None:
+            self.block_signals(True)
+            data_order=[]
 
-            destcountry_id = results_query_invoice[0][10]
-            cur.execute(commands_query_destcountry, (destcountry_id,))
-            results_destcountry_id=cur.fetchall()
-            self.DestCountry_Invoice.setCurrentText(results_destcountry_id[0][0])
+            item_text=self.tableInvoice.item(current_row, 0).text()
+            data_order.append(item_text)
 
-            self.GrossWeight_Invoice.setText(results_query_invoice[0][11])
-            self.NetWeight_Invoice.setText(results_query_invoice[0][12])
-            self.Dimensions_Invoice.setText(results_query_invoice[0][13])
-            self.MercType_Invoice.setText(results_query_invoice[0][14])
-            self.TxtCon1_Invoice.setText(results_query_invoice[0][15])
-            self.TxtCon2_Invoice.setText(results_query_invoice[0][16])
-            self.TxtCon3_Invoice.setText(results_query_invoice[0][17])
-            self.TxtCon4_Invoice.setText(results_query_invoice[0][18])
-            self.TxtCon5_Invoice.setText(results_query_invoice[0][19])
-            self.Con1Eur_Invoice.setText(str(results_query_invoice[0][20]) if results_query_invoice[0][20] is not None else '')
-            self.Con2Eur_Invoice.setText(str(results_query_invoice[0][21]) if results_query_invoice[0][21] is not None else '')
-            self.Con3Eur_Invoice.setText(str(results_query_invoice[0][22]) if results_query_invoice[0][22] is not None else '')
-            self.Con4Eur_Invoice.setText(str(results_query_invoice[0][23]) if results_query_invoice[0][23] is not None else '')
-            self.Con5Eur_Invoice.setText(str(results_query_invoice[0][24]) if results_query_invoice[0][24] is not None else '')
-            self.Con1Dollar_Invoice.setText(str(results_query_invoice[0][25]) if results_query_invoice[0][25] is not None else '')
-            self.Con2Dollar_Invoice.setText(str(results_query_invoice[0][26]) if results_query_invoice[0][26] is not None else '')
-            self.Con3Dollar_Invoice.setText(str(results_query_invoice[0][27]) if results_query_invoice[0][27] is not None else '')
-            self.Con4Dollar_Invoice.setText(str(results_query_invoice[0][28]) if results_query_invoice[0][28] is not None else '')
-            self.Con5Dollar_Invoice.setText(str(results_query_invoice[0][29]) if results_query_invoice[0][29] is not None else '')
-            self.ValCotDollar_Invoice.setText(str(results_query_invoice[0][30]) if results_query_invoice[0][30] is not None else '')
-            self.AditData3_Invoice.setText(results_query_invoice[0][31])
-            self.AditData4_Invoice.setText(results_query_invoice[0][32])
-            self.IVACL_Invoice.setText(str(results_query_invoice[0][33]) if results_query_invoice[0][33] is not None else '')
-            self.ClAlb_Invoice.setText(results_query_invoice[0][34])
-            self.DateAlb_Invoice.setText(results_query_invoice[0][35])
-            self.AtteAlb_Invoice.setText(results_query_invoice[0][36])
-            self.DestAlb_Invoice.setText(results_query_invoice[0][37])
-            self.AddressAlb_Invoice.setText(results_query_invoice[0][38])
-            self.ZCAlb_Invoice.setText(results_query_invoice[0][39])
-            self.CityAlb_Invoice.setText(results_query_invoice[0][40])
-            self.ProvinceAlb_Invoice.setText(results_query_invoice[0][41])
-            self.CountryAlb_Invoice.setText(results_query_invoice[0][42])
-            self.ObsAlb_Invoice.setText(results_query_invoice[0][43])
-            self.AgInterm.setText(results_query_invoice[0][44])
-            self.label_ClientGroup.setText(results_query_invoice[0][45])
-            self.AgIntermOk.setText(results_query_invoice[0][46])
-            self.AgIntermState.setText(results_query_invoice[0][47])
-            self.AgIntermState.setText(results_query_invoice[0][48])
-            self.Qty_Elements.setText(str(results_query_invoice[0][49]) if results_query_invoice[0][49] is not None else '')
-            self.TaxBase_Invoice.setText(str(results_query_invoice[0][50].replace(".","").replace(",",".")[:results_query_invoice[0][50].find(" €")]) if results_query_invoice[0][50] is not None else '')
+            self.label_IDInvoice.setText(data_order[0])
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            commands_querytableinvoices = ("""
+                            SELECT invoice.num_invoice, invoice.num_delivnote, TO_CHAR(invoice.date_invoice,'DD/MM/YYYY'), client.name,
+                            invoice.our_ref, invoice.their_ref, invoice.invoice_comments, invoice.destination, invoice.transport,
+                            invoice.application, country.name, invoice.gross_weight, invoice.net_weight, invoice.dimensions,
+                            invoice.merc_type, invoice.txtcon1, invoice.txtcon2, invoice.txtcon3, invoice.txtcon4, invoice.txtcon5,
+                            invoice.con1_euro, invoice.con2_euro, invoice.con3_euro, invoice.con4_euro, invoice.con5_euro,
+                            invoice.con1_dollar, invoice.con2_dollar, invoice.con3_dollar, invoice.con4_dollar, invoice.con5_dollar,
+                            invoice.cot_euro_dollar, invoice.data_adic1, invoice.data_adic2, invoice.total_qty_elements, invoice.tax_base_amount,
+                            invoice.iva, invoice.cl_delivnote, TO_CHAR(invoice.date_delivnote,'DD/MM/YYYY'), invoice.atte_delivnote, invoice.dest_delivnote,
+                            invoice.address_delivnote, invoice.zc_delivnote, invoice.city_delivnote, invoice.province_delivnote, invoice.country_delivnote,
+                            invoice.obs_delivnote, invoice.client_group, TO_CHAR(invoice.pay_date,'DD/MM/YYYY'),
+                            invoice.aginterm, TO_CHAR(invoice.aginterm_ok,'DD/MM/YYYY'), invoice.aginterm_state
+                            FROM purch_fact.invoice_header AS invoice
+                            LEFT OUTER JOIN purch_fact.clients AS client ON invoice.id_client = client.id
+                            LEFT OUTER JOIN purch_fact.destination_country AS country ON invoice.id_dest_country = country.id
+                            WHERE invoice.id = %s
+                            """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(commands_querytableinvoices,(data_order[0],))
+                results_invoices=cur.fetchall()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("2Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
+
+            self.InvoiceNumber_Invoice.setText(str(results_invoices[0][0]))
+            self.DelivNote_Invoice.setText(str(results_invoices[0][1]))
+            self.Date_Invoice.setText(str(results_invoices[0][2]))
+            self.Client_Invoice.setCurrentText(str(results_invoices[0][3]))
+            self.OurRef_Invoice.setText(str(results_invoices[0][4]))
+            self.TheirRef_Invoice.setText(str(results_invoices[0][5]))
+            self.Comment_Invoice.setText(str(results_invoices[0][6]))
+            self.Destination_Invoice.setText(str(results_invoices[0][7]))
+            self.Transport_Invoice.setText(str(results_invoices[0][8]))
+            self.Application_Invoice.setCurrentText(str(results_invoices[0][9]))
+            self.DestCountry_Invoice.setCurrentText(str(results_invoices[0][10]) if results_invoices[0][10] is not None else '')
+            self.GrossWeight_Invoice.setText(str(results_invoices[0][11]))
+            self.NetWeight_Invoice.setText(str(results_invoices[0][12]))
+            self.Dimensions_Invoice.setText(str(results_invoices[0][13]))
+            self.MercType_Invoice.setText(str(results_invoices[0][14]))
+            self.TxtCon1_Invoice.setText(str(results_invoices[0][15]))
+            self.TxtCon2_Invoice.setText(str(results_invoices[0][16]))
+            self.TxtCon3_Invoice.setText(str(results_invoices[0][17]))
+            self.TxtCon4_Invoice.setText(str(results_invoices[0][18]))
+            self.TxtCon5_Invoice.setText(str(results_invoices[0][19]))
+            self.Con1Eur_Invoice.setText(str(results_invoices[0][20]) if results_invoices[0][20] is not None else '')
+            self.Con2Eur_Invoice.setText(str(results_invoices[0][21]) if results_invoices[0][21] is not None else '')
+            self.Con3Eur_Invoice.setText(str(results_invoices[0][22]) if results_invoices[0][22] is not None else '')
+            self.Con4Eur_Invoice.setText(str(results_invoices[0][23]) if results_invoices[0][23] is not None else '')
+            self.Con5Eur_Invoice.setText(str(results_invoices[0][24]) if results_invoices[0][24] is not None else '')
+            self.Con1Dollar_Invoice.setText(str(results_invoices[0][25]) if results_invoices[0][25] is not None else '')
+            self.Con2Dollar_Invoice.setText(str(results_invoices[0][26]) if results_invoices[0][26] is not None else '')
+            self.Con3Dollar_Invoice.setText(str(results_invoices[0][27]) if results_invoices[0][27] is not None else '')
+            self.Con4Dollar_Invoice.setText(str(results_invoices[0][28]) if results_invoices[0][28] is not None else '')
+            self.Con5Dollar_Invoice.setText(str(results_invoices[0][29]) if results_invoices[0][29] is not None else '')
+            self.ValCotDollar_Invoice.setText(str(results_invoices[0][30]) if results_invoices[0][30] is not None else '')
+            self.AditData1_Invoice.setText(str(results_invoices[0][31]) if results_invoices[0][31] is not None else '')
+            self.AditData2_Invoice.setText(str(results_invoices[0][32]) if results_invoices[0][32] is not None else '')
+            self.Qty_Elements.setText(str(results_invoices[0][33]) if results_invoices[0][33] is not None else '')
+            self.TaxBase_Invoice.setText(str(results_invoices[0][34].replace(".","").replace(",",".")[:results_invoices[0][34].find(" €")]) if results_invoices[0][34] is not None else '')
+            self.IVACL_Invoice.setText(str(results_invoices[0][35]) if results_invoices[0][35] is not None else '')
+            self.ClAlb_Invoice.setText(str(results_invoices[0][36]))
+            self.DateAlb_Invoice.setText(str(results_invoices[0][37]) if results_invoices[0][37] is not None else '')
+            self.AtteAlb_Invoice.setText(str(results_invoices[0][38]))
+            self.DestAlb_Invoice.setText(str(results_invoices[0][39]))
+            self.AddressAlb_Invoice.setText(str(results_invoices[0][40]) if results_invoices[0][40] is not None else '')
+            self.ZCAlb_Invoice.setText(str(results_invoices[0][41]) if results_invoices[0][41] is not None else '')
+            self.CityAlb_Invoice.setText(str(results_invoices[0][42]) if results_invoices[0][42] is not None else '')
+            self.ProvinceAlb_Invoice.setText(str(results_invoices[0][43]))
+            self.CountryAlb_Invoice.setText(str(results_invoices[0][44]))
+            self.ObsAlb_Invoice.setText(str(results_invoices[0][45]))
+            self.label_ClientGroup.setText(str(results_invoices[0][46]))
+            self.PayDate_Invoice.setText(str(results_invoices[0][47]) if results_invoices[0][47] is not None else '')
+            self.AgInterm.setText(str(results_invoices[0][48]) if results_invoices[0][48] is not None else '')
+            self.AgIntermOk.setText(str(results_invoices[0][49]) if results_invoices[0][49] is not None else '')
+            self.AgIntermState.setText(str(results_invoices[0][50]) if results_invoices[0][50] is not None else '')
 
         self.loadrecordstable()
+        self.destcountrychange()
+
+        self.block_signals(False)
 
 # Function to add record
     def addrecord(self):
@@ -4335,7 +4830,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                         # execution of commands
                             for i in range(int(qty)):
                                 commands_insert_record = ("""
-                                    INSERT INTO purch_fact.invoice_detail ("inv_head_id")
+                                    INSERT INTO purch_fact.invoice_detail ("invoice_header_id")
                                     VALUES (%s)
                                     """)
                                 data = (id_invoice,)
@@ -4391,16 +4886,16 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         Calculates the total values for euro and dollar amounts in the invoice based on the data in the table model.
         """
         total_euro = 0
-        for row in range(self.model.rowCount()):
-            item = self.model.data(self.model.index(row, 7))
+        for row in range(self.model_records.rowCount()):
+            item = self.model_records.data(self.model_records.index(row, 7))
             if item is not None:
                 value = item if item != None else 0
                 total_euro += float(value)
         self.TotalEur_Invoice.setText('{:.2f}'.format(total_euro))
 
         total_dollar = 0
-        for row in range(self.model.rowCount()):
-            item = self.model.data(self.model.index(row, 8))
+        for row in range(self.model_records.rowCount()):
+            item = self.model_records.data(self.model_records.index(row, 8))
             if item is not None:
                 value = item if item != None else 0
                 total_dollar += float(value)
@@ -4413,14 +4908,16 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         total_tax_base =  total_tax_base_euro if float(self.TotalEur_Invoice.text()) != 0.00 else total_tax_base_dolar * float(self.ValCotDollar_Invoice.text() if self.ValCotDollar_Invoice.text() != '' else 0)
         self.TaxBase_Invoice.setText('{:.2f}'.format(total_tax_base))
 
+        # self.save_data_on_database()
+
 # Function to calculate the total number of elements
     def calculate_elements(self):
         """
         Calculates the total number of elements in the table by summing up the values in the third column.
         """
         total_elements = 0
-        for row in range(self.model.rowCount()):
-            item = self.model.data(self.model.index(row, 3)) #self.tableRecords.item(row, 2)
+        for row in range(self.model_records.rowCount()):
+            item = self.model_records.data(self.model_records.index(row, 3)) #self.tableRecords.item(row, 2)
             if item is not None:
                 value = item #item.text()
                 total_elements += int(value)
@@ -4459,8 +4956,8 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             if len(results_clientsdata) != 0:
                 self.label_ClientGroup.setText(results_clientsdata[0][1])
                 self.IVACL_Invoice.setText(results_clientsdata[0][2] if results_clientsdata[0][2] not in ['COM', 'EXENTO', 'EXP'] else '0')
-                self.AditData3_Invoice.setText(results_clientsdata[0][3])
-                self.AditData4_Invoice.setText(results_clientsdata[0][4])
+                self.AditData1_Invoice.setText(results_clientsdata[0][3])
+                self.AditData2_Invoice.setText(results_clientsdata[0][4])
             else:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
@@ -4488,6 +4985,8 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
+        # self.save_data_on_database()
+
 # Function when destination country combobox is changed
     def destcountrychange(self):
         """
@@ -4495,41 +4994,45 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         """
         dest_country_name = self.DestCountry_Invoice.currentText()
 
-        commands_destcountry = ("""
-                        SELECT dest_country.agent
-                        FROM purch_fact.destination_country AS dest_country
-                        WHERE dest_country.name = %s
-                        """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_destcountry,(dest_country_name,))
-            results_destcountrydata=cur.fetchall()
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+        if dest_country_name != '':
+            commands_destcountry = ("""
+                            SELECT dest_country.agent
+                            FROM purch_fact.destination_country AS dest_country
+                            WHERE dest_country.name = %s
+                            """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(commands_destcountry,(dest_country_name,))
+                results_destcountrydata=cur.fetchall()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
 
-            self.AgInterm.setText(results_destcountrydata[0][0])
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+                self.AgInterm.setText(results_destcountrydata[0][0])
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
+        else:
+            self.AgInterm.setText('')
+        # self.save_data_on_database()
 
 # Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
@@ -4570,53 +5073,64 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             pdf.add_page()
             pdf.alias_nb_pages()
 
-            for row in range(self.tableRecords.rowCount()):
-                position_text=self.tableRecords.item(row, 1).text()
-                quantity_text=self.tableRecords.item(row, 2).text()
-                description_text=self.tableRecords.item(row, 3).text()
-                length_description=len(description_text)
+            id_list=[]
 
-                pdf.set_x(1.5)
-                pdf.set_font('Helvetica', '', 9)
-                pdf.cell(1, 0.53, position_text, align='C')
-                pdf.cell(0.2, 0.53, "")
-                pdf.cell(1.25, 0.53, quantity_text, align='C')
-                pdf.cell(0.2, 0.53, "")
-                pdf.multi_cell(16.2, 0.53, description_text, align='J')
+            for row in range(self.proxy_records.rowCount()):
+                first_column_value = self.proxy_records.data(self.proxy_records.index(row, 0))
+                id_list.append(first_column_value)
 
-                y_position = pdf.get_y()
-                if pdf.page_no()<=1:
-                    mark0=9.6
-                    pdf.set_line_width(0.05)
-                    pdf.line(1.3, y_position, 1.3, mark0)
-                    pdf.line(20.4, y_position, 20.4, mark0)
-                    pdf.set_line_width(0.01)
-                    pdf.line(2.6, y_position, 2.6, mark0)
-                    pdf.line(4.05, y_position, 4.05, mark0)
+            for element in id_list:
+                for row in range(self.model_records.rowCount()):
+                    if self.model_records.data(self.model_records.index(row, 0)) == element:
+                        target_row = row
+                        break
+                if target_row is not None:
+                    position_text = str(self.model_records.data(self.model_records.index(target_row, 2)))
+                    quantity_text = str(self.model_records.data(self.model_records.index(target_row, 3)))
+                    description_text = str(self.model_records.data(self.model_records.index(target_row, 4)))
+                    length_description=len(description_text)
 
-                else:
-                    mark0 = 3.8
-                    pdf.set_line_width(0.05)
-                    pdf.line(1.3, y_position, 1.3, mark0)
-                    pdf.line(20.4, y_position, 20.4, mark0)
-                    pdf.set_line_width(0.01)
-                    pdf.line(2.6, y_position, 2.6, mark0)
-                    pdf.line(4.05, y_position, 4.05, mark0)
+                    pdf.set_x(1.5)
+                    pdf.set_font('Helvetica', '', 9)
+                    pdf.cell(1, 0.53, position_text, align='C')
+                    pdf.cell(0.2, 0.53, "")
+                    pdf.cell(1.25, 0.53, quantity_text, align='C')
+                    pdf.cell(0.2, 0.53, "")
+                    pdf.multi_cell(16.2, 0.53, description_text, align='J')
 
-                if y_position > 26:
-                    if length_description <75:
-                        mark2=0
-                    elif 75<=length_description <=150:
-                        mark2 = 0.5
+                    y_position = pdf.get_y()
+                    if pdf.page_no()<=1:
+                        mark0=9.6
+                        pdf.set_line_width(0.05)
+                        pdf.line(1.3, y_position, 1.3, mark0)
+                        pdf.line(20.4, y_position, 20.4, mark0)
+                        pdf.set_line_width(0.01)
+                        pdf.line(2.6, y_position, 2.6, mark0)
+                        pdf.line(4.05, y_position, 4.05, mark0)
+
                     else:
-                        mark2 = 1.5
+                        mark0 = 3.8
+                        pdf.set_line_width(0.05)
+                        pdf.line(1.3, y_position, 1.3, mark0)
+                        pdf.line(20.4, y_position, 20.4, mark0)
+                        pdf.set_line_width(0.01)
+                        pdf.line(2.6, y_position, 2.6, mark0)
+                        pdf.line(4.05, y_position, 4.05, mark0)
 
-                    pdf.set_line_width(0.05)
-                    pdf.line(1.3, y_position + mark2, 1.3, 25)
-                    pdf.line(20.4, y_position + mark2, 20.4, 25)
-                    pdf.set_line_width(0.01)
-                    pdf.line(2.6, y_position + mark2, 2.6, 25)
-                    pdf.line(4.05, y_position + mark2, 4.05, 25)
+                    if y_position > 26:
+                        if length_description <75:
+                            mark2=0
+                        elif 75<=length_description <=150:
+                            mark2 = 0.5
+                        else:
+                            mark2 = 1.5
+
+                        pdf.set_line_width(0.05)
+                        pdf.line(1.3, y_position + mark2, 1.3, 25)
+                        pdf.line(20.4, y_position + mark2, 20.4, 25)
+                        pdf.set_line_width(0.01)
+                        pdf.line(2.6, y_position + mark2, 2.6, 25)
+                        pdf.line(4.05, y_position + mark2, 4.05, 25)
 
             y_position = pdf.get_y()
             pdf.set_line_width(0.05)
@@ -4666,7 +5180,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
             #Importing excel file into dataframe
                 df_table = pd.read_excel(fname, na_values=['N/A'], keep_default_na=False)
-                df_table.insert(0, 'inv_head_id', id_invoice)
+                df_table.insert(0, 'invoice_header_id', id_invoice)
                 df_table = df_table.astype(str)
                 df_table.replace('nan', 'N/A', inplace=True)
 
@@ -4732,7 +5246,6 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                 value = model.data(item_index)
                 id_values.append(value)
 
-
         if len(id_values) != 0:
             dlg_yes_no = QtWidgets.QMessageBox()
             new_icon_yes_no = QtGui.QIcon()
@@ -4753,7 +5266,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                     cur = conn.cursor()
                 # execution of commands
                     for id_value in id_values:
-                        commands_delete = f"""DELETE FROM {name} WHERE id_detail = '{id_value}'"""
+                        commands_delete = f"""DELETE FROM {name} WHERE id = '{id_value}'"""
                         cur.execute(commands_delete)
 
                 # close communication with the PostgreSQL database server
@@ -4790,7 +5303,95 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
             del dlg_yes_no, new_icon_yes_no
 
+    def load_item_records(self, current:QtCore.QModelIndex):
+        source_index = self.proxy_invoices.mapToSource(current)
+        self.label_IDInvoice.setText(str(self.model_invoice.data(self.model_invoice.index(source_index.row(), 0))))
+        self.loadrecordstable()
 
+    def load_data(self, current:QtCore.QModelIndex):
+        self.load_item_records(current)
+        self.loadforminvoice(current)
+
+    def block_signals(self, block):
+        """Lock or unlock signals of QLineEdits while loading data"""
+        self.InvoiceNumber_Invoice.blockSignals(block)
+        self.DelivNote_Invoice.blockSignals(block)
+        self.Date_Invoice.blockSignals(block)
+        self.Client_Invoice.blockSignals(block)
+        self.OurRef_Invoice.blockSignals(block)
+        self.TheirRef_Invoice.blockSignals(block)
+        self.Comment_Invoice.blockSignals(block)
+        self.Destination_Invoice.blockSignals(block)
+        self.Transport_Invoice.blockSignals(block)
+        self.Application_Invoice.blockSignals(block)
+        self.DestCountry_Invoice.blockSignals(block)
+        self.GrossWeight_Invoice.blockSignals(block)
+        self.NetWeight_Invoice.blockSignals(block)
+        self.Dimensions_Invoice.blockSignals(block)
+        self.MercType_Invoice.blockSignals(block)
+        self.TxtCon1_Invoice.blockSignals(block)
+        self.TxtCon2_Invoice.blockSignals(block)
+        self.TxtCon3_Invoice.blockSignals(block)
+        self.TxtCon4_Invoice.blockSignals(block)
+        self.TxtCon5_Invoice.blockSignals(block)
+        self.Con1Eur_Invoice.blockSignals(block)
+        self.Con2Eur_Invoice.blockSignals(block)
+        self.Con3Eur_Invoice.blockSignals(block)
+        self.Con4Eur_Invoice.blockSignals(block)
+        self.Con5Eur_Invoice.blockSignals(block)
+        self.Con1Dollar_Invoice.blockSignals(block)
+        self.Con2Dollar_Invoice.blockSignals(block)
+        self.Con3Dollar_Invoice.blockSignals(block)
+        self.Con4Dollar_Invoice.blockSignals(block)
+        self.Con5Dollar_Invoice.blockSignals(block)
+        self.AditData1_Invoice.blockSignals(block)
+        self.AditData2_Invoice.blockSignals(block)
+        self.Qty_Elements.blockSignals(block)
+        self.TaxBase_Invoice.blockSignals(block)
+        self.IVACL_Invoice.blockSignals(block)
+        self.ClAlb_Invoice.blockSignals(block)
+        self.DateAlb_Invoice.blockSignals(block)
+        self.AtteAlb_Invoice.blockSignals(block)
+        self.DestAlb_Invoice.blockSignals(block)
+        self.AddressAlb_Invoice.blockSignals(block)
+        self.ZCAlb_Invoice.blockSignals(block)
+        self.CityAlb_Invoice.blockSignals(block)
+        self.ProvinceAlb_Invoice.blockSignals(block)
+        self.CountryAlb_Invoice.blockSignals(block)
+        self.ObsAlb_Invoice.blockSignals(block)
+        self.AgInterm.blockSignals(block)
+        self.AgIntermOk.blockSignals(block)
+        self.AgIntermState.blockSignals(block)
+        self.PayDate_Invoice.blockSignals(block)
+
+    def obtain_source_index(self, ID_invoice):
+        for fila in range(self.model_invoice.rowCount()):
+            index = self.model_invoice.index(fila, 0)
+            if self.model_invoice.data(index) == ID_invoice:
+                return index
+
+        return None
+
+
+# Function to move table to specific item by text search
+    def position_table(self, invoice_tocheck = None):
+        """
+        Selects and scrolls to the row in the Client Order P- table based on the input position.
+        """
+        if invoice_tocheck is None:
+            text_position = self.Filter_Invoice.text()
+        else:
+            text_position = invoice_tocheck
+
+        self.tableInvoice.clearSelection()
+
+        for i in range(self.tableInvoice.rowCount()):
+            item = self.tableInvoice.item(i, 1)
+            if item is not None and text_position.upper() in item.text().upper():
+                item.setSelected(True)
+                self.tableInvoice.scrollToItem(item)
+                self.loadforminvoice(item.row())
+                return
 
 
 if __name__ == "__main__":

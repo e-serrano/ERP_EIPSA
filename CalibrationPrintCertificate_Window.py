@@ -411,10 +411,10 @@ class Ui_CalibrationPrintCertificate_Window(object):
                     items = df.shape[0]
 
                     for row in range(items):
-                        pdf.set_x(1)
+                        pdf.set_x(0.5)
                         y_position = pdf.get_y()
                         pdf.set_font('Helvetica', '', 8)
-                        pdf.cell(3, 0.8, str(df.iloc[row, 0]), align='L', border=1)
+                        pdf.cell(3.5, 0.8, str(df.iloc[row, 0]), align='L', border=1)
                         pdf.set_font('Helvetica', '', 7)
                         pdf.cell(1.1, 0.8, str(self.calculate_master(df.iloc[row, 2], master_element)).replace('.',','), align='C', border=1)
                         pdf.cell(1, 0.8, str(round(df.iloc[row, 2], 3)).replace('.', ',') if df.iloc[row, 2] is not None else "N/A", align='C', border=1)
@@ -448,7 +448,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
 
                         pdf.set_line_width(0.05)
                         marks_table=3.5
-                        pdf.line(1, y_position, 1, marks_table)
+                        pdf.line(0.5, y_position, 0.5, marks_table)
 
                         mark0=3
                         pdf.line(4, y_position, 4, mark0)
@@ -459,7 +459,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                         pdf.set_line_width(0.01)
 
                     pdf.set_line_width(0.05)
-                    pdf.line(1, y_position, 28.8, y_position)
+                    pdf.line(0.5, y_position, 28.8, y_position)
                     pdf.set_line_width(0.01)
 
                     if numorder[:2] == 'PA':
@@ -467,7 +467,8 @@ class Ui_CalibrationPrintCertificate_Window(object):
                             num_blanks = math.ceil((14 - y_position) / 0.8)
 
                             for i in range(num_blanks):
-                                pdf.cell(3, 0.8, border=1)
+                                pdf.set_x(0.5)
+                                pdf.cell(3.5, 0.8, border=1)
                                 for j in range(4):
                                     pdf.cell(1.1, 0.8, border=1)
                                     pdf.cell(1, 0.8, border=1)
@@ -478,13 +479,13 @@ class Ui_CalibrationPrintCertificate_Window(object):
                                 pdf.ln(0.8)
 
                             pdf.set_line_width(0.05)
-                            pdf.line(1, y_position, 1, (y_position + 0.8 * num_blanks))
+                            pdf.line(0.5, y_position, 0.5, (y_position + 0.8 * num_blanks))
                             pdf.line(4, y_position, 4, (y_position + 0.8 * num_blanks))
                             pdf.line(10.2, y_position, 10.2, (y_position + 0.8 * num_blanks))
                             pdf.line(16.4, y_position, 16.4, (y_position + 0.8 * num_blanks))
                             pdf.line(22.6, y_position, 22.6, (y_position + 0.8 * num_blanks))
                             pdf.line(28.8, y_position, 28.8, (y_position + 0.8 * num_blanks))
-                            pdf.line(1, (y_position + 0.8 * num_blanks), 28.8, (y_position + 0.8 * num_blanks))
+                            pdf.line(0.5, (y_position + 0.8 * num_blanks), 28.8, (y_position + 0.8 * num_blanks))
                             pdf.set_line_width(0.01)
 
                         pdf.set_xy(25, pdf.get_y() + 2)

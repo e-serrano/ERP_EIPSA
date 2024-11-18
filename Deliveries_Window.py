@@ -781,7 +781,7 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
 
             filterString = QtCore.QRegularExpression(stringAction, QtCore.QRegularExpression.PatternOption(0))
             # del self.proxy.filters[filterColumn]
-            self.proxy.setFilter([stringAction], filterColumn)
+            self.proxy.setFilter([stringAction], filterColumn, None)
 
             imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))

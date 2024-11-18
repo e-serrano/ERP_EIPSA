@@ -457,6 +457,39 @@ class NumericDelegate(QtWidgets.QStyledItemDelegate):
         except ValueError:
             return str(value)
 
+    def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item, setting its display alignment to center.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
+        super(NumericDelegate, self).initStyleOption(option, index)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+
+    def createEditor(self, parent, option, index):
+        """
+        Creates the editor (QLineEdit) for editing the numeric value, ensuring the
+        decimal separator is a dot.
+        """
+        editor = QtWidgets.QLineEdit(parent)
+        self.locale = QtCore.QLocale(QtCore.QLocale.Language.English)
+        editor.setLocale(self.locale)
+        return editor
+
+    def setModelData(self, editor, model, index):
+        """
+        Set the model data using the editor's value, ensuring that the
+        decimal separator is a dot.
+        """
+        value = editor.text()
+        try:
+            float_value = self.locale.toDouble(value)[0]
+            model.setData(index, float_value)
+        except ValueError:
+            model.setData(index, value)
+
 class AlignDelegate_records(QtWidgets.QStyledItemDelegate):
     """
     A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
@@ -653,7 +686,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
         self._background_color_filter = color
         self.invalidateFilter()
 
-    def setFilter(self, expresion, column, action_name=None):
+    def setFilter(self, expresion, column, action_name=None, exact_match=False):
         """
         Apply a filter expression to a specific column, or remove it if necessary.
 
@@ -661,15 +694,16 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
             expresion (str): The filter expression.
             column (int): The index of the column to apply the filter to.
             action_name (str, optional): Name of the action, can be empty. Defaults to None.
+            exact_match (bool, optional): If True, use exact matching for the filter. Defaults to False.
         """
         if expresion or expresion == '':
             if column in self.filters:
                 if action_name or action_name == '':
                     self.filters[column].remove(expresion)
                 else:
-                    self.filters[column].append(expresion)
+                    self.filters[column].append((expresion, exact_match))
             else:
-                self.filters[column] = [expresion]
+                self.filters[column] = [(expresion, exact_match)]
         elif column in self.filters:
             if action_name or action_name == '':
                 self.filters[column].remove(expresion)
@@ -695,35 +729,35 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
 
             if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
                 text = text.toString("yyyy-MM-dd")
-            elif isinstance(text, float):
-                text = str(text)
 
-            for expresion in expresions[0]:
+            match_found = False 
+
+            for expresion, exact_match in expresions:
                 if expresion == '':  # If expression is empty, match empty cells
                     if text == '':
                         break
 
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', str(expresion)):
-                    expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
+                if exact_match:
+                    if text in expresion:  # Verificar si `text` está en la lista `expresion`
+                        match_found = True
+                        break
+                
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion[0]):
+                    expresion = QtCore.QDate.fromString(expresion[0], "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
 
                 else:
-                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion[0]))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
-            else:
+
+            if not match_found:
                 return False
-
-        if self._background_color_filter:
-            for column in range(self.sourceModel().columnCount()):
-                index = self.sourceModel().index(source_row, column, source_parent)
-                background_color = index.data(QtCore.Qt.ItemDataRole.BackgroundRole)
-                if background_color != self._background_color_filter:
-                    return False
-
         return True
 
 class EditableTableModel(QtSql.QSqlTableModel):
@@ -861,6 +895,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         self.checkbox_filters = {}
         self.model.dataChanged.connect(self.saveChanges)
         self.username = username
+        self.reference_supply = ''
         self.setupUi(self)
 
     def closeEvent(self, event):
@@ -894,8 +929,12 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         Args:
             Supplies_Window (QtWidgets.QMainWindow): The main window for the UI setup.
         """
+        if self.username in ['d.marquez']:
+            self.scale = 1.5
+        else:
+            self.scale=1
         Supplies_Window.setObjectName("Supplies_Window")
-        Supplies_Window.resize(int(1174//1.5), int(600//1.5))
+        Supplies_Window.resize(int(1174//self.scale), int(600//self.scale))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Supplies_Window.setWindowIcon(icon)
@@ -1006,10 +1045,10 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         spacerItem = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 1, 1, 1)
         self.label_Quotations = QtWidgets.QLabel(parent=self.frame)
-        self.label_Quotations.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
-        self.label_Quotations.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
+        self.label_Quotations.setMinimumSize(QtCore.QSize(0, int(35//self.scale)))
+        self.label_Quotations.setMaximumSize(QtCore.QSize(16777215, int(35//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(16//1.5))
+        font.setPointSize(int(16//self.scale))
         font.setBold(True)
         self.label_Quotations.setFont(font)
         self.label_Quotations.setObjectName("label_Quotations")
@@ -1022,7 +1061,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         for i in range(7):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
-            font.setPointSize(int(14//1.5))
+            font.setPointSize(int(14//self.scale))
             font.setBold(True)
             item.setFont(font)
             self.tableQuotations.setHorizontalHeaderItem(i, item)
@@ -1031,17 +1070,29 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         self.model = EditableTableModel()
         self.splitter.addWidget(self.tableSupplies)
         self.gridLayout_2.addWidget(self.splitter, 2, 1, 1, 15)
+        self.Button_CheckSupply = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_CheckSupply.setObjectName("Button_CheckSupply")
+        self.gridLayout_2.addWidget(self.Button_CheckSupply, 1, 14, 1, 1)
         self.Button_AddSupply = QtWidgets.QPushButton(parent=self.frame)
         self.Button_AddSupply.setObjectName("Button_AddSupply")
         self.gridLayout_2.addWidget(self.Button_AddSupply, 1, 15, 1, 1)
         self.Position = QtWidgets.QLineEdit(parent=self.frame)
-        self.Position.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
-        self.Position.setMaximumSize(QtCore.QSize(500, int(35//1.5)))
+        self.Position.setMinimumSize(QtCore.QSize(0, int(35//self.scale)))
+        self.Position.setMaximumSize(QtCore.QSize(500, int(35//self.scale)))
         font = QtGui.QFont()
-        font.setPointSize(int(14//1.5))
+        font.setPointSize(int(14//self.scale))
         self.Position.setFont(font)
         self.Position.setObjectName("Position")
         self.gridLayout_2.addWidget(self.Position, 4, 1, 1, 2)
+        self.label_info = QtWidgets.QLabel(parent=self.frame)
+        self.label_info.setMinimumSize(QtCore.QSize(0, int(35//self.scale)))
+        self.label_info.setMaximumSize(QtCore.QSize(500, int(35//self.scale)))
+        font = QtGui.QFont()
+        font.setPointSize(int(14//self.scale))
+        font.setBold(True)
+        self.label_info.setFont(font)
+        self.label_info.setObjectName("label_info")
+        self.gridLayout_2.addWidget(self.label_info, 4, 3, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 1, 1, 1)
         Supplies_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=Supplies_Window)
@@ -1095,12 +1146,13 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-        self.tableSupplies.clicked.connect(self.item_clicked)
+        # self.tableSupplies.currentChanged.connect(self.load_item_quotations)
         self.tableSupplies.doubleClicked.connect(self.edit_supply)
         self.tableQuotations.itemDoubleClicked.connect(self.loadprice)
         self.tableSupplies.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked)
         self.tableQuotations.horizontalHeader().sectionClicked.connect(self.on_header_sectionquot_clicked)
         self.Button_AddSupply.clicked.connect(self.addsupply)
+        self.Button_CheckSupply.clicked.connect(self.open_supply_mov)
         self.Position.textChanged.connect(self.position_table)
         self.loadtablesupplies()
 
@@ -1112,6 +1164,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         Supplies_Window.setWindowTitle(_translate("Supplies_Window", "Suministros"))
         self.label_Quotations.setText(_translate("Supplies_Window", "Cotizaciones:"))
+        # self.label_info.setText(_translate("Supplies_Window", "UTILIZAR COMA"))
         item = self.tableQuotations.horizontalHeaderItem(0)
         item.setText(_translate("Supplies_Window", "Nombre"))
         item = self.tableQuotations.horizontalHeaderItem(1)
@@ -1127,6 +1180,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         item = self.tableQuotations.horizontalHeaderItem(6)
         item.setText(_translate("Supplies_Window", "Observaciones"))
         self.Button_AddSupply.setText(_translate("Supplies_Window", "Agregar"))
+        self.Button_CheckSupply.setText(_translate("Supplies_Window", "Movimiento"))
 
 # Function to save changes into database
     def saveChanges(self):
@@ -1184,37 +1238,58 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
                                     conn = psycopg2.connect(**params)
                                     cur = conn.cursor()
                                 # execution of commands
+                                    command_checksupply = ("""
+                                    SELECT reference FROM purch_fact.supplies WHERE reference = %s""")
                                     commands_newsupply = ("""
                                     INSERT INTO purch_fact.supplies (reference, description) VALUES (%s, %s) 
                                     """)
-                                    cur.execute(commands_newsupply, (reference_text, description_text,))
-                                # close communication with the PostgreSQL database server
-                                    cur.close()
-                                # commit the changes
-                                    conn.commit()
+                                    cur.execute(command_checksupply, (reference_text,))
+                                    results_check = cur.fetchall()
 
-                                    self.tableSupplies.selectionModel().clearSelection()
+                                    if len(results_check) == 0:
+                                        cur.execute(commands_newsupply, (reference_text, description_text,))
+                                    # close communication with the PostgreSQL database server
+                                        cur.close()
+                                    # commit the changes
+                                        conn.commit()
 
-                                    for i in range(self.model.rowCount()):
-                                        index = self.model.index(i, 3)
-                                        item_text = self.model.data(index, QtCore.Qt.ItemDataRole.DisplayRole)
-                                        if item_text and reference_text.upper() in item_text.upper():
-                                            self.tableSupplies.selectRow(index.row())
+                                        self.tableSupplies.selectionModel().clearSelection()
 
-                                            new_selection = QtCore.QItemSelection(QtCore.QModelIndex(self.model.index(index.row(), 3)), QtCore.QModelIndex(self.model.index(index.row(), 3)))
-                                            self.tableSupplies.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
-                                            self.tableSupplies.setCurrentIndex(self.model.index(index.row(), 3))
-                                            return
+                                        # for i in range(self.model.rowCount()):
+                                        #     index = self.model.index(i, 3)
+                                        #     item_text = self.model.data(index, QtCore.Qt.ItemDataRole.DisplayRole)
+                                        #     if item_text and reference_text.upper() in item_text.upper():
+                                        #         self.tableSupplies.selectRow(index.row())
 
-                                    dlg = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg.setWindowIcon(new_icon)
-                                    dlg.setWindowTitle("Líquidos Penetrantes")
-                                    dlg.setText("Datos insertados con éxito")
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                    dlg.exec()
-                                    del dlg,new_icon
+                                        #         new_selection = QtCore.QItemSelection(QtCore.QModelIndex(self.model.index(index.row(), 3)), QtCore.QModelIndex(self.model.index(index.row(), 3)))
+                                        #         self.tableSupplies.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
+                                        #         self.tableSupplies.setCurrentIndex(self.model.index(index.row(), 3))
+                                        #         return
+
+                                        dlg = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg.setWindowIcon(new_icon)
+                                        dlg.setWindowTitle("Suministros")
+                                        dlg.setText("Datos insertados con éxito")
+                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                                        dlg.exec()
+                                        del dlg,new_icon
+
+                                        self.loadtablesupplies()
+                                        self.tableQuotations.setRowCount(0)
+                                        self.position_table(reference_text)
+
+                                    else:
+                                        dlg = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg.setWindowIcon(new_icon)
+                                        dlg.setWindowTitle("Suministros")
+                                        dlg.setText("Ya existe un registro con esa referencia")
+                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                        dlg.exec()
+                                        del dlg,new_icon
 
                                 except (Exception, psycopg2.DatabaseError) as error:
                                     dlg = QtWidgets.QMessageBox()
@@ -1255,10 +1330,6 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
             else:
                 break
 
-        self.loadtablesupplies()
-        self.tableQuotations.setRowCount(0)
-        self.position_table(reference_text)
-
 # Function to load data of supplies in table
     def loadtablesupplies(self):
         """
@@ -1286,7 +1357,8 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         else:
             self.tableSupplies.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
 
-        self.tableSupplies.setItemDelegate(AlignDelegate(self.tableSupplies))
+        self.tableSupplies.setItemDelegate(NumericDelegate(self.tableSupplies))
+        self.tableSupplies.setItemDelegateForColumn(7, AlignDelegate(self.tableSupplies))
         # self.color_delegate = ColorDelegate(self)
         # self.tableSupplies.setItemDelegateForColumn(6, self.color_delegate)
         for i in range(0,12):
@@ -1320,6 +1392,9 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
                         list_valuesUnique.append(str(value))
                         self.checkbox_states[column][value] = True
                 self.dict_valuesuniques[column] = list_valuesUnique
+
+        self.tableSupplies.selectionModel().currentChanged.connect(self.load_item_quotations)
+        self.tableSupplies.setSortingEnabled(False)
 
 # Function to load quotations
     def loadquotations(self, id_supply):
@@ -1377,8 +1452,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         tablerow=0
 
         font = QtGui.QFont()
-        font.setPointSize(int(14//1.5))
-
+        font.setPointSize(int(14//self.scale))
 
     # fill the Qt Table with the query results
         for row in results_quotations:
@@ -1413,7 +1487,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
             item (QModelIndex): The index of the item in the supply table that was clicked.
         """
         if item.column() == 5:
-            unit_value = item.text().replace(" €","").replace(".","").replace(",",".")
+            unit_value = item.text()
 
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Actualizar precio")
@@ -1481,19 +1555,22 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         self.menuValues = QtWidgets.QMenu(self)
         self.signalMapper = QtCore.QSignalMapper(self.tableSupplies)
 
-        valuesUnique_view = []
-        background_colors = set()
-        for row in range(self.tableSupplies.model().rowCount()):
-            index = self.tableSupplies.model().index(row, self.logicalIndex)
-            value = index.data(QtCore.Qt.ItemDataRole.DisplayRole)
-            background_color = index.data(QtCore.Qt.ItemDataRole.BackgroundRole)
-            if value not in valuesUnique_view:
-                if isinstance(value, QtCore.QDate):
-                    value=value.toString("dd/MM/yyyy")
-                valuesUnique_view.append(value)
-            if background_color and isinstance(background_color, QtGui.QColor):
-                background_colors.add(background_color)
+        # valuesUnique_view = []
+        # # background_colors = set()
+        # for row in range(self.tableSupplies.model().rowCount()):
+        #     index = self.tableSupplies.model().index(row, self.logicalIndex)
+        #     value = index.data(QtCore.Qt.ItemDataRole.DisplayRole)
+        #     background_color = index.data(QtCore.Qt.ItemDataRole.BackgroundRole)
+        #     if value not in valuesUnique_view:
+        #         if isinstance(value, QtCore.QDate):
+        #             value=value.toString("dd/MM/yyyy")
+        #         valuesUnique_view.append(value)
+        #     if background_color and isinstance(background_color, QtGui.QColor):
+        #         background_colors.add(background_color)
 
+        valuesUnique_view = {self.tableSupplies.model().index(row, self.logicalIndex).data(QtCore.Qt.ItemDataRole.DisplayRole) for row in range(self.tableSupplies.model().rowCount())}
+        valuesUnique_view = [value.toString("dd/MM/yyyy") if isinstance(value, QtCore.QDate) else value for value in valuesUnique_view]
+        
         actionSortAscending = QtGui.QAction("Ordenar Ascendente", self.tableSupplies)
         actionSortAscending.triggered.connect(self.on_actionSortAscending_triggered)
         self.menuValues.addAction(actionSortAscending)
@@ -1512,24 +1589,24 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(actionTextFilter)
         self.menuValues.addSeparator()
 
-        color_submenu = QtWidgets.QMenu("Filtrar por Color de Fondo", self)
-        color_signal_mapper = QtCore.QSignalMapper(self)
+        # color_submenu = QtWidgets.QMenu("Filtrar por Color de Fondo", self)
+        # color_signal_mapper = QtCore.QSignalMapper(self)
 
-        for color in background_colors:
-            color_action = QtGui.QAction(color, self.tableSupplies)
-            # pixmap = QtGui.QPixmap(20, 20)
-            # pixmap.fill(color)
-            # color_action.setIcon(QtGui.QIcon(pixmap))
-            # color_signal_mapper.setMapping(color_action, color)
-            color_action.triggered.connect(lambda checked, col=color: self.proxy.setBackgroundColorFilter(col))
-            color_submenu.addAction(color_action)
+        # for color in background_colors:
+        #     color_action = QtGui.QAction(color, self.tableSupplies)
+        #     # pixmap = QtGui.QPixmap(20, 20)
+        #     # pixmap.fill(color)
+        #     # color_action.setIcon(QtGui.QIcon(pixmap))
+        #     # color_signal_mapper.setMapping(color_action, color)
+        #     color_action.triggered.connect(lambda checked, col=color: self.proxy.setBackgroundColorFilter(col))
+        #     color_submenu.addAction(color_action)
 
-        clear_color_filter_action = QtGui.QAction("Quitar Filtro de Color", self)
-        clear_color_filter_action.triggered.connect(lambda: self.proxy.setBackgroundColorFilter(None))
-        color_submenu.addAction(clear_color_filter_action)
+        # clear_color_filter_action = QtGui.QAction("Quitar Filtro de Color", self)
+        # clear_color_filter_action.triggered.connect(lambda: self.proxy.setBackgroundColorFilter(None))
+        # color_submenu.addAction(clear_color_filter_action)
 
-        self.menuValues.addMenu(color_submenu)
-        self.menuValues.addSeparator()
+        # self.menuValues.addMenu(color_submenu)
+        # self.menuValues.addSeparator()
 
         scroll_menu = QtWidgets.QScrollArea()
         if self.username == 'd.marquez':
@@ -1622,7 +1699,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         """
         for column, filters in self.checkbox_filters.items():
             if filters:
-                self.proxy.setFilter(filters, column)
+                self.proxy.setFilter(filters, column, exact_match = True)
             else:
                 self.proxy.setFilter(None, column)
 
@@ -1711,7 +1788,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
             self.tableSupplies.hideColumn(i)
         self.tableSupplies.hideColumn(11)
 
-        self.tableSupplies.setItemDelegate(AlignDelegate(self.tableSupplies))
+        self.tableSupplies.setItemDelegate(NumericDelegate(self.tableSupplies))
         for i in range(0,12):
             self.tableSupplies.horizontalHeader().setSectionResizeMode(i,QtWidgets.QHeaderView.ResizeMode.Stretch)
             self.tableSupplies.setColumnWidth(i, 75)
@@ -1760,7 +1837,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
 
             filterString = QtCore.QRegularExpression(stringAction, QtCore.QRegularExpression.PatternOption(0))
             # del self.proxy.filters[filterColumn]
-            self.proxy.setFilter([stringAction], filterColumn)
+            self.proxy.setFilter([stringAction], filterColumn, None)
 
             imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
@@ -1791,15 +1868,15 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         text_position = self.Position.text() if text_tocheck is None else text_tocheck
         self.tableSupplies.selectionModel().clearSelection()
 
-        for i in range(self.model.rowCount()):
-            index = self.model.index(i, 3)
-            item_text = self.model.data(index, QtCore.Qt.ItemDataRole.DisplayRole)
+        for i in range(self.proxy.rowCount()):
+            index = self.proxy.index(i, 3)
+            item_text = self.proxy.data(index, QtCore.Qt.ItemDataRole.DisplayRole)
             if item_text and text_position.upper() in item_text.upper():
                 self.tableSupplies.selectRow(index.row())
 
-                new_selection = QtCore.QItemSelection(QtCore.QModelIndex(self.model.index(index.row(), 3)), QtCore.QModelIndex(self.model.index(index.row(), 3)))
-                self.tableSupplies.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
-                self.tableSupplies.setCurrentIndex(self.model.index(index.row(), 3))
+                new_selection = QtCore.QItemSelection(QtCore.QModelIndex(self.proxy.index(index.row(), 3)), QtCore.QModelIndex(self.proxy.index(index.row(), 3)))
+                self.tableSupplies.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.ClearAndSelect)
+                self.tableSupplies.setCurrentIndex(self.proxy.index(index.row(), 3))
                 return
 
 # Function to events for keys
@@ -1818,18 +1895,19 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
                 focused_widget.setCurrentIndex(0)
 
 # Function to load item quotations
-    def item_clicked(self, index):
+    def load_item_quotations(self, current: QtCore.QModelIndex, previous: QtCore.QModelIndex = None):
         """
-        Handles the event when an item in the table is clicked.
+        Handles the event when changing selection cell of table supplies. Loads the item quotations
 
         Args:
-            index (QModelIndex): The index of the clicked item in the table.
+            current (QModelIndex): Current selection index
+            previous (QModelIndex): Previous selection indexÍndice anterior de la selección.
         """
-        current_row = index.row()
-        first_column_value = self.proxy.data(self.proxy.index(current_row, 0))
 
-        if first_column_value != '':
-            self.loadquotations(first_column_value)
+        source_index = self.proxy.mapToSource(current)
+        self.loadquotations(self.model.data(self.model.index(source_index.row(), 0)))
+        if self.model.data(self.model.index(source_index.row(), 3)) is not None and self.model.data(self.model.index(source_index.row(), 4)) is not None:
+            self.reference_supply = self.model.data(self.model.index(source_index.row(), 3)) + ' | ' + self.model.data(self.model.index(source_index.row(), 4))
 
 # Function to edit reference or description of supplies
     def edit_supply(self, index):
@@ -1979,6 +2057,14 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
                 else:
                     break
 
+
+    def open_supply_mov(self):
+        if self.reference_supply != '':
+            from ReportPurchaseRefDate_Window import Ui_ReportPurRefDate_Window
+            self.purchaserefdate_window=QtWidgets.QMainWindow()
+            self.ui=Ui_ReportPurRefDate_Window(self.username, self.reference_supply)
+            self.ui.setupUi(self.purchaserefdate_window)
+            self.purchaserefdate_window.showMaximized()
 
 
 

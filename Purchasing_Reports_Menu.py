@@ -252,7 +252,7 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
         Opens the 'artmov' window. Sets up the UI for the user.
         """
         self.artmov_window=QtWidgets.QMainWindow()
-        self.ui=Ui_ArtMov_Window()
+        self.ui=Ui_ArtMov_Window(self.username)
         self.ui.setupUi(self.artmov_window)
         self.artmov_window.showMaximized()
 
@@ -327,7 +327,7 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
         Opens the 'purchaserefdate' window. Sets up the UI for the user.
         """
         self.purchaserefdate_window=QtWidgets.QMainWindow()
-        self.ui=Ui_ReportPurRefDate_Window()
+        self.ui=Ui_ReportPurRefDate_Window(self.username)
         self.ui.setupUi(self.purchaserefdate_window)
         self.purchaserefdate_window.showMaximized()
 

@@ -12,6 +12,8 @@ from config import config
 import os
 from datetime import *
 import pandas as pd
+from PDF_Styles import pending_orders
+from PDF_Viewer import PDF_Viewer
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -918,7 +920,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-class Ui_App_Warehouse(object):
+class Ui_App_Warehouse(QtWidgets.QMainWindow):
     """
     Main application window for the warehouse app.
 
@@ -933,9 +935,14 @@ class Ui_App_Warehouse(object):
         Args:
             name (str): The name of the user.
             username (str): The username of the user.
+
+        The `PDF_Viewer` component is initialized for viewing reports in PDF format.
         """
+        super().__init__() 
         self.name=name
         self.username=username
+        self.pdf_viewer = PDF_Viewer()
+        self.setupUi(self)
 
     def setupUi(self, App_Warehouse):
         """
@@ -1173,12 +1180,74 @@ class Ui_App_Warehouse(object):
         self.Header.addWidget(self.Button_Suppliers)
         spacerItem3 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem3)
+
+        self.Button_PendingSuppliers = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_PendingSuppliers.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_PendingSuppliers.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_PendingSuppliers.setToolTip('Suministros Pendientes')
+        self.Button_PendingSuppliers.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'j.tena':
+            self.Button_PendingSuppliers.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        
+        else:
+            self.Button_PendingSuppliers.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_PendingSuppliers.setText("")
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Pending_Recep.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_PendingSuppliers.setIcon(icon3)
+        self.Button_PendingSuppliers.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_PendingSuppliers.setObjectName("Button_PendingSuppliers")
+        self.Header.addWidget(self.Button_PendingSuppliers)
+        spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem2)
         self.Button_Warehouse_Pieces = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Warehouse_Pieces.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_Warehouse_Pieces.setMaximumSize(QtCore.QSize(50, 50))
         self.Button_Warehouse_Pieces.setToolTip('Piezas Almacén')
         self.Button_Warehouse_Pieces.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'm.gil':
+        if self.username == 'j.tena':
             self.Button_Warehouse_Pieces.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
@@ -1481,6 +1550,7 @@ class Ui_App_Warehouse(object):
         self.Button_Insert.clicked.connect(self.add_general_data)
         self.Button_Update.clicked.connect(self.query_all_order)
         self.Button_Warehouse_Pieces.clicked.connect(self.aditional_pieces)
+        self.Button_PendingSuppliers.clicked.connect(self.artpend_recep_supplier)
 
         self.query_all_order()
         self.load_values()
@@ -2440,6 +2510,198 @@ class Ui_App_Warehouse(object):
         self.ui=Ui_VerifPiecesInsert_Window(self.username)
         self.ui.setupUi(self.verifpieces_window)
         self.verifpieces_window.show()
+
+
+    def artpend_recep_supplier(self):
+        """
+        Retrieves a report of pending receptions from suppliers from the database, and allows the user to export it as an Excel or PDF file.
+
+        Raises:
+            Exception: If there is an issue with the database connection or query execution.
+        """
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            commands_pending_client = ("""SELECT suppliers."name", supplies."reference", supplies."description", supplier_ord_header."supplier_order_num",
+                                            TO_CHAR(supplier_ord_header."order_date",'DD/MM/YYYY'), ROUND(supplier_ord_detail."quantity"::numeric, 2), ROUND(supplier_ord_detail."pending"::numeric, 2), supplies."unit_value",
+                                            supplier_ord_detail."pending" * supplies."unit_value" AS subtotal
+                                        FROM 
+                                            purch_fact.supplier_ord_header AS supplier_ord_header
+                                            INNER JOIN purch_fact.suppliers AS suppliers ON (supplier_ord_header."supplier_id" = suppliers."id")
+                                            INNER JOIN purch_fact.supplier_ord_detail AS supplier_ord_detail ON (supplier_ord_header."id" = supplier_ord_detail."supplier_ord_header_id")
+                                            INNER JOIN purch_fact.supplies AS supplies ON (supplier_ord_detail."supply_id" = supplies."id")
+                                        WHERE 
+                                            supplier_ord_detail."pending" > 0 
+                                        ORDER BY
+                                            suppliers."name"
+                                        """)
+            cur.execute(commands_pending_client)
+
+            results = cur.fetchall()
+            df = pd.DataFrame(results, columns=["Suministrador", "Referencia", "Descripción", "Nº Pedido", "Fecha Pedido", "Cantidad", "Pendiente", "Val. Un.", "Subtotal"])
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+            self.pending_recep_supplier_pdf(df)
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            print(error)
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+
+    def pending_recep_supplier_pdf(self, df):
+        """
+        Generates the pdf a report of pending receptions from suppliers
+        """
+        list_references= df['Suministrador'].unique().tolist()
+
+        pdf = pending_orders()
+        pdf.set_auto_page_break(auto=True, margin=1)
+        pdf.add_page()
+        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+        pdf.set_font('Helvetica', 'B', 20)
+        pdf.cell(9.5, 0.5, 'Artículos Pendientes de Recibir')
+        pdf.set_font('Helvetica', 'B', 10)
+        pdf.cell(9.5, 0.5, self.format_date_spanish(date.today()), align='R')
+        pdf.ln(1)
+
+        pdf.set_text_color(30,102,198)
+        pdf.set_font('Helvetica', 'B', 12)
+        pdf.cell(3, 1, 'Referencia', align="C")
+        pdf.cell(5, 1, 'Descripción', align='C')
+        pdf.cell(2, 1, 'Nº Pedido', align="C")
+        pdf.cell(2, 1, 'Fecha', align="C")
+        pdf.cell(1.5, 1, 'Cant.', align="C")
+        pdf.cell(1.5, 1, 'Pend.', align='C')
+        pdf.cell(2, 1, 'Val. Un.', align="C")
+        pdf.cell(2, 1, 'Subtotal', align="C")
+        pdf.ln(1)
+
+        for code in list_references:
+            pdf.set_text_color(0,0,0)
+            pdf.set_font('DejaVuSansCondensed-Bold', size=10)
+            df_client = df[df['Suministrador'] == code]
+            pdf.set_fill_color(216, 216, 216)
+            pdf.cell(19, 0.5, code, align="C", fill=True,)
+            pdf.ln(0.5)
+
+            for row in range(df_client.shape[0]):
+                pdf.set_font("DejaVuSansCondensed", size=8)
+                pdf.multi_cell(3, 0.5, str(df_client.iloc[row, 1]), max_line_height=pdf.font_size, align='L')
+                y_position=pdf.get_y()
+                pdf.set_xy(4, y_position - 0.5)
+                pdf.multi_cell(5, 0.5, str(df_client.iloc[row, 2]), max_line_height=pdf.font_size, align='L')
+                pdf.set_xy(9, y_position - 0.5)
+                pdf.cell(2, 0.5, str(df_client.iloc[row, 3]), align="C")
+                pdf.cell(2, 0.5, str(df_client.iloc[row, 4]), align="C")
+                pdf.cell(1.5, 0.5, str(df_client.iloc[row, 5]), align="C")
+                pdf.cell(1.5, 0.5, str(df_client.iloc[row, 6]), align='C')
+                # pdf.cell(2, 0.5, str(self.format_value(df_client.iloc[row, 7])), align="C")
+                # pdf.cell(2, 0.5, str(self.format_value(df_client.iloc[row, 8])), align="C")
+                pdf.ln(0.75)
+
+            pdf.cell(16, 0.5, "Total Pendiente:", align="R")
+            # pdf.cell(3, 0.5, self.format_value(df_client['Subtotal'].sum()), align="C")
+            pdf.ln(0.75)
+
+        pdf.set_text_color(0,0,0)
+        pdf.cell(2, 0.5, 'Total:', border=1)
+        pdf.set_font('DejaVuSansCondensed-Bold', size = 10)
+        # pdf.cell(5, 0.5, self.format_value(df['Subtotal'].sum()), border=1)
+        pdf.ln(1)
+
+        pdf_buffer = pdf.output()
+
+        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
+
+        with open(temp_file_path, "wb") as temp_file:
+            temp_file.write(pdf_buffer)
+
+        pdf.close()
+
+        self.pdf_viewer.open(QtCore.QUrl.fromLocalFile(temp_file_path))  # Abre el PDF en el visor
+        self.pdf_viewer.showMaximized()
+
+    def format_date_spanish(self, date_toformat):
+        """
+        Formats a given date object into a Spanish date string (e.g., "25 de diciembre de 2024").
+        
+        Args:
+            date_toformat (datetime.date): The date to format.
+        
+        Returns:
+            str: The formatted date string in Spanish.
+        """
+        months = ("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre")
+        day = date_toformat.day
+        month = months[date_toformat.month - 1]
+        year = date_toformat.year
+        messsage = "{} de {} de {}".format(day, month, year)
+
+        return messsage
+
+    def format_number(self, number):
+        """
+        Formats a number to a Spanish-style format with two decimal places.
+        The function replaces dots with commas and vice versa to match the Spanish number formatting.
+
+        Args:
+            number (float): The number to format.
+        
+        Returns:
+            str: The formatted number as a string (e.g., "1.234,56").
+        """
+        formatted_number = '{:,.2f}'.format(number)
+
+        formatted_number = formatted_number.replace('.', ':')
+        formatted_number = formatted_number.replace(',', '.')
+        formatted_number = formatted_number.replace(':', ',')
+
+        return formatted_number
+
+
+    def format_value(self, number):
+        """
+        Formats a number to a Spanish-style currency format, adding the euro sign ("€") at the end.
+
+        Args:
+            number (float): The number to format.
+        
+        Returns:
+            str: The formatted currency value (e.g., "1.234,56 €").
+        """
+
+        formatted_number = '{:,.2f}'.format(number)
+
+        formatted_number = formatted_number.replace('.', ':')
+        formatted_number = formatted_number.replace(',', '.')
+        formatted_number = formatted_number.replace(':', ',')
+        formatted_number = formatted_number + " €"
+
+        return formatted_number
+
+
+
 
 
 

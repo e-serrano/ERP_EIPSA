@@ -151,7 +151,7 @@ class Ui_UpdateTableExist_Window(object):
 
         query_databasetables = """SELECT table_name
                                 FROM information_schema.tables
-                                WHERE table_schema = 'public' AND table_type = 'BASE TABLE';"""
+                                WHERE table_schema = 'purch_fact' AND table_type = 'BASE TABLE';"""
 
         conn = None
         try:
@@ -201,7 +201,7 @@ class Ui_UpdateTableExist_Window(object):
 
 #Function to import data into and existing table from and Excel where first row is column name
     def importtableexist(self):
-        table_name='public.' + self.TableName_ImportTableExist.currentText()
+        table_name='purch_fact.' + self.TableName_ImportTableExist.currentText()
 
         if self.label_name_file.text() == "":
             dlg = QtWidgets.QMessageBox()
@@ -222,9 +222,31 @@ class Ui_UpdateTableExist_Window(object):
             cursor = conn.cursor()
 
         #Importing excel file into dataframe
-            df_table = pd.read_excel(excel_file, dtype={'ot_num': str})
+            df_table = pd.read_excel(excel_file, dtype={'ot_num': str, 'plate_thk':str})
+            # df_table['total_qty_elements'] = df_table['total_qty_elements'].apply(lambda x: 'nan' if pd.isna(x) else int(x))
+            # df_table['id_dest_country'] = df_table['id_dest_country'].apply(lambda x: 'nan' if pd.isna(x) else int(x))
+            # df_table['id_client'] = df_table['id_client'].apply(lambda x: 'nan' if pd.isna(x) else int(x))
             df_table = df_table.astype(str)
-            df_table.replace('nan', 'N/A', inplace=True)
+            # df_table['id'] = df_table['id'].astype(int)
+            
+            df_table.replace('nan', '', inplace=True)
+            df_table.replace('NaT', '', inplace=True)
+
+            # df_table['date_dispatch'] = df_table['date_dispatch'].apply(self.format_date)
+
+            # df_table['date_dispatch'] = pd.to_datetime(df_table['date_dispatch'], errors='coerce')
+            # df_table['date_dispatch'] = df_table['date_dispatch'].dt.strftime('%d/%m/%Y')
+
+#             df_table['date_dispatch'] = df_table['date_dispatch'].apply(
+#     lambda x: pd.to_datetime(x, errors='coerce') if x != '' else x  # Coerce fechas y dejar vacíos como NaT
+# )
+
+# # Ahora formatear las fechas válidas y mantener el texto original
+#             df_table['date_dispatch'] = df_table['date_dispatch'].apply(
+#                 lambda x: x.strftime('%d/%m/%Y') if isinstance(x, pd.Timestamp) else x  # Si es fecha, formatear; si no, mantener texto
+#             )
+
+            print(df_table)
 
             try:
                 for index, row in df_table.iterrows():
@@ -234,18 +256,26 @@ class Ui_UpdateTableExist_Window(object):
 
                     # Creating string for columns names and values
                         columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
+                        
                         columns = ', '.join([column for column, _ in columns_values])
-                        values = ', '.join([f"'{value.replace('.', ',')}'" if column in ['offer_amount','order_amount'] else ('NULL' if value in ['','N/A'] and column in ['start_date'] else f"'{value}'") for column, value in columns_values])
-
+                        values = ', '.join([f"'{value.replace('.', ',')}'" if column in ['tax_base_amount','orif_diam', 'dv_diam', 'plate_thk','offer_amount','order_amount','rawmat_value', 'value', 'cost'] else ('NULL' if value == '' and column in ['rating', 'plate_thk','rev_date','nc_date','date_action','pay_way_id','iva_id','bank_id','inter_agent_porc','dest_id', 'class_id', 'm_unit_id', 'physical_stock', 'available_stock', 'pending_stock', 'quot_head_id', 'supply_id', 'currency_id', 'quantity', 'discount', 'position_supply', 'currency_value', 'supplier_id', 'discount', 'pending', 'deliv_quant_1', 'deliv_quant_2', 'deliv_quant_3', 'client_id', 'test_qty','order_qty','master_1','element_1','master_2','element_2','master_3','element_3','master_4','element_4','deliv_date_1','deliv_date_2','deliv_date_3','order_date','delivery_date',
+'address_delivnote','date_delivnote','desination','transport','zc_delivnote','city_delivnote','date_dispatch', 'con1_euro','con2_euro','con3_euro','con4_euro','con5_euro','con1_dollar','con2_dollar','con3_dollar','con4_dollar','con5_dollar','cot_euro_dollar','total_qty_elements','iva', 'date_delivnote', 'aginterm_ok', 'pay_date','date_dispatch','id_dest_country','id_client','date_invoice','price','price_usd',
+'time_cut', 'time_lanthe', 'time_drill', 'time_miling', 'time_welding', 'time_mounting', 'time_pyrometry', 'time_quality', 'time_others', 'time_total', 'start_date', 'end_date', 'qty_ot', 'supplies_id', 'contractual_date', 'verif_m_drawing_date',
+'qty_f_orifice_flange', 'qty_f_line_flange', 'qty_f_gasket', 'qty_f_bolts', 'qty_f_plug', 'qty_f_extractor', 'qty_f_plate', 'qty_f_nipple', 'qty_f_handle', 'qty_f_chring', 'qty_f_tube', 'qty_f_piece2', 'qty_t_bar', 'qty_t_tube', 'qty_t_flange', 'qty_t_sensor','qty_t_head','qty_t_btb','qty_t_nippleextcomp','qty_t_spring','qty_t_puntal','qty_t_plug','qty_t_tw','qty_t_extcable','qty_l_body','qty_l_cover','qty_l_studs','qty_l_nipplehex','qty_l_valve','qty_l_flange','qty_l_dv','qty_l_scale','qty_l_illuminator','qty_l_gasketglass','qty_l_glass','qty_l_float','qty_l_mica','qty_l_flags','qty_l_gasketflange','qty_l_nippletub','qty_l_antifrost','time_cut','time_lanthe','time_drill','time_miling','time_welding','time_mounting','time_pyrometry','time_quality','time_others','rawmat_value','totalcut','totallanthe','totaldrill','totalmill','totalweld','totalmounting','totalpyrometry','totalquality','totalother','totaltime',
+'id','year','warehouse','machine_id'] else "'{}'".format(value.replace('\'', '\'\''))) for column, value in columns_values])
+                        
+                        # values = ', '.join(['NULL' if value == '' and column in ['iva'] else (f"'{value}'" if column in ['data_adic1','data_adic2'] else value)for column, value in columns_values])
                     # Creating the SET  and WHERE clause with proper formatting
                         set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
                         # print(set_clause)
 
-                        where_clause = f"id = '{id_value}'"
+                        where_clause = f"id = '\{id_value}\'"
 
                     # Creating the update query and executing it after checking existing tags and id
                         sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
+                        # print(sql_update)
                         cursor.execute(sql_update)
+                        conn.commit()
                         # sql_check = f'SELECT * FROM {table_name} WHERE "id_tag_temp" = \'{id_value}\''
                         # cursor.execute(sql_check)
                         # result_check=cursor.fetchall()
@@ -265,7 +295,12 @@ class Ui_UpdateTableExist_Window(object):
 
                         # else:
                         #     cursor.execute(sql_update)
-                    
+                
+
+            # Closing cursor and database connection
+                conn.commit()
+                cursor.close()
+
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -276,9 +311,7 @@ class Ui_UpdateTableExist_Window(object):
                 dlg.exec()
                 del dlg, new_icon
 
-            # Closing cursor and database connection
-                conn.commit()
-                cursor.close()
+            
 
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
@@ -288,6 +321,7 @@ class Ui_UpdateTableExist_Window(object):
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Ha ocurrido el siguiente error:\n"
                             + str(error))
+                print(error)
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
                 del dlg, new_icon
@@ -295,6 +329,15 @@ class Ui_UpdateTableExist_Window(object):
                 if conn is not None:
                     conn.close()
 
+    def format_date(self, value):
+        if value == '' or value is None:  # If value is empty, return 'NULL'
+            return ''
+        try:
+            # Try to convert value to date
+            date = pd.to_datetime(value, errors='raise')
+            return date.strftime('%d/%m/%Y')  # Apply format if it is a date
+        except (ValueError, TypeError):
+            return value # If it is not valid, return value
 
 #Function for selecting file to import
     def fileselection(self):

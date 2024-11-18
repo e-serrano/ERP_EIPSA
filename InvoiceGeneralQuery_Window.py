@@ -533,9 +533,9 @@ class Ui_InvoiceGeneralQuery_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addItem(spacerItem, 2, 1, 1, 1)
         self.tableQueryInvoice = CustomTableWidget()
         self.tableQueryInvoice.setObjectName("tableQueryInvoice")
-        self.tableQueryInvoice.setColumnCount(10)
+        self.tableQueryInvoice.setColumnCount(11)
         self.tableQueryInvoice.setRowCount(0)
-        for i in range(10):
+        for i in range(11):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -617,6 +617,8 @@ class Ui_InvoiceGeneralQuery_Window(QtWidgets.QMainWindow):
         item = self.tableQueryInvoice.horizontalHeaderItem(8)
         item.setText(_translate("InvoiceGeneralQuery_Window", "Fecha Prev. Pago"))
         item = self.tableQueryInvoice.horizontalHeaderItem(9)
+        item.setText(_translate("InvoiceGeneralQuery_Window", "Estado Factura"))
+        item = self.tableQueryInvoice.horizontalHeaderItem(10)
         item.setText(_translate("InvoiceGeneralQuery_Window", "Fecha Pago"))
         self.label_Order.setText(_translate("InvoiceGeneralQuery_Window", "Nº Pedido:"))
         self.Button_Delete.setText(_translate("InvoiceGeneralQuery_Window", "Ver Todos"))
@@ -651,7 +653,7 @@ class Ui_InvoiceGeneralQuery_Window(QtWidgets.QMainWindow):
         commands_queryinvoice = ("""
                         SELECT invoice."num_invoice", TO_CHAR(invoice."date_invoice",'dd/MM/yyyy'), invoice."our_ref", clients."name", invoice."iva", invoice."tax_base_amount",
                         (invoice."tax_base_amount" * invoice."iva"/100) AS IVAFACT, (invoice."tax_base_amount" + (invoice."tax_base_amount" * invoice."iva"/100)) AS TOTALFACT,
-                        TO_CHAR(invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days",'dd/MM/yyyy') AS FCHPREV, TO_CHAR(invoice."pay_date",'dd/MM/yyyy')
+                        TO_CHAR(invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days",'dd/MM/yyyy') AS FCHPREV, invoice."invoice_state", TO_CHAR(invoice."pay_date",'dd/MM/yyyy')
                         FROM purch_fact.invoice_header AS invoice
                         INNER JOIN purch_fact.clients AS clients ON (invoice."id_client" = clients."id")
                         INNER JOIN purch_fact.pay_way AS pay_way ON (clients."pay_way_id" = pay_way."id")
@@ -673,7 +675,7 @@ class Ui_InvoiceGeneralQuery_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(10):
+                for column in range(11):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -708,7 +710,6 @@ class Ui_InvoiceGeneralQuery_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-
     def query_filtered(self):
         """
         Queries the database for filtered invoices, configures and populates tables with the query results, 
@@ -718,9 +719,9 @@ class Ui_InvoiceGeneralQuery_Window(QtWidgets.QMainWindow):
         order = self.Order_Query.text()
 
         commands_query_filtered = ("""
-                        SELECT invoice."num_invoice", TO_CHAR(invoice."date_invoice",'dd/MM/yyyy'), invoice."our_ref", clients."name", invoice."iva", invoice."tax_base_amount",
+                        SELECT invoice."num_invoice", TO_CHAR(invoice."date_invoice",'dd/MM/yyyy'), invoice."our_ref", clients."name", invoice."tax_base_amount", invoice."iva",
                         (invoice."tax_base_amount" * invoice."iva"/100) AS IVAFACT, (invoice."tax_base_amount" + (invoice."tax_base_amount" * invoice."iva"/100)) AS TOTALFACT,
-                        TO_CHAR(invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days",'dd/MM/yyyy') AS FCHPREV, TO_CHAR(invoice."pay_date",'dd/MM/yyyy')
+                        TO_CHAR(invoice."date_invoice" + INTERVAL '1 day' * pay_way."num_days",'dd/MM/yyyy') AS FCHPREV, invoice."invoice_state", TO_CHAR(invoice."pay_date",'dd/MM/yyyy')
                         FROM purch_fact.invoice_header AS invoice
                         INNER JOIN purch_fact.clients AS clients ON (invoice."id_client" = clients."id")
                         INNER JOIN purch_fact.pay_way AS pay_way ON (clients."pay_way_id" = pay_way."id")
@@ -744,7 +745,7 @@ class Ui_InvoiceGeneralQuery_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(7):
+                for column in range(11):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -779,7 +780,6 @@ class Ui_InvoiceGeneralQuery_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-
     def countSelectedCells(self):
         """
         Counts the number of selected cells and sums their values. Updates the UI labels with the count and sum.
@@ -791,8 +791,8 @@ class Ui_InvoiceGeneralQuery_Window(QtWidgets.QMainWindow):
             self.label_CountItems.setText("")
             self.label_CountValue.setText("")
 
-            sum_value = sum([self.euro_string_to_float(ix.data()) if (ix.data() is not None and (re.match(r'^[\d.,]+\s€$', ix.data()) and ix.column() == 7))
-                            else (float(ix.data()) if (ix.data() is not None and ix.data().replace(',', '.', 1).replace('.', '', 1).isdigit() and ix.column() == 7) else 0) for ix in self.tableQueryInvoice.selectedIndexes()])
+            sum_value = sum([self.euro_string_to_float(ix.data()) if (ix.data() is not None and (re.match(r'^[\d.,]+\s€$', ix.data()) and ix.column() in [5,6,7]))
+                            else (float(ix.data()) if (ix.data() is not None and ix.data().replace(',', '.', 1).replace('.', '', 1).isdigit() and ix.column() == 4) else 0) for ix in self.tableQueryInvoice.selectedIndexes()])
             count_value = len([ix for ix in self.tableQueryInvoice.selectedIndexes() if ix.data() != ""])
             if sum_value > 0:
                 self.label_SumItems.setText("Suma:")
@@ -805,7 +805,6 @@ class Ui_InvoiceGeneralQuery_Window(QtWidgets.QMainWindow):
             self.label_SumValue.setText("")
             self.label_CountItems.setText("")
             self.label_CountValue.setText("")
-
 
     def euro_string_to_float(self, euro_str):
         """
@@ -824,8 +823,6 @@ class Ui_InvoiceGeneralQuery_Window(QtWidgets.QMainWindow):
             return float(number_str)
         else:
             return 0.0
-
-
 
     def export_data(self):
         """

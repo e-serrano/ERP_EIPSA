@@ -201,7 +201,7 @@ class Ui_ExportDocs_Menu(object):
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Generar OVR')
-        dlg.setLabelText('Introduce un pedido:')
+        dlg.setLabelText('Introduce un pedido (P-XX/YYY):')
 
         while True:
             clickedButton = dlg.exec()
@@ -257,8 +257,7 @@ class Ui_ExportDocs_Menu(object):
                         break
 
                     else:
-                        excel_to_export = order_ovr(num_order)
-                        excel_to_export.save_excel_ovr()
+                        order_ovr(num_order)
                         break
                 dlg_error = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
@@ -282,7 +281,7 @@ class Ui_ExportDocs_Menu(object):
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
         dlg.setWindowTitle('Situación Docs.')
-        dlg.setLabelText('Introduce una referencia:')
+        dlg.setLabelText('Introduce una referencia (Ej: 1023010920):')
 
         while True:
             clickedButton = dlg.exec()

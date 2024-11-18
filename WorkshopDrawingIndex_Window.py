@@ -46,7 +46,7 @@ class CheckboxWidget(QtWidgets.QWidget):
     """
     A custom QWidget class that creates a widget with a checkbox.
 
-     Args:
+    Args:
         text (str): The label text to display next to the checkbox.
     """
     def __init__(self, text):
@@ -1065,7 +1065,7 @@ class CustomProxyModelDim(QtCore.QSortFilterProxyModel):
         """
         return self._filters
 
-    def setFilter(self, expresion, column, action_name=None):
+    def setFilter(self, expresion, column, action_name=None, exact_match=False):
         """
         Apply a filter expression to a specific column, or remove it if necessary.
 
@@ -1073,18 +1073,18 @@ class CustomProxyModelDim(QtCore.QSortFilterProxyModel):
             expresion (str): The filter expression.
             column (int): The index of the column to apply the filter to.
             action_name (str, optional): Name of the action, can be empty. Defaults to None.
+            exact_match (bool, optional): If True, use exact matching for the filter. Defaults to False.
         """
-        # Filtering logic based on expresion and action_name
-        if expresion or expresion == "":
+        if expresion or expresion == '':
             if column in self.filters:
-                if action_name or action_name == "":
+                if action_name or action_name == '':
                     self.filters[column].remove(expresion)
                 else:
-                    self.filters[column].append(expresion)
+                    self.filters[column].append((expresion, exact_match))
             else:
-                self.filters[column] = [expresion]
+                self.filters[column] = [(expresion, exact_match)]
         elif column in self.filters:
-            if action_name or action_name == "":
+            if action_name or action_name == '':
                 self.filters[column].remove(expresion)
                 if not self.filters[column]:
                     del self.filters[column]
@@ -1282,7 +1282,7 @@ class CustomProxyModelOf(QtCore.QSortFilterProxyModel):
         """
         return self._filters
 
-    def setFilter(self, expresion, column, action_name=None):
+    def setFilter(self, expresion, column, action_name=None, exact_match=False):
         """
         Apply a filter expression to a specific column, or remove it if necessary.
 
@@ -1290,17 +1290,18 @@ class CustomProxyModelOf(QtCore.QSortFilterProxyModel):
             expresion (str): The filter expression.
             column (int): The index of the column to apply the filter to.
             action_name (str, optional): Name of the action, can be empty. Defaults to None.
+            exact_match (bool, optional): If True, use exact matching for the filter. Defaults to False.
         """
-        if expresion or expresion == "":
+        if expresion or expresion == '':
             if column in self.filters:
-                if action_name or action_name == "":
+                if action_name or action_name == '':
                     self.filters[column].remove(expresion)
                 else:
-                    self.filters[column].append(expresion)
+                    self.filters[column].append((expresion, exact_match))
             else:
-                self.filters[column] = [expresion]
+                self.filters[column] = [(expresion, exact_match)]
         elif column in self.filters:
-            if action_name or action_name == "":
+            if action_name or action_name == '':
                 self.filters[column].remove(expresion)
                 if not self.filters[column]:
                     del self.filters[column]
@@ -1322,27 +1323,36 @@ class CustomProxyModelOf(QtCore.QSortFilterProxyModel):
         for column, expresions in self.filters.items():
             text = self.sourceModel().index(source_row, column, source_parent).data()
 
-            if isinstance(text, QtCore.QDate):  # Check if filters are QDate. If True, convert to text
+            if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
                 text = text.toString("yyyy-MM-dd")
 
-            for expresion in expresions[0]:
-                if expresion == "":  # If expression is empty, match empty cells
-                    if text == "":
+            match_found = False 
+
+            for expresion, exact_match in expresions:
+                if expresion == '':  # If expression is empty, match empty cells
+                    if text == '':
                         break
 
-                elif re.fullmatch(r"^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$", expresion):
+                if exact_match:
+                    if text in expresion:  # Verificar si `text` está en la lista `expresion`
+                        match_found = True
+                        break
+                
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
-
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
 
                 else:
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
-            else:
+
+            if not match_found:
                 return False
         return True
 
@@ -1490,7 +1500,7 @@ class CustomProxyModelM(QtCore.QSortFilterProxyModel):
         """
         return self._filters
 
-    def setFilter(self, expresion, column, action_name=None):
+    def setFilter(self, expresion, column, action_name=None, exact_match=False):
         """
         Apply a filter expression to a specific column, or remove it if necessary.
 
@@ -1498,18 +1508,18 @@ class CustomProxyModelM(QtCore.QSortFilterProxyModel):
             expresion (str): The filter expression.
             column (int): The index of the column to apply the filter to.
             action_name (str, optional): Name of the action, can be empty. Defaults to None.
+            exact_match (bool, optional): If True, use exact matching for the filter. Defaults to False.
         """
-        # Filtering logic based on expresion and action_name
-        if expresion or expresion == "":
+        if expresion or expresion == '':
             if column in self.filters:
-                if action_name or action_name == "":
+                if action_name or action_name == '':
                     self.filters[column].remove(expresion)
                 else:
-                    self.filters[column].append(expresion)
+                    self.filters[column].append((expresion, exact_match))
             else:
-                self.filters[column] = [expresion]
+                self.filters[column] = [(expresion, exact_match)]
         elif column in self.filters:
-            if action_name or action_name == "":
+            if action_name or action_name == '':
                 self.filters[column].remove(expresion)
                 if not self.filters[column]:
                     del self.filters[column]
@@ -2411,7 +2421,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 self.tableMDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
             self.tableMDwg.setObjectName("tableMDwg")
             self.tableMDwg.setSortingEnabled(False)
-            self.tableMDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableMDwg, self.modelMDwg, self.proxyM))
+            self.tableMDwg.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableMDwg, self.modelM, self.proxyM))
             # self.tableMDwg.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
             # self.tableMDwg.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
             self.splitter.addWidget(self.tableMDwg)
@@ -2531,7 +2541,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             list_uniquevalues = sorted(list(set(valuesUnique_view)))
 
         for actionName in list_uniquevalues:
-            checkbox_widget = QtWidgets.QCheckBox(actionName)
+            checkbox_widget = QtWidgets.QCheckBox(str(actionName))
 
             if self.logicalIndex not in self.checkbox_filters:
                 checkbox_widget.setChecked(True)
@@ -2600,8 +2610,6 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 proxy.setFilter(filters, column)
             else:
                 proxy.setFilter(None, column)
-
-        self.tableDimDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
 # Function when select all checkbox is clicked
     def on_select_all_toggled(self, checked, action_name, model):
@@ -2677,8 +2685,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         model.setIconColumnHeader(filterColumn, "")
         proxy.invalidateFilter()
 
-        table.setModel(None)
-        table.setModel(proxy)
+        # table.setModel(None)
+        # table.setModel(proxy)
 
         if filterColumn in self.checkbox_filters:
             del self.checkbox_filters[filterColumn]
@@ -3142,7 +3150,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         If the number of drawings to insert is valid, it inserts the records into the appropriate table. 
         Displays relevant message boxes for error handling, warnings, and successful operations.
         """
-        if self.username == 'm.gil':
+        if self.username in ['m.gil', 'j.martinez']:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -3494,102 +3502,52 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         """
         Adds descriptions on tables based on drawing number
         """
-        self.numorder = self.Numorder_IndexDwg.text()
-
-        if self.numorder=="":
+        if self.username in ['m.gil', 'j.martinez']:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Introduce un pedido")
+            dlg.setWindowTitle("Indice Planos")
+            dlg.setText("Este módulo no esta disponible para tí corazón ❤️")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
-            del dlg, new_icon
+            del dlg,new_icon
 
         else:
-            if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', self.numorder):
+            self.numorder = self.Numorder_IndexDwg.text()
+
+            if self.numorder=="":
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY")
+                dlg.setText("Introduce un pedido")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg.exec()
                 del dlg, new_icon
 
             else:
-                query = ('''
-                        SELECT num_order, product_type."variable"
-                        FROM orders
-                        INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
-                        INNER JOIN product_type ON (product_type."material" = offers."material")
-                        WHERE
-                        UPPER (orders."num_order") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query,(self.numorder,))
-                    results_variable=cur.fetchone()
-                    self.variable = results_variable[1] if results_variable != None else ''
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-                except (Exception, psycopg2.DatabaseError) as error:
+                if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', self.numorder):
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
                     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-                if results_variable == None:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("EL número de pedido no existe")
+                    dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                     dlg.exec()
                     del dlg, new_icon
 
                 else:
-                    query_flow = ('''
-                        SELECT tags_data.tags_flow."num_order"
-                        FROM tags_data.tags_flow
-                        WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                    query_temp = ('''
-                        SELECT tags_data.tags_temp."num_order"
-                        FROM tags_data.tags_temp
-                        WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                    query_level = ('''
-                        SELECT tags_data.tags_level."num_order"
-                        FROM tags_data.tags_level
-                        WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                    query_others = ('''
-                        SELECT tags_data.tags_others."num_order"
-                        FROM tags_data.tags_others
-                        WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
-                        ''')
+                    query = ('''
+                            SELECT num_order, product_type."variable"
+                            FROM orders
+                            INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
+                            INNER JOIN product_type ON (product_type."material" = offers."material")
+                            WHERE
+                            UPPER (orders."num_order") LIKE UPPER('%%'||%s||'%%')
+                            ''')
                     conn = None
                     try:
                     # read the connection parameters
@@ -3598,26 +3556,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         conn = psycopg2.connect(**params)
                         cur = conn.cursor()
                     # execution of commands
-                        cur.execute(query_flow,(self.numorder,))
-                        results_flow=cur.fetchall()
-                        cur.execute(query_temp,(self.numorder,))
-                        results_temp=cur.fetchall()
-                        cur.execute(query_level,(self.numorder,))
-                        results_level=cur.fetchall()
-                        cur.execute(query_others,(self.numorder,))
-                        results_others=cur.fetchall()
-
-                        if len(results_flow) != 0:
-                            self.variable = 'Caudal'
-                        elif len(results_temp) != 0:
-                            self.variable = 'Temperatura'
-                        elif len(results_level) != 0:
-                            self.variable = 'Nivel'
-                        elif len(results_others) != 0:
-                            self.variable = 'Otros'
-                        else:
-                            self.variable = ''
-
+                        cur.execute(query,(self.numorder,))
+                        results_variable=cur.fetchone()
+                        self.variable = results_variable[1] if results_variable != None else ''
                     # close communication with the PostgreSQL database server
                         cur.close()
                     # commit the changes
@@ -3637,507 +3578,590 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         if conn is not None:
                             conn.close()
 
-                    if self.variable == 'Caudal':
-                        self.table_toquery = "tags_data.tags_flow"
-                    elif self.variable == 'Temperatura':
-                        self.table_toquery = "tags_data.tags_temp"
-                    elif self.variable == 'Nivel':
-                        self.table_toquery = "tags_data.tags_level"
-                    elif self.variable == 'Otros':
-                        self.table_toquery ="tags_data.tags_others"
+                    if results_variable == None:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("EL número de pedido no existe")
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                        dlg.exec()
+                        del dlg, new_icon
+
                     else:
-                        self.table_toquery =""
+                        query_flow = ('''
+                            SELECT tags_data.tags_flow."num_order"
+                            FROM tags_data.tags_flow
+                            WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
+                            ''')
+                        query_temp = ('''
+                            SELECT tags_data.tags_temp."num_order"
+                            FROM tags_data.tags_temp
+                            WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
+                            ''')
+                        query_level = ('''
+                            SELECT tags_data.tags_level."num_order"
+                            FROM tags_data.tags_level
+                            WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
+                            ''')
+                        query_others = ('''
+                            SELECT tags_data.tags_others."num_order"
+                            FROM tags_data.tags_others
+                            WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
+                            ''')
+                        conn = None
+                        try:
+                        # read the connection parameters
+                            params = config()
+                        # connect to the PostgreSQL server
+                            conn = psycopg2.connect(**params)
+                            cur = conn.cursor()
+                        # execution of commands
+                            cur.execute(query_flow,(self.numorder,))
+                            results_flow=cur.fetchall()
+                            cur.execute(query_temp,(self.numorder,))
+                            results_temp=cur.fetchall()
+                            cur.execute(query_level,(self.numorder,))
+                            results_level=cur.fetchall()
+                            cur.execute(query_others,(self.numorder,))
+                            results_others=cur.fetchall()
 
-                    if self.table_toquery == "tags_data.tags_flow":
-                        if self.proxyDim.rowCount() != 0:
-                            for row in range(self.proxyDim.rowCount()):
-                                num_dim_drawing = self.proxyDim.data(self.proxyDim.index(row, 2))
+                            if len(results_flow) != 0:
+                                self.variable = 'Caudal'
+                            elif len(results_temp) != 0:
+                                self.variable = 'Temperatura'
+                            elif len(results_level) != 0:
+                                self.variable = 'Nivel'
+                            elif len(results_others) != 0:
+                                self.variable = 'Otros'
+                            else:
+                                self.variable = ''
 
-                                query_data_flow = ('''
-                                    SELECT "item_type"
-                                    FROM tags_data.tags_flow
-                                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s
-                                    ''')
-                                conn = None
-                                try:
-                                # read the connection parameters
-                                    params = config()
-                                # connect to the PostgreSQL server
-                                    conn = psycopg2.connect(**params)
-                                    cur = conn.cursor()
-                                # execution of commands
-                                    cur.execute(query_data_flow,(self.numorder, num_dim_drawing,))
-                                    results_flow=cur.fetchall()
+                        # close communication with the PostgreSQL database server
+                            cur.close()
+                        # commit the changes
+                            conn.commit()
+                        except (Exception, psycopg2.DatabaseError) as error:
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("ERP EIPSA")
+                            dlg.setText("Ha ocurrido el siguiente error:\n"
+                                        + str(error))
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                            dlg.exec()
+                            del dlg, new_icon
+                        finally:
+                            if conn is not None:
+                                conn.close()
 
-                                    item_type = results_flow[0][0]
+                        if self.variable == 'Caudal':
+                            self.table_toquery = "tags_data.tags_flow"
+                        elif self.variable == 'Temperatura':
+                            self.table_toquery = "tags_data.tags_temp"
+                        elif self.variable == 'Nivel':
+                            self.table_toquery = "tags_data.tags_level"
+                        elif self.variable == 'Otros':
+                            self.table_toquery ="tags_data.tags_others"
+                        else:
+                            self.table_toquery =""
 
-                                    query_description = ('''
-                                    SELECT item_type, line_size, rating, facing, schedule, element_material,
-                                    plate_type, plate_thk, flange_material, flange_type, tapping_num_size,
-                                    gasket_material, tube_material, stages_number
-                                    FROM tags_data.tags_flow
-                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s
-                                    ''')
-                                    cur.execute(query_description,(self.numorder, num_dim_drawing,))
-                                    results_description=cur.fetchall()
+                        if self.table_toquery == "tags_data.tags_flow":
+                            if self.proxyDim.rowCount() != 0:
+                                for row in range(self.proxyDim.rowCount()):
+                                    num_dim_drawing = self.proxyDim.data(self.proxyDim.index(row, 2))
 
-                                    if item_type in ['C. RING', 'P', 'RO']:
-                                        description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                                    " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][5] + " " +
-                                                    results_description[0][6] + " ESPESOR " + results_description[0][7])
+                                    query_data_flow = ('''
+                                        SELECT "item_type"
+                                        FROM tags_data.tags_flow
+                                        WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s
+                                        ''')
+                                    conn = None
+                                    try:
+                                    # read the connection parameters
+                                        params = config()
+                                    # connect to the PostgreSQL server
+                                        conn = psycopg2.connect(**params)
+                                        cur = conn.cursor()
+                                    # execution of commands
+                                        cur.execute(query_data_flow,(self.numorder, num_dim_drawing,))
+                                        results_flow=cur.fetchall()
 
-                                    elif item_type in ['F', 'F+C.RING', 'F+P', 'M.RUN']:
-                                        description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                                    " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][8] +
-                                                    ((" BRIDAS " + results_description[0][9]) if results_description[0][0] == 'M.RUN' else " ") +
-                                                    " TOMAS: " + results_description[0][10][:-1] + ' x brida)' + " " + "Junta " +
-                                                    ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else '22,2'))))
+                                        item_type = results_flow[0][0]
 
-                                    elif item_type in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW']:
-                                        description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                                    " " + results_description[0][3] + " SCH " + results_description[0][4] + " B:" + results_description[0][8] +
-                                                    ((" BRIDAS " + results_description[0][9]) if results_description[0][0] in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6'] else " ") +
-                                                    "E:" + results_description[0][5] + 
-                                                    (" TOMAS: " + results_description[0][10] if results_description[0][0] in ['NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW'] else "") +
-                                                    (results_description[0][13] + " SALTOS: " if results_description[0][0] == 'MULTISTAGE RO' else ""))
+                                        query_description = ('''
+                                        SELECT item_type, line_size, rating, facing, schedule, element_material,
+                                        plate_type, plate_thk, flange_material, flange_type, tapping_num_size,
+                                        gasket_material, tube_material, stages_number
+                                        FROM tags_data.tags_flow
+                                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s
+                                        ''')
+                                        cur.execute(query_description,(self.numorder, num_dim_drawing,))
+                                        results_description=cur.fetchall()
 
-                                    elif item_type in ['NOZZLE BW', 'VWM', 'VWW']:
-                                        description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                                    " " + (results_description[0][3] if results_description[0][0] in ['VWM', 'VWW'] else "") +
-                                                    " SCH " + results_description[0][4] + " T:" + results_description[0][12] +
-                                                    "E:" + results_description[0][5] + " TOMAS: " + results_description[0][10])
+                                        if item_type in ['C. RING', 'P', 'RO']:
+                                            description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                        " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][5] + " " +
+                                                        results_description[0][6] + " ESPESOR " + results_description[0][7])
 
-                                    commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
-                                                                SET "drawing_description" = '{description}'
-                                                                WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
-                                    cur.execute(commands_insert_drawing)
+                                        elif item_type in ['F', 'F+C.RING', 'F+P', 'M.RUN']:
+                                            description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                        " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][8] +
+                                                        ((" BRIDAS " + results_description[0][9]) if results_description[0][0] == 'M.RUN' else " ") +
+                                                        " TOMAS: " + results_description[0][10][:-1] + ' ' + " " + "Junta " +
+                                                        ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else '22,2'))))
 
-                                # close communication with the PostgreSQL database server
-                                    cur.close()
-                                # commit the changes
-                                    conn.commit()
-                                except (Exception, psycopg2.DatabaseError) as error:
-                                    dlg = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg.setWindowIcon(new_icon)
-                                    dlg.setWindowTitle("ERP EIPSA")
-                                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                                + str(error))
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                    dlg.exec()
-                                    del dlg, new_icon
-                                finally:
-                                    if conn is not None:
-                                        conn.close()
+                                        elif item_type in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW']:
+                                            description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                        " " + results_description[0][3] + " SCH " + results_description[0][4] + " B:" + results_description[0][8] +
+                                                        ((" BRIDAS " + results_description[0][9]) if results_description[0][0] in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6'] else " ") +
+                                                        "E:" + results_description[0][5] + 
+                                                        (" TOMAS: " + results_description[0][10] if results_description[0][0] in ['NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW'] else "") +
+                                                        (results_description[0][13] + " SALTOS: " if results_description[0][0] == 'MULTISTAGE RO' else ""))
 
-                        if self.proxyOf.rowCount() != 0:
-                            for row in range(self.proxyOf.rowCount()):
-                                num_of_drawing = self.proxyOf.data(self.proxyOf.index(row, 2))
+                                        elif item_type in ['NOZZLE BW', 'VWM', 'VWW']:
+                                            description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                        " " + (results_description[0][3] if results_description[0][0] in ['VWM', 'VWW'] else "") +
+                                                        " SCH " + results_description[0][4] + " T:" + results_description[0][12] +
+                                                        "E:" + results_description[0][5] + " TOMAS: " + results_description[0][10])
 
-                                query_data_flow = ('''
-                                    SELECT "item_type"
-                                    FROM tags_data.tags_flow
-                                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("of_drawing") = %s
-                                    ''')
-                                conn = None
-                                try:
-                                # read the connection parameters
-                                    params = config()
-                                # connect to the PostgreSQL server
-                                    conn = psycopg2.connect(**params)
-                                    cur = conn.cursor()
-                                # execution of commands
-                                    cur.execute(query_data_flow,(self.numorder, num_of_drawing,))
-                                    results_flow=cur.fetchall()
+                                        commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
+                                                                    SET "drawing_description" = '{description}'
+                                                                    WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
+                                        cur.execute(commands_insert_drawing)
 
-                                    item_type = results_flow[0][0]
+                                    # close communication with the PostgreSQL database server
+                                        cur.close()
+                                    # commit the changes
+                                        conn.commit()
+                                    except (Exception, psycopg2.DatabaseError) as error:
+                                        dlg = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg.setWindowIcon(new_icon)
+                                        dlg.setWindowTitle("ERP EIPSA")
+                                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                    + str(error))
+                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                        dlg.exec()
+                                        del dlg, new_icon
+                                    finally:
+                                        if conn is not None:
+                                            conn.close()
 
-                                    query_description = ('''
-                                    SELECT item_type, line_size, rating, facing, schedule, element_material,
-                                    plate_type, plate_thk, flange_material, flange_type, tapping_num_size,
-                                    gasket_material, tube_material, stages_number
-                                    FROM tags_data.tags_flow
-                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_drawing) = %s
-                                    ''')
-                                    cur.execute(query_description,(self.numorder, num_of_drawing,))
-                                    results_description=cur.fetchall()
+                            if self.proxyOf.rowCount() != 0:
+                                for row in range(self.proxyOf.rowCount()):
+                                    num_of_drawing = self.proxyOf.data(self.proxyOf.index(row, 2))
 
-                                    if item_type in ['C. RING', 'F+C.RING', 'F+P', 'M.RUN', 'P', 'RO']:
-                                        description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                                    " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][5] + " " +
-                                                    results_description[0][6] + " ESPESOR " + results_description[0][7])
+                                    query_data_flow = ('''
+                                        SELECT "item_type"
+                                        FROM tags_data.tags_flow
+                                        WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("of_drawing") = %s
+                                        ''')
+                                    conn = None
+                                    try:
+                                    # read the connection parameters
+                                        params = config()
+                                    # connect to the PostgreSQL server
+                                        conn = psycopg2.connect(**params)
+                                        cur = conn.cursor()
+                                    # execution of commands
+                                        cur.execute(query_data_flow,(self.numorder, num_of_drawing,))
+                                        results_flow=cur.fetchall()
 
-                                    elif item_type in ['F', 'F+C.RING', 'F+P', 'M.RUN']:
-                                        description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                                    " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][8] +
-                                                    ((" BRIDAS " + results_description[0][9]) if results_description[0][0] == 'M.RUN' else " ") +
-                                                    " TOMAS: " + results_description[0][10][:-1] + ' x brida)' + " " + "Junta " +
-                                                    ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else 22,2))))
+                                        item_type = results_flow[0][0]
 
-                                    # elif item_type in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW']:
-                                    #     description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                    #                 " " + results_description[0][3] + " SCH " + results_description[0][4] + " B:" + results_description[0][8] +
-                                    #                 ((" BRIDAS " + results_description[0][9]) if results_description[0][0] in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6'] else " ") +
-                                    #                 "E:" + results_description[0][5] + 
-                                    #                 (" TOMAS: " + results_description[0][10] + '(Conjunto)' if results_description[0][0] in ['NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW'] else "") +
-                                    #                 (results_description[0][13] + " SALTOS: " if results_description[0][0] == 'MULTISTAGE RO' else ""))
+                                        query_description = ('''
+                                        SELECT item_type, line_size, rating, facing, schedule, element_material,
+                                        plate_type, plate_thk, flange_material, flange_type, tapping_num_size,
+                                        gasket_material, tube_material, stages_number
+                                        FROM tags_data.tags_flow
+                                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_drawing) = %s
+                                        ''')
+                                        cur.execute(query_description,(self.numorder, num_of_drawing,))
+                                        results_description=cur.fetchall()
 
-                                    # elif item_type in ['NOZZLE BW', 'VWM', 'VWW']:
-                                    #     description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                    #                 " " + (results_description[0][3] if results_description[0][0] in ['VWM', 'VWW'] else "") +
-                                    #                 " SCH " + results_description[0][4] + " T:" + results_description[0][12] +
-                                    #                 "E:" + results_description[0][5] + " TOMAS: " + results_description[0][10] + '(Conjunto)')
+                                        if item_type in ['C. RING', 'F+C.RING', 'F+P', 'M.RUN', 'P', 'RO']:
+                                            description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                        " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][5] + " " +
+                                                        results_description[0][6] + " ESPESOR " + results_description[0][7])
 
-                                    commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
-                                                                SET "drawing_description" = '{description}'
-                                                                WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_of_drawing}'"""
-                                    cur.execute(commands_insert_drawing)
+                                        elif item_type in ['F', 'F+C.RING', 'F+P', 'M.RUN']:
+                                            description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                        " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][8] +
+                                                        ((" BRIDAS " + results_description[0][9]) if results_description[0][0] == 'M.RUN' else " ") +
+                                                        " TOMAS: " + results_description[0][10][:-1] + ' ' + " " + "Junta " +
+                                                        ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else 22,2))))
 
-                                # close communication with the PostgreSQL database server
-                                    cur.close()
-                                # commit the changes
-                                    conn.commit()
-                                except (Exception, psycopg2.DatabaseError) as error:
-                                    dlg = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg.setWindowIcon(new_icon)
-                                    dlg.setWindowTitle("ERP EIPSA")
-                                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                                + str(error))
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                    dlg.exec()
-                                    del dlg, new_icon
-                                finally:
-                                    if conn is not None:
-                                        conn.close()
+                                        # elif item_type in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW']:
+                                        #     description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                        #                 " " + results_description[0][3] + " SCH " + results_description[0][4] + " B:" + results_description[0][8] +
+                                        #                 ((" BRIDAS " + results_description[0][9]) if results_description[0][0] in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6'] else " ") +
+                                        #                 "E:" + results_description[0][5] + 
+                                        #                 (" TOMAS: " + results_description[0][10] + '(Conjunto)' if results_description[0][0] in ['NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW'] else "") +
+                                        #                 (results_description[0][13] + " SALTOS: " if results_description[0][0] == 'MULTISTAGE RO' else ""))
+
+                                        # elif item_type in ['NOZZLE BW', 'VWM', 'VWW']:
+                                        #     description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                        #                 " " + (results_description[0][3] if results_description[0][0] in ['VWM', 'VWW'] else "") +
+                                        #                 " SCH " + results_description[0][4] + " T:" + results_description[0][12] +
+                                        #                 "E:" + results_description[0][5] + " TOMAS: " + results_description[0][10] + '(Conjunto)')
+
+                                        commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
+                                                                    SET "drawing_description" = '{description}'
+                                                                    WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_of_drawing}'"""
+                                        cur.execute(commands_insert_drawing)
+
+                                    # close communication with the PostgreSQL database server
+                                        cur.close()
+                                    # commit the changes
+                                        conn.commit()
+                                    except (Exception, psycopg2.DatabaseError) as error:
+                                        dlg = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg.setWindowIcon(new_icon)
+                                        dlg.setWindowTitle("ERP EIPSA")
+                                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                    + str(error))
+                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                        dlg.exec()
+                                        del dlg, new_icon
+                                    finally:
+                                        if conn is not None:
+                                            conn.close()
 
 
-                    elif self.table_toquery == "tags_data.tags_temp":
-                        if self.proxyDim.rowCount() != 0:
-                            for row in range(self.proxyDim.rowCount()):
-                                num_dim_drawing = self.proxyDim.data(self.proxyDim.index(row, 2))
+                        elif self.table_toquery == "tags_data.tags_temp":
+                            if self.proxyDim.rowCount() != 0:
+                                for row in range(self.proxyDim.rowCount()):
+                                    num_dim_drawing = self.proxyDim.data(self.proxyDim.index(row, 2))
 
-                                query_data_temp = ('''
-                                    SELECT "item_type"
-                                    FROM tags_data.tags_temp
-                                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s
-                                    ''')
-                                conn = None
-                                try:
-                                # read the connection parameters
-                                    params = config()
-                                # connect to the PostgreSQL server
-                                    conn = psycopg2.connect(**params)
-                                    cur = conn.cursor()
-                                # execution of commands
-                                    cur.execute(query_data_temp,(self.numorder, num_dim_drawing,))
-                                    results_temp=cur.fetchall()
+                                    query_data_temp = ('''
+                                        SELECT "item_type"
+                                        FROM tags_data.tags_temp
+                                        WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s
+                                        ''')
+                                    conn = None
+                                    try:
+                                    # read the connection parameters
+                                        params = config()
+                                    # connect to the PostgreSQL server
+                                        conn = psycopg2.connect(**params)
+                                        cur = conn.cursor()
+                                    # execution of commands
+                                        cur.execute(query_data_temp,(self.numorder, num_dim_drawing,))
+                                        results_temp=cur.fetchall()
 
-                                    item_type = results_temp[0][0]
-
-                                    query_description = ('''
-                                    SELECT item_type, tw_type, flange_size, flange_rating, flange_facing, geometry, material_tw,
-                                    ins_length, root_diam, sensor_element, sheath_stem_material, sheath_stem_diam, insulation,
-                                    nipple_ext_material, head_case_material, tt_cerblock
-                                    FROM tags_data.tags_temp
-                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s
-                                    ''')
-                                    cur.execute(query_description,(self.numorder, num_dim_drawing,))
-                                    results_description=cur.fetchall()
-
-                                    if item_type in ['TW', 'TW+BIM']:
-                                        description = (str(len(results_temp)) + " " + results_description[0][0] + " " +
-                                                    results_description[0][1] + " " +
-                                                    results_description[0][2] + results_description[0][3] + results_description[0][4] + " " +
-                                                    results_description[0][5] + " " + results_description[0][6] + " Ins:" + results_description[0][7] + "mm ø:" + results_description[0][8] + " " +
-                                                    (results_description[0][13] if 'BIM' in results_description[0][0] else ""))
-
-                                    elif item_type in ['TW+TE','TW+TE+TIT']:
-                                        description = (str(len(results_temp)) + " " + results_description[0][0] + " " +
-                                                    results_description[0][1] + " " +
-                                                    results_description[0][2] + results_description[0][3] + results_description[0][4] + " " +
-                                                    results_description[0][5] + " " + results_description[0][6] + " Ins:" + results_description[0][7] + "mm ø:" + results_description[0][8] + " " +
-                                                    results_description[0][9] + " " + results_description[0][10] + " " + results_description[0][11] + " " + (" a masa" if results_description[0][12] == 'Grounded' else (" no masa" if results_description[0][12] == 'Ungrounded' else "")) + " " + 
-                                                    results_description[0][13] + " " + results_description[0][14] + " " + results_description[0][15])
-
-                                    elif item_type in ['TE']:
-                                        description = (str(len(results_temp)) + " " + results_description[0][9] + " " + results_description[0][10] + " " + 
-                                                    results_description[0][11] + " " + " a masa" if results_description[0][12] == 'Grounded' else (" no masa" if results_description[0][12] == 'Unrounded' else ""))
-
-                                    commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
-                                                                SET "drawing_description" = '{description}'
-                                                                WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
-                                    cur.execute(commands_insert_drawing)
-
-                                # close communication with the PostgreSQL database server
-                                    cur.close()
-                                # commit the changes
-                                    conn.commit()
-                                except (Exception, psycopg2.DatabaseError) as error:
-                                    dlg = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg.setWindowIcon(new_icon)
-                                    dlg.setWindowTitle("ERP EIPSA")
-                                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                                + str(error))
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                    dlg.exec()
-                                    del dlg, new_icon
-                                finally:
-                                    if conn is not None:
-                                        conn.close()
-
-                        if self.proxyOf.rowCount() != 0:
-                            for row in range(self.proxyOf.rowCount()):
-                                of_drawing = self.proxyOf.data(self.proxyOf.index(row, 2))
-
-                                query_data_temp = ('''
-                                    SELECT "item_type"
-                                    FROM tags_data.tags_temp
-                                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("of_drawing") = %s
-                                    ''')
-                                conn = None
-                                try:
-                                # read the connection parameters
-                                    params = config()
-                                # connect to the PostgreSQL server
-                                    conn = psycopg2.connect(**params)
-                                    cur = conn.cursor()
-                                # execution of commands
-                                    cur.execute(query_data_temp,(self.numorder, of_drawing,))
-                                    results_temp=cur.fetchall()
-
-                                    if len(results_temp) != 0:
                                         item_type = results_temp[0][0]
 
                                         query_description = ('''
                                         SELECT item_type, tw_type, flange_size, flange_rating, flange_facing, geometry, material_tw,
-                                        ins_length, root_diam
+                                        ins_length, root_diam, sensor_element, sheath_stem_material, sheath_stem_diam, insulation,
+                                        nipple_ext_material, head_case_material, tt_cerblock
                                         FROM tags_data.tags_temp
-                                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_drawing) = %s
+                                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s
                                         ''')
-                                        cur.execute(query_description,(self.numorder, of_drawing,))
+                                        cur.execute(query_description,(self.numorder, num_dim_drawing,))
                                         results_description=cur.fetchall()
 
-                                        if item_type in ['TW', 'TW+BIM','TW+TE', 'TW+TE+TIT']:
+                                        if item_type in ['TW', 'TW+BIM']:
                                             description = (str(len(results_temp)) + " " + results_description[0][0] + " " +
                                                         results_description[0][1] + " " +
                                                         results_description[0][2] + results_description[0][3] + results_description[0][4] + " " +
-                                                        results_description[0][5] + " " + results_description[0][6] + " Ins:" + results_description[0][7] + "mm ø:" + results_description[0][8])
+                                                        str(results_description[0][5]) + " " + results_description[0][6] + " Ins: " + results_description[0][7] + "mm ø: " + results_description[0][8] + " " +
+                                                        (results_description[0][13] if 'BIM' in results_description[0][0] else ""))
 
-                                            commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
-                                                                        SET "drawing_description" = '{description}'
-                                                                        WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{of_drawing}'"""
-                                            cur.execute(commands_insert_drawing)
-
-                                    # close communication with the PostgreSQL database server
-                                        cur.close()
-                                    # commit the changes
-                                        conn.commit()
-                                except (Exception, psycopg2.DatabaseError) as error:
-                                    dlg = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg.setWindowIcon(new_icon)
-                                    dlg.setWindowTitle("ERP EIPSA")
-                                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                                + str(error))
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                    dlg.exec()
-                                    del dlg, new_icon
-                                finally:
-                                    if conn is not None:
-                                        conn.close()
-
-
-                                query_data_temp = ('''
-                                    SELECT "item_type"
-                                    FROM tags_data.tags_temp
-                                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("of_sensor_drawing") = %s
-                                    ''')
-                                conn = None
-                                try:
-                                # read the connection parameters
-                                    params = config()
-                                # connect to the PostgreSQL server
-                                    conn = psycopg2.connect(**params)
-                                    cur = conn.cursor()
-                                # execution of commands
-                                    cur.execute(query_data_temp,(self.numorder, of_drawing,))
-                                    results_temp=cur.fetchall()
-
-                                    if len(results_temp) != 0:
-                                        item_type = results_temp[0][0]
-
-                                        query_description = ('''
-                                        SELECT item_type, sensor_element, sheath_stem_material, sheath_stem_diam, insulation,
-                                        nipple_ext_material, head_case_material, tt_cerblock
-                                        FROM tags_data.tags_temp
-                                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_sensor_drawing) = %s
-                                        ''')
-                                        cur.execute(query_description,(self.numorder, of_drawing,))
-                                        results_description=cur.fetchall()
-
-                                        if item_type in ['TW+TE','TW+TE+TIT']:
-                                            description = (str(len(results_temp)) + " " + 
-                                                        results_description[0][1] + " " + results_description[0][2] + " " + results_description[0][3] + " " + (" a masa" if results_description[0][4] == 'Grounded' else (" no masa" if results_description[0][4] == 'Ungrounded' else "")) + " " + 
-                                                        results_description[0][5] + " " + results_description[0][6] + " " + results_description[0][7])
-
-                                            commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
-                                                                    SET "drawing_description" = '{description}'
-                                                                    WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{of_drawing}'"""
-                                            cur.execute(commands_insert_drawing)
+                                        elif item_type in ['TW+TE','TW+TE+TIT']:
+                                            description = (str(len(results_temp)) + " " + results_description[0][0] + " " +
+                                                        results_description[0][1] + " " +
+                                                        results_description[0][2] + results_description[0][3] + results_description[0][4] + " " +
+                                                        str(results_description[0][5]) + " " + results_description[0][6] + " Ins: " + results_description[0][7] + "mm ø: " + results_description[0][8] + " " +
+                                                        results_description[0][9] + " " + results_description[0][10] + " " + results_description[0][11] + " " + ("A Masa" if results_description[0][12] == 'Grounded' else ("No Masa" if results_description[0][12] == 'Ungrounded' else "")) + " " + 
+                                                        results_description[0][13] + " " + results_description[0][14] + " " + results_description[0][15])
 
                                         elif item_type in ['TE']:
-                                            description = (str(len(results_temp)) + " " + results_description[0][1] + " " + results_description[0][2] + " " + 
-                                                        results_description[0][3] + " " + (" a masa" if results_description[0][4] == 'Grounded' else (" no masa" if results_description[0][4] == 'Ungrounded' else "")))
+                                            description = (str(len(results_temp)) + " " + results_description[0][9] + " " + results_description[0][10] + " " + 
+                                                        results_description[0][11] + " " + "A Masa" if results_description[0][12] == 'Grounded' else ("No Masa" if results_description[0][12] == 'Unrounded' else ""))
 
-                                            commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
-                                                                        SET "drawing_description" = '{description}'
-                                                                        WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{of_drawing}'"""
-                                            cur.execute(commands_insert_drawing)
+                                        else:
+                                            description = 'escribir a mano'
+                                        commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
+                                                                    SET "drawing_description" = '{description}'
+                                                                    WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
+                                        cur.execute(commands_insert_drawing)
 
                                     # close communication with the PostgreSQL database server
                                         cur.close()
                                     # commit the changes
                                         conn.commit()
-                                except (Exception, psycopg2.DatabaseError) as error:
-                                    dlg = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg.setWindowIcon(new_icon)
-                                    dlg.setWindowTitle("ERP EIPSA")
-                                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                                + str(error))
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                    dlg.exec()
-                                    del dlg, new_icon
-                                finally:
-                                    if conn is not None:
-                                        conn.close()
+                                    except (Exception, psycopg2.DatabaseError) as error:
+                                        dlg = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg.setWindowIcon(new_icon)
+                                        dlg.setWindowTitle("ERP EIPSA")
+                                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                    + str(error))
+                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                        dlg.exec()
+                                        del dlg, new_icon
+                                    finally:
+                                        if conn is not None:
+                                            conn.close()
+
+                            if self.proxyOf.rowCount() != 0:
+                                for row in range(self.proxyOf.rowCount()):
+                                    of_drawing = self.proxyOf.data(self.proxyOf.index(row, 2))
+
+                                    query_data_temp = ('''
+                                        SELECT "item_type"
+                                        FROM tags_data.tags_temp
+                                        WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("of_drawing") = %s
+                                        ''')
+                                    conn = None
+                                    try:
+                                    # read the connection parameters
+                                        params = config()
+                                    # connect to the PostgreSQL server
+                                        conn = psycopg2.connect(**params)
+                                        cur = conn.cursor()
+                                    # execution of commands
+                                        cur.execute(query_data_temp,(self.numorder, of_drawing,))
+                                        results_temp=cur.fetchall()
+
+                                        if len(results_temp) != 0:
+                                            item_type = results_temp[0][0]
+
+                                            query_description = ('''
+                                            SELECT item_type, tw_type, flange_size, flange_rating, flange_facing, geometry, material_tw,
+                                            ins_length, root_diam
+                                            FROM tags_data.tags_temp
+                                            WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_drawing) = %s
+                                            ''')
+                                            cur.execute(query_description,(self.numorder, of_drawing,))
+                                            results_description=cur.fetchall()
+
+                                            if item_type in ['TW', 'TW+BIM','TW+TE', 'TW+TE+TIT']:
+                                                description = (str(len(results_temp)) + " " + results_description[0][0] + " " +
+                                                            results_description[0][1] + " " +
+                                                            results_description[0][2] + results_description[0][3] + results_description[0][4] + " " +
+                                                            str(results_description[0][5]) + " " + results_description[0][6] + " Ins: " + str(results_description[0][7]) + "mm ø: " + str(results_description[0][8]))
+
+                                            else:
+                                                description = 'escribir a mano'
+                                            commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
+                                                                        SET "drawing_description" = '{description}'
+                                                                        WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{of_drawing}'"""
+                                            cur.execute(commands_insert_drawing)
+
+                                        # close communication with the PostgreSQL database server
+                                            cur.close()
+                                        # commit the changes
+                                            conn.commit()
+                                    except (Exception, psycopg2.DatabaseError) as error:
+                                        dlg = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg.setWindowIcon(new_icon)
+                                        dlg.setWindowTitle("ERP EIPSA")
+                                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                    + str(error))
+                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                        dlg.exec()
+                                        del dlg, new_icon
+                                    finally:
+                                        if conn is not None:
+                                            conn.close()
+
+                                    query_data_temp = ('''
+                                        SELECT "item_type"
+                                        FROM tags_data.tags_temp
+                                        WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("of_sensor_drawing") = %s
+                                        ''')
+                                    conn = None
+                                    try:
+                                    # read the connection parameters
+                                        params = config()
+                                    # connect to the PostgreSQL server
+                                        conn = psycopg2.connect(**params)
+                                        cur = conn.cursor()
+                                    # execution of commands
+                                        cur.execute(query_data_temp,(self.numorder, of_drawing,))
+                                        results_temp=cur.fetchall()
+
+                                        if len(results_temp) != 0:
+                                            item_type = results_temp[0][0]
+
+                                            query_description = ('''
+                                            SELECT item_type, sensor_element, sheath_stem_material, sheath_stem_diam, insulation,
+                                            nipple_ext_material, head_case_material, tt_cerblock
+                                            FROM tags_data.tags_temp
+                                            WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_sensor_drawing) = %s
+                                            ''')
+                                            cur.execute(query_description,(self.numorder, of_drawing,))
+                                            results_description=cur.fetchall()
+
+                                            if item_type in ['TW+TE','TW+TE+TIT']:
+                                                description = (str(len(results_temp)) + " " + 
+                                                            results_description[0][1] + " " + results_description[0][2] + " " + results_description[0][3] + " " + (" A Masa" if results_description[0][4] == 'Grounded' else (" No Masa" if results_description[0][4] == 'Ungrounded' else "")) + " " + 
+                                                            results_description[0][5] + " " + results_description[0][6] + " " + results_description[0][7])
+
+                                                commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
+                                                                        SET "drawing_description" = '{description}'
+                                                                        WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{of_drawing}'"""
+                                                cur.execute(commands_insert_drawing)
+
+                                            elif item_type in ['TE']:
+                                                description = (str(len(results_temp)) + " " + results_description[0][1] + " " + results_description[0][2] + " " + 
+                                                            results_description[0][3] + " " + (" A Masa" if results_description[0][4] == 'Grounded' else (" No Masa" if results_description[0][4] == 'Ungrounded' else "")))
+
+                                                commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
+                                                                            SET "drawing_description" = '{description}'
+                                                                            WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{of_drawing}'"""
+                                                cur.execute(commands_insert_drawing)
+
+                                        # close communication with the PostgreSQL database server
+                                            cur.close()
+                                        # commit the changes
+                                            conn.commit()
+                                    except (Exception, psycopg2.DatabaseError) as error:
+                                        dlg = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg.setWindowIcon(new_icon)
+                                        dlg.setWindowTitle("ERP EIPSA")
+                                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                    + str(error))
+                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                        dlg.exec()
+                                        del dlg, new_icon
+                                    finally:
+                                        if conn is not None:
+                                            conn.close()
 
 
-                    elif self.table_toquery == "tags_data.tags_level":
-                        if self.proxyDim.rowCount() != 0:
-                            for row in range(self.proxyDim.rowCount()):
-                                num_dim_drawing = self.proxyDim.data(self.proxyDim.index(row, 2))
+                        elif self.table_toquery == "tags_data.tags_level":
+                            if self.proxyDim.rowCount() != 0:
+                                for row in range(self.proxyDim.rowCount()):
+                                    num_dim_drawing = self.proxyDim.data(self.proxyDim.index(row, 2))
 
-                                query_data_level = ('''
-                                    SELECT "item_type"
-                                    FROM tags_data.tags_level
-                                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s
-                                    ''')
-                                conn = None
-                                try:
-                                # read the connection parameters
-                                    params = config()
-                                # connect to the PostgreSQL server
-                                    conn = psycopg2.connect(**params)
-                                    cur = conn.cursor()
-                                # execution of commands
-                                    cur.execute(query_data_level,(self.numorder, num_dim_drawing,))
-                                    results_level=cur.fetchall()
+                                    query_data_level = ('''
+                                        SELECT "item_type"
+                                        FROM tags_data.tags_level
+                                        WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s
+                                        ''')
+                                    conn = None
+                                    try:
+                                    # read the connection parameters
+                                        params = config()
+                                    # connect to the PostgreSQL server
+                                        conn = psycopg2.connect(**params)
+                                        cur = conn.cursor()
+                                    # execution of commands
+                                        cur.execute(query_data_level,(self.numorder, num_dim_drawing,))
+                                        results_level=cur.fetchall()
 
-                                    item_type = results_level[0][0]
+                                        item_type = results_level[0][0]
 
-                                    query_description = ('''
-                                    SELECT item_type, model_num, proc_conn_size, proc_conn_rating, proc_conn_facing, valve_type,
-                                    gasket_mica, illuminator, scale_type, antifrost, float_material, body_material
-                                    FROM tags_data.tags_level
-                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s
-                                    ''')
-                                    cur.execute(query_description,(self.numorder, num_dim_drawing,))
-                                    results_description=cur.fetchall()
+                                        query_description = ('''
+                                        SELECT item_type, model_num, proc_conn_size, proc_conn_rating, proc_conn_facing, valve_type,
+                                        gasket_mica, illuminator, scale_type, antifrost, float_material, body_material
+                                        FROM tags_data.tags_level
+                                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (dim_drawing) = %s
+                                        ''')
+                                        cur.execute(query_description,(self.numorder, num_dim_drawing,))
+                                        results_description=cur.fetchall()
 
-                                    if item_type in ['Reflex', 'Transparent']:
-                                        description = (str(len(results_level)) + " " + results_description[0][11] + " " +
-                                                    results_description[0][1] +
-                                                    ('-M' if 'MICA' in results_description[0][6] else "") +
-                                                    ('-I' if 'YES' in results_description[0][7] else "") +
-                                                    ('-K' if 'ANTIFROST' in results_description[0][9] else "") +
-                                                    " " +
-                                                    " " + results_description[0][2] + results_description[0][3] + results_description[0][4] + " " + results_description[0][5])
+                                        if item_type in ['Reflex', 'Transparent']:
+                                            description = (str(len(results_level)) + " " + results_description[0][11] + " " +
+                                                        results_description[0][1] +
+                                                        ('-M' if 'MICA' in results_description[0][6] else "") +
+                                                        ('-I' if 'YES' in results_description[0][7] else "") +
+                                                        ('-K' if 'ANTIFROST' in results_description[0][9] else "") +
+                                                        " " +
+                                                        " " + results_description[0][2] + results_description[0][3] + results_description[0][4] + " " + results_description[0][5])
 
-                                    elif item_type in ['Magnetic']:
-                                        description = (str(len(results_level)) + "-" + results_description[0][0] + " " + results_description[0][1] + " " + 
-                                                    "Flotador " + results_description[0][10])
+                                        elif item_type in ['Magnetic']:
+                                            description = (str(len(results_level)) + "-" + results_description[0][0] + " " + results_description[0][1] + " " + 
+                                                        "Flotador " + results_description[0][10])
 
-                                    commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
-                                                                SET "drawing_description" = '{description}'
-                                                                WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
-                                    cur.execute(commands_insert_drawing)
+                                        commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
+                                                                    SET "drawing_description" = '{description}'
+                                                                    WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
+                                        cur.execute(commands_insert_drawing)
 
-                                # close communication with the PostgreSQL database server
-                                    cur.close()
-                                # commit the changes
-                                    conn.commit()
-                                except (Exception, psycopg2.DatabaseError) as error:
-                                    dlg = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg.setWindowIcon(new_icon)
-                                    dlg.setWindowTitle("ERP EIPSA")
-                                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                                + str(error))
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                    dlg.exec()
-                                    del dlg, new_icon
-                                finally:
-                                    if conn is not None:
-                                        conn.close()
-
-                    elif self.table_toquery == "tags_data.others":
-                        if self.proxyDim.rowCount() != 0:
-                            for row in range(self.proxyDim.rowCount()):
-                                num_dim_drawing = self.proxyDim.data(self.proxyDim.index(row, 2))
-
-                                query_data_level = ('''
-                                    SELECT "description"
-                                    FROM tags_data.others
-                                    WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s
-                                    ''')
-                                conn = None
-                                try:
-                                # read the connection parameters
-                                    params = config()
-                                # connect to the PostgreSQL server
-                                    conn = psycopg2.connect(**params)
-                                    cur = conn.cursor()
-                                # execution of commands
-                                    cur.execute(query_data_level,(self.numorder, num_dim_drawing,))
-                                    results_level=cur.fetchall()
-
-                                    description = (str(len(results_level)) + " " + results_level[0][0])
-
-                                    commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
-                                                                SET "drawing_description" = '{description}'
-                                                                WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
-                                    cur.execute(commands_insert_drawing)
-
-                                # close communication with the PostgreSQL database server
-                                    cur.close()
-                                # commit the changes
-                                    conn.commit()
-                                except (Exception, psycopg2.DatabaseError) as error:
-                                    dlg = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg.setWindowIcon(new_icon)
-                                    dlg.setWindowTitle("ERP EIPSA")
-                                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                                + str(error))
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                    dlg.exec()
-                                    del dlg, new_icon
-                                finally:
-                                    if conn is not None:
-                                        conn.close()
+                                    # close communication with the PostgreSQL database server
+                                        cur.close()
+                                    # commit the changes
+                                        conn.commit()
+                                    except (Exception, psycopg2.DatabaseError) as error:
+                                        dlg = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg.setWindowIcon(new_icon)
+                                        dlg.setWindowTitle("ERP EIPSA")
+                                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                    + str(error))
+                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                        dlg.exec()
+                                        del dlg, new_icon
+                                    finally:
+                                        if conn is not None:
+                                            conn.close()
 
 
-                    self.query_drawings()
+                        elif self.table_toquery == "tags_data.tags_others":
+                            if self.proxyDim.rowCount() != 0:
+                                for row in range(self.proxyDim.rowCount()):
+                                    num_dim_drawing = self.proxyDim.data(self.proxyDim.index(row, 2))
+
+                                    query_data_others = ('''
+                                        SELECT "description"
+                                        FROM tags_data.tags_others
+                                        WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("dim_drawing") = %s
+                                        ''')
+                                    conn = None
+                                    try:
+                                    # read the connection parameters
+                                        params = config()
+                                    # connect to the PostgreSQL server
+                                        conn = psycopg2.connect(**params)
+                                        cur = conn.cursor()
+                                    # execution of commands
+                                        cur.execute(query_data_others,(self.numorder, num_dim_drawing,))
+                                        results_others=cur.fetchall()
+
+                                        description = (str(len(results_others)) + " " + results_others[0][0])
+
+                                        commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
+                                                                    SET "drawing_description" = '{description}'
+                                                                    WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
+                                        cur.execute(commands_insert_drawing)
+
+                                    # close communication with the PostgreSQL database server
+                                        cur.close()
+                                    # commit the changes
+                                        conn.commit()
+                                    except (Exception, psycopg2.DatabaseError) as error:
+                                        dlg = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg.setWindowIcon(new_icon)
+                                        dlg.setWindowTitle("ERP EIPSA")
+                                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                    + str(error))
+                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                        dlg.exec()
+                                        del dlg, new_icon
+                                    finally:
+                                        if conn is not None:
+                                            conn.close()
+
+
+                        self.query_drawings()
 
 # Function to execute query function when tags window is closed
     def on_close_event(self, event):

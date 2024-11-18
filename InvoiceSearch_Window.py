@@ -9,9 +9,10 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from config import config
 import psycopg2
-import re
-import locale
+import configparser
+from Database_Connection import createConnection_name
 import os
+import sys
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -40,6 +41,8 @@ class Ui_InvoiceSearch_Window(object):
     """
     UI class for the Invoice Search window.
     """
+    def __init__(self, username):
+        self.username = username
 
     def setupUi(self, InvoiceSearch_Window):
         """
@@ -205,7 +208,7 @@ class Ui_InvoiceSearch_Window(object):
         commands_searchinvoice = (f"""
                                 SELECT invoice."num_invoice", invoice."our_ref", detail."description", detail."price", detail."price_usd"
                                 FROM purch_fact.invoice_header AS invoice
-                                JOIN purch_fact.invoice_detail AS detail ON (invoice."id_invoice" = detail."inv_head_id")
+                                JOIN purch_fact.invoice_detail AS detail ON (invoice."id" = detail."invoice_header_id")
                                 ORDER BY invoice."num_invoice"
                                 """)
         conn = None
@@ -285,7 +288,7 @@ class Ui_InvoiceSearch_Window(object):
             commands_searchinvoice = ("""
                                 SELECT invoice."num_invoice", invoice."our_ref", detail."description", detail."price", detail."price_usd"
                                 FROM purch_fact.invoice_detail AS detail
-                                INNER JOIN purch_fact.invoice_header AS invoice ON (invoice."id_invoice" = detail."inv_head_id")
+                                INNER JOIN purch_fact.invoice_header AS invoice ON (invoice."id" = detail."invoice_header_id")
                                 WHERE detail."description" ILIKE '%%'||%s||'%%'
                                 ORDER BY invoice."num_invoice"
                                 """)
@@ -355,10 +358,19 @@ class Ui_InvoiceSearch_Window(object):
             num_invoice = self.tableInvoices.item(item.row(), 0).text()
 
             from InvoiceNew_Window import Ui_InvoiceNew_Window
-            self.invoice_window=QtWidgets.QMainWindow()
-            self.ui=Ui_InvoiceNew_Window(num_invoice)
-            self.ui.setupUi(self.invoice_window)
-            self.invoice_window.showMaximized()
+            config_obj = configparser.ConfigParser()
+            config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+            dbparam = config_obj["postgresql"]
+            # set your parameters for the database connection URI using the keys from the configfile.ini
+            user_database = dbparam["user"]
+            password_database = dbparam["password"]
+
+            db_invoices = createConnection_name(user_database, password_database, 'invoice ' + num_invoice)
+            if not db_invoices:
+                sys.exit()
+
+            self.invoices_app = Ui_InvoiceNew_Window(db_invoices, self.username, num_invoice)
+            self.invoices_app.show()
             InvoiceSearch_Window.close()
 
 

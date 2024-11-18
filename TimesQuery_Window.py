@@ -74,6 +74,12 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         return colors_dict
 
     def initStyleOption(self, option, index):
+        """
+        Initializes the custom delegate.
+
+        Args:
+            parent (QWidget, optional): The parent widget. Defaults to None.
+        """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
@@ -501,15 +507,28 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-
 class Ui_TimesQuery_Window(QtWidgets.QMainWindow):
+    """
+    UI class for the Query Times window.
+    """
     def __init__(self, username):
+        """
+        Initializes the Ui_TimesQuery_Window with the specified username.
+
+        Args:
+            username (str): username associated with the window.
+        """
         super().__init__()
         self.username = username
         self.setupUi(self)
 
-
     def setupUi(self, TimesQuery_Window):
+        """
+        Sets up the user interface for the TimesQuery_Window.
+
+        Args:
+            TimesQuery_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         TimesQuery_Window.setObjectName("TimesQuery_Window")
         TimesQuery_Window.resize(400, 561)
         TimesQuery_Window.setMinimumSize(QtCore.QSize(600, 575))
@@ -676,7 +695,6 @@ class Ui_TimesQuery_Window(QtWidgets.QMainWindow):
         self.tableTimes.itemSelectionChanged.connect(self.countSelectedCells)
         self.querytimes()
 
-
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, TimesQuery_Window):
         """
@@ -701,9 +719,11 @@ class Ui_TimesQuery_Window(QtWidgets.QMainWindow):
         self.Button_Cancel.setText(_translate("TimesQuery_Window", "Cancelar"))
         self.Button_SeeAll.setText(_translate("TimesQuery_Window", "Ver Todos"))
 
-
-
     def querytimes(self):
+        """
+        Queries the database for times of last 2 months, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         query_times = ("""
                         SELECT CAST(ot."id_ot" AS INTEGER), TO_CHAR(ot."date_ot", 'DD/MM/YYYY'), ot."number_ot", ot."time_ot", ot."cent_time_ot", personal."name", operations."name_eipsa"
                         FROM fabrication.imp_ot AS ot
@@ -765,6 +785,10 @@ class Ui_TimesQuery_Window(QtWidgets.QMainWindow):
                 conn.close()
 
     def see_all(self):
+        """
+        Queries the database for all times, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         query_times = ("""
                         SELECT CAST(ot."id_ot" AS INTEGER), TO_CHAR(ot."date_ot", 'DD/MM/YYYY'), ot."number_ot", ot."time_ot", ot."cent_time_ot", personal."name", operations."name_eipsa"
                         FROM fabrication.imp_ot AS ot
@@ -833,7 +857,6 @@ class Ui_TimesQuery_Window(QtWidgets.QMainWindow):
         header_height = self.tableTimes.horizontalHeader().height()
         popup_pos = self.tableTimes.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableTimes.show_unique_values_menu(logical_index, popup_pos, header_height)
-
 
     def countSelectedCells(self):
         """

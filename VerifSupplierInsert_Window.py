@@ -36,12 +36,29 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 class AlignDelegate_Custom(QtWidgets.QStyledItemDelegate):
+    """
+    A custom delegate class that aligns the text in table cells to the center and applies custom colors based on
+    a specific column's value. The colors are fetched from a PostgreSQL database.
+    """
     def __init__(self, column_name, parent=None):
+        """
+        Initializes the custom delegate, fetching color data from the database and setting the column name.
+
+        Args:
+            column_name (str): The name of the column used for color-based checks.
+            parent (QWidget, optional): The parent widget. Defaults to None.
+        """
         super().__init__(parent)
         self.colors_dict = self.get_colors_from_database()
         self.column_name = column_name
 
     def get_colors_from_database(self):
+        """
+        Retrieves color data from a PostgreSQL database and returns a dictionary with state-to-color mappings.
+
+        Returns:
+            dict: A dictionary where the key is the state and the value is a QColor object.
+        """
         colors_dict = {}
 
         conn = None
@@ -74,6 +91,13 @@ class AlignDelegate_Custom(QtWidgets.QStyledItemDelegate):
         return colors_dict
 
     def initStyleOption(self, option, index):
+        """
+        Overrides the style option to center-align the text and apply colors based on the column value.
+
+        Args:
+            option (QStyleOptionViewItem): The style option to be modified.
+            index (QModelIndex): The index of the item being styled.
+        """
         super(AlignDelegate_Custom, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
@@ -99,11 +123,29 @@ class AlignDelegate_Custom(QtWidgets.QStyledItemDelegate):
             option.palette.setBrush(QtGui.QPalette.ColorRole.Text, text_color)
 
 class ColorDelegate(QtWidgets.QStyledItemDelegate):
+    """
+    A custom item delegate for applying background colors to cells in a QTableView or QTableWidget.
+
+    Inherits from:
+        QtWidgets.QItemDelegate: Provides custom rendering for table items.
+    """
     def __init__(self, parent=None):
+        """
+        Initializes the ColorDelegate, setting up the color mapping from the database.
+
+        Args:
+            parent (QtWidgets.QWidget, optional): The parent widget. Defaults to None.
+        """
         super().__init__(parent)
         self.colors_dict = self.get_colors_from_database()
 
     def get_colors_from_database(self):
+        """
+        Retrieves color information from the database and builds a dictionary mapping orders to their colors.
+
+        Returns:
+            dict: A dictionary where the keys are order numbers and the values are tuples of QColor objects for two types of background colors.
+        """
         colors_dict = {}
 
         conn = None
@@ -136,6 +178,13 @@ class ColorDelegate(QtWidgets.QStyledItemDelegate):
         return colors_dict
 
     def initStyleOption(self, option, index):
+        """
+        Initializes the style option for the item.
+
+        Args:
+            option (QtWidgets.QStyleOptionViewItem): The style option to initialize.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
         super().initStyleOption(option, index)
         color = self.colors_dict.get(index.row()+1, QtGui.QColor("white"))
         option.palette.setColor(QtGui.QPalette.ColorGroup.All, QtGui.QPalette.ColorRole.Text, color)
@@ -530,12 +579,27 @@ class CustomTableWidget(QtWidgets.QTableWidget):
             super().contextMenuEvent(event)
 
 class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
+    """
+    UI class for the Insert Verification Supplier Order window.
+    """
     def __init__(self, username):
+        """
+        Initializes the Ui_VerifSupplierInsert_Window with the specified username.
+
+        Args:
+            username (str): username associated with the window.
+        """
         super().__init__()
         self.username = username
         self.setupUi(self)
 
     def setupUi(self, VerifSupplierInsert_Window):
+        """
+        Sets up the user interface for the VerifSupplierInsert_Window.
+
+        Args:
+            VerifSupplierInsert_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         VerifSupplierInsert_Window.setObjectName("VerifSupplierInsert_Window")
         VerifSupplierInsert_Window.resize(400, 561)
         VerifSupplierInsert_Window.setMinimumSize(QtCore.QSize(1000, 675))
@@ -949,9 +1013,12 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         item = self.tableRecords.horizontalHeaderItem(7)
         item.setText(_translate("VerifSupplierInsert_Window", "Observaciones"))
 
-
 # Function to query data and set values on table
     def query_values(self):
+        """
+        Queries the database for suppier orders, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         self.tableRecords.setRowCount(0)
 
         query_material = ("""
@@ -1020,6 +1087,9 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
 # Function to insert data record
     def insert(self):
+        """
+        Creates a new entry in database after validating form inputs.
+        """
         id_record = self.label_id.text()
         date_record = self.date.text()
         supplier = self.supplier.currentText()
@@ -1103,6 +1173,9 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
 # Function to edit data recor
     def edit(self):
+        """
+        Edit the corresponding entry in database after validating form inputs.
+        """
         id_record = self.label_id.text()
         date_record = self.date.text()
         supplier = self.supplier.currentText()
@@ -1193,6 +1266,9 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
 # Function to load file
     def item_double_clicked(self, item):
+        """
+        Opens detailed information when column is double-clicked.
+        """
         if item.text() != '':
             if item.column() == 4:
                 item_id = self.tableRecords.item(item.row(), 0).text()
@@ -1248,6 +1324,12 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
 # Function to load form when selecting recor
     def loadform(self, item):
+        """
+        Loads data from the selected row in the table and populates the form fields.
+
+        Args:
+            item (QTableWidgetItem): The item representing the selected row in the table.
+        """
         data_order=[]
 
         for column in range(self.tableRecords.columnCount()):
@@ -1301,6 +1383,9 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
 # Function to search pdf file
     def search_document(self):
+        """
+        Opens a file dialog to select a PDF file from a predefined directory.
+        """
         self.fname = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES", filetypes=[("Archivos PDF", "*.pdf")],
                             title="Seleccionar archivo pdf")
         if self.fname:
@@ -1308,6 +1393,9 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
 # Function to add new supplier
     def add_supplier(self):
+        """
+        Prompts the user to input a new supplier name and adds the supplier to the database.
+        """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -1391,6 +1479,10 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
 # Function to update fixed values
     def load_values(self):
+        """
+        Loads the current date and clears the observation field. Retrieves the available states and manometers from the database
+        and populates the corresponding dropdown lists in the UI.
+        """
         self.state.clear()
         self.supplier.clear()
 
@@ -1459,6 +1551,13 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
 # Function to change combobox color when change value
     def change_text_color(self, text):
+        """
+        Changes the text color of a widget based on the provided state. The color is retrieved from the database and applied
+        to the widget. If the state is not found, a default white color is used.
+
+        Args:
+            text (str): The state whose corresponding color will be applied to the widget.
+        """
         colors_dict = {}
         conn = None
         try:

@@ -1,6 +1,8 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6 import QtSql
 from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 from Database_Connection import createConnection
 import configparser
 from datetime import *
@@ -57,7 +59,6 @@ class ColorDelegate(QtWidgets.QItemDelegate):
         # painter.fillRect(option.rect, background_color)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
         super().paint(painter, option, index)
-
 
 class CustomProxyModel(QtCore.QSortFilterProxyModel):
     """
@@ -234,7 +235,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
             Qt.ItemFlags: The flags for the specified item.
         """
         flags = super().flags(index)
-        if index.column() < 54:
+        if index.column() < 10:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -415,8 +416,8 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(Dispatch_Window)
 
         self.model.setTable("purch_fact.invoice_header")
-        # self.model.setFilter("num_order LIKE 'P-%' AND num_order NOT LIKE '%R%' AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)")
-        self.model.setSort(0, QtCore.Qt.SortOrder.DescendingOrder)
+        self.model.setFilter("date_dispatch IS NULL")
+        self.model.setSort(1, QtCore.Qt.SortOrder.DescendingOrder)
         self.model.select()
 
         self.proxy.setSourceModel(self.model)
@@ -437,29 +438,38 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
                         self.checkbox_states[column][str(value)] = True
                 self.dict_valuesuniques[column] = list_valuesUnique
 
-        for i in range(2,4):
+        self.tableDispatch.hideColumn(0)
+        self.tableDispatch.hideColumn(1)
+        for i in range(3,5):
             self.tableDispatch.hideColumn(i)
-        for i in range(5,9):
+        for i in range(6,52):
             self.tableDispatch.hideColumn(i)
-        for i in range(10,54):
-            self.tableDispatch.hideColumn(i)
+        self.tableDispatch.hideColumn(58)
+        self.tableDispatch.hideColumn(59)
         self.tableDispatch.hideColumn(60)
-        self.tableDispatch.hideColumn(61)
-        self.tableDispatch.hideColumn(62)
 
-        headers=['ID', 'Nº Factura', '', '', 'Nº Albarán', '', '', '', '', 'Nº Pedido',
+        headers=['ID', 'Nº Factura', 'Nº Albarán', '', '', 'Nº Pedido', '', '', '', '',
                 '', '', '', '', '', '', '', '', '', '',
                 '', '', '', '', '', '', '', '', '', '',
                 '', '', '', '', '', '', '', '', '', '',
                 '', '', '', '', '', '', '', '', '', '',
-                '', '', '', '', 'Destino', 'Bultos', 'Peso', 'Descripción', 'Transporte', 'Fecha', '', '', '']
+                '', '', 'Destino', 'Bultos', 'Peso', 'Descripción', 'Transporte', 'Fecha', '', '', '']
 
         self.tableDispatch.setItemDelegate(AlignDelegate(self.tableDispatch))
         # self.color_delegate = ColorDelegate(self)
         # self.tableDispatch.setItemDelegateForColumn(16, self.color_delegate)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(57, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(59, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        # self.tableDispatch.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableDispatch.horizontalHeader().setDefaultSectionSize(50)
+        self.tableDispatch.horizontalHeader().resizeSection(5, 125)
+        self.tableDispatch.horizontalHeader().resizeSection(52, 175)
+        self.tableDispatch.horizontalHeader().resizeSection(53, 50)
+        self.tableDispatch.horizontalHeader().resizeSection(54, 125)
+        self.tableDispatch.horizontalHeader().resizeSection(55, 600)
+        self.tableDispatch.horizontalHeader().resizeSection(56, 75)
+        self.tableDispatch.horizontalHeader().resizeSection(57, 75)
+        # self.tableDispatch.horizontalHeader().setSectionResizeMode(52, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        # self.tableDispatch.horizontalHeader().setSectionResizeMode(55, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        # self.tableDispatch.horizontalHeader().setSectionResizeMode(57, QtWidgets.QHeaderView.ResizeMode.Stretch)
 
         self.tableDispatch.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
         self.gridLayout_2.addWidget(self.tableDispatch, 3, 0, 1, 1)
@@ -469,7 +479,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.Button_All.clicked.connect(self.query_all_Dispatch)
         self.tableDispatch.setSortingEnabled(False)
-        self.tableDispatch.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked)
+        self.tableDispatch.horizontalHeader().sectionClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableDispatch, self.model, self.proxy))
         self.model.dataChanged.connect(self.saveChanges)
 
 
@@ -489,9 +499,11 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
         self.model.dataChanged.disconnect(self.saveChanges)
+        self.delete_allFilters()
+        self.model.clear()
         self.model.setTable("purch_fact.invoice_header")
-        # self.model.setFilter("num_order LIKE 'P-%' AND num_order NOT LIKE '%R%' AND (porc_deliveries <> 100 OR porc_deliveries IS NULL)")
-        self.model.setSort(0, QtCore.Qt.SortOrder.DescendingOrder)
+        # self.model.setFilter("date_dispatch IS NULL")
+        self.model.setSort(1, QtCore.Qt.SortOrder.DescendingOrder)
         self.model.select()
 
         self.proxy.setSourceModel(self.model)
@@ -512,29 +524,37 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
                         self.checkbox_states[column][str(value)] = True
                 self.dict_valuesuniques[column] = list_valuesUnique
 
-        for i in range(2,4):
+        self.tableDispatch.hideColumn(0)
+        self.tableDispatch.hideColumn(1)
+        for i in range(3,5):
             self.tableDispatch.hideColumn(i)
-        for i in range(5,9):
+        for i in range(6,52):
             self.tableDispatch.hideColumn(i)
-        for i in range(10,54):
-            self.tableDispatch.hideColumn(i)
+        self.tableDispatch.hideColumn(58)
+        self.tableDispatch.hideColumn(59)
         self.tableDispatch.hideColumn(60)
-        self.tableDispatch.hideColumn(61)
-        self.tableDispatch.hideColumn(62)
 
-        headers=['ID', 'Nº Factura', '', '', 'Nº Albarán', '', '', '', '', 'Nº Pedido',
+        headers=['ID', 'Nº Factura', 'Nº Albarán', '', '', 'Nº Pedido', '', '', '', '',
                 '', '', '', '', '', '', '', '', '', '',
                 '', '', '', '', '', '', '', '', '', '',
                 '', '', '', '', '', '', '', '', '', '',
                 '', '', '', '', '', '', '', '', '', '',
-                '', '', '', '', 'Destino', 'Bultos', 'Peso', 'Descripción', 'Transporte', 'Fecha', '', '', '']
+                '', '', 'Destino', 'Bultos', 'Peso', 'Descripción', 'Transporte', 'Fecha', '', '', '']
 
         self.tableDispatch.setItemDelegate(AlignDelegate(self.tableDispatch))
         # self.color_delegate = ColorDelegate(self)
         # self.tableDispatch.setItemDelegateForColumn(16, self.color_delegate)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(57, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(59, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        # self.tableDispatch.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableDispatch.horizontalHeader().setDefaultSectionSize(50)
+        self.tableDispatch.horizontalHeader().resizeSection(5, 125)
+        self.tableDispatch.horizontalHeader().resizeSection(52, 175)
+        self.tableDispatch.horizontalHeader().resizeSection(54, 125)
+        self.tableDispatch.horizontalHeader().resizeSection(55, 300)
+        self.tableDispatch.horizontalHeader().resizeSection(56, 100)
+        self.tableDispatch.horizontalHeader().resizeSection(57, 100)
+        # self.tableDispatch.horizontalHeader().setSectionResizeMode(52, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        # self.tableDispatch.horizontalHeader().setSectionResizeMode(55, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        # self.tableDispatch.horizontalHeader().setSectionResizeMode(57, QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableDispatch.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
         self.gridLayout_2.addWidget(self.tableDispatch, 3, 0, 1, 1)
 
@@ -576,10 +596,6 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
                         self.checkbox_states[column][value] = True
                 self.dict_valuesuniques[column] = list_valuesUnique
 
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
-
 # Function to save changes into database
     def saveChanges(self):
         """
@@ -600,41 +616,39 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
             self.dict_valuesuniques[column] = list_valuesUnique
 
 # Function when header is clicked
-    def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
+    def on_view_horizontalHeader_sectionClicked(self, logicalIndex, table, model, proxy):
         """
         Displays a menu when a column header is clicked. The menu includes options for sorting, filtering, and managing column visibility.
         
         Args:
             logicalIndex (int): Index of the clicked column.
+            table (QtWidgets.QTableView): The table view displaying the data.
+            model (QtGui.QStandardItemModel): The model associated with the table.
+            proxy (QtCore.QSortFilterProxyModel): The proxy model used for filtering and sorting.
         """
+
         self.logicalIndex = logicalIndex
         self.menuValues = QtWidgets.QMenu(self)
-        self.signalMapper = QtCore.QSignalMapper(self.tableDispatch)
+        self.signalMapper = QtCore.QSignalMapper(table)
 
-        valuesUnique_view = []
-        for row in range(self.tableDispatch.model().rowCount()):
-            index = self.tableDispatch.model().index(row, self.logicalIndex)
-            value = index.data(Qt.ItemDataRole.DisplayRole)
-            if value not in valuesUnique_view:
-                if isinstance(value, QtCore.QDate):
-                    value=value.toString("dd/MM/yyyy")
-                valuesUnique_view.append(value)
+        valuesUnique_view = {table.model().index(row, self.logicalIndex).data(Qt.ItemDataRole.DisplayRole) for row in range(table.model().rowCount())}
+        valuesUnique_view = [value.toString("dd/MM/yyyy") if isinstance(value, QtCore.QDate) else value for value in valuesUnique_view]
 
-        actionSortAscending = QtGui.QAction("Ordenar Ascendente", self.tableDispatch)
-        actionSortAscending.triggered.connect(self.on_actionSortAscending_triggered)
+        actionSortAscending = QtGui.QAction("Ordenar Ascendente", table)
+        actionSortAscending.triggered.connect(lambda: self.on_actionSortAscending_triggered(table))
         self.menuValues.addAction(actionSortAscending)
-        actionSortDescending = QtGui.QAction("Ordenar Descendente", self.tableDispatch)
-        actionSortDescending.triggered.connect(self.on_actionSortDescending_triggered)
+        actionSortDescending = QtGui.QAction("Ordenar Descendente", table)
+        actionSortDescending.triggered.connect(lambda: self.on_actionSortDescending_triggered(table))
         self.menuValues.addAction(actionSortDescending)
         self.menuValues.addSeparator()
 
-        actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro", self.tableDispatch)
-        actionDeleteFilterColumn.triggered.connect(self.on_actionDeleteFilterColumn_triggered)
+        actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro", table)
+        actionDeleteFilterColumn.triggered.connect(lambda: self.on_actionDeleteFilterColumn_triggered(table, model, proxy))
         self.menuValues.addAction(actionDeleteFilterColumn)
         self.menuValues.addSeparator()
 
-        actionTextFilter = QtGui.QAction("Buscar...", self.tableDispatch)
-        actionTextFilter.triggered.connect(self.on_actionTextFilter_triggered)
+        actionTextFilter = QtGui.QAction("Buscar...", table)
+        actionTextFilter.triggered.connect(lambda: self.on_actionTextFilter_triggered(model, proxy))
         self.menuValues.addAction(actionTextFilter)
         self.menuValues.addSeparator()
 
@@ -652,7 +666,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         else:
             checkbox_all_widget.setChecked(True)
         
-        checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled(checked, name))
+        checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled(checked, name, model))
 
         scroll_layout.addWidget(checkbox_all_widget)
         self.action_checkbox_map['Seleccionar todo'] = checkbox_all_widget
@@ -663,7 +677,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
             list_uniquevalues = sorted(list(set(valuesUnique_view)))
 
         for actionName in list_uniquevalues:
-            checkbox_widget = QtWidgets.QCheckBox(actionName)
+            checkbox_widget = QtWidgets.QCheckBox(str(actionName))
 
             if self.logicalIndex not in self.checkbox_filters:
                 checkbox_widget.setChecked(True)
@@ -672,7 +686,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
             else:
                 checkbox_widget.setChecked(True)
 
-            checkbox_widget.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled(checked, name))
+            checkbox_widget.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled(checked, name, model))
 
             scroll_layout.addWidget(checkbox_widget)
             self.action_checkbox_map[actionName] = checkbox_widget
@@ -683,10 +697,10 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
 
         self.menuValues.addSeparator()
 
-        accept_button = QtGui.QAction("ACEPTAR", self.tableDispatch)
-        accept_button.triggered.connect(self.menu_acceptbutton_triggered)
+        accept_button = QtGui.QAction("ACEPTAR", table)
+        accept_button.triggered.connect(lambda: self.menu_acceptbutton_triggered(proxy))
 
-        cancel_button = QtGui.QAction("CANCELAR", self.tableDispatch)
+        cancel_button = QtGui.QAction("CANCELAR", table)
         cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
 
         self.menuValues.addAction(accept_button)
@@ -697,11 +711,11 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
                                         "QMenu::item:selected { background-color: #33bdef; }"
                                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
-        headerPos = self.tableDispatch.mapToGlobal(self.tableDispatch.horizontalHeader().pos())        
+        headerPos = table.mapToGlobal(table.horizontalHeader().pos())        
 
-        posY = headerPos.y() + self.tableDispatch.horizontalHeader().height()
-        scrollX = self.tableDispatch.horizontalScrollBar().value()
-        xInView = self.tableDispatch.horizontalHeader().sectionViewportPosition(logicalIndex)
+        posY = headerPos.y() + table.horizontalHeader().height()
+        scrollX = table.horizontalScrollBar().value()
+        xInView = table.horizontalHeader().sectionViewportPosition(logicalIndex)
         posX = headerPos.x() + xInView - scrollX
 
         self.menuValues.exec(QtCore.QPoint(posX, posY))
@@ -714,57 +728,49 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         self.menuValues.hide()
 
 # Function when accept button of menu is clicked
-    def menu_acceptbutton_triggered(self):
+    def menu_acceptbutton_triggered(self, proxy):
         """
         Applies the selected filters and updates the table model with the new filters.
         """
         for column, filters in self.checkbox_filters.items():
             if filters:
-                self.proxy.setFilter(filters, column)
+                proxy.setFilter(filters, column, exact_match=True)
             else:
-                self.proxy.setFilter(None, column)
-
-        self.tableDispatch.setItemDelegate(AlignDelegate(self.tableDispatch))
-        self.color_delegate = ColorDelegate(self)
-        self.tableDispatch.setItemDelegateForColumn(16, self.color_delegate)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(16, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(17, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(18, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(19, QtWidgets.QHeaderView.ResizeMode.Interactive)
+                proxy.setFilter(None, column)
 
 # Function when select all checkbox is clicked
-    def on_select_all_toggled(self, checked, action_name):
+    def on_select_all_toggled(self, checked, action_name, model):
         """
         Toggles the state of all checkboxes in the filter menu when the 'Select All' checkbox is toggled.
         
         Args:
             checked (bool): The checked state of the 'Select All' checkbox.
             action_name (str): The name of the action (usually 'Select All').
+            model (QAbstractItemModel): The model associated with the table view.
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
-        icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
-        if checked:
-            for checkbox_name, checkbox_widget in self.action_checkbox_map.items():
-                checkbox_widget.setChecked(checked)
-                self.checkbox_states[self.logicalIndex][checkbox_name] = checked
-
-            if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map.values()):
-                self.model.setIconColumnHeader(filterColumn, icono)
-            else:
-                self.model.setIconColumnHeader(filterColumn, '')
+    # Load icon
+        if not hasattr(self, 'icono_filter_active'):
+            imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+            self.icono_filter_active = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
         
-        else:
-            for checkbox_name, checkbox_widget in self.action_checkbox_map.items():
+    # Select map and state related to model
+        checkbox_map = self.action_checkbox_map
+        checkbox_states = self.checkbox_states
+
+    # Change state of checkboxes if necessary
+        for checkbox_name, checkbox_widget in checkbox_map.items():
+            if checkbox_widget.isChecked() != checked:
                 checkbox_widget.setChecked(checked)
-                self.checkbox_states[self.logicalIndex][checkbox_widget.text()] = checked
+                checkbox_states[self.logicalIndex][checkbox_widget.text()] = checked
+
+    # Adjust icon of header
+        all_checked = all(checkbox_widget.isChecked() for checkbox_widget in checkbox_map.values())
+        model.setIconColumnHeader(filterColumn, self.icono_filter_active if all_checked else '')
 
 # Function when checkbox of header menu is clicked
-    def on_checkbox_toggled(self, checked, action_name):
+    def on_checkbox_toggled(self, checked, action_name, model):
         """
         Updates the filter state when an individual checkbox is toggled.
         
@@ -787,76 +793,77 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
                 self.checkbox_filters[filterColumn].remove(action_name)
 
         if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map.values()):
-            self.model.setIconColumnHeader(filterColumn, '')
+            model.setIconColumnHeader(filterColumn, '')
         else:
-            self.model.setIconColumnHeader(filterColumn, icono)
+            model.setIconColumnHeader(filterColumn, icono)
 
 # Function to delete individual column filter
-    def on_actionDeleteFilterColumn_triggered(self):
+    def on_actionDeleteFilterColumn_triggered(self, table, model, proxy):
         """
         Removes the filter from the selected column and updates the table model.
+        
+        Args:
+            table (QtWidgets.QTableView): The table view displaying the data.
+            model (QtGui.QStandardItemModel): The model associated with the table.
+            proxy (QtCore.QSortFilterProxyModel): The proxy model used for filtering and sorting.
         """
         filterColumn = self.logicalIndex
-        if filterColumn in self.proxy.filters:
-            del self.proxy.filters[filterColumn]
-        self.model.setIconColumnHeader(filterColumn, '')
-        self.proxy.invalidateFilter()
-
-        # self.tableDispatch.setModel(None)
-        self.tableDispatch.setModel(self.proxy)
+        if filterColumn in proxy.filters:
+            del proxy.filters[filterColumn]
+        model.setIconColumnHeader(filterColumn, "")
+        proxy.invalidateFilter()
 
         if filterColumn in self.checkbox_filters:
             del self.checkbox_filters[filterColumn]
 
         self.checkbox_states[self.logicalIndex].clear()
-        self.checkbox_states[self.logicalIndex]['Seleccionar todo'] = True
-        for row in range(self.tableDispatch.model().rowCount()):
-            value = self.model.record(row).value(filterColumn)
+        self.checkbox_states[self.logicalIndex]["Seleccionar todo"] = True
+        for row in range(table.model().rowCount()):
+            value = model.record(row).value(filterColumn)
             if isinstance(value, QtCore.QDate):
-                    value=value.toString("dd/MM/yyyy")
+                value = value.toString("dd/MM/yyyy")
             self.checkbox_states[self.logicalIndex][str(value)] = True
 
-        self.tableDispatch.setItemDelegate(AlignDelegate(self.tableDispatch))
-        self.color_delegate = ColorDelegate(self)
-        self.tableDispatch.setItemDelegateForColumn(16, self.color_delegate)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(16, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(17, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(18, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableDispatch.horizontalHeader().setSectionResizeMode(19, QtWidgets.QHeaderView.ResizeMode.Interactive)
-
 # Function to order column ascending
-    def on_actionSortAscending_triggered(self):
+    def on_actionSortAscending_triggered(self, table):
         """
         Sorts the selected column in ascending order.
+        
+        Args:
+            table (QtWidgets.QTableView): The table view displaying the data.
         """
         sortColumn = self.logicalIndex
         sortOrder = Qt.SortOrder.AscendingOrder
-        self.tableDispatch.sortByColumn(sortColumn, sortOrder)
+        table.sortByColumn(sortColumn, sortOrder)
 
 # Function to order column descending
-    def on_actionSortDescending_triggered(self):
+    def on_actionSortDescending_triggered(self, table):
         """
         Sorts the selected column in descending order.
+        
+        Args:
+            table (QtWidgets.QTableView): The table view displaying the data.
         """
         sortColumn = self.logicalIndex
         sortOrder = Qt.SortOrder.DescendingOrder
-        self.tableDispatch.sortByColumn(sortColumn, sortOrder)
+        table.sortByColumn(sortColumn, sortOrder)
 
 # Function when text is searched
-    def on_actionTextFilter_triggered(self):
+    def on_actionTextFilter_triggered(self, model, proxy):
         """
         Opens a dialog to enter a text filter and applies it to the selected column.
+        
+        Args:
+            model (QtGui.QStandardItemModel): The model associated with the table.
+            proxy (QtCore.QSortFilterProxyModel): The proxy model used for filtering and sorting.
         """
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle('Buscar')
-        clickedButton=dlg.exec()
+        dlg.setWindowTitle("Buscar")
+        clickedButton = dlg.exec()
 
         if clickedButton == 1:
             stringAction = dlg.textValue()
@@ -866,11 +873,98 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
 
             filterString = QtCore.QRegularExpression(stringAction, QtCore.QRegularExpression.PatternOption(0))
             # del self.proxy.filters[filterColumn]
-            self.proxy.setFilter([stringAction], filterColumn)
+            proxy.setFilter([stringAction], filterColumn, None)
 
             imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
-            self.model.setIconColumnHeader(filterColumn, icono)
+            model.setIconColumnHeader(filterColumn, icono)
+
+# Function to enable copy and paste cells
+    def keyPressEvent(self, event):
+        """
+        Handles custom key events for cell operations in the table.
+
+        Args:
+            event (QtGui.QKeyEvent): The key event to handle.
+        """
+        if event.matches(QKeySequence.StandardKey.Copy):
+            selected_indexes = self.tableDispatch.selectionModel().selectedIndexes()
+            if selected_indexes:
+                clipboard = QApplication.clipboard()
+                text = self.get_selected_text(selected_indexes)
+                if isinstance(text, QtCore.QDate):
+                    text=text.toString("dd/MM/yyyy")
+                clipboard.setText(str(text))
+
+        elif event.matches(QKeySequence.StandardKey.Paste):
+            self.model.dataChanged.disconnect(self.saveChanges)
+            selected_indexes = self.tableDispatch.selectionModel().selectedIndexes()
+            if selected_indexes:
+                clipboard = QApplication.clipboard()
+                text = clipboard.text()
+                for index in selected_indexes:
+                    current_row = index.row()
+                    current_column = index.column()
+                    first_column_value = self.proxy.data(self.proxy.index(current_row, 0))
+                    target_row = None
+                    for row in range(self.model.rowCount()):
+                        if self.model.data(self.model.index(row, 0)) == first_column_value:
+                            target_row = row
+                            break
+                    if target_row is not None:
+                        target_index = self.model.index(target_row, current_column)
+                        self.model.setData(target_index, text, Qt.ItemDataRole.EditRole)  # Pegar el valor en todas las celdas seleccionadas
+                self.model.submitAll()
+
+            self.model.dataChanged.connect(self.saveChanges)
+
+        super().keyPressEvent(event)
+
+# Function to get the text of the selected cells
+    def get_selected_text(self, indexes):
+        """
+        Retrieves the text from the selected cells and returns it as a plain text string.
+
+        Args:
+            indexes (list of QModelIndex): A list of QModelIndex objects representing the selected cells.
+        
+        Returns:
+            str: A string containing the text from the selected cells.
+        """
+        """
+        Retrieves the text from the selected cells and returns it as a plain text string.
+
+        Args:
+            indexes (list of QModelIndex): A list of QModelIndex objects representing the selected cells.
+        
+        Returns:
+            str: A string containing the text from the selected cells.
+        """
+        if len(indexes) == 1: # For only one cell selected
+            index = indexes[0]
+            cell_data = index.data(Qt.ItemDataRole.DisplayRole)
+            return cell_data
+        else:
+            rows = set()
+            cols = set()
+            for index in indexes:
+                rows.add(index.row())
+                cols.add(index.column())
+
+            text_doc = QTextDocument()
+            cursor = QTextCursor(text_doc)
+
+            for row in sorted(rows):
+                for col in sorted(cols):
+                    index = self.model.index(row, col)  # Obtain corresponding index
+                    cell_data = index.data(Qt.ItemDataRole.DisplayRole)
+                    cursor.insertText(str(cell_data))
+                    cursor.insertText('\t')  # Tab separating columns
+                cursor.insertText('\n')  # Line break at end of row
+
+            return text_doc.toPlainText()
+
+
 
 
 if __name__ == "__main__":

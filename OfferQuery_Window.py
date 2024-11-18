@@ -804,9 +804,10 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
 
             # self.tableQueryOffer.verticalHeader().hide()
             self.tableQueryOffer.setSortingEnabled(False)
-            self.tableQueryOffer.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-            self.tableQueryOffer.horizontalHeader().setSectionResizeMode(4,QtWidgets.QHeaderView.ResizeMode.Interactive)
-            self.tableQueryOffer.horizontalHeader().setSectionResizeMode(18,QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableQueryOffer.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableQueryOffer.horizontalHeader().setDefaultSectionSize(150)
+            # self.tableQueryOffer.horizontalHeader().setSectionResizeMode(4,QtWidgets.QHeaderView.ResizeMode.Interactive)
+            # self.tableQueryOffer.horizontalHeader().setSectionResizeMode(18,QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableQueryOffer.horizontalHeader().setSectionResizeMode(19,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
 
@@ -885,7 +886,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
                         UNION ALL
                         (SELECT CAST(received_offers."id_offer" AS TEXT), EXTRACT(YEAR FROM (received_offers."register_date")) as year_offer, users_data.initials."initials", received_offers."state", received_offers."num_ref_offer", received_offers."client",
                         received_offers."final_client", '' as project, received_offers."material", '' as amount, '' as rate_type, received_offers."description", received_offers."items_number",
-                        TO_CHAR(received_offers."recep_date",'dd/MM/yyyy'), '' as portal, TO_CHAR(received_offers."limit_date",'dd/MM/yyyy'), '' as presentation_date, None as rec_times, '' as tracking, '' as important
+                        TO_CHAR(received_offers."recep_date",'dd/MM/yyyy'), '' as portal, TO_CHAR(received_offers."limit_date",'dd/MM/yyyy'), '' as presentation_date, 0 as rec_times, '' as tracking, '' as important
                         FROM received_offers
                         INNER JOIN product_type ON (received_offers."material"=product_type."material")
                         INNER JOIN users_data.initials ON (received_offers."responsible"=users_data.initials."username")
@@ -953,9 +954,10 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
 
                 # self.tableQueryOffer.verticalHeader().hide()
                 self.tableQueryOffer.setSortingEnabled(False)
-                self.tableQueryOffer.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                self.tableQueryOffer.horizontalHeader().setSectionResizeMode(4,QtWidgets.QHeaderView.ResizeMode.Interactive)
-                self.tableQueryOffer.horizontalHeader().setSectionResizeMode(18,QtWidgets.QHeaderView.ResizeMode.Interactive)
+                self.tableQueryOffer.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+                self.tableQueryOffer.horizontalHeader().setDefaultSectionSize(150)
+                # self.tableQueryOffer.horizontalHeader().setSectionResizeMode(4,QtWidgets.QHeaderView.ResizeMode.Interactive)
+                # self.tableQueryOffer.horizontalHeader().setSectionResizeMode(18,QtWidgets.QHeaderView.ResizeMode.Interactive)
                 self.tableQueryOffer.horizontalHeader().setSectionResizeMode(19,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
 

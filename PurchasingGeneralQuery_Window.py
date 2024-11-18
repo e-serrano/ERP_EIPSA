@@ -547,9 +547,9 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addItem(spacerItem, 2, 0, 1, 1)
         self.tableQueryPurchase = CustomTableWidget()
         self.tableQueryPurchase.setObjectName("tableQueryPurchase")
-        self.tableQueryPurchase.setColumnCount(7)
+        self.tableQueryPurchase.setColumnCount(8)
         self.tableQueryPurchase.setRowCount(0)
-        for i in range(7):
+        for i in range(8):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -627,9 +627,10 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
         item.setText(_translate("PurchasingGeneralQuery_Window", "Fecha Entrega 2"))
         item = self.tableQueryPurchase.horizontalHeaderItem(6)
         item.setText(_translate("PurchasingGeneralQuery_Window", "Fecha Entrega 3"))
+        item = self.tableQueryPurchase.horizontalHeaderItem(7)
+        item.setText(_translate("PurchasingGeneralQuery_Window", "Estado"))
         self.label_Order.setText(_translate("PurchasingGeneralQuery_Window", "Nº Pedido:"))
         self.Button_Delete.setText(_translate("PurchasingGeneralQuery_Window", "Ver Todos"))
-
 
     def delete_all_filters(self):
         """
@@ -649,7 +650,6 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
         self.tableQueryPurchase.rows_hidden = {}
         self.tableQueryPurchase.general_rows_to_hide = set()
 
-
     def query_all(self):
         """
         Queries the database for all suppliers orders, configures and populates tables with the query results, 
@@ -658,10 +658,18 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
         self.tableQueryPurchase.setRowCount(0)
 
         commands_query_all = ("""
-                        (SELECT purchase."id", purchase."notes", TO_CHAR(purchase."order_date",'dd/MM/yyyy'), TO_CHAR(purchase."delivery_date",'dd/MM/yyyy'),
-                        TO_CHAR(purchase."deliv_date_1",'dd/MM/yyyy'), TO_CHAR(purchase."deliv_date_2",'dd/MM/yyyy'), TO_CHAR(purchase."deliv_date_3",'dd/MM/yyyy')
-                        FROM purch_fact.supplier_ord_header AS purchase
-                        ORDER BY purchase."order_date" DESC)
+                        (SELECT supplier_ord."id", supplier_ord."notes", TO_CHAR(supplier_ord."order_date",'dd/MM/yyyy'), TO_CHAR(supplier_ord."delivery_date",'dd/MM/yyyy'),
+                        TO_CHAR(supplier_ord."deliv_date_1",'dd/MM/yyyy'), TO_CHAR(supplier_ord."deliv_date_2",'dd/MM/yyyy'), TO_CHAR(supplier_ord."deliv_date_3",'dd/MM/yyyy'),
+                        CASE 
+                            WHEN SUM(supplier_detail."quantity") <> SUM(supplier_detail."pending") 
+                                    THEN 'Completo' 
+                                    ELSE 'Incompleto' 
+                        END AS estado
+                        FROM purch_fact.supplier_ord_header AS supplier_ord
+                        LEFT JOIN purch_fact.supplier_ord_detail AS supplier_detail ON supplier_ord."id" = supplier_detail."supplier_ord_header_id"
+                        GROUP BY supplier_ord."id", supplier_ord."notes", supplier_ord."order_date", supplier_ord."delivery_date", 
+                        supplier_ord."deliv_date_1", supplier_ord."deliv_date_2", supplier_ord."deliv_date_3"
+                        ORDER BY supplier_ord."order_date" DESC)
                         """)
 
         conn = None
@@ -679,7 +687,7 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(7):
+                for column in range(8):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -694,6 +702,7 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
             self.tableQueryPurchase.setSortingEnabled(False)
             self.tableQueryPurchase.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
+            self.tableQueryPurchase.hideColumn(0)
 
         # close communication with the PostgreSQL database server
             cur.close()
@@ -714,7 +723,6 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-
     def query_filtered(self):
         """
         Queries the database for filtered suppliers orders, configures and populates tables with the query results, 
@@ -724,11 +732,19 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
         order = self.Order_Query.text()
 
         commands_query_filtered = ("""
-                        (SELECT purchase."id", purchase."notes", TO_CHAR(purchase."order_date",'dd/MM/yyyy'), TO_CHAR(purchase."delivery_date",'dd/MM/yyyy'),
-                        TO_CHAR(purchase."deliv_date_1",'dd/MM/yyyy'), TO_CHAR(purchase."deliv_date_2",'dd/MM/yyyy'), TO_CHAR(purchase."deliv_date_3",'dd/MM/yyyy')
-                        FROM purch_fact.supplier_ord_header AS purchase
-                        WHERE UPPER(purchase."notes") LIKE UPPER('%%'||%s||'%%')
-                        ORDER BY purchase."order_date" DESC)
+                        (SELECT supplier_ord."id", supplier_ord."notes", TO_CHAR(supplier_ord."order_date",'dd/MM/yyyy'), TO_CHAR(supplier_ord."delivery_date",'dd/MM/yyyy'),
+                        TO_CHAR(supplier_ord."deliv_date_1",'dd/MM/yyyy'), TO_CHAR(supplier_ord."deliv_date_2",'dd/MM/yyyy'), TO_CHAR(supplier_ord."deliv_date_3",'dd/MM/yyyy'),
+                        CASE 
+                            WHEN SUM(supplier_detail."quantity") <> SUM(supplier_detail."pending") 
+                                    THEN 'Completo' 
+                                    ELSE 'Incompleto' 
+                        END AS estado
+                        FROM purch_fact.supplier_ord_header AS supplier_ord
+                        LEFT JOIN purch_fact.supplier_ord_detail AS supplier_detail ON supplier_ord."id" = supplier_detail."supplier_ord_header_id"
+                        WHERE UPPER(supplier_ord."notes") LIKE UPPER('%%'||%s||'%%')
+                        GROUP BY supplier_ord."id", supplier_ord."notes", supplier_ord."order_date", supplier_ord."delivery_date", 
+                        supplier_ord."deliv_date_1", supplier_ord."deliv_date_2", supplier_ord."deliv_date_3"
+                        ORDER BY supplier_ord."order_date" DESC)
                         """)
         conn = None
         try:
@@ -747,7 +763,7 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(7):
+                for column in range(8):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -761,6 +777,8 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
             self.tableQueryPurchase.verticalHeader().hide()
             self.tableQueryPurchase.setSortingEnabled(False)
             self.tableQueryPurchase.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+
+            self.tableQueryPurchase.hideColumn(0)
 
 
         # close communication with the PostgreSQL database server
@@ -781,7 +799,6 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
         finally:
             if conn is not None:
                 conn.close()
-
 
     def countSelectedCells(self):
         """
@@ -809,7 +826,6 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
             self.label_CountItems.setText("")
             self.label_CountValue.setText("")
 
-
     def euro_string_to_float(self, euro_str):
         """
         Converts a string representing an amount in euros to a float.
@@ -828,7 +844,6 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
         else:
             return 0.0
 
-
     def on_item_double_clicked(self, item):
         """
         Handles double-click events on items in a QTableWidget.
@@ -844,7 +859,6 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
         self.ui=Ui_PurchasingDetailQuery_Window(id_purchase)
         self.ui.setupUi(self.purchasedetail_query_window)
         self.purchasedetail_query_window.showMaximized()
-
 
     def export_to_excel(self):
         """
@@ -935,7 +949,6 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
             del dlg,new_icon
-
 
 #Function when clicking on table header
     def on_header_section_clicked(self, logical_index):

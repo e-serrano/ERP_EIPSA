@@ -129,7 +129,7 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addItem(spacerItem3, 1, 2, 1, 1)
         self.tableNotifications = QtWidgets.QTableWidget(parent=self.frame)
         self.tableNotifications.setObjectName("tableWidget")
-        self.tableNotifications.setColumnCount(3)
+        self.tableNotifications.setColumnCount(4)
         self.tableNotifications.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
         font = QtGui.QFont()
@@ -149,6 +149,12 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
         font.setBold(True)
         item.setFont(font)
         self.tableNotifications.setHorizontalHeaderItem(2, item)
+        item = QtWidgets.QTableWidgetItem()
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        item.setFont(font)
+        self.tableNotifications.setHorizontalHeaderItem(3, item)
         self.gridLayout_2.addWidget(self.tableNotifications, 2, 0, 1, 3)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         HistoryNotifications_Window.setCentralWidget(self.centralwidget)
@@ -161,7 +167,7 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
         HistoryNotifications_Window.setStatusBar(self.statusbar)
         self.tableNotifications.verticalHeader().setVisible(True)
         self.tableNotifications.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableNotifications.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableNotifications.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableNotifications.setSortingEnabled(True)
         self.tableNotifications.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         HistoryNotifications_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
@@ -184,6 +190,8 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
         item = self.tableNotifications.horizontalHeaderItem(0)
         item.setText(_translate("HistoryNotifications_Window", "Tabla"))
         item = self.tableNotifications.horizontalHeaderItem(1)
+        item.setText(_translate("HistoryNotifications_Window", "ID"))
+        item = self.tableNotifications.horizontalHeaderItem(2)
         item.setText(_translate("HistoryNotifications_Window", "Mensaje"))
         self.Button_Cancel.setText(_translate("HistoryNotifications_Window", "Salir"))
         # self.Button_Export.setText(_translate("HistoryNotifications_Window", "Exportar"))
@@ -212,12 +220,12 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
             notifications = []
 
             for table in tables_names:
-                commands_notifications = f" SELECT message FROM notifications.{table} WHERE username = '{self.username}' AND state = 'Pendiente'"
+                commands_notifications = f" SELECT id, message FROM notifications.{table} WHERE username = '{self.username}' AND state = 'Pendiente'"
                 cur.execute(commands_notifications)
                 results=cur.fetchall()
 
                 for x in results:
-                    notifications.append([table,x[0]])
+                    notifications.append([table,x[0],x[1],])
 
         # close communication with the PostgreSQL database server
             cur.close()
@@ -229,7 +237,7 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in notifications:
-                for column in range(2):
+                for column in range(3):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -238,13 +246,16 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
                     self.tableNotifications.setItem(tablerow, column, it)
 
                 self.button = QtWidgets.QPushButton('Eliminar')
-                self.tableNotifications.setCellWidget(tablerow, 2, self.button)
+                self.tableNotifications.setCellWidget(tablerow, 3, self.button)
                 self.button.clicked.connect(self.on_button_clicked)
 
                 tablerow+=1
 
             self.tableNotifications.verticalHeader().hide()
             self.tableNotifications.setItemDelegate(AlignDelegate(self.tableNotifications))
+            self.tableNotifications.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableNotifications.hideColumn(0)
+            self.tableNotifications.hideColumn(1)
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -274,9 +285,9 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
         if index.isValid():
             row = index.row()
             table_name = self.tableNotifications.item(row, 0).text()
-            message = self.tableNotifications.item(row, 1).text()
+            id_notification = self.tableNotifications.item(row, 1).text()
 
-        commands_editnotif = f" UPDATE notifications.{table_name} SET state = 'Visto' WHERE username = '{self.username}' AND message = '{message}'"
+        commands_editnotif = f" UPDATE notifications.{table_name} SET state = 'Visto' WHERE id = '{id_notification}'"
         conn = None
         try:
         # read the connection parameters
@@ -312,6 +323,6 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    HistoryNotifications_Window = Ui_HistoryNotifications_Window()
+    HistoryNotifications_Window = Ui_HistoryNotifications_Window('e.carrillo')
     HistoryNotifications_Window.show()
     sys.exit(app.exec())

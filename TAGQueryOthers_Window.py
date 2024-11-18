@@ -677,7 +677,7 @@ class Ui_TAGQueryOthers_Window(QtWidgets.QMainWindow):
             self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
             self.tableTags.setSortingEnabled(False)
             self.tableTags.setHorizontalHeaderLabels(column_headers)
-            self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             if self.role != 'Comercial':
                 self.tableTags.hideColumn(4)
 

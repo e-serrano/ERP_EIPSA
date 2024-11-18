@@ -11,9 +11,11 @@ from PyQt6.QtWidgets import QMenu
 import sys
 import configparser
 from Database_Connection import createConnection, createConnection_name
-from datetime import *
+import datetime
 import os
 import locale
+import psycopg2
+from config import config
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -652,8 +654,8 @@ class Ui_App_Verification(object):
         self.weekday_indicator.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         if self.username == 'm.gil':
             self.weekday_indicator.setStyleSheet("color: white")
-        weekday = datetime.now().strftime("%A").encode('latin-1').decode('utf-8')
-        actual_date = date.today().strftime("%d/%m/%Y")
+        weekday = datetime.datetime.now().strftime("%A").encode('latin-1').decode('utf-8')
+        actual_date = datetime.date.today().strftime("%d/%m/%Y")
         self.weekday_indicator.setText(f"{weekday}, {actual_date}")
         self.gridLayout_3.addWidget(self.weekday_indicator, 1, 0, 1, 1)
         self.PrincipalScreen.addWidget(self.ClockFrame)
@@ -685,6 +687,8 @@ class Ui_App_Verification(object):
         self.Button_Revisions.clicked.connect(self.revisions)
         self.Button_Warehouse_Pieces.clicked.connect(self.aditional_pieces)
         self.Button_Profile.clicked.connect(self.showMenu)
+
+        self.update_machines_revision()
 
 
 # Function to translate and updates the text of various UI elements
@@ -947,6 +951,72 @@ class Ui_App_Verification(object):
         self.ui.setupUi(self.verifpieces_window)
         self.verifpieces_window.show()
 
+
+    def update_machines_revision(self):
+        """
+        Updates the revisions for machines
+        """
+        commands_check_dates = ("""
+                        SELECT id, next_revision
+                        FROM verification.machines_workshop
+                        WHERE notes is NULL or notes = ''
+                        """)
+        commands_insert_rev = ("""
+                        INSERT INTO verification.machines_workshop_revisions (machine_id, rev_date, hours, description)
+                        VALUES (%s,%s,%s,%s)
+                        """)
+        commands_check_revhours = ("""
+                        SELECT rev_date, hours
+                        FROM verification.machines_workshop_revisions
+                        WHERE description = 'Revisión' and machine_id = %s
+                        ORDER BY rev_date DESC
+                        """)
+        conn = None
+        try:
+            # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands_check_dates)
+            results_dates = cur.fetchall()
+            for item in results_dates:
+                rev_date = item[1]
+                if rev_date < datetime.date.today():
+                    if rev_date.weekday() == 5:  # saturday
+                        rev_date += datetime.timedelta(days=2)
+                    elif rev_date.weekday() == 6:  # sunday
+                        rev_date += datetime.timedelta(days=1)
+
+                    cur.execute(commands_check_revhours, (item[0],))
+                    results_hours = cur.fetchall()
+
+                    hours_revision = results_hours[0][1]
+                    rev_date = rev_date.strftime("%d/%m/%Y")
+
+                    data=[item[0],rev_date,hours_revision,"Revisión"]
+                    cur.execute(commands_insert_rev, data)
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            print(error)
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
 
 
 

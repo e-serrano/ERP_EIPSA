@@ -288,7 +288,7 @@ class Ui_InvoiceSend_Window(object):
             else:
                 commands_insert_data = ("""
                             UPDATE purch_fact."invoice_header"
-                            SET "date_send_invoice" = %s, "method_send_invoice" = %s
+                            SET "date_send_invoice" = %s, "method_send_invoice" = %s, "invoice_state" = %s
                             WHERE "num_invoice" = %s
                             """)
                 conn = None
@@ -299,7 +299,7 @@ class Ui_InvoiceSend_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    cur.execute(commands_insert_data, (verif_date, method, num_invoice, ))
+                    cur.execute(commands_insert_data, (verif_date, method, "Enviada", num_invoice, ))
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes

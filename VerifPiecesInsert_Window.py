@@ -488,12 +488,27 @@ class CustomTableWidget(QtWidgets.QTableWidget):
             super().contextMenuEvent(event)
 
 class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
+    """
+    UI class for the Insert verification pieces warehouse window.
+    """
     def __init__(self, username):
+        """
+        Initializes the Ui_VerifPiecesInsert_Window with the specified username.
+
+        Args:
+            username (str): username associated with the window.
+        """
         super().__init__()
         self.username = username
         self.setupUi(self)
 
     def setupUi(self, VerifPiecesInsert_Window):
+        """
+        Sets up the user interface for the VerifPiecesInsert_Window.
+
+        Args:
+            VerifPiecesInsert_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+        """
         VerifPiecesInsert_Window.setObjectName("VerifPiecesInsert_Window")
         VerifPiecesInsert_Window.resize(400, 561)
         VerifPiecesInsert_Window.setMinimumSize(QtCore.QSize(1000, 675))
@@ -950,7 +965,6 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         self.load_values()
         self.query_values()
 
-
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, VerifPiecesInsert_Window):
         """
@@ -989,9 +1003,12 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
         item = self.tableRecords.horizontalHeaderItem(9)
         item.setText(_translate("VerifPiecesInsert_Window", "Estado"))
 
-
 # Function to query data and set values on table
     def query_values(self):
+        """
+        Queries the database for warehouse pieces, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
         self.tableRecords.setRowCount(0)
 
         query_material = ("""
@@ -1061,6 +1078,9 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
 
 # Function to insert data record
     def insert(self):
+        """
+        Creates a new entry in database after validating form inputs.
+        """
         id_record = self.label_id.text()
         date_record = self.date.text()
         num_ot = self.num_ot.text()
@@ -1150,6 +1170,9 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
 
 # Function to edit data recor
     def edit(self):
+        """
+        Edit the corresponding entry in database after validating form inputs.
+        """
         id_record = self.label_id.text()
         date_record = self.date.text()
         num_ot = self.num_ot.text()
@@ -1233,6 +1256,9 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
 
 # Function to load file
     def item_double_clicked(self, item):
+        """
+        Opens detailed information when column is double-clicked.
+        """
         if item.text() != '':
             if item.column() in [7,8]:
                 item_id = self.tableRecords.item(item.row(), 0).text()
@@ -1285,6 +1311,12 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
 
 # Function to load form when selecting record
     def loadform(self, item):
+        """
+        Loads data from the selected row in the table and populates the form fields.
+
+        Args:
+            item (QTableWidgetItem): The item representing the selected row in the table.
+        """
         data_order=[]
 
         for column in range(self.tableRecords.columnCount()):
@@ -1339,6 +1371,9 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
 
 # Function to search pdf file
     def search_document(self):
+        """
+        Opens a file dialog to select a PDF file from a predefined directory.
+        """
         self.fname = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL", filetypes=[("Archivos PDF", "*.pdf")],
                             title="Seleccionar archivo pdf")
         if self.fname:
@@ -1346,6 +1381,9 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
 
 # Function to search image
     def search_image(self):
+        """
+        Opens a file dialog to select a image from a predefined directory.
+        """
         self.fname = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL", filetypes=[("Archivos JPG", "*.jpg")],
                             title="Seleccionar imagen")
         if self.fname:
@@ -1353,6 +1391,9 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
 
 # Function to add new description
     def add_description(self):
+        """
+        Prompts the user to input a new piece description and adds it to the database.
+        """
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -1436,6 +1477,10 @@ class Ui_VerifPiecesInsert_Window(QtWidgets.QMainWindow):
 
 # Function to update fixed values
     def load_values(self):
+        """
+        Loads the current date and clears the observation field. Retrieves the available states and manometers from the database
+        and populates the corresponding dropdown lists in the UI.
+        """
         self.description.clear()
 
         actual_date=date.today()

@@ -256,7 +256,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
         """
         return self._filters
 
-    def setFilter(self, expresion, column, action_name=None):
+    def setFilter(self, expresion, column, action_name=None, exact_match=False):
         """
         Apply a filter expression to a specific column, or remove it if necessary.
 
@@ -264,15 +264,16 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
             expresion (str): The filter expression.
             column (int): The index of the column to apply the filter to.
             action_name (str, optional): Name of the action, can be empty. Defaults to None.
+            exact_match (bool, optional): If True, use exact matching for the filter. Defaults to False.
         """
         if expresion or expresion == '':
             if column in self.filters:
                 if action_name or action_name == '':
                     self.filters[column].remove(expresion)
                 else:
-                    self.filters[column].append(expresion)
+                    self.filters[column].append((expresion, exact_match))
             else:
-                self.filters[column] = [expresion]
+                self.filters[column] = [(expresion, exact_match)]
         elif column in self.filters:
             if action_name or action_name == '':
                 self.filters[column].remove(expresion)
@@ -299,23 +300,33 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
             if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
                 text = text.toString("yyyy-MM-dd")
 
-            for expresion in expresions[0]:
+            match_found = False 
+
+            for expresion, exact_match in expresions:
                 if expresion == '':  # If expression is empty, match empty cells
                     if text == '':
                         break
 
+                if exact_match:
+                    if text in expresion:  # Verificar si `text` está en la lista `expresion`
+                        match_found = True
+                        break
+                
                 elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
 
                 else:
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
-            else:
+
+            if not match_found:
                 return False
         return True
 
@@ -933,7 +944,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                             "Notas Equipo", "Colada Placa", "Cert. Placa", "Colada Brida", "Cert. Brida", "Nº Tapones",
                             "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material", "RTJ Espesor", "RTJ Dim",
                             "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos", "Cantidad Espárragos", "Tamaño Extractor",
-                            "Cantidad Extractor", "Estado Fabricación", "Inspección", "Fecha IRC", "Envío RN", "Fecha RN", "Cod. Equipo",
+                            "Cantidad Extractor", "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo",
                             "Cod. Fab. Equipo", "Trad. Equipo", "Cod. Brida Orif.", "Cod. Fab. Brida Orif.", "Cant. Brida Orif.",
                             "Cod. Brida Línea", "Cod. Fab. Brida Línea", "Cant. Brida Línea", "Cod. Junta", "Cod. Fab. Junta",
                             "Cant. Junta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería", "Cod. Tapones",
@@ -968,7 +979,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                             "Notas Sensor", "Estado Fabricación Sensor", "Plano OF TW", "Fecha OF TW", "Notas TW",
                             "Estado Fabricación TW", "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
                             "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)", "Tapón",
-                            "Estado Fabricación", "Inspección", "Fecha IRC", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
+                            "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
                             "Trad. Equipo", "Cod. Barra", "Cod. Fab. Barra", "Cant. Barra", "Cod. Tubo",
                             "Cod. Fab. Tubo", "Cant. Tubo", "Cod. Brida", "Cod. Fab. Brida", "Cant. Brida",
                             "Cod. Sensor", "Cod. Fab. Sensor", "Cant. Sensor", "Cod. Cabeza", "Cod. Fab. Cabeza",
@@ -1000,7 +1011,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                             "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Orden de Compra", "Fecha Orden Compra",
                             "Notas Orden Compra", "Plano Dimensional", "Plano OF", "Fecha OF", "Notas Equipo",
                             "Colada Cuerpo", "Cert. Cuerpo", "Colada Cuerpo Vlv", "Cert. Cuerpo Vlv", "Colada Brida Vlv", "Cert. Brida Vlv"
-                            "Estado Fabricación", "Inspección", "Fecha IRC", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
+                            "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
                             "Trad. Equipo", "Cod. Cuerpo", "Cod. Fab. Cuerpo", "Cant. Cuerpo", "Cod. Cubierta",
                             "Cod. Fab. Cubierta", "Cant. Cubierta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería",
                             "Cdo. Niplo Hex.", "Cod. Fab. Niplo Hex.", "Cant. Niplo Hex.", "Cod. Válv.", "Cod. Fab. Válv.",
@@ -1027,7 +1038,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
             headers_others = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Descripción", "Código Equipo",
                             "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
-                            "Plano Dimensional", "Plano OF", "Fecha OF", "Colada", "Cert. Colada", "Estado Fabricación", "Inspección", "Fecha IRC", "Envío RN", "Fecha RN",
+                            "Plano Dimensional", "Plano OF", "Fecha OF", "Colada", "Cert. Colada", "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN",
                             "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
                             "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
                             "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
@@ -1168,7 +1179,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
             list_uniquevalues = sorted(list(set(valuesUnique_view)))
 
         for actionName in list_uniquevalues:
-            checkbox_widget = QtWidgets.QCheckBox(actionName)
+            checkbox_widget = QtWidgets.QCheckBox(str(actionName))
 
             if self.logicalIndex not in self.checkbox_filters:
                 checkbox_widget.setChecked(True)
@@ -1231,7 +1242,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
         """
         for column, filters in self.checkbox_filters.items():
             if filters:
-                self.proxy.setFilter(filters, column)
+                self.proxy.setFilter(filters, column, exact_match=True)
             else:
                 self.proxy.setFilter(None, column)
 
@@ -1365,7 +1376,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
 
             filterString = QtCore.QRegularExpression(stringAction, QtCore.QRegularExpression.PatternOption(0))
             # del self.proxy.filters[filterColumn]
-            self.proxy.setFilter([stringAction], filterColumn)
+            self.proxy.setFilter([stringAction], filterColumn, None)
 
             imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))

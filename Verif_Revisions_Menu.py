@@ -37,9 +37,8 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
             Verif_Revisions_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
         """
         Verif_Revisions_Menu.setObjectName("Verif_Revisions_Menu")
-        Verif_Revisions_Menu.resize(680, 425)
-        Verif_Revisions_Menu.setMinimumSize(QtCore.QSize(280, 425))
-        Verif_Revisions_Menu.setMaximumSize(QtCore.QSize(280, 425))
+        Verif_Revisions_Menu.setMinimumSize(QtCore.QSize(400, 650))
+        Verif_Revisions_Menu.setMaximumSize(QtCore.QSize(400, 650))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Verif_Revisions_Menu.setWindowIcon(icon)
@@ -63,7 +62,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
     "  line-height: 1.15385;\n"
     "  margin: 0;\n"
     "  outline: none;\n"
-    "  padding: 8px .8em;\n"
+    "  padding: 2px .2em;\n"
     "  text-align: center;\n"
     "  text-decoration: none;\n"
     "  vertical-align: baseline;\n"
@@ -100,7 +99,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
     "  line-height: 1.15385;\n"
     "  margin: 0;\n"
     "  outline: none;\n"
-    "  padding: 8px .8em;\n"
+    "  padding: 2px .2em;\n"
     "  text-align: center;\n"
     "  text-decoration: none;\n"
     "  vertical-align: baseline;\n"
@@ -139,7 +138,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.Button_Machines.setFont(font)
         self.Button_Machines.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Machines.setObjectName("Button_Machines")
-        self.Button_Machines.setText("Máquinas")
+        self.Button_Machines.setText("Máquinas (LMH-001)")
         self.verticalLayout_3.addWidget(self.Button_Machines)
         self.Button_Tools = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Tools.setMinimumSize(QtCore.QSize(200, 50))
@@ -159,14 +158,51 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.Button_Calibers.setFont(font)
         self.Button_Calibers.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Calibers.setObjectName("Button_Calibers")
-        self.Button_Calibers.setText("Patrones y Calibres")
+        self.Button_Calibers.setText("Eq. Medición Mecánica (REEM-001)")
         self.verticalLayout_3.addWidget(self.Button_Calibers)
+
+        self.Button_Manometers = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Manometers.setMinimumSize(QtCore.QSize(200, 50))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.Button_Manometers.setFont(font)
+        self.Button_Manometers.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Manometers.setObjectName("Button_Manometers")
+        self.Button_Manometers.setText("Manómetros y Termoelementos (RIC-001)")
+        self.verticalLayout_3.addWidget(self.Button_Manometers)
+
+        self.Button_CalibratedMasters = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_CalibratedMasters.setMinimumSize(QtCore.QSize(200, 50))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.Button_CalibratedMasters.setFont(font)
+        self.Button_CalibratedMasters.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_CalibratedMasters.setObjectName("Button_CalibratedMasters")
+        self.Button_CalibratedMasters.setText("Patrones Calibrados(RPC-001-01)")
+        self.verticalLayout_3.addWidget(self.Button_CalibratedMasters)
+        self.Button_ThreadMasters = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_ThreadMasters.setMinimumSize(QtCore.QSize(200, 50))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.Button_ThreadMasters.setFont(font)
+        self.Button_ThreadMasters.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_ThreadMasters.setObjectName("Button_ThreadMasters")
+        self.Button_ThreadMasters.setText("Patrones Roscas(RPC-001-02)")
+        self.verticalLayout_3.addWidget(self.Button_ThreadMasters)
+        self.Button_WeldMasters = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_WeldMasters.setMinimumSize(QtCore.QSize(200, 50))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.Button_WeldMasters.setFont(font)
+        self.Button_WeldMasters.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_WeldMasters.setObjectName("Button_WeldMasters")
+        self.Button_WeldMasters.setText("Equipos Soldadura(RPC-001-03)")
+        self.verticalLayout_3.addWidget(self.Button_WeldMasters)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Button_Cancel.sizePolicy().hasHeightForWidth())
-        self.Button_Cancel.setSizePolicy(sizePolicy)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(90, 30))
         self.Button_Cancel.setMaximumSize(QtCore.QSize(90, 30))
         self.Button_Cancel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
@@ -175,7 +211,6 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
 "    border-color: rgb(0, 0, 0);\n"
 "}"
 )
-        self.Button_Cancel.setAutoDefault(True)
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.gridLayout_2.addLayout(self.verticalLayout_3, 0, 0, 1, 2)
         self.gridLayout_2.addWidget(self.Button_Cancel, 1, 1, 1, 1)
@@ -194,7 +229,10 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.Button_Cancel.clicked.connect(Verif_Revisions_Menu.close) # type: ignore
         self.Button_Machines.clicked.connect(self.machines)
         self.Button_Tools.clicked.connect(self.tools)
-        # self.Button_Calibers.clicked.connect(self.calibers)
+        self.Button_Calibers.clicked.connect(self.calibers)
+        self.Button_CalibratedMasters.clicked.connect(self.calibrated_masters)
+        self.Button_ThreadMasters.clicked.connect(self.thread_masters)
+        self.Button_WeldMasters.clicked.connect(self.weld_equipment)
 
         QtCore.QMetaObject.connectSlotsByName(Verif_Revisions_Menu)
 
@@ -207,39 +245,6 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         Verif_Revisions_Menu.setWindowTitle(_translate("Verif_Revisions_Menu", "Revisiones"))
         self.Button_Cancel.setText(_translate("Verif_Revisions_Menu", "Cancelar"))
-
-# Function to open corresponding window when Hydrostatic Test button is clicked
-    def hydrotest(self):
-        """
-        Opens the 'hydrotest' window. Sets up the UI for the user.
-        """
-        from TestHydro_Menu import Ui_TestHydro_Menu
-        self.testhydro_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_TestHydro_Menu(self.username)
-        self.ui.setupUi(self.testhydro_menu)
-        self.testhydro_menu.show()
-
-# Function to open corresponding window when Liquid Test button is clicked
-    def liquidtest(self):
-        """
-        Opens the 'liquidtest' window. Sets up the UI for the user.
-        """
-        from TestLiquid_Menu import Ui_TestLiquid_Menu
-        self.testliquid_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_TestLiquid_Menu(self.username)
-        self.ui.setupUi(self.testliquid_menu)
-        self.testliquid_menu.show()
-
-# Function to open corresponding window when Hardness Test button is clicked
-    def hardtest(self):
-        """
-        Opens the 'hardtest' window. Sets up the UI for the user.
-        """
-        from TestHard_Menu import Ui_TestHard_Menu
-        self.testhard_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_TestHard_Menu(self.username)
-        self.ui.setupUi(self.testhard_menu)
-        self.testhard_menu.show()
 
 #Function to open window with workshop machines
     def machines(self):
@@ -261,7 +266,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.machines_window = Ui_Workshop_Machines_Window(db_machines, self.username)
         self.machines_window.showMaximized()
 
-# Function to open window with workshop machines
+# Function to open window with workshop handtools
     def tools(self):
         """
         Opens the "Workshop Handtools" window, establishes a database connection.
@@ -281,8 +286,85 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.handtool_window = Ui_Workshop_Handtools_Window(db_handtools, self.username)
         self.handtool_window.showMaximized()
 
+# Function to open window with workshop calibers
+    def calibers(self):
+        """
+        Opens the "Workshop Calibers" window, establishes a database connection.
+        """
+        from Workshop_Calibers_Window import Ui_Workshop_Calibers_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
 
+        db_calibers = createConnection(user_database, password_database)
+        if not db_calibers:
+            sys.exit()
 
+        self.calibers_window = Ui_Workshop_Calibers_Window(db_calibers, self.username)
+        self.calibers_window.showMaximized()
+
+# Function to open window with workshop calibrated masters
+    def calibrated_masters(self):
+        """
+        Opens the "Workshop Calibrated Masters" window, establishes a database connection.
+        """
+        from Workshop_Calibrated_Masters_Window import Ui_Workshop_Calibrated_Masters_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_calibrated_masters = createConnection(user_database, password_database)
+        if not db_calibrated_masters:
+            sys.exit()
+
+        self.calibrated_masters_window = Ui_Workshop_Calibrated_Masters_Window(db_calibrated_masters, self.username)
+        self.calibrated_masters_window.showMaximized()
+
+# Function to open window with thread masters
+    def thread_masters(self):
+        """
+        Opens the "Workshop Calibers" window, establishes a database connection.
+        """
+        from Workshop_Thread_Masters_Window import Ui_Workshop_Thread_Masters_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_thread_masters = createConnection(user_database, password_database)
+        if not db_thread_masters:
+            sys.exit()
+
+        self.thread_masters_window = Ui_Workshop_Thread_Masters_Window(db_thread_masters, self.username)
+        self.thread_masters_window.showMaximized()
+
+# Function to open window with weld equipment
+    def weld_equipment(self):
+        """
+        Opens the "Workshop Weld Equipment" window, establishes a database connection.
+        """
+        from Workshop_WeldEq_Masters_Window import Ui_Workshop_WeldEq_Masters_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_weldeq = createConnection(user_database, password_database)
+        if not db_weldeq:
+            sys.exit()
+
+        self.weldeq_window = Ui_Workshop_WeldEq_Masters_Window(db_weldeq, self.username)
+        self.weldeq_window.showMaximized()
 
 
 if __name__ == "__main__":

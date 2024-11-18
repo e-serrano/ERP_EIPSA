@@ -1,5 +1,3 @@
-# Form implementation generated from reading ui file 'EditTags_Commercial_Window.ui'
-#
 # Created by: PyQt6 UI code generator 6.4.1
 #
 # WARNING: Any manual changes made to this file will be lost when pyuic6 is
@@ -13,7 +11,7 @@ from PyQt6.QtCore import Qt, QDate, QUrl
 from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
 import re
 import configparser
-from Database_Connection import createConnection
+from Database_Connection import createConnection, createConnection_name
 from config import config
 import psycopg2
 import locale
@@ -24,7 +22,7 @@ from tkinter.filedialog import asksaveasfilename
 from fpdf import FPDF
 from PDF_Viewer import PDF_Viewer
 from tkinter.filedialog import *
-from PIL import Image, ExifTags
+
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -43,7 +41,6 @@ def imagen_to_base64(imagen):
     imagen.save(buffer, ".png")
     base64_data = buffer.data().toBase64().data().decode()
     return base64_data
-
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     """
@@ -249,7 +246,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
             Qt.ItemFlags: The flags for the specified item.
         """
         flags = super().flags(index)
-        if index.column() in [0,1]:
+        if index.column() in [2,3,5]:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -268,86 +265,65 @@ class EditableTableModel(QtSql.QSqlTableModel):
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
 
-class CustomPDF(FPDF):
+class ColorDelegate(QtWidgets.QItemDelegate):
     """
-    Custom PDF class extending FPDF for advanced text handling.
+    A custom item delegate for applying background colors to cells in a QTableView or QTableWidget.
 
-    This class provides additional functionalities for creating PDF documents,
-    specifically for managing multi-line text with fixed height.
-
-    Methods:
-        fixed_height_multicell(w, total_h, txt, align_mc, border='LR', fill=False):
-            Outputs text in a multi-cell format with a fixed total height.
+    Inherits from:
+        QtWidgets.QItemDelegate: Provides custom rendering for table items.
     """
-    def fixed_height_multicell(self, w, total_h, txt, align_mc, border='LRB', fill=False):
+    def __init__(self, parent=None):
         """
-        Creates a multi-line cell with a fixed total height, dividing text into lines.
+        Initializes the ColorDelegate, setting up the color mapping from the database.
 
-        Parameters:
-            w (float): The width of the cell.
-            total_h (float): The total height of the cell.
-            txt (str): The text to be placed in the cell.
-            align_mc (str): The alignment of the text.
-            border (str, optional): Border settings for the cell. Defaults to ''.
-            fill (bool, optional): Whether to fill the cell with color. Defaults to False.
+        Args:
+            parent (QtWidgets.QWidget, optional): The parent widget. Defaults to None.
         """
-        words = txt.split() # Divide text in words
-        lines = []
-        line = ''
-        for word in words:
-            if self.get_string_width(line + word + ' ') > w - 0.5:
-                lines.append(line) # Add line to line list and starts a new one
-                line = word + ' '
-            else:
-                line += word + ' ' # Add word to actual line
-        lines.append(line) # Add last line to line list
+        super().__init__(parent)
+
+    def paint(self, painter, option, index: QtCore.QModelIndex):
+        """
+        Paints the background color of the item based on its column and value.
+
+        Args:
+            painter (QtGui.QPainter): The painter used for painting.
+            option (QtWidgets.QStyleOptionViewItem): The style option for the item.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
+        value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
+        background_color = QtGui.QColor(255, 255, 255, 0)
+
+        if index.column() == 5:
+            if isinstance(value, QtCore.QDate):
+                if value <= QtCore.QDate.currentDate():
+                    background_color = QtGui.QColor(223, 47, 47) #Red
+                else:
+                    background_color = QtGui.QColor(59, 140, 27) #Green
+
+        painter.fillRect(option.rect, background_color)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+
+        super().paint(painter, option, index)
+
+
+class Ui_Workshop_Thread_Masters_Window(QtWidgets.QMainWindow):
+    """
+    Main window class for managing workshop calibrated masters, including data filtering, sorting,
+    and handling master-related operations.
+    """
+    def __init__(self, db, username):
+        """
+        Initializes the workshop calibrated masters window, sets up the data model, proxy model, 
+        and connects relevant signals for handling changes.
         
-        line_height = total_h / len(lines) # Calculate height of each line to get a total height = total_h
-
-        x, y = self.get_x(), self.get_y() # Save actual position
-
-        for line in lines:
-            # Print each line with the calculated height
-            self.multi_cell(w, line_height, line, border, align_mc, fill)
-            self.set_x(x)
-
-        self.set_xy(x, y + total_h)
-
-class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
-    """
-    Main window class for managing workshop handtool reviews, including data filtering, sorting,
-    and handling handtool-related operations.
-
-    Attributes:
-        model: The table model used to handle data for the handtool revisions.
-        proxy: A custom proxy model for filtering and sorting the data.
-        db: The database connection object.
-        handtool_id: The ID of the handtool being reviewed or modified.
-        checkbox_states: Dictionary storing the states of checkboxes for filtering purposes.
-        dict_valuesuniques: Dictionary holding unique values for each column in the table.
-        dict_ordersort: Dictionary managing the sorting order of columns.
-        hiddencolumns: List of columns that are hidden in the table view.
-        variable: Holds the current variable being used for filtering or sorting.
-        action_checkbox_map: Dictionary mapping actions to checkboxes for filtering.
-        checkbox_filters: Dictionary of active filters applied through checkboxes.
-        username: The username of the current user.
-        pdf_viewer: An instance of a PDF viewer for displaying relevant documents.
-    """
-    def __init__(self, db, username, handtool_id):
-        """
-        Initializes the workshop handtool revision window, setting up data models, filters,
-        and UI components for a specific handtool.
-
         Args:
             db: Database connection object.
             username: Username of the current user.
-            handtool_id: ID of the handtool being reviewed or modified.
         """
         super().__init__()
         self.model = EditableTableModel()
         self.proxy = CustomProxyModel()
         self.db = db
-        self.handtool_id = handtool_id
         self.checkbox_states = {}
         self.dict_valuesuniques = {}
         self.dict_ordersort = {}
@@ -376,38 +352,38 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         Closes the database connection and clears any references to the models.
         Also removes the 'drawing_index' database connection from Qt's connection list if it exists.
         """
-        self.tableRevisions.setModel(None)
+        self.tableThreadMasters.setModel(None)
         del self.model
         if self.db:
             self.db.close()
             del self.db
-            if QtSql.QSqlDatabase.contains("handtool"):
-                QtSql.QSqlDatabase.removeDatabase("handtool")
+            if QtSql.QSqlDatabase.contains("qt_sql_default_connection"):
+                QtSql.QSqlDatabase.removeDatabase("qt_sql_default_connection")
 
-    def setupUi(self, Workshop_Handtools_Rev_Window):
+    def setupUi(self, Workshop_Thread_Masters_Window):
         """
-        Sets up the user interface for the Workshop_Handtools_Rev_Window.
+        Sets up the user interface for the Workshop_Thread_Masters_Window.
 
         Args:
-            Workshop_Handtools_Rev_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+            Workshop_Thread_Masters_Window (QtWidgets.QMainWindow): The main window for the UI setup.
         """
-        Workshop_Handtools_Rev_Window.setObjectName("Workshop_Handtools_Rev_Window")
-        Workshop_Handtools_Rev_Window.resize(790, 595)
-        Workshop_Handtools_Rev_Window.setMinimumSize(QtCore.QSize(790, 595))
+        Workshop_Thread_Masters_Window.setObjectName("Workshop_Thread_Masters_Window")
+        Workshop_Thread_Masters_Window.resize(790, 595)
+        Workshop_Thread_Masters_Window.setMinimumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        Workshop_Handtools_Rev_Window.setWindowIcon(icon)
+        Workshop_Thread_Masters_Window.setWindowIcon(icon)
         if self.username == 'm.gil':
-            Workshop_Handtools_Rev_Window.setStyleSheet(
+            Workshop_Thread_Masters_Window.setStyleSheet(
             ".QFrame {border: 2px solid white;\n"
             "}\n"
             "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         else:
-            Workshop_Handtools_Rev_Window.setStyleSheet(
+            Workshop_Thread_Masters_Window.setStyleSheet(
             ".QFrame {border: 2px solid black;\n"
             "}\n"
             "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
-        self.centralwidget = QtWidgets.QWidget(parent=Workshop_Handtools_Rev_Window)
+        self.centralwidget = QtWidgets.QWidget(parent=Workshop_Thread_Masters_Window)
         if self.username == 'm.gil':
             self.centralwidget.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255);")
         else:
@@ -432,16 +408,16 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Delete.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolDeleteFilter.setIcon(icon)
         self.hcab.addWidget(self.toolDeleteFilter)
-        self.hcabspacer4=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.hcab.addItem(self.hcabspacer4)
-        self.toolImages = QtWidgets.QToolButton(self.frame)
-        self.toolImages.setObjectName("Image_Button")
-        self.toolImages.setToolTip("Añadir Imagen")
+        self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer1)
+        self.toolExpExcel = QtWidgets.QToolButton(self.frame)
+        self.toolExpExcel.setObjectName("ExpExcel_Button")
+        self.toolExpExcel.setToolTip("Exportar a Excel")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Camera.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.toolImages.setIcon(icon)
-        self.toolImages.setIconSize(QtCore.QSize(25, 25))
-        self.hcab.addWidget(self.toolImages)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolExpExcel.setIcon(icon)
+        self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolExpExcel)
         self.hcabspacer3=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer3)
         self.toolAdd = QtWidgets.QToolButton(self.frame)
@@ -452,21 +428,21 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         self.toolAdd.setIcon(icon)
         self.toolAdd.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolAdd)
+        self.hcabspacer2=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer2)
+        self.toolSeeAll = QtWidgets.QToolButton(self.frame)
+        self.toolSeeAll.setObjectName("SeeAll_Button")
+        self.toolSeeAll.setToolTip("Ver todos")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolSeeAll.setIcon(icon)
+        self.toolSeeAll.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolSeeAll)
         self.hcabspacer4=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer4)
-        self.toolSaveChanges = QtWidgets.QToolButton(self.frame)
-        self.toolSaveChanges.setObjectName("SaveChanges_Button")
-        self.toolSaveChanges.setToolTip("Guardar")
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Save.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.toolSaveChanges.setIcon(icon)
-        self.toolSaveChanges.setIconSize(QtCore.QSize(25, 25))
-        self.hcab.addWidget(self.toolSaveChanges)
-        self.hcabspacer5=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.hcab.addItem(self.hcabspacer5)
         self.toolPDF = QtWidgets.QToolButton(self.frame)
         self.toolPDF.setObjectName("PDF_Button")
-        self.toolPDF.setToolTip("Imprimir PDF")
+        self.toolPDF.setToolTip("Insertar")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolPDF.setIcon(icon)
@@ -475,9 +451,9 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
 
         if self.username == 'm.gil':
             self.toolDeleteFilter.setStyleSheet("border: 1px solid white;")
-            self.toolImages.setStyleSheet("border: 1px solid white;")
+            self.toolExpExcel.setStyleSheet("border: 1px solid white;")
             self.toolAdd.setStyleSheet("border: 1px solid white;")
-            self.toolSaveChanges.setStyleSheet("border: 1px solid white;")
+            self.toolSeeAll.setStyleSheet("border: 1px solid white;")
             self.toolPDF.setStyleSheet("border: 1px solid white;")
 
         self.hcabspacer6=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -486,98 +462,10 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
 
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 1, 0, 1, 1)
-
-        self.label_number = QtWidgets.QLabel(parent=self.frame)
-        self.label_number.setMinimumSize(QtCore.QSize(40, 50))
-        self.label_number.setMaximumSize(QtCore.QSize(400, 50))
-        self.label_number.setObjectName("label_number")
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        self.label_number.setFont(font)
-        self.gridLayout_2.addWidget(self.label_number, 2, 0, 1, 1)
-
-        self.label_name = QtWidgets.QLabel(parent=self.frame)
-        self.label_name.setMinimumSize(QtCore.QSize(40, 50))
-        self.label_name.setObjectName("label_name")
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        self.label_name.setFont(font)
-        self.gridLayout_2.addWidget(self.label_name, 2, 1, 1, 1)
-
-        self.label_year = QtWidgets.QLabel(parent=self.frame)
-        self.label_year.setMinimumSize(QtCore.QSize(40, 50))
-        self.label_year.setObjectName("label_year")
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        self.label_year.setFont(font)
-        self.gridLayout_2.addWidget(self.label_year, 2, 2, 1, 1)
-
-        self.label_location = QtWidgets.QLabel(parent=self.frame)
-        self.label_location.setMinimumSize(QtCore.QSize(40, 50))
-        self.label_location.setObjectName("label_location")
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        self.label_location.setFont(font)
-        self.gridLayout_2.addWidget(self.label_location, 2, 3, 1, 1)
-
-        self.label_next_revision = QtWidgets.QLabel(parent=self.frame)
-        self.label_next_revision.setMinimumSize(QtCore.QSize(40, 50))
-        self.label_next_revision.setObjectName("label_next_revision")
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        self.label_next_revision.setFont(font)
-        self.gridLayout_2.addWidget(self.label_next_revision, 2, 4, 1, 1)
-
-        self.label_characteristics = QtWidgets.QLabel(parent=self.frame)
-        self.label_characteristics.setMinimumSize(QtCore.QSize(40, 40))
-        self.label_characteristics.setMaximumSize(QtCore.QSize(400, 40))
-        self.label_characteristics.setText("CARACTERÍSTICAS:")
-        self.label_characteristics.setObjectName("label_characteristics")
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        self.label_characteristics.setFont(font)
-        self.gridLayout_2.addWidget(self.label_characteristics, 3, 0, 1, 1)
-        self.label_image = QtWidgets.QLabel(parent=self.frame)
-        self.label_image.setMinimumSize(QtCore.QSize(40, 40))
-        self.label_image.setText("FOTO MÁQUINA:")
-        self.label_image.setObjectName("label_image")
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        self.label_image.setFont(font)
-        self.gridLayout_2.addWidget(self.label_image, 3, 1, 1, 2)
-        self.label_revisions = QtWidgets.QLabel(parent=self.frame)
-        self.label_revisions.setMinimumSize(QtCore.QSize(40, 40))
-        self.label_revisions.setText("REVISIONES:")
-        self.label_revisions.setObjectName("label_revisions")
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        self.label_revisions.setFont(font)
-        self.gridLayout_2.addWidget(self.label_revisions, 3, 3, 1, 1)
-
-        self.handtool_characteristics = QtWidgets.QTextEdit(parent=self.frame)
-        self.handtool_characteristics.setMinimumSize(QtCore.QSize(40, 10))
-        self.handtool_characteristics.setMaximumSize(QtCore.QSize(500, 16777215))
-        self.handtool_characteristics.setObjectName("handtool_characteristics")
-        self.gridLayout_2.addWidget(self.handtool_characteristics, 4, 0, 1, 1)
-
-        self.handtool_image = QtWidgets.QLabel(parent=self.frame)
-        self.handtool_image.setMinimumSize(QtCore.QSize(40, 10))
-        self.handtool_image.setMaximumSize(QtCore.QSize(16777215, 1000))
-        self.handtool_image.setText("")
-        self.handtool_image.setObjectName("handtool_image")
-        self.gridLayout_2.addWidget(self.handtool_image, 4, 1, 1, 2)
-
-        self.tableRevisions=QtWidgets.QTableView(parent=self.frame)
+        self.tableThreadMasters=QtWidgets.QTableView(parent=self.frame)
         self.model = EditableTableModel()
-        self.tableRevisions.setObjectName("tableHandtools")
+        self.tableThreadMasters.setObjectName("tableThreadMasters")
+        self.gridLayout_2.addWidget(self.tableThreadMasters, 2, 0, 1, 1)
         self.hLayout3 = QtWidgets.QHBoxLayout()
         self.hLayout3.setObjectName("hLayout3")
         spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -606,21 +494,21 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         self.label_CountValue.setText("")
         self.label_CountValue.setObjectName("label_CountValue")
         self.hLayout3.addWidget(self.label_CountValue)
-        self.gridLayout_2.addLayout(self.hLayout3, 5, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.hLayout3, 3, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
-        Workshop_Handtools_Rev_Window.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=Workshop_Handtools_Rev_Window)
+        Workshop_Thread_Masters_Window.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=Workshop_Thread_Masters_Window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 790, 22))
         self.menubar.setObjectName("menubar")
-        Workshop_Handtools_Rev_Window.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=Workshop_Handtools_Rev_Window)
+        Workshop_Thread_Masters_Window.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=Workshop_Thread_Masters_Window)
         self.statusbar.setObjectName("statusbar")
-        Workshop_Handtools_Rev_Window.setStatusBar(self.statusbar)
+        Workshop_Thread_Masters_Window.setStatusBar(self.statusbar)
 
-        self.retranslateUi(Workshop_Handtools_Rev_Window)
-        QtCore.QMetaObject.connectSlotsByName(Workshop_Handtools_Rev_Window)
+        self.retranslateUi(Workshop_Thread_Masters_Window)
+        QtCore.QMetaObject.connectSlotsByName(Workshop_Thread_Masters_Window)
 
         self.model.dataChanged.connect(self.saveChanges)
         self.createContextMenu()
@@ -631,26 +519,24 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         self.context_menu_row = QtWidgets.QMenu(self)
         self.context_menu_row.addAction(delete_action)
 
-        self.tableRevisions.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
-        self.tableRevisions.addActions([delete_action])
+        self.tableThreadMasters.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
+        self.tableThreadMasters.addActions([delete_action])
 
         self.toolAdd.clicked.connect(self.add_new)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
-        self.toolImages.clicked.connect(self.add_images)
-        self.toolSaveChanges.clicked.connect(self.save_information)
-        self.toolPDF.clicked.connect(self.datasheet_pdf)
+        self.toolExpExcel.clicked.connect(self.exporttoexcel)
+        self.toolSeeAll.clicked.connect(self.query_all_masters)
 
-        self.query_revisions()
-        self.load_data()
+        self.query_masters()
 
 # Function to translate and updates the text of various UI elements
-    def retranslateUi(self, Workshop_Handtools_Rev_Window):
+    def retranslateUi(self, Workshop_Thread_Masters_Window):
         """
         Translates and updates the text of various UI elements.
         """
         _translate = QtCore.QCoreApplication.translate
-        Workshop_Handtools_Rev_Window.setWindowTitle(_translate("Workshop_Handtools_Rev_Window", "Revisiones Herramientas Taller"))
-        self.tableRevisions.setSortingEnabled(True)
+        Workshop_Thread_Masters_Window.setWindowTitle(_translate("Workshop_Thread_Masters_Window", "Patrones Roscas"))
+        self.tableThreadMasters.setSortingEnabled(True)
 
 # Function to delete all filters when tool button is clicked
     def delete_allFilters(self):
@@ -670,8 +556,8 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
             self.checkbox_filters = {}
 
             self.proxy.invalidateFilter()
-            self.tableRevisions.setModel(None)
-            self.tableRevisions.setModel(self.proxy)
+            self.tableThreadMasters.setModel(None)
+            self.tableThreadMasters.setModel(self.proxy)
 
             # Getting the unique values for each column of the model
             for column in range(self.model.columnCount()):
@@ -709,10 +595,10 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
                         self.checkbox_states[column][value] = True
             self.dict_valuesuniques[column] = list_valuesUnique
 
-# Function to load table and setting in the window
-    def query_revisions(self):
+# Function to load filtered table and setting in the window
+    def query_masters(self):
         """
-        Queries the database for handtool revisiones, configures and populates tables with the query results, 
+        Queries the database for calibrated masters with filter applied, configures and populates tables with the query results, 
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
         self.checkbox_states = {}
@@ -720,36 +606,36 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         self.dict_ordersort = {}
         self.hiddencolumns = []
 
-        self.model.setTable("verification.handtools_workshop_revisions")
-        self.model.setFilter(f"handtool_id = {self.handtool_id}")
+        self.model.setTable("verification.thread_masters")
 
-        self.tableRevisions.setModel(None)
-        self.tableRevisions.setModel(self.proxy)
+        self.tableThreadMasters.setModel(None)
+        self.tableThreadMasters.setModel(self.proxy)
         self.model.select()
 
         self.proxy.setSourceModel(self.model)
-        self.tableRevisions.setModel(self.proxy)
+        self.tableThreadMasters.setModel(self.proxy)
 
         columns_number=self.model.columnCount()
 
-        self.tableRevisions.setItemDelegate(AlignDelegate(self.tableRevisions))
-        self.adjust_table()
+        self.tableThreadMasters.setItemDelegate(AlignDelegate(self.tableThreadMasters))
+        # self.color_delegate = ColorDelegate(self)
+        # self.tableThreadMasters.setItemDelegateForColumn(5, self.color_delegate)
 
         if self.username == 'm.gil':
-            self.tableRevisions.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableRevisions.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-            self.tableRevisions.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+            self.tableThreadMasters.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableThreadMasters.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
+            self.tableThreadMasters.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
         else:
-            self.tableRevisions.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+            self.tableThreadMasters.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
 
-        self.tableRevisions.setObjectName("tableHandtools")
-        self.gridLayout_2.addWidget(self.tableRevisions, 4, 3, 1, 2)
-        self.tableRevisions.setMinimumSize(QtCore.QSize(800,16777215))
-        self.tableRevisions.setSortingEnabled(False)
-        self.tableRevisions.hideColumn(0)
+        self.tableThreadMasters.setObjectName("tableThreadMasters")
+        self.gridLayout_2.addWidget(self.tableThreadMasters, 2, 0, 1, 1)
+        self.tableThreadMasters.setSortingEnabled(False)
+        self.tableThreadMasters.verticalHeader().setVisible(False)
 
     # Change all column names
-        headers_names = ["ID", "Nº Herramienta", "Fecha Rev.", "Horas", "Descripción"]
+        headers_names = ["Número", "Instrumento", "Certificado 1", "Certificado 2", "Última Calibración", "Próxima Calibración",
+                        "Frec. Calibración (Años)", "Notas", "Meses Antelacion"]
 
         self.model.setAllColumnHeaders(headers_names)
 
@@ -768,14 +654,87 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
                         self.checkbox_states[column][value] = True
                 self.dict_valuesuniques[column] = list_valuesUnique
 
-        self.selection_model = self.tableRevisions.selectionModel()
-        # self.selection_model.selectionChanged.connect(self.countSelectedCells)
+        self.selection_model = self.tableThreadMasters.selectionModel()
+        self.selection_model.selectionChanged.connect(self.countSelectedCells)
 
-        self.tableRevisions.horizontalHeader().sectionDoubleClicked.connect(self.on_view_horizontalHeader_sectionClicked)
-        self.tableRevisions.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-        self.tableRevisions.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.tableThreadMasters.horizontalHeader().sectionDoubleClicked.connect(self.on_view_horizontalHeader_sectionClicked)
+        self.tableThreadMasters.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+        self.tableThreadMasters.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
-        self.tableRevisions.sortByColumn(2, Qt.SortOrder.DescendingOrder)
+        self.tableThreadMasters.sortByColumn(0, Qt.SortOrder.AscendingOrder)
+
+        self.tableThreadMasters.doubleClicked.connect(lambda index: self.item_double_clicked(index))
+        
+        self.adjust_table()
+
+# Function to load complete table and setting in the window
+    def query_all_masters(self):
+        """
+        Queries the database for al calibrated masters, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
+        self.checkbox_states = {}
+        self.dict_valuesuniques = {}
+        self.dict_ordersort = {}
+        self.hiddencolumns = []
+
+        self.model.setTable("verification.thread_masters")
+
+        self.tableThreadMasters.setModel(None)
+        self.tableThreadMasters.setModel(self.proxy)
+        self.model.select()
+
+        self.proxy.setSourceModel(self.model)
+        self.tableThreadMasters.setModel(self.proxy)
+
+        columns_number=self.model.columnCount()
+
+        self.tableThreadMasters.setItemDelegate(AlignDelegate(self.tableThreadMasters))
+
+        if self.username == 'm.gil':
+            self.tableThreadMasters.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableThreadMasters.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
+            self.tableThreadMasters.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+        else:
+            self.tableThreadMasters.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+
+        self.tableThreadMasters.setObjectName("tableThreadMasters")
+        self.gridLayout_2.addWidget(self.tableThreadMasters, 2, 0, 1, 1)
+        self.tableThreadMasters.setSortingEnabled(False)
+
+    # Change all column names
+        headers_names = ["Número", "Instrumento", "Certificado 1", "Certificado 2", "Última Calibración", "Próxima Calibración",
+                        "Frec. Calibración (Años)", "Notas", "Meses Antelacion"]
+
+        self.model.setAllColumnHeaders(headers_names)
+
+    # Getting the unique values for each column of the model
+        for column in range(self.model.columnCount()):
+            list_valuesUnique = []
+            if column not in self.checkbox_states:
+                self.checkbox_states[column] = {}
+                self.checkbox_states[column]['Seleccionar todo'] = True
+                for row in range(self.model.rowCount()):
+                    value = self.model.record(row).value(column)
+                    if value not in list_valuesUnique:
+                        if isinstance(value, QtCore.QDate):
+                            value=value.toString("dd/MM/yyyy")
+                        list_valuesUnique.append(str(value))
+                        self.checkbox_states[column][value] = True
+                self.dict_valuesuniques[column] = list_valuesUnique
+
+        self.selection_model = self.tableThreadMasters.selectionModel()
+        self.selection_model.selectionChanged.connect(self.countSelectedCells)
+
+        self.tableThreadMasters.horizontalHeader().sectionDoubleClicked.connect(self.on_view_horizontalHeader_sectionClicked)
+        self.tableThreadMasters.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+        self.tableThreadMasters.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+
+        self.tableThreadMasters.sortByColumn(0, Qt.SortOrder.AscendingOrder)
+
+        self.tableThreadMasters.doubleClicked.connect(lambda index: self.item_double_clicked(index))
+        
+        self.adjust_table()
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
@@ -787,31 +746,31 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         """
         self.logicalIndex = logicalIndex
         self.menuValues = QtWidgets.QMenu(self)
-        self.signalMapper = QtCore.QSignalMapper(self.tableRevisions)
+        self.signalMapper = QtCore.QSignalMapper(self.tableThreadMasters)
 
         valuesUnique_view = []
-        for row in range(self.tableRevisions.model().rowCount()):
-            index = self.tableRevisions.model().index(row, self.logicalIndex)
+        for row in range(self.tableThreadMasters.model().rowCount()):
+            index = self.tableThreadMasters.model().index(row, self.logicalIndex)
             value = index.data(Qt.ItemDataRole.DisplayRole)
             if value not in valuesUnique_view:
                 if isinstance(value, QtCore.QDate):
                     value=value.toString("dd/MM/yyyy")
                 valuesUnique_view.append(value)
 
-        actionSortAscending = QtGui.QAction("Ordenar Ascendente", self.tableRevisions)
+        actionSortAscending = QtGui.QAction("Ordenar Ascendente", self.tableThreadMasters)
         actionSortAscending.triggered.connect(self.on_actionSortAscending_triggered)
         self.menuValues.addAction(actionSortAscending)
-        actionSortDescending = QtGui.QAction("Ordenar Descendente", self.tableRevisions)
+        actionSortDescending = QtGui.QAction("Ordenar Descendente", self.tableThreadMasters)
         actionSortDescending.triggered.connect(self.on_actionSortDescending_triggered)
         self.menuValues.addAction(actionSortDescending)
         self.menuValues.addSeparator()
 
-        actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro", self.tableRevisions)
+        actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro", self.tableThreadMasters)
         actionDeleteFilterColumn.triggered.connect(self.on_actionDeleteFilterColumn_triggered)
         self.menuValues.addAction(actionDeleteFilterColumn)
         self.menuValues.addSeparator()
 
-        actionTextFilter = QtGui.QAction("Buscar...", self.tableRevisions)
+        actionTextFilter = QtGui.QAction("Buscar...", self.tableThreadMasters)
         actionTextFilter.triggered.connect(self.on_actionTextFilter_triggered)
         self.menuValues.addAction(actionTextFilter)
         self.menuValues.addSeparator()
@@ -861,10 +820,10 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
 
         self.menuValues.addSeparator()
 
-        accept_button = QtGui.QAction("ACEPTAR", self.tableRevisions)
+        accept_button = QtGui.QAction("ACEPTAR", self.tableThreadMasters)
         accept_button.triggered.connect(self.menu_acceptbutton_triggered)
 
-        cancel_button = QtGui.QAction("CANCELAR", self.tableRevisions)
+        cancel_button = QtGui.QAction("CANCELAR", self.tableThreadMasters)
         cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
 
         self.menuValues.addAction(accept_button)
@@ -875,11 +834,11 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
                                         "QMenu::item:selected { background-color: #33bdef; }"
                                         "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
-        headerPos = self.tableRevisions.mapToGlobal(self.tableRevisions.horizontalHeader().pos())        
+        headerPos = self.tableThreadMasters.mapToGlobal(self.tableThreadMasters.horizontalHeader().pos())        
 
-        posY = headerPos.y() + self.tableRevisions.horizontalHeader().height()
-        scrollX = self.tableRevisions.horizontalScrollBar().value()
-        xInView = self.tableRevisions.horizontalHeader().sectionViewportPosition(logicalIndex)
+        posY = headerPos.y() + self.tableThreadMasters.horizontalHeader().height()
+        scrollX = self.tableThreadMasters.horizontalScrollBar().value()
+        xInView = self.tableThreadMasters.horizontalHeader().sectionViewportPosition(logicalIndex)
         posX = headerPos.x() + xInView - scrollX
 
         self.menuValues.exec(QtCore.QPoint(posX, posY))
@@ -971,15 +930,15 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         self.model.setIconColumnHeader(filterColumn, '')
         self.proxy.invalidateFilter()
 
-        self.tableRevisions.setModel(None)
-        self.tableRevisions.setModel(self.proxy)
+        self.tableThreadMasters.setModel(None)
+        self.tableThreadMasters.setModel(self.proxy)
 
         if filterColumn in self.checkbox_filters:
             del self.checkbox_filters[filterColumn]
 
         self.checkbox_states[self.logicalIndex].clear()
         self.checkbox_states[self.logicalIndex]['Seleccionar todo'] = True
-        for row in range(self.tableRevisions.model().rowCount()):
+        for row in range(self.tableThreadMasters.model().rowCount()):
             value = self.model.record(row).value(filterColumn)
             if isinstance(value, QtCore.QDate):
                     value=value.toString("dd/MM/yyyy")
@@ -1003,7 +962,7 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         """
         sortColumn = self.logicalIndex
         sortOrder = Qt.SortOrder.DescendingOrder
-        self.proxy.sort(sortColumn, sortOrder)
+        self.proxy.sortByColumn(sortColumn, sortOrder)
 
 # Function when text is searched
     def on_actionTextFilter_triggered(self):
@@ -1038,7 +997,7 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         Hides the selected column in the table view.
         """
         filterColumn = self.logicalIndex
-        self.tableRevisions.setColumnHidden(filterColumn, True)
+        self.tableThreadMasters.setColumnHidden(filterColumn, True)
         self.hiddencolumns.append(filterColumn)
 
 # Function to show all hidden columns
@@ -1047,7 +1006,7 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         Makes all previously hidden columns visible in the table and clears the list of hidden columns.
         """
         for column in self.hiddencolumns:
-            self.tableRevisions.setColumnHidden(column, False)
+            self.tableThreadMasters.setColumnHidden(column, False)
         self.hiddencolumns.clear()
 
 # Function to export data to excel
@@ -1070,7 +1029,7 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         else:
             final_data = []
 
-            visible_columns = [col for col in range(self.model.columnCount()) if not self.tableRevisions.isColumnHidden(col)]
+            visible_columns = [col for col in range(self.model.columnCount()) if not self.tableThreadMasters.isColumnHidden(col)]
             visible_headers = self.model.getColumnHeaders(visible_columns)
             for row in range(self.proxy.rowCount()):
                 tag_data = []
@@ -1099,8 +1058,8 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
             event (QtGui.QKeyEvent): The key event to handle.
         """
         if event.matches(QKeySequence.StandardKey.Copy):
-            if self.tableRevisions.selectionModel() != None:
-                selected_indexes = self.tableRevisions.selectionModel().selectedIndexes()
+            if self.tableThreadMasters.selectionModel() != None:
+                selected_indexes = self.tableThreadMasters.selectionModel().selectedIndexes()
                 if selected_indexes:
                     clipboard = QApplication.clipboard()
                     text = self.get_selected_text(selected_indexes)
@@ -1109,8 +1068,8 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
                     clipboard.setText(text)
 
         elif event.matches(QKeySequence.StandardKey.Paste):
-            if self.tableRevisions.selectionModel() != None:
-                selected_indexes = self.tableRevisions.selectionModel().selectedIndexes()
+            if self.tableThreadMasters.selectionModel() != None:
+                selected_indexes = self.tableThreadMasters.selectionModel().selectedIndexes()
                 if selected_indexes:
                     clipboard = QApplication.clipboard()
                     text = clipboard.text()
@@ -1170,15 +1129,15 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         """
         Counts the number of selected cells and sums their values. Updates the UI labels with the count and sum.
         """
-        if len(self.tableRevisions.selectedIndexes()) > 1:
+        if len(self.tableThreadMasters.selectedIndexes()) > 1:
             locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
             self.label_SumItems.setText("")
             self.label_SumValue.setText("")
             self.label_CountItems.setText("")
             self.label_CountValue.setText("")
 
-            sum_value = sum([self.euro_string_to_float(str(ix.data())) if re.match(r'^[\d.,]+\sÇ$', str(ix.data())) else float(str(ix.data()).replace(',', '.')) if str(ix.data()).replace(',', '.').replace('.', '', 1).isdigit() else 0 for ix in self.tableRevisions.selectedIndexes()])
-            count_value = len([ix for ix in self.tableRevisions.selectedIndexes() if ix.data() != ""])
+            sum_value = sum([self.euro_string_to_float(str(ix.data())) if re.match(r'^[\d.,]+\sÇ$', str(ix.data())) else float(str(ix.data()).replace(',', '.')) if str(ix.data()).replace(',', '.').replace('.', '', 1).isdigit() else 0 for ix in self.tableThreadMasters.selectedIndexes()])
+            count_value = len([ix for ix in self.tableThreadMasters.selectedIndexes() if ix.data() != ""])
             if sum_value > 0:
                 self.label_SumItems.setText("Suma:")
                 self.label_SumValue.setText(locale.format_string("%.2f", sum_value, grouping=True))
@@ -1227,9 +1186,9 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         Args:
             pos (QPoint): The position at which to display the context menu.
         """
-        header = self.tableRevisions.horizontalHeader()
+        header = self.tableThreadMasters.horizontalHeader()
         column = header.logicalIndexAt(pos)
-        self.context_menu.exec(self.tableRevisions.mapToGlobal(pos))
+        self.context_menu.exec(self.tableThreadMasters.mapToGlobal(pos))
 
 # Function to hide selected columns
     def hideSelectedColumns(self):
@@ -1237,12 +1196,12 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         Hides the currently selected columns in the table and updates the list of hidden columns.
         """
         selected_columns = set()
-        header = self.tableRevisions.horizontalHeader()
+        header = self.tableThreadMasters.horizontalHeader()
         for index in header.selectionModel().selectedColumns():
             selected_columns.add(index.column())
 
         for column in selected_columns:
-            self.tableRevisions.setColumnHidden(column, True)
+            self.tableThreadMasters.setColumnHidden(column, True)
             self.hiddencolumns.append(column)
 
         self.context_menu.close()
@@ -1250,11 +1209,11 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
 # Function to add a new line
     def add_new(self):
         """
-        Inserts a new empty entry into the handtools_workshop_revisions table.
+        Inserts a new empty entry into the thread_masters table.
         Commits the changes to the database and handles any errors.
         """
         commands_new=("""
-                        INSERT INTO verification.handtools_workshop_revisions (handtool_id)
+                        INSERT INTO verification.thread_masters (number_item)
                         VALUES(%s)
                         """)
         conn = None
@@ -1265,7 +1224,7 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of principal command
-            data=(self.handtool_id,)
+            data=('',)
             cur.execute(commands_new, data)
         # close communication with the PostgreSQL database server
             cur.close()
@@ -1287,181 +1246,57 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-        self.query_revisions()
+        self.query_masters()
 
 # Function to adjust table size
     def adjust_table(self):
         """
-        Adjusts column visibility and resize behavior in the tableRevisions widget.
+        Adjusts column visibility and resize behavior in the tableThreadMasters widget.
         """
-        self.tableRevisions.hideColumn(0)
-        self.tableRevisions.hideColumn(1)
-        self.tableRevisions.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableRevisions.horizontalHeader().setSectionResizeMode(4,QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableRevisions.verticalHeader().hide()
+        self.tableThreadMasters.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableThreadMasters.horizontalHeader().setSectionResizeMode(2,QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableThreadMasters.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableThreadMasters.horizontalHeader().setSectionResizeMode(7,QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableThreadMasters.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableThreadMasters.verticalHeader().setVisible(False)
+        self.tableThreadMasters.hideColumn(8)
 
-# Function to add images to handtools
-    def add_images(self):
+# Function when item is double clicked
+    def item_double_clicked(self,index):
         """
-        Adds an image to the selected hand tool's record in the database.
-        Updates the image field for the specified hand tool by selecting an image file from the filesystem.
+        Opens detailed master information if the first column is double-clicked.
         """
-        images_path = askopenfilename(initialdir="//nas01/DATOS/Comunes/TALLER/MAQUINAS Y HERRAMIENTAS/Fotos Herramientas de Mano", filetypes=[("Archivos JPG", "*.jpg")],
-                            title="Seleccionar imagen")
+        if index.column() in [2, 3]:
+            value = index.data()
 
-        if images_path:
-            commands_insert = ("""
-                    UPDATE verification."handtools_workshop"
-                    SET "image" = %s
-                    WHERE "id" = %s
-                    """)
+            if value != '':
+                try:
+                    file_path = os.path.normpath(value)
+                    os.startfile(file_path)
 
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(commands_insert, (images_path, self.handtool_id,))
-
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
-            except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Herramientas Taller")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-
-            finally:
-                if conn is not None:
-                    conn.close()
-
-            self.load_data()
-
-# Function to add information to Handtools
-    def save_information(self):
-        """
-        Saves or updates the characteristics of the selected hand tool in the database.
-        Updates the 'characteristics' field for the hand tool using data entered in the text field.
-        """
-        commands_insert = ("""
-                UPDATE verification."handtools_workshop"
-                SET "characteristics" = %s
-                WHERE "id" = %s
-                """)
-
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_insert, (self.handtool_characteristics.toPlainText(), self.handtool_id,))
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Herramientas Taller")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-
-        finally:
-            if conn is not None:
-                conn.close()
-
-# Function to load data
-    def load_data(self):
-        """
-        Loads handtool data from the database and updates the UI components.
-        Displays the data in relevant UI elements and adjusts the image if available.
-        """
-        query_handtool_data = ("""SELECT characteristics, image, brand, handtool_type, year, warehouse, TO_CHAR(next_revision,'DD/MM/YYYY') FROM verification.handtools_workshop WHERE id = %s""")
-
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_handtool_data, (self.handtool_id,))
-            results_handtool=cur.fetchall()
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            print(error)
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-        if results_handtool[0][1] is not None and results_handtool[0][1] != '':
-            image_path = os.path.abspath(results_handtool[0][1])
-
-            corrected_image = self.correct_image_orientation(image_path)
-
-            from io import BytesIO
-            image_bytes = BytesIO()
-            corrected_image.save(image_bytes, format='PNG')
-            image_bytes.seek(0)
-
-            pixmap = QtGui.QPixmap()
-            pixmap.loadFromData(image_bytes.read())
-
-            self.handtool_image.setPixmap(pixmap)
-            self.handtool_image.setScaledContents(True)
-
-
-        self.handtool_characteristics.setText(results_handtool[0][0] if results_handtool[0][0] is not None else "")
-        self.label_number.setText("NÚMERO: " + str(self.handtool_id))
-        self.label_name.setText("NOMBRE: " + results_handtool[0][2] if results_handtool[0][2] is not None else "")
-        self.label_year.setText("AÑO: " + results_handtool[0][4] if results_handtool[0][4] is not None else "")
-        self.label_location.setText("NAVE: " + results_handtool[0][5] if results_handtool[0][5] is not None else "")
-        self.label_next_revision.setText("PROX. REV.: " + results_handtool[0][6] if results_handtool[0][6] is not None else "")
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
 
 # Function to delete register of database
     def delete_register(self):
         """
         Deletes selected records from the specified table.
         """
-        selection_model = self.tableRevisions.selectionModel()
+        selection_model = self.tableThreadMasters.selectionModel()
 
         if not selection_model.hasSelection():
             return
 
-        model = self.tableRevisions.model()
+        model = self.tableThreadMasters.model()
 
         id_values = []
         selected_indexes = selection_model.selectedRows()
@@ -1491,8 +1326,8 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    commands_delete = ("""DELETE FROM verification.handtools_workshop_revisions
-                                        WHERE id = %s""")
+                    commands_delete = ("""DELETE FROM verification.thread_masters
+                                        WHERE number_item = %s""")
                     for id_value in id_values:
                         data = (id_value,)
                         cur.execute(commands_delete, data)
@@ -1506,13 +1341,13 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
                     new_icon = QtGui.QIcon()
                     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Revisiones Herramientas")
+                    dlg.setWindowTitle("Calibres")
                     dlg.setText("Registros eliminados con éxito")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
                     del dlg,new_icon
 
-                    self.query_revisions()
+                    self.query_masters()
 
                 except (Exception, psycopg2.DatabaseError) as error:
                     dlg = QtWidgets.QMessageBox()
@@ -1531,166 +1366,71 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
 
             del dlg_yes_no, new_icon_yes_no
 
-# Function to correct image orientation
-    def correct_image_orientation(self,image_path):
+# Function pdf to master
+    def add_pdf(self):
         """
-        Corrects image orientation using EXIF data, rotating if necessary.
-        Returns the corrected image.
+        Adds pdf paths to the selected master in the database.
         """
-        image = Image.open(image_path)
+        selected_indexes = self.tableThreadMasters.selectionModel().selectedIndexes()
+        if not selected_indexes:
+            return
         
-        try:
-            for orientation in ExifTags.TAGS.keys():
-                if ExifTags.TAGS[orientation] == 'Orientation':
-                    break
-            
-            exif = image._getexif()
+        if len(selected_indexes) == 1:
+            index = selected_indexes[0]
+            if index.column() in [2, 3]:
+                id_column_index = index.sibling(index.row(), 0)
+                value_id = str(id_column_index.data())
 
-            if exif is not None:
-                orientation = exif.get(orientation, 1)
+                pdf_path = askdirectory(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS")
 
-                if orientation == 3:
-                    image = image.rotate(180, expand=True)
-                elif orientation == 6:
-                    image = image.rotate(270, expand=True)
-                elif orientation == 8:
-                    image = image.rotate(90, expand=True)
-        except (AttributeError, KeyError, IndexError):
-            # No EXIF data, no need to correct orientation
-            pass
+                if pdf_path:
+                    commands_insert_1 = ("""
+                            UPDATE verification."thread_masters"
+                            SET "certificate_1" = %s
+                            WHERE "number_item" = %s
+                            """)
 
-        return image
+                    commands_insert_2 = ("""
+                            UPDATE verification."thread_masters"
+                            SET "certificate_2" = %s
+                            WHERE "number_item" = %s
+                            """)
 
-# Function to print pdf
-    def datasheet_pdf(self):
-        """
-        Generates a PDF datasheet for the handtoll with details and revisions.
-        Opens the generated PDF in the viewer.
-        """
-        query_handtool_data = ("""SELECT * FROM verification.handtools_workshop WHERE id = %s""")
-        query_handtool_revision = ("""SELECT TO_CHAR(rev_date, 'DD/MM/YYYY'), hours, description FROM verification.handtools_workshop_revisions WHERE handtool_id = %s""")
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        if index.column() == 2:
+                            cur.execute(commands_insert_1, (pdf_path, value_id,))
+                        else:
+                            cur.execute(commands_insert_2, (pdf_path, value_id,))
 
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_handtool_data, (self.handtool_id,))
-            results_handtool=cur.fetchall()
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
 
-            cur.execute(query_handtool_revision, (self.handtool_id,))
-            results_revisions=cur.fetchall()
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            print(error)
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Verificación EXP")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
 
-        if len(results_handtool) != 0:
-            pdf = CustomPDF('P', 'cm', 'A4')
+                    finally:
+                        if conn is not None:
+                            conn.close()
 
-            pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-            pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
-
-            pdf.set_auto_page_break(auto=True)
-            pdf.set_margins(1.5, 1.5)
-
-            pdf.add_page()
-
-            pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eipsa Logo Blanco.png")), 13.6, 1.5, 6, 2.25)
-            pdf.set_fill_color(0, 176, 240)
-            pdf.set_font('Helvetica', 'B', 16)
-            pdf.cell(12, 1, "FICHA DE HERRAMIENTA", border=1, align='C', fill=True)
-            pdf.ln(1)
-            pdf.set_fill_color(191, 191, 191)
-            pdf.set_font('Helvetica', 'B', 9)
-            pdf.cell(1, 0.5, "Num", border='LR', align='C', fill=True)
-            pdf.cell(4.5, 0.5, "Marca", border='LR', align='C', fill=True)
-            pdf.cell(4.5, 0.5, "Tipo", border='LR', align='C', fill=True)
-            pdf.cell(1, 0.5, "Año", border='LR', align='C', fill=True)
-            pdf.cell(1, 0.5, "Nave", border='LR', align='C', fill=True)
-            pdf.ln(0.5)
-            pdf.set_font('Helvetica', '', 9)
-            pdf.cell(1, 0.5, str(results_handtool[0][0]), border='LRT', align='C')
-            pdf.cell(4.5, 0.5, str(results_handtool[0][1]), border='LRT', align='C')
-            pdf.cell(4.5, 0.5, str(results_handtool[0][2]), border='LRT', align='C')
-            pdf.cell(1, 0.5, str(results_handtool[0][5]) if results_handtool[0][5] is not None else '', border='LRT', align='C')
-            pdf.cell(1, 0.5, str(results_handtool[0][6]) if results_handtool[0][6] is not None else '', border='LRT', align='C')
-            pdf.ln(0.5)
-            pdf.set_font('Helvetica', 'B', 9)
-            pdf.cell(5.5, 0.5, "Próxima Revisión", border='LRT', align='C', fill=True)
-            pdf.set_font('Helvetica', '', 9)
-            pdf.cell(6.5, 0.5, str(f"{str(results_handtool[0][4]).split('-')[2]}/{str(results_handtool[0][4]).split('-')[1]}/{str(results_handtool[0][4]).split('-')[0]}") if results_handtool[0][4] is not None else '', border='LRT', align='C')
-            pdf.ln(0.5)
-            pdf.set_font('Helvetica', 'B', 9)
-            pdf.cell(18.1, 0.5, "CARACTERÍSTICAS", border=1, align='C', fill=True)
-            pdf.ln(0.5)
-            pdf.set_font('Helvetica', '', 9)
-
-            if results_handtool[0][3] != '-':
-                characteristics = str(results_handtool[0][3]).splitlines()
-                for item in characteristics:
-                    item = item.split(': ')
-                    pdf.cell(5.5, 0.5, item[0] + ':', border=1, fill=True)
-                    pdf.cell(5.5, 0.5, item[1], border='RB')
-                    pdf.ln(0.5)
-
-            if results_handtool[0][8] != '':
-                image_path = os.path.abspath(results_handtool[0][8])
-                corrected_image = self.correct_image_orientation(image_path)
-                temp_image_path = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Resources\pdfviewer\temp\temp_corrected_image.png"
-                corrected_image.save(temp_image_path)
-                pdf.image(temp_image_path, 12.6, 4.60, 7, 13)
-
-            if len(results_revisions)>0:
-                pdf.add_page()
-
-                pdf.set_font('Helvetica', 'B', 9)
-                pdf.cell(4.5, 0.5, "Fecha Revisión", border=1, align='C', fill=True)
-                pdf.cell(3, 0.5, "Horas", border=1, align='C', fill=True)
-                pdf.cell(10.5, 0.5, "Descripción", border=1, align='C', fill=True)
-                pdf.ln(0.5)
-
-                pdf.set_font('Helvetica', '', 9)
-                for revision in results_revisions:
-                    pdf.cell(4.5, 0.5, str(revision[0]), border=1, align='C')
-                    pdf.cell(3, 0.5, str(revision[1]), border=1, align='C')
-                    pdf.cell(10.5, 0.5, str(revision[2]), border=1, align='C')
-                    pdf.ln(0.5)
-
-            pdf_buffer = pdf.output()
-
-            temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
-
-            with open(temp_file_path, "wb") as temp_file:
-                temp_file.write(pdf_buffer)
-
-            self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Abre el PDF en el visor
-            self.pdf_viewer.showMaximized()
-        else:
-            dlg_error = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg_error.setWindowIcon(new_icon)
-            dlg_error.setWindowTitle("Herramientas")
-            dlg_error.setText("No existe herramienta con ese número")
-            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg_error.exec()
-            del dlg_error,new_icon
-
+                    self.model.select()
 
 
 
@@ -1708,6 +1448,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    Workshop_Handtools_Rev_Window = Ui_Workshop_Handtools_Rev_Window(db, 'm.gil', '73')
-    Workshop_Handtools_Rev_Window.showMaximized()
+    Workshop_Thread_Masters_Window = Ui_Workshop_Thread_Masters_Window(db, 'm.gil')
+    Workshop_Thread_Masters_Window.showMaximized()
     sys.exit(app.exec())

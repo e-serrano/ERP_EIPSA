@@ -1,4 +1,4 @@
-#b Form implementation generated from reading ui file 'EditOffer_Window.ui'
+# Form implementation generated from reading ui file 'EditOffer_Window.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.1
 #
@@ -11,15 +11,26 @@ import os
 import psycopg2
 from config import config
 import re
+import pandas as pd
+from tkinter.filedialog import askopenfilename
 
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
-class Ui_PortalDoc_Menu(object):
+class Ui_PortalDoc_Menu(QtWidgets.QMainWindow):
     """
     UI class for the Document Portal Menu window.
     """
+
+    def __init__(self):
+        """
+        Initializes the main window
+        """
+        super().__init__() 
+        self.setupUi(self)
+
+
     def setupUi(self, PortalDoc_Menu):
         """
         Sets up the user interface for the PortalDoc_Menu.
@@ -97,7 +108,13 @@ class Ui_PortalDoc_Menu(object):
         self.Button_Activation.setMaximumSize(QtCore.QSize(250, 35))
         self.Button_Activation.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Activation.setObjectName("Button_Activation")
-        self.gridLayout_2.addWidget(self.Button_Activation, 3, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_Activation, 2, 0, 1, 1)
+        self.Button_DocTag = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_DocTag.setMinimumSize(QtCore.QSize(250, 35))
+        self.Button_DocTag.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_DocTag.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_DocTag.setObjectName("Button_DocTag")
+        self.gridLayout_2.addWidget(self.Button_DocTag, 3, 0, 1, 1)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout.setObjectName("horizontalLayout")
@@ -129,6 +146,7 @@ class Ui_PortalDoc_Menu(object):
         self.Button_Cancel.clicked.connect(PortalDoc_Menu.close) # type: ignore
         self.Button_Creation.clicked.connect(self.creation)
         self.Button_Activation.clicked.connect(self.activation)
+        self.Button_DocTag.clicked.connect(self.doc_tags)
         QtCore.QMetaObject.connectSlotsByName(PortalDoc_Menu)
 
 
@@ -141,6 +159,7 @@ class Ui_PortalDoc_Menu(object):
         PortalDoc_Menu.setWindowTitle(_translate("PortalDoc_Menu", "Documentación"))
         self.Button_Creation.setText(_translate("PortalDoc_Menu", "Creación Líneas"))
         self.Button_Activation.setText(_translate("PortalDoc_Menu", "Activación Líneas / Portal"))
+        self.Button_DocTag.setText(_translate("PortalDoc_Menu", "Documentación Tags"))
         self.Button_Cancel.setText(_translate("PortalDoc_Menu", "Cancelar"))
 
 
@@ -426,6 +445,95 @@ class Ui_PortalDoc_Menu(object):
                     del dlg_error,new_icon
             else:
                 break
+
+
+    def doc_tags(self):
+        """
+        Opens a file dialog for the user to select an Excel file for updating data of tags.
+        """
+        while True:
+            selection, ok = QtWidgets.QInputDialog.getItem(self, "Tag-Documentación", "Seleccióna un tipo de equipo:", ['Caudal', 'Temperatura', 'Nivel'], 0, False)
+            if ok and selection:
+                type_eq = selection
+                if selection != '':
+                    excel_file = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")],
+                            title="Seleccionar archivo Excel")
+                    if excel_file:
+                        params = config()
+                        conn = psycopg2.connect(**params)
+                        cursor = conn.cursor()
+
+                        df_table = pd.read_excel(excel_file, na_values=['N/A'], keep_default_na=False)
+                        df_table = df_table.astype(str)
+                        df_table.replace('nan', 'N/A', inplace=True)
+
+                        try:
+                            for index, row in df_table.iterrows():
+                                if "ID" in row and "tag" in row:
+                                    id_value = row["ID"]
+                                    tag_value = row["tag"]
+                                    doc_calc = row["calculation_document"]
+                                    doc_dwg = row["drawing_document"]
+
+                                if type_eq=='Caudal':
+                                    table_name='tags_data.tags_flow'
+                                    set_clause = f'"calc_num_doc_eipsa" = \'{doc_calc}\', "dwg_num_doc_eipsa" = \'{doc_dwg}\''
+                                    where_clause = f'"id_tag_flow" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+                                elif type_eq=='Temperatura':
+                                    table_name='tags_data.tags_temp'
+                                    set_clause = f'"calc_num_doc_eipsa" = \'{doc_calc}\', "dwg_num_doc_eipsa" = \'{doc_dwg}\''
+                                    where_clause = f'"id_tag_temp" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+                                elif type_eq=='Nivel':
+                                    table_name='tags_data.tags_level'
+                                    set_clause = f'"dwg_num_doc_eipsa" = \'{doc_dwg}\''
+                                    where_clause = f'"id_tag_level" = \'{id_value}\' AND "tag" = \'{tag_value}\''
+
+                            # Creating the update query and executing it
+                                sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
+                                cursor.execute(sql_update)
+
+                        # Closing cursor and database connection
+                            conn.commit()
+                            cursor.close()
+
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("ERP EIPSA")
+                            dlg.setText("Datos actualizados con éxito")
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                            dlg.exec()
+                            del dlg, new_icon
+
+                        except (Exception, psycopg2.DatabaseError) as error:
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("ERP EIPSA")
+                            dlg.setText("Ha ocurrido el siguiente error:\n"
+                                        + str(error))
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                            dlg.exec()
+                            del dlg, new_icon
+                        finally:
+                            if conn is not None:
+                                conn.close()
+                    break
+                dlg_error = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg_error.setWindowIcon(new_icon)
+                dlg_error.setWindowTitle("Tag-Documentación")
+                dlg_error.setText("Selecciona un tipo de equipo")
+                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg_error.exec()
+                del dlg_error,new_icon
+            else:
+                break
+
+
 
 
 # if __name__ == "__main__":

@@ -149,7 +149,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
         """
         return self._filters
 
-    def setFilter(self, expresion, column, action_name=None):
+    def setFilter(self, expresion, column, action_name=None, exact_match=False):
         """
         Apply a filter expression to a specific column, or remove it if necessary.
 
@@ -157,15 +157,16 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
             expresion (str): The filter expression.
             column (int): The index of the column to apply the filter to.
             action_name (str, optional): Name of the action, can be empty. Defaults to None.
+            exact_match (bool, optional): If True, use exact matching for the filter. Defaults to False.
         """
         if expresion or expresion == '':
             if column in self.filters:
                 if action_name or action_name == '':
                     self.filters[column].remove(expresion)
                 else:
-                    self.filters[column].append(expresion)
+                    self.filters[column].append((expresion, exact_match))
             else:
-                self.filters[column] = [expresion]
+                self.filters[column] = [(expresion, exact_match)]
         elif column in self.filters:
             if action_name or action_name == '':
                 self.filters[column].remove(expresion)
@@ -192,23 +193,33 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
             if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
                 text = text.toString("yyyy-MM-dd")
 
-            for expresion in expresions[0]:
+            match_found = False 
+
+            for expresion, exact_match in expresions:
                 if expresion == '':  # If expression is empty, match empty cells
                     if text == '':
                         break
 
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
-                    expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
+                if exact_match:
+                    if text in expresion:  # Verificar si `text` está en la lista `expresion`
+                        match_found = True
+                        break
+                
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion[0]):
+                    expresion = QtCore.QDate.fromString(expresion[0], "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
 
                 else:
-                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion[0]))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
-            else:
+
+            if not match_found:
                 return False
         return True
 
@@ -221,7 +232,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
     """
     updateFailed = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent=None, column_range=None):
+    def __init__(self, parent=None, column_range=None, table_check=None):
         """
         Initialize the model with user permissions and optional database and column range.
 
@@ -229,9 +240,11 @@ class EditableTableModel(QtSql.QSqlTableModel):
             username (str): The username for permission-based actions.
             parent (QObject, optional): Parent object for the model. Defaults to None.
             column_range (list, optional): A list specifying the range of columns. Defaults to None.
+            table_check (str, optional): A text scpecifying the table selected. Defaults to None
         """
         super().__init__(parent)
         self.column_range = column_range
+        self.table_check = table_check
 
     def setAllColumnHeaders(self, headers):
         """
@@ -290,11 +303,27 @@ class EditableTableModel(QtSql.QSqlTableModel):
             Qt.ItemFlags: The flags for the specified item.
         """
         flags = super().flags(index)
-        if index.column() in self.column_range:
+
+        value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
+
+        if index.column() == 165 and value == 'Facturado' and self.table_check == 'tags_data.tags_flow':
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        elif index.column() == 178 and value == 'Facturado' and self.table_check == 'tags_data.tags_temp':
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        elif index.column() == 175 and value == 'Facturado' and self.table_check == 'tags_data.tags_level':
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        elif index.column() == 65 and value == 'Facturado' and self.table_check == 'tags_data.tags_others':
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+            if index.column() == 0 or index.column() in self.column_range:
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+            else:
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
     def getColumnHeaders(self, visible_columns):
         """
@@ -308,6 +337,286 @@ class EditableTableModel(QtSql.QSqlTableModel):
         """
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
+
+class EditableComboBoxDelegate2(QtWidgets.QStyledItemDelegate):
+    """
+    A delegate for editing combobox items in a view.
+
+    Attributes:
+        options (list): List of options to populate the combobox.
+    """
+    def __init__(self, parent=None, options=None):
+        """
+        Initializes the EditableComboBoxDelegate with the specified options.
+
+        Args:
+            parent (QtWidgets.QWidget, optional): Parent widget.
+            options (list, optional): List of options for the combobox.
+        """
+        super().__init__(parent)
+        self.options = options
+
+    def createEditor(self, parent, option, index):
+        """
+        Creates an editor for the combobox.
+
+        Args:
+            parent (QtWidgets.QWidget): Parent widget.
+            option (QtWidgets.QStyleOptionViewItem): Style options for the item.
+            index (QtCore.QModelIndex): Index of the item in the model.
+
+        Returns:
+            QtWidgets.QComboBox: The created combobox editor.
+        """
+        editor = QtWidgets.QComboBox(parent)
+        editor.setEditable(True)
+        return editor
+
+    def setEditorData(self, editor, index):
+        """
+        Sets the data for the combobox editor.
+
+        Args:
+            editor (QtWidgets.QComboBox): The combobox editor.
+            index (QtCore.QModelIndex): Index of the item in the model.
+        """
+        text = index.data(Qt.ItemDataRole.DisplayRole)
+        editor.addItems(self.options)
+        editor.setEditText(text)
+
+    def setModelData(self, editor, model, index):
+        """
+        Updates the model with the data from the combobox editor.
+
+        Args:
+            editor (QtWidgets.QComboBox): The combobox editor.
+            model (QtGui.QAbstractItemModel): The model to update.
+            index (QtCore.QModelIndex): Index of the item in the model.
+        """
+        model.setData(index, editor.currentText(), Qt.ItemDataRole.EditRole)
+
+class CustomProxyModel2(QtCore.QSortFilterProxyModel):
+    """
+    A custom proxy model that filters table rows based on expressions set for specific columns.
+
+    Attributes:
+        _filters (dict): A dictionary to store filter expressions for columns.
+        header_names (dict): A dictionary to store header names for the table.
+
+    Properties:
+        filters: Getter for the current filter dictionary.
+
+    """
+    def __init__(self, parent=None):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
+        super().__init__(parent)
+        self._filters = dict()
+        self.header_names = {}
+
+    @property
+    def filters(self):
+        """
+        Get the current filter expressions applied to columns.
+
+        Returns:
+            dict: Dictionary of column filters.
+        """
+        return self._filters
+
+    def setFilter(self, expresion, column, action_name=None, exact_match=False):
+        """
+        Apply a filter expression to a specific column, or remove it if necessary.
+
+        Args:
+            expresion (str): The filter expression.
+            column (int): The index of the column to apply the filter to.
+            action_name (str, optional): Name of the action, can be empty. Defaults to None.
+            exact_match (bool, optional): If True, use exact matching for the filter. Defaults to False.
+        """
+        if expresion or expresion == '':
+            if column in self.filters:
+                if action_name or action_name == '':
+                    self.filters[column].remove(expresion)
+                else:
+                    self.filters[column].append((expresion, exact_match))
+            else:
+                self.filters[column] = [(expresion, exact_match)]
+        elif column in self.filters:
+            if action_name or action_name == '':
+                self.filters[column].remove(expresion)
+                if not self.filters[column]:
+                    del self.filters[column]
+            else:
+                del self.filters[column]
+        self.invalidateFilter()
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        """
+        Check if a row passes the filter criteria based on the column filters.
+
+        Args:
+            source_row (int): The row number in the source model.
+            source_parent (QModelIndex): The parent index of the row.
+
+        Returns:
+            bool: True if the row meets the filter criteria, False otherwise.
+        """
+        for column, expresions in self.filters.items():
+            text = self.sourceModel().index(source_row, column, source_parent).data()
+
+            if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
+                text = text.toString("yyyy-MM-dd")
+
+            match_found = False 
+
+            for expresion, exact_match in expresions:
+                if expresion == '':  # If expression is empty, match empty cells
+                    if text == '':
+                        break
+
+                if exact_match:
+                    if text in expresion:  # Verificar si `text` está en la lista `expresion`
+                        match_found = True
+                        break
+                
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion[0]):
+                    expresion = QtCore.QDate.fromString(expresion[0], "dd/MM/yyyy")
+                    expresion = expresion.toString("yyyy-MM-dd")
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    if regex.match(str(text)).hasMatch():
+                        match_found = True
+                        break
+
+                else:
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion[0]))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    if regex.match(str(text)).hasMatch():
+                        match_found = True
+                        break
+
+            if not match_found:
+                return False
+        return True
+
+class EditableTableModel2(QtSql.QSqlTableModel):
+    """
+    A custom SQL table model that supports editable columns, headers, and special flagging behavior based on user permissions.
+
+    Signals:
+        updateFailed (str): Signal emitted when an update to the model fails.
+    """
+    updateFailed = QtCore.pyqtSignal(str)
+
+    def __init__(self, parent=None, column_range=None, table_check=None):
+        """
+        Initialize the model with user permissions and optional database and column range.
+
+        Args:
+            username (str): The username for permission-based actions.
+            parent (QObject, optional): Parent object for the model. Defaults to None.
+            column_range (list, optional): A list specifying the range of columns. Defaults to None.
+            table_check (str, optional): A text scpecifying the table selected. Defaults to None
+        """
+        super().__init__(parent)
+        self.column_range = column_range
+        self.table_check = table_check
+
+    def setAllColumnHeaders(self, headers):
+        """
+        Set headers for all columns in the model.
+
+        Args:
+            headers (list): A list of header names.
+        """
+        for column, header in enumerate(headers):
+            self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
+
+    def setIndividualColumnHeader(self, column, header):
+        """
+        Set the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            header (str): The header name.
+        """
+        self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
+
+    def setIconColumnHeader(self, column, icon):
+        """
+        Set an icon in the header for a specific column.
+
+        Args:
+            column (int): The column index.
+            icon (QIcon): The icon to display in the header.
+        """
+        self.setHeaderData(column, QtCore.Qt.Orientation.Horizontal, icon, Qt.ItemDataRole.DecorationRole)
+
+    def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        """
+        Retrieve the header data for a specific section of the model.
+
+        Args:
+            section (int): The section index (column or row).
+            orientation (Qt.Orientation): The orientation (horizontal or vertical).
+            role (Qt.ItemDataRole, optional): The role for the header data. Defaults to DisplayRole.
+
+        Returns:
+            QVariant: The header data for the specified section.
+        """
+        if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
+            return super().headerData(section, orientation, role)
+        return super().headerData(section, orientation, role)
+
+    def flags(self, index):
+        """
+        Get the item flags for a given index, controlling editability and selection based on user permissions.
+
+        Args:
+            index (QModelIndex): The index of the item.
+
+        Returns:
+            Qt.ItemFlags: The flags for the specified item.
+        """
+        flags = super().flags(index)
+
+        value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
+
+        if index.column() == 165 and value == 'Facturado' and self.table_check == 'tags_data.tags_flow':
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        elif index.column() == 178 and value == 'Facturado' and self.table_check == 'tags_data.tags_temp':
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        elif index.column() == 175 and value == 'Facturado' and self.table_check == 'tags_data.tags_level':
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        elif index.column() == 65 and value == 'Facturado' and self.table_check == 'tags_data.tags_others':
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        else:
+            if index.column() == 0 or index.column() in self.column_range:
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+            else:
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+
+    def getColumnHeaders(self, visible_columns):
+        """
+        Retrieve the headers for the specified visible columns.
+
+        Args:
+            visible_columns (list): List of column indices that are visible.
+
+        Returns:
+            list: A list of column headers for the visible columns.
+        """
+        column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
+        return column_headers
+
 
 class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
     """
@@ -337,7 +646,10 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         super().__init__()
         self.model = EditableTableModel()
         self.proxy = CustomProxyModel()
+        self.model2 = EditableTableModel2()
+        self.proxy2 = CustomProxyModel2()
         self.db = db
+
         self.checkbox_states = {}
         self.dict_valuesuniques = {}
         self.dict_ordersort = {}
@@ -345,6 +657,16 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.variable = ''
         self.action_checkbox_map = {}
         self.checkbox_filters = {}
+
+        self.checkbox_states2 = {}
+        self.dict_valuesuniques2 = {}
+        self.dict_ordersort2 = {}
+        self.hiddencolumns2 = []
+        self.variable2 = None
+        self.action_checkbox_map2 = {}
+        self.checkbox_filters2 = {}
+        self.tableEditTags2 = None
+
         self.name = name
         self.setupUi(self)
         self.model.dataChanged.connect(self.saveChanges)
@@ -358,6 +680,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         """
         if self.model:
             self.model.clear()
+        if self.model2:
+            self.model2.clear()
         self.closeConnection()
 
     def closeConnection(self):
@@ -367,6 +691,9 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         """
         self.tableEditTags.setModel(None)
         del self.model
+        if self.tableEditTags2:
+            self.tableEditTags2.setModel(None)
+        del self.model2
         if self.db:
             self.db.close()
             del self.db
@@ -562,12 +889,10 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.Button_Query.setObjectName("Button_Query")
         self.hLayout2.addWidget(self.Button_Query)
         self.gridLayout_2.addLayout(self.hLayout2, 2, 0, 1, 1)
-        spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem, 3, 0, 1, 1)
         self.tableEditTags=QtWidgets.QTableView(parent=self.frame)
         self.model = EditableTableModel()
         self.tableEditTags.setObjectName("tableEditTags")
-        self.gridLayout_2.addWidget(self.tableEditTags, 4, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
         self.hLayout3 = QtWidgets.QHBoxLayout()
         self.hLayout3.setObjectName("hLayout3")
         spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -596,7 +921,40 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.label_CountValue.setText("")
         self.label_CountValue.setObjectName("label_CountValue")
         self.hLayout3.addWidget(self.label_CountValue)
-        self.gridLayout_2.addLayout(self.hLayout3, 5, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.hLayout3, 4, 0, 1, 1)
+        self.tableEditTags2=QtWidgets.QTableView(parent=self.frame)
+        self.tableEditTags2.setObjectName("tableEditTags2")
+        self.gridLayout_2.addWidget(self.tableEditTags2, 5, 0, 1, 1)
+        self.tableEditTags2.hide()
+        self.hLayout4 = QtWidgets.QHBoxLayout()
+        self.hLayout4.setObjectName("hLayout4")
+        spacerItem1 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hLayout4.addItem(spacerItem1)
+        self.label_SumItems2 = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumItems2.setMinimumSize(QtCore.QSize(40, 10))
+        self.label_SumItems2.setMaximumSize(QtCore.QSize(40, 10))
+        self.label_SumItems2.setText("")
+        self.label_SumItems2.setObjectName("label_SumItems2")
+        self.hLayout4.addWidget(self.label_SumItems2)
+        self.label_SumValue2 = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumValue2.setMinimumSize(QtCore.QSize(80, 20))
+        self.label_SumValue2.setMaximumSize(QtCore.QSize(80, 20))
+        self.label_SumValue2.setText("")
+        self.label_SumValue2.setObjectName("label_SumValue2")
+        self.hLayout4.addWidget(self.label_SumValue2)
+        self.label_CountItems2 = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountItems2.setMinimumSize(QtCore.QSize(60, 10))
+        self.label_CountItems2.setMaximumSize(QtCore.QSize(60, 10))
+        self.label_CountItems2.setText("")
+        self.label_CountItems2.setObjectName("label_CountItems2")
+        self.hLayout4.addWidget(self.label_CountItems2)
+        self.label_CountValue2 = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountValue2.setMinimumSize(QtCore.QSize(80, 10))
+        self.label_CountValue2.setMaximumSize(QtCore.QSize(80, 10))
+        self.label_CountValue2.setText("")
+        self.label_CountValue2.setObjectName("label_CountValue2")
+        self.hLayout4.addWidget(self.label_CountValue2)
+        self.gridLayout_2.addLayout(self.hLayout4, 6, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
@@ -803,7 +1161,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             self.checkbox_filters = {}
 
             self.proxy.invalidateFilter()
-            self.tableEditTags.setModel(None)
+            # self.tableEditTags.setModel(None)
             self.tableEditTags.setModel(self.proxy)
 
             # Getting the unique values for each column of the model
@@ -825,6 +1183,41 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             self.tableEditTags.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
+        if self.proxy2.rowCount() != 0:
+            columns_number=self.model2.columnCount()
+            for index in range(columns_number):
+                if index in self.proxy2.filters:
+                    del self.proxy2.filters[index]
+                self.model2.setIconColumnHeader(index, '')
+
+            self.checkbox_states = {}
+            self.dict_valuesuniques = {}
+            self.dict_ordersort = {}
+            self.checkbox_filters = {}
+
+            self.proxy2.invalidateFilter()
+            # self.tableEditTags.setModel(None)
+            self.tableEditTags2.setModel(self.proxy2)
+
+            # Getting the unique values for each column of the model
+            for column in range(self.model2.columnCount()):
+                list_valuesUnique = []
+                if column not in self.checkbox_states:
+                    self.checkbox_states[column] = {}
+                    self.checkbox_states[column]['Seleccionar todo'] = True
+                    for row in range(self.model2.rowCount()):
+                        value = self.model2.record(row).value(column)
+                        if value not in list_valuesUnique:
+                            if isinstance(value, QtCore.QDate):
+                                value=value.toString("dd/MM/yyyy")
+                            list_valuesUnique.append(str(value))
+                            self.checkbox_states[column][value] = True
+                    self.dict_valuesuniques[column] = list_valuesUnique
+
+            self.tableEditTags2.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableEditTags2.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableEditTags2.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
+
 # Function to save changes into database
     def saveChanges(self):
         """
@@ -844,6 +1237,20 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.checkbox_states[column][value] = True
             self.dict_valuesuniques[column] = list_valuesUnique
 
+        self.model2.submitAll()
+
+        for column in range(self.model2.columnCount()):
+            list_valuesUnique2 = []
+            for row in range(self.model2.rowCount()):
+                value = self.model2.record(row).value(column)
+                if value not in list_valuesUnique2:
+                    if isinstance(value, QtCore.QDate):
+                        value=value.toString("dd/MM/yyyy")
+                    list_valuesUnique2.append(str(value))
+                    if value not in self.checkbox_states2[column]:
+                        self.checkbox_states2[column][value] = True
+            self.dict_valuesuniques2[column] = list_valuesUnique2
+
 # Function to load table and setting in the window
     def query_tags(self):
         """
@@ -854,6 +1261,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.dict_valuesuniques = {}
         self.dict_ordersort = {}
         self.hiddencolumns = []
+
+        self.variable2 = None
     
         self.model.dataChanged.disconnect(self.saveChanges)
         numorder = self.Numorder_EditTags.text()
@@ -872,7 +1281,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             self.model.dataChanged.connect(self.saveChanges)
 
         elif numoffer=="":
-            if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', numorder):
+            if not re.match(r'^(P|PA|p|pa)-\d{2}/\d{3}.*$', numorder):
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -929,7 +1338,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
                     dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("EL número de pedido no existe")
+                    dlg.setText("El número de pedido no existe")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                     dlg.exec()
                     del dlg, new_icon
@@ -973,7 +1382,11 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         cur.execute(query_others,(numorder,))
                         results_others=cur.fetchall()
 
-                        if len(results_flow) != 0:
+                        if len(results_flow) != 0 and len(results_temp) != 0:
+                            self.variable = 'Caudal+Temp'
+                        elif len(results_flow) != 0 and len(results_level) != 0:
+                            self.variable = 'Caudal+Nivel'
+                        elif len(results_flow) != 0:
                             self.variable = 'Caudal'
                         elif len(results_temp) != 0:
                             self.variable = 'Temperatura'
@@ -1003,41 +1416,114 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         if conn is not None:
                             conn.close()
 
-                    if self.variable == 'Caudal':
+                    if self.variable == 'Caudal+Temp':
+                        self.variable = 'Caudal'
+                        self.variable2 = 'Temperatura'
                         self.model.setTable("tags_data.tags_flow")
+                        self.model2.setTable("tags_data.tags_temp")
+                        self.model.table_check = "tags_data.tags_flow"
+                        self.model2.table_check = "tags_data.tags_temp"
+                        self.initial_column = 34
+                        self.initial_column2 = 39
+                    elif self.variable =='Caudal+Nivel':
+                        self.variable = 'Caudal'
+                        self.variable2 = 'Nivel'
+                        self.model.setTable("tags_data.tags_flow")
+                        self.model2.setTable("tags_data.tags_level")
+                        self.model.table_check = "tags_data.tags_flow"
+                        self.model2.table_check = "tags_data.tags_level"
+                        self.initial_column = 34
+                        self.initial_column2 = 40
+                    elif self.variable == 'Caudal':
+                        self.model.setTable("tags_data.tags_flow")
+                        self.model.table_check = "tags_data.tags_flow"
                         self.initial_column = 34
                     elif self.variable == 'Temperatura':
                         self.model.setTable("tags_data.tags_temp")
+                        self.model.table_check = "tags_data.tags_temp"
                         self.initial_column = 39
                     elif self.variable == 'Nivel':
                         self.model.setTable("tags_data.tags_level")
+                        self.model.table_check = "tags_data.tags_level"
                         self.initial_column = 40
                     elif self.variable == 'Otros':
                         self.model.setTable("tags_data.tags_others")
+                        self.model.table_check = "tags_data.tags_others"
                         self.initial_column = 15
                     self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{numorder.upper()}%'")
+                    self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{numorder.upper()}%'")
 
         elif numorder=="":
-            if not re.match(r'^(O|OR|OE)-\d{2}/\d{3}.*$', numoffer.upper()):
+            query = ('''
+                    SELECT num_offer, product_type."variable"
+                    FROM offers
+                    INNER JOIN product_type ON (product_type."material" = offers."material")
+                    WHERE
+                    UPPER (offers."num_offer") LIKE UPPER('%%'||%s||'%%')
+                    ''')
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(query,(numoffer,))
+                results_variable=cur.fetchone()
+                self.variable = results_variable[1] if results_variable != None else ''
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("El número de oferta debe tener formato O-XX/YYY")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
+
+            if results_variable == None:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("El número de oferta no existe")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg.exec()
                 del dlg, new_icon
                 self.model.dataChanged.connect(self.saveChanges)
 
             else:
-                query = ('''
-                        SELECT num_offer, product_type."variable"
-                        FROM offers
-                        INNER JOIN product_type ON (product_type."material" = offers."material")
-                        WHERE
-                        UPPER (offers."num_offer") LIKE UPPER('%%'||%s||'%%')
-                        ''')
+                query_flow = ('''
+                    SELECT tags_data.tags_flow."num_offer"
+                    FROM tags_data.tags_flow
+                    WHERE UPPER (tags_data.tags_flow."num_offer") LIKE UPPER('%%'||%s||'%%')
+                    ''')
+                query_temp = ('''
+                    SELECT tags_data.tags_temp."num_offer"
+                    FROM tags_data.tags_temp
+                    WHERE UPPER (tags_data.tags_temp."num_offer") LIKE UPPER('%%'||%s||'%%')
+                    ''')
+                query_level = ('''
+                    SELECT tags_data.tags_level."num_offer"
+                    FROM tags_data.tags_level
+                    WHERE UPPER (tags_data.tags_level."num_offer") LIKE UPPER('%%'||%s||'%%')
+                    ''')
+                query_others = ('''
+                    SELECT tags_data.tags_others."num_offer"
+                    FROM tags_data.tags_others
+                    WHERE UPPER (tags_data.tags_others."num_offer") LIKE UPPER('%%'||%s||'%%')
+                    ''')
                 conn = None
                 try:
                 # read the connection parameters
@@ -1046,9 +1532,30 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    cur.execute(query,(numoffer,))
-                    results_variable=cur.fetchone()
-                    self.variable = results_variable[1] if results_variable != None else ''
+                    cur.execute(query_flow,(numoffer,))
+                    results_flow=cur.fetchall()
+                    cur.execute(query_temp,(numoffer,))
+                    results_temp=cur.fetchall()
+                    cur.execute(query_level,(numoffer,))
+                    results_level=cur.fetchall()
+                    cur.execute(query_others,(numoffer,))
+                    results_others=cur.fetchall()
+
+                    if len(results_flow) != 0 and len(results_temp) != 0:
+                        self.variable = 'Caudal+Temp'
+                    elif len(results_flow) != 0 and len(results_level) != 0:
+                        self.variable = 'Caudal+Nivel'
+                    elif len(results_flow) != 0:
+                        self.variable = 'Caudal'
+                    elif len(results_temp) != 0:
+                        self.variable = 'Temperatura'
+                    elif len(results_level) != 0:
+                        self.variable = 'Nivel'
+                    elif len(results_others) != 0:
+                        self.variable = 'Otros'
+                    else:
+                        self.variable = ''
+
                 # close communication with the PostgreSQL database server
                     cur.close()
                 # commit the changes
@@ -1068,109 +1575,51 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     if conn is not None:
                         conn.close()
 
-                if results_variable == None:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("El número de oferta no existe")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                    del dlg, new_icon
-                    self.model.dataChanged.connect(self.saveChanges)
-
-                else:
-                    query_flow = ('''
-                        SELECT tags_data.tags_flow."num_offer"
-                        FROM tags_data.tags_flow
-                        WHERE UPPER (tags_data.tags_flow."num_offer") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                    query_temp = ('''
-                        SELECT tags_data.tags_temp."num_offer"
-                        FROM tags_data.tags_temp
-                        WHERE UPPER (tags_data.tags_temp."num_offer") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                    query_level = ('''
-                        SELECT tags_data.tags_level."num_offer"
-                        FROM tags_data.tags_level
-                        WHERE UPPER (tags_data.tags_level."num_offer") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                    query_others = ('''
-                        SELECT tags_data.tags_others."num_offer"
-                        FROM tags_data.tags_others
-                        WHERE UPPER (tags_data.tags_others."num_offer") LIKE UPPER('%%'||%s||'%%')
-                        ''')
-                    conn = None
-                    try:
-                    # read the connection parameters
-                        params = config()
-                    # connect to the PostgreSQL server
-                        conn = psycopg2.connect(**params)
-                        cur = conn.cursor()
-                    # execution of commands
-                        cur.execute(query_flow,(numoffer,))
-                        results_flow=cur.fetchall()
-                        cur.execute(query_temp,(numoffer,))
-                        results_temp=cur.fetchall()
-                        cur.execute(query_level,(numoffer,))
-                        results_level=cur.fetchall()
-                        cur.execute(query_others,(numoffer,))
-                        results_others=cur.fetchall()
-
-                        if len(results_flow) != 0:
-                            self.variable = 'Caudal'
-                        elif len(results_temp) != 0:
-                            self.variable = 'Temperatura'
-                        elif len(results_level) != 0:
-                            self.variable = 'Nivel'
-                        elif len(results_others) != 0:
-                            self.variable = 'Otros'
-                        else:
-                            self.variable = ''
-
-                    # close communication with the PostgreSQL database server
-                        cur.close()
-                    # commit the changes
-                        conn.commit()
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
-                    finally:
-                        if conn is not None:
-                            conn.close()
-
-                    if self.variable == 'Caudal':
-                        self.model.setTable("tags_data.tags_flow")
-                        self.initial_column = 34
-                    elif self.variable == 'Temperatura':
-                        self.model.setTable("tags_data.tags_temp")
-                        self.initial_column = 39
-                    elif self.variable == 'Nivel':
-                        self.model.setTable("tags_data.tags_level")
-                        self.initial_column = 40
-                    elif self.variable == 'Otros':
-                        self.model.setTable("tags_data.tags_others")
-                        self.initial_column = 15
-                    self.model.setFilter(f"num_offer <> '' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
+                if self.variable == 'Caudal+Temp':
+                    self.variable = 'Caudal'
+                    self.variable2 = 'Temperatura'
+                    self.model.setTable("tags_data.tags_flow")
+                    self.model2.setTable("tags_data.tags_temp")
+                    self.model.table_check = "tags_data.tags_flow"
+                    self.model2.table_check = "tags_data.tags_temp"
+                    self.initial_column = 34
+                    self.initial_column2 = 39
+                elif self.variable =='Caudal+Nivel':
+                    self.variable = 'Caudal'
+                    self.variable2 = 'Nivel'
+                    self.model.setTable("tags_data.tags_flow")
+                    self.model2.setTable("tags_data.tags_level")
+                    self.model.table_check = "tags_data.tags_flow"
+                    self.model2.table_check = "tags_data.tags_level"
+                    self.initial_column = 34
+                    self.initial_column2 = 40
+                elif self.variable == 'Caudal':
+                    self.model.setTable("tags_data.tags_flow")
+                    self.model.table_check = "tags_data.tags_flow"
+                    self.initial_column = 34
+                elif self.variable == 'Temperatura':
+                    self.model.setTable("tags_data.tags_temp")
+                    self.model.table_check = "tags_data.tags_temp"
+                    self.initial_column = 39
+                elif self.variable == 'Nivel':
+                    self.model.setTable("tags_data.tags_level")
+                    self.model.table_check = "tags_data.tags_level"
+                    self.initial_column = 40
+                elif self.variable == 'Otros':
+                    self.model.setTable("tags_data.tags_others")
+                    self.model.table_check = "tags_data.tags_others"
+                    self.initial_column = 15
+                self.model.setFilter(f"num_offer <> '' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
+                self.model2.setFilter(f"num_offer <> '' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
 
         else:
-            if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', numorder.upper()) or not re.match(r'^(O|OE|OR)-\d{2}/\d{3}.*$', numoffer.upper()):
+            if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', numorder.upper()):
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY \n"
-                            "El número de oferta debe tener formato O-XX/YYY")
+                dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY")
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg.exec()
                 del dlg, new_icon
@@ -1264,7 +1713,11 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         cur.execute(query_others,(numoffer,))
                         results_others=cur.fetchall()
 
-                        if len(results_flow) != 0:
+                        if len(results_flow) != 0 and len(results_temp) != 0:
+                            self.variable = 'Caudal+Temp'
+                        elif len(results_flow) != 0 and len(results_level) != 0:
+                            self.variable = 'Caudal+Nivel'
+                        elif len(results_flow) != 0:
                             self.variable = 'Caudal'
                         elif len(results_temp) != 0:
                             self.variable = 'Temperatura'
@@ -1294,19 +1747,42 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         if conn is not None:
                             conn.close()
 
-                    if self.variable == 'Caudal':
+                    if self.variable == 'Caudal+Temp':
+                        self.variable = 'Caudal'
+                        self.variable2 = 'Temperatura'
                         self.model.setTable("tags_data.tags_flow")
+                        self.model2.setTable("tags_data.tags_temp")
+                        self.model.table_check = "tags_data.tags_flow"
+                        self.model2.table_check = "tags_data.tags_temp"
+                        self.initial_column = 34
+                        self.initial_column2 = 39
+                    elif self.variable =='Caudal+Nivel':
+                        self.variable = 'Caudal'
+                        self.variable2 = 'Nivel'
+                        self.model.setTable("tags_data.tags_flow")
+                        self.model2.setTable("tags_data.tags_level")
+                        self.model.table_check = "tags_data.tags_flow"
+                        self.model2.table_check = "tags_data.tags_level"
+                        self.initial_column = 34
+                        self.initial_column2 = 45
+                    elif self.variable == 'Caudal':
+                        self.model.setTable("tags_data.tags_flow")
+                        self.model.table_check = "tags_data.tags_flow"
                         self.initial_column = 34
                     elif self.variable == 'Temperatura':
                         self.model.setTable("tags_data.tags_temp")
+                        self.model.table_check = "tags_data.tags_temp"
                         self.initial_column = 39
                     elif self.variable == 'Nivel':
                         self.model.setTable("tags_data.tags_level")
+                        self.model.table_check = "tags_data.tags_level"
                         self.initial_column = 40
                     elif self.variable == 'Otros':
                         self.model.setTable("tags_data.tags_others")
+                        self.model.table_check = "tags_data.tags_others"
                         self.initial_column = 15
                     self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{numorder.upper()}%' AND num_offer <>'' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
+                    self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{numorder.upper()}%' AND num_offer <>'' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
 
         if self.variable != '':
             self.tableEditTags.setModel(None)
@@ -1345,7 +1821,9 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Temperatura':
-                for i in range(54,132):
+                for i in range(54,75):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(80,132):
                     self.tableEditTags.hideColumn(i)
                 for i in range(134,138):
                     self.tableEditTags.hideColumn(i)
@@ -1410,7 +1888,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             self.tableEditTags.setObjectName("tableEditTags")
             self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
             self.tableEditTags.setSortingEnabled(False)
-            self.tableEditTags.horizontalHeader().sectionDoubleClicked.connect(self.on_view_horizontalHeader_sectionClicked)
+            self.tableEditTags.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableEditTags, self.model, self.proxy))
             self.tableEditTags.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
             self.tableEditTags.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
@@ -1428,7 +1906,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                             "Notas Equipo", "Colada Placa", "Cert. Placa", "Colada Brida", "Cert. Brida", "Nº Tapones",
                             "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material", "RTJ Espesor", "RTJ Dim",
                             "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos", "Cantidad Espárragos", "Tamaño Extractor",
-                            "Cantidad Extractor", "Estado Fabricación", "Inspección", "Fecha IRC", "Envío RN", "Fecha RN", "Cod. Equipo",
+                            "Cantidad Extractor", "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo",
                             "Cod. Fab. Equipo", "Trad. Equipo", "Cod. Brida Orif.", "Cod. Fab. Brida Orif.", "Cant. Brida Orif.",
                             "Cod. Brida Línea", "Cod. Fab. Brida Línea", "Cant. Brida Línea", "Cod. Junta", "Cod. Fab. Junta",
                             "Cant. Junta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería", "Cod. Tapones",
@@ -1463,7 +1941,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                             "Notas Sensor", "Estado Fabricación Sensor", "Plano OF TW", "Fecha OF TW", "Notas TW",
                             "Estado Fabricación TW", "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
                             "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)", "Tapón",
-                            "Estado Fabricación", "Inspección", "Fecha IRC", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
+                            "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
                             "Trad. Equipo", "Cod. Barra", "Cod. Fab. Barra", "Cant. Barra", "Cod. Tubo",
                             "Cod. Fab. Tubo", "Cant. Tubo", "Cod. Brida", "Cod. Fab. Brida", "Cant. Brida",
                             "Cod. Sensor", "Cod. Fab. Sensor", "Cant. Sensor", "Cod. Cabeza", "Cod. Fab. Cabeza",
@@ -1495,7 +1973,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                             "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Orden de Compra", "Fecha Orden Compra",
                             "Notas Orden Compra", "Plano Dimensional", "Plano OF", "Fecha OF", "Notas Equipo",
                             "Colada Cuerpo", "Cert. Cuerpo", "Colada Cuerpo Vlv", "Cert. Cuerpo Vlv", "Colada Brida Vlv", "Cert. Brida Vlv",
-                            "Estado Fabricación", "Inspección", "Fecha IRC", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
+                            "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
                             "Trad. Equipo", "Cod. Cuerpo", "Cod. Fab. Cuerpo", "Cant. Cuerpo", "Cod. Cubierta",
                             "Cod. Fab. Cubierta", "Cant. Cubierta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería",
                             "Cdo. Niplo Hex.", "Cod. Fab. Niplo Hex.", "Cant. Niplo Hex.", "Cod. Válv.", "Cod. Fab. Válv.",
@@ -1522,7 +2000,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             headers_others = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Descripción", "Código Equipo",
                             "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
-                            "Plano Dimensional", "Plano OF", "Fecha OF", "Colada", "Cert. Colada", "Estado Fabricación", "Inspección", "Fecha IRC", "Envío RN", "Fecha RN",
+                            "Plano Dimensional", "Plano OF", "Fecha OF", "Colada", "Cert. Colada", "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN",
                             "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
                             "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
                             "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
@@ -1592,7 +2070,305 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
             self.model.dataChanged.connect(self.saveChanges)
             self.selection_model = self.tableEditTags.selectionModel()
-            self.selection_model.selectionChanged.connect(self.countSelectedCells)
+            self.selection_model.selectionChanged.connect(lambda: self.countSelectedCells(self.model))
+
+            if self.variable2 is not None:
+                self.tableEditTags2.show()
+                self.checkbox_states2 = {}
+                self.dict_valuesuniques2 = {}
+                self.dict_ordersort2 = {}
+                self.hiddencolumns2 = []
+
+                self.tableEditTags2.setModel(None)
+                self.tableEditTags2.setModel(self.proxy2)
+                self.model2.select()
+
+                self.proxy2.setSourceModel(self.model2)
+                self.tableEditTags2.setModel(self.proxy2)
+
+                columns_number=self.model2.columnCount()
+                for column in range(columns_number):
+                    self.tableEditTags2.setItemDelegateForColumn(column, None)
+                if self.name is not None:
+                    self.model2.column_range = range(0,columns_number)
+                else:
+                    self.model2.column_range = range(self.initial_column2,columns_number)
+
+                if self.variable2 == 'Caudal':
+                    for i in range(44,67):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(72,125):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(127,131):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(132,136):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(137,142):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(143,150):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(151,153):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(154,156):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(157,columns_number):
+                        self.tableEditTags2.hideColumn(i)
+
+                elif self.variable2 == 'Temperatura':
+                    for i in range(54,75):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(80,132):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(134,138):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(139,143):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(144,149):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(150,157):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(158,160):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(161,163):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(164,166):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(167,columns_number):
+                        self.tableEditTags2.hideColumn(i)
+
+                elif self.variable2 == 'Nivel':
+                    for i in range(48,61):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(66,138):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(140,144):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(145,149):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(150,155):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(156,163):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(164,166):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(167,169):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(170,columns_number):
+                        self.tableEditTags2.hideColumn(i)
+
+                elif self.variable2 == 'Otros':
+                    for i in range(17,20):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(27,31):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(32,36):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(37,42):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(43,50):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(51,53):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(54,56):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(57,columns_number):
+                        self.tableEditTags2.hideColumn(i)
+
+                self.tableEditTags2.setItemDelegate(AlignDelegate(self.tableEditTags2))
+                self.tableEditTags2.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+                self.tableEditTags2.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                self.tableEditTags2.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+                self.tableEditTags2.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+                self.tableEditTags2.setObjectName("tableEditTags2")
+                self.gridLayout_2.addWidget(self.tableEditTags2, 5, 0, 1, 1)
+                self.tableEditTags2.setSortingEnabled(False)
+                self.tableEditTags2.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableEditTags2, self.model2, self.proxy2))
+                self.tableEditTags2.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+                self.tableEditTags2.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+
+            # Change all column names
+                headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
+                                "PO", "Posición", "Subposición", "Tipo", "Tamaño Línea",
+                                "Rating", "Facing", "Schedule", "Material Brida", "Tipo Brida",
+                                "Material Tubo", "Tamaño Tomas (Nº)", "Material Elemento", "Tipo Placa", "Espesor Placa",
+                                "Estándar Placa", "Material Junta", "Material Tornillería", "Con. Válvula", "Material Cuerpo Vlv.",
+                                "Nº Saltos", "Pipe Spec.", "Peso Aprox. (kg)", "Long. Aprox. (mm)", "NACE",
+                                "Precio (€)", "Notas Oferta", "Cambios Comercial", "Fecha Contractual", "Ø Orif. (mm)",
+                                "Ø D/V (mm)", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo",
+                                "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Orden de Compra",
+                                "Fecha Orden Compra", "Notas Orden Compra", 'Plano Dimensional', "Plano OF", "Fecha OF",
+                                "Notas Equipo", "Colada Placa", "Cert. Placa", "Colada Brida", "Cert. Brida", "Nº Tapones",
+                                "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material", "RTJ Espesor", "RTJ Dim",
+                                "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos", "Cantidad Espárragos", "Tamaño Extractor",
+                                "Cantidad Extractor", "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo",
+                                "Cod. Fab. Equipo", "Trad. Equipo", "Cod. Brida Orif.", "Cod. Fab. Brida Orif.", "Cant. Brida Orif.",
+                                "Cod. Brida Línea", "Cod. Fab. Brida Línea", "Cant. Brida Línea", "Cod. Junta", "Cod. Fab. Junta",
+                                "Cant. Junta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería", "Cod. Tapones",
+                                "Cod. Fab. Tapones", "Cant. Tapones", "Cod. Extractor", "Cod. Fab. Extractor", "Cant. Extractor",
+                                "Cod. Placa", "Cod. Fab. Placa", "Cant. Placa", "Cod. Niplo", "Cod. Fab. Niplo",
+                                "Cant. Niplo", "Cod. Mango", "Cod. Fab. Mango", "Cant. Mango", "Cod. Ch. Ring",
+                                "Cod. Fab. Ch. Ring", "Cant. Ch. Ring", "Cod. Tubo", "Cod. Fab. Tubo", "Cant. Tubo",
+                                "Cod. Pieza2", "Cod. Fab. Pieza2", "Cant. Pieza2", "Diam. Int", "Pedido Tipo Tag",
+                                "Trad. Brida. Orif", "Trad. Brida Línea", "Trad. Junta", "Trad. Tornillería", "Trad. Tapones",
+                                "Trad. Extractor", "Trad. Placa", "Trad. Niplo", "Trad. Mango", "Trad. Ch. Ring",
+                                "Trad. Tubo", "Trad. Pieza2", "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
+                                "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
+                                "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
+                                "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
+                                "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
+                                "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
+                                "Estado Verif. OF", "Notas Verif. OF", "Fotos",
+                                "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+
+                headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
+                                "PO", "Posición", "Subposición", "Tipo", "Tipo TW",
+                                "Tamaño Brida", "Rating Brida", "Facing Brida", "Standard TW", "Material TW",
+                                "Long. STD (mm)", "Long. Ins. (mm)", "Ø Raíz (mm)", "Ø Punta (mm)", "Sensor",
+                                "Material Sheath/Stem", "Ø Sheath/Stem (mm)", "Insulation", "Temp Inf (ºC)", "Temp Sup ºC",
+                                "Material Nipple Ext.", "Long. Nipple Ext. (mm)", "Material Head/Case", "Con. Elec./Diam. Case", "TT/Terminal Insulation",
+                                "Material Brida LapJoint", "Material Junta", "Puntal", "Tubo", "NACE",
+                                "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual", "Stress",
+                                "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Ø Picaje (mm)", "Notas Cálculo",
+                                "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo", "Fecha Estado Cálculo",
+                                "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Planos", "Orden de Compra",
+                                "Fecha Orden Compra", "Notas Orden Compra", "Plano Dimensional", "Plano OF Sensor", "Fecha OF Sensor", 
+                                "Notas Sensor", "Estado Fabricación Sensor", "Plano OF TW", "Fecha OF TW", "Notas TW",
+                                "Estado Fabricación TW", "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
+                                "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)", "Tapón",
+                                "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
+                                "Trad. Equipo", "Cod. Barra", "Cod. Fab. Barra", "Cant. Barra", "Cod. Tubo",
+                                "Cod. Fab. Tubo", "Cant. Tubo", "Cod. Brida", "Cod. Fab. Brida", "Cant. Brida",
+                                "Cod. Sensor", "Cod. Fab. Sensor", "Cant. Sensor", "Cod. Cabeza", "Cod. Fab. Cabeza",
+                                "Cant. Cabeza", "Cod. BTB", "Cod. Fab. BTB", "Cant. BTB", "Cod. Niplo Ext.",
+                                "Cod. Fab. Niplo Ext.", "Cant. Niplo Ext.", "Cod. Muelle", "Cod. Fab. Muelle", "Cant. Muelle",
+                                "Cod. Puntal", "Cod. Fab. Puntal", "Cant. Puntal", "Cod. Tapón", "Cod. Fab. Tapón", "Cant. Tapón",
+                                "Cod. TW", "Cod. Fab. TW", "Cant. TW", "Cod. Adit.", "Cod. Fab. Adit.",
+                                "Cant. Adit", "Pedido Tipo Tag", "Trad. Barra", "Trad. Tubo", "Trad. Brida",
+                                "Trad. Sensor", "Trad. Cabeza", "Trad. BTB", "Trad. Niplo Ext.", "Trad. Muelle",
+                                "Trad. Puntal", "Trad. Tapón", "Trad. TW", "Trad. Adit.", "Fecha PMI", "Fecha PH1",
+                                "Manómetro PH1", "Presión PH1", "Estado PH1", "Notas PH1", "Fecha PH2",
+                                "Manómetro PH2", "Presión PH2", "Estado PH2", "Notas PH2", "Fecha LP",
+                                "LP Colada 9PR5", "LP Colada 9D1B", "LP Colada 996PB", "Estado LP", "Notas LP",
+                                "Fecha Dureza", "Dureza", "Dureza HB", "Bola", "Carga",
+                                "Colada Dureza", "Estado Dureza", "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.",
+                                "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF.", "Notas Verif. OF", "Fecha Verif. OF Sensor",
+                                "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos",
+                                "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+
+                headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
+                                "PO", "Posición", "Subposición", "Tipo", "Modelo",
+                                "Material Cuerpo", "Tipo Conex. Proc.", "Tamaño Conex. Proc.", "Rating Conex. Proc.", "Facing Conex. Proc.",
+                                "Tipo Conex.", "Visibilidad (mm)", "Long. C-C (mm)", "Tipo Válv.", "Tipo Conex. Ext.",
+                                "Tamaño Conex. Ext.", "Rating Conex. Ext.", "Facing Conex. Ext.", "Junta", "Tornillería",
+                                "Iluminador", "Mat. Flotador", "Mat. Cubierta", "Escala", "Banderas",
+                                "Cod. IP", "Tipo Brida", "Niplo Hex.", "Niplo Tubo", "Antifrost",
+                                "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
+                                "Dim. Flotador", "Junta Bridas", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Plano",
+                                "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Orden de Compra", "Fecha Orden Compra",
+                                "Notas Orden Compra", "Plano Dimensional", "Plano OF", "Fecha OF", "Notas Equipo",
+                                "Colada Cuerpo", "Cert. Cuerpo", "Colada Cuerpo Vlv", "Cert. Cuerpo Vlv", "Colada Brida Vlv", "Cert. Brida Vlv",
+                                "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
+                                "Trad. Equipo", "Cod. Cuerpo", "Cod. Fab. Cuerpo", "Cant. Cuerpo", "Cod. Cubierta",
+                                "Cod. Fab. Cubierta", "Cant. Cubierta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería",
+                                "Cdo. Niplo Hex.", "Cod. Fab. Niplo Hex.", "Cant. Niplo Hex.", "Cod. Válv.", "Cod. Fab. Válv.",
+                                "Cant. Válv.", "Cod. Brida", "Cod. Fab. Brida", "Cant. Brida", "Cod. DV",
+                                "Cod. Fab. DV", "Cant. DV", "Cod. Escala", "Cod. Fab. Escala", "Cant. Escala",
+                                "Cod. Ilum.", "Cod. Fab. Ilum", "Cant. Ilum", "Cod. Junta Vidrio", "Cod. Fab. Junta Vidrio",
+                                "Cant. Junta Vidrio", "Cod. Vidrio", "Cod. Fab. Vidrio", "Cant. Vidrio", "Cod. Flotador",
+                                "Cod. Fab. Flotador", "Cant. Flotador", "Cod. Mica", "Cod. Fab. Mica", "Cant. Mica",
+                                "Cod. Flags", "Cod. Fab. Flags", "Cant. Flags", "Cod. Junta Brida", "Cod. Fab. Junta Brida",
+                                "Cant. Junta Brida", "Cod. Niplo Tubo", "Cod. Fab. Niplo Tubo", "Cant. Niplo Tubo", "Cod. Antifrost",
+                                "Cod. Fab. Antifrost", "Cant. Antifrost", "Pedido Tipo Tag", "Trad. Cuerpo", "Trad. Cubierta",
+                                "Trad. Tornillería", "Trad. Niplo Hex.", "Trad. Válv", "Trad. Brida", "Trad. DV",
+                                "Trad. Escala", "Trad. Ilum.", "Trad. Junta Vidrio", "Trad. Vidrio", "Trad. Flotador",
+                                "Trad. Mica", "Trad. Flags", "Trad. Junta Brida", "Trad. Niplo Tubo", "Trad. Antifrost",
+                                "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
+                                "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
+                                "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
+                                "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
+                                "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
+                                "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
+                                "Estado Verif. OF", "Notas Verif. OF", "Fotos",
+                                "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+
+                headers_others = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
+                                "PO", "Posición", "Subposición", "Descripción", "Código Equipo",
+                                "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
+                                "Plano Dimensional", "Plano OF", "Fecha OF", "Colada", "Cert. Colada", "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN",
+                                "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
+                                "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
+                                "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
+                                "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
+                                "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
+                                "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
+                                "Estado Verif. OF", "Notas Verif. OF", "Fotos",
+                                "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+
+                if self.variable2 == 'Caudal':
+                    self.model2.setAllColumnHeaders(headers_flow)
+                elif self.variable2 == 'Temperatura':
+                    self.model2.setAllColumnHeaders(headers_temp)
+                elif self.variable2 == 'Nivel':
+                    self.model2.setAllColumnHeaders(headers_level)
+                elif self.variable2 == 'Otros':
+                    self.model2.setAllColumnHeaders(headers_others)
+
+            # Getting the unique values for each column of the model
+                for column in range(self.model2.columnCount()):
+                    list_valuesUnique = []
+                    if column not in self.checkbox_states2:
+                        self.checkbox_states2[column] = {}
+                        self.checkbox_states2[column]['Seleccionar todo'] = True
+                        for row in range(self.model2.rowCount()):
+                            value = self.model2.record(row).value(column)
+                            if value not in list_valuesUnique:
+                                if isinstance(value, QtCore.QDate):
+                                    value=value.toString("dd/MM/yyyy")
+                                list_valuesUnique.append(str(value))
+                                self.checkbox_states2[column][value] = True
+                        self.dict_valuesuniques2[column] = list_valuesUnique
+
+                # Setting cells with comboboxes
+                list_tag_state = ['DELETED', 'HOLD', 'PURCHASED', 'QUOTED']
+                if self.variable2 == 'Caudal':
+                    self.combo_itemtype = EditableComboBoxDelegate2(self.tableEditTags2, list_tag_state)
+                    self.tableEditTags2.setItemDelegateForColumn(2, self.combo_itemtype)
+                    for i in range(16):
+                        self.combo_itemtype = EditableComboBoxDelegate2(self.tableEditTags2, sorted([x[0] for x in self.all_results_flow[i]]))
+                        self.tableEditTags2.setItemDelegateForColumn(i+8, self.combo_itemtype)
+                elif self.variable2 == 'Temperatura':
+                    self.combo_itemtype = EditableComboBoxDelegate2(self.tableEditTags2, list_tag_state)
+                    self.tableEditTags2.setItemDelegateForColumn(2, self.combo_itemtype)
+                    for i in range(5):
+                        self.combo_itemtype = EditableComboBoxDelegate2(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[i]]))
+                        self.tableEditTags2.setItemDelegateForColumn(i+8, self.combo_itemtype)
+                    self.combo_itemtype = EditableComboBoxDelegate2(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[5]]))
+                    self.tableEditTags2.setItemDelegateForColumn(14, self.combo_itemtype)
+                    for i in range(6,24):
+                        self.combo_itemtype = EditableComboBoxDelegate2(self.tableEditTags2, sorted([x[0] for x in self.all_results_temp[i]]))
+                        self.tableEditTags2.setItemDelegateForColumn(i+11, self.combo_itemtype)
+                elif self.variable2 == 'Nivel':
+                    self.combo_itemtype = EditableComboBoxDelegate2(self.tableEditTags2, list_tag_state)
+                    self.tableEditTags2.setItemDelegateForColumn(2, self.combo_itemtype)
+                    for i in range(8):
+                        self.combo_itemtype = EditableComboBoxDelegate2(self.tableEditTags2, sorted([x[0] for x in self.all_results_level[i]]))
+                        self.tableEditTags2.setItemDelegateForColumn(i+8, self.combo_itemtype)
+                    for i in range(18):
+                        self.combo_itemtype = EditableComboBoxDelegate2(self.tableEditTags2, sorted([x[0] for x in self.all_results_level[i+8]]))
+                        self.tableEditTags2.setItemDelegateForColumn(i+18, self.combo_itemtype)
+                elif self.variable2 == 'Otros':
+                    self.combo_itemtype = EditableComboBoxDelegate2(self.tableEditTags2, sorted([x[0] for x in self.all_results_others[0]]))
+                    self.tableEditTags2.setItemDelegateForColumn(10, self.combo_itemtype)
+
+                self.tableEditTags2.sortByColumn(1, QtCore.Qt.SortOrder.AscendingOrder)
+
+                self.model2.dataChanged.connect(self.saveChanges)
+                self.selection_model = self.tableEditTags2.selectionModel()
+                self.selection_model.selectionChanged.connect(lambda: self.countSelectedCells(self.model2))
+
+                self.tableEditTags2.doubleClicked.connect(lambda index: self.open_pics(index, self.variable2))
+            else:
+                self.tableEditTags2.hide()
         else:
             self.model.dataChanged.connect(self.saveChanges)
 
@@ -1605,7 +2381,6 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
             del dlg, new_icon
-
 
         self.tableEditTags.doubleClicked.connect(lambda index: self.open_pics(index, self.variable))
 
@@ -1645,111 +2420,215 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     del dlg, new_icon
 
 # Function when header is clicked
-    def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
+    def on_view_horizontalHeader_sectionClicked(self, logicalIndex, table, model, proxy):
         """
         Displays a menu when a column header is clicked. The menu includes options for sorting, filtering, and managing column visibility.
         
         Args:
             logicalIndex (int): Index of the clicked column.
+            table (QtWidgets.QTableView): The table view displaying the data.
+            model (QtGui.QStandardItemModel): The model associated with the table.
+            proxy (QtCore.QSortFilterProxyModel): The proxy model used for filtering and sorting.
         """
-        self.logicalIndex = logicalIndex
-        self.menuValues = QtWidgets.QMenu(self)
-        self.signalMapper = QtCore.QSignalMapper(self.tableEditTags)
+        if isinstance(model, EditableTableModel2):
+            self.logicalIndex = logicalIndex
+            self.menuValues = QtWidgets.QMenu(self)
+            self.signalMapper = QtCore.QSignalMapper(table)
 
-        valuesUnique_view = []
-        for row in range(self.tableEditTags.model().rowCount()):
-            index = self.tableEditTags.model().index(row, self.logicalIndex)
-            value = index.data(Qt.ItemDataRole.DisplayRole)
-            if value not in valuesUnique_view:
-                if isinstance(value, QtCore.QDate):
-                    value=value.toString("dd/MM/yyyy")
-                valuesUnique_view.append(value)
+            valuesUnique_view = []
+            for row in range(table.model().rowCount()):
+                index = table.model().index(row, self.logicalIndex)
+                value = index.data(Qt.ItemDataRole.DisplayRole)
+                if value not in valuesUnique_view:
+                    if isinstance(value, QtCore.QDate):
+                        value=value.toString("dd/MM/yyyy")
+                    valuesUnique_view.append(value)
 
-        actionSortAscending = QtGui.QAction("Ordenar Ascendente", self.tableEditTags)
-        actionSortAscending.triggered.connect(self.on_actionSortAscending_triggered)
-        self.menuValues.addAction(actionSortAscending)
-        actionSortDescending = QtGui.QAction("Ordenar Descendente", self.tableEditTags)
-        actionSortDescending.triggered.connect(self.on_actionSortDescending_triggered)
-        self.menuValues.addAction(actionSortDescending)
-        self.menuValues.addSeparator()
+            actionSortAscending = QtGui.QAction("Ordenar Ascendente", table)
+            actionSortAscending.triggered.connect(lambda: self.on_actionSortAscending_triggered(table))
+            self.menuValues.addAction(actionSortAscending)
+            actionSortDescending = QtGui.QAction("Ordenar Descendente", table)
+            actionSortDescending.triggered.connect(lambda: self.on_actionSortDescending_triggered(table))
+            self.menuValues.addAction(actionSortDescending)
+            self.menuValues.addSeparator()
 
-        actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro", self.tableEditTags)
-        actionDeleteFilterColumn.triggered.connect(self.on_actionDeleteFilterColumn_triggered)
-        self.menuValues.addAction(actionDeleteFilterColumn)
-        self.menuValues.addSeparator()
+            actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro", table)
+            actionDeleteFilterColumn.triggered.connect(lambda: self.on_actionDeleteFilterColumn_triggered(table, model, proxy))
+            self.menuValues.addAction(actionDeleteFilterColumn)
+            self.menuValues.addSeparator()
 
-        actionTextFilter = QtGui.QAction("Buscar...", self.tableEditTags)
-        actionTextFilter.triggered.connect(self.on_actionTextFilter_triggered)
-        self.menuValues.addAction(actionTextFilter)
-        self.menuValues.addSeparator()
+            actionTextFilter = QtGui.QAction("Buscar...", table)
+            actionTextFilter.triggered.connect(lambda: self.on_actionTextFilter_triggered(model, proxy))
+            self.menuValues.addAction(actionTextFilter)
+            self.menuValues.addSeparator()
 
-        scroll_menu = QtWidgets.QScrollArea()
-        scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
-        scroll_menu.setWidgetResizable(True)
-        scroll_widget = QtWidgets.QWidget(scroll_menu)
-        scroll_menu.setWidget(scroll_widget)
-        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+            scroll_menu = QtWidgets.QScrollArea()
+            scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
+            scroll_menu.setWidgetResizable(True)
+            scroll_widget = QtWidgets.QWidget(scroll_menu)
+            scroll_menu.setWidget(scroll_widget)
+            scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
 
-        checkbox_all_widget = QtWidgets.QCheckBox('Seleccionar todo')
+            checkbox_all_widget = QtWidgets.QCheckBox('Seleccionar todo')
 
-        if not self.checkbox_states[self.logicalIndex]['Seleccionar todo'] == True:
-            checkbox_all_widget.setChecked(False)
-        else:
-            checkbox_all_widget.setChecked(True)
-        
-        checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled(checked, name))
-
-        scroll_layout.addWidget(checkbox_all_widget)
-        self.action_checkbox_map['Seleccionar todo'] = checkbox_all_widget
-
-        if len(self.dict_ordersort) != 0 and self.logicalIndex in self.dict_ordersort:
-            list_uniquevalues = sorted(list(set(self.dict_valuesuniques[self.logicalIndex])))
-        else:
-            list_uniquevalues = sorted(list(set(valuesUnique_view)))
-
-        for actionName in list_uniquevalues:
-            checkbox_widget = QtWidgets.QCheckBox(actionName)
-
-            if self.logicalIndex not in self.checkbox_filters:
-                checkbox_widget.setChecked(True)
-            elif actionName not in self.checkbox_filters[self.logicalIndex]:
-                checkbox_widget.setChecked(False)
+            if not self.checkbox_states2[self.logicalIndex]['Seleccionar todo'] == True:
+                checkbox_all_widget.setChecked(False)
             else:
-                checkbox_widget.setChecked(True)
+                checkbox_all_widget.setChecked(True)
+            
+            checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled(checked, name, model))
 
-            checkbox_widget.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled(checked, name))
+            scroll_layout.addWidget(checkbox_all_widget)
+            self.action_checkbox_map2['Seleccionar todo'] = checkbox_all_widget
 
-            scroll_layout.addWidget(checkbox_widget)
-            self.action_checkbox_map[actionName] = checkbox_widget
+            if len(self.dict_ordersort2) != 0 and self.logicalIndex in self.dict_ordersort2:
+                list_uniquevalues = sorted(list(set(self.dict_valuesuniques2[self.logicalIndex])))
+            else:
+                list_uniquevalues = sorted(list(set(valuesUnique_view)))
 
-        action_scroll_menu = QtWidgets.QWidgetAction(self.menuValues)
-        action_scroll_menu.setDefaultWidget(scroll_menu)
-        self.menuValues.addAction(action_scroll_menu)
+            for actionName in list_uniquevalues:
+                checkbox_widget = QtWidgets.QCheckBox(str(actionName))
 
-        self.menuValues.addSeparator()
+                if self.logicalIndex not in self.checkbox_filters2:
+                    checkbox_widget.setChecked(True)
+                elif actionName not in self.checkbox_filters2[self.logicalIndex]:
+                    checkbox_widget.setChecked(False)
+                else:
+                    checkbox_widget.setChecked(True)
 
-        accept_button = QtGui.QAction("ACEPTAR", self.tableEditTags)
-        accept_button.triggered.connect(self.menu_acceptbutton_triggered)
+                checkbox_widget.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled(checked, name, model))
 
-        cancel_button = QtGui.QAction("CANCELAR", self.tableEditTags)
-        cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
+                scroll_layout.addWidget(checkbox_widget)
+                self.action_checkbox_map2[actionName] = checkbox_widget
 
-        self.menuValues.addAction(accept_button)
-        self.menuValues.addAction(cancel_button)
+            action_scroll_menu = QtWidgets.QWidgetAction(self.menuValues)
+            action_scroll_menu.setDefaultWidget(scroll_menu)
+            self.menuValues.addAction(action_scroll_menu)
 
-        self.menuValues.setStyleSheet("QMenu { color: black; }"
-                                        "QMenu { background-color: rgb(255, 255, 255); }"
-                                        "QMenu::item:selected { background-color: #33bdef; }"
-                                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+            self.menuValues.addSeparator()
 
-        headerPos = self.tableEditTags.mapToGlobal(self.tableEditTags.horizontalHeader().pos())        
+            accept_button = QtGui.QAction("ACEPTAR", table)
+            accept_button.triggered.connect(lambda: self.menu_acceptbutton_triggered(proxy))
 
-        posY = headerPos.y() + self.tableEditTags.horizontalHeader().height()
-        scrollX = self.tableEditTags.horizontalScrollBar().value()
-        xInView = self.tableEditTags.horizontalHeader().sectionViewportPosition(logicalIndex)
-        posX = headerPos.x() + xInView - scrollX
+            cancel_button = QtGui.QAction("CANCELAR", table)
+            cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
 
-        self.menuValues.exec(QtCore.QPoint(posX, posY))
+            self.menuValues.addAction(accept_button)
+            self.menuValues.addAction(cancel_button)
+
+            self.menuValues.setStyleSheet("QMenu { color: black; }"
+                                            "QMenu { background-color: rgb(255, 255, 255); }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
+                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+
+            headerPos = table.mapToGlobal(table.horizontalHeader().pos())        
+
+            posY = headerPos.y() + table.horizontalHeader().height()
+            scrollX = table.horizontalScrollBar().value()
+            xInView = table.horizontalHeader().sectionViewportPosition(logicalIndex)
+            posX = headerPos.x() + xInView - scrollX
+
+            self.menuValues.exec(QtCore.QPoint(posX, posY))
+        
+        else:
+            self.logicalIndex = logicalIndex
+            self.menuValues = QtWidgets.QMenu(self)
+            self.signalMapper = QtCore.QSignalMapper(table)
+
+            valuesUnique_view = []
+            for row in range(table.model().rowCount()):
+                index = table.model().index(row, self.logicalIndex)
+                value = index.data(Qt.ItemDataRole.DisplayRole)
+                if value not in valuesUnique_view:
+                    if isinstance(value, QtCore.QDate):
+                        value=value.toString("dd/MM/yyyy")
+                    valuesUnique_view.append(value)
+
+            actionSortAscending = QtGui.QAction("Ordenar Ascendente", table)
+            actionSortAscending.triggered.connect(lambda: self.on_actionSortAscending_triggered(table))
+            self.menuValues.addAction(actionSortAscending)
+            actionSortDescending = QtGui.QAction("Ordenar Descendente", table)
+            actionSortDescending.triggered.connect(lambda: self.on_actionSortDescending_triggered(table))
+            self.menuValues.addAction(actionSortDescending)
+            self.menuValues.addSeparator()
+
+            actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro", table)
+            actionDeleteFilterColumn.triggered.connect(lambda: self.on_actionDeleteFilterColumn_triggered(table, model, proxy))
+            self.menuValues.addAction(actionDeleteFilterColumn)
+            self.menuValues.addSeparator()
+
+            actionTextFilter = QtGui.QAction("Buscar...", table)
+            actionTextFilter.triggered.connect(lambda: self.on_actionTextFilter_triggered(model, proxy))
+            self.menuValues.addAction(actionTextFilter)
+            self.menuValues.addSeparator()
+
+            scroll_menu = QtWidgets.QScrollArea()
+            scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
+            scroll_menu.setWidgetResizable(True)
+            scroll_widget = QtWidgets.QWidget(scroll_menu)
+            scroll_menu.setWidget(scroll_widget)
+            scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+
+            checkbox_all_widget = QtWidgets.QCheckBox('Seleccionar todo')
+
+            if not self.checkbox_states[self.logicalIndex]['Seleccionar todo'] == True:
+                checkbox_all_widget.setChecked(False)
+            else:
+                checkbox_all_widget.setChecked(True)
+            
+            checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled(checked, name, model))
+
+            scroll_layout.addWidget(checkbox_all_widget)
+            self.action_checkbox_map['Seleccionar todo'] = checkbox_all_widget
+
+            if len(self.dict_ordersort) != 0 and self.logicalIndex in self.dict_ordersort:
+                list_uniquevalues = sorted(list(set(self.dict_valuesuniques[self.logicalIndex])))
+            else:
+                list_uniquevalues = sorted(list(set(valuesUnique_view)))
+
+            for actionName in list_uniquevalues:
+                checkbox_widget = QtWidgets.QCheckBox(str(actionName))
+
+                if self.logicalIndex not in self.checkbox_filters:
+                    checkbox_widget.setChecked(True)
+                elif actionName not in self.checkbox_filters[self.logicalIndex]:
+                    checkbox_widget.setChecked(False)
+                else:
+                    checkbox_widget.setChecked(True)
+
+                checkbox_widget.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled(checked, name, model))
+
+                scroll_layout.addWidget(checkbox_widget)
+                self.action_checkbox_map[actionName] = checkbox_widget
+
+            action_scroll_menu = QtWidgets.QWidgetAction(self.menuValues)
+            action_scroll_menu.setDefaultWidget(scroll_menu)
+            self.menuValues.addAction(action_scroll_menu)
+
+            self.menuValues.addSeparator()
+
+            accept_button = QtGui.QAction("ACEPTAR", table)
+            accept_button.triggered.connect(lambda: self.menu_acceptbutton_triggered(proxy))
+
+            cancel_button = QtGui.QAction("CANCELAR", table)
+            cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
+
+            self.menuValues.addAction(accept_button)
+            self.menuValues.addAction(cancel_button)
+
+            self.menuValues.setStyleSheet("QMenu { color: black; }"
+                                            "QMenu { background-color: rgb(255, 255, 255); }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
+                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+
+            headerPos = table.mapToGlobal(table.horizontalHeader().pos())        
+
+            posY = headerPos.y() + table.horizontalHeader().height()
+            scrollX = table.horizontalScrollBar().value()
+            xInView = table.horizontalHeader().sectionViewportPosition(logicalIndex)
+            posX = headerPos.x() + xInView - scrollX
+
+            self.menuValues.exec(QtCore.QPoint(posX, posY))
 
 # Function when cancel button of menu is clicked
     def menu_cancelbutton_triggered(self):
@@ -1759,22 +2638,29 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.menuValues.hide()
 
 # Function when accept button of menu is clicked
-    def menu_acceptbutton_triggered(self):
+    def menu_acceptbutton_triggered(self, proxy):
         """
         Applies the selected filters and updates the table model with the new filters.
         """
-        for column, filters in self.checkbox_filters.items():
-            if filters:
-                self.proxy.setFilter(filters, column)
-            else:
-                self.proxy.setFilter(None, column)
+        if isinstance(proxy, CustomProxyModel2):
+            for column, filters in self.checkbox_filters2.items():
+                if filters:
+                    proxy.setFilter(filters, column, exact_match=True)
+                else:
+                    proxy.setFilter(None, column)
+        else:
+            for column, filters in self.checkbox_filters.items():
+                if filters:
+                    proxy.setFilter(filters, column, exact_match=True)
+                else:
+                    proxy.setFilter(None, column)
 
-        self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableEditTags.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableEditTags.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
+        # self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        # self.tableEditTags.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        # self.tableEditTags.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
 # Function when select all checkbox is clicked
-    def on_select_all_toggled(self, checked, action_name):
+    def on_select_all_toggled(self, checked, action_name, model):
         """
         Toggles the state of all checkboxes in the filter menu when the 'Select All' checkbox is toggled.
         
@@ -1787,22 +2673,39 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
-            for checkbox_name, checkbox_widget in self.action_checkbox_map.items():
-                checkbox_widget.setChecked(checked)
-                self.checkbox_states[self.logicalIndex][checkbox_name] = checked
-
-            if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map.values()):
-                self.model.setIconColumnHeader(filterColumn, icono)
+            if isinstance(model, EditableTableModel2):
+                for checkbox_name, checkbox_widget in self.action_checkbox_map2.items():
+                    checkbox_widget.setChecked(checked)
+                    self.checkbox_states2[self.logicalIndex][checkbox_name] = checked
             else:
-                self.model.setIconColumnHeader(filterColumn, '')
-        
+                for checkbox_name, checkbox_widget in self.action_checkbox_map.items():
+                    checkbox_widget.setChecked(checked)
+                    self.checkbox_states[self.logicalIndex][checkbox_widget.text()] = checked
+
+            if isinstance(model, EditableTableModel2):
+                
+                if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map2.values()):
+                    model.setIconColumnHeader(filterColumn, icono)
+                else:
+                    model.setIconColumnHeader(filterColumn, '')
+            else:
+                if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map.values()):
+                    model.setIconColumnHeader(filterColumn, icono)
+                else:
+                    model.setIconColumnHeader(filterColumn, '')
+
         else:
-            for checkbox_name, checkbox_widget in self.action_checkbox_map.items():
-                checkbox_widget.setChecked(checked)
-                self.checkbox_states[self.logicalIndex][checkbox_widget.text()] = checked
+            if isinstance(model, EditableTableModel2):
+                for checkbox_name, checkbox_widget in self.action_checkbox_map2.items():
+                    checkbox_widget.setChecked(checked)
+                    self.checkbox_states2[self.logicalIndex][checkbox_widget.text()] = checked
+            else:
+                for checkbox_name, checkbox_widget in self.action_checkbox_map.items():
+                    checkbox_widget.setChecked(checked)
+                    self.checkbox_states[self.logicalIndex][checkbox_widget.text()] = checked
 
 # Function when checkbox of header menu is clicked
-    def on_checkbox_toggled(self, checked, action_name):
+    def on_checkbox_toggled(self, checked, action_name, model):
         """
         Updates the filter state when an individual checkbox is toggled.
         
@@ -1815,79 +2718,127 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
         if checked:
-            if filterColumn not in self.checkbox_filters:
-                self.checkbox_filters[filterColumn] = [action_name]
+            if isinstance(model, EditableTableModel2):
+                if filterColumn not in self.checkbox_filters2:
+                    self.checkbox_filters2[filterColumn] = [action_name]
+                else:
+                    if action_name not in self.checkbox_filters2[filterColumn]:
+                        self.checkbox_filters2[filterColumn].append(action_name)
             else:
-                if action_name not in self.checkbox_filters[filterColumn]:
-                    self.checkbox_filters[filterColumn].append(action_name)
+                if filterColumn not in self.checkbox_filters:
+                    self.checkbox_filters[filterColumn] = [action_name]
+                else:
+                    if action_name not in self.checkbox_filters[filterColumn]:
+                        self.checkbox_filters[filterColumn].append(action_name)
         else:
-            if filterColumn in self.checkbox_filters and action_name in self.checkbox_filters[filterColumn]:
-                self.checkbox_filters[filterColumn].remove(action_name)
+            if isinstance(model, EditableTableModel2):
+                if filterColumn in self.checkbox_filters2 and action_name in self.checkbox_filters2[filterColumn]:
+                    self.checkbox_filters2[filterColumn].remove(action_name)
+            else:
+                if filterColumn in self.checkbox_filters and action_name in self.checkbox_filters[filterColumn]:
+                    self.checkbox_filters[filterColumn].remove(action_name)
 
-        if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map.values()):
-            self.model.setIconColumnHeader(filterColumn, '')
+        if isinstance(model, EditableTableModel2):
+            if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map2.values()):
+                model.setIconColumnHeader(filterColumn, '')
+            else:
+                model.setIconColumnHeader(filterColumn, icono)
         else:
-            self.model.setIconColumnHeader(filterColumn, icono)
+            if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map.values()):
+                model.setIconColumnHeader(filterColumn, '')
+            else:
+                model.setIconColumnHeader(filterColumn, icono)
 
 # Function to delete individual column filter
-    def on_actionDeleteFilterColumn_triggered(self):
+    def on_actionDeleteFilterColumn_triggered(self, table, model, proxy):
         """
         Removes the filter from the selected column and updates the table model.
+        
+        Args:
+            table (QtWidgets.QTableView): The table view displaying the data.
+            model (QtGui.QStandardItemModel): The model associated with the table.
+            proxy (QtCore.QSortFilterProxyModel): The proxy model used for filtering and sorting.
         """
-        filterColumn = self.logicalIndex
-        if filterColumn in self.proxy.filters:
-                del self.proxy.filters[filterColumn]
-        self.model.setIconColumnHeader(filterColumn, '')
-        self.proxy.invalidateFilter()
+        if isinstance(model, EditableTableModel2):
+            filterColumn = self.logicalIndex
+            if filterColumn in proxy.filters:
+                del proxy.filters[filterColumn]
+            model.setIconColumnHeader(filterColumn, "")
+            proxy.invalidateFilter()
 
-        self.tableEditTags.setModel(None)
-        self.tableEditTags.setModel(self.proxy)
+            if filterColumn in self.checkbox_filters2:
+                del self.checkbox_filters2[filterColumn]
 
-        if filterColumn in self.checkbox_filters:
-            del self.checkbox_filters[filterColumn]
+            self.checkbox_states2[self.logicalIndex].clear()
+            self.checkbox_states2[self.logicalIndex]["Seleccionar todo"] = True
+            for row in range(table.model().rowCount()):
+                value = model.record(row).value(filterColumn)
+                if isinstance(value, QtCore.QDate):
+                    value = value.toString("dd/MM/yyyy")
+                self.checkbox_states2[self.logicalIndex][str(value)] = True
 
-        self.checkbox_states[self.logicalIndex].clear()
-        self.checkbox_states[self.logicalIndex]['Seleccionar todo'] = True
-        for row in range(self.tableEditTags.model().rowCount()):
-            value = self.model.record(row).value(filterColumn)
-            if isinstance(value, QtCore.QDate):
-                    value=value.toString("dd/MM/yyyy")
-            self.checkbox_states[self.logicalIndex][str(value)] = True
+        else:
+            filterColumn = self.logicalIndex
+            if filterColumn in proxy.filters:
+                del proxy.filters[filterColumn]
+            model.setIconColumnHeader(filterColumn, "")
+            proxy.invalidateFilter()
 
-        self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableEditTags.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableEditTags.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
+            if filterColumn in self.checkbox_filters:
+                del self.checkbox_filters[filterColumn]
+
+            self.checkbox_states[self.logicalIndex].clear()
+            self.checkbox_states[self.logicalIndex]["Seleccionar todo"] = True
+            for row in range(table.model().rowCount()):
+                value = model.record(row).value(filterColumn)
+                if isinstance(value, QtCore.QDate):
+                    value = value.toString("dd/MM/yyyy")
+                self.checkbox_states[self.logicalIndex][str(value)] = True
+
+        table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        table.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        table.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
 # Function to order column ascending
-    def on_actionSortAscending_triggered(self):
+    def on_actionSortAscending_triggered(self, table):
         """
         Sorts the selected column in ascending order.
+        
+        Args:
+            table (QtWidgets.QTableView): The table view displaying the data.
         """
         sortColumn = self.logicalIndex
         sortOrder = Qt.SortOrder.AscendingOrder
-        self.tableEditTags.sortByColumn(sortColumn, sortOrder)
+        table.sortByColumn(sortColumn, sortOrder)
 
 # Function to order column descending
-    def on_actionSortDescending_triggered(self):
+    def on_actionSortDescending_triggered(self, table):
         """
         Sorts the selected column in descending order.
+        
+        Args:
+            table (QtWidgets.QTableView): The table view displaying the data.
         """
         sortColumn = self.logicalIndex
         sortOrder = Qt.SortOrder.DescendingOrder
-        self.tableEditTags.sortByColumn(sortColumn, sortOrder)
+        table.sortByColumn(sortColumn, sortOrder)
 
 # Function when text is searched
-    def on_actionTextFilter_triggered(self):
+    def on_actionTextFilter_triggered(self, model, proxy):
         """
         Opens a dialog to enter a text filter and applies it to the selected column.
+        
+        Args:
+            model (QtGui.QStandardItemModel): The model associated with the table.
+            proxy (QtCore.QSortFilterProxyModel): The proxy model used for filtering and sorting.
         """
         filterColumn = self.logicalIndex
         dlg = QtWidgets.QInputDialog()
         new_icon = QtGui.QIcon()
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle('Buscar')
-        clickedButton=dlg.exec()
+        dlg.setWindowTitle("Buscar")
+        clickedButton = dlg.exec()
 
         if clickedButton == 1:
             stringAction = dlg.textValue()
@@ -1897,11 +2848,11 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
             filterString = QtCore.QRegularExpression(stringAction, QtCore.QRegularExpression.PatternOption(0))
             # del self.proxy.filters[filterColumn]
-            self.proxy.setFilter([stringAction], filterColumn)
+            proxy.setFilter([stringAction], filterColumn, None)
 
             imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
-            self.model.setIconColumnHeader(filterColumn, icono)
+            model.setIconColumnHeader(filterColumn, icono)
 
 # Function to hide column when action clicked
     def hide_column(self):
@@ -1977,7 +2928,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     text = self.get_selected_text(selected_indexes)
                     if isinstance(text, QtCore.QDate):
                         text=text.toString("dd/MM/yyyy")
-                    clipboard.setText(text)
+                    clipboard.setText(str(text))
 
         elif event.matches(QKeySequence.StandardKey.Paste):
             self.model.dataChanged.disconnect(self.saveChanges)
@@ -2040,30 +2991,52 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             return text_doc.toPlainText()
 
 # Function to count selected cells and sum its values
-    def countSelectedCells(self):
+    def countSelectedCells(self, model):
         """
         Counts the number of selected cells and sums their values. Updates the UI labels with the count and sum.
         """
-        if len(self.tableEditTags.selectedIndexes()) > 1:
-            locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
-            self.label_SumItems.setText("")
-            self.label_SumValue.setText("")
-            self.label_CountItems.setText("")
-            self.label_CountValue.setText("")
+        if isinstance(model,EditableTableModel2):
+            if len(self.tableEditTags2.selectedIndexes()) > 1:
+                locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+                self.label_SumItems2.setText("")
+                self.label_SumValue2.setText("")
+                self.label_CountItems2.setText("")
+                self.label_CountValue2.setText("")
 
-            sum_value = sum([self.euro_string_to_float(str(ix.data())) if re.match(r'^[\d.,]+\sÇ$', str(ix.data())) else float(str(ix.data()).replace(',', '.')) if str(ix.data()).replace(',', '.').replace('.', '', 1).isdigit() else 0 for ix in self.tableEditTags.selectedIndexes()])
-            count_value = len([ix for ix in self.tableEditTags.selectedIndexes() if ix.data() != ""])
-            if sum_value > 0:
-                self.label_SumItems.setText("Suma:")
-                self.label_SumValue.setText(locale.format_string("%.2f", sum_value, grouping=True))
-            if count_value > 0:
-                self.label_CountItems.setText("Recuento:")
-                self.label_CountValue.setText(str(count_value))
+                sum_value = sum([self.euro_string_to_float(str(ix.data())) if re.match(r'^[\d.,]+\s€$', str(ix.data())) else float(str(ix.data()).replace(',', '.')) if str(ix.data()).replace(',', '.').replace('.', '', 1).isdigit() else 0 for ix in self.tableEditTags2.selectedIndexes()])
+                count_value = len([ix for ix in self.tableEditTags2.selectedIndexes() if ix.data() != ""])
+                if sum_value > 0:
+                    self.label_SumItems2.setText("Suma:")
+                    self.label_SumValue2.setText(locale.format_string("%.2f", sum_value, grouping=True))
+                if count_value > 0:
+                    self.label_CountItems2.setText("Recuento:")
+                    self.label_CountValue2.setText(str(count_value))
+            else:
+                self.label_SumItems2.setText("")
+                self.label_SumValue2.setText("")
+                self.label_CountItems2.setText("")
+                self.label_CountValue2.setText("")
         else:
-            self.label_SumItems.setText("")
-            self.label_SumValue.setText("")
-            self.label_CountItems.setText("")
-            self.label_CountValue.setText("")
+            if len(self.tableEditTags.selectedIndexes()) > 1:
+                locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+                self.label_SumItems.setText("")
+                self.label_SumValue.setText("")
+                self.label_CountItems.setText("")
+                self.label_CountValue.setText("")
+
+                sum_value = sum([self.euro_string_to_float(str(ix.data())) if re.match(r'^[\d.,]+\s€$', str(ix.data())) else float(str(ix.data()).replace(',', '.')) if str(ix.data()).replace(',', '.').replace('.', '', 1).isdigit() else 0 for ix in self.tableEditTags.selectedIndexes()])
+                count_value = len([ix for ix in self.tableEditTags.selectedIndexes() if ix.data() != ""])
+                if sum_value > 0:
+                    self.label_SumItems.setText("Suma:")
+                    self.label_SumValue.setText(locale.format_string("%.2f", sum_value, grouping=True))
+                if count_value > 0:
+                    self.label_CountItems.setText("Recuento:")
+                    self.label_CountValue.setText(str(count_value))
+            else:
+                self.label_SumItems.setText("")
+                self.label_SumValue.setText("")
+                self.label_CountItems.setText("")
+                self.label_CountValue.setText("")
 
 # Function to format money string values
     def euro_string_to_float(self, euro_str):
@@ -2079,7 +3052,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         match = re.match(r'^([\d.,]+)\s€$', euro_str)
         if match:
             number_str = match.group(1)
-            number_str = number_str.replace('.', '').replace(',', '.')
+            number_str = number_str.replace('.', '').replace(',', '.').replace(' €','')
             return float(number_str)
         else:
             return 0.0

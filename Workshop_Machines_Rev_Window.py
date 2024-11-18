@@ -98,7 +98,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
         """
         return self._filters
 
-    def setFilter(self, expresion, column, action_name=None):
+    def setFilter(self, expresion, column, action_name=None, exact_match=False):
         """
         Apply a filter expression to a specific column, or remove it if necessary.
 
@@ -106,15 +106,16 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
             expresion (str): The filter expression.
             column (int): The index of the column to apply the filter to.
             action_name (str, optional): Name of the action, can be empty. Defaults to None.
+            exact_match (bool, optional): If True, use exact matching for the filter. Defaults to False.
         """
         if expresion or expresion == '':
             if column in self.filters:
                 if action_name or action_name == '':
                     self.filters[column].remove(expresion)
                 else:
-                    self.filters[column].append(expresion)
+                    self.filters[column].append((expresion, exact_match))
             else:
-                self.filters[column] = [expresion]
+                self.filters[column] = [(expresion, exact_match)]
         elif column in self.filters:
             if action_name or action_name == '':
                 self.filters[column].remove(expresion)
@@ -141,23 +142,33 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
             if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
                 text = text.toString("yyyy-MM-dd")
 
-            for expresion in expresions[0]:
+            match_found = False 
+
+            for expresion, exact_match in expresions:
                 if expresion == '':  # If expression is empty, match empty cells
                     if text == '':
                         break
 
+                if exact_match:
+                    if text in expresion:  # Verificar si `text` está en la lista `expresion`
+                        match_found = True
+                        break
+                
                 elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
 
                 else:
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
-            else:
+
+            if not match_found:
                 return False
         return True
 
@@ -514,6 +525,15 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         self.label_location.setFont(font)
         self.gridLayout_2.addWidget(self.label_location, 2, 3, 1, 1)
 
+        self.label_next_revision = QtWidgets.QLabel(parent=self.frame)
+        self.label_next_revision.setMinimumSize(QtCore.QSize(40, 50))
+        self.label_next_revision.setObjectName("label_next_revision")
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.label_next_revision.setFont(font)
+        self.gridLayout_2.addWidget(self.label_next_revision, 2, 4, 1, 1)
+
         self.label_characteristics = QtWidgets.QLabel(parent=self.frame)
         self.label_characteristics.setMinimumSize(QtCore.QSize(40, 40))
         self.label_characteristics.setMaximumSize(QtCore.QSize(400, 40))
@@ -724,7 +744,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
             self.tableRevisions.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
 
         self.tableRevisions.setObjectName("tableMachines")
-        self.gridLayout_2.addWidget(self.tableRevisions, 4, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.tableRevisions, 4, 3, 1, 2)
         self.tableRevisions.setMinimumSize(QtCore.QSize(800,16777215))
         self.tableRevisions.setSortingEnabled(False)
         self.tableRevisions.hideColumn(0)
@@ -756,7 +776,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         self.tableRevisions.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
         self.tableRevisions.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
-        self.tableRevisions.sortByColumn(0, Qt.SortOrder.AscendingOrder)
+        self.tableRevisions.sortByColumn(2, Qt.SortOrder.DescendingOrder)
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
@@ -822,7 +842,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
             list_uniquevalues = sorted(list(set(valuesUnique_view)))
 
         for actionName in list_uniquevalues:
-            checkbox_widget = QtWidgets.QCheckBox(actionName)
+            checkbox_widget = QtWidgets.QCheckBox(str(actionName))
 
             if self.logicalIndex not in self.checkbox_filters:
                 checkbox_widget.setChecked(True)
@@ -1007,7 +1027,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
 
             filterString = QtCore.QRegularExpression(stringAction, QtCore.QRegularExpression.PatternOption(0))
             # del self.proxy.filters[filterColumn]
-            self.proxy.setFilter([stringAction], filterColumn)
+            self.proxy.setFilter([stringAction], filterColumn, None)
 
             imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
@@ -1379,7 +1399,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         Loads machine data from the database and updates the UI components.
         Displays the data in relevant UI elements and adjusts the image if available.
         """
-        query_machine_data = ("""SELECT characteristics, image, brand, machine_type, year, warehouse FROM verification.machines_workshop WHERE id = %s""")
+        query_machine_data = ("""SELECT characteristics, image, brand, machine_type, year, warehouse, TO_CHAR(next_revision,'DD/MM/YYYY') FROM verification.machines_workshop WHERE id = %s""")
 
         conn = None
         try:
@@ -1424,12 +1444,12 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
             self.machine_image.setPixmap(pixmap)
             self.machine_image.setScaledContents(True)
 
-
         self.machine_characteristics.setText(results_machine[0][0] if results_machine[0][0] is not None else "")
         self.label_number.setText("NÚMERO: " + str(self.machine_id))
         self.label_name.setText("NOMBRE: " + results_machine[0][2] if results_machine[0][2] is not None else "")
         self.label_year.setText("AÑO: " + results_machine[0][4] if results_machine[0][4] is not None else "")
         self.label_location.setText("NAVE: " + results_machine[0][5] if results_machine[0][5] is not None else "")
+        self.label_next_revision.setText("PROX. REV.: " + results_machine[0][6] if results_machine[0][6] is not None else "")
 
 # Function to delete register of database
     def delete_register(self):
@@ -1548,7 +1568,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         Opens the generated PDF in the viewer.
         """
         query_machine_data = ("""SELECT * FROM verification.machines_workshop WHERE id = %s""")
-        query_machine_revision = ("""SELECT TO_CHAR(rev_date, 'DD/MM/YYYY'), hours, description FROM verification.machines_workshop_revisions WHERE machine_id = %s""")
+        query_machine_revision = ("""SELECT TO_CHAR(rev_date, 'DD/MM/YYYY'), hours, description FROM verification.machines_workshop_revisions WHERE machine_id = %s ORDER BY rev_date DESC""")
 
         conn = None
         try:
@@ -1635,20 +1655,38 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
                 corrected_image.save(temp_image_path)
                 pdf.image(temp_image_path, 12.6, 4.60, 7, 13)
 
-            if len(results_revisions)>0:
-                pdf.add_page()
+            if len(results_revisions)>18:
+                pdf.set_y(18)
 
                 pdf.set_font('Helvetica', 'B', 9)
                 pdf.cell(4.5, 0.5, "Fecha Revisión", border=1, align='C', fill=True)
                 pdf.cell(3, 0.5, "Horas", border=1, align='C', fill=True)
-                pdf.cell(10.5, 0.5, "Descripción", border=1, align='C', fill=True)
+                pdf.cell(10.6, 0.5, "Descripción", border=1, align='C', fill=True)
+                pdf.ln(0.5)
+
+                pdf.set_font('Helvetica', '', 9)
+                for i in range(18):
+                    pdf.cell(4.5, 0.5, str(results_revisions[i][0]), border=1, align='C')
+                    pdf.cell(3, 0.5, str(results_revisions[i][1]), border=1, align='C')
+                    pdf.cell(10.6, 0.5, str(results_revisions[i][2]), border=1, align='C')
+                    pdf.ln(0.5)
+                pdf.cell(4.5, 0.5, '...', border=1, align='C')
+                pdf.cell(3, 0.5, '...', border=1, align='C')
+                pdf.cell(10.6, 0.5, '...', border=1, align='C')
+            else:
+                pdf.set_y(18)
+
+                pdf.set_font('Helvetica', 'B', 9)
+                pdf.cell(4.5, 0.5, "Fecha Revisión", border=1, align='C', fill=True)
+                pdf.cell(3, 0.5, "Horas", border=1, align='C', fill=True)
+                pdf.cell(10.6, 0.5, "Descripción", border=1, align='C', fill=True)
                 pdf.ln(0.5)
 
                 pdf.set_font('Helvetica', '', 9)
                 for revision in results_revisions:
                     pdf.cell(4.5, 0.5, str(revision[0]), border=1, align='C')
                     pdf.cell(3, 0.5, str(revision[1]), border=1, align='C')
-                    pdf.cell(10.5, 0.5, str(revision[2]), border=1, align='C')
+                    pdf.cell(10.6, 0.5, str(revision[2]), border=1, align='C')
                     pdf.ln(0.5)
 
             pdf_buffer = pdf.output()

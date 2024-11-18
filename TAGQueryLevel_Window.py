@@ -608,7 +608,7 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
         self.tableTags.setRowCount(0)
         query_material = ("""
                         SELECT tags."tag", tags."num_offer", tags."num_order", offers."client", tags."amount",
-                        tags."model_num", tags."body_material",
+                        tags."item_type", tags."model_num", tags."body_material",
                         tags."dwg_num_doc_eipsa", tags."dim_drawing", tags."of_drawing"
                         FROM tags_data.tags_level AS tags
                         JOIN offers ON (offers."num_offer" = tags."num_offer")
@@ -631,12 +631,12 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
             conn.commit()
 
             self.tableTags.setRowCount(len(results))
-            self.tableTags.setColumnCount(10)
+            self.tableTags.setColumnCount(11)
             tablerow=0
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(10):
+                for column in range(11):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -646,13 +646,13 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
 
                 tablerow+=1
 
-            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Cliente', 'Precio', 'Modelo', 'Material', 'Nº Doc. Plano', 'Nº Plano Dim.', 'Nº Plano OF']
+            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Cliente', 'Precio', 'Tipo', 'Modelo', 'Material', 'Nº Doc. Plano', 'Nº Plano Dim.', 'Nº Plano OF']
             
             self.tableTags.verticalHeader().hide()
             self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
             self.tableTags.setSortingEnabled(False)
             self.tableTags.setHorizontalHeaderLabels(column_headers)
-            self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             if self.role != 'Comercial':
                 self.tableTags.hideColumn(4)
 
