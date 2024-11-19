@@ -2342,6 +2342,8 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
 
             self.Supply_ClientOrder.setFocus()
 
+            self.position_table_record(supply_name)
+
 # Function to modify record data
     def modifyrecord(self):
         """
@@ -3604,6 +3606,21 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
             if item is not None and text_position.upper() in item.text().upper():
                 item.setSelected(True)
                 self.tableClientOrderPA.scrollToItem(item)
+                return
+
+    def position_table_record(self, record_name):
+        """
+        Selects and scrolls to the row in the Client Order record table based on the input position.
+        """
+        text_position = record_name
+
+        self.tableRecord.clearSelection()
+
+        for i in range(self.tableRecord.rowCount()):
+            item = self.tableRecord.item(i, 1)
+            if item is not None and text_position.upper() in item.text().upper():
+                item.setSelected(True)
+                self.tableRecord.scrollToItem(item)
                 return
 
 # Function to events for keys
