@@ -525,8 +525,16 @@ class Ui_TAGQueryOthers_Window(QtWidgets.QMainWindow):
         self.frame.setObjectName("frame")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 2)
+        if self.role == 'Técnico':
+            spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+            self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 2)
+        else:
+            self.Button_SeeMore = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_SeeMore.setMinimumSize(QtCore.QSize(100, 25))
+            self.Button_SeeMore.setObjectName("Button_SeeMore")
+            self.Button_SeeMore.setText('Hist. Precio')
+            self.Button_SeeMore.clicked.connect(self.open_price_history)
+            self.gridLayout_2.addWidget(self.Button_SeeMore, 0, 0, 1, 1)
         self.label_tag = QtWidgets.QLabel(parent=self.frame)
         self.label_tag.setMinimumSize(QtCore.QSize(105, 25))
         self.label_tag.setMaximumSize(QtCore.QSize(105, 25))
@@ -678,7 +686,7 @@ class Ui_TAGQueryOthers_Window(QtWidgets.QMainWindow):
             self.tableTags.setSortingEnabled(False)
             self.tableTags.setHorizontalHeaderLabels(column_headers)
             self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-            if self.role != 'Comercial':
+            if self.role == 'Técnico':
                 self.tableTags.hideColumn(4)
 
         except (Exception, psycopg2.DatabaseError) as error:
@@ -759,7 +767,7 @@ class Ui_TAGQueryOthers_Window(QtWidgets.QMainWindow):
             self.tableTags.setSortingEnabled(False)
             self.tableTags.setHorizontalHeaderLabels(column_headers)
             self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-            if self.role != 'Comercial':
+            if self.role == 'Técnico':
                 self.tableTags.hideColumn(4)
 
         except (Exception, psycopg2.DatabaseError) as error:
@@ -787,6 +795,19 @@ class Ui_TAGQueryOthers_Window(QtWidgets.QMainWindow):
         header_height = self.tableTags.horizontalHeader().height()
         popup_pos = self.tableTags.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableTags.show_unique_values_menu(logical_index, popup_pos, header_height)
+
+# Function to open window with price history of tags
+    def open_price_history(self):
+        """
+        Opens the price history table window.
+        """
+        from TAGQueryPriceHist_Window import Ui_TAGQueryPriceHist_Window
+
+        self.pricehist_window = QtWidgets.QMainWindow()
+        self.ui = Ui_TAGQueryPriceHist_Window('Otros')
+        self.ui.setupUi(self.pricehist_window)
+        self.pricehist_window.showMaximized()
+
 
 
 

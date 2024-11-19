@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'TAGQueryLevel_Window.ui'
+# Form implementation generated from reading ui file 'TAGQueryPriceHist_Window.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -369,7 +369,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
             column_index (int): The index of the column to sort.
             sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
         """
-        if column_index in [4]:
+        if column_index in [5, 7]:
             self.custom_sort(column_index, sortOrder)
         else:
             self.sortByColumn(column_index, sortOrder)
@@ -383,11 +383,37 @@ class CustomTableWidget(QtWidgets.QTableWidget):
             column (int): The index of the column to sort.
             order (Qt.SortOrder): The order to sort the column (ascending or descending).
         """
-        if column in [4]:
+        if column in [5]:
             row_count = self.rowCount()
 
             indexes = list(range(row_count))
             indexes.sort(key=lambda i: float(self.item(i, column).text().replace(" €","").replace(".", "").replace(",", ".")) if self.item(i, column).text() else float('inf'))
+
+            if order == QtCore.Qt.SortOrder.DescendingOrder:
+                indexes.reverse()
+
+            hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
+
+            rows = self.rowCount()
+            for i in range(rows):
+                self.insertRow(i)
+
+            for new_row, old_row in enumerate(indexes):
+                for col in range(self.columnCount()):
+                    item = self.takeItem(old_row + rows, col)
+                    self.setItem(new_row, col, item)
+
+            for i in range(rows):
+                self.removeRow(rows)
+
+            for row in hidden_rows:
+                self.setRowHidden(row, True)
+
+        elif column in [7]:
+            row_count = self.rowCount()
+
+            indexes = list(range(row_count))
+            indexes.sort(key=lambda i: int(self.item(i, column).text()))
 
             if order == QtCore.Qt.SortOrder.DescendingOrder:
                 indexes.reverse()
@@ -425,36 +451,36 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
+class Ui_TAGQueryPriceHist_Window(QtWidgets.QMainWindow):
     """
-    UI class for the Query Tag Level window.
+    UI class for the Query Tag Flow window.
     """
-    def __init__(self, role):
+    def __init__(self, variable):
         """
-        Initializes the Ui_TAGQueryLevel_Window with the specified role.
+        Initializes the Ui_TAGQueryPriceHist_Window with the specified role.
 
         Args:
             role (str): role associated with the window.
         """
         super().__init__()
-        self.role = role
+        self.variable = variable
         self.setupUi(self)
 
-    def setupUi(self, TAGQueryLevel_Window):
+    def setupUi(self, TAGQueryPriceHist_Window):
         """
-        Sets up the user interface for the TAGQueryLevel_Window.
+        Sets up the user interface for the TAGQueryPriceHist_Window.
 
         Args:
-            TAGQueryLevel_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+            TAGQueryPriceHist_Window (QtWidgets.QMainWindow): The main window for the UI setup.
         """
-        TAGQueryLevel_Window.setObjectName("TAGQueryLevel_Window")
-        TAGQueryLevel_Window.resize(400, 561)
-        TAGQueryLevel_Window.setMinimumSize(QtCore.QSize(1000, 675))
-        # TAGQueryLevel_Window.setMaximumSize(QtCore.QSize(600, 575))
+        TAGQueryPriceHist_Window.setObjectName("TAGQueryPriceHist_Window")
+        TAGQueryPriceHist_Window.resize(400, 561)
+        TAGQueryPriceHist_Window.setMinimumSize(QtCore.QSize(1000, 675))
+        # TAGQueryPriceHist_Window.setMaximumSize(QtCore.QSize(600, 575))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        TAGQueryLevel_Window.setWindowIcon(icon)
-        TAGQueryLevel_Window.setStyleSheet("QWidget {\n"
+        TAGQueryPriceHist_Window.setWindowIcon(icon)
+        TAGQueryPriceHist_Window.setStyleSheet("QWidget {\n"
     "background-color: rgb(255, 255, 255);\n"
     "}\n"
     "\n"
@@ -489,7 +515,7 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
     "    background-color: rgb(1, 140, 190);\n"
     "    border-color: rgb(255, 255, 255);\n"
     "}")
-        self.centralwidget = QtWidgets.QWidget(parent=TAGQueryLevel_Window)
+        self.centralwidget = QtWidgets.QWidget(parent=TAGQueryPriceHist_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -499,129 +525,112 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
         self.frame.setObjectName("frame")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        if self.role == 'Técnico':
-            spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-            self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 2)
-        else:
-            self.Button_SeeMore = QtWidgets.QPushButton(parent=self.frame)
-            self.Button_SeeMore.setMinimumSize(QtCore.QSize(100, 25))
-            self.Button_SeeMore.setObjectName("Button_SeeMore")
-            self.Button_SeeMore.setText('Hist. Precio')
-            self.Button_SeeMore.clicked.connect(self.open_price_history)
-            self.gridLayout_2.addWidget(self.Button_SeeMore, 0, 0, 1, 1)
-        self.label_tag = QtWidgets.QLabel(parent=self.frame)
-        self.label_tag.setMinimumSize(QtCore.QSize(105, 25))
-        self.label_tag.setMaximumSize(QtCore.QSize(105, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_tag.setFont(font)
-        self.label_tag.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_tag.setObjectName("label_tag")
-        self.gridLayout_2.addWidget(self.label_tag, 1, 0, 1, 1)
-        self.tag = QtWidgets.QLineEdit(parent=self.frame)
-        self.tag.setMinimumSize(QtCore.QSize(105, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.tag.setFont(font)
-        self.tag.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.tag.setObjectName("tag")
-        self.gridLayout_2.addWidget(self.tag, 1, 1, 1, 1)
-        self.label_model = QtWidgets.QLabel(parent=self.frame)
-        self.label_model.setMinimumSize(QtCore.QSize(105, 25))
-        self.label_model.setMaximumSize(QtCore.QSize(105, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_model.setFont(font)
-        self.label_model.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_model.setObjectName("label_model")
-        self.gridLayout_2.addWidget(self.label_model, 1, 2, 1, 1)
-        self.model = QtWidgets.QComboBox(parent=self.frame)
-        self.model.setMinimumSize(QtCore.QSize(400, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.model.setFont(font)
-        self.model.setObjectName("model")
-        self.gridLayout_2.addWidget(self.model, 1, 3, 1, 1)
-        self.label_material = QtWidgets.QLabel(parent=self.frame)
-        self.label_material.setMinimumSize(QtCore.QSize(105, 25))
-        self.label_material.setMaximumSize(QtCore.QSize(105, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_material.setFont(font)
-        self.label_material.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.label_material.setObjectName("label_material")
-        self.gridLayout_2.addWidget(self.label_material, 1, 4, 1, 1)
-        self.material = QtWidgets.QComboBox(parent=self.frame)
-        self.material.setMinimumSize(QtCore.QSize(400, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.material.setFont(font)
-        self.material.setObjectName("material")
-        self.gridLayout_2.addWidget(self.material, 1, 5, 1, 1)
-        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.gridLayout_2.addItem(spacerItem3, 3, 1, 1, 1)
+        spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 1)
         self.tableTags = CustomTableWidget()
         self.tableTags.setObjectName("tableWidget")
         self.tableTags.setColumnCount(0)
         self.tableTags.setRowCount(0)
-        self.gridLayout_2.addWidget(self.tableTags, 5, 0, 1, 6)
+        self.gridLayout_2.addWidget(self.tableTags, 1, 0, 1, 6)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.gridLayout_2.addItem(spacerItem1, 11, 1, 1, 1)
+        self.gridLayout_2.addItem(spacerItem1, 1, 1, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
-        TAGQueryLevel_Window.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=TAGQueryLevel_Window)
+        TAGQueryPriceHist_Window.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=TAGQueryPriceHist_Window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 400, 22))
         self.menubar.setObjectName("menubar")
-        TAGQueryLevel_Window.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=TAGQueryLevel_Window)
+        TAGQueryPriceHist_Window.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=TAGQueryPriceHist_Window)
         self.statusbar.setObjectName("statusbar")
-        TAGQueryLevel_Window.setStatusBar(self.statusbar)
+        TAGQueryPriceHist_Window.setStatusBar(self.statusbar)
         self.tableTags.verticalHeader().setVisible(True)
         self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableTags.setSortingEnabled(False)
         self.tableTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
-        # TAGQueryLevel_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
+        # TAGQueryPriceHist_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
-        self.retranslateUi(TAGQueryLevel_Window)
-        QtCore.QMetaObject.connectSlotsByName(TAGQueryLevel_Window)
+        self.retranslateUi(TAGQueryPriceHist_Window)
+        QtCore.QMetaObject.connectSlotsByName(TAGQueryPriceHist_Window)
 
         self.tableTags.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
-        self.tag.returnPressed.connect(self.querytags_filtered)
-        self.model.currentTextChanged.connect(self.querytags_filtered)
-        self.material.currentTextChanged.connect(self.querytags_filtered)
 
-        self.load_values()
         self.querytags()
 
+
 # Function to translate and updates the text of various UI elements
-    def retranslateUi(self, TAGQueryLevel_Window):
+    def retranslateUi(self, TAGQueryPriceHist_Window):
         """
         Translates and updates the text of various UI elements.
         """
         _translate = QtCore.QCoreApplication.translate
-        TAGQueryLevel_Window.setWindowTitle(_translate("TAGQueryLevel_Window", "Consultar TAG Nivel"))
-        self.label_tag.setText(_translate("TAGQueryLevel_Window", "TAG:"))
-        self.label_model.setText(_translate("TAGQueryLevel_Window", "Modelo:"))
-        self.label_material.setText(_translate("TAGQueryLevel_Window", "Material:"))
+        TAGQueryPriceHist_Window.setWindowTitle(_translate("TAGQueryPriceHist_Window", "Consultar Precios"))
 
 # Function to query tags
     def querytags(self):
         """
-        Queries the database for all level tags, configures and populates tables with the query results, 
+        Queries the database for all flow tags, configures and populates tables with the query results, 
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
         self.tableTags.setRowCount(0)
-        query_material = ("""
-                        SELECT tags."tag", tags."num_offer", tags."num_order", offers."client", tags."amount",
-                        tags."item_type", tags."model_num", tags."body_material",
-                        tags."dwg_num_doc_eipsa", tags."dim_drawing", tags."of_drawing"
-                        FROM tags_data.tags_level AS tags
-                        JOIN offers ON (offers."num_offer" = tags."num_offer")
-                        ORDER BY tags."tag"
-                        """)
+        if self.variable == 'Caudal':
+            query_tags = ("""
+                            SELECT tags."tag", prices."num_offer", prices."num_order", prices."item_type",
+                            prices."f_size", prices."f_rating", prices."f_facing", prices."f_flange_material", prices."f_element_material",
+                            prices."amount_tag", TO_CHAR(prices."date_amount",'DD/MM/YYYY')
+                            FROM tags_data.price_hist_tags AS prices
+                            JOIN tags_data.tags_flow AS tags ON (tags."id_tag_flow" = prices."id_tag")
+                            WHERE prices."table_name" = 'tags_data.tags_flow'
+                            ORDER BY prices."num_offer"
+                            """)
+            columns_number = 11
+            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Equipo',
+                                'Tamaño', 'Rating', 'Facing', 'Mat. Brida', 'Mat. Equipo',
+                                'Precio', 'Fecha']
+
+        elif self.variable == 'Temperatura':
+            query_tags = ("""
+                            SELECT tags."tag", prices."num_offer", prices."num_order", prices."item_type",
+                            prices."t_type_tw", prices."t_size", prices."t_rating", prices."t_facing", prices."t_tw_material", prices."t_insertion",
+                            prices."amount_tag", TO_CHAR(prices."date_amount",'DD/MM/YYYY')
+                            FROM tags_data.price_hist_tags AS prices
+                            JOIN tags_data.tags_temp AS tags ON (tags."id_tag_temp" = prices."id_tag")
+                            WHERE prices."table_name" = 'tags_data.tags_temp'
+                            ORDER BY prices."num_offer"
+                            """)
+            columns_number = 12
+            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Equipo',
+                                'Tipo TW', 'Tamaño', 'Rating', 'Facing', 'Mat. TW', 'Inserción',
+                                'Precio', 'Fecha']
+
+        elif self.variable == 'Nivel':
+            query_tags = ("""
+                            SELECT tags."tag", prices."num_offer", prices."num_order", prices."item_type",
+                            prices."l_model", prices."l_material",
+                            prices."amount_tag", TO_CHAR(prices."date_amount",'DD/MM/YYYY')
+                            FROM tags_data.price_hist_tags AS prices
+                            JOIN tags_data.tags_level AS tags ON (tags."id_tag_level" = prices."id_tag")
+                            WHERE prices."table_name" = 'tags_data.tags_level'
+                            ORDER BY prices."num_offer"
+                            """)
+            columns_number = 8
+            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Equipo',
+                                'Modelo', 'Material',
+                                'Precio', 'Fecha']
+
+        elif self.variable == 'Otros':
+            query_tags = ("""
+                            SELECT tags."tag", prices."num_offer", prices."num_order", prices."item_type",
+                            prices."o_description",
+                            prices."amount_tag", TO_CHAR(prices."date_amount",'DD/MM/YYYY')
+                            FROM tags_data.price_hist_tags AS prices
+                            JOIN tags_data.tags_others AS tags ON (tags."id_tag_others" = prices."id_tag")
+                            WHERE prices."table_name" = 'tags_data.tags_others'
+                            ORDER BY prices."num_offer"
+                            """)
+            columns_number = 7
+            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Equipo',
+                                'Descripción',
+                                'Precio', 'Fecha']
 
         conn = None
         try:
@@ -630,7 +639,7 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
-            cur.execute(query_material)
+            cur.execute(query_tags)
             results=cur.fetchall()
 
         # close communication with the PostgreSQL database server
@@ -639,12 +648,12 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
             conn.commit()
 
             self.tableTags.setRowCount(len(results))
-            self.tableTags.setColumnCount(11)
+            self.tableTags.setColumnCount(columns_number)
             tablerow=0
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(11):
+                for column in range(columns_number):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -654,98 +663,12 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
 
                 tablerow+=1
 
-            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Cliente', 'Precio', 'Tipo', 'Modelo', 'Material', 'Nº Doc. Plano', 'Nº Plano Dim.', 'Nº Plano OF']
-            
-            self.tableTags.verticalHeader().hide()
-            self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
-            self.tableTags.setSortingEnabled(False)
-            self.tableTags.setHorizontalHeaderLabels(column_headers)
-            self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-            if self.role == 'Técnico':
-                self.tableTags.hideColumn(4)
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-# Function to query tags when filters are applied
-    def querytags_filtered(self):
-        """
-        Queries the database for filtered level tags, configures and populates tables with the query results, 
-        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
-        """
-        self.tableTags.setRowCount(0)
-
-        tag = self.tag.text()
-        model = self.model.currentText()
-        material = self.material.currentText()
-
-        query_material = ("""
-                        SELECT tags."tag", tags."num_offer", tags."num_order", offers."client", tags."amount",
-                        tags."model_num", tags."body_material",
-                        tags."dwg_num_doc_eipsa", tags."dim_drawing", tags."of_drawing"
-                        FROM tags_data.tags_level AS tags
-                        JOIN offers ON (offers."num_offer" = tags."num_offer")
-                        WHERE (UPPER(tags."tag") LIKE UPPER('%%'||%s||'%%')
-                        AND
-                        tags."model_num" LIKE ('%%'||%s||'%%')
-                        AND
-                        tags."body_material" LIKE ('%%'||%s||'%%'))
-                        ORDER BY tags."tag"
-                        """)
-
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            data = (tag, model, material,)
-            cur.execute(query_material, data)
-            results=cur.fetchall()
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-
-            self.tableTags.setRowCount(len(results))
-            self.tableTags.setColumnCount(10)
-            tablerow=0
-
-        # fill the Qt Table with the query results
-            for row in results:
-                for column in range(10):
-                    value = row[column]
-                    if value is None:
-                        value = ''
-                    it = QtWidgets.QTableWidgetItem(str(value))
-                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                    self.tableTags.setItem(tablerow, column, it)
-
-                tablerow+=1
-
-            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Cliente', 'Precio', 'Modelo', 'Material', 'Nº Doc. Plano', 'Nº Plano Dim.', 'Nº Plano OF']
-            
             self.tableTags.verticalHeader().hide()
             self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
             self.tableTags.setSortingEnabled(False)
             self.tableTags.setHorizontalHeaderLabels(column_headers)
             self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-            if self.role == 'Técnico':
-                self.tableTags.hideColumn(4)
+            # self.tableTags.horizontalHeader().setSectionResizeMode(12,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -755,6 +678,7 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
                         + str(error))
+            print(error)
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
             del dlg, new_icon
@@ -762,7 +686,7 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-#Function when clicking on table header
+# Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
         """
         Handles the click event on the table header.
@@ -773,81 +697,11 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
         popup_pos = self.tableTags.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableTags.show_unique_values_menu(logical_index, popup_pos, header_height)
 
-# Function to load values into comboboxes
-    def load_values(self):
-        """
-        Loads different data from the database into the selection widgets.
-
-        Raises:
-            psycopg2.DatabaseError: If a database error occurs during the SQL execution.
-        """
-        query_model = ("""
-                        SELECT type."model_num"
-                        FROM validation_data.level_model_num AS type
-                        ORDER BY type."model_num"
-                        """)
-        
-        query_material = ("""
-                        SELECT flange."body_mat"
-                        FROM validation_data.level_body_mat AS flange
-                        ORDER BY flange."body_mat"
-                        """)
 
 
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-            cur.execute(query_model)
-            results_model=cur.fetchall()
-
-            cur.execute(query_material)
-            results_material=cur.fetchall()
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-
-            list_model = [x[0] for x in results_model]
-            list_material = [x[0] for x  in results_material]
-
-            self.model.addItems([''] + list_model)
-            self.material.addItems([''] + list_material)
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-# Function to open window with price history of tags
-    def open_price_history(self):
-        """
-        Opens the price history table window.
-        """
-        from TAGQueryPriceHist_Window import Ui_TAGQueryPriceHist_Window
-
-        self.pricehist_window = QtWidgets.QMainWindow()
-        self.ui = Ui_TAGQueryPriceHist_Window('Nivel')
-        self.ui.setupUi(self.pricehist_window)
-        self.pricehist_window.showMaximized()
-
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     TAGQueryLevel_Window = Ui_TAGQueryLevel_Window('Comercial')
-#     TAGQueryLevel_Window.show()
-#     sys.exit(app.exec())
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    TAGQueryPriceHist_Window = Ui_TAGQueryPriceHist_Window('Temperatura')
+    TAGQueryPriceHist_Window.show()
+    sys.exit(app.exec())
