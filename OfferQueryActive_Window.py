@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'TAGQueryPriceHist_Window.ui'
+# Form implementation generated from reading ui file 'OfferQueryActive_Window.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -451,36 +451,32 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-class Ui_TAGQueryPriceHist_Window(QtWidgets.QMainWindow):
+class Ui_OfferQueryActive_Window(QtWidgets.QMainWindow):
     """
-    UI class for the Query Tag Price window.
+    UI class for the Offer Active window.
     """
-    def __init__(self, variable):
+    def __init__(self):
         """
-        Initializes the Ui_TAGQueryPriceHist_Window with the specified role.
-
-        Args:
-            variable (str): variable associated with the window.
+        Initializes the Ui_OfferQueryActive_Window with the specified role.
         """
         super().__init__()
-        self.variable = variable
         self.setupUi(self)
 
-    def setupUi(self, TAGQueryPriceHist_Window):
+    def setupUi(self, OfferQueryActive_Window):
         """
-        Sets up the user interface for the TAGQueryPriceHist_Window.
+        Sets up the user interface for the OfferQueryActive_Window.
 
         Args:
-            TAGQueryPriceHist_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+            OfferQueryActive_Window (QtWidgets.QMainWindow): The main window for the UI setup.
         """
-        TAGQueryPriceHist_Window.setObjectName("TAGQueryPriceHist_Window")
-        TAGQueryPriceHist_Window.resize(400, 561)
-        TAGQueryPriceHist_Window.setMinimumSize(QtCore.QSize(1000, 675))
-        # TAGQueryPriceHist_Window.setMaximumSize(QtCore.QSize(600, 575))
+        OfferQueryActive_Window.setObjectName("OfferQueryActive_Window")
+        OfferQueryActive_Window.resize(400, 561)
+        OfferQueryActive_Window.setMinimumSize(QtCore.QSize(1000, 675))
+        # OfferQueryActive_Window.setMaximumSize(QtCore.QSize(600, 575))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        TAGQueryPriceHist_Window.setWindowIcon(icon)
-        TAGQueryPriceHist_Window.setStyleSheet("QWidget {\n"
+        OfferQueryActive_Window.setWindowIcon(icon)
+        OfferQueryActive_Window.setStyleSheet("QWidget {\n"
     "background-color: rgb(255, 255, 255);\n"
     "}\n"
     "\n"
@@ -515,7 +511,7 @@ class Ui_TAGQueryPriceHist_Window(QtWidgets.QMainWindow):
     "    background-color: rgb(1, 140, 190);\n"
     "    border-color: rgb(255, 255, 255);\n"
     "}")
-        self.centralwidget = QtWidgets.QWidget(parent=TAGQueryPriceHist_Window)
+        self.centralwidget = QtWidgets.QWidget(parent=OfferQueryActive_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -527,111 +523,98 @@ class Ui_TAGQueryPriceHist_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.setObjectName("gridLayout_2")
         spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 1)
-        self.tableTags = CustomTableWidget()
-        self.tableTags.setObjectName("tableWidget")
-        self.tableTags.setColumnCount(0)
-        self.tableTags.setRowCount(0)
-        self.gridLayout_2.addWidget(self.tableTags, 1, 0, 1, 6)
+        self.tableOffer = CustomTableWidget()
+        self.tableOffer.setObjectName("tableWidget")
+        self.tableOffer.setColumnCount(11)
+        self.tableOffer.setRowCount(0)
+        for i in range(11):
+            item = QtWidgets.QTableWidgetItem()
+            font = QtGui.QFont()
+            font.setPointSize(10)
+            font.setBold(True)
+            item.setFont(font)
+            self.tableOffer.setHorizontalHeaderItem(i, item)
+        self.tableOffer.verticalHeader().setVisible(False)
+        self.gridLayout_2.addWidget(self.tableOffer, 1, 0, 1, 6)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.gridLayout_2.addItem(spacerItem1, 1, 1, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
-        TAGQueryPriceHist_Window.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=TAGQueryPriceHist_Window)
+        OfferQueryActive_Window.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=OfferQueryActive_Window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 400, 22))
         self.menubar.setObjectName("menubar")
-        TAGQueryPriceHist_Window.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=TAGQueryPriceHist_Window)
+        OfferQueryActive_Window.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=OfferQueryActive_Window)
         self.statusbar.setObjectName("statusbar")
-        TAGQueryPriceHist_Window.setStatusBar(self.statusbar)
-        self.tableTags.verticalHeader().setVisible(True)
-        self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.tableTags.setSortingEnabled(False)
-        self.tableTags.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
-        # TAGQueryPriceHist_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
+        OfferQueryActive_Window.setStatusBar(self.statusbar)
+        self.tableOffer.verticalHeader().setVisible(True)
+        self.tableOffer.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableOffer.horizontalHeader().setDefaultSectionSize(150)
+        self.tableOffer.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableOffer.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableOffer.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableOffer.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableOffer.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableOffer.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableOffer.setSortingEnabled(False)
+        self.tableOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+        # OfferQueryActive_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
-        self.retranslateUi(TAGQueryPriceHist_Window)
-        QtCore.QMetaObject.connectSlotsByName(TAGQueryPriceHist_Window)
+        self.retranslateUi(OfferQueryActive_Window)
+        QtCore.QMetaObject.connectSlotsByName(OfferQueryActive_Window)
 
-        self.tableTags.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
+        self.tableOffer.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
 
-        self.querytags()
-
+        self.load_offers()
 
 # Function to translate and updates the text of various UI elements
-    def retranslateUi(self, TAGQueryPriceHist_Window):
+    def retranslateUi(self, OfferQueryActive_Window):
         """
         Translates and updates the text of various UI elements.
         """
         _translate = QtCore.QCoreApplication.translate
-        TAGQueryPriceHist_Window.setWindowTitle(_translate("TAGQueryPriceHist_Window", "Consultar Precios"))
+        OfferQueryActive_Window.setWindowTitle(_translate("OfferQueryActive_Window", "Ofertas Activas"))
+        item = self.tableOffer.horizontalHeaderItem(0)
+        item.setText(_translate("OfferQueryActive_Window", "Nº Oferta"))
+        item = self.tableOffer.horizontalHeaderItem(1)
+        item.setText(_translate("OfferQueryActive_Window", "Estado"))
+        item = self.tableOffer.horizontalHeaderItem(2)
+        item.setText(_translate("OfferQueryActive_Window", "Responsable"))
+        item = self.tableOffer.horizontalHeaderItem(3)
+        item.setText(_translate("OfferQueryActive_Window", "Cliente"))
+        item = self.tableOffer.horizontalHeaderItem(4)
+        item.setText(_translate("OfferQueryActive_Window", "Cliente Final"))
+        item = self.tableOffer.horizontalHeaderItem(5)
+        item.setText(_translate("OfferQueryActive_Window", "Fecha Pres."))
+        item = self.tableOffer.horizontalHeaderItem(6)
+        item.setText(_translate("OfferQueryActive_Window", "Material"))
+        item = self.tableOffer.horizontalHeaderItem(7)
+        item.setText(_translate("OfferQueryActive_Window", "Importe"))
+        item = self.tableOffer.horizontalHeaderItem(8)
+        item.setText(_translate("OfferQueryActive_Window", "Notas"))
+        item = self.tableOffer.horizontalHeaderItem(9)
+        item.setText(_translate("OfferQueryActive_Window", "Ptos. Importantes"))
+        item = self.tableOffer.horizontalHeaderItem(10)
+        item.setText(_translate("OfferQueryActive_Window", "Seguimiento"))
+        __sortingEnabled = self.tableOffer.isSortingEnabled()
+        self.tableOffer.setSortingEnabled(False)
+        self.tableOffer.setSortingEnabled(__sortingEnabled)
 
 # Function to query tags
-    def querytags(self):
+    def load_offers(self):
         """
-        Queries the database for all tags, configures and populates tables with the query results, 
+        Queries the database for active offers, configures and populates tables with the query results, 
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
-        self.tableTags.setRowCount(0)
-        if self.variable == 'Caudal':
-            query_tags = ("""
-                            SELECT tags."tag", prices."num_offer", prices."num_order", prices."item_type",
-                            prices."f_size", prices."f_rating", prices."f_facing", prices."f_flange_material", prices."f_element_material",
-                            prices."amount_tag", TO_CHAR(prices."date_amount",'DD/MM/YYYY')
-                            FROM tags_data.price_hist_tags AS prices
-                            JOIN tags_data.tags_flow AS tags ON (tags."id_tag_flow" = prices."id_tag")
-                            WHERE prices."table_name" = 'tags_data.tags_flow'
-                            ORDER BY prices."num_offer"
-                            """)
-            columns_number = 11
-            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Equipo',
-                                'Tamaño', 'Rating', 'Facing', 'Mat. Brida', 'Mat. Equipo',
-                                'Precio', 'Fecha']
-
-        elif self.variable == 'Temperatura':
-            query_tags = ("""
-                            SELECT tags."tag", prices."num_offer", prices."num_order", prices."item_type",
-                            prices."t_type_tw", prices."t_size", prices."t_rating", prices."t_facing", prices."t_tw_material", prices."t_insertion",
-                            prices."amount_tag", TO_CHAR(prices."date_amount",'DD/MM/YYYY')
-                            FROM tags_data.price_hist_tags AS prices
-                            JOIN tags_data.tags_temp AS tags ON (tags."id_tag_temp" = prices."id_tag")
-                            WHERE prices."table_name" = 'tags_data.tags_temp'
-                            ORDER BY prices."num_offer"
-                            """)
-            columns_number = 12
-            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Equipo',
-                                'Tipo TW', 'Tamaño', 'Rating', 'Facing', 'Mat. TW', 'Inserción',
-                                'Precio', 'Fecha']
-
-        elif self.variable == 'Nivel':
-            query_tags = ("""
-                            SELECT tags."tag", prices."num_offer", prices."num_order", prices."item_type",
-                            prices."l_model", prices."l_material",
-                            prices."amount_tag", TO_CHAR(prices."date_amount",'DD/MM/YYYY')
-                            FROM tags_data.price_hist_tags AS prices
-                            JOIN tags_data.tags_level AS tags ON (tags."id_tag_level" = prices."id_tag")
-                            WHERE prices."table_name" = 'tags_data.tags_level'
-                            ORDER BY prices."num_offer"
-                            """)
-            columns_number = 8
-            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Equipo',
-                                'Modelo', 'Material',
-                                'Precio', 'Fecha']
-
-        elif self.variable == 'Otros':
-            query_tags = ("""
-                            SELECT tags."tag", prices."num_offer", prices."num_order", prices."item_type",
-                            prices."o_description",
-                            prices."amount_tag", TO_CHAR(prices."date_amount",'DD/MM/YYYY')
-                            FROM tags_data.price_hist_tags AS prices
-                            JOIN tags_data.tags_others AS tags ON (tags."id_tag_others" = prices."id_tag")
-                            WHERE prices."table_name" = 'tags_data.tags_others'
-                            ORDER BY prices."num_offer"
-                            """)
-            columns_number = 7
-            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Equipo',
-                                'Descripción',
-                                'Precio', 'Fecha']
-
+        commands_appcomercial = ("""
+                    SELECT "num_offer","state","responsible","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","notes","important","tracking"
+                    FROM offers
+                    WHERE (("state" = 'Presentada'
+                    OR
+                    "state" = 'Registrada'
+                    ))
+                    ORDER BY "num_offer"
+                    """)
         conn = None
         try:
         # read the connection parameters
@@ -639,37 +622,31 @@ class Ui_TAGQueryPriceHist_Window(QtWidgets.QMainWindow):
         # connect to the PostgreSQL server
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
-            cur.execute(query_tags)
+        # execution of commands
+            cur.execute(commands_appcomercial)
             results=cur.fetchall()
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-
-            self.tableTags.setRowCount(len(results))
-            self.tableTags.setColumnCount(columns_number)
+            self.tableOffer.setRowCount(len(results))
             tablerow=0
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(columns_number):
+                for column in range(11):
                     value = row[column]
                     if value is None:
                         value = ''
                     it = QtWidgets.QTableWidgetItem(str(value))
                     it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                    self.tableTags.setItem(tablerow, column, it)
+                    self.tableOffer.setItem(tablerow, column, it)
 
                 tablerow+=1
 
-            self.tableTags.verticalHeader().hide()
-            self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
-            self.tableTags.setSortingEnabled(False)
-            self.tableTags.setHorizontalHeaderLabels(column_headers)
-            self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-            # self.tableTags.horizontalHeader().setSectionResizeMode(12,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableOffer.verticalHeader().hide()
+            self.tableOffer.setItemDelegate(AlignDelegate(self.tableOffer))
 
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
@@ -678,7 +655,6 @@ class Ui_TAGQueryPriceHist_Window(QtWidgets.QMainWindow):
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
                         + str(error))
-            print(error)
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
             del dlg, new_icon
@@ -686,22 +662,24 @@ class Ui_TAGQueryPriceHist_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
+        self.tableOffer.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
+
 # Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
         """
         Handles the click event on the table header.
         Displays a context menu for unique values in the clicked column header.
         """
-        header_pos = self.tableTags.horizontalHeader().sectionViewportPosition(logical_index)
-        header_height = self.tableTags.horizontalHeader().height()
-        popup_pos = self.tableTags.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
-        self.tableTags.show_unique_values_menu(logical_index, popup_pos, header_height)
+        header_pos = self.tableOffer.horizontalHeader().sectionViewportPosition(logical_index)
+        header_height = self.tableOffer.horizontalHeader().height()
+        popup_pos = self.tableOffer.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
+        self.tableOffer.show_unique_values_menu(logical_index, popup_pos, header_height)
 
 
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    TAGQueryPriceHist_Window = Ui_TAGQueryPriceHist_Window('Temperatura')
-    TAGQueryPriceHist_Window.show()
+    OfferQueryActive_Window = Ui_OfferQueryActive_Window('Temperatura')
+    OfferQueryActive_Window.show()
     sys.exit(app.exec())

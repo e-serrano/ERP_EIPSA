@@ -20,6 +20,9 @@ from PDF_Styles import welding_homologation
 from openpyxl import Workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
+import configparser
+from Database_Connection import createConnection
+from TAGEdit_Commercial_Window import Ui_EditTags_Commercial_Window
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -611,6 +614,67 @@ class Ui_App_Purchasing(object):
         self.Button_Warehouse.setObjectName("Button_Warehouse")
         self.Button_Warehouse.setToolTip("Almacén")
         self.Header.addWidget(self.Button_Warehouse)
+
+        spacerItem6 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem6)
+        self.Button_ActiveOffer = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_ActiveOffer.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_ActiveOffer.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_ActiveOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'd.marquez':
+            self.Button_ActiveOffer.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_ActiveOffer.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_ActiveOffer.setText("")
+        icon12 = QtGui.QIcon()
+        icon12.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Offer_Pending.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_ActiveOffer.setIcon(icon12)
+        self.Button_ActiveOffer.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_ActiveOffer.setObjectName("Button_ActiveOffer")
+        self.Button_ActiveOffer.setToolTip("Ofertas Activas")
+        self.Header.addWidget(self.Button_ActiveOffer)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -808,6 +872,20 @@ class Ui_App_Purchasing(object):
         self.Button_QueryTag.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
         self.Button_QueryTag.setObjectName("Button_QueryTag")
         self.verticalLayout_3.addWidget(self.Button_QueryTag)
+        self.Button_QueryTagPrices = QtWidgets.QPushButton(parent=self.ButtonFrame)
+        self.Button_QueryTagPrices.setMinimumSize(QtCore.QSize(int(200//1.5), int(50//1.5)))
+        self.Button_QueryTagPrices.setMaximumSize(QtCore.QSize(int(200//1.5), int(50//1.5)))
+        font = QtGui.QFont()
+        font.setPointSize(int(12//1.5))
+        font.setBold(True)
+        self.Button_QueryTagPrices.setFont(font)
+        self.Button_QueryTagPrices.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/TAG_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_QueryTagPrices.setIcon(icon5)
+        self.Button_QueryTagPrices.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_QueryTagPrices.setObjectName("Button_QueryTagPrices")
+        self.verticalLayout_3.addWidget(self.Button_QueryTagPrices)
         self.PrincipalScreen.addWidget(self.ButtonFrame)
         spacerItem4 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.PrincipalScreen.addItem(spacerItem4)
@@ -816,22 +894,22 @@ class Ui_App_Purchasing(object):
         self.tableOffer = CustomTableWidget()
         self.tableOffer.setMinimumSize(QtCore.QSize(650, 280))
         self.tableOffer.setObjectName("tableOffer")
-        self.tableOffer.setColumnCount(11)
+        # self.tableOffer.setColumnCount(11)
         self.tableOffer.setRowCount(0)
-        for i in range(11):
-            item = QtWidgets.QTableWidgetItem()
-            font = QtGui.QFont()
-            font.setPointSize(10)
-            font.setBold(True)
-            item.setFont(font)
-            self.tableOffer.setHorizontalHeaderItem(i, item)
-        self.tableOffer.verticalHeader().setVisible(False)
-        self.tableOffer.setSortingEnabled(False)
-        if self.username == 'd.marquez':
-            self.tableOffer.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-        else:
-            self.tableOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
+        # for i in range(11):
+        #     item = QtWidgets.QTableWidgetItem()
+        #     font = QtGui.QFont()
+        #     font.setPointSize(10)
+        #     font.setBold(True)
+        #     item.setFont(font)
+        #     self.tableOffer.setHorizontalHeaderItem(i, item)
+        # self.tableOffer.verticalHeader().setVisible(False)
+        # self.tableOffer.setSortingEnabled(False)
+        # if self.username == 'd.marquez':
+        #     self.tableOffer.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+        #     self.tableOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+        # else:
+        #     self.tableOffer.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         self.MainLayout.addWidget(self.tableOffer)
         spacerItem5 = QtWidgets.QSpacerItem(20, 5, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.MainLayout.addItem(spacerItem5)
@@ -858,69 +936,13 @@ class Ui_App_Purchasing(object):
         self.Button_QueryOffer.clicked.connect(self.query_offer)
         self.Button_QueryOrder.clicked.connect(self.query_order)
         self.Button_QueryTag.clicked.connect(self.query_tag)
+        self.Button_QueryTagPrices.clicked.connect(self.query_tag_prices)
         self.Button_Profile.clicked.connect(self.showMenu)
         self.Button_Welding.clicked.connect(self.welding_data)
         self.Button_Warehouse.clicked.connect(self.warehouse_app)
+        self.Button_ActiveOffer.clicked.connect(self.open_active_offers)
 
         self.backup_data()
-
-        commands_appcomercial = ("""
-                    SELECT "num_offer","state","responsible","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","notes","important","tracking"
-                    FROM offers
-                    WHERE (("state" = 'Presentada'
-                    OR
-                    "state" = 'Registrada'
-                    ))
-                    ORDER BY "num_offer"
-                    """)
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_appcomercial)
-            results=cur.fetchall()
-            self.tableOffer.setRowCount(len(results))
-            tablerow=0
-
-        # fill the Qt Table with the query results
-            for row in results:
-                for column in range(11):
-                    value = row[column]
-                    if value is None:
-                        value = ''
-                    it = QtWidgets.QTableWidgetItem(str(value))
-                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                    self.tableOffer.setItem(tablerow, column, it)
-
-                tablerow+=1
-
-            self.tableOffer.verticalHeader().hide()
-            self.tableOffer.setItemDelegate(AlignDelegate(self.tableOffer))
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-        self.tableOffer.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
 
 
 # Function to translate and updates the text of various UI elements
@@ -935,31 +957,7 @@ class Ui_App_Purchasing(object):
         self.Button_QueryOffer.setText(_translate("App_Purchasing", "    Consultar Ofertas"))
         self.Button_QueryOrder.setText(_translate("App_Purchasing", "   Consultar Pedidos"))
         self.Button_QueryTag.setText(_translate("App_Purchasing", "    Consultar TAG(s)"))
-        item = self.tableOffer.horizontalHeaderItem(0)
-        item.setText(_translate("App_SubManager", "Nº Oferta"))
-        item = self.tableOffer.horizontalHeaderItem(1)
-        item.setText(_translate("App_SubManager", "Estado"))
-        item = self.tableOffer.horizontalHeaderItem(2)
-        item.setText(_translate("App_SubManager", "Responsable"))
-        item = self.tableOffer.horizontalHeaderItem(3)
-        item.setText(_translate("App_SubManager", "Cliente"))
-        item = self.tableOffer.horizontalHeaderItem(4)
-        item.setText(_translate("App_SubManager", "Cliente Final"))
-        item = self.tableOffer.horizontalHeaderItem(5)
-        item.setText(_translate("App_SubManager", "Fecha Pres."))
-        item = self.tableOffer.horizontalHeaderItem(6)
-        item.setText(_translate("App_SubManager", "Material"))
-        item = self.tableOffer.horizontalHeaderItem(7)
-        item.setText(_translate("App_SubManager", "Importe"))
-        item = self.tableOffer.horizontalHeaderItem(8)
-        item.setText(_translate("App_SubManager", "Notas"))
-        item = self.tableOffer.horizontalHeaderItem(9)
-        item.setText(_translate("App_SubManager", "Ptos. Importantes"))
-        item = self.tableOffer.horizontalHeaderItem(10)
-        item.setText(_translate("App_SubManager", "Seguimiento"))
-        __sortingEnabled = self.tableOffer.isSortingEnabled()
-        self.tableOffer.setSortingEnabled(False)
-        self.tableOffer.setSortingEnabled(__sortingEnabled)
+        self.Button_QueryTagPrices.setText(_translate("App_Purchasing", "    Consultar €€ TAG(s)"))
 
 # Function to open menu with purchase department functions
     def purchase(self):
@@ -981,7 +979,7 @@ class Ui_App_Purchasing(object):
         self.query_offer_window=QtWidgets.QMainWindow()
         self.ui=Ui_QueryOffer_Window()
         self.ui.setupUi(self.query_offer_window)
-        self.query_offer_window.show()
+        self.query_offer_window.showMaximized()
 
 # Function to open window for query orders
     def query_order(self):
@@ -992,10 +990,29 @@ class Ui_App_Purchasing(object):
         self.query_order_window=QtWidgets.QMainWindow()
         self.ui=Ui_QueryOrder_Window()
         self.ui.setupUi(self.query_order_window)
-        self.query_order_window.show()
+        self.query_order_window.showMaximized()
 
 # Function to open window for query tags
     def query_tag(self):
+        """
+        Opens the "Edit Tags Commercial" window, establishes a database connection and closes the current menu.
+        """
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_tag_com = createConnection(user_database, password_database)
+        if not db_tag_com:
+            sys.exit()
+
+        self.edit_tags_app = Ui_EditTags_Commercial_Window(db_tag_com)
+        self.edit_tags_app.showMaximized()
+
+# Function to open window for query tags prices
+    def query_tag_prices(self):
         """
         Opens a new window for querying tags. 
         """
@@ -1440,6 +1457,7 @@ class Ui_App_Purchasing(object):
         value = value[: value.find(" €")]
         return float(value)
 
+# Function to open warehouse window
     def warehouse_app(self):
         """
         Opens the warehouse application window.
@@ -1460,6 +1478,18 @@ class Ui_App_Purchasing(object):
         header_height = self.tableOffer.horizontalHeader().height()
         popup_pos = self.tableOffer.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableOffer.show_unique_values_menu(logical_index, popup_pos, header_height)
+
+# Function to open active offers window
+    def open_active_offers(self):
+        """
+        Opens a new window for querying active offers. 
+        """
+        from OfferQueryActive_Window import Ui_OfferQueryActive_Window
+        self.query_active_offer_window=QtWidgets.QMainWindow()
+        self.ui=Ui_OfferQueryActive_Window()
+        self.ui.setupUi(self.query_active_offer_window)
+        self.query_active_offer_window.showMaximized()
+
 
 if __name__ == "__main__":
     import sys
