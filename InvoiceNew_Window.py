@@ -1950,7 +1950,8 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.gridLayout_4.addWidget(self.Button_SearchInvoice, 4, 8, 1, 2)
         self.tableRecords = QtWidgets.QTableView(parent=self.scrollAreaWidgetContents)
         self.tableRecords.setObjectName("tableRecords")
-        self.tableRecords.setMaximumSize(QtCore.QSize(16777215, 250))
+        self.tableRecords.setMinimumSize(QtCore.QSize(16777215, 350))
+        # self.tableRecords.setMaximumSize(QtCore.QSize(16777215, 250))
         self.gridLayout_4.addWidget(self.tableRecords, 8, 0, 1, 10)
         self.label_Qty_Elements = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
         self.label_Qty_Elements.setMinimumSize(QtCore.QSize(0, 25))
@@ -2720,8 +2721,8 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         # self.tableInvoice = QtWidgets.QTableView(parent=self.frame)
         self.tableInvoice = CustomTableWidgetInvoice()
         self.tableInvoice.setObjectName("tableInvoice")
-        self.tableInvoice.setMinimumSize(QtCore.QSize(0, 250))
-        self.tableInvoice.setMaximumSize(QtCore.QSize(16777215, 250))
+        self.tableInvoice.setMinimumSize(QtCore.QSize(16777215, 250))
+        # self.tableInvoice.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.tableInvoice.setColumnCount(13)
         for i in range(13):
             item = QtWidgets.QTableWidgetItem()
@@ -2784,6 +2785,104 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.Button_New.setIconSize(QtCore.QSize(20, 20))
         self.Button_New.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.gridLayout_bottom.addWidget(self.Button_New, 0, 0, 1, 1)
+        self.Button_Up= QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Up.setMinimumSize(QtCore.QSize(30, 25))
+        self.Button_Up.setMaximumSize(QtCore.QSize(30, 25))
+        self.Button_Up.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Up.setAutoDefault(True)
+        self.Button_Up.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 8px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}\n"
+"\n"
+"QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:focus:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        self.Button_Up.setObjectName("Button_Up")
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Arrow_Up.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Up.setIcon(icon3)
+        self.Button_Up.setIconSize(QtCore.QSize(20, 20))
+        self.Button_Up.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.gridLayout_bottom.addWidget(self.Button_Up, 0, 1, 1, 1)
+        self.Button_Down= QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Down.setMinimumSize(QtCore.QSize(30, 25))
+        self.Button_Down.setMaximumSize(QtCore.QSize(30, 25))
+        self.Button_Down.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Down.setAutoDefault(True)
+        self.Button_Down.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 8px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}\n"
+"\n"
+"QPushButton:focus{\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:focus:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        self.Button_Down.setObjectName("Button_Down")
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Arrow_Down.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Down.setIcon(icon3)
+        self.Button_Down.setIconSize(QtCore.QSize(20, 20))
+        self.Button_Down.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.gridLayout_bottom.addWidget(self.Button_Down, 0, 2, 1, 1)
         self.label_filter = QtWidgets.QLabel(parent=self.frame)
         self.label_filter.setMinimumSize(QtCore.QSize(50, 25))
         self.label_filter.setMaximumSize(QtCore.QSize(50, 25))
@@ -2793,12 +2892,12 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.label_filter.setFont(font)
         self.label_filter.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_filter.setObjectName("label_filter")
-        self.gridLayout_bottom.addWidget(self.label_filter, 0, 1, 1, 1)
+        self.gridLayout_bottom.addWidget(self.label_filter, 0, 3, 1, 1)
         self.Filter_Invoice = QtWidgets.QLineEdit(parent=self.frame)
         self.Filter_Invoice.setMinimumSize(QtCore.QSize(100, 25))
         self.Filter_Invoice.setMaximumSize(QtCore.QSize(100, 25))
         self.Filter_Invoice.setObjectName("Filter_Invoice")
-        self.gridLayout_bottom.addWidget(self.Filter_Invoice, 0, 2, 1, 1)
+        self.gridLayout_bottom.addWidget(self.Filter_Invoice, 0, 4, 1, 1)
         self.Button_AcceptFilter = QtWidgets.QPushButton(parent=self.frame)
         self.Button_AcceptFilter.setMinimumSize(QtCore.QSize(30, 25))
         self.Button_AcceptFilter.setMaximumSize(QtCore.QSize(30, 25))
@@ -2847,7 +2946,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.Button_AcceptFilter.setIcon(icon1)
         self.Button_AcceptFilter.setIconSize(QtCore.QSize(20, 20))
         self.Button_AcceptFilter.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.gridLayout_bottom.addWidget(self.Button_AcceptFilter, 0, 3, 1, 1)
+        self.gridLayout_bottom.addWidget(self.Button_AcceptFilter, 0, 5, 1, 1)
         self.Button_DeleteFilter = QtWidgets.QPushButton(parent=self.frame)
         self.Button_DeleteFilter.setMinimumSize(QtCore.QSize(30, 25))
         self.Button_DeleteFilter.setMaximumSize(QtCore.QSize(30, 25))
@@ -2896,7 +2995,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.Button_DeleteFilter.setIcon(icon2)
         self.Button_DeleteFilter.setIconSize(QtCore.QSize(20, 20))
         self.Button_DeleteFilter.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self.gridLayout_bottom.addWidget(self.Button_DeleteFilter, 0, 4, 1, 1)
+        self.gridLayout_bottom.addWidget(self.Button_DeleteFilter, 0, 6, 1, 1)
         self.label_filter_xxx = QtWidgets.QLabel(parent=self.frame)
         self.label_filter_xxx.setMinimumSize(QtCore.QSize(0, 25))
         self.label_filter_xxx.setMaximumSize(QtCore.QSize(16777215, 25))
@@ -2906,7 +3005,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.label_filter_xxx.setFont(font)
         self.label_filter_xxx.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_filter_xxx.setObjectName("label_filter_xxx")
-        self.gridLayout_bottom.addWidget(self.label_filter_xxx, 0, 5, 1, 1)
+        self.gridLayout_bottom.addWidget(self.label_filter_xxx, 0, 7, 1, 1)
         self.gridLayout_2.addLayout(self.layout_vertical,0,0,1,1)
         self.gridLayout_2.addLayout(self.gridLayout_bottom,1,0,1,1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
@@ -2970,6 +3069,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.Client_Invoice.addItems(list_clients)
         self.DestCountry_Invoice.addItems(sorted(list_destcountry))
         self.Application_Invoice.addItems(['','CAUDAL','NIVELES','OTROS','TEMPERATURA'])
+
     # Adding function when changing combobox value
         self.Client_Invoice.currentTextChanged.connect(self.clientchange)
         self.DestCountry_Invoice.currentTextChanged.connect(self.destcountrychange)
@@ -2983,6 +3083,9 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.Button_DelivNote.clicked.connect(self.generate_delivnote)
 
         self.Button_New.clicked.connect(self.createinvoice)
+        self.Button_Up.clicked.connect(self.go_top)
+        self.Button_Down.clicked.connect(self.go_bottom)
+
         self.Button_AcceptFilter.clicked.connect(self.filterinvoicetable)
         self.Filter_Invoice.returnPressed.connect(self.filterinvoicetable)
         self.Button_DeleteFilter.clicked.connect(self.loadinvoicetable)
@@ -2993,6 +3096,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
     # Adding function when editing the value of currency change €/$
         self.ValCotDollar_Invoice.returnPressed.connect(self.calculate_totalorder)
         self.ValCotDollar_Invoice.editingFinished.connect(self.calculate_totalorder)
+
     # Adding function when editing the value of aditional concepts
         self.Date_Invoice.editingFinished.connect(self.save_data_on_database)
         self.InvoiceNumber_Invoice.editingFinished.connect(self.save_data_on_database)
@@ -3062,7 +3166,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             finally:
                 if conn is not None:
                     conn.close()
-            
+
             self.label_IDInvoice.setText(str(results_invoices[0][0]))
 
             self.Filter_Invoice.textChanged.connect(self.position_table(self.numinvoice))
@@ -4776,7 +4880,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             self.ProvinceAlb_Invoice.setText(str(results_invoices[0][43]))
             self.CountryAlb_Invoice.setText(str(results_invoices[0][44]))
             self.ObsAlb_Invoice.setText(str(results_invoices[0][45]))
-            self.label_ClientGroup.setText(str(results_invoices[0][46]))
+            self.label_ClientGroup.setText(str(results_invoices[0][46]) if results_invoices[0][46] is not None else '')
             self.PayDate_Invoice.setText(str(results_invoices[0][47]) if results_invoices[0][47] is not None else '')
             self.AgInterm.setText(str(results_invoices[0][48]) if results_invoices[0][48] is not None else '')
             self.AgIntermOk.setText(str(results_invoices[0][49]) if results_invoices[0][49] is not None else '')
@@ -5372,7 +5476,6 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
         return None
 
-
 # Function to move table to specific item by text search
     def position_table(self, invoice_tocheck = None):
         """
@@ -5392,6 +5495,31 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                 self.tableInvoice.scrollToItem(item)
                 self.loadforminvoice(item.row())
                 return
+
+# Function to go to first register
+    def go_top(self):
+        """
+        Selects and scrolls to the first row
+        """
+        item = self.tableInvoice.item(0, 1)
+        item.setSelected(True)
+        self.tableInvoice.scrollToItem(item)
+        self.loadforminvoice(item.row())
+
+# Function to go to last register
+    def go_bottom(self):
+        """
+        Selects and scrolls to the last row
+        """
+        last_row = self.tableInvoice.rowCount() - 1
+
+        item = self.tableInvoice.item(last_row, 1)
+        item.setSelected(True)
+        self.tableInvoice.scrollToItem(item)
+        self.loadforminvoice(item.row())
+
+
+
 
 
 if __name__ == "__main__":
