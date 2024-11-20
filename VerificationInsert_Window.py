@@ -1792,12 +1792,56 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                     del dlg_yes_no, new_icon_yes_no
 
                             if self.label_manometer1.checkState() == QtCore.Qt.CheckState.Checked:
-                                commands_hydrotest = f"UPDATE {table_name} SET ph1_date = '{test_date}', ph1_manometer = '{manometer1}', ph1_pressure = '{pressure1}', ph1_state = '{state}', ph1_obs = '{notes}' WHERE {id_column} = {id_value}"
-                                cur.execute(commands_hydrotest)
+                                item_date_ph1 = self.tableTags.item(row_index, 10)
+                                date_ph1 = item_date_ph1.text() if item_date_ph1 is not None else ''
+
+                                if date_ph1 == '':
+                                    commands_hydrotest = f"UPDATE {table_name} SET ph1_date = '{test_date}', ph1_manometer = '{manometer1}', ph1_pressure = '{pressure1}', ph1_state = '{state}', ph1_obs = '{notes}' WHERE {id_column} = {id_value}"
+                                    cur.execute(commands_hydrotest)
+
+                                else:
+                                    dlg_yes_no = QtWidgets.QMessageBox()
+                                    new_icon_yes_no = QtGui.QIcon()
+                                    new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                                    dlg_yes_no.setWindowTitle("ERP EIPSA")
+                                    dlg_yes_no.setText(f"El tag {tag} ya tiene datos LP\n"
+                                                        "¿Estás seguro de que deseas sobreescribir los datos?")
+                                    dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                    dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                                    result = dlg_yes_no.exec()
+
+                                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                        commands_hydrotest = f"UPDATE {table_name} SET ph1_date = '{test_date}', ph1_manometer = '{manometer1}', ph1_pressure = '{pressure1}', ph1_state = '{state}', ph1_obs = '{notes}' WHERE {id_column} = {id_value}"
+                                        cur.execute(commands_hydrotest)
+
+                                    del dlg_yes_no, new_icon_yes_no
 
                             if self.label_manometer2.checkState() == QtCore.Qt.CheckState.Checked:
-                                commands_hydrotest = f"UPDATE {table_name} SET ph2_date = '{test_date}', ph2_manometer = '{manometer2}', ph2_pressure = '{pressure2}', ph2_state = '{state}', ph2_obs = '{notes}' WHERE {id_column} = {id_value}"
-                                cur.execute(commands_hydrotest)
+                                item_date_ph2 = self.tableTags.item(row_index, 11)
+                                date_ph2 = item_date_ph2.text() if item_date_ph2 is not None else ''
+
+                                if date_ph2 == '':
+                                    commands_hydrotest = f"UPDATE {table_name} SET ph2_date = '{test_date}', ph2_manometer = '{manometer2}', ph2_pressure = '{pressure2}', ph2_state = '{state}', ph2_obs = '{notes}' WHERE {id_column} = {id_value}"
+                                    cur.execute(commands_hydrotest)
+
+                                else:
+                                    dlg_yes_no = QtWidgets.QMessageBox()
+                                    new_icon_yes_no = QtGui.QIcon()
+                                    new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                                    dlg_yes_no.setWindowTitle("ERP EIPSA")
+                                    dlg_yes_no.setText(f"El tag {tag} ya tiene datos LP\n"
+                                                        "¿Estás seguro de que deseas sobreescribir los datos?")
+                                    dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                    dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                                    result = dlg_yes_no.exec()
+
+                                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                        commands_hydrotest = f"UPDATE {table_name} SET ph2_date = '{test_date}', ph2_manometer = '{manometer2}', ph2_pressure = '{pressure2}', ph2_state = '{state}', ph2_obs = '{notes}' WHERE {id_column} = {id_value}"
+                                        cur.execute(commands_hydrotest)
+
+                                    del dlg_yes_no, new_icon_yes_no
 
                             if self.label_lptest.checkState() == QtCore.Qt.CheckState.Checked:
                                 query_hn_liq = ("""SELECT liquid, heat_number FROM verification.liquid_heat_number""")
@@ -1812,8 +1856,30 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                 hn_liq2=match_liq2[0][1]
                                 hn_liq3=match_liq3[0][1]
 
-                                commands_liquidtest = f"UPDATE {table_name} SET lp_date = '{test_date}', lp_hn_liq1 = '{hn_liq1}', lp_hn_liq2 = '{hn_liq2}', lp_hn_liq3 = '{hn_liq3}', lp_state = '{state}', lp_obs = '{notes}' WHERE {id_column} = {id_value}"
-                                cur.execute(commands_liquidtest)
+                                item_date_lp = self.tableTags.item(row_index, 12)
+                                date_lp = item_date_lp.text() if item_date_lp is not None else ''
+
+                                if date_lp == '':
+                                        commands_liquidtest = f"UPDATE {table_name} SET lp_date = '{test_date}', lp_hn_liq1 = '{hn_liq1}', lp_hn_liq2 = '{hn_liq2}', lp_hn_liq3 = '{hn_liq3}', lp_state = '{state}', lp_obs = '{notes}' WHERE {id_column} = {id_value}"
+                                        cur.execute(commands_liquidtest)
+
+                                else:
+                                    dlg_yes_no = QtWidgets.QMessageBox()
+                                    new_icon_yes_no = QtGui.QIcon()
+                                    new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                                    dlg_yes_no.setWindowTitle("ERP EIPSA")
+                                    dlg_yes_no.setText(f"El tag {tag} ya tiene datos LP\n"
+                                                        "¿Estás seguro de que deseas sobreescribir los datos?")
+                                    dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                    dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                                    result = dlg_yes_no.exec()
+
+                                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                        commands_liquidtest = f"UPDATE {table_name} SET lp_date = '{test_date}', lp_hn_liq1 = '{hn_liq1}', lp_hn_liq2 = '{hn_liq2}', lp_hn_liq3 = '{hn_liq3}', lp_state = '{state}', lp_obs = '{notes}' WHERE {id_column} = {id_value}"
+                                        cur.execute(commands_liquidtest)
+
+                                    del dlg_yes_no, new_icon_yes_no
 
                         if self.label_manometer1.checkState() == QtCore.Qt.CheckState.Checked:
                             self.label_manometer1.setCheckState(QtCore.Qt.CheckState.Unchecked)
