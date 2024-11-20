@@ -1568,8 +1568,10 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         #     if background_color and isinstance(background_color, QtGui.QColor):
         #         background_colors.add(background_color)
 
-        valuesUnique_view = {self.tableSupplies.model().index(row, self.logicalIndex).data(QtCore.Qt.ItemDataRole.DisplayRole) for row in range(self.tableSupplies.model().rowCount())}
-        valuesUnique_view = [value.toString("dd/MM/yyyy") if isinstance(value, QtCore.QDate) else value for value in valuesUnique_view]
+        # valuesUnique_view = {self.tableSupplies.model().index(row, self.logicalIndex).data(QtCore.Qt.ItemDataRole.DisplayRole) for row in range(self.tableSupplies.model().rowCount())}
+        # valuesUnique_view = [value.toString("dd/MM/yyyy") if isinstance(value, QtCore.QDate) else value for value in valuesUnique_view]
+
+        valuesUnique_view = self.get_unique_values_from_db(self.tableSupplies.model(), self.logicalIndex)
         
         actionSortAscending = QtGui.QAction("Ordenar Ascendente", self.tableSupplies)
         actionSortAscending.triggered.connect(self.on_actionSortAscending_triggered)
@@ -2065,6 +2067,45 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
             self.ui=Ui_ReportPurRefDate_Window(self.username, self.reference_supply)
             self.ui.setupUi(self.purchaserefdate_window)
             self.purchaserefdate_window.showMaximized()
+
+
+    def get_unique_values_from_db(self, proxy_model, logicalIndex):
+        unique_values = []
+        source_model = proxy_model.sourceModel()
+        original_column_name = source_model.record().fieldName(logicalIndex)
+
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            cur.execute(f"SELECT DISTINCT {original_column_name} FROM purch_fact.supplies")
+            results=cur.fetchall()
+
+            for x in results:
+                value = x[0]
+                if isinstance(value, QtCore.QDate):
+                    value = value.toString("dd/MM/yyyy")
+                unique_values.append(str(value))
+        
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+        
+        return sorted(unique_values)
 
 
 
