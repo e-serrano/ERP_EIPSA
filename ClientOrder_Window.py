@@ -2447,12 +2447,8 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         Delete the corresponding entry in database after validating form inputs.
         """
         record_id=self.label_IDRecord.text()
-        supply_name=self.Supply_ClientOrder.currentText()
-        supply_name=supply_name[:supply_name.find(" |")]
-        quantity=self.Quantity_ClientOrder.text()
-        supply_id=self.Supply_ClientOrder.currentText().split("|")[-1].strip().split(":")[1]
 
-        if record_id == "":
+        if record_id == "" or self.Supply_ClientOrder.currentText() == '':
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -2464,6 +2460,10 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
             del dlg,new_icon
 
         else:
+            supply_name=self.Supply_ClientOrder.currentText()
+            supply_name=supply_name[:supply_name.find(" |")]
+            quantity=self.Quantity_ClientOrder.text()
+            supply_id=self.Supply_ClientOrder.currentText().split("|")[-1].strip().split(":")[1]
             commands_deleterecord = ("""
                                 DELETE FROM purch_fact.client_ord_detail
                                 WHERE purch_fact.client_ord_detail.id = %s
@@ -2514,7 +2514,8 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
 
             self.Supply_ClientOrder.setCurrentIndex(0)
             self.Quantity_ClientOrder.setText("")
-            
+            self.label_IDRecord.setText("")
+
             self.loadtablerecords()
             self.loadstocks()
 
