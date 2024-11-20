@@ -18,6 +18,7 @@ from pypdf import PdfReader, PdfWriter
 from tkinter.filedialog import asksaveasfilename
 from math import exp
 import math
+from PDF_Viewer import PDF_Viewer
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -34,6 +35,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
             username (str): username associated with the window.
         """
         self.username = username
+        self.pdf_viewer = PDF_Viewer()
 
     def setupUi(self, CalibrationPrintCertificate_Window):
         """
@@ -582,6 +584,15 @@ class Ui_CalibrationPrintCertificate_Window(object):
                             dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                             dlg.exec()
                             del dlg, new_icon
+
+                            # if os.path.isfile(output_path):
+                            #     try:
+                            #         os.startfile(output_path)
+                            #     except Exception as e:
+                            #         print(f"No se pudo abrir el archivo: {e}")
+
+                            self.pdf_viewer.open(QtCore.QUrl.fromLocalFile(output_path))  # Abre el PDF en el visor
+                            self.pdf_viewer.showMaximized()
 
                         except (Exception, psycopg2.DatabaseError) as error:
                             dlg = QtWidgets.QMessageBox()
