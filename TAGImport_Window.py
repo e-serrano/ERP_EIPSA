@@ -269,6 +269,8 @@ class Ui_ImportTAG_Window(object):
                                 for index, row in df_final.iterrows():
                                 # Create a list of pairs for each column with value
                                     columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
+                                    self.ws = self.wb[sheet_name]
+                                    cell_value = self.ws[f'A{index+9}'].value
 
                                 # Creating string for columns names and values
                                     columns = ', '.join([column for column, _ in columns_values])
@@ -277,13 +279,13 @@ class Ui_ImportTAG_Window(object):
                                                         else f"'{values}'") for column, values in columns_values])
 
                                 # Creating insertion query and executing it
-                                    self.ws = self.wb[sheet_name]
-                                    self.ws[f'A{index+9}'] = id_tag
+                                    if cell_value is None or str(cell_value).strip() == '':
+                                        self.ws[f'A{index+9}'] = id_tag
 
-                                    id_tag += 1
+                                        id_tag += 1
 
-                                    sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
-                                    cursor.execute(sql_insertion)
+                                        sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+                                        cursor.execute(sql_insertion)
 
                                 #Setting data validation as original excel
                                     relation_column_validation={'C':'S', 'I':'A', 'J':'B', 'K':'C', 'L':'D',
@@ -368,6 +370,8 @@ class Ui_ImportTAG_Window(object):
                                 for index, row in df_final.iterrows():
                                 # Create a list of pairs for each column with value
                                     columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
+                                    self.ws = self.wb[sheet_name]
+                                    cell_value = self.ws[f'A{index+9}'].value
 
                                 # Creating string for columns names and values
                                     columns = ', '.join([column for column, _ in columns_values])
@@ -380,13 +384,13 @@ class Ui_ImportTAG_Window(object):
                                                 ])
 
                                 # Creating insertion query and executing it
-                                    self.ws = self.wb[sheet_name]
-                                    self.ws[f'A{index+9}'] = id_tag
+                                    if cell_value is None or str(cell_value).strip() == '':
+                                        self.ws[f'A{index+9}'] = id_tag
 
-                                    id_tag += 1
+                                        id_tag += 1
 
-                                    sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
-                                    cursor.execute(sql_insertion)
+                                        sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+                                        cursor.execute(sql_insertion)
 
                                 #Setting data validation as original excel
                                     relation_column_validation={'C':'AB', 'I':'A', 'J':'B', 'K':'C', 'L':'D',
@@ -472,6 +476,8 @@ class Ui_ImportTAG_Window(object):
                                 for index, row in df_final.iterrows():
                                 # Create a list of pairs for each column with value
                                     columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
+                                    self.ws = self.wb[sheet_name]
+                                    cell_value = self.ws[f'A{index+9}'].value
 
                                 # Creating string for columns names and values
                                     columns = ', '.join([column for column, _ in columns_values])
@@ -484,13 +490,13 @@ class Ui_ImportTAG_Window(object):
                                                 ])
 
                                 # Creating insertion query and executing it
-                                    self.ws = self.wb[sheet_name]
-                                    self.ws[f'A{index+9}'] = id_tag
+                                    if cell_value is None or str(cell_value).strip() == '':
+                                        self.ws[f'A{index+9}'] = id_tag
 
-                                    id_tag += 1
+                                        id_tag += 1
 
-                                    sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
-                                    cursor.execute(sql_insertion)
+                                        sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+                                        cursor.execute(sql_insertion)
 
                                 #Setting data validation as original excel
                                     relation_column_validation={'C':'AD', 'I':'A', 'J':'B', 'K':'C', 'L':'E',
@@ -572,6 +578,8 @@ class Ui_ImportTAG_Window(object):
                                 for index, row in df_final.iterrows():
                                 # Create a list of pairs for each column with value
                                     columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
+                                    self.ws = self.wb[sheet_name]
+                                    cell_value = self.ws[f'A{index+9}'].value
 
                                 # Creating string for columns names and values
                                     columns = ', '.join([column for column, _ in columns_values])
@@ -582,13 +590,13 @@ class Ui_ImportTAG_Window(object):
                                                 ])
 
                                 # Creating insertion query and executing it
-                                    self.ws = self.wb[sheet_name]
-                                    self.ws[f'A{index+9}'] = id_tag
+                                    if cell_value is None or str(cell_value).strip() == '':
+                                        self.ws[f'A{index+9}'] = id_tag
 
-                                    id_tag += 1
+                                        id_tag += 1
 
-                                    sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
-                                    cursor.execute(sql_insertion)
+                                        sql_insertion = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+                                        cursor.execute(sql_insertion)
 
                                 #Setting data validation as original excel
                                     relation_column_validation={'C':'A', 'K':'B'}
