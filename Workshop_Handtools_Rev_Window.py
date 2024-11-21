@@ -775,7 +775,7 @@ class Ui_Workshop_Handtools_Rev_Window(QtWidgets.QMainWindow):
         self.tableRevisions.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
         self.tableRevisions.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
-        self.tableRevisions.sortByColumn(2, Qt.SortOrder.DescendingOrder)
+        self.tableRevisions.sortByColumn(0, Qt.SortOrder.DescendingOrder)
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):

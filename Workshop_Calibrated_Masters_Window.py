@@ -430,31 +430,11 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         self.hcab.addWidget(self.toolAdd)
         self.hcabspacer2=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer2)
-        self.toolSeeAll = QtWidgets.QToolButton(self.frame)
-        self.toolSeeAll.setObjectName("SeeAll_Button")
-        self.toolSeeAll.setToolTip("Ver todos")
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eye.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.toolSeeAll.setIcon(icon)
-        self.toolSeeAll.setIconSize(QtCore.QSize(25, 25))
-        self.hcab.addWidget(self.toolSeeAll)
-        self.hcabspacer4=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.hcab.addItem(self.hcabspacer4)
-        self.toolPDF = QtWidgets.QToolButton(self.frame)
-        self.toolPDF.setObjectName("PDF_Button")
-        self.toolPDF.setToolTip("Insertar")
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.toolPDF.setIcon(icon)
-        self.toolPDF.setIconSize(QtCore.QSize(25, 25))
-        self.hcab.addWidget(self.toolPDF)
 
         if self.username == 'm.gil':
             self.toolDeleteFilter.setStyleSheet("border: 1px solid white;")
             self.toolExpExcel.setStyleSheet("border: 1px solid white;")
             self.toolAdd.setStyleSheet("border: 1px solid white;")
-            self.toolSeeAll.setStyleSheet("border: 1px solid white;")
-            self.toolPDF.setStyleSheet("border: 1px solid white;")
 
         self.hcabspacer6=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer6)
@@ -525,7 +505,6 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         self.toolAdd.clicked.connect(self.add_new)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
-        self.toolSeeAll.clicked.connect(self.query_all_masters)
 
         self.query_masters()
 
@@ -632,75 +611,6 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addWidget(self.tableCalibratedMasters, 2, 0, 1, 1)
         self.tableCalibratedMasters.setSortingEnabled(False)
         self.tableCalibratedMasters.verticalHeader().setVisible(False)
-
-    # Change all column names
-        headers_names = ["Número", "Instrumento", "Certificado 1", "Certificado 2", "Última Calibración", "Próxima Calibración",
-                        "Frec. Calibración (Años)", "Notas", "Meses Antelacion"]
-
-        self.model.setAllColumnHeaders(headers_names)
-
-    # Getting the unique values for each column of the model
-        for column in range(self.model.columnCount()):
-            list_valuesUnique = []
-            if column not in self.checkbox_states:
-                self.checkbox_states[column] = {}
-                self.checkbox_states[column]['Seleccionar todo'] = True
-                for row in range(self.model.rowCount()):
-                    value = self.model.record(row).value(column)
-                    if value not in list_valuesUnique:
-                        if isinstance(value, QtCore.QDate):
-                            value=value.toString("dd/MM/yyyy")
-                        list_valuesUnique.append(str(value))
-                        self.checkbox_states[column][value] = True
-                self.dict_valuesuniques[column] = list_valuesUnique
-
-        self.selection_model = self.tableCalibratedMasters.selectionModel()
-        self.selection_model.selectionChanged.connect(self.countSelectedCells)
-
-        self.tableCalibratedMasters.horizontalHeader().sectionDoubleClicked.connect(self.on_view_horizontalHeader_sectionClicked)
-        self.tableCalibratedMasters.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
-        self.tableCalibratedMasters.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-
-        self.tableCalibratedMasters.sortByColumn(0, Qt.SortOrder.AscendingOrder)
-
-        self.tableCalibratedMasters.doubleClicked.connect(lambda index: self.item_double_clicked(index))
-        
-        self.adjust_table()
-
-# Function to load complete table and setting in the window
-    def query_all_masters(self):
-        """
-        Queries the database for al calibrated masters, configures and populates tables with the query results, 
-        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
-        """
-        self.checkbox_states = {}
-        self.dict_valuesuniques = {}
-        self.dict_ordersort = {}
-        self.hiddencolumns = []
-
-        self.model.setTable("verification.calibrated_masters")
-
-        self.tableCalibratedMasters.setModel(None)
-        self.tableCalibratedMasters.setModel(self.proxy)
-        self.model.select()
-
-        self.proxy.setSourceModel(self.model)
-        self.tableCalibratedMasters.setModel(self.proxy)
-
-        columns_number=self.model.columnCount()
-
-        self.tableCalibratedMasters.setItemDelegate(AlignDelegate(self.tableCalibratedMasters))
-
-        if self.username == 'm.gil':
-            self.tableCalibratedMasters.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-            self.tableCalibratedMasters.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
-            self.tableCalibratedMasters.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
-        else:
-            self.tableCalibratedMasters.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
-
-        self.tableCalibratedMasters.setObjectName("tableCalibratedMasters")
-        self.gridLayout_2.addWidget(self.tableCalibratedMasters, 2, 0, 1, 1)
-        self.tableCalibratedMasters.setSortingEnabled(False)
 
     # Change all column names
         headers_names = ["Número", "Instrumento", "Certificado 1", "Certificado 2", "Última Calibración", "Próxima Calibración",
@@ -1260,6 +1170,10 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         self.tableCalibratedMasters.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableCalibratedMasters.verticalHeader().setVisible(False)
         self.tableCalibratedMasters.hideColumn(8)
+        self.tableCalibratedMasters.hideColumn(9)
+        self.tableCalibratedMasters.hideColumn(10)
+        self.tableCalibratedMasters.hideColumn(11)
+        self.tableCalibratedMasters.hideColumn(12)
 
 # Function when item is double clicked
     def item_double_clicked(self,index):

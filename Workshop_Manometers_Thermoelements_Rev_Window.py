@@ -44,8 +44,6 @@ def imagen_to_base64(imagen):
     base64_data = buffer.data().toBase64().data().decode()
     return base64_data
 
-
-
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     """
     A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
@@ -64,6 +62,46 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         """
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+
+class ColorDelegate(QtWidgets.QItemDelegate):
+    """
+    A custom item delegate for applying background colors to cells in a QTableView or QTableWidget.
+
+    Inherits from:
+        QtWidgets.QItemDelegate: Provides custom rendering for table items.
+    """
+    def __init__(self, parent=None):
+        """
+        Initializes the ColorDelegate, setting up the color mapping from the database.
+
+        Args:
+            parent (QtWidgets.QWidget, optional): The parent widget. Defaults to None.
+        """
+        super().__init__(parent)
+
+    def paint(self, painter, option, index: QtCore.QModelIndex):
+        """
+        Paints the background color of the item based on its column and value.
+
+        Args:
+            painter (QtGui.QPainter): The painter used for painting.
+            option (QtWidgets.QStyleOptionViewItem): The style option for the item.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
+        value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
+        background_color = QtGui.QColor(255, 255, 255, 0)
+
+        if index.column() == 19:
+            if isinstance(value, str):
+                if value == 'NO':
+                    background_color = QtGui.QColor(223, 47, 47) #Red
+                else:
+                    background_color = QtGui.QColor(59, 140, 27) #Green
+
+        painter.fillRect(option.rect, background_color)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+
+        super().paint(painter, option, index)
 
 class CustomProxyModel(QtCore.QSortFilterProxyModel):
     """
@@ -280,7 +318,7 @@ class CustomPDF(FPDF):
         fixed_height_multicell(w, total_h, txt, align_mc, border='LR', fill=False):
             Outputs text in a multi-cell format with a fixed total height.
     """
-    def fixed_height_multicell(self, w, total_h, txt, align_mc, border='LRB', fill=False):
+    def fixed_height_multicell(self, w, total_h, txt, align_mc, border, fill=False):
         """
         Creates a multi-line cell with a fixed total height, dividing text into lines.
 
@@ -307,23 +345,67 @@ class CustomPDF(FPDF):
 
         x, y = self.get_x(), self.get_y() # Save actual position
 
-        for line in lines:
+        for i, line in enumerate(lines):
+            # Add the bottom border only to the last line
+            if i == len(lines) - 1:
+                current_border = border + 'B'  # Add bottom border to the last line
+            else:
+                current_border = border
             # Print each line with the calculated height
-            self.multi_cell(w, line_height, line, border, align_mc, fill)
+            self.multi_cell(w, line_height, line, current_border, align_mc, fill)
             self.set_x(x)
 
         self.set_xy(x, y + total_h)
 
-class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
+    def calculate_min_height(self, w, texts):
+        """
+        Calculate the minimum height needed to fit multiple texts in a fixed-width cell based on the longest text.
+        
+        Parameters:
+            w (float): The width of the cell.
+            texts (list): A list of 5 texts (strings) to fit within the cell.
+
+        Returns:
+            float: The minimum height required based on the longest text in terms of line count,
+                with a minimum of 0.5.
+        """
+        max_lines = 0
+
+        for txt in texts:
+            words = txt.split()
+            line = ''
+            lines = 0
+
+            # Calculate the number of lines needed for the current text
+            for word in words:
+                if self.get_string_width(line + word + ' ') > w - 0.5:
+                    lines += 1  # Start a new line
+                    line = word + ' '
+                else:
+                    line += word + ' '
+
+            lines += 1  # Account for the last line
+            
+            # Track the maximum number of lines
+            if lines > max_lines:
+                max_lines = lines
+
+        # Calculate the total height required for the longest text
+        total_height = max_lines * 0.25
+
+        # Ensure the height is at least 0.5
+        return max(0.5, total_height)
+
+class Ui_Workshop_Manometers_Thermoelements_Rev_Window(QtWidgets.QMainWindow):
     """
-    Main window class for managing workshop machine reviews, including data filtering, sorting,
-    and handling machine-related operations.
+    Main window class for managing workshop equipment reviews, including data filtering, sorting,
+    and handling equipment-related operations.
 
     Attributes:
-        model: The table model used to handle data for the machine revisions.
+        model: The table model used to handle data for the equipment revisions.
         proxy: A custom proxy model for filtering and sorting the data.
         db: The database connection object.
-        machine_id: The ID of the machine being reviewed or modified.
+        equipment_id: The ID of the equipment being reviewed or modified.
         checkbox_states: Dictionary storing the states of checkboxes for filtering purposes.
         dict_valuesuniques: Dictionary holding unique values for each column in the table.
         dict_ordersort: Dictionary managing the sorting order of columns.
@@ -334,21 +416,21 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         username: The username of the current user.
         pdf_viewer: An instance of a PDF viewer for displaying relevant documents.
     """
-    def __init__(self, db, username, machine_id):
+    def __init__(self, db, username, equipment_id):
         """
-        Initializes the workshop machine revision window, setting up data models, filters,
-        and UI components for a specific machine.
+        Initializes the workshop equipment revision window, setting up data models, filters,
+        and UI components for a specific equipment.
 
         Args:
             db: Database connection object.
             username: Username of the current user.
-            machine_id: ID of the machine being reviewed or modified.
+            equipment_id: ID of the equipment being reviewed or modified.
         """
         super().__init__()
         self.model = EditableTableModel()
         self.proxy = CustomProxyModel()
         self.db = db
-        self.machine_id = machine_id
+        self.equipment_id = equipment_id
         self.checkbox_states = {}
         self.dict_valuesuniques = {}
         self.dict_ordersort = {}
@@ -382,37 +464,95 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         if self.db:
             self.db.close()
             del self.db
-            if QtSql.QSqlDatabase.contains("machine"):
-                QtSql.QSqlDatabase.removeDatabase("machine")
+            if QtSql.QSqlDatabase.contains("equipment"):
+                QtSql.QSqlDatabase.removeDatabase("equipment")
 
-    def setupUi(self, Workshop_Machines_Rev_Window):
+    def setupUi(self, Workshop_Manometers_Thermoelements_Rev_Window):
         """
-        Sets up the user interface for the Workshop_Machines_Rev_Window.
+        Sets up the user interface for the Workshop_Manometers_Thermoelements_Rev_Window.
 
         Args:
-            Workshop_Machines_Rev_Window (QtWidgets.QMainWindow): The main window for the UI setup.
+            Workshop_Manometers_Thermoelements_Rev_Window (QtWidgets.QMainWindow): The main window for the UI setup.
         """
-        Workshop_Machines_Rev_Window.setObjectName("Workshop_Machines_Rev_Window")
-        Workshop_Machines_Rev_Window.resize(790, 595)
-        Workshop_Machines_Rev_Window.setMinimumSize(QtCore.QSize(790, 595))
+        Workshop_Manometers_Thermoelements_Rev_Window.setObjectName("Workshop_Manometers_Thermoelements_Rev_Window")
+        Workshop_Manometers_Thermoelements_Rev_Window.resize(790, 595)
+        Workshop_Manometers_Thermoelements_Rev_Window.setMinimumSize(QtCore.QSize(790, 595))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        Workshop_Machines_Rev_Window.setWindowIcon(icon)
+        Workshop_Manometers_Thermoelements_Rev_Window.setWindowIcon(icon)
         if self.username == 'm.gil':
-            Workshop_Machines_Rev_Window.setStyleSheet(
-            ".QFrame {border: 2px solid white;\n"
-            "}\n"
-            "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
+            Workshop_Manometers_Thermoelements_Rev_Window.setStyleSheet("QWidget {\n"
+    "background-color: #121212; color: rgb(255, 255, 255)\n"
+    "}\n"
+    "\n"
+    ".QFrame {\n"
+    "    border: 2px solid white;\n"
+    "}\n"
+    "\n"
+    "QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 2px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
         else:
-            Workshop_Machines_Rev_Window.setStyleSheet(
-            ".QFrame {border: 2px solid black;\n"
-            "}\n"
-            "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
-        self.centralwidget = QtWidgets.QWidget(parent=Workshop_Machines_Rev_Window)
-        if self.username == 'm.gil':
-            self.centralwidget.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255);")
-        else:
-            self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
+            Workshop_Manometers_Thermoelements_Rev_Window.setStyleSheet("QWidget {\n"
+"background-color: rgb(255, 255, 255);\n"
+"}\n"
+"\n"
+".QFrame {\n"
+"    border: 2px solid white;\n"
+"}\n"
+"\n"
+"QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 2px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        self.centralwidget = QtWidgets.QWidget(parent=Workshop_Manometers_Thermoelements_Rev_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -455,16 +595,6 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         self.hcab.addWidget(self.toolAdd)
         self.hcabspacer4=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer4)
-        self.toolSaveChanges = QtWidgets.QToolButton(self.frame)
-        self.toolSaveChanges.setObjectName("SaveChanges_Button")
-        self.toolSaveChanges.setToolTip("Guardar")
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Save.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.toolSaveChanges.setIcon(icon)
-        self.toolSaveChanges.setIconSize(QtCore.QSize(25, 25))
-        self.hcab.addWidget(self.toolSaveChanges)
-        self.hcabspacer5=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.hcab.addItem(self.hcabspacer5)
         self.toolPDF = QtWidgets.QToolButton(self.frame)
         self.toolPDF.setObjectName("PDF_Button")
         self.toolPDF.setToolTip("Imprimir PDF")
@@ -478,107 +608,126 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
             self.toolDeleteFilter.setStyleSheet("border: 1px solid white;")
             self.toolImages.setStyleSheet("border: 1px solid white;")
             self.toolAdd.setStyleSheet("border: 1px solid white;")
-            self.toolSaveChanges.setStyleSheet("border: 1px solid white;")
             self.toolPDF.setStyleSheet("border: 1px solid white;")
 
         self.hcabspacer6=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer6)
-        self.gridLayout_2.addLayout(self.hcab, 0, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.hcab, 0, 0, 1, 5)
 
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem, 1, 0, 1, 1)
+        self.gridLayout_2.addItem(spacerItem, 1, 1, 1, 1)
 
         self.label_number = QtWidgets.QLabel(parent=self.frame)
-        self.label_number.setMinimumSize(QtCore.QSize(40, 50))
-        self.label_number.setMaximumSize(QtCore.QSize(400, 50))
+        self.label_number.setMinimumSize(QtCore.QSize(40, 30))
         self.label_number.setObjectName("label_number")
         font = QtGui.QFont()
-        font.setPointSize(12)
+        font.setPointSize(10)
         font.setBold(True)
         self.label_number.setFont(font)
         self.gridLayout_2.addWidget(self.label_number, 2, 0, 1, 1)
-
-        self.label_name = QtWidgets.QLabel(parent=self.frame)
-        self.label_name.setMinimumSize(QtCore.QSize(40, 50))
-        self.label_name.setObjectName("label_name")
+        self.label_instrument = QtWidgets.QLabel(parent=self.frame)
+        self.label_instrument.setMinimumSize(QtCore.QSize(40, 30))
+        self.label_instrument.setObjectName("label_instrument")
         font = QtGui.QFont()
-        font.setPointSize(12)
+        font.setPointSize(10)
         font.setBold(True)
-        self.label_name.setFont(font)
-        self.gridLayout_2.addWidget(self.label_name, 2, 1, 1, 1)
-
-        self.label_year = QtWidgets.QLabel(parent=self.frame)
-        self.label_year.setMinimumSize(QtCore.QSize(40, 50))
-        self.label_year.setObjectName("label_year")
+        self.label_instrument.setFont(font)
+        self.gridLayout_2.addWidget(self.label_instrument, 2, 1, 1, 1)
+        self.label_scale = QtWidgets.QLabel(parent=self.frame)
+        self.label_scale.setMinimumSize(QtCore.QSize(40, 30))
+        self.label_scale.setObjectName("label_scale")
         font = QtGui.QFont()
-        font.setPointSize(12)
+        font.setPointSize(10)
         font.setBold(True)
-        self.label_year.setFont(font)
-        self.gridLayout_2.addWidget(self.label_year, 2, 2, 1, 1)
-
-        self.label_location = QtWidgets.QLabel(parent=self.frame)
-        self.label_location.setMinimumSize(QtCore.QSize(40, 50))
-        self.label_location.setObjectName("label_location")
+        self.label_scale.setFont(font)
+        self.gridLayout_2.addWidget(self.label_scale, 2, 2, 1, 1)
+        self.label_last_check = QtWidgets.QLabel(parent=self.frame)
+        self.label_last_check.setMinimumSize(QtCore.QSize(40, 30))
+        self.label_last_check.setObjectName("label_last_check")
         font = QtGui.QFont()
-        font.setPointSize(12)
+        font.setPointSize(10)
         font.setBold(True)
-        self.label_location.setFont(font)
-        self.gridLayout_2.addWidget(self.label_location, 2, 3, 1, 1)
-
-        self.label_next_revision = QtWidgets.QLabel(parent=self.frame)
-        self.label_next_revision.setMinimumSize(QtCore.QSize(40, 50))
-        self.label_next_revision.setObjectName("label_next_revision")
+        self.label_last_check.setFont(font)
+        self.gridLayout_2.addWidget(self.label_last_check, 2, 3, 1, 1)
+        self.label_next_check = QtWidgets.QLabel(parent=self.frame)
+        self.label_next_check.setMinimumSize(QtCore.QSize(40, 30))
+        self.label_next_check.setObjectName("label_next_check")
         font = QtGui.QFont()
-        font.setPointSize(12)
+        font.setPointSize(10)
         font.setBold(True)
-        self.label_next_revision.setFont(font)
-        self.gridLayout_2.addWidget(self.label_next_revision, 2, 4, 1, 1)
-
-        self.label_characteristics = QtWidgets.QLabel(parent=self.frame)
-        self.label_characteristics.setMinimumSize(QtCore.QSize(40, 40))
-        self.label_characteristics.setMaximumSize(QtCore.QSize(400, 40))
-        self.label_characteristics.setText("CARACTERÍSTICAS:")
-        self.label_characteristics.setObjectName("label_characteristics")
+        self.label_next_check.setFont(font)
+        self.gridLayout_2.addWidget(self.label_next_check, 2, 4, 1, 1)
+        self.label_uncertainty = QtWidgets.QLabel(parent=self.frame)
+        self.label_uncertainty.setMinimumSize(QtCore.QSize(40, 30))
+        self.label_uncertainty.setObjectName("label_uncertainty")
         font = QtGui.QFont()
-        font.setPointSize(12)
+        font.setPointSize(10)
         font.setBold(True)
-        self.label_characteristics.setFont(font)
-        self.gridLayout_2.addWidget(self.label_characteristics, 3, 0, 1, 1)
-        self.label_image = QtWidgets.QLabel(parent=self.frame)
-        self.label_image.setMinimumSize(QtCore.QSize(40, 40))
-        self.label_image.setText("FOTO MÁQUINA:")
-        self.label_image.setObjectName("label_image")
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        self.label_image.setFont(font)
-        self.gridLayout_2.addWidget(self.label_image, 3, 1, 1, 2)
-        self.label_revisions = QtWidgets.QLabel(parent=self.frame)
-        self.label_revisions.setMinimumSize(QtCore.QSize(40, 40))
-        self.label_revisions.setText("REVISIONES:")
-        self.label_revisions.setObjectName("label_revisions")
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        self.label_revisions.setFont(font)
-        self.gridLayout_2.addWidget(self.label_revisions, 3, 3, 1, 1)
+        self.label_uncertainty.setFont(font)
+        self.gridLayout_2.addWidget(self.label_uncertainty, 3, 0, 1, 1)
 
-        self.machine_characteristics = QtWidgets.QTextEdit(parent=self.frame)
-        self.machine_characteristics.setMinimumSize(QtCore.QSize(40, 10))
-        self.machine_characteristics.setMaximumSize(QtCore.QSize(500, 16777215))
-        self.machine_characteristics.setObjectName("machine_characteristics")
-        self.gridLayout_2.addWidget(self.machine_characteristics, 4, 0, 1, 1)
+        self.label_precision = QtWidgets.QLabel(parent=self.frame)
+        self.label_precision.setMinimumSize(QtCore.QSize(40, 30))
+        self.label_precision.setObjectName("label_precision")
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        self.label_precision.setFont(font)
+        self.gridLayout_2.addWidget(self.label_precision, 3, 1, 1, 1)
 
-        self.machine_image = QtWidgets.QLabel(parent=self.frame)
-        self.machine_image.setMinimumSize(QtCore.QSize(40, 10))
-        self.machine_image.setMaximumSize(QtCore.QSize(16777215, 1000))
-        self.machine_image.setText("")
-        self.machine_image.setObjectName("machine_image")
-        self.gridLayout_2.addWidget(self.machine_image, 4, 1, 1, 2)
+        self.label_model = QtWidgets.QLabel(parent=self.frame)
+        self.label_model.setMinimumSize(QtCore.QSize(40, 30))
+        self.label_model.setObjectName("label_model")
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        self.label_model.setFont(font)
+        self.gridLayout_2.addWidget(self.label_model, 3, 2, 1, 1)
+
+        self.label_master = QtWidgets.QLabel(parent=self.frame)
+        self.label_master.setMinimumSize(QtCore.QSize(40, 30))
+        self.label_master.setObjectName("label_master")
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        self.label_master.setFont(font)
+        self.gridLayout_2.addWidget(self.label_master, 3, 3, 1, 1)
+
+        self.label_reference = QtWidgets.QLabel(parent=self.frame)
+        self.label_reference.setMinimumSize(QtCore.QSize(40, 30))
+        self.label_reference.setObjectName("label_reference")
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        self.label_reference.setFont(font)
+        self.gridLayout_2.addWidget(self.label_reference, 3, 4, 1, 1)
+
+        self.label_result = QtWidgets.QLabel(parent=self.frame)
+        self.label_result.setMinimumSize(QtCore.QSize(40, 30))
+        self.label_result.setObjectName("label_result")
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        self.label_result.setFont(font)
+        self.gridLayout_2.addWidget(self.label_result, 4, 0, 1, 2)
+        self.label_notes = QtWidgets.QLabel(parent=self.frame)
+        self.label_notes.setMinimumSize(QtCore.QSize(40, 30))
+        self.label_notes.setObjectName("label_notes")
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        self.label_notes.setFont(font)
+        self.label_notes.setWordWrap(True)
+        self.gridLayout_2.addWidget(self.label_notes, 4, 1, 1, 3)
+
+        self.Button_Image = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Image.setMinimumSize(QtCore.QSize(100, 35))
+        self.Button_Image.setObjectName("Button_Image")
+        self.gridLayout_2.addWidget(self.Button_Image, 4, 4, 1, 1)
 
         self.tableRevisions=QtWidgets.QTableView(parent=self.frame)
         self.model = EditableTableModel()
-        self.tableRevisions.setObjectName("tableMachines")
+        self.tableRevisions.setObjectName("tableequipments")
         self.hLayout3 = QtWidgets.QHBoxLayout()
         self.hLayout3.setObjectName("hLayout3")
         spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -607,21 +756,21 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         self.label_CountValue.setText("")
         self.label_CountValue.setObjectName("label_CountValue")
         self.hLayout3.addWidget(self.label_CountValue)
-        self.gridLayout_2.addLayout(self.hLayout3, 5, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.hLayout3, 6, 0, 1, 5)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
-        Workshop_Machines_Rev_Window.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(parent=Workshop_Machines_Rev_Window)
+        Workshop_Manometers_Thermoelements_Rev_Window.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(parent=Workshop_Manometers_Thermoelements_Rev_Window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 790, 22))
         self.menubar.setObjectName("menubar")
-        Workshop_Machines_Rev_Window.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(parent=Workshop_Machines_Rev_Window)
+        Workshop_Manometers_Thermoelements_Rev_Window.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(parent=Workshop_Manometers_Thermoelements_Rev_Window)
         self.statusbar.setObjectName("statusbar")
-        Workshop_Machines_Rev_Window.setStatusBar(self.statusbar)
+        Workshop_Manometers_Thermoelements_Rev_Window.setStatusBar(self.statusbar)
 
-        self.retranslateUi(Workshop_Machines_Rev_Window)
-        QtCore.QMetaObject.connectSlotsByName(Workshop_Machines_Rev_Window)
+        self.retranslateUi(Workshop_Manometers_Thermoelements_Rev_Window)
+        QtCore.QMetaObject.connectSlotsByName(Workshop_Manometers_Thermoelements_Rev_Window)
 
         self.model.dataChanged.connect(self.saveChanges)
         self.createContextMenu()
@@ -638,19 +787,21 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         self.toolAdd.clicked.connect(self.add_new)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolImages.clicked.connect(self.add_images)
-        self.toolSaveChanges.clicked.connect(self.save_information)
-        self.toolPDF.clicked.connect(self.datasheet_pdf)
+        # self.toolPDF.clicked.connect(self.datasheet_pdf)
+        self.Button_Image.clicked.connect(self.open_image)
 
         self.query_revisions()
         self.load_data()
 
 # Function to translate and updates the text of various UI elements
-    def retranslateUi(self, Workshop_Machines_Rev_Window):
+    def retranslateUi(self, Workshop_Manometers_Thermoelements_Rev_Window):
         """
         Translates and updates the text of various UI elements.
         """
         _translate = QtCore.QCoreApplication.translate
-        Workshop_Machines_Rev_Window.setWindowTitle(_translate("Workshop_Machines_Rev_Window", "Revisiones Máquinas Taller"))
+        Workshop_Manometers_Thermoelements_Rev_Window.setWindowTitle(_translate("Workshop_Manometers_Thermoelements_Rev_Window", "Revisiones Manómetros Y Termoelementos Taller"))
+        self.Button_Image.setText(_translate("Workshop_Manometers_Thermoelements_Rev_Window", "Ver Imagen"))
+
         self.tableRevisions.setSortingEnabled(True)
 
 # Function to delete all filters when tool button is clicked
@@ -713,7 +864,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
 # Function to load table and setting in the window
     def query_revisions(self):
         """
-        Queries the database for machines revisiones, configures and populates tables with the query results, 
+        Queries the database for equipments revisiones, configures and populates tables with the query results, 
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
         self.checkbox_states = {}
@@ -721,8 +872,8 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         self.dict_ordersort = {}
         self.hiddencolumns = []
 
-        self.model.setTable("verification.machines_workshop_revisions")
-        self.model.setFilter(f"machine_id = {self.machine_id}")
+        self.model.setTable("verification.manometers_thermoelements_workshop_revisions")
+        self.model.setFilter(f"equipment_id = {self.equipment_id}")
 
         self.tableRevisions.setModel(None)
         self.tableRevisions.setModel(self.proxy)
@@ -734,7 +885,8 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         columns_number=self.model.columnCount()
 
         self.tableRevisions.setItemDelegate(AlignDelegate(self.tableRevisions))
-        self.adjust_table()
+        self.color_delegate = ColorDelegate(self)
+        self.tableRevisions.setItemDelegateForColumn(19, self.color_delegate)
 
         if self.username == 'm.gil':
             self.tableRevisions.setStyleSheet("gridline-color: rgb(128, 128, 128);")
@@ -743,14 +895,13 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         else:
             self.tableRevisions.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
 
-        self.tableRevisions.setObjectName("tableMachines")
-        self.gridLayout_2.addWidget(self.tableRevisions, 4, 3, 1, 2)
+        self.tableRevisions.setObjectName("tableequipments")
+        self.gridLayout_2.addWidget(self.tableRevisions, 5, 0, 1, 5)
         self.tableRevisions.setMinimumSize(QtCore.QSize(800,16777215))
         self.tableRevisions.setSortingEnabled(False)
-        self.tableRevisions.hideColumn(0)
 
     # Change all column names
-        headers_names = ["ID", "Nº Máquina", "Fecha Rev.", "Horas", "Descripción"]
+        headers_names = ["", "", "Lectura Equipo", "Lectura Patrón", "Patrón Corr", "Patrón Corr. (unidad)", "Corr. Calculada"]
 
         self.model.setAllColumnHeaders(headers_names)
 
@@ -776,7 +927,9 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         self.tableRevisions.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
         self.tableRevisions.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
-        self.tableRevisions.sortByColumn(0, Qt.SortOrder.DescendingOrder)
+        self.tableRevisions.sortByColumn(0, Qt.SortOrder.AscendingOrder)
+
+        self.adjust_table()
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
@@ -1251,11 +1404,11 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
 # Function to add a new line
     def add_new(self):
         """
-        Inserts a new empty entry into the machines_workshop_revisions table.
+        Inserts a new empty entry into the equipments_workshop_revisions table.
         Commits the changes to the database and handles any errors.
         """
         commands_new=("""
-                        INSERT INTO verification.machines_workshop_revisions (machine_id)
+                        INSERT INTO verification.equipments_workshop_revisions (equipment_id)
                         VALUES(%s)
                         """)
         conn = None
@@ -1266,7 +1419,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of principal command
-            data=(self.machine_id,)
+            data=(self.equipment_id,)
             cur.execute(commands_new, data)
         # close communication with the PostgreSQL database server
             cur.close()
@@ -1297,22 +1450,23 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         """
         self.tableRevisions.hideColumn(0)
         self.tableRevisions.hideColumn(1)
-        self.tableRevisions.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableRevisions.horizontalHeader().setSectionResizeMode(4,QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableRevisions.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+        # self.tableRevisions.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        # self.tableRevisions.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableRevisions.verticalHeader().hide()
 
-# Function to add images to machines
+# Function to add images to equipments
     def add_images(self):
         """
-        Adds an image to the selected machine's record in the database.
-        Updates the image field for the specified machine by selecting an image file from the filesystem.
+        Adds an image to the selected equipment's record in the database.
+        Updates the image field for the specified equipment by selecting an image file from the filesystem.
         """
-        images_path = askopenfilename(initialdir="//nas01/DATOS/Comunes/TALLER/MAQUINAS Y HERRAMIENTAS/Fotos Maquinas", filetypes=[("Archivos JPG", "*.jpg")],
+        images_path = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/Calibracion Equipos de medida mecanica/Fotos Equipos de medida mecanica", filetypes=[("Archivos JPG", "*.jpg")],
                             title="Seleccionar imagen")
 
         if images_path:
             commands_insert = ("""
-                    UPDATE verification."machines_workshop"
+                    UPDATE verification."manometers_thermoelements_workshop"
                     SET "image" = %s
                     WHERE "id" = %s
                     """)
@@ -1325,7 +1479,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                cur.execute(commands_insert, (images_path, self.machine_id,))
+                cur.execute(commands_insert, (images_path, self.equipment_id,))
 
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -1337,7 +1491,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Máquinas Taller")
+                dlg.setWindowTitle("Manómetros y Termoelementos Taller")
                 dlg.setText("Ha ocurrido el siguiente error:\n"
                             + str(error))
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
@@ -1350,56 +1504,15 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
 
             self.load_data()
 
-# Function to add information to machines
-    def save_information(self):
-        """
-        Saves or updates the characteristics of the selected machine in the database.
-        Updates the 'characteristics' field for the machine using data entered in the text field.
-        """
-        commands_insert = ("""
-                UPDATE verification."machines_workshop"
-                SET "characteristics" = %s
-                WHERE "id" = %s
-                """)
-
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(commands_insert, (self.machine_characteristics.toPlainText(), self.machine_id,))
-
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
-
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Máquinas Taller")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-
-        finally:
-            if conn is not None:
-                conn.close()
-
 # Function to load data
     def load_data(self):
         """
-        Loads machine data from the database and updates the UI components.
-        Displays the data in relevant UI elements and adjusts the image if available.
+        Loads equipment data from the database and updates the UI components.
+        Displays the data in relevant UI elements.
         """
-        query_machine_data = ("""SELECT characteristics, image, brand, machine_type, year, warehouse, TO_CHAR(next_revision,'DD/MM/YYYY') FROM verification.machines_workshop WHERE id = %s""")
+        query_equipment_data = ("""SELECT number, instrument, model, scale, range,
+                            precision, uncertainty, master, TO_CHAR(last_revision, 'DD/MM/YYYY'), TO_CHAR(next_revision, 'DD/MM/YYYY'),
+                            result, notes FROM verification.manometers_thermoelements_workshop WHERE id = %s""")
 
         conn = None
         try:
@@ -1409,8 +1522,8 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            cur.execute(query_machine_data, (self.machine_id,))
-            results_machine=cur.fetchall()
+            cur.execute(query_equipment_data, (self.equipment_id,))
+            results_equipment=cur.fetchall()
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -1428,28 +1541,17 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-        if results_machine[0][1] is not None and results_machine[0][1] != '':
-            image_path = os.path.abspath(results_machine[0][1])
-
-            corrected_image = self.correct_image_orientation(image_path)
-
-            from io import BytesIO
-            image_bytes = BytesIO()
-            corrected_image.save(image_bytes, format='PNG')
-            image_bytes.seek(0)
-
-            pixmap = QtGui.QPixmap()
-            pixmap.loadFromData(image_bytes.read())
-
-            self.machine_image.setPixmap(pixmap)
-            self.machine_image.setScaledContents(True)
-
-        self.machine_characteristics.setText(results_machine[0][0] if results_machine[0][0] is not None else "")
-        self.label_number.setText("NÚMERO: " + str(self.machine_id))
-        self.label_name.setText("NOMBRE: " + results_machine[0][2] if results_machine[0][2] is not None else "")
-        self.label_year.setText("AÑO: " + results_machine[0][4] if results_machine[0][4] is not None else "")
-        self.label_location.setText("NAVE: " + results_machine[0][5] if results_machine[0][5] is not None else "")
-        self.label_next_revision.setText("PROX. REV.: " + results_machine[0][6] if results_machine[0][6] is not None else "")
+        self.label_number.setText("NÚMERO: " + results_equipment[0][0] if results_equipment[0][0] is not None else "")
+        self.label_instrument.setText("INSTRUMENTO: " + results_equipment[0][1] if results_equipment[0][1] is not None else "")
+        self.label_model.setText("MODELO: " + results_equipment[0][2] if results_equipment[0][2] is not None else "")
+        self.label_scale.setText("ESCALA: " + results_equipment[0][4] + " " + results_equipment[0][3] if results_equipment[0][4] is not None else "")
+        self.label_precision.setText("PRECISIÓN: " + results_equipment[0][5] + " " + results_equipment[0][3] if results_equipment[0][5] is not None else "")
+        self.label_uncertainty.setText("RANGO: " + results_equipment[0][6] + " " + results_equipment[0][3] if results_equipment[0][6] is not None else "")
+        self.label_master.setText("PATRÓN: " + results_equipment[0][7] if results_equipment[0][7] is not None else "")
+        self.label_last_check.setText("ULT. COMP.: " + results_equipment[0][8] if results_equipment[0][8] is not None else "")
+        self.label_next_check.setText("PROX. COMP.: " +results_equipment[0][9] if results_equipment[0][9] is not None else "")
+        self.label_result.setText("RESULTADO: " + results_equipment[0][10] if results_equipment[0][10] is not None else "")
+        self.label_notes.setText("NOTAS: " + results_equipment[0][11] if results_equipment[0][11] is not None else "")
 
 # Function to delete register of database
     def delete_register(self):
@@ -1491,7 +1593,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    commands_delete = ("""DELETE FROM verification.machines_workshop_revisions
+                    commands_delete = ("""DELETE FROM verification.equipments_workshop_revisions
                                         WHERE id = %s""")
                     for id_value in id_values:
                         data = (id_value,)
@@ -1506,7 +1608,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
                     new_icon = QtGui.QIcon()
                     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Revisiones Máquinas")
+                    dlg.setWindowTitle("Revisiones Manómetros y Termoelementos")
                     dlg.setText("Registros eliminados con éxito")
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
@@ -1530,6 +1632,274 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
                         conn.close()
 
             del dlg_yes_no, new_icon_yes_no
+
+# Function to correct image orientation
+    def open_image(self):
+        """
+        Open the image of the equipment.
+        """
+        query_path_image = ("""SELECT image FROM verification.manometers_thermoelements_workshop WHERE id = %s""")
+        
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(query_path_image, (self.equipment_id,))
+            results=cur.fetchall()
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+            file_path = os.path.normpath(results[0][0])
+            os.startfile(file_path)
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+# Function to print pdf
+    def datasheet_pdf(self):
+        """
+        Generates a PDF datasheet for the equipment with details and revisions.
+        Opens the generated PDF in the viewer.
+        """
+        query_equipment_data = ("""SELECT equipment_number, reference, type_equipment, brand, range_equipment, precision_equipment,
+                                master, 'certificado' as certificate, TO_CHAR(last_check_date, 'DD/MM/YYYY'),TO_CHAR(next_check_date, 'DD/MM/YYYY'), notes, image
+                                FROM verification.equipments_workshop WHERE id = %s""")
+        query_equipment_revision = ("""SELECT * FROM verification.manometers_thermoelements_workshop_revisions WHERE equipment_id = %s ORDER BY id ASC""")
+
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(query_equipment_data, (self.equipment_id,))
+            results_equipment=cur.fetchall()
+
+            cur.execute(query_equipment_revision, (self.equipment_id,))
+            results_revisions=cur.fetchall()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            print(error)
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        if len(results_equipment) != 0:
+            pdf = CustomPDF('P', 'cm', 'A4')
+
+            pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
+            pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+
+            pdf.set_auto_page_break(auto=True)
+            pdf.set_margins(1.5, 1.5)
+
+            pdf.add_page()
+
+            pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eipsa Logo Blanco.png")), 13.6, 1.5, 6, 2.25)
+            pdf.set_fill_color(0, 176, 240)
+            pdf.set_font('Helvetica', 'B', 16)
+            pdf.cell(11, 1, "FICHA DE CALIBRACIÓN", border=1, align='C', fill=True)
+            pdf.ln(1)
+            pdf.set_fill_color(191, 191, 191)
+            pdf.set_font('Helvetica', '', 9)
+            pdf.fixed_height_multicell(11, 2, "Certificamos que en la fecha indicada se ha procedido según la instrucción CEM-I-001 a la comprobación mediante comparación del patrón referenciado habiéndose obtenido los resultados reflejados.", 'L', 'LR')
+            pdf.ln(0)
+
+            pdf.set_font('Helvetica', 'B', 9)
+            pdf.cell(4, 0.5, "EQUIPO", border=1, align='L', fill=True)
+            pdf.set_font('Helvetica', '', 9)
+            pdf.cell(7, 0.5, str(results_equipment[0][0]), border=1, align='L')
+            pdf.ln(0.5)
+            pdf.set_font('Helvetica', 'B', 9)
+            pdf.cell(4, 0.5, "Nº SERIE", border=1, align='L', fill=True)
+            pdf.set_font('Helvetica', '', 9)
+            pdf.cell(7, 0.5, str(results_equipment[0][1]), border=1, align='L')
+            pdf.ln(0.5)
+            pdf.set_font('Helvetica', 'B', 9)
+            pdf.cell(4, 0.5, "TIPO", border=1, align='L', fill=True)
+            pdf.set_font('Helvetica', '', 9)
+            pdf.cell(7, 0.5, str(results_equipment[0][2]), border=1, align='L')
+            pdf.ln(0.5)
+            pdf.set_font('Helvetica', 'B', 9)
+            pdf.cell(4, 0.5, "FABRICANTE", border=1, align='L', fill=True)
+            pdf.set_font('Helvetica', '', 9)
+            pdf.cell(7, 0.5, str(results_equipment[0][3]), border=1, align='L')
+            pdf.ln(0.5)
+            pdf.set_font('Helvetica', 'B', 9)
+            pdf.cell(4, 0.5, "RANGO", border=1, align='L', fill=True)
+            pdf.set_font('Helvetica', '', 9)
+            pdf.cell(7, 0.5, str(results_equipment[0][4]), border=1, align='L')
+            pdf.ln(0.5)
+            pdf.set_font('Helvetica', 'B', 9)
+            pdf.cell(4, 0.5, "PRECISIÓN", border=1, align='L', fill=True)
+            pdf.set_font('Helvetica', '', 9)
+            pdf.cell(7, 0.5, str(results_equipment[0][5]), border=1, align='L')
+            pdf.ln(0.5)
+            pdf.set_font('Helvetica', 'B', 9)
+            pdf.cell(4, 0.5, "FRECUENCIA", border=1, align='L', fill=True)
+            pdf.set_font('Helvetica', '', 9)
+            pdf.cell(7, 0.5, 'ANUAL', border=1, align='L')
+            pdf.ln(0.5)
+            pdf.set_font('Helvetica', 'B', 9)
+            pdf.cell(4, 0.5, "PATRÓN", border=1, align='L', fill=True)
+            pdf.set_font('Helvetica', '', 9)
+            pdf.cell(7, 0.5, str(results_equipment[0][6]), border=1, align='L')
+            pdf.ln(0.5)
+            pdf.set_font('Helvetica', 'B', 9)
+            pdf.cell(4, 0.5, "CERTIFICADO PATRÓN", border=1, align='L', fill=True)
+            pdf.set_font('Helvetica', '', 9)
+            pdf.cell(7, 0.5, str(results_equipment[0][7]), border=1, align='L')
+            pdf.ln(0.5)
+            pdf.set_font('Helvetica', 'B', 9)
+            pdf.cell(4, 0.5, "FECHA REALIZACIÓN", border=1, align='L', fill=True)
+            pdf.set_font('Helvetica', '', 9)
+            pdf.cell(7, 0.5, str(results_equipment[0][8]), border=1, align='L')
+            pdf.ln(0.5)
+            pdf.set_font('Helvetica', 'B', 9)
+            pdf.cell(4, 0.5, "PRÓXIMA CALIBRACIÓN", border=1, align='L', fill=True)
+            pdf.set_font('Helvetica', '', 9)
+            pdf.cell(7, 0.5, str(results_equipment[0][9]), border=1, align='L')
+            pdf.ln(0.5)
+
+            pdf.set_font('Helvetica', 'B', 9)
+            pdf.cell(2.75, 0.5, "PRUEBA", border=1, align='C', fill=True)
+            pdf.cell(1.75, 0.5, "", border=1, align='C', fill=True)
+            pdf.cell(2.25, 0.5, "1 (0%)", border=1, align='C', fill=True)
+            pdf.cell(2.25, 0.5, "2 (100%)", border=1, align='C', fill=True)
+            pdf.cell(2.25, 0.5, "3 (50%)", border=1, align='C', fill=True)
+            pdf.cell(2.25, 0.5, "4 (75%)", border=1, align='C', fill=True)
+            pdf.cell(2.25, 0.5, "5 (25%)", border=1, align='C', fill=True)
+            pdf.cell(2.5, 0.5, "RESULTADO", border=1, align='C', fill=True)
+            pdf.ln(0.5)
+
+            for item in results_revisions:
+                y_position = pdf.get_y()
+                pdf.set_font('Helvetica', '', 9)
+
+                master_texts=[
+                str(item[3]) if item[3] is not None else '',
+                str(item[6]) if item[6] is not None else '',
+                str(item[9]) if item[9] is not None else '',
+                str(item[12]) if item[12] is not None else '',
+                str(item[15]) if item[15] is not None else ''
+                ]
+
+                min_height = pdf.calculate_min_height(2.25, master_texts)
+
+                pdf.fixed_height_multicell(2.75, min_height + 1, item[2], 'C','LR')
+                pdf.set_font('Helvetica', 'B', 9)
+                pdf.set_xy(4.25, y_position)
+                pdf.fixed_height_multicell(1.75, min_height, "PATRÓN", 'C','LR')
+                pdf.set_font('Helvetica', '', 7)
+                pdf.set_xy(6, y_position)
+                pdf.fixed_height_multicell(2.25, min_height, str(item[3]) if item[3] is not None else '', 'C','LR')
+                pdf.set_xy(8.25, y_position)
+                pdf.fixed_height_multicell(2.25, min_height, str(item[6]) if item[6] is not None else '', 'C','LR')
+                pdf.set_xy(10.5, y_position)
+                pdf.fixed_height_multicell(2.25, min_height, str(item[9]) if item[9] is not None else '', 'C','LR')
+                pdf.set_xy(12.75, y_position)
+                pdf.fixed_height_multicell(2.25, min_height, str(item[12]) if item[12] is not None else '', 'C','LR')
+                pdf.set_xy(15, y_position)
+                pdf.fixed_height_multicell(2.25, min_height, str(item[15]) if item[15] is not None else '', 'C','LR')
+                pdf.set_xy(17.25, y_position)
+                pdf.set_fill_color(146, 208, 80)
+                pdf.fixed_height_multicell(2.5, min_height, str(item[19]), 'C','LR', fill=True)
+                pdf.ln(0)
+
+                pdf.set_x(4.25)
+                pdf.set_font('Helvetica', 'B', 9)
+                pdf.cell(1.75, 0.5, "MEDIDA", border=1, align='C')
+                pdf.set_font('Helvetica', '', 9)
+                pdf.cell(2.25, 0.5, str(item[4]) if item[4] is not None else '', border=1, align='C')
+                pdf.cell(2.25, 0.5, str(item[7]) if item[7] is not None else '', border=1, align='C')
+                pdf.cell(2.25, 0.5, str(item[10]) if item[10] is not None else '', border=1, align='C')
+                pdf.cell(2.25, 0.5, str(item[13]) if item[13] is not None else '', border=1, align='C')
+                pdf.cell(2.25, 0.5, str(item[16]) if item[16] is not None else '', border=1, align='C')
+                pdf.set_font('Helvetica', 'B', 9)
+                pdf.cell(2.5, 0.5, "DESVIACIÓN", border=1, align='C')
+                pdf.set_font('Helvetica', '', 9)
+                pdf.ln(0.5)
+
+                pdf.set_x(4.25)
+                pdf.set_font('Helvetica', 'B', 9)
+                pdf.cell(1.75, 0.5, "EQUIPO", border=1, align='C')
+                pdf.set_font('Helvetica', '', 9)
+                pdf.set_fill_color(216, 228, 188)
+                pdf.cell(2.25, 0.5, str(item[5]) if item[5] is not None else '', border=1, align='C', fill=True)
+                pdf.cell(2.25, 0.5, str(item[8]) if item[8] is not None else '', border=1, align='C', fill=True)
+                pdf.cell(2.25, 0.5, str(item[11]) if item[11] is not None else '', border=1, align='C', fill=True)
+                pdf.cell(2.25, 0.5, str(item[14]) if item[14] is not None else '', border=1, align='C', fill=True)
+                pdf.cell(2.25, 0.5, str(item[17]) if item[17] is not None else '', border=1, align='C', fill=True)
+                pdf.cell(2.5, 0.5, str(item[18]) if item[18] is not None else '', border=1, align='C', fill=True)
+                pdf.ln(0.5)
+
+            pdf.fixed_height_multicell(18.25, 2, results_equipment[0][10], 'L','LR')
+            pdf.ln(3)
+            pdf.set_font('Helvetica', 'B', 9)
+            pdf.cell(2.5, 0.5, 'TEMPERATURA: 23°C ± 2°C', align='L')
+            pdf.ln(1.5)
+            pdf.cell(2.5, 0.5, 'CER-' + results_equipment[0][0], border=1, align='C')
+            pdf.cell(2.5, 0.5, 'CALIBRACIÓN REALIZADA POR: MARIO GIL', align='L')
+            pdf.ln(1.5)
+            pdf.cell(2.5, 0.5, 'FC-001', border=1, align='C')
+            pdf.cell(2.5, 0.5, 'CALIBRACIÓN SUPERVISADA POR: JESÚS MARTÍNEZ', align='L')
+
+            if results_equipment[0][11] != '':
+                image_path = os.path.abspath(results_equipment[0][11])
+                corrected_image = self.correct_image_orientation(image_path)
+                temp_image_path = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Resources\pdfviewer\temp\temp_corrected_image.png"
+                corrected_image.save(temp_image_path)
+                pdf.image(temp_image_path, 12.55, 4.45, 7.25, 5.45)
+            
+            pdf_buffer = pdf.output()
+
+            temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
+
+            with open(temp_file_path, "wb") as temp_file:
+                temp_file.write(pdf_buffer)
+
+            self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Abre el PDF en el visor
+            self.pdf_viewer.showMaximized()
+        else:
+            dlg_error = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg_error.setWindowIcon(new_icon)
+            dlg_error.setWindowTitle("Manómetros y Termoelementos")
+            dlg_error.setText("No existe calibre con ese número")
+            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg_error.exec()
+            del dlg_error,new_icon
 
 # Function to correct image orientation
     def correct_image_orientation(self,image_path):
@@ -1561,155 +1931,6 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
 
         return image
 
-# Function to print pdf
-    def datasheet_pdf(self):
-        """
-        Generates a PDF datasheet for the machine with details and revisions.
-        Opens the generated PDF in the viewer.
-        """
-        query_machine_data = ("""SELECT * FROM verification.machines_workshop WHERE id = %s""")
-        query_machine_revision = ("""SELECT TO_CHAR(rev_date, 'DD/MM/YYYY'), hours, description FROM verification.machines_workshop_revisions WHERE machine_id = %s ORDER BY rev_date DESC""")
-
-        conn = None
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands
-            cur.execute(query_machine_data, (self.machine_id,))
-            results_machine=cur.fetchall()
-
-            cur.execute(query_machine_revision, (self.machine_id,))
-            results_revisions=cur.fetchall()
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            print(error)
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
-
-        if len(results_machine) != 0:
-            pdf = CustomPDF('P', 'cm', 'A4')
-
-            pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-            pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
-
-            pdf.set_auto_page_break(auto=True)
-            pdf.set_margins(1.5, 1.5)
-
-            pdf.add_page()
-
-            pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eipsa Logo Blanco.png")), 13.6, 1.5, 6, 2.25)
-            pdf.set_fill_color(0, 176, 240)
-            pdf.set_font('Helvetica', 'B', 16)
-            pdf.cell(12, 1, "FICHA DE MAQUINARIA", border=1, align='C', fill=True)
-            pdf.ln(1)
-            pdf.set_fill_color(191, 191, 191)
-            pdf.set_font('Helvetica', 'B', 9)
-            pdf.cell(1, 0.5, "Num", border='LR', align='C', fill=True)
-            pdf.cell(4.5, 0.5, "Marca", border='LR', align='C', fill=True)
-            pdf.cell(4.5, 0.5, "Tipo", border='LR', align='C', fill=True)
-            pdf.cell(1, 0.5, "Año", border='LR', align='C', fill=True)
-            pdf.cell(1, 0.5, "Nave", border='LR', align='C', fill=True)
-            pdf.ln(0.5)
-            pdf.set_font('Helvetica', '', 9)
-            pdf.cell(1, 0.5, str(results_machine[0][0]), border='LRT', align='C')
-            pdf.cell(4.5, 0.5, str(results_machine[0][1]), border='LRT', align='C')
-            pdf.cell(4.5, 0.5, str(results_machine[0][2]), border='LRT', align='C')
-            pdf.cell(1, 0.5, str(results_machine[0][5]) if results_machine[0][5] is not None else '', border='LRT', align='C')
-            pdf.cell(1, 0.5, str(results_machine[0][6]) if results_machine[0][6] is not None else '', border='LRT', align='C')
-            pdf.ln(0.5)
-            pdf.set_font('Helvetica', 'B', 9)
-            pdf.cell(5.5, 0.5, "Próxima Revisión", border='LRT', align='C', fill=True)
-            pdf.set_font('Helvetica', '', 9)
-            pdf.cell(6.5, 0.5, str(f"{str(results_machine[0][4]).split('-')[2]}/{str(results_machine[0][4]).split('-')[1]}/{str(results_machine[0][4]).split('-')[0]}") if results_machine[0][4] is not None else '', border='LRT', align='C')
-            pdf.ln(0.5)
-            pdf.set_font('Helvetica', 'B', 9)
-            pdf.cell(18.1, 0.5, "CARACTERÍSTICAS", border=1, align='C', fill=True)
-            pdf.ln(0.5)
-            pdf.set_font('Helvetica', '', 9)
-
-            if results_machine[0][3] != '-':
-                characteristics = str(results_machine[0][3]).splitlines()
-                for item in characteristics:
-                    item = item.split(': ')
-                    pdf.cell(5.5, 0.5, item[0] + ':', border=1, fill=True)
-                    pdf.cell(5.5, 0.5, item[1], border='RB')
-                    pdf.ln(0.5)
-
-            if results_machine[0][8] != '':
-                image_path = os.path.abspath(results_machine[0][8])
-                corrected_image = self.correct_image_orientation(image_path)
-                temp_image_path = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Resources\pdfviewer\temp\temp_corrected_image.png"
-                corrected_image.save(temp_image_path)
-                pdf.image(temp_image_path, 12.6, 4.60, 7, 13)
-
-            if len(results_revisions)>18:
-                pdf.set_y(18)
-
-                pdf.set_font('Helvetica', 'B', 9)
-                pdf.cell(4.5, 0.5, "Fecha Revisión", border=1, align='C', fill=True)
-                pdf.cell(3, 0.5, "Horas", border=1, align='C', fill=True)
-                pdf.cell(10.6, 0.5, "Descripción", border=1, align='C', fill=True)
-                pdf.ln(0.5)
-
-                pdf.set_font('Helvetica', '', 9)
-                for i in range(18):
-                    pdf.cell(4.5, 0.5, str(results_revisions[i][0]), border=1, align='C')
-                    pdf.cell(3, 0.5, str(results_revisions[i][1]), border=1, align='C')
-                    pdf.cell(10.6, 0.5, str(results_revisions[i][2]), border=1, align='C')
-                    pdf.ln(0.5)
-                pdf.cell(4.5, 0.5, '...', border=1, align='C')
-                pdf.cell(3, 0.5, '...', border=1, align='C')
-                pdf.cell(10.6, 0.5, '...', border=1, align='C')
-            else:
-                pdf.set_y(18)
-
-                pdf.set_font('Helvetica', 'B', 9)
-                pdf.cell(4.5, 0.5, "Fecha Revisión", border=1, align='C', fill=True)
-                pdf.cell(3, 0.5, "Horas", border=1, align='C', fill=True)
-                pdf.cell(10.6, 0.5, "Descripción", border=1, align='C', fill=True)
-                pdf.ln(0.5)
-
-                pdf.set_font('Helvetica', '', 9)
-                for revision in results_revisions:
-                    pdf.cell(4.5, 0.5, str(revision[0]), border=1, align='C')
-                    pdf.cell(3, 0.5, str(revision[1]), border=1, align='C')
-                    pdf.cell(10.6, 0.5, str(revision[2]), border=1, align='C')
-                    pdf.ln(0.5)
-
-            pdf_buffer = pdf.output()
-
-            temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
-
-            with open(temp_file_path, "wb") as temp_file:
-                temp_file.write(pdf_buffer)
-
-            self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Abre el PDF en el visor
-            self.pdf_viewer.showMaximized()
-        else:
-            dlg_error = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg_error.setWindowIcon(new_icon)
-            dlg_error.setWindowTitle("Máquinas")
-            dlg_error.setText("No existe máquina con ese número")
-            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg_error.exec()
-            del dlg_error,new_icon
-
-
 
 
 if __name__ == "__main__":
@@ -1726,6 +1947,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    Workshop_Machines_Rev_Window = Ui_Workshop_Machines_Rev_Window(db, 'm.gil', '73')
-    Workshop_Machines_Rev_Window.showMaximized()
+    Workshop_Manometers_Thermoelements_Rev_Window = Ui_Workshop_Manometers_Thermoelements_Rev_Window(db, 'm.gil', '2')
+    Workshop_Manometers_Thermoelements_Rev_Window.showMaximized()
     sys.exit(app.exec())
