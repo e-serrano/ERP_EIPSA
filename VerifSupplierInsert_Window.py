@@ -186,7 +186,8 @@ class ColorDelegate(QtWidgets.QStyledItemDelegate):
             index (QtCore.QModelIndex): The model index of the item.
         """
         super().initStyleOption(option, index)
-        color = self.colors_dict.get(index.row()+1, QtGui.QColor("white"))
+        id_state = index.data(QtCore.Qt.ItemDataRole.UserRole)
+        color = self.colors_dict.get(id_state, QtGui.QColor("white"))
         option.palette.setColor(QtGui.QPalette.ColorGroup.All, QtGui.QPalette.ColorRole.Text, color)
 
 class CustomTableWidget(QtWidgets.QTableWidget):
@@ -1491,7 +1492,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.date.setText(actual_date)
 
         query_states = ("""
-                            SELECT "state_verif"
+                            SELECT "id", "state_verif"
                             FROM verification.states_verification
                             ORDER BY "id"
                             """)
@@ -1510,7 +1511,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         # execution of commands
             cur.execute(query_states)
             results_states=cur.fetchall()
-            list_states = [x[0] for x in results_states]
+            list_states = [x for x in results_states]
 
             if self.username == 'j.tena':
                 element = list_states.pop(3)  # Extraemos el cuarto elemento
@@ -1534,8 +1535,14 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-        self.state.setItemDelegate(ColorDelegate())
-        self.state.addItems(list_states)
+        # self.state.setItemDelegate(ColorDelegate())
+        # self.state.addItems(list_states)
+
+        for id_state, name_state in list_states:
+            self.state.addItem(name_state, id_state)
+        
+        delegate = ColorDelegate(self.state)
+        self.state.view().setItemDelegate(delegate)
         self.supplier.addItems([''] + list_suppliers)
 
 # Function for key events
