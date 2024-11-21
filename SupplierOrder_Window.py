@@ -2347,6 +2347,10 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             self.calculate_totalorder()
             self.loadstocks()
 
+            self.Stock_SupplierOrder.setText('')
+            self.StockDsp_SupplierOrder.setText('')
+            self.StockVrt_SupplierOrder.setText('')
+
             self.Supply_SupplierOrder.setFocus()
 
             self.Position_SupplierOrder.setText(str(int(position) + 1))
