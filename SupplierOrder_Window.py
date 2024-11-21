@@ -2351,6 +2351,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
             self.Position_SupplierOrder.setText(str(int(position) + 1))
 
+            self.position_table_record(supply_name)
+
 # Function to modify record data
     def modifyrecord(self):
         """
@@ -2483,12 +2485,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         Delete the corresponding entry in database after validating form inputs.
         """
         record_id=self.label_IDRecord.text()
-        supply_name=self.Supply_SupplierOrder.currentText()
-        supply_name=supply_name[:supply_name.find(" |")]
-        quantity=self.Quantity_SupplierOrder.text()
-        supply_id=self.Supply_SupplierOrder.currentText().split("|")[-1].strip().split(":")[1]
 
-        if record_id == "":
+        if record_id == "" or self.Supply_SupplierOrder.currentText()=='':
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -2499,6 +2497,10 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             dlg.exec()
             del dlg,new_icon
         else:
+            supply_name=self.Supply_SupplierOrder.currentText()
+            supply_name=supply_name[:supply_name.find(" |")]
+            quantity=self.Quantity_SupplierOrder.text()
+            supply_id=self.Supply_SupplierOrder.currentText().split("|")[-1].strip().split(":")[1]
             commands_deleterecord = ("""
                                 DELETE FROM purch_fact.supplier_ord_detail
                                 WHERE purch_fact.supplier_ord_detail.id = %s
@@ -3966,6 +3968,21 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 item.setSelected(True)
                 self.tableSupplierOrders.scrollToItem(item)
                 self.loadformorder(item.row())
+                return
+
+    def position_table_record(self, record_name):
+        """
+        Selects and scrolls to the row in the Client Order record table based on the input position.
+        """
+        text_position = record_name
+
+        self.tableRecords.clearSelection()
+
+        for i in range(self.tableRecords.rowCount()):
+            item = self.tableRecords.item(i, 1)
+            if item is not None and text_position.upper() in item.text().upper():
+                item.setSelected(True)
+                self.tableRecords.scrollToItem(item)
                 return
 
 # Function to events for keys
