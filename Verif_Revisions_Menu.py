@@ -230,6 +230,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.Button_Machines.clicked.connect(self.machines)
         self.Button_Tools.clicked.connect(self.tools)
         self.Button_Calibers.clicked.connect(self.calibers)
+        self.Button_Manometers.clicked.connect(self.manometers_thermoelements)
         self.Button_CalibratedMasters.clicked.connect(self.calibrated_masters)
         self.Button_ThreadMasters.clicked.connect(self.thread_masters)
         self.Button_WeldMasters.clicked.connect(self.weld_equipment)
@@ -365,6 +366,27 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
 
         self.weldeq_window = Ui_Workshop_WeldEq_Masters_Window(db_weldeq, self.username)
         self.weldeq_window.showMaximized()
+
+# Function to open window with manometers and thermoelements
+    def manometers_thermoelements(self):
+        """
+        Opens the "Workshop Manometers_Thermoelements" window, establishes a database connection.
+        """
+        from Workshop_Manometers_Thermoelements_Window import Ui_Workshop_Manometers_Thermoelements_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_manometers_thermoelements = createConnection(user_database, password_database)
+        if not db_manometers_thermoelements:
+            sys.exit()
+
+        self.manometers_thermoelements_window = Ui_Workshop_Manometers_Thermoelements_Window(db_manometers_thermoelements, self.username)
+        self.manometers_thermoelements_window.showMaximized()
+
 
 
 if __name__ == "__main__":
