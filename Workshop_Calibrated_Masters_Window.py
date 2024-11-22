@@ -430,11 +430,20 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         self.hcab.addWidget(self.toolAdd)
         self.hcabspacer2=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer2)
+        self.toolPDF = QtWidgets.QToolButton(self.frame)
+        self.toolPDF.setObjectName("PDF_Button")
+        self.toolPDF.setToolTip("Imprimir PDF")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolPDF.setIcon(icon)
+        self.toolPDF.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolPDF)
 
         if self.username == 'm.gil':
             self.toolDeleteFilter.setStyleSheet("border: 1px solid white;")
             self.toolExpExcel.setStyleSheet("border: 1px solid white;")
             self.toolAdd.setStyleSheet("border: 1px solid white;")
+            self.toolPDF.setStyleSheet("border: 1px solid white;")
 
         self.hcabspacer6=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer6)
@@ -505,6 +514,7 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
         self.toolAdd.clicked.connect(self.add_new)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
+        self.toolPDF.clicked.connect(self.add_pdf)
 
         self.query_masters()
 
@@ -1295,7 +1305,8 @@ class Ui_Workshop_Calibrated_Masters_Window(QtWidgets.QMainWindow):
                 id_column_index = index.sibling(index.row(), 0)
                 value_id = str(id_column_index.data())
 
-                pdf_path = askdirectory(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS")
+                pdf_path = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS", filetypes=[("Archivos PDF", "*.pdf")],
+                            title="Seleccionar archivo pdf")
 
                 if pdf_path:
                     commands_insert_1 = ("""

@@ -1381,7 +1381,8 @@ class Ui_Workshop_Thread_Masters_Window(QtWidgets.QMainWindow):
                 id_column_index = index.sibling(index.row(), 0)
                 value_id = str(id_column_index.data())
 
-                pdf_path = askdirectory(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS")
+                pdf_path = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS", filetypes=[("Archivos PDF", "*.pdf")],
+                            title="Seleccionar archivo pdf")
 
                 if pdf_path:
                     commands_insert_1 = ("""
