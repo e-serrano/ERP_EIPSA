@@ -1210,59 +1210,59 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(actionTextFilter)
         self.menuValues.addSeparator()
 
-        scroll_menu = QtWidgets.QScrollArea()
-        scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
-        scroll_menu.setWidgetResizable(True)
-        scroll_widget = QtWidgets.QWidget(scroll_menu)
-        scroll_menu.setWidget(scroll_widget)
-        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+        # scroll_menu = QtWidgets.QScrollArea()
+        # scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
+        # scroll_menu.setWidgetResizable(True)
+        # scroll_widget = QtWidgets.QWidget(scroll_menu)
+        # scroll_menu.setWidget(scroll_widget)
+        # scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
 
-        checkbox_all_widget = QtWidgets.QCheckBox('Seleccionar todo')
+        # checkbox_all_widget = QtWidgets.QCheckBox('Seleccionar todo')
 
-        if not self.checkbox_states_P[self.logicalIndex]['Seleccionar todo'] == True:
-            checkbox_all_widget.setChecked(False)
-        else:
-            checkbox_all_widget.setChecked(True)
+        # if not self.checkbox_states_P[self.logicalIndex]['Seleccionar todo'] == True:
+        #     checkbox_all_widget.setChecked(False)
+        # else:
+        #     checkbox_all_widget.setChecked(True)
         
-        checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled_P(checked, name))
+        # checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled_P(checked, name))
 
-        scroll_layout.addWidget(checkbox_all_widget)
-        self.action_checkbox_map_P['Seleccionar todo'] = checkbox_all_widget
+        # scroll_layout.addWidget(checkbox_all_widget)
+        # self.action_checkbox_map_P['Seleccionar todo'] = checkbox_all_widget
 
-        if len(self.dict_ordersort_P) != 0 and self.logicalIndex in self.dict_ordersort_P:
-            list_uniquevalues = sorted(list(set(self.dict_valuesuniques_P[self.logicalIndex])))
-        else:
-            list_uniquevalues = sorted(list(set(valuesUnique_view)))
+        # if len(self.dict_ordersort_P) != 0 and self.logicalIndex in self.dict_ordersort_P:
+        #     list_uniquevalues = sorted(list(set(self.dict_valuesuniques_P[self.logicalIndex])))
+        # else:
+        #     list_uniquevalues = sorted(list(set(valuesUnique_view)))
 
-        for actionName in list_uniquevalues:
-            checkbox_widget = QtWidgets.QCheckBox(str(actionName))
+        # for actionName in list_uniquevalues:
+        #     checkbox_widget = QtWidgets.QCheckBox(str(actionName))
 
-            if self.logicalIndex not in self.checkbox_filters_P:
-                checkbox_widget.setChecked(True)
-            elif actionName not in self.checkbox_filters_P[self.logicalIndex]:
-                checkbox_widget.setChecked(False)
-            else:
-                checkbox_widget.setChecked(True)
+        #     if self.logicalIndex not in self.checkbox_filters_P:
+        #         checkbox_widget.setChecked(True)
+        #     elif actionName not in self.checkbox_filters_P[self.logicalIndex]:
+        #         checkbox_widget.setChecked(False)
+        #     else:
+        #         checkbox_widget.setChecked(True)
 
-            checkbox_widget.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled_P(checked, name))
+        #     checkbox_widget.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled_P(checked, name))
 
-            scroll_layout.addWidget(checkbox_widget)
-            self.action_checkbox_map_P[actionName] = checkbox_widget
+        #     scroll_layout.addWidget(checkbox_widget)
+        #     self.action_checkbox_map_P[actionName] = checkbox_widget
 
-        action_scroll_menu = QtWidgets.QWidgetAction(self.menuValues)
-        action_scroll_menu.setDefaultWidget(scroll_menu)
-        self.menuValues.addAction(action_scroll_menu)
+        # action_scroll_menu = QtWidgets.QWidgetAction(self.menuValues)
+        # action_scroll_menu.setDefaultWidget(scroll_menu)
+        # self.menuValues.addAction(action_scroll_menu)
 
-        self.menuValues.addSeparator()
+        # self.menuValues.addSeparator()
 
-        accept_button = QtGui.QAction("ACEPTAR", self.tableAssembly_P)
-        accept_button.triggered.connect(self.menu_acceptbutton_triggered_P)
+        # accept_button = QtGui.QAction("ACEPTAR", self.tableAssembly_P)
+        # accept_button.triggered.connect(self.menu_acceptbutton_triggered_P)
 
-        cancel_button = QtGui.QAction("CANCELAR", self.tableAssembly_P)
-        cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
+        # cancel_button = QtGui.QAction("CANCELAR", self.tableAssembly_P)
+        # cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
 
-        self.menuValues.addAction(accept_button)
-        self.menuValues.addAction(cancel_button)
+        # self.menuValues.addAction(accept_button)
+        # self.menuValues.addAction(cancel_button)
 
         self.menuValues.setStyleSheet("QMenu { color: black; }"
                                         "QMenu { background-color: rgb(255, 255, 255); }"
@@ -1316,59 +1316,59 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(actionTextFilter)
         self.menuValues.addSeparator()
 
-        scroll_menu = QtWidgets.QScrollArea()
-        scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
-        scroll_menu.setWidgetResizable(True)
-        scroll_widget = QtWidgets.QWidget(scroll_menu)
-        scroll_menu.setWidget(scroll_widget)
-        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+        # scroll_menu = QtWidgets.QScrollArea()
+        # scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
+        # scroll_menu.setWidgetResizable(True)
+        # scroll_widget = QtWidgets.QWidget(scroll_menu)
+        # scroll_menu.setWidget(scroll_widget)
+        # scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
 
-        checkbox_all_widget = QtWidgets.QCheckBox('Seleccionar todo')
+        # checkbox_all_widget = QtWidgets.QCheckBox('Seleccionar todo')
 
-        if not self.checkbox_states_PA[self.logicalIndex]['Seleccionar todo'] == True:
-            checkbox_all_widget.setChecked(False)
-        else:
-            checkbox_all_widget.setChecked(True)
+        # if not self.checkbox_states_PA[self.logicalIndex]['Seleccionar todo'] == True:
+        #     checkbox_all_widget.setChecked(False)
+        # else:
+        #     checkbox_all_widget.setChecked(True)
         
-        checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled_PA(checked, name))
+        # checkbox_all_widget.toggled.connect(lambda checked, name='Seleccionar todo': self.on_select_all_toggled_PA(checked, name))
 
-        scroll_layout.addWidget(checkbox_all_widget)
-        self.action_checkbox_map_PA['Seleccionar todo'] = checkbox_all_widget
+        # scroll_layout.addWidget(checkbox_all_widget)
+        # self.action_checkbox_map_PA['Seleccionar todo'] = checkbox_all_widget
 
-        if len(self.dict_ordersort_PA) != 0 and self.logicalIndex in self.dict_ordersort_PA:
-            list_uniquevalues = sorted(list(set(self.dict_valuesuniques_PA[self.logicalIndex])))
-        else:
-            list_uniquevalues = sorted(list(set(valuesUnique_view)))
+        # if len(self.dict_ordersort_PA) != 0 and self.logicalIndex in self.dict_ordersort_PA:
+        #     list_uniquevalues = sorted(list(set(self.dict_valuesuniques_PA[self.logicalIndex])))
+        # else:
+        #     list_uniquevalues = sorted(list(set(valuesUnique_view)))
 
-        for actionName in list_uniquevalues:
-            checkbox_widget = QtWidgets.QCheckBox(str(actionName))
+        # for actionName in list_uniquevalues:
+        #     checkbox_widget = QtWidgets.QCheckBox(str(actionName))
 
-            if self.logicalIndex not in self.checkbox_filters_PA:
-                checkbox_widget.setChecked(True)
-            elif actionName not in self.checkbox_filters_PA[self.logicalIndex]:
-                checkbox_widget.setChecked(False)
-            else:
-                checkbox_widget.setChecked(True)
+        #     if self.logicalIndex not in self.checkbox_filters_PA:
+        #         checkbox_widget.setChecked(True)
+        #     elif actionName not in self.checkbox_filters_PA[self.logicalIndex]:
+        #         checkbox_widget.setChecked(False)
+        #     else:
+        #         checkbox_widget.setChecked(True)
 
-            checkbox_widget.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled_PA(checked, name))
+        #     checkbox_widget.toggled.connect(lambda checked, name=actionName: self.on_checkbox_toggled_PA(checked, name))
 
-            scroll_layout.addWidget(checkbox_widget)
-            self.action_checkbox_map_PA[actionName] = checkbox_widget
+        #     scroll_layout.addWidget(checkbox_widget)
+        #     self.action_checkbox_map_PA[actionName] = checkbox_widget
 
-        action_scroll_menu = QtWidgets.QWidgetAction(self.menuValues)
-        action_scroll_menu.setDefaultWidget(scroll_menu)
-        self.menuValues.addAction(action_scroll_menu)
+        # action_scroll_menu = QtWidgets.QWidgetAction(self.menuValues)
+        # action_scroll_menu.setDefaultWidget(scroll_menu)
+        # self.menuValues.addAction(action_scroll_menu)
 
-        self.menuValues.addSeparator()
+        # self.menuValues.addSeparator()
 
-        accept_button = QtGui.QAction("ACEPTAR", self.tableAssembly_PA)
-        accept_button.triggered.connect(self.menu_acceptbutton_triggered_PA)
+        # accept_button = QtGui.QAction("ACEPTAR", self.tableAssembly_PA)
+        # accept_button.triggered.connect(self.menu_acceptbutton_triggered_PA)
 
-        cancel_button = QtGui.QAction("CANCELAR", self.tableAssembly_PA)
-        cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
+        # cancel_button = QtGui.QAction("CANCELAR", self.tableAssembly_PA)
+        # cancel_button.triggered.connect(self.menu_cancelbutton_triggered)
 
-        self.menuValues.addAction(accept_button)
-        self.menuValues.addAction(cancel_button)
+        # self.menuValues.addAction(accept_button)
+        # self.menuValues.addAction(cancel_button)
 
         self.menuValues.setStyleSheet("QMenu { color: black; }"
                                         "QMenu { background-color: rgb(255, 255, 255); }"
