@@ -2639,7 +2639,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
 
         pdf.close()
 
-        self.pdf_viewer.open(QtCore.QUrl.fromLocalFile(temp_file_path))  # Abre el PDF en el visor
+        self.pdf_viewer.open(QtCore.QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
         self.pdf_viewer.showMaximized()
 
     def format_date_spanish(self, date_toformat):

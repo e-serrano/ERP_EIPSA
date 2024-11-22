@@ -1935,7 +1935,7 @@ class Ui_Workshop_Calibers_Rev_Window(QtWidgets.QMainWindow):
             with open(temp_file_path, "wb") as temp_file:
                 temp_file.write(pdf_buffer)
 
-            self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Abre el PDF en el visor
+            self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
             self.pdf_viewer.showMaximized()
         else:
             dlg_error = QtWidgets.QMessageBox()

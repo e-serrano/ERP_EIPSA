@@ -1576,7 +1576,7 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
                 # with open(temp_file_path, "wb") as temp_file:
                 #     temp_file.write(pdf_buffer)
 
-                # self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Abre el PDF en el visor
+                # self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
                 # self.pdf_viewer.showMaximized()
 
                 output_path = "//nas01/DATOS/Comunes/GARANTIA DE CALIDAD EIPSA/No-Conformidad/INFORMES PDF/" + type_nc + "-" + num_nc + ".pdf"

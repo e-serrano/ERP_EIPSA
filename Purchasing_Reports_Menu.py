@@ -474,7 +474,7 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
 
         pdf.close()
 
-        self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Abre el PDF en el visor
+        self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
         self.pdf_viewer.showMaximized()
 
     def pending_delivery_client_excel(self, df):
@@ -580,7 +580,7 @@ class Ui_Purchasing_Reports_Menu(QtWidgets.QMainWindow):
 
         pdf.close()
 
-        self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Abre el PDF en el visor
+        self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
         self.pdf_viewer.showMaximized()
 
     def pending_recep_supplier_excel(self, df):

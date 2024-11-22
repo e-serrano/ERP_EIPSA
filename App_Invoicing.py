@@ -1006,7 +1006,7 @@ class Ui_App_Invoicing(object):
 
         pdf.close()
 
-        self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Abre el PDF en el visor
+        self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
         self.pdf_viewer.showMaximized()
 
 # Function to generate pdf for pending invoices

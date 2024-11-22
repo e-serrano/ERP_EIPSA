@@ -3708,7 +3708,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
             pdf.close()
 
-            self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Abre el PDF en el visor
+            self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
             self.pdf_viewer.showMaximized()
 
 
