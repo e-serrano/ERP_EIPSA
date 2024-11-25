@@ -201,7 +201,7 @@ class Ui_CreateFabOrder_Window(object):
                     tag = self.model.data(self.model.index(target_row, 1))
                     ped_type_tag = self.model.data(self.model.index(target_row, 112))
                     code_fab_equipment = self.model.data(self.model.index(target_row, 73))
-                    codefab_orifice_flange = self.model.data(self.model.index(target_row, 75))
+                    codefab_orifice_flange = self.model.data(self.model.index(target_row, 76))
                     qty_orifice_flange = self.model.data(self.model.index(target_row, 77))
                     codefab_line_flange = self.model.data(self.model.index(target_row, 79))
                     qty_line_flange = self.model.data(self.model.index(target_row, 80))
