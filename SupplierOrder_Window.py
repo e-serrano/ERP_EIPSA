@@ -4015,6 +4015,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             dlg = QtWidgets.QDialog()
             dlg.setWindowTitle("Dialog")
             dlg.setGeometry(50, 50, 900, 600)
+            dlg.setWindowModality(QtCore.Qt.WindowModality.NonModal)
 
             vLayout = QtWidgets.QVBoxLayout(dlg)
 
@@ -4027,7 +4028,11 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             self.te.setStyleSheet("background-color: transparent;")
             vLayout.addWidget(self.te)
 
-            dlg.exec()
+            # dlg.exec()
+
+            dlg.show()
+
+            self.dialog = dlg
 
 # Function to save order comments
     def save_order_comments(self):
