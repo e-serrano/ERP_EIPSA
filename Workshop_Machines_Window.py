@@ -24,6 +24,7 @@ from tkinter.filedialog import asksaveasfilename
 from fpdf import FPDF
 from PDF_Viewer import PDF_Viewer
 from tkinter.filedialog import *
+from pandas.tseries.offsets import DateOffset
 
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -153,8 +154,8 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                         match_found = True
                         break
                 
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
-                    expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion[0]):
+                    expresion = QtCore.QDate.fromString(expresion[0], "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
@@ -806,7 +807,7 @@ class Ui_Workshop_Machines_Window(QtWidgets.QMainWindow):
         """
         for column, filters in self.checkbox_filters.items():
             if filters:
-                self.proxy.setFilter(filters, column)
+                self.proxy.setFilter(filters, column, exact_match=True)
             else:
                 self.proxy.setFilter(None, column)
 
@@ -993,6 +994,12 @@ class Ui_Workshop_Machines_Window(QtWidgets.QMainWindow):
             df = pd.DataFrame(final_data)
             df.columns = df.iloc[0]
             df = df[1:]
+            df['Próx. Rev.'] = pd.to_datetime(df['Próx. Rev.'], format='%d/%m/%Y')
+            df.insert(3, 'Ult.Rev.', df['Próx. Rev.'] - DateOffset(months=6))
+
+            df['Próx. Rev.'] = df['Próx. Rev.'].dt.strftime('%d/%m/%Y')
+            df['Ult.Rev.'] = df['Ult.Rev.'].dt.strftime('%d/%m/%Y')
+            df['Firma'] = None
 
             output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
             if output_path:
