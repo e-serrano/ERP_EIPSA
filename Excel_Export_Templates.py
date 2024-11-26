@@ -449,7 +449,7 @@ class offer_flow:
                 elif pay_term == "90_10":
                     ws["B45"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B46"] = (
@@ -654,7 +654,7 @@ class offer_flow:
                 elif pay_term == "90_10":
                     ws["B45"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B46"] = (
@@ -1867,7 +1867,7 @@ class offer_short_flow_english:
                 elif pay_term == "90_10":
                     ws["B45"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B46"] = (
@@ -2072,7 +2072,7 @@ class offer_short_flow_english:
                 elif pay_term == "90_10":
                     ws["B45"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B46"] = (
@@ -2664,7 +2664,7 @@ class offer_temp:
                 elif pay_term == "90_10":
                     ws["B45"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B46"] = (
@@ -2871,7 +2871,7 @@ class offer_temp:
                 elif pay_term == "90_10":
                     ws["B45"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B46"] = (
@@ -4160,7 +4160,7 @@ class offer_short_temp_english:
                 elif pay_term == "90_10":
                     ws["B48"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B49"] = (
@@ -4367,7 +4367,7 @@ class offer_short_temp_english:
                 elif pay_term == "90_10":
                     ws["B48"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B49"] = (
@@ -4812,7 +4812,7 @@ class offer_level:
                 elif pay_term == "90_10":
                     ws["B42"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B43"] = (
@@ -4995,7 +4995,7 @@ class offer_level:
                 elif pay_term == "90_10":
                     ws["B42"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B43"] = (
@@ -5986,7 +5986,7 @@ class offer_short_level_english:
                 elif pay_term == "90_10":
                     ws["B41"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B42"] = (
@@ -6169,7 +6169,7 @@ class offer_short_level_english:
                 elif pay_term == "90_10":
                     ws["B41"] = (
                         "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation would be approved. \n"
+                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
                         "Bank Transfer: 60 days since invoice issue date."
                     )
                     ws["B42"] = (
