@@ -998,6 +998,8 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
             df.columns = df.iloc[0]
             df = df[1:]
 
+            df['Firma'] = None
+
             output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
             if output_path:
                 df.to_excel(output_path, index=False, header=True)
@@ -1206,7 +1208,7 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
         """
         Adjusts column visibility and resize behavior in the tableEquipment widget.
         """
-        # self.tableEquipment.hideColumn(3)
+        self.tableEquipment.hideColumn(13)
         # self.tableEquipment.hideColumn(8)
         # self.tableEquipment.hideColumn(9)
         self.tableEquipment.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
