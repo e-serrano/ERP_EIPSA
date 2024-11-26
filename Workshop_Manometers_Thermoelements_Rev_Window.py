@@ -1798,8 +1798,8 @@ class Ui_Workshop_Manometers_Thermoelements_Rev_Window(QtWidgets.QMainWindow):
                     pdf.ln()
                     pdf.cell(5, 0.5, 'CERTIFICADO CALIBRACION', border=1, align='C')
                     pdf.set_font('Helvetica', '', 9)
-                    pdf.cell(2.6, 0.5, os.path.basename(results_equipment[0][12]) if results_equipment[0][12] is not None else '', border=1)
-                    pdf.cell(2.6, 0.5, os.path.basename(results_equipment[0][13]) if results_equipment[0][13] is not None else '', border=1)
+                    pdf.cell(2.6, 0.5, os.path.basename(results_equipment[0][12]).split()[0] if results_equipment[0][12] is not None else '', border=1)
+                    pdf.cell(2.6, 0.5, os.path.basename(results_equipment[0][13]).split()[0] if results_equipment[0][13] is not None else '', border=1)
                     pdf.cell(2.6, 0.5, '', border=1)
                     pdf.cell(2.6, 0.5, '', border=1)
                     pdf.cell(2.6, 0.5, '', border=1)
@@ -2022,7 +2022,7 @@ class Ui_Workshop_Manometers_Thermoelements_Rev_Window(QtWidgets.QMainWindow):
                 pdf.multi_cell(3, 0.5, "CERTIFICADO\n(Certificate)", border=1)
                 pdf.set_xy(x_position + 3, y_position)
                 pdf.set_font('Helvetica', '', 9)
-                pdf.cell(4, 1, results_equipment[0][12], align='C', border=1)
+                pdf.cell(4, 1, os.path.basename(results_equipment[0][12]).split()[0], align='C', border=1)
                 pdf.ln(1.5)
 
                 x_position = pdf.get_x()
@@ -2217,6 +2217,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    Workshop_Manometers_Thermoelements_Rev_Window = Ui_Workshop_Manometers_Thermoelements_Rev_Window(db, 'm.gil', '5')
+    Workshop_Manometers_Thermoelements_Rev_Window = Ui_Workshop_Manometers_Thermoelements_Rev_Window(db, 'm.gil', '1')
     Workshop_Manometers_Thermoelements_Rev_Window.showMaximized()
     sys.exit(app.exec())
