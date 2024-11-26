@@ -1045,6 +1045,10 @@ class Ui_Workshop_Thread_Masters_Window(QtWidgets.QMainWindow):
             df.columns = df.iloc[0]
             df = df[1:]
 
+            df['Certificado 1'] = df['Certificado 1'].apply(lambda valor: os.path.basename(valor).split()[0] if valor != '' else '')
+            df['Certificado 2'] = df['Certificado 2'].apply(lambda valor: os.path.basename(valor).split()[0] if valor != '' else '')
+            df['Firma'] = None
+
             output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
             if output_path:
                 df.to_excel(output_path, index=False, header=True)

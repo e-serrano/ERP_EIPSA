@@ -1016,6 +1016,44 @@ class Ui_Workshop_Calibers_Window(QtWidgets.QMainWindow):
             dlg.exec()
             del dlg,new_icon
         else:
+
+            commands_certificate = ("""
+                            SELECT certificate_1 FROM verification."calibrated_masters" WHERE "number_item" = %s
+                            """)
+
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(commands_certificate, ('EIPSA-CP-40',))
+                results_certificate = cur.fetchall()
+
+                certificate = os.path.basename(results_certificate[0][0]).split()[0]
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Verificación EXP")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+
+            finally:
+                if conn is not None:
+                    conn.close()
+
             final_data = []
 
             visible_columns = [col for col in range(self.model.columnCount()) if not self.tableCalibers.isColumnHidden(col)]
@@ -1033,6 +1071,10 @@ class Ui_Workshop_Calibers_Window(QtWidgets.QMainWindow):
             df = pd.DataFrame(final_data)
             df.columns = df.iloc[0]
             df = df[1:]
+
+            df.insert(5, 'Resultado', 'OK')
+            df.insert(10, 'Cert. Patrón', 'ENAC ' + str(certificate))
+            df['Firma'] = None
 
             output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
             if output_path:
