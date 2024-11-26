@@ -591,7 +591,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                             #     except Exception as e:
                             #         print(f"No se pudo abrir el archivo: {e}")
 
-                            self.pdf_viewer.open(QtCore.QUrl.fromLocalFile(output_path2))  # Open PDF on viewer
+                            self.pdf_viewer.open(QtCore.QUrl.fromLocalFile(output_path))  # Open PDF on viewer
                             self.pdf_viewer.showMaximized()
 
                         except (Exception, psycopg2.DatabaseError) as error:
