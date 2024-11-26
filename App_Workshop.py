@@ -248,13 +248,13 @@ class Ui_App_Workshop(object):
         self.Header.addWidget(self.Button_Verification)
         spacerItem5 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem5)
-        self.Button_Machines = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_Machines.setMinimumSize(QtCore.QSize(50, 50))
-        self.Button_Machines.setMaximumSize(QtCore.QSize(50, 50))
-        self.Button_Machines.setToolTip('Máquinas')
-        self.Button_Machines.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Revisions = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Revisions.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Revisions.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Revisions.setToolTip('Máquinas')
+        self.Button_Revisions.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         if self.username == 'm.gil':
-            self.Button_Machines.setStyleSheet("QPushButton{\n"
+            self.Button_Revisions.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
     "    background-color: rgb(38, 38, 38);\n"
@@ -277,7 +277,7 @@ class Ui_App_Workshop(object):
     "    border-radius: 10px;\n"
     "}")
         else:
-            self.Button_Machines.setStyleSheet("QPushButton{\n"
+            self.Button_Revisions.setStyleSheet("QPushButton{\n"
     "    border: 1px solid transparent;\n"
     "    border-color: rgb(3, 174, 236);\n"
     "    background-color: rgb(255, 255, 255);\n"
@@ -299,74 +299,13 @@ class Ui_App_Workshop(object):
     "    background-color: rgb(200, 200, 200);\n"
     "    border-radius: 10px;\n"
     "}")
-        self.Button_Machines.setText("")
+        self.Button_Revisions.setText("")
         icon10 = QtGui.QIcon()
-        icon10.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Machines.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_Machines.setIcon(icon10)
-        self.Button_Machines.setIconSize(QtCore.QSize(int(40), int(40)))
-        self.Button_Machines.setObjectName("Button_Machines")
-        self.Header.addWidget(self.Button_Machines)
-
-        spacerItem8 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem8)
-        self.Button_HandTools = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_HandTools.setMinimumSize(QtCore.QSize(50, 50))
-        self.Button_HandTools.setMaximumSize(QtCore.QSize(50, 50))
-        self.Button_HandTools.setToolTip('Herramientas de Mano')
-        self.Button_HandTools.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        if self.username == 'm.gil':
-            self.Button_HandTools.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(38, 38, 38);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        else:
-            self.Button_HandTools.setStyleSheet("QPushButton{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(3, 174, 236);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:hover{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(255, 255, 255);\n"
-    "    border-radius: 10px;\n"
-    "}\n"
-    "\n"
-    "QPushButton:pressed{\n"
-    "    border: 1px solid transparent;\n"
-    "    border-color: rgb(0, 0, 0);\n"
-    "    color: rgb(0,0,0);\n"
-    "    background-color: rgb(200, 200, 200);\n"
-    "    border-radius: 10px;\n"
-    "}")
-        self.Button_HandTools.setText("")
-        icon11 = QtGui.QIcon()
-        icon11.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Handtool.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_HandTools.setIcon(icon11)
-        self.Button_HandTools.setIconSize(QtCore.QSize(int(40), int(40)))
-        self.Button_HandTools.setObjectName("Button_HandTools")
-        self.Header.addWidget(self.Button_HandTools)
+        icon10.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Revision.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Revisions.setIcon(icon10)
+        self.Button_Revisions.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Revisions.setObjectName("Button_Revisions")
+        self.Header.addWidget(self.Button_Revisions)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -604,8 +543,7 @@ class Ui_App_Workshop(object):
         self.Button_Palette_M.clicked.connect(self.colour_palette_M)
         self.Button_Palette_T.clicked.connect(self.colour_palette_T)
         self.Button_Verification.clicked.connect(self.verification)
-        self.Button_Machines.clicked.connect(self.workshop_machines)
-        self.Button_HandTools.clicked.connect(self.workshop_handtools)
+        self.Button_Revisions.clicked.connect(self.revisions)
 
         self.load_notifications()
 
@@ -883,45 +821,16 @@ class Ui_App_Workshop(object):
             else:
                 break
 
-# Function to open window with workshop machines
-    def workshop_machines(self):
+# Function to open menu with different types of revisions
+    def revisions(self):
         """
-        Opens the workshop machines window for managing workshop machinery.
+        Initializes and displays the revisions menu for the current user.
         """
-        from Workshop_Machines_Window import Ui_Workshop_Machines_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
-        user_database = dbparam["user"]
-        password_database = dbparam["password"]
-
-        db_machines = createConnection(user_database, password_database)
-        if not db_machines:
-            sys.exit()
-
-        self.machines_window = Ui_Workshop_Machines_Window(db_machines, self.username)
-        self.machines_window.showMaximized()
-
-# Function to open window with workshop machines
-    def workshop_handtools(self):
-        """
-        Opens the workshop handtools window for managing hand tools.
-        """
-        from Workshop_Handtools_Window import Ui_Workshop_Handtools_Window
-        config_obj = configparser.ConfigParser()
-        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-        dbparam = config_obj["postgresql"]
-        # set your parameters for the database connection URI using the keys from the configfile.ini
-        user_database = dbparam["user"]
-        password_database = dbparam["password"]
-
-        db_handtools = createConnection(user_database, password_database)
-        if not db_handtools:
-            sys.exit()
-
-        self.handtool_window = Ui_Workshop_Handtools_Window(db_handtools, self.username)
-        self.handtool_window.showMaximized()
+        from Verif_Revisions_Menu import Ui_Verif_Revisions_Menu
+        self.revisions_menu=QtWidgets.QMainWindow()
+        self.ui=Ui_Verif_Revisions_Menu(self.username)
+        self.ui.setupUi(self.revisions_menu)
+        self.revisions_menu.show()
 
 
 
