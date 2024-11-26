@@ -1046,10 +1046,10 @@ class CustomProxyModelDim(QtCore.QSortFilterProxyModel):
     """
     def __init__(self, parent=None):
         """
-        Initialize the proxy model and the filter attributes.
+        Get the current filter expressions applied to columns.
 
-        Args:
-            parent (QObject, optional): Parent object for the model. Defaults to None.
+        Returns:
+            dict: Dictionary of column filters.
         """
         super().__init__(parent)
         self._filters = dict()
@@ -1103,31 +1103,39 @@ class CustomProxyModelDim(QtCore.QSortFilterProxyModel):
         Returns:
             bool: True if the row meets the filter criteria, False otherwise.
         """
-        # Filtering logic for rows
         for column, expresions in self.filters.items():
             text = self.sourceModel().index(source_row, column, source_parent).data()
 
-            if isinstance(text, QtCore.QDate):  # Check if filters are QDate. If True, convert to text
+            if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
                 text = text.toString("yyyy-MM-dd")
 
-            for expresion in expresions[0]:
-                if expresion == "":  # If expression is empty, match empty cells
-                    if text == "":
+            match_found = False 
+
+            for expresion, exact_match in expresions:
+                if expresion == '':  # If expression is empty, match empty cells
+                    if text == '':
                         break
 
-                elif re.fullmatch(r"^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$", expresion):
-                    expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
+                if exact_match:
+                    if text in expresion:  # Verificar si `text` está en la lista `expresion`
+                        match_found = True
+                        break
+                
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion[0]):
+                    expresion = QtCore.QDate.fromString(expresion[0], "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
-
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
 
                 else:
-                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion[0]))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
-            else:
+
+            if not match_found:
                 return False
         return True
 
@@ -1263,10 +1271,10 @@ class CustomProxyModelOf(QtCore.QSortFilterProxyModel):
     """
     def __init__(self, parent=None):
         """
-        Initialize the proxy model and the filter attributes.
+        Get the current filter expressions applied to columns.
 
-        Args:
-            parent (QObject, optional): Parent object for the model. Defaults to None.
+        Returns:
+            dict: Dictionary of column filters.
         """
         super().__init__(parent)
         self._filters = dict()
@@ -1338,8 +1346,8 @@ class CustomProxyModelOf(QtCore.QSortFilterProxyModel):
                         match_found = True
                         break
                 
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
-                    expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion[0]):
+                    expresion = QtCore.QDate.fromString(expresion[0], "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
@@ -1347,7 +1355,7 @@ class CustomProxyModelOf(QtCore.QSortFilterProxyModel):
                         break
 
                 else:
-                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion[0]))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
                         match_found = True
                         break
@@ -1478,6 +1486,7 @@ class CustomProxyModelM(QtCore.QSortFilterProxyModel):
 
     Properties:
         filters: Getter for the current filter dictionary.
+
     """
     def __init__(self, parent=None):
         """
@@ -1538,31 +1547,39 @@ class CustomProxyModelM(QtCore.QSortFilterProxyModel):
         Returns:
             bool: True if the row meets the filter criteria, False otherwise.
         """
-        # Filtering logic for rows
         for column, expresions in self.filters.items():
             text = self.sourceModel().index(source_row, column, source_parent).data()
 
-            if isinstance(text, QtCore.QDate):  # Check if filters are QDate. If True, convert to text
+            if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
                 text = text.toString("yyyy-MM-dd")
 
-            for expresion in expresions[0]:
-                if expresion == "":  # If expression is empty, match empty cells
-                    if text == "":
+            match_found = False 
+
+            for expresion, exact_match in expresions:
+                if expresion == '':  # If expression is empty, match empty cells
+                    if text == '':
                         break
 
-                elif re.fullmatch(r"^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$", expresion):
-                    expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
+                if exact_match:
+                    if text in expresion:  # Verificar si `text` está en la lista `expresion`
+                        match_found = True
+                        break
+                
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion[0]):
+                    expresion = QtCore.QDate.fromString(expresion[0], "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
-
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
 
                 else:
-                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion[0]))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
+                        match_found = True
                         break
-            else:
+
+            if not match_found:
                 return False
         return True
 
@@ -2607,7 +2624,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         """
         for column, filters in self.checkbox_filters.items():
             if filters:
-                proxy.setFilter(filters, column)
+                proxy.setFilter(filters, column, exact_match=True)
             else:
                 proxy.setFilter(None, column)
 
@@ -3719,7 +3736,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                         ((" BRIDAS " + results_description[0][9]) if results_description[0][0] in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6'] else " ") +
                                                         "E:" + results_description[0][5] + 
                                                         (" TOMAS: " + results_description[0][10] if results_description[0][0] in ['NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW'] else "") +
-                                                        (results_description[0][13] + " SALTOS: " if results_description[0][0] == 'MULTISTAGE RO' else ""))
+                                                        (" SALTOS: " + str(int(results_description[0][13])) if results_description[0][0] == 'MULTISTAGE RO' else ""))
 
                                         elif item_type in ['NOZZLE BW', 'VWM', 'VWW']:
                                             description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
