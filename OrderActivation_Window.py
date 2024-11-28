@@ -361,7 +361,7 @@ class Ui_OrderActivation_Window(object):
                                 )
                                 """)
             commands_queryorder = ("""
-                                    SELECT orders."num_order",offers."responsible", orders."num_ref_order", offers."client", offers."final_client", TO_CHAR(orders."expected_date", 'DD-MM-YYYY')
+                                    SELECT orders."num_order",offers."responsible", orders."num_ref_order", offers."client", offers."final_client", TO_CHAR(orders."expected_date", 'DD-MM-YYYY'), offers."delivery-time"
                                     FROM offers
                                     INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                                     WHERE orders."num_order" = %s
@@ -401,6 +401,7 @@ class Ui_OrderActivation_Window(object):
                         client = results_queryorder[0][3]
                         final_client = results_queryorder[0][4]
                         expected_date = results_queryorder[0][5]
+                        delivery_time = results_queryorder[0][6]
                     # execution of commands
                         cur.execute(commands_responsible, (username_responsible,))
                         results_responsible=cur.fetchall()
@@ -416,7 +417,7 @@ class Ui_OrderActivation_Window(object):
                         mails_copy = [x[0] for x in results_mailcopy]
                         mails_copy.insert(0,'ana-calvo@eipsa.es')
 
-                        mail = email_order_activation(numorder, num_ref_order, client, final_client, expected_date, name_responsible, mails_sendto, mails_copy, adit_info, email_responsible, extras_text)
+                        mail = email_order_activation(numorder, num_ref_order, client, final_client, expected_date, delivery_time, name_responsible, mails_sendto, mails_copy, adit_info, email_responsible, extras_text)
                         mail.send_email()
 
                     # close communication with the PostgreSQL database server
