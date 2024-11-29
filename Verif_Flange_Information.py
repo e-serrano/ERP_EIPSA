@@ -510,6 +510,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         """
         super().__init__()
         self.username = username
+        self.image_path = None
         self.pdf_viewer = PDF_Viewer()
         self.setupUi(self)
 
@@ -744,7 +745,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         self.flange_image = QtWidgets.QLabel(parent=self.frame)
         self.flange_image.setText("")
         self.flange_image.setObjectName("flange_image")
-        self.gridLayout_2.addWidget(self.flange_image, 5, 0, 1, 5)
+        self.gridLayout_2.addWidget(self.flange_image, 5, 0, 1, 6)
 
         self.tableInformation=CustomTableWidget()
         self.tableInformation.setObjectName("tableInformation")
@@ -813,6 +814,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
 
         self.Button_Load.clicked.connect(self.query_information)
         self.load_data()
+        
 
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, Verif_Flange_Information_Window):
@@ -834,11 +836,20 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
         self.tableInformation.setRowCount(0)
-        commands_flanges_dimensions = ("""
-                    SELECT num_offer,responsible
-                    FROM offers
-                    WHERE num_offer = 'O-24/001'
-                    """)
+
+        code_flange = self.Standard_Flange.currentText() + "-" + self.Size_Flange.currentText() + "-" + self.Rating_Flange.currentText()
+        query_flange_rf_data = ("""SELECT dim_o, dim_tf, dim_w, dim_lrf, num_tal, dim_h, dim_rf, dim_ah, dim_x,
+                                REPLACE(TO_CHAR(
+                                (REPLACE(dim_h, ',', '.')::numeric + REPLACE(dim_y, ',', '.')::numeric), 
+                                'FM999999999.00'), '.', ',') AS dim_j
+                                FROM verification.flanges_verification WHERE code_flange = %s""")
+        query_flange_rtj_data = ("""SELECT dim_o, dim_tf, dim_w, dim_lrtj, num_tal, dim_p, dim_e, dim_f, dim_kmin, dim_ah, dim_x,
+                                REPLACE(TO_CHAR(
+                                (REPLACE(dim_e, ',', '.')::numeric + REPLACE(dim_y, ',', '.')::numeric), 
+                                'FM999999999.00'), '.', ',') AS dim_j
+                                FROM verification.flanges_verification WHERE code_flange = %s""")
+        query_pipe_diam = ("""SELECT REPLACE(TO_CHAR(in_diam, 'FM999999999.00'), '.', ',') AS pipe_int_diam FROM validation_data.pipe_diam WHERE line_size = %s and sch = %s""")
+
         conn = None
         try:
         # read the connection parameters
@@ -847,31 +858,85 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            cur.execute(commands_flanges_dimensions)
-            results_flanges=cur.fetchall()
+            if self.Facing_Flange.currentText() == 'RF':
+                cur.execute(query_flange_rf_data, (code_flange,))
+                results_flange=cur.fetchall()
+                columns = ["ØInt","ØO", "Tf", "ØW", "ØL", "Nº Tal", "H", "ØRF", "ØAh", "ØX", "J"]
+            elif self.Facing_Flange.currentText() == 'RTJ':
+                cur.execute(query_flange_rtj_data, (code_flange,))
+                results_flange=cur.fetchall()
+                columns = ["ØInt","ØO", "Tf", "ØW", "ØL", "Nº Tal", "ØP", "E", "F", "Økmin", "ØRF", "ØAh", "ØX", "J"]
+            else:
+                results_flange = None
 
-            self.tableInformation.setRowCount(len(results_flanges[0]))
-            tablerow=0
+            cur.execute(query_pipe_diam, (self.Size_Flange.currentText(), self.Schedule_Flange.currentText(),))
+            results_pipe_diam=cur.fetchall()
 
-        # fill the Qt Table with the query results
-            for column, row in enumerate(results_flanges):
-                for row_index in range(len(row)):
-                    value = row[row_index]
-                    if value is None:
-                        value = ''
-                    it = QtWidgets.QTableWidgetItem(str(value))
-                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                    self.tableInformation.setItem(tablerow, column+1, it)
+            if results_flange is not None:
+                self.tableInformation.setRowCount(len(results_flange[0]) + 1)
 
-                    tablerow+=1
+                it = QtWidgets.QTableWidgetItem(columns[0])
+                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                self.tableInformation.setItem(0, 0, it)
 
-            self.tableInformation.verticalHeader().hide()
-            self.tableInformation.setItemDelegate(AlignDelegate(self.tableInformation))
+                it = QtWidgets.QTableWidgetItem(str(results_pipe_diam[0][0]))
+                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                self.tableInformation.setItem(0, 1, it)
 
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+                tablerow=1
+
+            # fill the Qt Table with the query results
+                for column, row in enumerate(results_flange):
+                    for row_index in range(len(row)):
+                        value = row[row_index]
+                        if value is None:
+                            value = ''
+                        
+                        it = QtWidgets.QTableWidgetItem(str(columns[tablerow]))
+                        it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                        self.tableInformation.setItem(tablerow, column, it)
+                        
+                        it = QtWidgets.QTableWidgetItem(str(value))
+                        it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                        self.tableInformation.setItem(tablerow, column+1, it)
+
+                        tablerow+=1
+
+                self.tableInformation.verticalHeader().hide()
+                self.tableInformation.setItemDelegate(AlignDelegate(self.tableInformation))
+
+                self.tableInformation.setSortingEnabled(False)
+                self.adjust_table()
+
+                if self.Facing_Flange.currentText() == 'RF':
+                    self.image_path = r'\\nas01\DATOS\Comunes\EIPSA-ERP\Resources\Plantillas planos\BRIDA RF VERIFICACION.png'
+                elif self.Facing_Flange.currentText() == 'RTJ':
+                    self.image_path = r'\\nas01\DATOS\Comunes\EIPSA-ERP\Resources\Plantillas planos\BRIDA RTJ VERIFICACION.png'
+                else:
+                    self.image_path = None
+
+                if self.image_path is not None:
+                    corrected_image = self.correct_image_orientation(self.image_path)
+
+                    from io import BytesIO
+                    image_bytes = BytesIO()
+                    corrected_image.save(image_bytes, format='PNG')
+                    image_bytes.seek(0)
+
+                    pixmap = QtGui.QPixmap()
+                    pixmap.loadFromData(image_bytes.read())
+
+                    self.flange_image.setPixmap(pixmap)
+                    self.flange_image.setScaledContents(True)
+
+                else:
+                    self.flange_image.setPixmap(QtGui.QPixmap())
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
@@ -886,9 +951,6 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         finally:
             if conn is not None:
                 conn.close()
-
-        self.tableInformation.setSortingEnabled(False)
-        self.adjust_table()
 
 # Function to count selected cells and sum its values
     def countSelectedCells(self):
@@ -930,57 +992,57 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         Loads flange data from the database and updates the UI components.
         Displays the data in relevant UI elements and adjusts the image if available.
         """
-        # query_flange_data = ("""SELECT characteristics, image, brand, flange_type, year, warehouse, TO_CHAR(next_revision,'DD/MM/YYYY') FROM verification.flanges_workshop WHERE id = %s""")
+        query_size_data = ("""SELECT line_size FROM validation_data.flow_line_size ORDER BY line_size ASC""")
+        query_rating_data = ("SELECT rating FROM validation_data.flow_rating ORDER BY rating ASC")
+        query_facing_data = ("SELECT facing FROM validation_data.flow_facing ORDER BY facing ASC")
+        query_schedule_data = ("SELECT schedule FROM validation_data.flow_schedule ORDER BY schedule ASC")
+        query_thk_data = ("SELECT plate_thk FROM validation_data.flow_plate_thk ORDER BY plate_thk ASC")
 
-        # conn = None
-        # try:
-        # # read the connection parameters
-        #     params = config()
-        # # connect to the PostgreSQL server
-        #     conn = psycopg2.connect(**params)
-        #     cur = conn.cursor()
-        # # execution of commands
-        #     cur.execute(query_flange_data, (self.flange_id,))
-        #     results_flange=cur.fetchall()
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(query_size_data)
+            results_size=cur.fetchall()
 
-        # except (Exception, psycopg2.DatabaseError) as error:
-        #     dlg = QtWidgets.QMessageBox()
-        #     new_icon = QtGui.QIcon()
-        #     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        #     dlg.setWindowIcon(new_icon)
-        #     dlg.setWindowTitle("ERP EIPSA")
-        #     dlg.setText("Ha ocurrido el siguiente error:\n"
-        #                 + str(error))
-        #     print(error)
-        #     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        #     dlg.exec()
-        #     del dlg, new_icon
-        # finally:
-        #     if conn is not None:
-        #         conn.close()
+            cur.execute(query_rating_data)
+            results_rating=cur.fetchall()
 
-        # if results_flange[0][1] is not None and results_flange[0][1] != '':
-        #     image_path = os.path.abspath(results_flange[0][1])
+            cur.execute(query_facing_data)
+            results_facing=cur.fetchall()
 
-        #     corrected_image = self.correct_image_orientation(image_path)
+            cur.execute(query_schedule_data)
+            results_schedule=cur.fetchall()
 
-        #     from io import BytesIO
-        #     image_bytes = BytesIO()
-        #     corrected_image.save(image_bytes, format='PNG')
-        #     image_bytes.seek(0)
+            cur.execute(query_thk_data)
+            results_thk=cur.fetchall()
 
-        #     pixmap = QtGui.QPixmap()
-        #     pixmap.loadFromData(image_bytes.read())
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            print(error)
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
 
-        #     self.flange_image.setPixmap(pixmap)
-        #     self.flange_image.setScaledContents(True)
-
-        # self.flange_characteristics.setText(results_flange[0][0] if results_flange[0][0] is not None else "")
-        # self.label_standard.setText("NÚMERO: " + str(self.flange_id))
-        # self.label_size.setText("NOMBRE: " + results_flange[0][2] if results_flange[0][2] is not None else "")
-        # self.label_rating.setText("AÑO: " + results_flange[0][4] if results_flange[0][4] is not None else "")
-        # self.label_facing.setText("NAVE: " + results_flange[0][5] if results_flange[0][5] is not None else "")
-        # self.label_schedule.setText("PROX. REV.: " + results_flange[0][6] if results_flange[0][6] is not None else "")
+        self.Standard_Flange.addItems(['', 'B16.36','B16.47 SeriesA','B16.47 SeriesB','B16.5'])
+        self.Size_Flange.addItems([""] + [x[0] for x in results_size])
+        self.Rating_Flange.addItems([""] + [x[0] for x in results_rating])
+        self.Facing_Flange.addItems([""] + [x[0] for x in results_facing])
+        self.Schedule_Flange.addItems([""] + [x[0] for x in results_schedule])
+        self.PlateThk_Flange.addItems([""] + [x[0] for x in results_thk])
 
 # Function to correct image orientation
     def correct_image_orientation(self,image_path):
@@ -1018,8 +1080,18 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         Generates a PDF datasheet for the flange with details and revisions.
         Opens the generated PDF in the viewer.
         """
-        query_flange_data = ("""SELECT * FROM verification.flanges_workshop WHERE id = %s""")
-        query_flange_revision = ("""SELECT TO_CHAR(rev_date, 'DD/MM/YYYY'), hours, description FROM verification.flanges_workshop_revisions WHERE flange_id = %s ORDER BY rev_date DESC""")
+        code_flange = self.Standard_Flange.currentText() + "-" + self.Size_Flange.currentText() + "-" + self.Rating_Flange.currentText()
+        query_flange_rf_data = ("""SELECT dim_o, dim_tf, dim_w, dim_lrf, num_tal, dim_h, dim_rf, dim_ah, dim_x,
+                                REPLACE(TO_CHAR(
+                                (REPLACE(dim_h, ',', '.')::numeric + REPLACE(dim_y, ',', '.')::numeric), 
+                                'FM999999999.00'), '.', ',') AS dim_j
+                                FROM verification.flanges_verification WHERE code_flange = %s""")
+        query_flange_rtj_data = ("""SELECT dim_o, dim_tf, dim_w, dim_lrtj, num_tal, dim_p, dim_e, dim_f, dim_kmin, dim_ah, dim_x,
+                                REPLACE(TO_CHAR(
+                                (REPLACE(dim_e, ',', '.')::numeric + REPLACE(dim_y, ',', '.')::numeric), 
+                                'FM999999999.00'), '.', ',') AS dim_j
+                                FROM verification.flanges_verification WHERE code_flange = %s""")
+        query_pipe_diam = ("""SELECT REPLACE(TO_CHAR(in_diam, 'FM999999999.00'), '.', ',') AS pipe_int_diam FROM validation_data.pipe_diam WHERE line_size = %s and sch = %s""")
 
         conn = None
         try:
@@ -1029,11 +1101,18 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            cur.execute(query_flange_data, (self.flange_id,))
-            results_flange=cur.fetchall()
+            if self.Facing_Flange.currentText() == 'RF':
+                cur.execute(query_flange_rf_data, (code_flange,))
+                results_flange=cur.fetchall()
+            elif self.Facing_Flange.currentText() == 'RTJ':
+                cur.execute(query_flange_rtj_data, (code_flange,))
+                results_flange=cur.fetchall()
+            
+            cur.execute(query_pipe_diam, (self.Size_Flange.currentText(), self.Schedule_Flange.currentText(),))
+            results_pipe_diam=cur.fetchall()
 
-            cur.execute(query_flange_revision, (self.flange_id,))
-            results_revisions=cur.fetchall()
+            # cur.execute(query_flange_revision, (self.flange_id,))
+            # results_revisions=cur.fetchall()
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
@@ -1061,88 +1140,140 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
 
             pdf.add_page()
 
-            pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eipsa Logo Blanco.png")), 13.6, 1.5, 6, 2.25)
-            pdf.set_fill_color(0, 176, 240)
-            pdf.set_font('Helvetica', 'B', 16)
-            pdf.cell(12, 1, "FICHA DE MAQUINARIA", border=1, align='C', fill=True)
-            pdf.ln(1)
+            pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Logo_email.png")), 1, 0.5, 3.5, 1)
+            pdf.image(self.image_path, 1.5, 1.5, 18, 9.5)
+            pdf.ln(9.5)
             pdf.set_fill_color(191, 191, 191)
-            pdf.set_font('Helvetica', 'B', 9)
-            pdf.cell(1, 0.5, "Num", border='LR', align='C', fill=True)
-            pdf.cell(4.5, 0.5, "Marca", border='LR', align='C', fill=True)
-            pdf.cell(4.5, 0.5, "Tipo", border='LR', align='C', fill=True)
-            pdf.cell(1, 0.5, "Año", border='LR', align='C', fill=True)
-            pdf.cell(1, 0.5, "Nave", border='LR', align='C', fill=True)
-            pdf.ln(0.5)
+
             pdf.set_font('Helvetica', '', 9)
-            pdf.cell(1, 0.5, str(results_flange[0][0]), border='LRT', align='C')
-            pdf.cell(4.5, 0.5, str(results_flange[0][1]), border='LRT', align='C')
-            pdf.cell(4.5, 0.5, str(results_flange[0][2]), border='LRT', align='C')
-            pdf.cell(1, 0.5, str(results_flange[0][5]) if results_flange[0][5] is not None else '', border='LRT', align='C')
-            pdf.cell(1, 0.5, str(results_flange[0][6]) if results_flange[0][6] is not None else '', border='LRT', align='C')
-            pdf.ln(0.5)
-            pdf.set_font('Helvetica', 'B', 9)
-            pdf.cell(5.5, 0.5, "Próxima Revisión", border='LRT', align='C', fill=True)
+            pdf.cell(4.5, 0.5, "CANTIDAD", border='LT', align='L')
+            pdf.cell(5, 0.5, "MATERIAL", border='LT', align='L')
+            pdf.cell(5.5, 0.5, "COLADA", border='LT', align='L')
+            pdf.cell(3, 0.5, "NORMA", border='LTR', align='L')
+            pdf.ln()
+
+            pdf.set_font('Helvetica', 'B', 11)
+            pdf.cell(4.5, 1, "", border='LB')
+            pdf.cell(5, 1, "", border='LB')
+            pdf.cell(5.5, 1, "", border='LB')
+            pdf.cell(3, 1, self.Standard_Flange.currentText(), border='LBR')
+            pdf.ln()
+
             pdf.set_font('Helvetica', '', 9)
-            pdf.cell(6.5, 0.5, str(f"{str(results_flange[0][4]).split('-')[2]}/{str(results_flange[0][4]).split('-')[1]}/{str(results_flange[0][4]).split('-')[0]}") if results_flange[0][4] is not None else '', border='LRT', align='C')
-            pdf.ln(0.5)
-            pdf.set_font('Helvetica', 'B', 9)
-            pdf.cell(18.1, 0.5, "CARACTERÍSTICAS", border=1, align='C', fill=True)
-            pdf.ln(0.5)
-            pdf.set_font('Helvetica', '', 9)
+            pdf.cell(4.5, 0.5, "TAMAÑO", border='LT', align='L')
+            pdf.cell(3.5, 0.5, "RATING", border='LT', align='L')
+            pdf.cell(1.5, 0.5, "", border='LT', align='L')
+            pdf.cell(2.5, 0.5, "", border='LT', align='L')
+            pdf.cell(3, 0.5, "SCH", border='LT', align='L')
+            pdf.cell(3, 0.5, "", border='LTR', align='L')
+            pdf.ln()
 
-            if results_flange[0][3] != '-':
-                characteristics = str(results_flange[0][3]).splitlines()
-                for item in characteristics:
-                    item = item.split(': ')
-                    pdf.cell(5.5, 0.5, item[0] + ':', border=1, fill=True)
-                    pdf.cell(5.5, 0.5, item[1], border='RB')
-                    pdf.ln(0.5)
+            pdf.set_font('Helvetica', 'B', 16)
+            pdf.cell(4.5, 1, self.Size_Flange.currentText(), border='LB', align='C')
+            pdf.cell(3.5, 1, str(self.Rating_Flange.currentText()) + "#", border='LB', align='C')
+            pdf.cell(1.5, 1, self.Facing_Flange.currentText(), border='LB', align='C')
+            pdf.cell(2.5, 1, "WN", border='LB', align='C')
+            pdf.cell(3, 1, self.Schedule_Flange.currentText(), border='LB', align='C')
+            pdf.cell(3, 1, "", border='LBR', align='C')
+            pdf.ln()
 
-            if results_flange[0][8] != '':
-                image_path = os.path.abspath(results_flange[0][8])
-                corrected_image = self.correct_image_orientation(image_path)
-                temp_image_path = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Resources\pdfviewer\temp\temp_corrected_image.png"
-                corrected_image.save(temp_image_path)
-                pdf.image(temp_image_path, 12.6, 4.60, 7, 13)
-
-            if len(results_revisions)>18:
-                pdf.set_y(18)
-
+            if self.Facing_Flange.currentText() == 'RF':
                 pdf.set_font('Helvetica', 'B', 9)
-                pdf.cell(4.5, 0.5, "Fecha Revisión", border=1, align='C', fill=True)
-                pdf.cell(3, 0.5, "Horas", border=1, align='C', fill=True)
-                pdf.cell(10.6, 0.5, "Descripción", border=1, align='C', fill=True)
-                pdf.ln(0.5)
+                pdf.cell(1.7, 0.5, "ØInt", border=1, align='C', fill=True)
+                pdf.cell(1.63, 0.5, "ØO", border=1, align='C', fill=True)
+                pdf.cell(1.63, 0.5, "Tf", border=1, align='C', fill=True)
+                pdf.cell(1.63, 0.5, "ØW", border=1, align='C', fill=True)
+                pdf.cell(1.63, 0.5, "ØL", border=1, align='C', fill=True)
+                pdf.cell(1.63, 0.5, "Nº Tal", border=1, align='C', fill=True)
+                pdf.cell(1.63, 0.5, "H", border=1, align='C', fill=True)
+                pdf.cell(1.63, 0.5, "ØRF", border=1, align='C', fill=True)
+                pdf.cell(1.63, 0.5, "ØAh", border=1, align='C', fill=True)
+                pdf.cell(1.63, 0.5, "ØX", border=1, align='C', fill=True)
+                pdf.cell(1.63, 0.5, "J", border=1, align='C', fill=True)
+                pdf.ln()
 
                 pdf.set_font('Helvetica', '', 9)
-                for i in range(18):
-                    pdf.cell(4.5, 0.5, str(results_revisions[i][0]), border=1, align='C')
-                    pdf.cell(3, 0.5, str(results_revisions[i][1]), border=1, align='C')
-                    pdf.cell(10.6, 0.5, str(results_revisions[i][2]), border=1, align='C')
-                    pdf.ln(0.5)
-                pdf.cell(4.5, 0.5, '...', border=1, align='C')
-                pdf.cell(3, 0.5, '...', border=1, align='C')
-                pdf.cell(10.6, 0.5, '...', border=1, align='C')
-            else:
-                pdf.set_y(18)
+                pdf.cell(1.7, 0.5, str(results_pipe_diam[0][0]), border=1, align='C')
+                pdf.cell(1.63, 0.5, str(results_flange[0][0]), border=1, align='C')
+                pdf.cell(1.63, 0.5, str(results_flange[0][1]), border=1, align='C')
+                pdf.cell(1.63, 0.5, str(results_flange[0][2]), border=1, align='C')
+                pdf.cell(1.63, 0.5, str(results_flange[0][3]), border=1, align='C')
+                pdf.cell(1.63, 0.5, str(results_flange[0][4]), border=1, align='C')
+                pdf.cell(1.63, 0.5, str(results_flange[0][5]), border=1, align='C')
+                pdf.cell(1.63, 0.5, str(results_flange[0][6]), border=1, align='C')
+                pdf.cell(1.63, 0.5, str(results_flange[0][7]), border=1, align='C')
+                pdf.cell(1.63, 0.5, str(results_flange[0][8]), border=1, align='C')
+                pdf.cell(1.63, 0.5, str(results_flange[0][9]), border=1, align='C')
+                pdf.ln()
 
+                for i in range(20):
+                    pdf.cell(1.7, 0.5, "", border=1)
+                    pdf.cell(1.63, 0.5, "", border=1)
+                    pdf.cell(1.63, 0.5, "", border=1)
+                    pdf.cell(1.63, 0.5, "", border=1)
+                    pdf.cell(1.63, 0.5, "", border=1)
+                    pdf.cell(1.63, 0.5, "", border=1)
+                    pdf.cell(1.63, 0.5, "", border=1)
+                    pdf.cell(1.63, 0.5, "", border=1)
+                    pdf.cell(1.63, 0.5, "", border=1)
+                    pdf.cell(1.63, 0.5, "", border=1)
+                    pdf.cell(1.63, 0.5, "", border=1)
+                    pdf.ln()
+
+            elif self.Facing_Flange.currentText() == 'RTJ':
                 pdf.set_font('Helvetica', 'B', 9)
-                pdf.cell(4.5, 0.5, "Fecha Revisión", border=1, align='C', fill=True)
-                pdf.cell(3, 0.5, "Horas", border=1, align='C', fill=True)
-                pdf.cell(10.6, 0.5, "Descripción", border=1, align='C', fill=True)
-                pdf.ln(0.5)
+                pdf.cell(1.44, 0.5, "ØInt", border=1, align='C', fill=True)
+                pdf.cell(1.38, 0.5, "ØO", border=1, align='C', fill=True)
+                pdf.cell(1.38, 0.5, "Tf", border=1, align='C', fill=True)
+                pdf.cell(1.38, 0.5, "ØW", border=1, align='C', fill=True)
+                pdf.cell(1.38, 0.5, "ØL", border=1, align='C', fill=True)
+                pdf.cell(1.38, 0.5, "Nº Tal", border=1, align='C', fill=True)
+                pdf.cell(1.38, 0.5, "ØP", border=1, align='C', fill=True)
+                pdf.cell(1.38, 0.5, "E", border=1, align='C', fill=True)
+                pdf.cell(1.38, 0.5, "F", border=1, align='C', fill=True)
+                pdf.cell(1.38, 0.5, "Økmin", border=1, align='C', fill=True)
+                pdf.cell(1.38, 0.5, "ØAh", border=1, align='C', fill=True)
+                pdf.cell(1.38, 0.5, "ØX", border=1, align='C', fill=True)
+                pdf.cell(1.38, 0.5, "J1", border=1, align='C', fill=True)
+                pdf.ln()
 
                 pdf.set_font('Helvetica', '', 9)
-                for revision in results_revisions:
-                    pdf.cell(4.5, 0.5, str(revision[0]), border=1, align='C')
-                    pdf.cell(3, 0.5, str(revision[1]), border=1, align='C')
-                    pdf.cell(10.6, 0.5, str(revision[2]), border=1, align='C')
-                    pdf.ln(0.5)
+                pdf.cell(1.44, 0.5, str(results_pipe_diam[0][0]), border=1, align='C')
+                pdf.cell(1.38, 0.5, str(results_flange[0][0]), border=1, align='C')
+                pdf.cell(1.38, 0.5, str(results_flange[0][1]), border=1, align='C')
+                pdf.cell(1.38, 0.5, str(results_flange[0][2]), border=1, align='C')
+                pdf.cell(1.38, 0.5, str(results_flange[0][3]), border=1, align='C')
+                pdf.cell(1.38, 0.5, str(results_flange[0][4]), border=1, align='C')
+                pdf.cell(1.38, 0.5, str(results_flange[0][5]), border=1, align='C')
+                pdf.cell(1.38, 0.5, str(results_flange[0][6]), border=1, align='C')
+                pdf.cell(1.38, 0.5, str(results_flange[0][7]), border=1, align='C')
+                pdf.cell(1.38, 0.5, str(results_flange[0][8]), border=1, align='C')
+                pdf.cell(1.38, 0.5, str(results_flange[0][9]), border=1, align='C')
+                pdf.cell(1.38, 0.5, str(results_flange[0][10]), border=1, align='C')
+                pdf.cell(1.38, 0.5, str(results_flange[0][11]), border=1, align='C')
+                pdf.ln()
+
+                for i in range(20):
+                    pdf.cell(1.44, 0.5, "", border=1)
+                    pdf.cell(1.38, 0.5, "", border=1)
+                    pdf.cell(1.38, 0.5, "", border=1)
+                    pdf.cell(1.38, 0.5, "", border=1)
+                    pdf.cell(1.38, 0.5, "", border=1)
+                    pdf.cell(1.38, 0.5, "", border=1)
+                    pdf.cell(1.38, 0.5, "", border=1)
+                    pdf.cell(1.38, 0.5, "", border=1)
+                    pdf.cell(1.38, 0.5, "", border=1)
+                    pdf.cell(1.38, 0.5, "", border=1)
+                    pdf.cell(1.38, 0.5, "", border=1)
+                    pdf.cell(1.38, 0.5, "", border=1)
+                    pdf.cell(1.38, 0.5, "", border=1)
+                    pdf.ln()
+
+            pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/QualityControlStamp.png")), 14, 25.5, 5, 3)
 
             pdf_buffer = pdf.output()
 
-            temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
+            temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "flange.pdf"))))
 
             with open(temp_file_path, "wb") as temp_file:
                 temp_file.write(pdf_buffer)
@@ -1154,8 +1285,8 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg_error.setWindowIcon(new_icon)
-            dlg_error.setWindowTitle("Máquinas")
-            dlg_error.setText("No existe máquina con ese número")
+            dlg_error.setWindowTitle("Bridas")
+            dlg_error.setText("Faltan campos por rellenar o no hay datos para esa brida")
             dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg_error.exec()
             del dlg_error,new_icon

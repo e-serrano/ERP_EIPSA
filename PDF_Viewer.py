@@ -74,6 +74,8 @@ class PDF_Viewer(QMainWindow):
         Args:
             doc_location (QUrl): The URL of the local file to open.
         """
+        self.temp_file_path = doc_location
+
         if doc_location.isLocalFile():
             self.m_document.load(doc_location.toLocalFile())
             document_title = self.m_document.metaData(QPdfDocument.MetaDataField.Title)
@@ -255,9 +257,8 @@ class PDF_Viewer(QMainWindow):
         """
         Prints the current PDF.
         """
-        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
         try:
-            win32api.ShellExecute(0, "print", temp_file_path, None, ".", 0) # Printing the temp file
+            win32api.ShellExecute(0, "print", self.temp_file_path, None, ".", 0) # Printing the temp file
             # os.remove(temp_file_path) # Deleting the temp file
         except Exception as e:
             dlg = QMessageBox()

@@ -386,6 +386,67 @@ class Ui_App_Verification(object):
         self.Button_Warehouse_Pieces.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_Warehouse_Pieces.setObjectName("Button_Warehouse_Pieces")
         self.Header.addWidget(self.Button_Warehouse_Pieces)
+
+        spacerItem4 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem4)
+        self.Button_Flanges = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Flanges.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Flanges.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Flanges.setToolTip('Bridas')
+        self.Button_Flanges.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'm.gil':
+            self.Button_Flanges.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Flanges.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Flanges.setText("")
+        icon11 = QtGui.QIcon()
+        icon11.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Flanges.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Flanges.setIcon(icon11)
+        self.Button_Flanges.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Flanges.setObjectName("Button_Flanges")
+        self.Header.addWidget(self.Button_Flanges)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -686,6 +747,7 @@ class Ui_App_Verification(object):
         self.Button_NCReports.clicked.connect(self.nc_report)
         self.Button_Revisions.clicked.connect(self.revisions)
         self.Button_Warehouse_Pieces.clicked.connect(self.aditional_pieces)
+        self.Button_Flanges.clicked.connect(self.flanges_information)
         self.Button_Profile.clicked.connect(self.showMenu)
 
         self.update_machines_revision()
@@ -1018,7 +1080,16 @@ class Ui_App_Verification(object):
             if conn is not None:
                 conn.close()
 
-
+# Function to open menu with different types of revisions
+    def flanges_information(self):
+        """
+        Initializes and displays the flanges information for the current user.
+        """
+        from Verif_Flange_Information import Ui_Verif_Flange_Information_Window
+        self.flange_information=QtWidgets.QMainWindow()
+        self.ui=Ui_Verif_Flange_Information_Window(self.username)
+        self.ui.setupUi(self.flange_information)
+        self.flange_information.showMaximized()
 
 
 if __name__ == "__main__":

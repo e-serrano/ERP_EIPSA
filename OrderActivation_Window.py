@@ -361,7 +361,7 @@ class Ui_OrderActivation_Window(object):
                                 )
                                 """)
             commands_queryorder = ("""
-                                    SELECT orders."num_order",offers."responsible", orders."num_ref_order", offers."client", offers."final_client", TO_CHAR(orders."expected_date", 'DD-MM-YYYY'), offers."delivery-time"
+                                    SELECT orders."num_order",offers."responsible", orders."num_ref_order", offers."client", offers."final_client", TO_CHAR(orders."expected_date", 'DD-MM-YYYY'), offers."delivery_time"
                                     FROM offers
                                     INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                                     WHERE orders."num_order" = %s

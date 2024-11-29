@@ -675,6 +675,67 @@ class Ui_App_Purchasing(object):
         self.Button_ActiveOffer.setObjectName("Button_ActiveOffer")
         self.Button_ActiveOffer.setToolTip("Ofertas Activas")
         self.Header.addWidget(self.Button_ActiveOffer)
+
+        spacerItem6 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem6)
+        self.Button_Revisions = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Revisions.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_Revisions.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_Revisions.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'd.marquez':
+            self.Button_Revisions.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Revisions.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Revisions.setText("")
+        icon12 = QtGui.QIcon()
+        icon12.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Revision.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Revisions.setIcon(icon12)
+        self.Button_Revisions.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_Revisions.setObjectName("Button_Revisions")
+        self.Button_Revisions.setToolTip("Revisiones")
+        self.Header.addWidget(self.Button_Revisions)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -941,6 +1002,7 @@ class Ui_App_Purchasing(object):
         self.Button_Welding.clicked.connect(self.welding_data)
         self.Button_Warehouse.clicked.connect(self.warehouse_app)
         self.Button_ActiveOffer.clicked.connect(self.open_active_offers)
+        self.Button_Revisions.clicked.connect(self.revisions)
 
         self.backup_data()
 
@@ -1489,6 +1551,18 @@ class Ui_App_Purchasing(object):
         self.ui=Ui_OfferQueryActive_Window()
         self.ui.setupUi(self.query_active_offer_window)
         self.query_active_offer_window.showMaximized()
+
+# Function to open menu with different types of revisions
+    def revisions(self):
+        """
+        Initializes and displays the revisions menu for the current user.
+        """
+        from Verif_Revisions_Menu import Ui_Verif_Revisions_Menu
+        self.revisions_menu=QtWidgets.QMainWindow()
+        self.ui=Ui_Verif_Revisions_Menu(self.username)
+        self.ui.setupUi(self.revisions_menu)
+        self.revisions_menu.show()
+
 
 
 if __name__ == "__main__":
