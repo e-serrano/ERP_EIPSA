@@ -849,6 +849,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
                                 'FM999999999.00'), '.', ',') AS dim_j
                                 FROM verification.flanges_verification WHERE code_flange = %s""")
         query_pipe_diam = ("""SELECT REPLACE(TO_CHAR(in_diam, 'FM999999999.00'), '.', ',') AS pipe_int_diam FROM validation_data.pipe_diam WHERE line_size = %s and sch = %s""")
+        query_bolts = ("""SELECT dim_torn FROM validation_data.flow_torn WHERE code_torn = %s""")
 
         conn = None
         try:
@@ -861,25 +862,28 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
             if self.Facing_Flange.currentText() == 'RF':
                 cur.execute(query_flange_rf_data, (code_flange,))
                 results_flange=cur.fetchall()
-                columns = ["ØInt","ØO", "Tf", "ØW", "ØL", "Nº Tal", "H", "ØRF", "ØAh", "ØX", "J"]
+                columns = ["ØInt","ØO", "Tf", "ØW", "ØL", "Nº Tal", "H", "ØRF", "ØAh", "ØX", "J", "Torn."]
             elif self.Facing_Flange.currentText() == 'RTJ':
                 cur.execute(query_flange_rtj_data, (code_flange,))
                 results_flange=cur.fetchall()
-                columns = ["ØInt","ØO", "Tf", "ØW", "ØL", "Nº Tal", "ØP", "E", "F", "Økmin", "ØRF", "ØAh", "ØX", "J"]
+                columns = ["ØInt","ØO", "Tf", "ØW", "ØL", "Nº Tal", "ØP", "E", "F", "Økmin", "ØRF", "ØAh", "ØX", "J", "Torn."]
             else:
                 results_flange = None
 
             cur.execute(query_pipe_diam, (self.Size_Flange.currentText(), self.Schedule_Flange.currentText(),))
             results_pipe_diam=cur.fetchall()
 
-            if results_flange is not None:
-                self.tableInformation.setRowCount(len(results_flange[0]) + 1)
+            cur.execute(query_bolts, (self.Size_Flange.currentText() + " " + self.Rating_Flange.currentText() + " " + self.Facing_Flange.currentText() + " " + self.PlateThk_Flange.currentText() + " SQE",))
+            results_torn=cur.fetchall()
+
+            if len(results_flange) != 0 and results_flange is not None:
+                self.tableInformation.setRowCount(len(results_flange[0]) + 2)
 
                 it = QtWidgets.QTableWidgetItem(columns[0])
                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                 self.tableInformation.setItem(0, 0, it)
 
-                it = QtWidgets.QTableWidgetItem(str(results_pipe_diam[0][0]))
+                it = QtWidgets.QTableWidgetItem(str(results_pipe_diam[0][0]) if len(results_pipe_diam) > 0 else '')
                 it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
                 self.tableInformation.setItem(0, 1, it)
 
@@ -901,6 +905,14 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
                         self.tableInformation.setItem(tablerow, column+1, it)
 
                         tablerow+=1
+
+                it = QtWidgets.QTableWidgetItem(str(columns[-1]))
+                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                self.tableInformation.setItem(tablerow, 0, it)
+
+                it = QtWidgets.QTableWidgetItem(str(results_torn[0][0]) if len(results_torn) > 0 else '')
+                it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                self.tableInformation.setItem(tablerow, column+1, it)
 
                 self.tableInformation.verticalHeader().hide()
                 self.tableInformation.setItemDelegate(AlignDelegate(self.tableInformation))
@@ -1204,7 +1216,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
                 pdf.cell(1.63, 0.5, str(results_flange[0][7]), border=1, align='C')
                 pdf.cell(1.63, 0.5, str(results_flange[0][8]), border=1, align='C')
                 pdf.cell(1.63, 0.5, str(results_flange[0][9]), border=1, align='C')
-                pdf.ln()
+                pdf.ln(1)
 
                 for i in range(20):
                     pdf.cell(1.7, 0.5, "", border=1)
@@ -1251,7 +1263,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
                 pdf.cell(1.38, 0.5, str(results_flange[0][9]), border=1, align='C')
                 pdf.cell(1.38, 0.5, str(results_flange[0][10]), border=1, align='C')
                 pdf.cell(1.38, 0.5, str(results_flange[0][11]), border=1, align='C')
-                pdf.ln()
+                pdf.ln(1)
 
                 for i in range(20):
                     pdf.cell(1.44, 0.5, "", border=1)
@@ -1269,7 +1281,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
                     pdf.cell(1.38, 0.5, "", border=1)
                     pdf.ln()
 
-            pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/QualityControlStamp.png")), 14, 25.5, 5, 3)
+            pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/QualityControlStamp.png")), 14, 26, 5, 3)
 
             pdf_buffer = pdf.output()
 
