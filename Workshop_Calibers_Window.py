@@ -307,6 +307,80 @@ class ColorDelegate(QtWidgets.QItemDelegate):
 
         super().paint(painter, option, index)
 
+class CustomPDF(FPDF):
+    """
+    Custom PDF class extending FPDF for advanced text handling.
+
+    This class provides additional functionalities for creating PDF documents,
+    specifically for managing multi-line text with fixed height.
+
+    Methods:
+        fixed_height_multicell(w, total_h, txt, align_mc, border='LR', fill=False):
+            Outputs text in a multi-cell format with a fixed total height.
+    """
+    def fixed_height_multicell(self, w, total_h, txt, align_mc, border='LRB', fill=False):
+        """
+        Creates a multi-line cell with a fixed total height, dividing text into lines.
+
+        Parameters:
+            w (float): The width of the cell.
+            total_h (float): The total height of the cell.
+            txt (str): The text to be placed in the cell.
+            align_mc (str): The alignment of the text.
+            border (str, optional): Border settings for the cell. Defaults to ''.
+            fill (bool, optional): Whether to fill the cell with color. Defaults to False.
+        """
+        words = txt.split() # Divide text in words
+        lines = []
+        line=''
+        for word in words:
+            if self.get_string_width(line + word + ' ') > w - 0.5:
+                if line:  # Add the current line only if it's not empty
+                    lines.append(line.rstrip())
+                line = word + ' '
+            else:
+                line += word + ' ' # Add word to actual line
+        if line.strip():  # Add the last line if it contains text
+            lines.append(line.rstrip())
+        
+        line_height = total_h / len(lines) # Calculate height of each line to get a total height = total_h
+
+        x, y = self.get_x(), self.get_y() # Save actual position
+
+        for i, line in enumerate(lines):
+            # Add the bottom border only to the last line
+            if i == len(lines) - 1:
+                current_border = border + 'B'  # Add bottom border to the last line
+            elif i == 0:
+                current_border = border + 'T'
+            else:
+                current_border = border
+
+        # for line in lines:
+            # Print each line with the calculated height
+            self.multi_cell(w, line_height, line, current_border, align_mc, fill)
+            self.set_x(x)
+
+        self.set_xy(x, y + total_h)
+
+
+    def get_multicell_height(self, width, text):
+        """
+        Calculates the height of a multi-line cell given its width and text.
+
+        Parameters:
+            width (float): The width of the cell.
+            text (str): The text to be measured.
+
+        Returns:
+            float: The calculated height of the multi-line cell.
+        """
+        lines = 0
+        if text is not None:
+            for line in text.split('\n'):
+                lines += self.get_string_width(line) // width + 1
+        return lines * self.font_size * 1.3
+
 
 class Ui_Workshop_Calibers_Window(QtWidgets.QMainWindow):
     """
@@ -412,14 +486,14 @@ class Ui_Workshop_Calibers_Window(QtWidgets.QMainWindow):
         self.hcab.addWidget(self.toolDeleteFilter)
         self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer1)
-        self.toolExpExcel = QtWidgets.QToolButton(self.frame)
-        self.toolExpExcel.setObjectName("ExpExcel_Button")
-        self.toolExpExcel.setToolTip("Exportar a Excel")
+        self.toolExpData = QtWidgets.QToolButton(self.frame)
+        self.toolExpData.setObjectName("ExpData_Button")
+        self.toolExpData.setToolTip("Exportar Datos")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.toolExpExcel.setIcon(icon)
-        self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
-        self.hcab.addWidget(self.toolExpExcel)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Export_Doc.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolExpData.setIcon(icon)
+        self.toolExpData.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolExpData)
         self.hcabspacer3=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer3)
         self.toolAdd = QtWidgets.QToolButton(self.frame)
@@ -443,7 +517,7 @@ class Ui_Workshop_Calibers_Window(QtWidgets.QMainWindow):
 
         if self.username == 'm.gil':
             self.toolDeleteFilter.setStyleSheet("border: 1px solid white;")
-            self.toolExpExcel.setStyleSheet("border: 1px solid white;")
+            self.toolExpData.setStyleSheet("border: 1px solid white;")
             self.toolAdd.setStyleSheet("border: 1px solid white;")
             self.toolSeeAll.setStyleSheet("border: 1px solid white;")
 
@@ -515,7 +589,7 @@ class Ui_Workshop_Calibers_Window(QtWidgets.QMainWindow):
 
         self.toolAdd.clicked.connect(self.add_new)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
-        self.toolExpExcel.clicked.connect(self.exporttoexcel)
+        self.toolExpData.clicked.connect(self.export_data)
         self.toolSeeAll.clicked.connect(self.query_all_calibers)
 
         self.query_calibers()
@@ -998,88 +1072,6 @@ class Ui_Workshop_Calibers_Window(QtWidgets.QMainWindow):
             self.tableCalibers.setColumnHidden(column, False)
         self.hiddencolumns.clear()
 
-# Function to export data to excel
-    def exporttoexcel(self):
-        """
-        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
-
-        Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
-        """
-        if self.proxy.rowCount() == 0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Exportar")
-            dlg.setText("No hay datos cargados")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
-        else:
-
-            commands_certificate = ("""
-                            SELECT certificate_1 FROM verification."calibrated_masters" WHERE "number_item" = %s
-                            """)
-
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands
-                cur.execute(commands_certificate, ('EIPSA-CP-40',))
-                results_certificate = cur.fetchall()
-
-                certificate = os.path.basename(results_certificate[0][0]).split()[0]
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
-            except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Verificación EXP")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-
-            finally:
-                if conn is not None:
-                    conn.close()
-
-            final_data = []
-
-            visible_columns = [col for col in range(self.model.columnCount()) if not self.tableCalibers.isColumnHidden(col)]
-            visible_headers = self.model.getColumnHeaders(visible_columns)
-            for row in range(self.proxy.rowCount()):
-                tag_data = []
-                for column in visible_columns:
-                    value = self.proxy.data(self.proxy.index(row, column))
-                    if isinstance(value, QDate):
-                        value = value.toString("dd/MM/yyyy")
-                    tag_data.append(value)
-                final_data.append(tag_data)
-
-            final_data.insert(0, visible_headers)
-            df = pd.DataFrame(final_data)
-            df.columns = df.iloc[0]
-            df = df[1:]
-
-            df.insert(5, 'Resultado', 'OK')
-            df.insert(10, 'Cert. Patrón', 'ENAC ' + str(certificate))
-            df['Firma'] = None
-
-            output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
-            if output_path:
-                df.to_excel(output_path, index=False, header=True)
-
 # Function to enable copy and paste cells
     def keyPressEvent(self, event):
         """
@@ -1399,6 +1391,313 @@ class Ui_Workshop_Calibers_Window(QtWidgets.QMainWindow):
                         conn.close()
 
             del dlg_yes_no, new_icon_yes_no
+
+# Function to open menu to export data
+    def export_data(self):
+        """
+        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
+
+        Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
+        """
+        if self.proxy.rowCount() == 0:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Exportar")
+            dlg.setText("No hay datos cargados")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+        else:
+
+            commands_certificate = ("""
+                            SELECT certificate_1 FROM verification."calibrated_masters" WHERE "number_item" = %s
+                            """)
+
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(commands_certificate, ('EIPSA-CP-40',))
+                results_certificate = cur.fetchall()
+
+                certificate = os.path.basename(results_certificate[0][0]).split()[0]
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Verificación EXP")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+
+            finally:
+                if conn is not None:
+                    conn.close()
+
+            final_data = []
+
+            visible_columns = [col for col in range(self.model.columnCount()) if not self.tableCalibers.isColumnHidden(col)]
+            visible_headers = self.model.getColumnHeaders(visible_columns)
+            for row in range(self.proxy.rowCount()):
+                tag_data = []
+                for column in visible_columns:
+                    value = self.proxy.data(self.proxy.index(row, column))
+                    if isinstance(value, QDate):
+                        value = value.toString("dd/MM/yyyy")
+                    tag_data.append(value)
+                final_data.append(tag_data)
+
+            final_data.insert(0, visible_headers)
+            df = pd.DataFrame(final_data)
+            df.columns = df.iloc[0]
+            df = df[1:]
+
+            df.insert(5, 'Resultado', 'OK')
+            df.insert(10, 'Cert. Patrón', 'ENAC ' + str(certificate))
+            df['Firma'] = None
+
+            while True:
+                doc_type, ok = QtWidgets.QInputDialog.getItem(self, "Exportación", "Seleccióna un tipo de documento:", ['Excel', 'PDF'], 0, False)
+                if ok and doc_type:
+                    if doc_type == 'Excel':
+                        self.exporttoexcel(df)
+                        break
+                    else:
+                        self.exporttopdf(df)
+                        break
+                else:
+                    break
+
+# Function to export data to excel
+    def exporttoexcel(self, dataframe):
+        """
+        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
+
+        Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
+        """
+
+        output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
+        if output_path:
+            dataframe.to_excel(output_path, index=False, header=True)
+
+# Function to export data to pdf
+    def exporttopdf(self, dataframe):
+        """
+        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
+
+        Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
+        """
+
+        pdf = CustomPDF('P', 'cm', 'A4')
+
+        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+
+        pdf.set_auto_page_break(auto=True)
+        pdf.set_margins(0.5, 0.5)
+
+        pdf.add_page()
+
+        pdf.set_fill_color(75,172,198)
+
+        pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eipsa Logo Blanco.png")), 0, 0, 10, 2)
+        pdf.ln(1)
+        pdf.set_font('Helvetica', 'B', 18)
+        pdf.multi_cell(20, 1, "LISTADO EQUIPOS DE MEDIDA", align='C')
+        pdf.ln(0)
+        pdf.cell(18, 0.5, "")
+        pdf.ln()
+        pdf.set_font('Helvetica', '', 8)
+        pdf.cell(1.75, 0.5, "Nº EQUIPO", border=1, align='C', fill=True)
+        pdf.cell(2.25, 0.5, "TIPO", border=1, align='C', fill=True)
+        pdf.cell(2, 0.5, "UBICACIÓN", border=1, align='C', fill=True)
+        pdf.cell(1.75, 0.5, "ULT. COMP.", border=1, align='C', fill=True)
+        pdf.cell(1, 0.5, "APTO", border=1, align='C', fill=True)
+        pdf.cell(1.75, 0.5, "PROX. REV.", border=1, align='C', fill=True)
+        pdf.cell(1.25, 0.5, "RANGO", border=1, align='C', fill=True)
+        pdf.cell(1, 0.5, "PREC.", border=1, align='C', fill=True)
+        pdf.cell(1.5, 0.5, "PATRÓN", border=1, align='C', fill=True)
+        pdf.cell(1.5, 0.5, "MARCA", border=1, align='C', fill=True)
+        pdf.cell(1.75, 0.5, "REF.", border=1, align='C', fill=True)
+        pdf.cell(1.5, 0.5, "CAJA/ET.", border=1, align='C', fill=True)
+        pdf.cell(1, 0.5, "NOTA", border=1, align='C', fill=True)
+        pdf.ln()
+
+        pdf.set_font('Helvetica', '', 7)
+
+        valid_notes = dataframe['Notas'].dropna().str.strip()  # Elimina espacios y valores nulos
+        valid_notes = valid_notes[valid_notes != ''].drop_duplicates()
+
+        dict_notes = {option: f"({i})" for i, option in enumerate(valid_notes, start=1)}
+        dataframe['Notas'] = dataframe['Notas'].apply(lambda x: dict_notes.get(x, x))
+
+        for i in range(dataframe.shape[0]):
+            y_position = pdf.get_y()
+            total_content_height = pdf.get_multicell_height(3, dataframe.iloc[i, 2]) + 0.5 + 0.5 + 0.5  # Height of each cell plus line break
+
+            # Verify if exists enough space on actual page
+            if y_position + total_content_height < 29.8:
+                # If exists, add content on actual page
+                x_position = pdf.get_x()
+                y_position = pdf.get_y()
+                
+                pdf.cell(1.75, 1, dataframe.iloc[i, 1], border=1, align='C')
+
+                if len(dataframe.iloc[i, 2]) > 10:
+                    x_position = pdf.get_x()
+                    y_position = pdf.get_y()
+                    pdf.fixed_height_multicell(2.25, 1, dataframe.iloc[i, 2], 'C','LR')
+                    pdf.set_y(y_position)
+                    pdf.set_x(x_position + 2.25)
+                else:
+                    pdf.cell(2.25, 1, dataframe.iloc[i, 2], align='C', border=1)
+
+                if len(dataframe.iloc[i, 3]) > 10:
+                    x_position = pdf.get_x()
+                    y_position = pdf.get_y()
+                    pdf.fixed_height_multicell(2, 1, dataframe.iloc[i, 3], 'C','LR')
+                    pdf.set_y(y_position)
+                    pdf.set_x(x_position + 2)
+                else:
+                    pdf.cell(2, 1, dataframe.iloc[i, 3], align='C', border=1)
+
+                pdf.cell(1.75, 1, str(dataframe.iloc[i, 4]) if str(dataframe.iloc[i, 4]) != 'nan' else '', border=1, align='C')
+                pdf.cell(1, 1, dataframe.iloc[i, 5], border=1, align='C')
+                pdf.cell(1.75, 1, str(dataframe.iloc[i, 6]) if str(dataframe.iloc[i, 6]) != 'nan' else '', border=1, align='C')
+
+                if len(dataframe.iloc[i, 7]) > 15:
+                    x_position = pdf.get_x()
+                    y_position = pdf.get_y()
+                    pdf.fixed_height_multicell(1.25, 1, dataframe.iloc[i, 7], 'C','LR')
+                    pdf.set_y(y_position)
+                    pdf.set_x(x_position + 1.25)
+                else:
+                    pdf.cell(1.25, 1, dataframe.iloc[i, 7], align='C', border=1)
+
+                pdf.cell(1, 1, str(dataframe.iloc[i, 8]).replace(".",","), border=1, align='C')
+
+                if len(dataframe.iloc[i, 9]) > 10:
+                    x_position = pdf.get_x()
+                    y_position = pdf.get_y()
+                    pdf.fixed_height_multicell(1.5, 1, dataframe.iloc[i, 9], 'C','LR')
+                    pdf.set_y(y_position)
+                    pdf.set_x(x_position + 1.5)
+                else:
+                    pdf.cell(1.5, 1, dataframe.iloc[i, 9], align='C', border=1)
+
+                pdf.cell(1.5, 1, dataframe.iloc[i, 11], border=1, align='C')
+                pdf.cell(1.75, 1, dataframe.iloc[i, 12], border=1, align='C')
+                pdf.cell(1.5, 1, dataframe.iloc[i, 13], border=1, align='C')
+                pdf.cell(1, 1, str(dataframe.iloc[i, 14]), border=1, align='C')
+
+                pdf.ln(1)
+
+            else:
+                # If not exists, add content on next page
+                pdf.add_page()
+                
+                y_position = pdf.get_y()
+                x_position = pdf.get_x()
+                
+                pdf.cell(1.75, 1, dataframe.iloc[i, 1], border=1, align='C')
+
+                if len(dataframe.iloc[i, 2]) > 10:
+                    x_position = pdf.get_x()
+                    y_position = pdf.get_y()
+                    pdf.fixed_height_multicell(2.25, 1, dataframe.iloc[i, 2], 'C','LR')
+                    pdf.set_y(y_position)
+                    pdf.set_x(x_position + 2.25)
+                else:
+                    pdf.cell(2.25, 1, dataframe.iloc[i, 2], align='C', border=1)
+
+                if len(dataframe.iloc[i, 3]) > 10:
+                    x_position = pdf.get_x()
+                    y_position = pdf.get_y()
+                    pdf.fixed_height_multicell(2, 1, dataframe.iloc[i, 3], 'C','LR')
+                    pdf.set_y(y_position)
+                    pdf.set_x(x_position + 2)
+                else:
+                    pdf.cell(2, 1, dataframe.iloc[i, 3], align='C', border=1)
+
+                pdf.cell(1.75, 1, str(dataframe.iloc[i, 4]) if str(dataframe.iloc[i, 4]) != 'nan' else '', border=1, align='C')
+                pdf.cell(1, 1, dataframe.iloc[i, 5], border=1, align='C')
+                pdf.cell(1.75, 1, str(dataframe.iloc[i, 6]) if str(dataframe.iloc[i, 6]) != 'nan' else '', border=1, align='C')
+
+                if len(dataframe.iloc[i, 7]) > 15:
+                    x_position = pdf.get_x()
+                    y_position = pdf.get_y()
+                    pdf.fixed_height_multicell(1.25, 1, dataframe.iloc[i, 7], 'C','LR')
+                    pdf.set_y(y_position)
+                    pdf.set_x(x_position + 1.25)
+                else:
+                    pdf.cell(1.25, 1, dataframe.iloc[i, 7], align='C', border=1)
+
+                pdf.cell(1, 1, str(dataframe.iloc[i, 8]).replace(".",","), border=1, align='C')
+
+                if len(dataframe.iloc[i, 9]) > 10:
+                    x_position = pdf.get_x()
+                    y_position = pdf.get_y()
+                    pdf.fixed_height_multicell(1.5, 1, dataframe.iloc[i, 9], 'C','LR')
+                    pdf.set_y(y_position)
+                    pdf.set_x(x_position + 1.5)
+                else:
+                    pdf.cell(1.5, 1, dataframe.iloc[i, 9], align='C', border=1)
+
+                pdf.cell(1.5, 1, dataframe.iloc[i, 11], border=1, align='C')
+                pdf.cell(1.75, 1, dataframe.iloc[i, 12], border=1, align='C')
+                pdf.cell(1.5, 1, dataframe.iloc[i, 13], border=1, align='C')
+                pdf.cell(1, 1, str(dataframe.iloc[i, 14]) if str(dataframe.iloc[i, 14]) != '' else '', border=1, align='C')
+
+                pdf.ln(1)
+        
+        pdf.cell(18, 0.5, "")
+        pdf.ln()
+        pdf.set_font('Helvetica', 'B', 10)
+        pdf.cell(6, 0.5, "NOTAS", border=1)
+        pdf.ln()
+        pdf.set_font('Helvetica', '', 8)
+
+        for key in dict_notes:
+            pdf.multi_cell(20, 0.5, dict_notes[key] + " " + key, border=1, align='L')
+            pdf.ln(0)
+
+        pdf.set_y(27.5)
+        pdf.set_font('Helvetica', 'B', 8)
+        pdf.cell(4.5, 0.5, "REEM-001", border=1, align='C')
+        pdf.cell(9.5, 0.5, "")
+        pdf.cell(6, 0.5, "Garantia de Calidad", align='C')
+        pdf.ln()
+
+        pdf.set_font('Helvetica', '', 8)
+        pdf.cell(14, 0.5, "")
+        pdf.cell(6, 0.5, str(datetime.today().strftime('%d/%m/%Y')), align='C')
+        pdf.ln()
+
+        pdf_buffer = pdf.output()
+
+        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "CERT.pdf"))))
+
+        with open(temp_file_path, "wb") as temp_file:
+            temp_file.write(pdf_buffer)
+
+        self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
+        self.pdf_viewer.showMaximized()
+
+
 
 
 

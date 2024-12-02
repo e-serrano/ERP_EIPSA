@@ -234,7 +234,7 @@ class PDF_Viewer(QMainWindow):
         """
         Saves the current PDF to a specified location.
         """
-        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp.pdf"))))
+        temp_file_path = self.temp_file_path.toLocalFile().replace('/', '\\')
         output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar PDF")
 
         if output_path:
