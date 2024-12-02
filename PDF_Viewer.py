@@ -257,8 +257,11 @@ class PDF_Viewer(QMainWindow):
         """
         Prints the current PDF.
         """
+        print(self.temp_file_path)
+        temp_file_path = self.temp_file_path.toLocalFile().replace('/', '\\')
+
         try:
-            win32api.ShellExecute(0, "print", self.temp_file_path, None, ".", 0) # Printing the temp file
+            win32api.ShellExecute(0, "print", temp_file_path, None, ".", 0) # Printing the temp file
             # os.remove(temp_file_path) # Deleting the temp file
         except Exception as e:
             dlg = QMessageBox()
@@ -266,6 +269,7 @@ class PDF_Viewer(QMainWindow):
             new_icon.addPixmap(QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QIcon.Mode.Normal, QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Imprimir pedido")
+            print(e)
             dlg.setText("Ha ocurrido un error. No se pudo imprimir el PDF")
             dlg.setIcon(QMessageBox.Icon.Warning)
             dlg.exec()
