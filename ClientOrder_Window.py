@@ -1753,6 +1753,11 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         self.label_Details.setFont(font)
         self.label_Details.setObjectName("label_Details")
         self.gridLayout_2.addWidget(self.label_Details, 10, 1, 1, 1)
+        self.Button_SeeOrder = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_SeeOrder.setMinimumSize(QtCore.QSize(int(175//1.5), int(35//1.5)))
+        self.Button_SeeOrder.setMaximumSize(QtCore.QSize(int(1775//1.5), int(35//1.5)))
+        self.Button_SeeOrder.setObjectName("Button_SeeOrder")
+        self.gridLayout_2.addWidget(self.Button_SeeOrder, 10, 5, 1, 4)
         self.tableRecord = CustomTableWidgetRecord()
         self.tableRecord.setObjectName("tableRecord")
         self.tableRecord.setColumnCount(11)
@@ -1909,6 +1914,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         self.Button_AddRecord.clicked.connect(self.addrecord)
         self.Button_ModifyRecord.clicked.connect(self.modifyrecord)
         self.Button_DeleteRecord.clicked.connect(self.deleterecord)
+        self.Button_SeeOrder.clicked.connect(self.seeorder)
         self.Button_Reload.clicked.connect(self.load_all)
         self.Button_Deliv1.clicked.connect(self.adddeliv1)
         self.Button_Deliv2.clicked.connect(self.adddeliv2)
@@ -1954,6 +1960,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         self.Button_AddRecord.setText(_translate("ClientOrder_Window", "Agregar Reg."))
         self.Button_ModifyRecord.setText(_translate("ClientOrder_Window", "Modificar Reg."))
         self.Button_DeleteRecord.setText(_translate("ClientOrder_Window", "Eliminar Reg."))
+        self.Button_SeeOrder.setText(_translate("ClientOrder_Window", "Ver Pedido"))
         item = self.tableClientOrderP.horizontalHeaderItem(0)
         item.setText(_translate("ClientOrder_Window", "ID"))
         item = self.tableClientOrderP.horizontalHeaderItem(1)
@@ -3704,6 +3711,29 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         self.loadtableorders()
         self.load_comboboxes()
 
+# Function to see order details
+    def seeorder(self):
+        """
+        Open a window to see order details
+        """
+        order_id=self.label_IDOrder.text()
+
+        if order_id == "":
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Ver Pedido")
+            dlg.setText("Selecciona un pedido existente")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+        else:
+            from ClientOrderResume_Window import Ui_ClientOrderResume_Window
+            self.artmov_window=QtWidgets.QMainWindow()
+            self.ui=Ui_ClientOrderResume_Window(self.username, order_id)
+            self.ui.setupUi(self.artmov_window)
+            self.artmov_window.showMaximized()
 
 
 
