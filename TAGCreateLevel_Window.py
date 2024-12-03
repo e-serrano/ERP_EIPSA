@@ -911,9 +911,9 @@ class Ui_CreateTAGNiv_Window(object):
         Creates a new level TAG entry after validating form inputs.
         """
         tag=self.TAG_CreatetagN.text()
-        tag_state='QUOTED'
         numoffer=self.NumOffer_CreatetagN.text()
         numorder=self.NumOrder_CreatetagN.text() if self.NumOrder_CreatetagN.text() != '' else None
+        tag_state='PURCHASED' if self.NumOrder_CreatetagN.text() != '' else 'QUOTED'
         num_po=self.NumPO_CreatetagN.text()
         position=self.Pos_CreatetagN.text()
         subpos=self.Subpos_CreatetagN.text()

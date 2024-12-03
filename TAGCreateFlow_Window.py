@@ -745,9 +745,9 @@ class Ui_CreateTAGFlow_Window(object):
         Creates a new flow TAG entry after validating form inputs.
         """
         tag=self.TAG_CreatetagQ.text()
-        tag_state='QUOTED'
         numoffer=self.NumOffer_CreatetagQ.text()
         numorder=self.NumOrder_CreatetagQ.text() if self.NumOrder_CreatetagQ.text() != '' else None
+        tag_state='PURCHASED' if self.NumOrder_CreatetagQ.text() != '' else 'QUOTED'
         num_po=self.NumPO_CreatetagQ.text()
         pos=self.Pos_CreatetagQ.text()
         subpos=self.Subpos_CreatetagQ.text()

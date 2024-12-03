@@ -357,9 +357,9 @@ class Ui_CreateTAGOthers_Window(object):
         Creates a new others TAG entry after validating form inputs.
         """
         tag=self.TAG_CreatetagO.text()
-        tag_state='QUOTED'
         numoffer=self.NumOffer_CreatetagO.text()
         numorder=self.NumOrder_CreatetagO.text() if self.NumOrder_CreatetagO.text() != '' else None
+        tag_state='PURCHASED' if self.NumOrder_CreatetagO.text() != '' else 'QUOTED'
         num_po=self.NumPO_CreatetagO.text()
         pos=self.Pos_CreatetagO.text()
         subpos=self.Subpos_CreatetagO.text()

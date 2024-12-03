@@ -896,9 +896,9 @@ class Ui_CreateTAGTemp_Window(object):
         Creates a new temperature TAG entry after validating form inputs.
         """
         tag=self.TAG_CreatetagT.text()
-        tag_state='QUOTED'
         numoffer=self.NumOffer_CreatetagT.text()
         numorder=self.NumOrder_CreatetagT.text() if self.NumOrder_CreatetagT.text() != '' else None
+        tag_state='PURCHASED' if self.NumOrder_CreatetagT.text() != '' else 'QUOTED'
         num_po=self.NumPO_CreatetagT.text()
         pos=self.Pos_CreatetagT.text()
         subpos=self.Subpos_CreatetagT.text()
