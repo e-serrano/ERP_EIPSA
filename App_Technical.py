@@ -2024,7 +2024,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             Exception: If there is an error during the database operation.
         """
 
-        fname = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Tiempos\prueba quique.txt"
+        fname = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Tiempos\EXPSEM.txt"
 
         if fname:
             df = pd.read_csv(fname, sep = "|", header=None, encoding="latin-1", dtype={8: str})
