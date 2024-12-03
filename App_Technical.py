@@ -2018,19 +2018,19 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Imports operational times from a text file into the database.
 
         Processes a specified text file, transforms the data into a DataFrame, 
-        and inserts it into the 'fabrication.imp_ot' table in the PostgreSQL database.
+        and inserts it into the table in the PostgreSQL database.
 
         Raises:
             Exception: If there is an error during the database operation.
         """
 
-        fname = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Tiempos\EXPSEM.txt"
+        fname = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Tiempos\prueba quique.txt"
 
         if fname:
             df = pd.read_csv(fname, sep = "|", header=None, encoding="latin-1", dtype={8: str})
             df = df.astype(str)
-            final_df = df.iloc[:,[0, 2, 7, 8, 10]]
-            final_df.columns = ['personal_id','date_ot','time_ot','number_ot','operations_id']
+            final_df = df.iloc[:,[0, 2, 3, 4, 6, 7, 8, 10]]
+            final_df.columns = ['personal_id','date_ot', 'start_hour', 'end_hour', 'total_time','time_ot','number_ot','operations_id']
             final_df['number_ot'] = final_df['number_ot'].str.replace(' ', '')
 
             params = config()
@@ -2047,7 +2047,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                     columns = ', '.join([column for column, _ in columns_values])
 
                 # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
-                    values = ', '.join([f"'{values.replace(':', '.')}'" if column in ['time_ot'] else f"'{values}'" for column, values in columns_values])
+                    values = ', '.join([f"'{values.replace(':', '.')}'" if column in ['total_time', 'time_ot'] else f"'{values}'" for column, values in columns_values])
 
                     sql_insertion = f"INSERT INTO fabrication.imp_ot ({columns}) VALUES ({values})"
 
