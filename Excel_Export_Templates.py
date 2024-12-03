@@ -1033,9 +1033,7 @@ class offer_short_flow_spanish:
                                 "gasket_material",
                                 "bolts_nuts_material",
                                 "valve_conn",
-                                "valve_material_body",
-                                "stages_number",
-                                "aprox_length"],
+                                "valve_material_body"],
                             axis=1,)
 
                     ws = self.wb_commercial[eq_type]
@@ -1700,9 +1698,7 @@ class offer_short_flow_english:
                                 "gasket_material",
                                 "bolts_nuts_material",
                                 "valve_conn",
-                                "valve_material_body",
-                                "stages_number",
-                                "aprox_length"],
+                                "valve_material_body"],
                             axis=1,)
 
                     ws = self.wb_commercial[eq_type]
