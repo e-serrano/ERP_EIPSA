@@ -57,6 +57,7 @@ class Ui_App_Workshop(object):
         """
         self.name=name
         self.username=username
+        self.calibration_window = None
 
 
     def setupUi(self, App_Workshop):
@@ -306,6 +307,68 @@ class Ui_App_Workshop(object):
         self.Button_Revisions.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_Revisions.setObjectName("Button_Revisions")
         self.Header.addWidget(self.Button_Revisions)
+
+
+        spacerItem6 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem6)
+        self.Button_Calibrations = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Calibrations.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Calibrations.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Calibrations.setToolTip('Calibraciones')
+        self.Button_Calibrations.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'm.gil':
+            self.Button_Calibrations.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Calibrations.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Calibrations.setText("")
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Calibration.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Calibrations.setIcon(icon2)
+        self.Button_Calibrations.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Calibrations.setObjectName("Button_Calibrations")
+        self.Header.addWidget(self.Button_Calibrations)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -544,6 +607,7 @@ class Ui_App_Workshop(object):
         self.Button_Palette_T.clicked.connect(self.colour_palette_T)
         self.Button_Verification.clicked.connect(self.verification)
         self.Button_Revisions.clicked.connect(self.revisions)
+        self.Button_Calibrations.clicked.connect(self.calibration)
 
         self.load_notifications()
 
@@ -832,7 +896,30 @@ class Ui_App_Workshop(object):
         self.ui.setupUi(self.revisions_menu)
         self.revisions_menu.show()
 
+# Function to open corresponding window when Calibration button is clicked
+    def calibration(self):
+        """
+        Open a new window for calibrating thermo elements.
+        """
+        from Calibration_ThermoElements_Window import Ui_Calibration_ThermoElements_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
 
+        if self.calibration_window is None or not self.calibration_window.isVisible():
+            db_calibration = createConnection(user_database, password_database)
+            if not db_calibration:
+                sys.exit()
+
+            self.calibration_window = Ui_Calibration_ThermoElements_Window(db_calibration, self.username)
+            self.calibration_window.showMaximized()
+        else:
+            self.calibration_window.raise_()
+            self.calibration_window.activateWindow()
+            self.calibration_window.setWindowState(self.edit_tags_app.windowState() & ~QtCore.Qt.WindowState.WindowMinimized | QtCore.Qt.WindowState.WindowActive)
 
 
 # if __name__ == "__main__":

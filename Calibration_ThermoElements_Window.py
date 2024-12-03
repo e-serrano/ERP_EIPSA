@@ -303,7 +303,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
     """
     updateFailed = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent=None, column_range=None):
+    def __init__(self, username, parent=None, column_range=None):
         """
         Initialize the model with user permissions and optional database and column range.
 
@@ -314,6 +314,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
         """
         super().__init__(parent)
         self.column_range = column_range
+        self.username = username
 
     def setAllColumnHeaders(self, headers):
         """
@@ -372,11 +373,15 @@ class EditableTableModel(QtSql.QSqlTableModel):
             Qt.ItemFlags: The flags for the specified item.
         """
         flags = super().flags(index)
-        if index.column() == 0:
+        if self.username in ['j.sanz', 'j.zofio']:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+            if index.column() == 0:
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+            else:
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
     def getColumnHeaders(self, visible_columns):
         """
@@ -417,7 +422,8 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
             db (object): Database connection.
         """
         super().__init__()
-        self.model = EditableTableModel()
+        self.username = username
+        self.model = EditableTableModel(self.username)
         self.proxy = CustomProxyModel()
         self.db = db
         self.checkbox_states = {}
@@ -427,7 +433,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.variable = ''
         self.action_checkbox_map = {}
         self.checkbox_filters = {}
-        self.username = username
+        
         self.setupUi(self)
 
     def closeEvent(self, event):
@@ -636,7 +642,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 2, 0, 1, 1)
         self.tableEditCalibration=QtWidgets.QTableView(parent=self.frame)
-        self.model = EditableTableModel()
+        self.model = EditableTableModel(self.username)
         self.tableEditCalibration.setObjectName("tableEditCalibration")
         self.gridLayout_2.addWidget(self.tableEditCalibration, 3, 0, 1, 1)
         self.hLayout3 = QtWidgets.QHBoxLayout()
@@ -719,156 +725,157 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         Raises:
             Exception: If any errors occur during file processing or database operations.
         """
-        folder_path = "E:/Fluke/1586A/42280006/data/scan" # //nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CARPETAS IMPORTACIONES CALIBRACION"
+        if self.username == 'm.gil':
+            folder_path = "E:/Fluke/1586A/42280006/data/scan" # //nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CARPETAS IMPORTACIONES CALIBRACION"
 
-        if folder_path:
-            for subfolder in os.listdir(folder_path):
-                subfolder_path = os.path.join(folder_path, subfolder)
+            if folder_path:
+                for subfolder in os.listdir(folder_path):
+                    subfolder_path = os.path.join(folder_path, subfolder)
 
-                try:
-                    conn = None
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
+                    try:
+                        conn = None
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
 
-                    if os.path.isdir(subfolder_path):
-                        for csv_file in os.listdir(subfolder_path):
-                            if csv_file.endswith('setup.csv'):
-                                df_date = pd.read_csv(os.path.join(subfolder_path, csv_file), nrows=3)
-                                user = 'Jose Alberto Sanz' if df_date.iloc[1, 1] in ['USER1', 'GUEST'] else('Emilio Munez' if df_date.iloc[1, 1] == 'USER2' else 'Alberto Segura')
-                                fecha_str = df_date.iloc[0, 1].split()[0]
-                                import_date = pd.to_datetime(fecha_str).date()
+                        if os.path.isdir(subfolder_path):
+                            for csv_file in os.listdir(subfolder_path):
+                                if csv_file.endswith('setup.csv'):
+                                    df_date = pd.read_csv(os.path.join(subfolder_path, csv_file), nrows=3)
+                                    user = 'Jose Alberto Sanz' if df_date.iloc[1, 1] in ['USER1', 'GUEST'] else('Emilio Munez' if df_date.iloc[1, 1] == 'USER2' else 'Alberto Segura')
+                                    fecha_str = df_date.iloc[0, 1].split()[0]
+                                    import_date = pd.to_datetime(fecha_str).date()
 
-                                df_setup = pd.read_csv(os.path.join(subfolder_path, csv_file), skiprows=11, index_col=False)
-                                df_setup.drop(columns=['Function', 'Channel Delay', 'Rate of Change', 'Range' ,'Probe ID', 'Open Detect', 'Cold Junction',
-                                'Fixed', 'Display As', 'C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'Scaling', 'Gain', 'Offset', 'Unit', 'Alarm1 Type',
-                                'Alarm1 Limit', 'Alarm1 Output', 'Alarm2 Type', 'Alarm2 Limit', 'Alarm2 Output'], inplace=True)
-                                index_test_setup = df_setup.index[df_setup['Channel'] == 'Test Setup'].tolist()
-                                df_setup = df_setup.iloc[:index_test_setup[0]] # Selecting rows between "Analog Channels" and "Test Setup"
-                                df_setup.rename(columns={"Label": "label", "Wire": "wire", "Sensor Type": "sensor"}, inplace=True)
-                                df_setup.set_index('Channel', inplace=True)
+                                    df_setup = pd.read_csv(os.path.join(subfolder_path, csv_file), skiprows=11, index_col=False)
+                                    df_setup.drop(columns=['Function', 'Channel Delay', 'Rate of Change', 'Range' ,'Probe ID', 'Open Detect', 'Cold Junction',
+                                    'Fixed', 'Display As', 'C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'Scaling', 'Gain', 'Offset', 'Unit', 'Alarm1 Type',
+                                    'Alarm1 Limit', 'Alarm1 Output', 'Alarm2 Type', 'Alarm2 Limit', 'Alarm2 Output'], inplace=True)
+                                    index_test_setup = df_setup.index[df_setup['Channel'] == 'Test Setup'].tolist()
+                                    df_setup = df_setup.iloc[:index_test_setup[0]] # Selecting rows between "Analog Channels" and "Test Setup"
+                                    df_setup.rename(columns={"Label": "label", "Wire": "wire", "Sensor Type": "sensor"}, inplace=True)
+                                    df_setup.set_index('Channel', inplace=True)
 
-                            if csv_file.endswith('dat00001.csv'):
-                                df_dat = pd.read_csv(os.path.join(subfolder_path, csv_file))
-                                df_dat.drop(columns=['Record #', 'Time', 'Alarm Output', 'Signature'], inplace=True)
-                                df_dat.columns = map(lambda col: col.replace(' (C)', ''), df_dat.columns)
-                                df_dat.columns = map(lambda col: col.replace(' ', ''), df_dat.columns)
-                                df_dat = df_dat.T
-                                df_dat.columns = df_dat.columns.astype(str)
-                                df_dat.rename(columns={"0": "element_1"}, inplace=True)
-                                if '1' in df_dat.columns.to_list():
-                                    df_dat.rename(columns={"1": "element_2"}, inplace=True)
-                                if '2' in df_dat.columns.to_list():
-                                    df_dat.rename(columns={"2": "element_3"}, inplace=True)
-                                if '3' in df_dat.columns.to_list():
-                                    df_dat.rename(columns={"3": "element_4"}, inplace=True)
-                                df_dat.index.name = 'Channel'
+                                if csv_file.endswith('dat00001.csv'):
+                                    df_dat = pd.read_csv(os.path.join(subfolder_path, csv_file))
+                                    df_dat.drop(columns=['Record #', 'Time', 'Alarm Output', 'Signature'], inplace=True)
+                                    df_dat.columns = map(lambda col: col.replace(' (C)', ''), df_dat.columns)
+                                    df_dat.columns = map(lambda col: col.replace(' ', ''), df_dat.columns)
+                                    df_dat = df_dat.T
+                                    df_dat.columns = df_dat.columns.astype(str)
+                                    df_dat.rename(columns={"0": "element_1"}, inplace=True)
+                                    if '1' in df_dat.columns.to_list():
+                                        df_dat.rename(columns={"1": "element_2"}, inplace=True)
+                                    if '2' in df_dat.columns.to_list():
+                                        df_dat.rename(columns={"2": "element_3"}, inplace=True)
+                                    if '3' in df_dat.columns.to_list():
+                                        df_dat.rename(columns={"3": "element_4"}, inplace=True)
+                                    df_dat.index.name = 'Channel'
 
-                        df_final = pd.concat([df_setup, df_dat], axis=1)
-                        df_master = pd.DataFrame([df_final.iloc[0]])
+                            df_final = pd.concat([df_setup, df_dat], axis=1)
+                            df_master = pd.DataFrame([df_final.iloc[0]])
 
-                        dict_master = {'20':'EIPSA-020', '24': 'EIPSA-024',
-                                        '35': 'EIPSA-035', '01': 'EIPSA-TE-01', '02': 'EIPSA-TE-02'}
+                            dict_master = {'20':'EIPSA-020', '24': 'EIPSA-024',
+                                            '35': 'EIPSA-035', '01': 'EIPSA-TE-01', '02': 'EIPSA-TE-02'}
 
-                        df_master.rename(columns={"element_1": "master_1"}, inplace=True)
-                        if 'element_2' in df_master.columns.to_list():
-                            df_master.rename(columns={"element_2": "master_2"}, inplace=True)
-                        if 'element_3' in df_master.columns.to_list():
-                            df_master.rename(columns={"element_3": "master_3"}, inplace=True)
-                        if 'element_4' in df_master.columns.to_list():
-                            df_master.rename(columns={"element_4": "master_4"}, inplace=True)
+                            df_master.rename(columns={"element_1": "master_1"}, inplace=True)
+                            if 'element_2' in df_master.columns.to_list():
+                                df_master.rename(columns={"element_2": "master_2"}, inplace=True)
+                            if 'element_3' in df_master.columns.to_list():
+                                df_master.rename(columns={"element_3": "master_3"}, inplace=True)
+                            if 'element_4' in df_master.columns.to_list():
+                                df_master.rename(columns={"element_4": "master_4"}, inplace=True)
 
-                        master = dict_master[df_master['label'][0]]
-                        if 'master_1' in df_master.columns.to_list():
-                            master_1 = df_master['master_1'][0]
-                        else:
-                            master_1 = None
-                        if 'master_2' in df_master.columns.to_list():
-                            master_2 = df_master['master_2'][0]
-                        else:
-                            master_2 = None
-                        if 'master_3' in df_master.columns.to_list():
-                            master_3 = df_master['master_3'][0]
-                        else:
-                            master_3 = None
-                        if 'master_4' in df_master.columns.to_list():
-                            master_4 = df_master['master_4'][0]
-                        else:
-                            master_4 = None
+                            master = dict_master[df_master['label'][0]]
+                            if 'master_1' in df_master.columns.to_list():
+                                master_1 = df_master['master_1'][0]
+                            else:
+                                master_1 = None
+                            if 'master_2' in df_master.columns.to_list():
+                                master_2 = df_master['master_2'][0]
+                            else:
+                                master_2 = None
+                            if 'master_3' in df_master.columns.to_list():
+                                master_3 = df_master['master_3'][0]
+                            else:
+                                master_3 = None
+                            if 'master_4' in df_master.columns.to_list():
+                                master_4 = df_master['master_4'][0]
+                            else:
+                                master_4 = None
 
-                        df_elements = df_final.iloc[1:].copy()
+                            df_elements = df_final.iloc[1:].copy()
 
-                        df_elements.loc[:,'master'] = master
-                        df_elements.loc[:,'test_date'] = import_date
-                        df_elements.loc[:,'user_test'] = user
-                        df_elements.loc[:,'master_1'] = master_1
-                        df_elements.loc[:,'master_2'] = master_2
-                        df_elements.loc[:,'master_3'] = master_3
-                        df_elements.loc[:,'master_4'] = master_4
+                            df_elements.loc[:,'master'] = master
+                            df_elements.loc[:,'test_date'] = import_date
+                            df_elements.loc[:,'user_test'] = user
+                            df_elements.loc[:,'master_1'] = master_1
+                            df_elements.loc[:,'master_2'] = master_2
+                            df_elements.loc[:,'master_3'] = master_3
+                            df_elements.loc[:,'master_4'] = master_4
 
-                        df_elements['sensor'] = df_elements['sensor'].replace('A385', 'PT100')
-                        df_elements['num_order'] = df_elements['label'].apply(lambda x: 'P-' + x[1:3] + '/' + x[3:6] if x[0] == 'P' else ('PA-' + x[1:3] + '/' + x[3:6] if x[0] == 'A' else 'NO PEDIDO'))
-                        df_elements['tag'] = df_elements.index
-                        df_elements['folder_data'] = subfolder
+                            df_elements['sensor'] = df_elements['sensor'].replace('A385', 'PT100')
+                            df_elements['num_order'] = df_elements['label'].apply(lambda x: 'P-' + x[1:3] + '/' + x[3:6] if x[0] == 'P' else ('PA-' + x[1:3] + '/' + x[3:6] if x[0] == 'A' else 'NO PEDIDO'))
+                            df_elements['tag'] = df_elements.index
+                            df_elements['folder_data'] = subfolder
 
-                        list_folders = df_elements['folder_data'].unique().tolist()
+                            list_folders = df_elements['folder_data'].unique().tolist()
 
-                    #Reading each row and inserting data in table
-                        for name_folder in list_folders:
-                            sql_check = f"SELECT * FROM verification.calibration_thermoelements WHERE folder_data = '{name_folder}'"
-                            cur.execute(sql_check)
-                            results = cur.fetchall()
+                        #Reading each row and inserting data in table
+                            for name_folder in list_folders:
+                                sql_check = f"SELECT * FROM verification.calibration_thermoelements WHERE folder_data = '{name_folder}'"
+                                cur.execute(sql_check)
+                                results = cur.fetchall()
 
-                            if len(results) == 0:
-                                df_filtrado = df_elements.loc[df_elements['folder_data'] == name_folder]
-                            # Creating SQL sentence
-                                for index, row in df_filtrado.iterrows():
-                                    name_folder = row['folder_data']
-                                    columns_values = [(column, row[column]) for column in df_filtrado.columns if not pd.isnull(row[column])]
+                                if len(results) == 0:
+                                    df_filtrado = df_elements.loc[df_elements['folder_data'] == name_folder]
+                                # Creating SQL sentence
+                                    for index, row in df_filtrado.iterrows():
+                                        name_folder = row['folder_data']
+                                        columns_values = [(column, row[column]) for column in df_filtrado.columns if not pd.isnull(row[column])]
 
-                                # Creating string for columns names and values
-                                    columns = ', '.join([column for column, _ in columns_values])
-                                    values = ', '.join([f"'{values}'" if column in ['master_1','master_2','master_3','master_4','element_1','element_2','element_3','element_4'] and values is not None else f"'{values}'" for column, values in columns_values])
+                                    # Creating string for columns names and values
+                                        columns = ', '.join([column for column, _ in columns_values])
+                                        values = ', '.join([f"'{values}'" if column in ['master_1','master_2','master_3','master_4','element_1','element_2','element_3','element_4'] and values is not None else f"'{values}'" for column, values in columns_values])
 
-                                # Creating insertion query and executing it
-                                    sql_insertion = f"INSERT INTO verification.calibration_thermoelements ({columns}) VALUES ({values})"
-                                    cur.execute(sql_insertion)
+                                    # Creating insertion query and executing it
+                                        sql_insertion = f"INSERT INTO verification.calibration_thermoelements ({columns}) VALUES ({values})"
+                                        cur.execute(sql_insertion)
 
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
 
-                    shutil.rmtree(subfolder_path)
+                        shutil.rmtree(subfolder_path)
 
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error en la carpeta " + subfolder + ":\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error en la carpeta " + subfolder + ":\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
 
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Importar Calibraciones")
-            dlg.setText("Importación completada")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-            del dlg, new_icon
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Importar Calibraciones")
+                dlg.setText("Importación completada")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+                del dlg, new_icon
 
-            self.query_calibration()
+                self.query_calibration()
 
 # Function to delete all filters when tool button is clicked
     def delete_allFilters(self):
@@ -1521,80 +1528,81 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         """
         Deletes selected records from the table.
         """
-        selection_model = self.tableEditCalibration.selectionModel()
+        if self.username == 'm.gil':
+            selection_model = self.tableEditCalibration.selectionModel()
 
-        if not selection_model.hasSelection():
-            return
+            if not selection_model.hasSelection():
+                return
 
-        model = self.tableEditCalibration.model()
+            model = self.tableEditCalibration.model()
 
-        id_values = []
-        selected_indexes = selection_model.selectedRows()
-        for index in selected_indexes:
-            # Obtaining first columns values
-            item_index = model.index(index.row(), 0)
-            if item_index.isValid():
-                value = model.data(item_index)
-                id_values.append(value)
+            id_values = []
+            selected_indexes = selection_model.selectedRows()
+            for index in selected_indexes:
+                # Obtaining first columns values
+                item_index = model.index(index.row(), 0)
+                if item_index.isValid():
+                    value = model.data(item_index)
+                    id_values.append(value)
 
-        if len(id_values) != 0:
-            dlg_yes_no = QtWidgets.QMessageBox()
-            new_icon_yes_no = QtGui.QIcon()
-            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-            dlg_yes_no.setWindowTitle("ERP EIPSA")
-            dlg_yes_no.setText("¿Estás seguro de que deseas eliminar los registros?\n")
-            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-            result = dlg_yes_no.exec()
-            if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    commands_delete = ("""DELETE FROM verification.calibration_thermoelements
-                                        WHERE id = %s""")
-                    for id_value in id_values:
-                        data = (id_value,)
-                        cur.execute(commands_delete, data)
+            if len(id_values) != 0:
+                dlg_yes_no = QtWidgets.QMessageBox()
+                new_icon_yes_no = QtGui.QIcon()
+                new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                dlg_yes_no.setWindowTitle("ERP EIPSA")
+                dlg_yes_no.setText("¿Estás seguro de que deseas eliminar los registros?\n")
+                dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                result = dlg_yes_no.exec()
+                if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        commands_delete = ("""DELETE FROM verification.calibration_thermoelements
+                                            WHERE id = %s""")
+                        for id_value in id_values:
+                            data = (id_value,)
+                            cur.execute(commands_delete, data)
 
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Caibraciones")
-                    dlg.setText("Registros eliminados con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg,new_icon
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Caibraciones")
+                        dlg.setText("Registros eliminados con éxito")
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                        dlg.exec()
+                        del dlg,new_icon
 
-                    self.query_calibration()
+                        self.query_calibration()
 
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
 
-            del dlg_yes_no, new_icon_yes_no
+                del dlg_yes_no, new_icon_yes_no
 
 # Function to print certificate
     def print_certificate(self):
