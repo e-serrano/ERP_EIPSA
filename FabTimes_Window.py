@@ -864,7 +864,7 @@ class Ui_FabTimes_Window(object):
                         JOIN fabrication.personal AS personal ON times."personal_id" = personal."code"
                         JOIN fabrication.operations AS operations ON times."operations_id" = operations."id"
                         JOIN fabrication.fab_order AS orders ON times."number_ot" = orders."ot_num"
-                        WHERE orders."tag" LIKE %s
+                        WHERE orders."tag" LIKE ('%%'||%s||'%%')
                         ORDER BY times."date_ot" ASC
                         """)
             self.label.setText('Pedido:')
@@ -1114,7 +1114,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     FabTimes = QtWidgets.QMainWindow()
-    ui = Ui_FabTimes_Window('j.martinez','902599')
+    ui = Ui_FabTimes_Window('j.martinez','P-24/074')
     ui.setupUi(FabTimes)
     FabTimes.show()
     sys.exit(app.exec())
