@@ -1643,10 +1643,16 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
             if results_machine[0][3] != '-':
                 characteristics = str(results_machine[0][3]).splitlines()
                 for item in characteristics:
-                    item = item.split(': ')
-                    pdf.cell(5.5, 0.5, item[0] + ':', border=1, fill=True)
-                    pdf.cell(5.5, 0.5, item[1], border='RB')
+                    print(item)
+                    if ': ' in item:
+                        item = item.split(': ') 
+                        pdf.cell(5.5, 0.5, item[0] + ':', border=1, fill=True)
+                        pdf.cell(5.5, 0.5, item[1], border='RB')
+                    else:
+                        pdf.cell(11, 0.5, item, border=1)
                     pdf.ln(0.5)
+
+            y_position_revisions = pdf.get_y()
 
             if results_machine[0][8] != '':
                 image_path = os.path.abspath(results_machine[0][8])
@@ -1655,8 +1661,8 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
                 corrected_image.save(temp_image_path)
                 pdf.image(temp_image_path, 12.6, 4.60, 7, 13)
 
-            if len(results_revisions)>18:
-                pdf.set_y(18)
+            if len(results_revisions)>10:
+                pdf.set_y(y_position_revisions)
 
                 pdf.set_font('Helvetica', 'B', 9)
                 pdf.cell(4.5, 0.5, "Fecha Revisión", border=1, align='C', fill=True)
@@ -1665,7 +1671,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
                 pdf.ln(0.5)
 
                 pdf.set_font('Helvetica', '', 9)
-                for i in range(18):
+                for i in range(10):
                     pdf.cell(4.5, 0.5, str(results_revisions[i][0]), border=1, align='C')
                     pdf.cell(3, 0.5, str(results_revisions[i][1]), border=1, align='C')
                     pdf.cell(10.6, 0.5, str(results_revisions[i][2]), border=1, align='C')
@@ -1674,7 +1680,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
                 pdf.cell(3, 0.5, '...', border=1, align='C')
                 pdf.cell(10.6, 0.5, '...', border=1, align='C')
             else:
-                pdf.set_y(18)
+                pdf.set_y(y_position_revisions)
 
                 pdf.set_font('Helvetica', 'B', 9)
                 pdf.cell(4.5, 0.5, "Fecha Revisión", border=1, align='C', fill=True)
