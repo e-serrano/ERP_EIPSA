@@ -3983,7 +3983,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.tableRecords.clearSelection()
 
         for i in range(self.tableRecords.rowCount()):
-            item = self.tableRecords.item(i, 1)
+            item = self.tableRecords.item(i, 2)
             if item is not None and text_position.upper() in item.text().upper():
                 item.setSelected(True)
                 self.tableRecords.scrollToItem(item)
