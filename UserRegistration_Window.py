@@ -14,7 +14,7 @@ import psycopg2
 from config import config
 import os
 import hashlib 
-from Email_Styles import emai_new_user
+from Email_Styles import email_new_user
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -462,7 +462,7 @@ class Ui_RegistrationWindow(object):
                     # commit the changes
                         conn.commit()
 
-                        email = emai_new_user(reg_email, reg_username, reg_password)
+                        email = email_new_user(reg_email, reg_username, reg_password)
                         email.send_email()
 
                     # showing success window
