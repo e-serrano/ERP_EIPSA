@@ -1840,6 +1840,24 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.Numorder_IndexDwg.setFont(font)
         self.Numorder_IndexDwg.setObjectName("Numorder_IndexDwg")
         self.gridLayout_2.addWidget(self.Numorder_IndexDwg, 1, 1, 1, 1)
+        self.label_PO = QtWidgets.QLabel(parent=self.frame)
+        self.label_PO.setMinimumSize(QtCore.QSize(150, 25))
+        self.label_PO.setMaximumSize(QtCore.QSize(150, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_PO.setFont(font)
+        self.label_PO.setObjectName("label_PO")
+        self.gridLayout_2.addWidget(self.label_PO, 1, 2, 1, 1)
+        self.PO_IndexDwg = QtWidgets.QLineEdit(parent=self.frame)
+        self.PO_IndexDwg.setMinimumSize(QtCore.QSize(200, 25))
+        self.PO_IndexDwg.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.PO_IndexDwg.setFont(font)
+        self.PO_IndexDwg.setEnabled(False)
+        self.PO_IndexDwg.setObjectName("PO_IndexDwg")
+        self.gridLayout_2.addWidget(self.PO_IndexDwg, 1, 3, 1, 1)
         self.label_Responsible = QtWidgets.QLabel(parent=self.frame)
         self.label_Responsible.setMinimumSize(QtCore.QSize(150, 25))
         self.label_Responsible.setMaximumSize(QtCore.QSize(150, 25))
@@ -1848,7 +1866,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         font.setBold(True)
         self.label_Responsible.setFont(font)
         self.label_Responsible.setObjectName("label_Responsible")
-        self.gridLayout_2.addWidget(self.label_Responsible, 1, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.label_Responsible, 1, 4, 1, 1)
         self.Responsible_IndexDwg = QtWidgets.QLineEdit(parent=self.frame)
         self.Responsible_IndexDwg.setMinimumSize(QtCore.QSize(200, 25))
         self.Responsible_IndexDwg.setMaximumSize(QtCore.QSize(200, 25))
@@ -1857,25 +1875,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.Responsible_IndexDwg.setFont(font)
         self.Responsible_IndexDwg.setEnabled(False)
         self.Responsible_IndexDwg.setObjectName("Responsible_IndexDwg")
-        self.gridLayout_2.addWidget(self.Responsible_IndexDwg, 1, 3, 1, 1)
-        self.label_ExpDate = QtWidgets.QLabel(parent=self.frame)
-        self.label_ExpDate.setMinimumSize(QtCore.QSize(150, 25))
-        self.label_ExpDate.setMaximumSize(QtCore.QSize(150, 25))
-        font = QtGui.QFont()
-        font.setPointSize(11)
-        font.setBold(True)
-        self.label_ExpDate.setFont(font)
-        self.label_ExpDate.setObjectName("label_ExpDate")
-        self.gridLayout_2.addWidget(self.label_ExpDate, 1, 4, 1, 1)
-        self.ExpDate_IndexDwg = QtWidgets.QLineEdit(parent=self.frame)
-        self.ExpDate_IndexDwg.setMinimumSize(QtCore.QSize(200, 25))
-        self.ExpDate_IndexDwg.setMaximumSize(QtCore.QSize(200, 25))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.ExpDate_IndexDwg.setFont(font)
-        self.ExpDate_IndexDwg.setEnabled(False)
-        self.ExpDate_IndexDwg.setObjectName("ExpDate_IndexDwg")
-        self.gridLayout_2.addWidget(self.ExpDate_IndexDwg, 1, 5, 1, 1)
+        self.gridLayout_2.addWidget(self.Responsible_IndexDwg, 1, 5, 1, 1)
         self.Button_AddLines = QtWidgets.QPushButton(parent=self.frame)
         self.Button_AddLines.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_AddLines.setMaximumSize(QtCore.QSize(50, 16777215))
@@ -1910,77 +1910,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.Button_AddLines.setIcon(icon1)
         self.Button_AddLines.setIconSize(QtCore.QSize(40, 40))
         self.Button_AddLines.setObjectName("Button_AddLines")
-        self.gridLayout_2.addWidget(self.Button_AddLines, 1, 6, 2, 1)
-        self.Button_PaletteM = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_PaletteM.setMinimumSize(QtCore.QSize(50, 50))
-        self.Button_PaletteM.setMaximumSize(QtCore.QSize(50, 16777215))
-        self.Button_PaletteM.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_PaletteM.setStyleSheet(
-            "QPushButton{\n"
-            "    border: 1px solid transparent;\n"
-            "    border-color: rgb(3, 174, 236);\n"
-            "    background-color: rgb(255, 255, 255);\n"
-            "    border-radius: 10px;\n"
-            "}\n"
-            "\n"
-            "QPushButton:hover{\n"
-            "    border: 1px solid transparent;\n"
-            "    border-color: rgb(0, 0, 0);\n"
-            "    color: rgb(0,0,0);\n"
-            "    background-color: rgb(255, 255, 255);\n"
-            "    border-radius: 10px;\n"
-            "}\n"
-            "\n"
-            "QPushButton:pressed{\n"
-            "    border: 1px solid transparent;\n"
-            "    border-color: rgb(0, 0, 0);\n"
-            "    color: rgb(0,0,0);\n"
-            "    background-color: rgb(200, 200, 200);\n"
-            "    border-radius: 10px;\n"
-            "}"
-        )
-        self.Button_PaletteM.setText("")
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Colour_Palette_M.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_PaletteM.setIcon(icon2)
-        self.Button_PaletteM.setIconSize(QtCore.QSize(40, 40))
-        self.Button_PaletteM.setObjectName("Button_PaletteM")
-        self.gridLayout_2.addWidget(self.Button_PaletteM, 1, 7, 2, 1)
-        self.Button_PaletteT = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_PaletteT.setMinimumSize(QtCore.QSize(50, 50))
-        self.Button_PaletteT.setMaximumSize(QtCore.QSize(50, 16777215))
-        self.Button_PaletteT.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.Button_PaletteT.setStyleSheet(
-            "QPushButton{\n"
-            "    border: 1px solid transparent;\n"
-            "    border-color: rgb(3, 174, 236);\n"
-            "    background-color: rgb(255, 255, 255);\n"
-            "    border-radius: 10px;\n"
-            "}\n"
-            "\n"
-            "QPushButton:hover{\n"
-            "    border: 1px solid transparent;\n"
-            "    border-color: rgb(0, 0, 0);\n"
-            "    color: rgb(0,0,0);\n"
-            "    background-color: rgb(255, 255, 255);\n"
-            "    border-radius: 10px;\n"
-            "}\n"
-            "\n"
-            "QPushButton:pressed{\n"
-            "    border: 1px solid transparent;\n"
-            "    border-color: rgb(0, 0, 0);\n"
-            "    color: rgb(0,0,0);\n"
-            "    background-color: rgb(200, 200, 200);\n"
-            "    border-radius: 10px;\n"
-            "}"
-        )
-        self.Button_PaletteT.setText("")
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Colour_Palette_T.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_PaletteT.setIcon(icon3)
-        self.Button_PaletteT.setIconSize(QtCore.QSize(40, 40))
-        self.Button_PaletteT.setObjectName("Button_PaletteT")
-        self.gridLayout_2.addWidget(self.Button_PaletteT, 1, 8, 2, 1)
+        self.gridLayout_2.addWidget(self.Button_AddLines, 1, 6, 3, 1)
         self.Button_Description = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Description.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_Description.setMaximumSize(QtCore.QSize(50, 16777215))
@@ -2015,7 +1945,112 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.Button_Description.setIcon(icon4)
         self.Button_Description.setIconSize(QtCore.QSize(40, 40))
         self.Button_Description.setObjectName("Button_Description")
-        self.gridLayout_2.addWidget(self.Button_Description, 1, 9, 2, 1)
+        self.gridLayout_2.addWidget(self.Button_Description, 1, 7, 3, 1)
+        self.Button_Printer = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Printer.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Printer.setMaximumSize(QtCore.QSize(50, 16777215))
+        self.Button_Printer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Printer.setStyleSheet(
+            "QPushButton{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(3, 174, 236);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:hover{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:pressed{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(200, 200, 200);\n"
+            "    border-radius: 10px;\n"
+            "}"
+        )
+        self.Button_Printer.setText("")
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Printer.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Printer.setIcon(icon5)
+        self.Button_Printer.setIconSize(QtCore.QSize(40, 40))
+        self.Button_Printer.setObjectName("Button_Printer")
+        self.gridLayout_2.addWidget(self.Button_Printer, 1, 8, 3, 1)
+        self.Button_PaletteM = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_PaletteM.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_PaletteM.setMaximumSize(QtCore.QSize(50, 16777215))
+        self.Button_PaletteM.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_PaletteM.setStyleSheet(
+            "QPushButton{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(3, 174, 236);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:hover{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:pressed{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(200, 200, 200);\n"
+            "    border-radius: 10px;\n"
+            "}"
+        )
+        self.Button_PaletteM.setText("")
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Colour_Palette_M.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_PaletteM.setIcon(icon2)
+        self.Button_PaletteM.setIconSize(QtCore.QSize(40, 40))
+        self.Button_PaletteM.setObjectName("Button_PaletteM")
+        self.gridLayout_2.addWidget(self.Button_PaletteM, 1, 9, 3, 1)
+        self.Button_PaletteT = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_PaletteT.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_PaletteT.setMaximumSize(QtCore.QSize(50, 16777215))
+        self.Button_PaletteT.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_PaletteT.setStyleSheet(
+            "QPushButton{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(3, 174, 236);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:hover{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:pressed{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(200, 200, 200);\n"
+            "    border-radius: 10px;\n"
+            "}"
+        )
+        self.Button_PaletteT.setText("")
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Colour_Palette_T.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_PaletteT.setIcon(icon3)
+        self.Button_PaletteT.setIconSize(QtCore.QSize(40, 40))
+        self.Button_PaletteT.setObjectName("Button_PaletteT")
+        self.gridLayout_2.addWidget(self.Button_PaletteT, 1, 10, 3, 1)
         self.label_Type = QtWidgets.QLabel(parent=self.frame)
         self.label_Type.setMinimumSize(QtCore.QSize(100, 25))
         self.label_Type.setMaximumSize(QtCore.QSize(100, 25))
@@ -2034,6 +2069,42 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.Type_IndexDwg.setEnabled(False)
         self.Type_IndexDwg.setObjectName("Type_IndexDwg")
         self.gridLayout_2.addWidget(self.Type_IndexDwg, 2, 1, 1, 1)
+        self.label_NumItems = QtWidgets.QLabel(parent=self.frame)
+        self.label_NumItems.setMinimumSize(QtCore.QSize(100, 25))
+        self.label_NumItems.setMaximumSize(QtCore.QSize(100, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_NumItems.setFont(font)
+        self.label_NumItems.setObjectName("label_NumItems")
+        self.gridLayout_2.addWidget(self.label_NumItems, 2, 2, 1, 1)
+        self.NumItems_IndexDwg = QtWidgets.QLineEdit(parent=self.frame)
+        self.NumItems_IndexDwg.setMinimumSize(QtCore.QSize(200, 25))
+        self.NumItems_IndexDwg.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.NumItems_IndexDwg.setFont(font)
+        self.NumItems_IndexDwg.setEnabled(False)
+        self.NumItems_IndexDwg.setObjectName("NumItems_IndexDwg")
+        self.gridLayout_2.addWidget(self.NumItems_IndexDwg, 2, 3, 1, 1)
+        self.label_ExpDate = QtWidgets.QLabel(parent=self.frame)
+        self.label_ExpDate.setMinimumSize(QtCore.QSize(150, 25))
+        self.label_ExpDate.setMaximumSize(QtCore.QSize(150, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_ExpDate.setFont(font)
+        self.label_ExpDate.setObjectName("label_ExpDate")
+        self.gridLayout_2.addWidget(self.label_ExpDate, 3, 0, 1, 1)
+        self.ExpDate_IndexDwg = QtWidgets.QLineEdit(parent=self.frame)
+        self.ExpDate_IndexDwg.setMinimumSize(QtCore.QSize(200, 25))
+        self.ExpDate_IndexDwg.setMaximumSize(QtCore.QSize(200, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.ExpDate_IndexDwg.setFont(font)
+        self.ExpDate_IndexDwg.setEnabled(False)
+        self.ExpDate_IndexDwg.setObjectName("ExpDate_IndexDwg")
+        self.gridLayout_2.addWidget(self.ExpDate_IndexDwg, 3, 1, 1, 1)
         self.label_DateWorkshop = QtWidgets.QLabel(parent=self.frame)
         self.label_DateWorkshop.setMinimumSize(QtCore.QSize(150, 25))
         self.label_DateWorkshop.setMaximumSize(QtCore.QSize(150, 25))
@@ -2042,7 +2113,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         font.setBold(True)
         self.label_DateWorkshop.setFont(font)
         self.label_DateWorkshop.setObjectName("label_DateWorkshop")
-        self.gridLayout_2.addWidget(self.label_DateWorkshop, 2, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.label_DateWorkshop, 3, 2, 1, 1)
         self.DateWorkshop_IndexDwg = QtWidgets.QLineEdit(parent=self.frame)
         self.DateWorkshop_IndexDwg.setMinimumSize(QtCore.QSize(200, 25))
         self.DateWorkshop_IndexDwg.setMaximumSize(QtCore.QSize(200, 25))
@@ -2051,7 +2122,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.DateWorkshop_IndexDwg.setFont(font)
         self.DateWorkshop_IndexDwg.setEnabled(False)
         self.DateWorkshop_IndexDwg.setObjectName("DateWorkshop_IndexDwg")
-        self.gridLayout_2.addWidget(self.DateWorkshop_IndexDwg, 2, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.DateWorkshop_IndexDwg, 3, 3, 1, 1)
         self.label_DateAssembly = QtWidgets.QLabel(parent=self.frame)
         self.label_DateAssembly.setMinimumSize(QtCore.QSize(150, 25))
         self.label_DateAssembly.setMaximumSize(QtCore.QSize(150, 25))
@@ -2060,7 +2131,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         font.setBold(True)
         self.label_DateAssembly.setFont(font)
         self.label_DateAssembly.setObjectName("label_DateAssembly")
-        self.gridLayout_2.addWidget(self.label_DateAssembly, 2, 4, 1, 1)
+        self.gridLayout_2.addWidget(self.label_DateAssembly, 3, 4, 1, 1)
         self.DateAssembly_IndexDwg = QtWidgets.QLineEdit(parent=self.frame)
         self.DateAssembly_IndexDwg.setMinimumSize(QtCore.QSize(200, 25))
         self.DateAssembly_IndexDwg.setMaximumSize(QtCore.QSize(200, 25))
@@ -2069,7 +2140,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.DateAssembly_IndexDwg.setFont(font)
         self.DateAssembly_IndexDwg.setEnabled(False)
         self.DateAssembly_IndexDwg.setObjectName("DateAssembly_IndexDwg")
-        self.gridLayout_2.addWidget(self.DateAssembly_IndexDwg, 2, 5, 1, 1)
+        self.gridLayout_2.addWidget(self.DateAssembly_IndexDwg, 3, 5, 1, 1)
         self.layout_vertical = QtWidgets.QVBoxLayout()
         self.splitter = QtWidgets.QSplitter(QtCore.Qt.Orientation.Vertical)
         self.tableDimDwg = QtWidgets.QTableView(parent=self.frame)
@@ -2085,7 +2156,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.tableMDwg.setObjectName("tableMDwg")
         self.splitter.addWidget(self.tableMDwg)
         self.layout_vertical.addWidget(self.splitter)
-        self.gridLayout_2.addLayout(self.layout_vertical, 4, 0, 1, 11)
+        self.gridLayout_2.addLayout(self.layout_vertical, 4, 0, 1, 12)
         self.hLayout3 = QtWidgets.QHBoxLayout()
         self.hLayout3.setObjectName("hLayout3")
         spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -2183,9 +2254,11 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         WorkshopDrawingIndex_Window.setWindowTitle(_translate("WorkshopDrawingIndex_Window", "Indice Planos"))
         self.tableDimDwg.setSortingEnabled(True)
         self.label_NumOrder.setText(_translate("WorkshopDrawingIndex_Window", "Nº Pedido:"))
+        self.label_PO.setText(_translate("WorkshopDrawingIndex_Window", "Nº PO:"))
         self.label_Responsible.setText(_translate("WorkshopDrawingIndex_Window", "Responsable:"))
-        self.label_ExpDate.setText(_translate("WorkshopDrawingIndex_Window", "Fecha Prevista:"))
         self.label_Type.setText(_translate("WorkshopDrawingIndex_Window", "Tipo Equipo:"))
+        self.label_NumItems.setText(_translate("WorkshopDrawingIndex_Window", "Nº Equipos:"))
+        self.label_ExpDate.setText(_translate("WorkshopDrawingIndex_Window", "Fecha Prevista:"))
         self.label_DateWorkshop.setText(_translate("WorkshopDrawingIndex_Window", "Fecha Baja Taller:"))
         self.label_DateAssembly.setText(_translate("WorkshopDrawingIndex_Window", "Fecha Baja Montaje:"))
 
@@ -2245,7 +2318,10 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         num_order = self.Numorder_IndexDwg.text().upper()
 
         commands_queryorder = """
-                            SELECT orders."num_order", registration."name", registration."surname", TO_CHAR(orders."expected_date",'dd/MM/yyyy'), offers."material", orders."recep_date_workshop", orders."recep_date_assembly"
+                            SELECT orders."num_order", registration."name", registration."surname",
+                            TO_CHAR(orders."expected_date",'dd/MM/yyyy'), offers."material",
+                            orders."recep_date_workshop", orders."recep_date_assembly",
+                            orders."num_ref_order", orders."items_number"
                             FROM offers
                             INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                             INNER JOIN users_data.registration AS registration ON (offers."responsible"=registration."username")
@@ -2288,6 +2364,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             self.Type_IndexDwg.setText(results_queryorder[0][4])
             self.DateWorkshop_IndexDwg.setText(results_queryorder[0][5])
             self.DateAssembly_IndexDwg.setText(results_queryorder[0][6])
+            self.PO_IndexDwg.setText(str(results_queryorder[0][7]))
+            self.NumItems_IndexDwg.setText(str(results_queryorder[0][8]))
 
             self.checkbox_states = {}
             self.dict_valuesuniques = {}

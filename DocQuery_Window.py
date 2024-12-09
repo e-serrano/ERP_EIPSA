@@ -169,16 +169,36 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         Args:
             column_index (int): The index of the column from which to delete the filter.
         """
+        # if column_index in self.column_filters:
+        #     del self.column_filters[column_index]
+        # if column_index in self.checkbox_states:
+        #     del self.checkbox_states[column_index]
+        # if column_index in self.rows_hidden:
+        #     for item in self.rows_hidden[column_index]:
+        #         self.setRowHidden(item, False)
+        #         if item in self.general_rows_to_hide:
+        #             self.general_rows_to_hide.remove(item)
+        #     del self.rows_hidden[column_index]
+        # header_item = self.horizontalHeaderItem(column_index)
+        # header_item.setIcon(QtGui.QIcon())
+
         if column_index in self.column_filters:
             del self.column_filters[column_index]
         if column_index in self.checkbox_states:
             del self.checkbox_states[column_index]
         if column_index in self.rows_hidden:
-            for item in self.rows_hidden[column_index]:
-                self.setRowHidden(item, False)
-                if item in self.general_rows_to_hide:
-                    self.general_rows_to_hide.remove(item)
             del self.rows_hidden[column_index]
+
+        # Recalculate hidden global rows
+        self.general_rows_to_hide = set()
+        for col_hidden_rows in self.rows_hidden.values():
+            self.general_rows_to_hide.update(col_hidden_rows)
+
+        # Show or hide rows according to remaining filters
+        for row in range(self.rowCount()):
+            self.setRowHidden(row, row in self.general_rows_to_hide)
+
+        # Reset header icon for column
         header_item = self.horizontalHeaderItem(column_index)
         header_item.setIcon(QtGui.QIcon())
 
@@ -212,69 +232,127 @@ class CustomTableWidget(QtWidgets.QTableWidget):
             text_filter (str, optional): Additional text filter for filtering items. Defaults to None.
             filter_dialog (QDialog, optional): The dialog used for the text filter. Defaults to None.
         """
+        # if column_index not in self.column_filters:
+        #     self.column_filters[column_index] = set()
+
+        # if text_filter is None:
+        #     if value is None:
+        #         self.column_filters[column_index] = set()
+        #     elif checked:
+        #         self.column_filters[column_index].add(value)
+        #     elif value in self.column_filters[column_index]:
+        #         self.column_filters[column_index].remove(value)
+
+        # rows_to_hide = set()
+        # for row in range(self.rowCount()):
+        #     show_row = True
+
+        #     # Check filters for all columns
+        #     for col, filters in self.column_filters.items():
+        #         item = self.item(row, col)
+        #         if item:
+        #             item_value = item.text()
+        #             if text_filter is None:
+        #                 if filters and item_value not in filters:
+        #                     show_row = False
+        #                     break
+
+        # # Filtering by text
+        #     if text_filter is not None:
+        #         filter_dialog.accept()
+        #         item = self.item(row, column_index)
+        #         if item:
+        #             if text_filter.upper() in item.text().upper():
+        #                 self.column_filters[column_index].add(item.text())
+        #             else:
+        #                 show_row = False
+
+        #     if not show_row:
+        #         if row not in self.general_rows_to_hide:
+        #             self.general_rows_to_hide.add(row)
+        #             rows_to_hide.add(row)
+        #     else:
+        #         if row in self.general_rows_to_hide:
+        #             self.general_rows_to_hide.remove(row)
+
+        # # Update hidden rows for this column depending on checkboxes
+        # if checked and text_filter is None:
+        #     if column_index not in self.rows_hidden:
+        #         self.rows_hidden[column_index] = set(rows_to_hide)
+        #     else:
+        #         self.rows_hidden[column_index].update(rows_to_hide)
+
+        # # Update hidden rows for this column depending on filtered text
+        # if text_filter is not None and value is None:
+        #     if column_index not in self.rows_hidden:
+        #         self.rows_hidden[column_index] = set(rows_to_hide)
+        #     else:
+        #         self.rows_hidden[column_index].update(rows_to_hide)
+
+        # # Iterate over all rows to hide them as necessary
+        # for row in range(self.rowCount()):
+        #     self.setRowHidden(row, row in self.general_rows_to_hide)
+
+        # header_item = self.horizontalHeaderItem(column_index)
+        # if len(self.general_rows_to_hide) > 0:
+        #     header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+        # else:
+        #     header_item.setIcon(QtGui.QIcon())
+
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
+        if column_index not in self.rows_hidden:
+            self.rows_hidden[column_index] = set()
 
+        # Manejo del filtro por checkboxes
         if text_filter is None:
-            if value is None:
+            if value is None:  # Eliminar todos los filtros de la columna
                 self.column_filters[column_index] = set()
-            elif checked:
+                self.rows_hidden[column_index] = set()
+            elif checked:  # Agregar un valor permitido
                 self.column_filters[column_index].add(value)
-            elif value in self.column_filters[column_index]:
+            elif value in self.column_filters[column_index]:  # Quitar un valor permitido
                 self.column_filters[column_index].remove(value)
 
+        # Crear un conjunto temporal para filas ocultas por este filtro
         rows_to_hide = set()
         for row in range(self.rowCount()):
             show_row = True
 
-            # Check filters for all columns
-            for col, filters in self.column_filters.items():
-                item = self.item(row, col)
-                if item:
-                    item_value = item.text()
-                    if text_filter is None:
-                        if filters and item_value not in filters:
-                            show_row = False
-                            break
+            # Filtro por checkboxes
+            if text_filter is None:
+                item = self.item(row, column_index)
+                if item and self.column_filters[column_index] and item.text() not in self.column_filters[column_index]:
+                    show_row = False
 
-        # Filtering by text
+            # Filtro por texto
             if text_filter is not None:
                 filter_dialog.accept()
                 item = self.item(row, column_index)
-                if item:
-                    if text_filter.upper() in item.text().upper():
-                        self.column_filters[column_index].add(item.text())
-                    else:
-                        show_row = False
+                if item and text_filter.upper() not in item.text().upper():
+                    show_row = False
 
             if not show_row:
-                if row not in self.general_rows_to_hide:
-                    self.general_rows_to_hide.add(row)
-                    rows_to_hide.add(row)
-            else:
-                if row in self.general_rows_to_hide:
-                    self.general_rows_to_hide.remove(row)
+                rows_to_hide.add(row)
 
-        # Update hidden rows for this column depending on checkboxes
-        if checked and text_filter is None:
-            if column_index not in self.rows_hidden:
-                self.rows_hidden[column_index] = set(rows_to_hide)
-            else:
-                self.rows_hidden[column_index].update(rows_to_hide)
-
-        # Update hidden rows for this column depending on filtered text
+        # Actualizar filas ocultas para esta columna
         if text_filter is not None and value is None:
-            if column_index not in self.rows_hidden:
-                self.rows_hidden[column_index] = set(rows_to_hide)
-            else:
-                self.rows_hidden[column_index].update(rows_to_hide)
+            self.rows_hidden[column_index] = rows_to_hide
+        elif text_filter is None:
+            self.rows_hidden[column_index] = rows_to_hide
 
-        # Iterate over all rows to hide them as necessary
+        # Recalcular las filas globalmente ocultas combinando todos los filtros por columna
+        self.general_rows_to_hide = set()
+        for col_hidden_rows in self.rows_hidden.values():
+            self.general_rows_to_hide.update(col_hidden_rows)
+
+        # Ocultar o mostrar filas según `self.general_rows_to_hide`
         for row in range(self.rowCount()):
             self.setRowHidden(row, row in self.general_rows_to_hide)
 
+        # Actualizar el ícono del encabezado
         header_item = self.horizontalHeaderItem(column_index)
-        if len(self.general_rows_to_hide) > 0:
+        if self.rows_hidden[column_index]:
             header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
         else:
             header_item.setIcon(QtGui.QIcon())
