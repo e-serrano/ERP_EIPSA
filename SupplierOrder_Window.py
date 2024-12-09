@@ -1853,6 +1853,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         if self.num_order is not None:
             self.position_table(self.num_order)
 
+        self.Quantity_SupplierOrder.returnPressed.connect(lambda: self.UnitValue_SupplierOrder.setFocus())
+
 
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, SupplierOrder_Window):
@@ -3512,6 +3514,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             finally:
                 if conn is not None:
                     conn.close()
+
+            self.Quantity_SupplierOrder.setFocus()
 
 #  Function to calculate the order total amount
     def calculate_totalorder(self):
