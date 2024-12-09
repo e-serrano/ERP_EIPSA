@@ -496,6 +496,16 @@ class offer_flow:
                         sheet_to_delete = self.wb_commercial[sheet]
                         self.wb_commercial.remove(sheet_to_delete)
 
+                left_text = "Fecha/Date: " + date_offer
+                right_text = "Petición nº/Inquiry: " + num_ref
+
+                for sheet in self.wb_commercial.worksheets:
+                    sheet.oddFooter.left.text = left_text
+                    sheet.oddFooter.right.text = right_text
+
+                    sheet.oddFooter.left.size = 9
+                    sheet.oddFooter.right.size = 9
+                
                 path = self.save_excel_commercial()
 
                 # Creating the technical offer using the commercial one as template
@@ -698,6 +708,16 @@ class offer_flow:
                 
                 std = self.wb_technical["1.3"]
                 self.wb_technical.remove(std)
+
+                left_text = "Fecha/Date: " + date_offer
+                right_text = "Petición nº/Inquiry: " + num_ref
+
+                for sheet in self.wb_technical.worksheets:
+                    sheet.oddFooter.left.text = left_text
+                    sheet.oddFooter.right.text = right_text
+
+                    sheet.oddFooter.left.size = 9
+                    sheet.oddFooter.right.size = 9
 
                 self.save_excel_technical()
 
@@ -1204,6 +1224,16 @@ class offer_short_flow_spanish:
                         sheet_to_delete = self.wb_commercial[sheet]
                         self.wb_commercial.remove(sheet_to_delete)
 
+                left_text = "Fecha/Date: " + date_offer
+                right_text = "Petición nº/Inquiry: " + num_ref
+
+                for sheet in self.wb_commercial.worksheets:
+                    sheet.oddFooter.left.text = left_text
+                    sheet.oddFooter.right.text = right_text
+
+                    sheet.oddFooter.left.size = 9
+                    sheet.oddFooter.right.size = 9
+                
                 path = self.save_excel_commercial()
 
                 # Creating the technical offer using the commercial one as template
@@ -1364,6 +1394,16 @@ class offer_short_flow_spanish:
                 std = self.wb_technical["1.3"]
                 self.wb_technical.remove(std)
 
+                left_text = "Fecha/Date: " + date_offer
+                right_text = "Petición nº/Inquiry: " + num_ref
+
+                for sheet in self.wb_technical.worksheets:
+                    sheet.oddFooter.left.text = left_text
+                    sheet.oddFooter.right.text = right_text
+
+                    sheet.oddFooter.left.size = 9
+                    sheet.oddFooter.right.size = 9
+                
                 self.save_excel_technical()
 
                 root = Tk()
@@ -1910,6 +1950,16 @@ class offer_short_flow_english:
                         sheet_to_delete = self.wb_commercial[sheet]
                         self.wb_commercial.remove(sheet_to_delete)
 
+                left_text = "Fecha/Date: " + date_offer
+                right_text = "Petición nº/Inquiry: " + num_ref
+
+                for sheet in self.wb_commercial.worksheets:
+                    sheet.oddFooter.left.text = left_text
+                    sheet.oddFooter.right.text = right_text
+
+                    sheet.oddFooter.left.size = 9
+                    sheet.oddFooter.right.size = 9
+                
                 path = self.save_excel_commercial()
 
                 # Creating the technical offer using the commercial one as template
@@ -2113,6 +2163,16 @@ class offer_short_flow_english:
                 std = self.wb_technical["1.3"]
                 self.wb_technical.remove(std)
 
+                left_text = "Fecha/Date: " + date_offer
+                right_text = "Petición nº/Inquiry: " + num_ref
+
+                for sheet in self.wb_technical.worksheets:
+                    sheet.oddFooter.left.text = left_text
+                    sheet.oddFooter.right.text = right_text
+
+                    sheet.oddFooter.left.size = 9
+                    sheet.oddFooter.right.size = 9
+                
                 self.save_excel_technical()
 
                 root = Tk()
@@ -2708,6 +2768,16 @@ class offer_temp:
                         sheet_to_delete = self.wb_commercial[sheet]
                         self.wb_commercial.remove(sheet_to_delete)
 
+                left_text = "Fecha/Date: " + date_offer
+                right_text = "Petición nº/Inquiry: " + num_ref
+
+                for sheet in self.wb_commercial.worksheets:
+                    sheet.oddFooter.left.text = left_text
+                    sheet.oddFooter.right.text = right_text
+
+                    sheet.oddFooter.left.size = 9
+                    sheet.oddFooter.right.size = 9
+                
                 path = self.save_excel_commercial()
 
                 # Creating the technical offer using the commercial one as template
@@ -2913,6 +2983,16 @@ class offer_temp:
                 std = self.wb_technical["1.3"]
                 self.wb_technical.remove(std)
 
+                left_text = "Fecha/Date: " + date_offer
+                right_text = "Petición nº/Inquiry: " + num_ref
+
+                for sheet in self.wb_technical.worksheets:
+                    sheet.oddFooter.left.text = left_text
+                    sheet.oddFooter.right.text = right_text
+
+                    sheet.oddFooter.left.size = 9
+                    sheet.oddFooter.right.size = 9
+                
                 self.save_excel_technical()
 
                 root = Tk()
@@ -3457,6 +3537,16 @@ class offer_short_temp_spanish:
                         sheet_to_delete = self.wb_commercial[sheet]
                         self.wb_commercial.remove(sheet_to_delete)
 
+                left_text = "Fecha/Date: " + date_offer
+                right_text = "Petición nº/Inquiry: " + num_ref
+
+                for sheet in self.wb_commercial.worksheets:
+                    sheet.oddFooter.left.text = left_text
+                    sheet.oddFooter.right.text = right_text
+
+                    sheet.oddFooter.left.size = 9
+                    sheet.oddFooter.right.size = 9
+                
                 path = self.save_excel_commercial()
 
                 # Creating the technical offer using the commercial one as template
@@ -3621,6 +3711,16 @@ class offer_short_temp_spanish:
                 std = self.wb_technical["1.3"]
                 self.wb_technical.remove(std)
 
+                left_text = "Fecha/Date: " + date_offer
+                right_text = "Petición nº/Inquiry: " + num_ref
+
+                for sheet in self.wb_technical.worksheets:
+                    sheet.oddFooter.left.text = left_text
+                    sheet.oddFooter.right.text = right_text
+
+                    sheet.oddFooter.left.size = 9
+                    sheet.oddFooter.right.size = 9
+                
                 self.save_excel_technical()
 
                 root = Tk()
@@ -4206,6 +4306,16 @@ class offer_short_temp_english:
                         sheet_to_delete = self.wb_commercial[sheet]
                         self.wb_commercial.remove(sheet_to_delete)
 
+                left_text = "Fecha/Date: " + date_offer
+                right_text = "Petición nº/Inquiry: " + num_ref
+
+                for sheet in self.wb_commercial.worksheets:
+                    sheet.oddFooter.left.text = left_text
+                    sheet.oddFooter.right.text = right_text
+
+                    sheet.oddFooter.left.size = 9
+                    sheet.oddFooter.right.size = 9
+                
                 path = self.save_excel_commercial()
 
                 # Creating the technical offer using the commercial one as template
@@ -4410,6 +4520,16 @@ class offer_short_temp_english:
                 
                 std = self.wb_technical["1.3"]
                 self.wb_technical.remove(std)
+
+                left_text = "Fecha/Date: " + date_offer
+                right_text = "Petición nº/Inquiry: " + num_ref
+
+                for sheet in self.wb_technical.worksheets:
+                    sheet.oddFooter.left.text = left_text
+                    sheet.oddFooter.right.text = right_text
+
+                    sheet.oddFooter.left.size = 9
+                    sheet.oddFooter.right.size = 9
 
                 self.save_excel_technical()
 
@@ -4858,6 +4978,16 @@ class offer_level:
                         sheet_to_delete = self.wb_commercial[sheet]
                         self.wb_commercial.remove(sheet_to_delete)
 
+                left_text = "Fecha/Date: " + date_offer
+                right_text = "Petición nº/Inquiry: " + num_ref
+
+                for sheet in self.wb_commercial.worksheets:
+                    sheet.oddFooter.left.text = left_text
+                    sheet.oddFooter.right.text = right_text
+
+                    sheet.oddFooter.left.size = 9
+                    sheet.oddFooter.right.size = 9
+                
                 path = self.save_excel_commercial()
 
                 # Creating the technical offer using the commercial one as template
@@ -5038,6 +5168,16 @@ class offer_level:
 
                 std = self.wb_technical["1.3"]
                 self.wb_technical.remove(std)
+
+                left_text = "Fecha/Date: " + date_offer
+                right_text = "Petición nº/Inquiry: " + num_ref
+
+                for sheet in self.wb_technical.worksheets:
+                    sheet.oddFooter.left.text = left_text
+                    sheet.oddFooter.right.text = right_text
+
+                    sheet.oddFooter.left.size = 9
+                    sheet.oddFooter.right.size = 9
 
                 self.save_excel_technical()
 
@@ -5445,6 +5585,16 @@ class offer_short_level_spanish:
                         sheet_to_delete = self.wb_commercial[sheet]
                         self.wb_commercial.remove(sheet_to_delete)
 
+                left_text = "Fecha/Date: " + date_offer
+                right_text = "Petición nº/Inquiry: " + num_ref
+
+                for sheet in self.wb_commercial.worksheets:
+                    sheet.oddFooter.left.text = left_text
+                    sheet.oddFooter.right.text = right_text
+
+                    sheet.oddFooter.left.size = 9
+                    sheet.oddFooter.right.size = 9
+                
                 path = self.save_excel_commercial()
 
                 # Creating the technical offer using the commercial one as template
@@ -5584,6 +5734,16 @@ class offer_short_level_spanish:
 
                 std = self.wb_technical["1.3"]
                 self.wb_technical.remove(std)
+
+                left_text = "Fecha/Date: " + date_offer
+                right_text = "Petición nº/Inquiry: " + num_ref
+
+                for sheet in self.wb_technical.worksheets:
+                    sheet.oddFooter.left.text = left_text
+                    sheet.oddFooter.right.text = right_text
+
+                    sheet.oddFooter.left.size = 9
+                    sheet.oddFooter.right.size = 9
 
                 self.save_excel_technical()
 
@@ -6032,6 +6192,16 @@ class offer_short_level_english:
                         sheet_to_delete = self.wb_commercial[sheet]
                         self.wb_commercial.remove(sheet_to_delete)
 
+                left_text = "Fecha/Date: " + date_offer
+                right_text = "Petición nº/Inquiry: " + num_ref
+
+                for sheet in self.wb_commercial.worksheets:
+                    sheet.oddFooter.left.text = left_text
+                    sheet.oddFooter.right.text = right_text
+
+                    sheet.oddFooter.left.size = 9
+                    sheet.oddFooter.right.size = 9
+                
                 path = self.save_excel_commercial()
 
                 # Creating the technical offer using the commercial one as template
@@ -6212,6 +6382,16 @@ class offer_short_level_english:
 
                 std = self.wb_technical["1.3"]
                 self.wb_technical.remove(std)
+
+                left_text = "Fecha/Date: " + date_offer
+                right_text = "Petición nº/Inquiry: " + num_ref
+
+                for sheet in self.wb_technical.worksheets:
+                    sheet.oddFooter.left.text = left_text
+                    sheet.oddFooter.right.text = right_text
+
+                    sheet.oddFooter.left.size = 9
+                    sheet.oddFooter.right.size = 9
 
                 self.save_excel_technical()
 
