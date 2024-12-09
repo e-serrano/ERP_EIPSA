@@ -202,6 +202,7 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
         Queries the database for notifications, configures and populates tables with the query results, 
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
+        self.tableNotifications.setRowCount(0)
         query_tables_notifications = """SELECT table_name
                                 FROM information_schema.tables
                                 WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
