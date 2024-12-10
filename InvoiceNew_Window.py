@@ -3444,8 +3444,8 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         Creates a new entry in database after validating form inputs.
         """
         commands_insert_invoice = ("""
-                        INSERT INTO purch_fact.invoice_header ("num_invoice","date_invoice","id_client","id_dest_country")
-                        VALUES (%s,%s,%s,%s)
+                        INSERT INTO purch_fact.invoice_header ("num_invoice","date_invoice")
+                        VALUES (%s,%s)
                         """)
         query_idinvoice = "SELECT id FROM purch_fact.invoice_header ORDER BY id"
         conn = None
@@ -3456,7 +3456,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands one by one
-            data = ('',invoice_date,1,1,)
+            data = ('',invoice_date,)
             cur.execute(commands_insert_invoice, data)
 
             cur.execute(query_idinvoice)
