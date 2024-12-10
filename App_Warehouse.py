@@ -1725,15 +1725,15 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
             num_order (str): The order number used to filter the drawing records.
         """
         if num_order[:2] != 'AL':
-            query_m_dwg = (""" SELECT '', id, num_order, drawing_number, drawing_description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
+            query_m_dwg = (""" SELECT '', id, num_order, drawing_number, TO_CHAR(printed_date, 'DD/MM/YYYY'), drawing_description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
                             FROM verification.m_drawing_verification WHERE UPPER(num_order) LIKE UPPER('%%'||%s||'%%')
                             ORDER BY drawing_number""")
 
-            query_of_dwg = ("""SELECT '', id, num_order, drawing_number, drawing_description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
+            query_of_dwg = ("""SELECT '', id, num_order, drawing_number, TO_CHAR(printed_date, 'DD/MM/YYYY'), drawing_description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
                             FROM verification.workshop_of_drawings WHERE UPPER(num_order) LIKE UPPER('%%'||%s||'%%')
                             ORDER BY drawing_number""")
             
-            query_dim_dwg = ("""SELECT '', id, num_order, drawing_number, drawing_description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
+            query_dim_dwg = ("""SELECT '', id, num_order, drawing_number, TO_CHAR(printed_date, 'DD/MM/YYYY'), drawing_description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
                             FROM verification.workshop_dim_drawings WHERE UPPER(num_order) LIKE UPPER('%%'||%s||'%%')
                             ORDER BY drawing_number""")
             
@@ -1754,9 +1754,9 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                 cur.execute(query_m_dwg, (num_order,))
                 results_m=cur.fetchall()
 
-                column_headers = ["", "ID", "Nº Pedido", "Nº Plano Dim.", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
-                column_headers_of = ["", "ID", "Nº Pedido", "Nº Plano OF", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
-                column_headers_m = ["", "ID", "Nº Pedido", "Nº Plano M", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
+                column_headers = ["", "ID", "Nº Pedido", "Nº Plano Dim.", "Fecha Sacado", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
+                column_headers_of = ["", "ID", "Nº Pedido", "Nº Plano OF", "Fecha Sacado", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
+                column_headers_m = ["", "ID", "Nº Pedido", "Nº Plano M", "Fecha Sacado", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
 
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -1764,12 +1764,12 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                 conn.commit()
 
                 self.tableDimDwg.setRowCount(len(results_dim))
-                self.tableDimDwg.setColumnCount(8)
+                self.tableDimDwg.setColumnCount(9)
                 tablerow=0
 
             # fill the Qt Table with the query results
                 for row in results_dim:
-                    for column in range(8):
+                    for column in range(9):
                         if column == 0:
                             checkbox_others = QtWidgets.QCheckBox()
                             checkbox_others.setChecked(False)
@@ -1785,12 +1785,12 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                     tablerow+=1
 
                 self.tableOfDwg.setRowCount(len(results_of))
-                self.tableOfDwg.setColumnCount(8)
+                self.tableOfDwg.setColumnCount(9)
                 tablerow=0
 
             # fill the Qt Table with the query results
                 for row in results_of:
-                    for column in range(8):
+                    for column in range(9):
                         if column == 0:
                             checkbox_others = QtWidgets.QCheckBox()
                             checkbox_others.setChecked(False)
@@ -1806,12 +1806,12 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                     tablerow+=1
 
                 self.tableMDwg.setRowCount(len(results_m))
-                self.tableMDwg.setColumnCount(8)
+                self.tableMDwg.setColumnCount(9)
                 tablerow=0
 
             # fill the Qt Table with the query results
                 for row in results_m:
-                    for column in range(8):
+                    for column in range(9):
                         if column == 0:
                             checkbox_others = QtWidgets.QCheckBox()
                             checkbox_others.setChecked(False)
@@ -1829,7 +1829,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                 self.tableDimDwg.hideColumn(1)
                 self.tableDimDwg.setHorizontalHeaderLabels(column_headers)
                 self.tableDimDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                self.tableDimDwg.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+                self.tableDimDwg.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
                 self.tableDimDwg.sortByColumn(3, QtCore.Qt.SortOrder.AscendingOrder)
                 self.tableDimDwg.verticalHeader().hide()
                 self.tableDimDwg.setItemDelegate(AlignDelegate_drawings(self.tableDimDwg))
@@ -1837,7 +1837,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                 self.tableOfDwg.hideColumn(1)
                 self.tableOfDwg.setHorizontalHeaderLabels(column_headers_of)
                 self.tableOfDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                self.tableOfDwg.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+                self.tableOfDwg.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
                 self.tableOfDwg.sortByColumn(3, QtCore.Qt.SortOrder.AscendingOrder)
                 self.tableOfDwg.verticalHeader().hide()
                 self.tableOfDwg.setItemDelegate(AlignDelegate_drawings(self.tableOfDwg))
@@ -1845,7 +1845,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                 self.tableMDwg.hideColumn(1)
                 self.tableMDwg.setHorizontalHeaderLabels(column_headers_m)
                 self.tableMDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-                self.tableMDwg.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+                self.tableMDwg.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Stretch)
                 self.tableMDwg.sortByColumn(3, QtCore.Qt.SortOrder.AscendingOrder)
                 self.tableMDwg.verticalHeader().hide()
                 self.tableMDwg.setItemDelegate(AlignDelegate_drawings(self.tableMDwg))

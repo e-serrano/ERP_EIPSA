@@ -1234,7 +1234,7 @@ class EditableTableModelDim(QtSql.QSqlTableModel):
         # Flags logic based on user permissions
         flags = super().flags(index)
         if self.username in ['j.sanz', 'j.zofio']:
-            if index.column() >= 5:
+            if index.column() >= 5 or index.column == 3:
                 flags &= ~Qt.ItemFlag.ItemIsEditable
                 return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
             else:
@@ -1454,7 +1454,7 @@ class EditableTableModelOf(QtSql.QSqlTableModel):
         """
         flags = super().flags(index)
         if self.username in ['j.sanz', 'j.zofio']:
-            if index.column() >= 5:
+            if index.column() >= 5 or index.column == 3:
                 flags &= ~Qt.ItemFlag.ItemIsEditable
                 return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
             else:
@@ -1673,7 +1673,7 @@ class EditableTableModelM(QtSql.QSqlTableModel):
         """
         flags = super().flags(index)
         if self.username in ['j.sanz', 'j.zofio']:
-            if index.column() >= 5:
+            if index.column() >= 5 or index.column == 3:
                 flags &= ~Qt.ItemFlag.ItemIsEditable
                 return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
             else:
@@ -2217,6 +2217,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.Button_PaletteM.clicked.connect(self.colour_palette_M)
         self.Button_PaletteT.clicked.connect(self.colour_palette_T)
         self.Button_Description.clicked.connect(self.add_description)
+        self.Button_Printer.clicked.connect(self.print_drawings)
 
         delete_action_dim = QtGui.QAction("Eliminar Fila", self)
         delete_action_dim.triggered.connect(lambda: self.delete_register(self.tableDimDwg, "verification.workshop_dim_drawings"))
@@ -2391,7 +2392,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
             self.tableDimDwg.setItemDelegate(AlignDelegate(self.tableDimDwg))
             self.tableDimDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-            self.tableDimDwg.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableDimDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
             if self.username == 'm.gil':
                 self.tableDimDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
                 self.tableDimDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
@@ -2407,10 +2408,12 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             # self.gridLayout_2.addWidget(self.tableDimDwg, 3, 0, 1, 7)
 
         # Change all column names
-            headers = ["ID", "Nº Pedido", "Nº Plano Dim.", "Observaciones", "Descripción", "Fecha Verif.", "Estado Verif.", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
+            headers = ["ID", "Nº Pedido", "Nº Plano Dim.", "Fecha Sacado", "Estado Sacado", "Observaciones", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén", "Fecha Verif.", "Estado Verif."]
             self.modelDim.setAllColumnHeaders(headers)
 
             self.tableDimDwg.hideColumn(0)
+            if self.username != 'm.gil':
+                self.tableDimDwg.hideColumn(4)
             self.tableDimDwg.hideColumn(9)
 
         # Getting the unique values for each column of the model
@@ -2449,7 +2452,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
             self.tableOfDwg.setItemDelegate(AlignDelegate(self.tableOfDwg))
             self.tableOfDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-            self.tableOfDwg.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableOfDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
             if self.username == 'm.gil':
                 self.tableOfDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
                 self.tableOfDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
@@ -2465,10 +2468,12 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             # self.gridLayout_2.addWidget(self.tableOfDwg, 4, 0, 1, 7)
 
         # Change all column names
-            headers = ["ID", "Nº Pedido", "Nº Plano OF", "Observaciones", "Descripción", "Fecha Verif.", "Estado Verif.", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
+            headers = ["ID", "Nº Pedido", "Nº Plano OF", "Fecha Sacado", "Estado Sacado", "Observaciones", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén", "Fecha Verif.", "Estado Verif."]
             self.modelOf.setAllColumnHeaders(headers)
 
             self.tableOfDwg.hideColumn(0)
+            if self.username != 'm.gil':
+                self.tableOfDwg.hideColumn(4)
             self.tableOfDwg.hideColumn(9)
 
         # Getting the unique values for each column of the model
@@ -2507,7 +2512,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
             self.tableMDwg.setItemDelegate(AlignDelegate_M(self.tableMDwg))
             self.tableMDwg.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-            self.tableMDwg.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableMDwg.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Stretch)
             if self.username == 'm.gil':
                 self.tableMDwg.setStyleSheet("gridline-color: rgb(128, 128, 128);")
                 self.tableMDwg.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
@@ -2523,14 +2528,16 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             # self.gridLayout_2.addWidget(self.tableMDwg, 5, 0, 1, 7)
 
         # Change all column names
-            headers = ["ID", "Nº Pedido", "Nº Plano M", "Observaciones",
-                "Descripción", "Fecha Verif.", "Estado Verif.",
-                "Obs. Verif.", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
+            headers = ["ID", "Nº Pedido", "Nº Plano M", "Fecha Sacado", "Estado Sacado", "Observaciones",
+                "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén",
+                "Fecha Verif.", "Estado Verif.", "Obs. Verif."]
             self.modelM.setAllColumnHeaders(headers)
 
             self.tableMDwg.hideColumn(0)
-            self.tableMDwg.hideColumn(7)
-            self.tableMDwg.hideColumn(10)
+            if self.username != 'm.gil':
+                self.tableMDwg.hideColumn(4)
+            self.tableMDwg.hideColumn(9)
+            self.tableMDwg.hideColumn(12)
 
         # Getting the unique values for each column of the model
             for column in range(self.modelM.columnCount()):
@@ -4287,6 +4294,123 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         pattern = re.compile(r'\d+,\d+mm|\d+\.\d+mm|\d+mm')
         match = pattern.search(gasket)
         return match.group() if match is not None else ""
+
+# Function to add date when drawing is printed
+    def print_drawings(self):
+        selected_indexes = self.tableDimDwg.selectionModel().selectedIndexes()
+        if len(selected_indexes) > 0:
+            for index in selected_indexes:
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+
+                    row_index = index.row()
+                    id_value = int(self.tableDimDwg.item(row_index, 0).text())
+                    state_dwg = 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'
+
+                    commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
+                                                SET "printed_date" = '{str(datetime.today().strftime('%d/%m/%Y'))}', "printed_state" = '{state_dwg}'
+                                                WHERE (id) = {id_value}"""
+                    cur.execute(commands_insert_drawing)
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+        selected_indexes = self.tableOfDwg.selectionModel().selectedIndexes()
+        if len(selected_indexes) > 0:
+            for index in selected_indexes:
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+
+                    row_index = index.row()
+                    id_value = int(self.tableOfDwg.item(row_index, 0).text())
+                    state_dwg = 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'
+
+                    commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
+                                                SET "printed_date" = '{str(datetime.today().strftime('%d/%m/%Y'))}', "printed_state" = '{state_dwg}'
+                                                WHERE (id) = {id_value}"""
+                    cur.execute(commands_insert_drawing)
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+        selected_indexes = self.tableMDwg.selectionModel().selectedIndexes()
+        if len(selected_indexes) > 0:
+            for index in selected_indexes:
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+
+                    row_index = index.row()
+                    id_value = int(self.tableMDwg.item(row_index, 0).text())
+                    state_dwg = 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'
+
+                    commands_insert_drawing = f"""UPDATE verification."m_drawing_verification"
+                                                SET "printed_date" = '{str(datetime.today().strftime('%d/%m/%Y'))}', "printed_state" = '{state_dwg}'
+                                                WHERE (id) = {id_value}"""
+                    cur.execute(commands_insert_drawing)
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
 
 
 
