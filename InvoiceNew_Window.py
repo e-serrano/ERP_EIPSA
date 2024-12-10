@@ -3611,194 +3611,204 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
             if result == QtWidgets.QMessageBox.StandardButton.Yes:
                 from PDF_Styles import client_invoice
-                pdf = client_invoice(id_invoice)
-                pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-                pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
-                pdf.set_auto_page_break(auto=True, margin=2)
-                pdf.add_page()
-                pdf.alias_nb_pages()
-
-                id_list=[]
-
-                for row in range(self.proxy_records.rowCount()):
-                    first_column_value = self.proxy_records.data(self.proxy_records.index(row, 0))
-                    id_list.append(first_column_value)
-
-                for element in id_list:
-                    for row in range(self.model_records.rowCount()):
-                        if self.model_records.data(self.model_records.index(row, 0)) == element:
-                            target_row = row
-                            break
-                    if target_row is not None:
-                        position_text = str(self.model_records.data(self.model_records.index(target_row, 2)))
-                        quantity_text = str(self.model_records.data(self.model_records.index(target_row, 3)))
-                        description_text = str(self.model_records.data(self.model_records.index(target_row, 4)))
-                        length_description=len(description_text)
-
-                    pdf.set_x(1.5)
-                    y_position = pdf.get_y()
-                    pdf.set_font('Helvetica', '', 9)
-                    pdf.cell(1, 0.53, position_text, align='C')
-                    pdf.cell(0.2, 0.53, "")
-                    pdf.cell(1.25, 0.53, quantity_text, align='C')
-                    pdf.cell(0.2, 0.53, "")
-                    x_position = pdf.get_x()
-                    pdf.multi_cell(11.5, 0.53, description_text, align='J')
-                    pdf.set_y(y_position)
-                    pdf.set_x(x_position + 11.7)
-                    pdf.set_font('DejaVuSansCondensed', size=9)
-                    pdf.cell(0.2, 0.53, "")
-                    pdf.cell(1.94, 0.53, str('{:,.2f}'.format(float(self.model_records.data(self.model_records.index(target_row, 5))))).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
-                    pdf.cell(0.2, 0.53, "")
-                    pdf.cell(2.05, 0.53, str('{:,.2f}'.format(float(self.model_records.data(self.model_records.index(target_row, 7))))).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
-                    pdf.set_font('Helvetica', size=9)
-                    pdf.ln(1.5)
-                    y_position = pdf.get_y()
-
-                    if pdf.page_no()<=1:
-                        mark0=9.9
-                        pdf.set_line_width(0.05)
-                        pdf.line(1.3, y_position, 1.3, mark0)
-                        pdf.line(20.4, y_position, 20.4, mark0)
-                        pdf.set_line_width(0.01)
-                        pdf.line(2.6, y_position, 2.6, mark0)
-                        pdf.line(4.05, y_position, 4.05, mark0)
-                        pdf.line(15.95, y_position, 15.95, mark0)
-                        pdf.line(18.1, y_position, 18.1, mark0)
-
-                    else:
-                        mark0 = 3.8
-                        pdf.set_line_width(0.05)
-                        pdf.line(1.3, y_position, 1.3, mark0)
-                        pdf.line(20.4, y_position, 20.4, mark0)
-                        pdf.set_line_width(0.01)
-                        pdf.line(2.6, y_position, 2.6, mark0)
-                        pdf.line(4.05, y_position, 4.05, mark0)
-                        pdf.line(15.95, y_position, 15.95, mark0)
-                        pdf.line(18.1, y_position, 18.1, mark0)
-
-                    if y_position > 26:
-                        if length_description <75:
-                            mark2=0
-                        elif 75<=length_description <=150:
-                            mark2 = 0.5
+                while True:
+                    answer, ok = QtWidgets.QInputDialog.getItem(self, "Albarán", "¿Con logo?:", ['Sí', 'No'], 0, False)
+                    if ok and answer:
+                        if answer == 'Sí':
+                            pdf = client_invoice(id_invoice, 'Yes')
                         else:
-                            mark2 = 1.5
+                            pdf = client_invoice(id_invoice, 'No')
+                        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
+                        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+                        pdf.set_auto_page_break(auto=True, margin=2)
+                        pdf.add_page()
+                        pdf.alias_nb_pages()
 
+                        id_list=[]
+
+                        for row in range(self.proxy_records.rowCount()):
+                            first_column_value = self.proxy_records.data(self.proxy_records.index(row, 0))
+                            id_list.append(first_column_value)
+
+                        for element in id_list:
+                            for row in range(self.model_records.rowCount()):
+                                if self.model_records.data(self.model_records.index(row, 0)) == element:
+                                    target_row = row
+                                    break
+                            if target_row is not None:
+                                position_text = str(self.model_records.data(self.model_records.index(target_row, 2)))
+                                quantity_text = str(self.model_records.data(self.model_records.index(target_row, 3)))
+                                description_text = str(self.model_records.data(self.model_records.index(target_row, 4)))
+                                length_description=len(description_text)
+
+                            pdf.set_x(1.5)
+                            y_position = pdf.get_y()
+                            pdf.set_font('Helvetica', '', 9)
+                            pdf.cell(1, 0.53, position_text, align='C')
+                            pdf.cell(0.2, 0.53, "")
+                            pdf.cell(1.25, 0.53, quantity_text, align='C')
+                            pdf.cell(0.2, 0.53, "")
+                            x_position = pdf.get_x()
+                            pdf.multi_cell(11.5, 0.53, description_text, align='J')
+                            pdf.set_y(y_position)
+                            pdf.set_x(x_position + 11.7)
+                            pdf.set_font('DejaVuSansCondensed', size=9)
+                            pdf.cell(0.2, 0.53, "")
+                            pdf.cell(1.94, 0.53, str('{:,.2f}'.format(float(self.model_records.data(self.model_records.index(target_row, 5))))).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+                            pdf.cell(0.2, 0.53, "")
+                            pdf.cell(2.05, 0.53, str('{:,.2f}'.format(float(self.model_records.data(self.model_records.index(target_row, 7))))).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+                            pdf.set_font('Helvetica', size=9)
+                            pdf.ln(1.5)
+                            y_position = pdf.get_y()
+
+                            if pdf.page_no()<=1:
+                                mark0=9.9
+                                pdf.set_line_width(0.05)
+                                pdf.line(1.3, y_position, 1.3, mark0)
+                                pdf.line(20.4, y_position, 20.4, mark0)
+                                pdf.set_line_width(0.01)
+                                pdf.line(2.6, y_position, 2.6, mark0)
+                                pdf.line(4.05, y_position, 4.05, mark0)
+                                pdf.line(15.95, y_position, 15.95, mark0)
+                                pdf.line(18.1, y_position, 18.1, mark0)
+
+                            else:
+                                mark0 = 3.8
+                                pdf.set_line_width(0.05)
+                                pdf.line(1.3, y_position, 1.3, mark0)
+                                pdf.line(20.4, y_position, 20.4, mark0)
+                                pdf.set_line_width(0.01)
+                                pdf.line(2.6, y_position, 2.6, mark0)
+                                pdf.line(4.05, y_position, 4.05, mark0)
+                                pdf.line(15.95, y_position, 15.95, mark0)
+                                pdf.line(18.1, y_position, 18.1, mark0)
+
+                            if y_position > 26:
+                                if length_description <75:
+                                    mark2=0
+                                elif 75<=length_description <=150:
+                                    mark2 = 0.5
+                                else:
+                                    mark2 = 1.5
+
+                                pdf.set_line_width(0.05)
+                                pdf.line(1.3, y_position + mark2, 1.3, 25)
+                                pdf.line(20.4, y_position + mark2, 20.4, 25)
+                                pdf.set_line_width(0.01)
+                                pdf.line(2.6, y_position + mark2, 2.6, 25)
+                                pdf.line(4.05, y_position + mark2, 4.05, 25)
+                                pdf.line(15.95, y_position + mark2, 15.95, 25)
+                                pdf.line(18.1, y_position + mark2, 18.1, 25)
+
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
                         pdf.set_line_width(0.05)
-                        pdf.line(1.3, y_position + mark2, 1.3, 25)
-                        pdf.line(20.4, y_position + mark2, 20.4, 25)
-                        pdf.set_line_width(0.01)
-                        pdf.line(2.6, y_position + mark2, 2.6, 25)
-                        pdf.line(4.05, y_position + mark2, 4.05, 25)
-                        pdf.line(15.95, y_position + mark2, 15.95, 25)
-                        pdf.line(18.1, y_position + mark2, 18.1, 25)
+                        pdf.line(1.3,y_position,20.4,y_position)
 
-                x_position = pdf.get_x()
-                y_position = pdf.get_y()
-                pdf.set_line_width(0.05)
-                pdf.line(1.3,y_position,20.4,y_position)
+                        pdf.cell(14, 0.6, "")
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.cell(2.3, 0.6, "Total Materiales:", align='R')
 
-                pdf.cell(14, 0.6, "")
-                pdf.set_font('Helvetica', 'B', 9)
-                pdf.cell(2.3, 0.6, "Total Materiales:", align='R')
+                        pdf.set_font('DejaVuSansCondensed', size=9)
+                        pdf.cell(3, 0.6, '{:,.2f}'.format(float(self.TotalEur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+                        pdf.ln(1)
+                        pdf.set_font('Helvetica', '', 8)
+                        pdf.cell(14, 0.50, "")
 
-                pdf.set_font('DejaVuSansCondensed', size=9)
-                pdf.cell(3, 0.6, '{:,.2f}'.format(float(self.TotalEur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
-                pdf.ln(1)
-                pdf.set_font('Helvetica', '', 8)
-                pdf.cell(14, 0.50, "")
+                        if txtcon1 == '':
+                            pdf.cell(2.3, 0.50, '', align='R')
+                            pdf.cell(3, 0.5, '', align='R')
+                        else:
+                            pdf.cell(2.3, 0.50, txtcon1, align='R')
+                            pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con1Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
 
-                if txtcon1 == '':
-                    pdf.cell(2.3, 0.50, '', align='R')
-                    pdf.cell(3, 0.5, '', align='R')
-                else:
-                    pdf.cell(2.3, 0.50, txtcon1, align='R')
-                    pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con1Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+                        pdf.ln(0.5)
+                        pdf.cell(14, 0.50, "")
 
-                pdf.ln(0.5)
-                pdf.cell(14, 0.50, "")
+                        if txtcon2 == '':
+                            pdf.cell(2.3, 0.50, '', align='R')
+                            pdf.cell(3, 0.5, '', align='R')
+                        else:
+                            pdf.cell(2.3, 0.50, txtcon2, align='R')
+                            pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con2Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
 
-                if txtcon2 == '':
-                    pdf.cell(2.3, 0.50, '', align='R')
-                    pdf.cell(3, 0.5, '', align='R')
-                else:
-                    pdf.cell(2.3, 0.50, txtcon2, align='R')
-                    pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con2Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+                        pdf.ln(0.5)
+                        pdf.cell(14, 0.50, "")
 
-                pdf.ln(0.5)
-                pdf.cell(14, 0.50, "")
+                        if txtcon3 == '':
+                            pdf.cell(2.3, 0.50, '', align='R')
+                            pdf.cell(3, 0.5, '', align='R')
+                        else:
+                            pdf.cell(2.3, 0.50, txtcon3, align='R')
+                            pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con3Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
 
-                if txtcon3 == '':
-                    pdf.cell(2.3, 0.50, '', align='R')
-                    pdf.cell(3, 0.5, '', align='R')
-                else:
-                    pdf.cell(2.3, 0.50, txtcon3, align='R')
-                    pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con3Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+                        pdf.ln(0.5)
+                        pdf.cell(14, 0.50, "")
 
-                pdf.ln(0.5)
-                pdf.cell(14, 0.50, "")
+                        if txtcon4 == '':
+                            pdf.cell(2.3, 0.50, '', align='R')
+                            pdf.cell(3, 0.5, '', align='R')
+                        else:
+                            pdf.cell(2.3, 0.50, txtcon4, align='R')
+                            pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con4Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
 
-                if txtcon4 == '':
-                    pdf.cell(2.3, 0.50, '', align='R')
-                    pdf.cell(3, 0.5, '', align='R')
-                else:
-                    pdf.cell(2.3, 0.50, txtcon4, align='R')
-                    pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con4Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+                        pdf.ln(0.5)
+                        pdf.cell(14, 0.50, "")
 
-                pdf.ln(0.5)
-                pdf.cell(14, 0.50, "")
+                        if txtcon5 == '':
+                            pdf.cell(2.3, 0.50, '', align='R')
+                            pdf.cell(3, 0.5, '', align='R')
+                        else:
+                            pdf.cell(2.3, 0.50, txtcon5, align='R')
+                            pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con5Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
 
-                if txtcon5 == '':
-                    pdf.cell(2.3, 0.50, '', align='R')
-                    pdf.cell(3, 0.5, '', align='R')
-                else:
-                    pdf.cell(2.3, 0.50, txtcon5, align='R')
-                    pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con5Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+                        pdf.ln(1)
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.cell(14, 0.50, "")
+                        pdf.cell(2.3, 0.50, "Base Imponible:", align='R')
+                        pdf.set_font('DejaVuSansCondensed-Bold', size=9)
+                        pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.TaxBase_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+                        pdf.ln(0.5)
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.cell(12.95, 0.50, "")
 
-                pdf.ln(1)
-                pdf.set_font('Helvetica', 'B', 9)
-                pdf.cell(14, 0.50, "")
-                pdf.cell(2.3, 0.50, "Base Imponible:", align='R')
-                pdf.set_font('DejaVuSansCondensed-Bold', size=9)
-                pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.TaxBase_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
-                pdf.ln(0.5)
-                pdf.set_font('Helvetica', 'B', 9)
-                pdf.cell(12.95, 0.50, "")
+                        if iva is not None:
+                            pdf.cell(2.3, 0.50, "IVA:", align='R')
+                            pdf.set_font('DejaVuSansCondensed-Bold', size=9)
+                            iva_amount = int(iva) * float(self.TaxBase_Invoice.text()) / 100
+                            pdf.cell(1.5, 0.5, str(iva) + ' %', align='L')
+                            pdf.cell(2.55, 0.5, '{:,.2f}'.format(float(iva_amount)).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+                        else:
+                            pdf.cell(2.3, 0.50, "", align='R')
+                            iva_amount = 0
+                            pdf.cell(1.5, 0.5, '', align='L')
+                            pdf.cell(2.55, 0.5, '', align='R')
 
-                if iva is not None:
-                    pdf.cell(2.3, 0.50, "IVA:", align='R')
-                    pdf.set_font('DejaVuSansCondensed-Bold', size=9)
-                    iva_amount = int(iva) * float(self.TaxBase_Invoice.text()) / 100
-                    pdf.cell(1.5, 0.5, str(iva) + ' %', align='L')
-                    pdf.cell(2.55, 0.5, '{:,.2f}'.format(float(iva_amount)).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
-                else:
-                    pdf.cell(2.3, 0.50, "", align='R')
-                    iva_amount = 0
-                    pdf.cell(1.5, 0.5, '', align='L')
-                    pdf.cell(2.55, 0.5, '', align='R')
+                        pdf.ln(0.7)
+                        pdf.cell(14, 0.50, "")
+                        pdf.set_font('Helvetica', 'B', 11)
+                        pdf.set_line_width(0.05)
+                        pdf.cell(5.3, 0.6, "Total:",1, align='L')
+                        pdf.set_font('DejaVuSansCondensed-Bold', size=11)
+                        total_invoice = float(self.TaxBase_Invoice.text()) + iva_amount
+                        pdf.cell(0, 0.6, '{:,.2f}'.format(float(total_invoice)).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+                        pdf.ln(1)
 
-                pdf.ln(0.7)
-                pdf.cell(14, 0.50, "")
-                pdf.set_font('Helvetica', 'B', 11)
-                pdf.set_line_width(0.05)
-                pdf.cell(5.3, 0.6, "Total:",1, align='L')
-                pdf.set_font('DejaVuSansCondensed-Bold', size=11)
-                total_invoice = float(self.TaxBase_Invoice.text()) + iva_amount
-                pdf.cell(0, 0.6, '{:,.2f}'.format(float(total_invoice)).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
-                pdf.ln(1)
+                        pdf_buffer = pdf.output()
 
-                pdf_buffer = pdf.output()
+                        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp_invoice.pdf"))))
 
-                temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp_invoice.pdf"))))
+                        with open(temp_file_path, "wb") as temp_file:
+                            temp_file.write(pdf_buffer)
 
-                with open(temp_file_path, "wb") as temp_file:
-                    temp_file.write(pdf_buffer)
+                        pdf.close()
 
-                pdf.close()
-
-                self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
-                self.pdf_viewer.showMaximized()
+                        self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
+                        self.pdf_viewer.showMaximized()
+                        
+                        break
+                    else:
+                        break
 
             del dlg_yes_no, new_icon_yes_no
 
@@ -3936,195 +3946,205 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
             if result == QtWidgets.QMessageBox.StandardButton.Yes:
                 from PDF_Styles import client_invoice
-                pdf = client_invoice(id_invoice)
-                pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-                pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
-                pdf.set_auto_page_break(auto=True, margin=2)
-                pdf.add_page()
-                pdf.alias_nb_pages()
-
-                id_list=[]
-
-                for row in range(self.proxy_records.rowCount()):
-                    first_column_value = self.proxy_records.data(self.proxy_records.index(row, 0))
-                    id_list.append(first_column_value)
-
-                for element in id_list:
-                    for row in range(self.model_records.rowCount()):
-                        if self.model_records.data(self.model_records.index(row, 0)) == element:
-                            target_row = row
-                            break
-                    if target_row is not None:
-                        position_text = str(self.model_records.data(self.model_records.index(target_row, 2)))
-                        quantity_text = str(self.model_records.data(self.model_records.index(target_row, 3)))
-                        description_text = str(self.model_records.data(self.model_records.index(target_row, 4)))
-                        length_description=len(description_text)
-
-                    pdf.set_x(1.5)
-                    y_position = pdf.get_y()
-                    pdf.set_font('Helvetica', '', 9)
-                    pdf.cell(1, 0.53, position_text, align='C')
-                    pdf.cell(0.2, 0.53, "")
-                    pdf.cell(1.25, 0.53, quantity_text, align='C')
-                    pdf.cell(0.2, 0.53, "")
-                    x_position = pdf.get_x()
-                    pdf.multi_cell(11.5, 0.53, description_text, align='J')
-                    pdf.set_y(y_position)
-                    pdf.set_x(x_position + 11.7)
-                    pdf.set_font('DejaVuSansCondensed', size=9)
-                    pdf.cell(0.2, 0.53, "")
-                    pdf.cell(1.94, 0.53, str('{:,.2f}'.format(float(self.model_records.data(self.model_records.index(target_row, 5))))).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
-                    pdf.cell(0.2, 0.53, "")
-                    pdf.cell(2.05, 0.53, str('{:,.2f}'.format(float(self.model_records.data(self.model_records.index(target_row, 7))))).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
-                    pdf.set_font('Helvetica', size=9)
-                    pdf.ln(1.5)
-                    y_position = pdf.get_y()
-
-                    if pdf.page_no()<=1:
-                        mark0=9.9
-                        pdf.set_line_width(0.05)
-                        pdf.line(1.3, y_position, 1.3, mark0)
-                        pdf.line(20.4, y_position, 20.4, mark0)
-                        pdf.set_line_width(0.01)
-                        pdf.line(2.6, y_position, 2.6, mark0)
-                        pdf.line(4.05, y_position, 4.05, mark0)
-                        pdf.line(15.95, y_position, 15.95, mark0)
-                        pdf.line(18.1, y_position, 18.1, mark0)
-
-                    else:
-                        mark0 = 3.8
-                        pdf.set_line_width(0.05)
-                        pdf.line(1.3, y_position, 1.3, mark0)
-                        pdf.line(20.4, y_position, 20.4, mark0)
-                        pdf.set_line_width(0.01)
-                        pdf.line(2.6, y_position, 2.6, mark0)
-                        pdf.line(4.05, y_position, 4.05, mark0)
-                        pdf.line(15.95, y_position, 15.95, mark0)
-                        pdf.line(18.1, y_position, 18.1, mark0)
-
-                    if y_position > 26:
-                        if length_description <75:
-                            mark2=0
-                        elif 75<=length_description <=150:
-                            mark2 = 0.5
+                while True:
+                    answer, ok = QtWidgets.QInputDialog.getItem(self, "Albarán", "¿Con logo?:", ['Sí', 'No'], 0, False)
+                    if ok and answer:
+                        if answer == 'Sí':
+                            pdf = client_invoice(id_invoice, 'Yes')
                         else:
-                            mark2 = 1.5
+                            pdf = client_invoice(id_invoice, 'No')
+                        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
+                        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+                        pdf.set_auto_page_break(auto=True, margin=2)
+                        pdf.add_page()
+                        pdf.alias_nb_pages()
 
+                        id_list=[]
+
+                        for row in range(self.proxy_records.rowCount()):
+                            first_column_value = self.proxy_records.data(self.proxy_records.index(row, 0))
+                            id_list.append(first_column_value)
+
+                        for element in id_list:
+                            for row in range(self.model_records.rowCount()):
+                                if self.model_records.data(self.model_records.index(row, 0)) == element:
+                                    target_row = row
+                                    break
+                            if target_row is not None:
+                                position_text = str(self.model_records.data(self.model_records.index(target_row, 2)))
+                                quantity_text = str(self.model_records.data(self.model_records.index(target_row, 3)))
+                                description_text = str(self.model_records.data(self.model_records.index(target_row, 4)))
+                                length_description=len(description_text)
+
+                            pdf.set_x(1.5)
+                            y_position = pdf.get_y()
+                            pdf.set_font('Helvetica', '', 9)
+                            pdf.cell(1, 0.53, position_text, align='C')
+                            pdf.cell(0.2, 0.53, "")
+                            pdf.cell(1.25, 0.53, quantity_text, align='C')
+                            pdf.cell(0.2, 0.53, "")
+                            x_position = pdf.get_x()
+                            pdf.multi_cell(11.5, 0.53, description_text, align='J')
+                            pdf.set_y(y_position)
+                            pdf.set_x(x_position + 11.7)
+                            pdf.set_font('DejaVuSansCondensed', size=9)
+                            pdf.cell(0.2, 0.53, "")
+                            pdf.cell(1.94, 0.53, str('{:,.2f}'.format(float(self.model_records.data(self.model_records.index(target_row, 5))))).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
+                            pdf.cell(0.2, 0.53, "")
+                            pdf.cell(2.05, 0.53, str('{:,.2f}'.format(float(self.model_records.data(self.model_records.index(target_row, 7))))).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
+                            pdf.set_font('Helvetica', size=9)
+                            pdf.ln(1.5)
+                            y_position = pdf.get_y()
+
+                            if pdf.page_no()<=1:
+                                mark0=9.9
+                                pdf.set_line_width(0.05)
+                                pdf.line(1.3, y_position, 1.3, mark0)
+                                pdf.line(20.4, y_position, 20.4, mark0)
+                                pdf.set_line_width(0.01)
+                                pdf.line(2.6, y_position, 2.6, mark0)
+                                pdf.line(4.05, y_position, 4.05, mark0)
+                                pdf.line(15.95, y_position, 15.95, mark0)
+                                pdf.line(18.1, y_position, 18.1, mark0)
+
+                            else:
+                                mark0 = 3.8
+                                pdf.set_line_width(0.05)
+                                pdf.line(1.3, y_position, 1.3, mark0)
+                                pdf.line(20.4, y_position, 20.4, mark0)
+                                pdf.set_line_width(0.01)
+                                pdf.line(2.6, y_position, 2.6, mark0)
+                                pdf.line(4.05, y_position, 4.05, mark0)
+                                pdf.line(15.95, y_position, 15.95, mark0)
+                                pdf.line(18.1, y_position, 18.1, mark0)
+
+                            if y_position > 26:
+                                if length_description <75:
+                                    mark2=0
+                                elif 75<=length_description <=150:
+                                    mark2 = 0.5
+                                else:
+                                    mark2 = 1.5
+
+                                pdf.set_line_width(0.05)
+                                pdf.line(1.3, y_position + mark2, 1.3, 25)
+                                pdf.line(20.4, y_position + mark2, 20.4, 25)
+                                pdf.set_line_width(0.01)
+                                pdf.line(2.6, y_position + mark2, 2.6, 25)
+                                pdf.line(4.05, y_position + mark2, 4.05, 25)
+                                pdf.line(15.95, y_position + mark2, 15.95, 25)
+                                pdf.line(18.1, y_position + mark2, 18.1, 25)
+
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
                         pdf.set_line_width(0.05)
-                        pdf.line(1.3, y_position + mark2, 1.3, 25)
-                        pdf.line(20.4, y_position + mark2, 20.4, 25)
-                        pdf.set_line_width(0.01)
-                        pdf.line(2.6, y_position + mark2, 2.6, 25)
-                        pdf.line(4.05, y_position + mark2, 4.05, 25)
-                        pdf.line(15.95, y_position + mark2, 15.95, 25)
-                        pdf.line(18.1, y_position + mark2, 18.1, 25)
+                        pdf.line(1.3,y_position,20.4,y_position)
 
-                x_position = pdf.get_x()
-                y_position = pdf.get_y()
-                pdf.set_line_width(0.05)
-                pdf.line(1.3,y_position,20.4,y_position)
+                        pdf.cell(14, 0.6, "")
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.cell(2.3, 0.6, "Total Materiales:", align='R')
 
-                pdf.cell(14, 0.6, "")
-                pdf.set_font('Helvetica', 'B', 9)
-                pdf.cell(2.3, 0.6, "Total Materiales:", align='R')
+                        pdf.set_font('DejaVuSansCondensed', size=9)
+                        pdf.cell(3, 0.6, '{:,.2f}'.format(float(self.TotalEur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
+                        pdf.ln(1)
+                        pdf.set_font('Helvetica', '', 8)
+                        pdf.cell(14, 0.50, "")
 
-                pdf.set_font('DejaVuSansCondensed', size=9)
-                pdf.cell(3, 0.6, '{:,.2f}'.format(float(self.TotalEur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
-                pdf.ln(1)
-                pdf.set_font('Helvetica', '', 8)
-                pdf.cell(14, 0.50, "")
+                        if txtcon1 == '':
+                            pdf.cell(2.3, 0.50, '', align='R')
+                            pdf.cell(3, 0.5, '', align='R')
+                        else:
+                            pdf.cell(2.3, 0.50, txtcon1, align='R')
+                            pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con1Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
 
-                if txtcon1 == '':
-                    pdf.cell(2.3, 0.50, '', align='R')
-                    pdf.cell(3, 0.5, '', align='R')
-                else:
-                    pdf.cell(2.3, 0.50, txtcon1, align='R')
-                    pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con1Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
+                        pdf.ln(0.5)
+                        pdf.cell(14, 0.50, "")
 
-                pdf.ln(0.5)
-                pdf.cell(14, 0.50, "")
+                        if txtcon2 == '':
+                            pdf.cell(2.3, 0.50, '', align='R')
+                            pdf.cell(3, 0.5, '', align='R')
+                        else:
+                            pdf.cell(2.3, 0.50, txtcon2, align='R')
+                            pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con2Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
 
-                if txtcon2 == '':
-                    pdf.cell(2.3, 0.50, '', align='R')
-                    pdf.cell(3, 0.5, '', align='R')
-                else:
-                    pdf.cell(2.3, 0.50, txtcon2, align='R')
-                    pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con2Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
+                        pdf.ln(0.5)
+                        pdf.cell(14, 0.50, "")
 
-                pdf.ln(0.5)
-                pdf.cell(14, 0.50, "")
+                        if txtcon3 == '':
+                            pdf.cell(2.3, 0.50, '', align='R')
+                            pdf.cell(3, 0.5, '', align='R')
+                        else:
+                            pdf.cell(2.3, 0.50, txtcon3, align='R')
+                            pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con3Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
 
-                if txtcon3 == '':
-                    pdf.cell(2.3, 0.50, '', align='R')
-                    pdf.cell(3, 0.5, '', align='R')
-                else:
-                    pdf.cell(2.3, 0.50, txtcon3, align='R')
-                    pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con3Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
+                        pdf.ln(0.5)
+                        pdf.cell(14, 0.50, "")
 
-                pdf.ln(0.5)
-                pdf.cell(14, 0.50, "")
+                        if txtcon4 == '':
+                            pdf.cell(2.3, 0.50, '', align='R')
+                            pdf.cell(3, 0.5, '', align='R')
+                        else:
+                            pdf.cell(2.3, 0.50, txtcon4, align='R')
+                            pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con4Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
 
-                if txtcon4 == '':
-                    pdf.cell(2.3, 0.50, '', align='R')
-                    pdf.cell(3, 0.5, '', align='R')
-                else:
-                    pdf.cell(2.3, 0.50, txtcon4, align='R')
-                    pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con4Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
+                        pdf.ln(0.5)
+                        pdf.cell(14, 0.50, "")
 
-                pdf.ln(0.5)
-                pdf.cell(14, 0.50, "")
+                        if txtcon5 == '':
+                            pdf.cell(2.3, 0.50, '', align='R')
+                            pdf.cell(3, 0.5, '', align='R')
+                        else:
+                            pdf.cell(2.3, 0.50, txtcon5, align='R')
+                            pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con5Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
 
-                if txtcon5 == '':
-                    pdf.cell(2.3, 0.50, '', align='R')
-                    pdf.cell(3, 0.5, '', align='R')
-                else:
-                    pdf.cell(2.3, 0.50, txtcon5, align='R')
-                    pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con5Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
+                        pdf.ln(1)
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.cell(14, 0.50, "")
+                        pdf.cell(2.3, 0.50, "Base Imponible:", align='R')
+                        pdf.set_font('DejaVuSansCondensed-Bold', size=9)
+                        pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.TaxBase_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
+                        pdf.ln(0.5)
+                        pdf.set_font('Helvetica', 'B', 9)
+                        pdf.cell(12.95, 0.50, "")
+                        
 
-                pdf.ln(1)
-                pdf.set_font('Helvetica', 'B', 9)
-                pdf.cell(14, 0.50, "")
-                pdf.cell(2.3, 0.50, "Base Imponible:", align='R')
-                pdf.set_font('DejaVuSansCondensed-Bold', size=9)
-                pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.TaxBase_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
-                pdf.ln(0.5)
-                pdf.set_font('Helvetica', 'B', 9)
-                pdf.cell(12.95, 0.50, "")
-                
+                        if iva is not None:
+                            pdf.cell(2.3, 0.50, "IVA:", align='R')
+                            pdf.set_font('DejaVuSansCondensed-Bold', size=9)
+                            iva_amount = int(iva) * float(self.TaxBase_Invoice.text()) / 100
+                            pdf.cell(1.5, 0.5, str(iva) + ' %', align='L')
+                            pdf.cell(2.55, 0.5, '{:,.2f}'.format(float(iva_amount)).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
+                        else:
+                            pdf.cell(2.3, 0.50, "", align='R')
+                            iva_amount = 0
+                            pdf.cell(1.5, 0.5, '', align='L')
+                            pdf.cell(2.55, 0.5, '', align='R')
 
-                if iva is not None:
-                    pdf.cell(2.3, 0.50, "IVA:", align='R')
-                    pdf.set_font('DejaVuSansCondensed-Bold', size=9)
-                    iva_amount = int(iva) * float(self.TaxBase_Invoice.text()) / 100
-                    pdf.cell(1.5, 0.5, str(iva) + ' %', align='L')
-                    pdf.cell(2.55, 0.5, '{:,.2f}'.format(float(iva_amount)).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
-                else:
-                    pdf.cell(2.3, 0.50, "", align='R')
-                    iva_amount = 0
-                    pdf.cell(1.5, 0.5, '', align='L')
-                    pdf.cell(2.55, 0.5, '', align='R')
+                        pdf.ln(0.7)
+                        pdf.cell(14, 0.50, "")
+                        pdf.set_font('Helvetica', 'B', 11)
+                        pdf.set_line_width(0.05)
+                        pdf.cell(5.3, 0.6, "Total:",1, align='L')
+                        pdf.set_font('DejaVuSansCondensed-Bold', size=11)
+                        total_invoice = float(self.TaxBase_Invoice.text()) + iva_amount
+                        pdf.cell(0, 0.6, '{:,.2f}'.format(float(total_invoice)).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
+                        pdf.ln(1)
 
-                pdf.ln(0.7)
-                pdf.cell(14, 0.50, "")
-                pdf.set_font('Helvetica', 'B', 11)
-                pdf.set_line_width(0.05)
-                pdf.cell(5.3, 0.6, "Total:",1, align='L')
-                pdf.set_font('DejaVuSansCondensed-Bold', size=11)
-                total_invoice = float(self.TaxBase_Invoice.text()) + iva_amount
-                pdf.cell(0, 0.6, '{:,.2f}'.format(float(total_invoice)).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
-                pdf.ln(1)
+                        pdf_buffer = pdf.output()
 
-                pdf_buffer = pdf.output()
+                        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp_invoice.pdf"))))
 
-                temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp_invoice.pdf"))))
+                        with open(temp_file_path, "wb") as temp_file:
+                            temp_file.write(pdf_buffer)
 
-                with open(temp_file_path, "wb") as temp_file:
-                    temp_file.write(pdf_buffer)
+                        pdf.close()
 
-                pdf.close()
-
-                self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
-                self.pdf_viewer.showMaximized()
+                        self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
+                        self.pdf_viewer.showMaximized()
+                        
+                        break
+                    else:
+                        break
 
             del dlg_yes_no, new_icon_yes_no
 
@@ -5166,88 +5186,98 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
         else:
             from PDF_Styles import delivery_note
-            pdf = delivery_note(invoice_id)
-            pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-            pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+            while True:
+                answer, ok = QtWidgets.QInputDialog.getItem(self, "Albarán", "¿Con logo?:", ['Sí', 'No'], 0, False)
+                if ok and answer:
+                    if answer == 'Sí':
+                        pdf = delivery_note(invoice_id, 'Yes')
+                    else:
+                        pdf = delivery_note(invoice_id, 'No')
+                    pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
+                    pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
 
-            pdf.set_auto_page_break(auto=True, margin=2)
-            pdf.add_page()
-            pdf.alias_nb_pages()
+                    pdf.set_auto_page_break(auto=True, margin=2)
+                    pdf.add_page()
+                    pdf.alias_nb_pages()
 
-            id_list=[]
+                    id_list=[]
 
-            for row in range(self.proxy_records.rowCount()):
-                first_column_value = self.proxy_records.data(self.proxy_records.index(row, 0))
-                id_list.append(first_column_value)
+                    for row in range(self.proxy_records.rowCount()):
+                        first_column_value = self.proxy_records.data(self.proxy_records.index(row, 0))
+                        id_list.append(first_column_value)
 
-            for element in id_list:
-                for row in range(self.model_records.rowCount()):
-                    if self.model_records.data(self.model_records.index(row, 0)) == element:
-                        target_row = row
-                        break
-                if target_row is not None:
-                    position_text = str(self.model_records.data(self.model_records.index(target_row, 2)))
-                    quantity_text = str(self.model_records.data(self.model_records.index(target_row, 3)))
-                    description_text = str(self.model_records.data(self.model_records.index(target_row, 4)))
-                    length_description=len(description_text)
+                    for element in id_list:
+                        for row in range(self.model_records.rowCount()):
+                            if self.model_records.data(self.model_records.index(row, 0)) == element:
+                                target_row = row
+                                break
+                        if target_row is not None:
+                            position_text = str(self.model_records.data(self.model_records.index(target_row, 2)))
+                            quantity_text = str(self.model_records.data(self.model_records.index(target_row, 3)))
+                            description_text = str(self.model_records.data(self.model_records.index(target_row, 4)))
+                            length_description=len(description_text)
 
-                    pdf.set_x(1.5)
-                    pdf.set_font('Helvetica', '', 9)
-                    pdf.cell(1, 0.53, position_text, align='C')
-                    pdf.cell(0.2, 0.53, "")
-                    pdf.cell(1.25, 0.53, quantity_text, align='C')
-                    pdf.cell(0.2, 0.53, "")
-                    pdf.multi_cell(16.2, 0.53, description_text, align='J')
+                            pdf.set_x(1.5)
+                            pdf.set_font('Helvetica', '', 9)
+                            pdf.cell(1, 0.53, position_text, align='C')
+                            pdf.cell(0.2, 0.53, "")
+                            pdf.cell(1.25, 0.53, quantity_text, align='C')
+                            pdf.cell(0.2, 0.53, "")
+                            pdf.multi_cell(16.2, 0.53, description_text, align='J')
+
+                            y_position = pdf.get_y()
+                            if pdf.page_no()<=1:
+                                mark0=9.6
+                                pdf.set_line_width(0.05)
+                                pdf.line(1.3, y_position, 1.3, mark0)
+                                pdf.line(20.4, y_position, 20.4, mark0)
+                                pdf.set_line_width(0.01)
+                                pdf.line(2.6, y_position, 2.6, mark0)
+                                pdf.line(4.05, y_position, 4.05, mark0)
+
+                            else:
+                                mark0 = 3.8
+                                pdf.set_line_width(0.05)
+                                pdf.line(1.3, y_position, 1.3, mark0)
+                                pdf.line(20.4, y_position, 20.4, mark0)
+                                pdf.set_line_width(0.01)
+                                pdf.line(2.6, y_position, 2.6, mark0)
+                                pdf.line(4.05, y_position, 4.05, mark0)
+
+                            if y_position > 26:
+                                if length_description <75:
+                                    mark2=0
+                                elif 75<=length_description <=150:
+                                    mark2 = 0.5
+                                else:
+                                    mark2 = 1.5
+
+                                pdf.set_line_width(0.05)
+                                pdf.line(1.3, y_position + mark2, 1.3, 25)
+                                pdf.line(20.4, y_position + mark2, 20.4, 25)
+                                pdf.set_line_width(0.01)
+                                pdf.line(2.6, y_position + mark2, 2.6, 25)
+                                pdf.line(4.05, y_position + mark2, 4.05, 25)
 
                     y_position = pdf.get_y()
-                    if pdf.page_no()<=1:
-                        mark0=9.6
-                        pdf.set_line_width(0.05)
-                        pdf.line(1.3, y_position, 1.3, mark0)
-                        pdf.line(20.4, y_position, 20.4, mark0)
-                        pdf.set_line_width(0.01)
-                        pdf.line(2.6, y_position, 2.6, mark0)
-                        pdf.line(4.05, y_position, 4.05, mark0)
+                    pdf.set_line_width(0.05)
+                    pdf.line(1.3,y_position,20.4,y_position)
 
-                    else:
-                        mark0 = 3.8
-                        pdf.set_line_width(0.05)
-                        pdf.line(1.3, y_position, 1.3, mark0)
-                        pdf.line(20.4, y_position, 20.4, mark0)
-                        pdf.set_line_width(0.01)
-                        pdf.line(2.6, y_position, 2.6, mark0)
-                        pdf.line(4.05, y_position, 4.05, mark0)
+                    pdf_buffer = pdf.output()
 
-                    if y_position > 26:
-                        if length_description <75:
-                            mark2=0
-                        elif 75<=length_description <=150:
-                            mark2 = 0.5
-                        else:
-                            mark2 = 1.5
+                    temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp_delivnote.pdf"))))
 
-                        pdf.set_line_width(0.05)
-                        pdf.line(1.3, y_position + mark2, 1.3, 25)
-                        pdf.line(20.4, y_position + mark2, 20.4, 25)
-                        pdf.set_line_width(0.01)
-                        pdf.line(2.6, y_position + mark2, 2.6, 25)
-                        pdf.line(4.05, y_position + mark2, 4.05, 25)
+                    with open(temp_file_path, "wb") as temp_file:
+                        temp_file.write(pdf_buffer)
 
-            y_position = pdf.get_y()
-            pdf.set_line_width(0.05)
-            pdf.line(1.3,y_position,20.4,y_position)
+                    pdf.close()
 
-            pdf_buffer = pdf.output()
+                    self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
+                    self.pdf_viewer.showMaximized()
 
-            temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp_delivnote.pdf"))))
-
-            with open(temp_file_path, "wb") as temp_file:
-                temp_file.write(pdf_buffer)
-
-            pdf.close()
-
-            self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
-            self.pdf_viewer.showMaximized()
+                    break
+                else:
+                    break
 
 # Function to import data into and existing table from and Excel where first row is column name
     def import_tags(self):
