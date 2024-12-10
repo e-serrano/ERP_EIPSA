@@ -2268,13 +2268,35 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             dlg.exec()
             del dlg,new_icon
 
-        elif quantity == "" or (quantity == "" or (quantity == 0 or (position == "" or (position ==" " or position == 0)))):
+        elif quantity == "" or (quantity == " " or quantity == 0):
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Agregar Registros")
-            dlg.setText("Añade una cantidad válida de elementos y una posición válida y mayor que 0")
+            dlg.setText("Añade una cantidad válida de elementos")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+
+        elif position == "" or (position ==" " or position == 0):
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Agregar Registros")
+            dlg.setText("Añade posición válida y mayor que 0")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+
+        elif unit_value == "" or (unit_value ==" " or unit_value == 0):
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Agregar Registros")
+            dlg.setText("Añade un precio válido")
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
             del dlg,new_icon
