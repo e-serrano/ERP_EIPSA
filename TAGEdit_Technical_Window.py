@@ -666,7 +666,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         name (str): Name associated with the window.
         variable (str): Variable used in the window.
     """
-    def __init__(self,name,db):
+    def __init__(self, username, db, num_order=None):
         """
         Initializes the Ui_EditTags_Technical_Window with the specified name and database connection.
 
@@ -680,6 +680,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         self.model2 = EditableTableModel2()
         self.proxy2 = CustomProxyModel2()
         self.db = db
+        self.num_order_query = num_order
 
         self.checkbox_states = {}
         self.dict_valuesuniques = {}
@@ -699,7 +700,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         self.tableEditTags2 = None
 
         self.model.dataChanged.connect(self.saveChanges)
-        self.name = name
+        self.username = username
         self.variable = ''
         self.setupUi(self)
 
@@ -819,7 +820,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolExpExcel.setIcon(icon)
         self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
-        if self.name == 'Jesús Martínez':
+        if self.username == 'j.martinez':
             self.hcabspacer6=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
             self.hcab.addItem(self.hcabspacer6)
             self.of_dwg = QtWidgets.QToolButton(self.frame)
@@ -1115,6 +1116,11 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         finally:
             if conn is not None:
                 conn.close()
+
+
+        if self.num_order_query is not None:
+            self.Numorder_EditTags.setText(str(self.num_order_query))
+            self.query_tags()
 
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, EditTagsTechnical_Window):
@@ -2970,7 +2976,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         else:
             from OF_DrawingInsertComp_Window import Ui_OF_DrawingInsertComp_Window
             self.of_drawing_insert_window_menu=QtWidgets.QMainWindow()
-            self.ui=Ui_OF_DrawingInsertComp_Window(numorder, self.name)
+            self.ui=Ui_OF_DrawingInsertComp_Window(numorder, self.username)
             self.ui.setupUi(self.of_drawing_insert_window_menu)
             self.of_drawing_insert_window_menu.show()
 
@@ -3173,6 +3179,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    EditTagsTechnical_Window = Ui_EditTags_Technical_Window('Santos Sanchez',db)
+    EditTagsTechnical_Window = Ui_EditTags_Technical_Window('j.martinez',db)
     EditTagsTechnical_Window.show()
     sys.exit(app.exec())

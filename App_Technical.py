@@ -1708,7 +1708,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         if not db_tags_tech:
             sys.exit()
 
-        self.edit_tags_app = Ui_EditTags_Technical_Window(self.name, db_tags_tech)
+        self.edit_tags_app = Ui_EditTags_Technical_Window(self.username, db_tags_tech)
         self.edit_tags_app.show()
 
 # Function to open window for tag query

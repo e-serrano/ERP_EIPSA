@@ -9,12 +9,9 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from config import config
 import psycopg2
-from PyQt6.QtWidgets import QFileDialog
-import pandas as pd
-from PyQt6.QtWidgets import QApplication, QFileDialog, QAbstractItemView
-from PyQt6.QtGui import QKeySequence, QTextDocument, QTextCursor
-from PyQt6.QtCore import Qt
 import os
+import configparser
+from Database_Connection import createConnection
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -176,6 +173,7 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(HistoryNotifications_Window)
 
         self.Button_Cancel.clicked.connect(HistoryNotifications_Window.close)
+        self.tableNotifications.itemDoubleClicked.connect(self.on_item_double_clicked)
         # self.Button_Export.clicked.connect(self.export_to_excel)
         self.QueryNotification()
 
@@ -319,11 +317,43 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
 
         self.QueryNotification()
 
+# Function to check if column index of double clicked cell is equal to first column index
+    def on_item_double_clicked(self, item):
+        """
+        Handles double-click events on items in a QTableWidget. Opens different forms based on the column of the clicked item.
+        
+        Args:
+            item (QtWidgets.QTableWidgetItem): The item that was double-clicked.
+        """
+        if item.column() == 2 and item.text().split(': ')[0]=='Nuevo pedido':
+            num_order = item.text().split(': ')[1]
+            self.edit_tag(num_order)
+
+
+# Function to open window for tag edition
+    def edit_tag(self, num_order):
+        """
+        Opens a new window for editing existing tags. 
+        """
+        from TAGEdit_Technical_Window import Ui_EditTags_Technical_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_tags_tech_not = createConnection(user_database, password_database)
+        if not db_tags_tech_not:
+            sys.exit()  
+
+        self.edit_tags_app = Ui_EditTags_Technical_Window(self.username, db_tags_tech_not, num_order)
+        self.edit_tags_app.show()
 
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    HistoryNotifications_Window = Ui_HistoryNotifications_Window('e.carrillo')
+    HistoryNotifications_Window = Ui_HistoryNotifications_Window('s.sanchez')
     HistoryNotifications_Window.show()
     sys.exit(app.exec())
