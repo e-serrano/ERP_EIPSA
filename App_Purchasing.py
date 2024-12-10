@@ -1124,7 +1124,7 @@ class Ui_App_Purchasing(object):
                         RIGHT JOIN fabrication.imp_ot AS imp_ot ON personal."code" = imp_ot."personal_id"
                         LEFT JOIN fabrication.operations AS operations ON imp_ot."operations_id" = operations."id"
                         GROUP BY personal."name", operations."name_eipsa", personal."code", operations."name"
-                        HAVING operations."name_eipsa" <> 'Soldadura' AND personal."code" = 13 AND operations."name" = 'Soldado'
+                        HAVING (personal."code" = 13 AND operations."name_eipsa" IN ('011 TIG (GTAW)', '012 TIG + ELECTRODO (GTAW + SMAW)', '013 TIG + HILO (GTAW + GMAW)')) OR (personal."code" = 67 AND operations."name_eipsa" IN ('011 TIG (GTAW)', '013 TIG + HILO (GTAW + GMAW)'))
                         ORDER BY personal."name", operations."name_eipsa", personal."code"
                         """)
         conn = None
@@ -1177,26 +1177,26 @@ class Ui_App_Purchasing(object):
         pdf.ln(2)
 
         pdf.set_fill_color(121, 167, 227)
-        pdf.cell(3, 0.53, "Nombre", align='C', fill=True)
+        pdf.cell(4.5, 0.53, "Nombre", align='C', fill=True)
         pdf.cell(0.2, 0.53, "")
         pdf.cell(5, 0.53, "Proceso", align='C', fill=True)
         pdf.cell(0.2, 0.53, "")
-        pdf.cell(3, 0.53, "Última Fecha", align='C', fill=True)
+        pdf.cell(2, 0.53, "Última Fecha", align='C', fill=True)
         pdf.cell(0.2, 0.53, "")
-        pdf.cell(3, 0.53, "Fecha Homolog.", align='C', fill=True)
+        pdf.cell(2.5, 0.53, "Fecha Homolog.", align='C', fill=True)
         pdf.cell(0.2, 0.53, "")
         pdf.cell(1, 0.53, "Días", align='C', fill=True)
 
-        pdf.ln(1)
+        pdf.ln()
 
         for row in range(df.shape[0]):
-            pdf.cell(3, 0.53, df.iloc[row, 0], align='C')
+            pdf.cell(4.5, 0.53, df.iloc[row, 0], align='C')
             pdf.cell(0.2, 0.53, "")
             pdf.cell(5, 0.53, df.iloc[row, 2], align='C')
             pdf.cell(0.2, 0.53, "")
-            pdf.cell(3, 0.53, df.iloc[row, 1], align='C')
+            pdf.cell(2, 0.53, df.iloc[row, 1], align='C')
             pdf.cell(0.2, 0.53, "")
-            pdf.cell(3, 0.53, df.iloc[row, 3], align='C')
+            pdf.cell(2.5, 0.53, df.iloc[row, 3], align='C')
             pdf.cell(0.2, 0.53, "")
             pdf.cell(1, 0.53, str(int(df.iloc[row, 4])), align='C')
             pdf.cell(0.2, 0.53, "")
