@@ -7,6 +7,7 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import QUrl
 from PyQt6 import QtSql
 from PyQt6.QtCore import Qt
 import re
@@ -17,6 +18,7 @@ import psycopg2
 import os
 from tkinter.filedialog import asksaveasfilename, askopenfilename
 import pandas as pd
+from PDF_Viewer import PDF_Viewer
 
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -1511,6 +1513,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.hiddencolumns = []
         self.action_checkbox_map = {}
         self.checkbox_filters = {}
+        self.pdf_viewer = PDF_Viewer()
         # self.model_records.dataChanged.connect(self.saveChanges)
         self.setupUi(self)
 
@@ -3785,20 +3788,17 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                 pdf.cell(0, 0.6, '{:,.2f}'.format(float(total_invoice)).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
                 pdf.ln(1)
 
-                output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar Factura Cliente")
+                pdf_buffer = pdf.output()
 
-                if output_path:
-                    pdf.output(output_path)
+                temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp_invoice.pdf"))))
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Imprimir Factura")
-                    dlg.setText("PDF generado con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg,new_icon
+                with open(temp_file_path, "wb") as temp_file:
+                    temp_file.write(pdf_buffer)
+
+                pdf.close()
+
+                self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
+                self.pdf_viewer.showMaximized()
 
             del dlg_yes_no, new_icon_yes_no
 
@@ -4114,20 +4114,17 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                 pdf.cell(0, 0.6, '{:,.2f}'.format(float(total_invoice)).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' $', align='R')
                 pdf.ln(1)
 
-                output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar Factura Cliente")
+                pdf_buffer = pdf.output()
 
-                if output_path:
-                    pdf.output(output_path)
+                temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp_invoice.pdf"))))
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Imprimir Factura")
-                    dlg.setText("PDF generado con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg,new_icon
+                with open(temp_file_path, "wb") as temp_file:
+                    temp_file.write(pdf_buffer)
+
+                pdf.close()
+
+                self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
+                self.pdf_viewer.showMaximized()
 
             del dlg_yes_no, new_icon_yes_no
 
@@ -5240,20 +5237,17 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             pdf.set_line_width(0.05)
             pdf.line(1.3,y_position,20.4,y_position)
 
-            output_path = asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")], title="Guardar Albarán Cliente")
+            pdf_buffer = pdf.output()
 
-            if output_path:
-                pdf.output(output_path)
+            temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp_delivnote.pdf"))))
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Imprimir Albarán")
-                dlg.setText("PDF generado con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg,new_icon
+            with open(temp_file_path, "wb") as temp_file:
+                temp_file.write(pdf_buffer)
+
+            pdf.close()
+
+            self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
+            self.pdf_viewer.showMaximized()
 
 # Function to import data into and existing table from and Excel where first row is column name
     def import_tags(self):
