@@ -2575,15 +2575,6 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             model.setIconColumnHeader(filterColumn, icono)
 
-# Function to hide column when action clicked
-    def hide_column(self):
-        """
-        Hides the selected column in the table view.
-        """
-        filterColumn = self.logicalIndex 
-        self.tableEditTags.setColumnHidden(filterColumn, True)
-        self.hiddencolumns.append(filterColumn)
-
 # Function to show all hidden columns
     def show_columns(self):
         """
@@ -2592,6 +2583,173 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         for column in self.hiddencolumns:
             self.tableEditTags.setColumnHidden(column, False)
         self.hiddencolumns.clear()
+
+        if self.variable == 'Caudal':
+            for i in range(72,125):
+                self.tableEditTags.hideColumn(i)
+            for i in range(127,131):
+                self.tableEditTags.hideColumn(i)
+            for i in range(132,136):
+                self.tableEditTags.hideColumn(i)
+            for i in range(137,142):
+                self.tableEditTags.hideColumn(i)
+            for i in range(143,150):
+                self.tableEditTags.hideColumn(i)
+            for i in range(151,153):
+                self.tableEditTags.hideColumn(i)
+            for i in range(154,156):
+                self.tableEditTags.hideColumn(i)
+            for i in range(157,self.model.columnCount()):
+                self.tableEditTags.hideColumn(i)
+
+        elif self.variable == 'Temperatura':
+            for i in range(80,132):
+                self.tableEditTags.hideColumn(i)
+            for i in range(134,138):
+                self.tableEditTags.hideColumn(i)
+            for i in range(139,143):
+                self.tableEditTags.hideColumn(i)
+            for i in range(144,149):
+                self.tableEditTags.hideColumn(i)
+            for i in range(150,157):
+                self.tableEditTags.hideColumn(i)
+            for i in range(158,160):
+                self.tableEditTags.hideColumn(i)
+            for i in range(161,163):
+                self.tableEditTags.hideColumn(i)
+            for i in range(164,166):
+                self.tableEditTags.hideColumn(i)
+            for i in range(167,self.model.columnCount()):
+                self.tableEditTags.hideColumn(i)
+
+        elif self.variable == 'Nivel':
+            for i in range(66,138):
+                self.tableEditTags.hideColumn(i)
+            for i in range(140,144):
+                self.tableEditTags.hideColumn(i)
+            for i in range(145,149):
+                self.tableEditTags.hideColumn(i)
+            for i in range(150,155):
+                self.tableEditTags.hideColumn(i)
+            for i in range(156,163):
+                self.tableEditTags.hideColumn(i)
+            for i in range(164,166):
+                self.tableEditTags.hideColumn(i)
+            for i in range(167,169):
+                self.tableEditTags.hideColumn(i)
+            for i in range(170,self.model.columnCount()):
+                self.tableEditTags.hideColumn(i)
+
+        elif self.variable == 'Otros':
+            for i in range(27,31):
+                self.tableEditTags.hideColumn(i)
+            for i in range(32,36):
+                self.tableEditTags.hideColumn(i)
+            for i in range(37,42):
+                self.tableEditTags.hideColumn(i)
+            for i in range(43,50):
+                self.tableEditTags.hideColumn(i)
+            for i in range(51,53):
+                self.tableEditTags.hideColumn(i)
+            for i in range(54,56):
+                self.tableEditTags.hideColumn(i)
+            for i in range(57,self.model.columnCount()):
+                self.tableEditTags.hideColumn(i)
+
+        if self.variable == 'Caudal':
+            self.tableEditTags.hideColumn(30)
+        elif self.variable == 'Temperatura':
+            self.tableEditTags.hideColumn(35)
+        elif self.variable == 'Nivel':
+            self.tableEditTags.hideColumn(36)
+        elif self.variable == 'Otros':
+            self.tableEditTags.hideColumn(11)
+
+
+        for column in self.hiddencolumns2:
+            self.tableEditTags2.setColumnHidden(column, False)
+        self.hiddencolumns2.clear()
+
+        if self.variable2 == 'Caudal':
+            for i in range(72,125):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(127,131):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(132,136):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(137,142):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(143,150):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(151,153):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(154,156):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(157,self.model2.columnCount()):
+                self.tableEditTags2.hideColumn(i)
+
+        elif self.variable == 'Temperatura':
+            for i in range(80,132):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(134,138):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(139,143):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(144,149):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(150,157):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(158,160):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(161,163):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(164,166):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(167,self.model2.columnCount()):
+                self.tableEditTags2.hideColumn(i)
+
+        elif self.variable == 'Nivel':
+            for i in range(66,138):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(140,144):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(145,149):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(150,155):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(156,163):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(164,166):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(167,169):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(170,self.model2.columnCount()):
+                self.tableEditTags2.hideColumn(i)
+
+        elif self.variable2 == 'Otros':
+            for i in range(27,31):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(32,36):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(37,42):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(43,50):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(51,53):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(54,56):
+                self.tableEditTags2.hideColumn(i)
+            for i in range(57,self.model2.columnCount()):
+                self.tableEditTags2.hideColumn(i)
+
+        if self.variable2 == 'Caudal':
+            self.tableEditTags2.hideColumn(30)
+        elif self.variable2 == 'Temperatura':
+            self.tableEditTags2.hideColumn(35)
+        elif self.variable2 == 'Nivel':
+            self.tableEditTags2.hideColumn(36)
+        elif self.variable2 == 'Otros':
+            self.tableEditTags2.hideColumn(11)
 
 # Function to create material order for flow elements
     def materialorder_flow(self):
@@ -3179,6 +3337,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    EditTagsTechnical_Window = Ui_EditTags_Technical_Window('j.martinez',db)
+    EditTagsTechnical_Window = Ui_EditTags_Technical_Window('e.carrillo',db)
     EditTagsTechnical_Window.show()
     sys.exit(app.exec())

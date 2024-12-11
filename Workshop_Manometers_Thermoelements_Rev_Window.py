@@ -2124,7 +2124,7 @@ class Ui_Workshop_Manometers_Thermoelements_Rev_Window(QtWidgets.QMainWindow):
                 pdf.cell(3, 0.5, '')
                 pdf.ln()
                 pdf.cell(12.5, 0.5, 'CORRECCION OPERATIVA (Operative Correction)', align='L', border = 'TLB')
-                pdf.cell(5.5, 0.5, str(math.floor((float(results_equipment[0][5]) + float(df_revisions.iloc[:, 6].max())) / float(results_equipment[0][5])) * float(results_equipment[0][5])).replace(".",",") + " " + results_equipment[0][3], align='C', border = 'TLBR')
+                pdf.cell(5.5, 0.5, str(math.ceil(max(abs(float(df_revisions.iloc[:, 6].min())), abs(float(df_revisions.iloc[:, 6].max()))) / float(results_equipment[0][5])) * float(results_equipment[0][5])).replace(".",",") + " " + results_equipment[0][3], align='C', border = 'TLBR')
                 pdf.ln()
                 pdf.set_font('Helvetica', 'B', 9)
                 pdf.cell(12.5, 0.5, 'FECHA CALIBRACION (Date Calibration)', align='L', border = 'LB')
@@ -2217,6 +2217,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    Workshop_Manometers_Thermoelements_Rev_Window = Ui_Workshop_Manometers_Thermoelements_Rev_Window(db, 'm.gil', '1')
+    Workshop_Manometers_Thermoelements_Rev_Window = Ui_Workshop_Manometers_Thermoelements_Rev_Window(db, 'm.gil', '5')
     Workshop_Manometers_Thermoelements_Rev_Window.showMaximized()
     sys.exit(app.exec())

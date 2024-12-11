@@ -1234,7 +1234,7 @@ class EditableTableModelDim(QtSql.QSqlTableModel):
         # Flags logic based on user permissions
         flags = super().flags(index)
         if self.username in ['j.sanz', 'j.zofio']:
-            if index.column() >= 5 or index.column == 3:
+            if index.column() >= 7 or index.column() in [0,1,3]:
                 flags &= ~Qt.ItemFlag.ItemIsEditable
                 return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
             else:
@@ -1454,7 +1454,7 @@ class EditableTableModelOf(QtSql.QSqlTableModel):
         """
         flags = super().flags(index)
         if self.username in ['j.sanz', 'j.zofio']:
-            if index.column() >= 5 or index.column == 3:
+            if index.column() >= 7 or index.column() in [0,1,3]:
                 flags &= ~Qt.ItemFlag.ItemIsEditable
                 return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
             else:
@@ -1673,7 +1673,7 @@ class EditableTableModelM(QtSql.QSqlTableModel):
         """
         flags = super().flags(index)
         if self.username in ['j.sanz', 'j.zofio']:
-            if index.column() >= 5 or index.column == 3:
+            if index.column() >= 7 or index.column() in [0,1,3]:
                 flags &= ~Qt.ItemFlag.ItemIsEditable
                 return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
             else:
@@ -2416,6 +2416,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 self.tableDimDwg.hideColumn(4)
             self.tableDimDwg.hideColumn(9)
 
+            self.tableDimDwg.verticalHeader().setDefaultSectionSize(50)
+
         # Getting the unique values for each column of the model
             for column in range(self.modelDim.columnCount()):
                 list_valuesUnique = []
@@ -2475,6 +2477,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             if self.username != 'm.gil':
                 self.tableOfDwg.hideColumn(4)
             self.tableOfDwg.hideColumn(9)
+
+            self.tableOfDwg.verticalHeader().setDefaultSectionSize(50)
 
         # Getting the unique values for each column of the model
             for column in range(self.modelOf.columnCount()):
@@ -2538,6 +2542,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 self.tableMDwg.hideColumn(4)
             self.tableMDwg.hideColumn(9)
             self.tableMDwg.hideColumn(12)
+
+            self.tableMDwg.verticalHeader().setDefaultSectionSize(50)
 
         # Getting the unique values for each column of the model
             for column in range(self.modelM.columnCount()):
@@ -4309,8 +4315,12 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         conn = psycopg2.connect(**params)
                         cur = conn.cursor()
 
-                        row_index = index.row()
-                        id_value = int(self.tableDimDwg.item(row_index, 0).text())
+                        if isinstance(self.modelDim, QtCore.QSortFilterProxyModel):
+                            source_index = self.proxyDim.mapToSource(index)
+                            id_value = int(self.proxyDim.data(self.proxyDim.index(source_index.row(), 0)))
+                        else:
+                            id_value = str(self.modelDim.data(self.modelDim.index(index.row(), 0), Qt.ItemDataRole.DisplayRole))
+
                         state_dwg = 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'
 
                         commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
@@ -4347,8 +4357,12 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         conn = psycopg2.connect(**params)
                         cur = conn.cursor()
 
-                        row_index = index.row()
-                        id_value = int(self.tableOfDwg.item(row_index, 0).text())
+                        if isinstance(self.modelOf, QtCore.QSortFilterProxyModel):
+                            source_index = self.proxyOf.mapToSource(index)
+                            id_value = int(self.proxyOf.data(self.proxyOf.index(source_index.row(), 0)))
+                        else:
+                            id_value = str(self.modelOf.data(self.modelOf.index(index.row(), 0), Qt.ItemDataRole.DisplayRole))
+
                         state_dwg = 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'
 
                         commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
@@ -4385,8 +4399,12 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         conn = psycopg2.connect(**params)
                         cur = conn.cursor()
 
-                        row_index = index.row()
-                        id_value = int(self.tableMDwg.item(row_index, 0).text())
+                        if isinstance(self.modelM, QtCore.QSortFilterProxyModel):
+                            source_index = self.proxyM.mapToSource(index)
+                            id_value = int(self.proxyM.data(self.proxyM.index(source_index.row(), 0)))
+                        else:
+                            id_value = str(self.modelM.data(self.modelM.index(index.row(), 0), Qt.ItemDataRole.DisplayRole))
+
                         state_dwg = 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'
 
                         commands_insert_drawing = f"""UPDATE verification."m_drawing_verification"
@@ -4412,7 +4430,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         if conn is not None:
                             conn.close()
 
-
+            self.query_drawings()
 
 
 if __name__ == "__main__":

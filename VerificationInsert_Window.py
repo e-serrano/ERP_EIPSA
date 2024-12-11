@@ -16,6 +16,8 @@ import locale
 import fnmatch
 from tkinter.filedialog import askopenfilename, askopenfilenames
 import random
+from PIL import Image, ExifTags
+from io import BytesIO
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -1157,6 +1159,16 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.label_lptest.setFont(font)
         self.label_lptest.setObjectName("label_lptest")
         self.gridLayout_2.addWidget(self.label_lptest, 4, 0, 1, 1)
+        self.Button_SeePhoto = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_SeePhoto.setMinimumSize(QtCore.QSize(100, 25))
+        self.Button_SeePhoto.setObjectName("Button_SeePhoto")
+        self.Button_SeePhoto.setVisible(False)
+        self.gridLayout_2.addWidget(self.Button_SeePhoto, 2, 4, 1, 2)
+        self.Button_InsertPhoto = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_InsertPhoto.setMinimumSize(QtCore.QSize(100, 25))
+        self.Button_InsertPhoto.setObjectName("Button_InsertPhoto")
+        self.Button_InsertPhoto.setVisible(False)
+        self.gridLayout_2.addWidget(self.Button_InsertPhoto, 3, 4, 1, 2)
         self.tableTags = CustomTableWidgetTags()
         self.tableTags.setObjectName("tableWidget")
         self.tableTags.setColumnCount(0)
@@ -1281,6 +1293,8 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.num_order.returnPressed.connect(self.query_tables)
         self.Button_Insert.clicked.connect(self.insert_all_data)
         self.Button_Photos.clicked.connect(lambda: self.insert_images(self.num_order.text().upper()))
+        self.Button_SeePhoto.clicked.connect(self.open_temp_image)
+        self.Button_InsertPhoto.clicked.connect(self.insert_temp_image)
         self.tableTags.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
         self.tableOthers.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked_others)
         self.state_test.currentTextChanged.connect(self.change_text_color)
@@ -1309,6 +1323,8 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.label_obs.setText(_translate("VerificationInsert_Window", "Observaciones:"))
         self.Button_Cancel.setText(_translate("VerificationInsert_Window", "Cancelar"))
         self.Button_Insert.setText(_translate("VerificationInsert_Window", "Insertar"))
+        self.Button_SeePhoto.setText(_translate("VerificationInsert_Window", "Ver Foto"))
+        self.Button_InsertPhoto.setText(_translate("VerificationInsert_Window", "Insertar Foto"))
 
 # Function to update data of both tables
     def query_tables(self):
@@ -2466,6 +2482,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
             else:
                 selected_indexes = self.tableTags.selectedIndexes()
+
                 while True:
                     pic_type, ok = QtWidgets.QInputDialog.getItem(self, "Insertar Fotos", "Selecciona un tipo:", ['Foto Única', 'MultiFoto', 'Aleatorio'], 0, False)
                     if ok and pic_type:
@@ -2483,6 +2500,9 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                                     dlg.exec()
                                     del dlg, new_icon
+
+                                    self.Button_SeePhoto.setVisible(True)
+                                    self.Button_InsertPhoto.setVisible(True)
 
                                 else:
                                     conn = None
@@ -3444,7 +3464,6 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         conn.close()
 
 
-
         if header_text == 'Nº Plano':
             if item.column() == (self.tableOthers.columnCount() - 2) and self.num_order.text().upper()[:3] == 'AL-':
                 item_id = self.tableOthers.item(item.row(), 1).text()
@@ -3724,10 +3743,80 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     if conn is not None:
                         conn.close()
 
+# Function to open temporary image
+    def open_temp_image(self):
+        """
+        Open the image saved on temporary variable
+        """
+        if self.fname_image is not None:
+            file_path = os.path.normpath(self.fname_image)
+            os.startfile(file_path)
 
+# Function to insert temporary image
+    def insert_temp_image(self):
+        selected_indexes = self.tableTags.selectedIndexes()
+        if self.fname_image is not None and len(selected_indexes) > 0:
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                for index in selected_indexes:
+                    id_value = int(self.tableTags.item(index.row(), 0).text())
+                    table_name = self.tableTags.item(index.row(), 21).text()
+                    id_column = self.tableTags.item(index.row(), 20).text()
+                    commands_image_tag = f"UPDATE {table_name} SET tag_images = '{self.fname_image}' WHERE {id_column} = {id_value}"
+                    cur.execute(commands_image_tag)
 
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
 
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Verificación")
+                dlg.setText("Datos insertados con éxito")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+                del dlg,new_icon
 
+                self.querytags()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
+
+            self.fname_image = None
+            self.Button_SeePhoto.setVisible(False)
+            self.Button_InsertPhoto.setVisible(False)
+
+        else:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Verificación")
+            dlg.setText("Elige foto o selecciona tags")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
 
 
 
