@@ -1754,9 +1754,9 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                 cur.execute(query_m_dwg, (num_order,))
                 results_m=cur.fetchall()
 
-                column_headers = ["", "ID", "Nº Pedido", "Nº Plano Dim.", "Fecha Sacado", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
-                column_headers_of = ["", "ID", "Nº Pedido", "Nº Plano OF", "Fecha Sacado", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
-                column_headers_m = ["", "ID", "Nº Pedido", "Nº Plano M", "Fecha Sacado", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
+                column_headers = ["", "ID", "Nº Pedido", "Nº Plano Dim.", "Fecha Emisión", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
+                column_headers_of = ["", "ID", "Nº Pedido", "Nº Plano OF", "Fecha Emisión", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
+                column_headers_m = ["", "ID", "Nº Pedido", "Nº Plano M", "Fecha Emisión", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
 
             # close communication with the PostgreSQL database server
                 cur.close()

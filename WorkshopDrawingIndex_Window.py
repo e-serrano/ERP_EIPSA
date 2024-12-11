@@ -2408,7 +2408,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             # self.gridLayout_2.addWidget(self.tableDimDwg, 3, 0, 1, 7)
 
         # Change all column names
-            headers = ["ID", "Nº Pedido", "Nº Plano Dim.", "Fecha Sacado", "Estado Sacado", "Observaciones", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén", "Fecha Verif.", "Estado Verif."]
+            headers = ["ID", "Nº Pedido", "Nº Plano Dim.", "Fecha Emisión", "Estado Emisión", "Observaciones", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén", "Fecha Verif.", "Estado Verif."]
             self.modelDim.setAllColumnHeaders(headers)
 
             self.tableDimDwg.hideColumn(0)
@@ -2468,7 +2468,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             # self.gridLayout_2.addWidget(self.tableOfDwg, 4, 0, 1, 7)
 
         # Change all column names
-            headers = ["ID", "Nº Pedido", "Nº Plano OF", "Fecha Sacado", "Estado Sacado", "Observaciones", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén", "Fecha Verif.", "Estado Verif."]
+            headers = ["ID", "Nº Pedido", "Nº Plano OF", "Fecha Emisión", "Estado Emisión", "Observaciones", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén", "Fecha Verif.", "Estado Verif."]
             self.modelOf.setAllColumnHeaders(headers)
 
             self.tableOfDwg.hideColumn(0)
@@ -2528,7 +2528,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             # self.gridLayout_2.addWidget(self.tableMDwg, 5, 0, 1, 7)
 
         # Change all column names
-            headers = ["ID", "Nº Pedido", "Nº Plano M", "Fecha Sacado", "Estado Sacado", "Observaciones",
+            headers = ["ID", "Nº Pedido", "Nº Plano M", "Fecha Emisión", "Estado Emisión", "Observaciones",
                 "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén",
                 "Fecha Verif.", "Estado Verif.", "Obs. Verif."]
             self.modelM.setAllColumnHeaders(headers)
