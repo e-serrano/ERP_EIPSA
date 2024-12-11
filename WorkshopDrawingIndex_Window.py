@@ -4297,119 +4297,120 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
 # Function to add date when drawing is printed
     def print_drawings(self):
-        selected_indexes = self.tableDimDwg.selectionModel().selectedIndexes()
-        if len(selected_indexes) > 0:
-            for index in selected_indexes:
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
+        if self.username != 'm.gil':
+            selected_indexes = self.tableDimDwg.selectionModel().selectedIndexes()
+            if len(selected_indexes) > 0:
+                for index in selected_indexes:
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
 
-                    row_index = index.row()
-                    id_value = int(self.tableDimDwg.item(row_index, 0).text())
-                    state_dwg = 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'
+                        row_index = index.row()
+                        id_value = int(self.tableDimDwg.item(row_index, 0).text())
+                        state_dwg = 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'
 
-                    commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
-                                                SET "printed_date" = '{str(datetime.today().strftime('%d/%m/%Y'))}', "printed_state" = '{state_dwg}'
-                                                WHERE (id) = {id_value}"""
-                    cur.execute(commands_insert_drawing)
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                        commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
+                                                    SET "printed_date" = '{str(datetime.today().strftime('%d/%m/%Y'))}', "printed_state" = '{state_dwg}'
+                                                    WHERE (id) = {id_value}"""
+                        cur.execute(commands_insert_drawing)
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
 
-        selected_indexes = self.tableOfDwg.selectionModel().selectedIndexes()
-        if len(selected_indexes) > 0:
-            for index in selected_indexes:
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
+            selected_indexes = self.tableOfDwg.selectionModel().selectedIndexes()
+            if len(selected_indexes) > 0:
+                for index in selected_indexes:
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
 
-                    row_index = index.row()
-                    id_value = int(self.tableOfDwg.item(row_index, 0).text())
-                    state_dwg = 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'
+                        row_index = index.row()
+                        id_value = int(self.tableOfDwg.item(row_index, 0).text())
+                        state_dwg = 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'
 
-                    commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
-                                                SET "printed_date" = '{str(datetime.today().strftime('%d/%m/%Y'))}', "printed_state" = '{state_dwg}'
-                                                WHERE (id) = {id_value}"""
-                    cur.execute(commands_insert_drawing)
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                        commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
+                                                    SET "printed_date" = '{str(datetime.today().strftime('%d/%m/%Y'))}', "printed_state" = '{state_dwg}'
+                                                    WHERE (id) = {id_value}"""
+                        cur.execute(commands_insert_drawing)
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
 
-        selected_indexes = self.tableMDwg.selectionModel().selectedIndexes()
-        if len(selected_indexes) > 0:
-            for index in selected_indexes:
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
+            selected_indexes = self.tableMDwg.selectionModel().selectedIndexes()
+            if len(selected_indexes) > 0:
+                for index in selected_indexes:
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
 
-                    row_index = index.row()
-                    id_value = int(self.tableMDwg.item(row_index, 0).text())
-                    state_dwg = 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'
+                        row_index = index.row()
+                        id_value = int(self.tableMDwg.item(row_index, 0).text())
+                        state_dwg = 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'
 
-                    commands_insert_drawing = f"""UPDATE verification."m_drawing_verification"
-                                                SET "printed_date" = '{str(datetime.today().strftime('%d/%m/%Y'))}', "printed_state" = '{state_dwg}'
-                                                WHERE (id) = {id_value}"""
-                    cur.execute(commands_insert_drawing)
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
+                        commands_insert_drawing = f"""UPDATE verification."m_drawing_verification"
+                                                    SET "printed_date" = '{str(datetime.today().strftime('%d/%m/%Y'))}', "printed_state" = '{state_dwg}'
+                                                    WHERE (id) = {id_value}"""
+                        cur.execute(commands_insert_drawing)
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
 
 
 
