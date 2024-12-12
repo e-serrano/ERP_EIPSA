@@ -664,7 +664,7 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
                             else '')
                 processbar = ''
                 materialbar = model.data(model.index(target_row, 14))
-                qtybar = model.data(model.index(target_row, 85))
+                qtybar = model.data(model.index(target_row, 85)) if 'Helical' not in model.data(model.index(target_row, 9)) else 1
                 bar_list.append([code_bar,codefab_bar,tradcodbar,modelbar,notesbar,processbar,materialbar,qtybar])
                 all_list_parts.append(bar_list)
 
