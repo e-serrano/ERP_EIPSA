@@ -40,8 +40,8 @@ class Ui_OrderAccept_Window(object):
         """
         OrderAccept_Window.setObjectName("OrderAccept_Window")
         OrderAccept_Window.resize(300, 450)
-        OrderAccept_Window.setMinimumSize(QtCore.QSize(300, 650))
-        OrderAccept_Window.setMaximumSize(QtCore.QSize(300, 650))
+        OrderAccept_Window.setMinimumSize(QtCore.QSize(350, 650))
+        OrderAccept_Window.setMaximumSize(QtCore.QSize(350, 650))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         OrderAccept_Window.setWindowIcon(icon)
@@ -96,8 +96,6 @@ class Ui_OrderAccept_Window(object):
         self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
-        self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.verticalLayout = QtWidgets.QVBoxLayout(self.frame)
         self.verticalLayout.setObjectName("verticalLayout")
         self.label_numorder_orderaccept = QtWidgets.QLabel(parent=self.frame)
@@ -226,27 +224,52 @@ class Ui_OrderAccept_Window(object):
         self.responsible_client_orderaccept.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.responsible_client_orderaccept.setObjectName("responsible_client_orderaccept")
         self.verticalLayout.addWidget(self.responsible_client_orderaccept, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
-        self.checkbox_bond = QtWidgets.QCheckBox(parent=self.frame)
+
+        self.group1 = QtWidgets.QButtonGroup()
+        self.group2 = QtWidgets.QButtonGroup()
+
+
+        self.hLayout1 = QtWidgets.QHBoxLayout()
+        self.hLayout1.setObjectName("hLayout2")
+        self.bond_agreed = QtWidgets.QRadioButton(parent=self.frame)
         font = QtGui.QFont()
         font.setPointSize(10)
-        self.checkbox_bond.setFont(font)
-        self.checkbox_bond.setObjectName("checkbox_bond")
-        self.verticalLayout.addWidget(self.checkbox_bond, 0, QtCore.Qt.AlignmentFlag.AlignLeft)
-        self.hLayout1 = QtWidgets.QHBoxLayout()
-        self.hLayout1.setObjectName("hLayout1")
+        self.bond_agreed.setFont(font)
+        self.bond_agreed.setObjectName("bond_agreed")
+        self.hLayout1.addWidget(self.bond_agreed)
+        self.bond_not_agreed = QtWidgets.QRadioButton(parent=self.frame)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.bond_not_agreed.setFont(font)
+        self.bond_not_agreed.setObjectName("bond_not_agreed")
+        self.hLayout1.addWidget(self.bond_not_agreed)
+        self.not_bond = QtWidgets.QRadioButton(parent=self.frame)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.not_bond.setFont(font)
+        self.not_bond.setObjectName("not_bond")
+        self.hLayout1.addWidget(self.not_bond)
+        self.group1.addButton(self.bond_agreed)
+        self.group1.addButton(self.bond_not_agreed)
+        self.group1.addButton(self.not_bond)
+        self.verticalLayout.addLayout(self.hLayout1)
+        self.hLayout2 = QtWidgets.QHBoxLayout()
+        self.hLayout2.setObjectName("hLayout2")
         self.longformat = QtWidgets.QRadioButton(parent=self.frame)
         font = QtGui.QFont()
         font.setPointSize(10)
         self.longformat.setFont(font)
         self.longformat.setObjectName("longformat")
-        self.hLayout1.addWidget(self.longformat)
+        self.hLayout2.addWidget(self.longformat)
         self.shortformat = QtWidgets.QRadioButton(parent=self.frame)
         font = QtGui.QFont()
         font.setPointSize(10)
         self.shortformat.setFont(font)
         self.shortformat.setObjectName("shortformat")
-        self.hLayout1.addWidget(self.shortformat)
-        self.verticalLayout.addLayout(self.hLayout1)
+        self.hLayout2.addWidget(self.shortformat)
+        self.group2.addButton(self.longformat)
+        self.group2.addButton(self.shortformat)
+        self.verticalLayout.addLayout(self.hLayout2)
         self.generate_orderaccept = QtWidgets.QPushButton(parent=self.frame)
         self.generate_orderaccept.setEnabled(True)
         self.generate_orderaccept.setMinimumSize(QtCore.QSize(200, 35))
@@ -323,7 +346,9 @@ class Ui_OrderAccept_Window(object):
         self.label_country_orderaccept.setText(_translate("OrderAccept_Window", "País Cliente:"))
         self.label_responsible_client_orderaccept.setText(_translate("OrderAccept_Window", "Responsable Cliente:"))
         self.generate_orderaccept.setText(_translate("OrderAccept_Window", "Generar"))
-        self.checkbox_bond.setText(_translate("OrderAccept_Window", "Aval"))
+        self.bond_agreed.setText(_translate("OrderAccept_Window", "Aval Acordado"))
+        self.bond_not_agreed.setText(_translate("OrderAccept_Window", "Aval EIPSA"))
+        self.not_bond.setText(_translate("OrderAccept_Window", "Sin Aval"))
         self.longformat.setText(_translate("TAGOfferToOrder_Window", "Formato Largo"))
         self.shortformat.setText(_translate("TAGOfferToOrder_Window", "Formato Corto"))
 
@@ -349,6 +374,11 @@ class Ui_OrderAccept_Window(object):
                         SELECT * 
                         FROM orders
                         WHERE "num_order" = %s
+                        """)
+            commands_checkprojects = ("""
+                        SELECT * 
+                        FROM offers
+                        WHERE "client" = %s and "state" = 'Adjudicada'
                         """)
             conn = None
             try:
@@ -462,8 +492,8 @@ class Ui_OrderAccept_Window(object):
                     payment_term_english = "100% of the total amount of purchase order upon receipt of purchase order."
                     payment_term_spanish = "Pago del 100% del valor total de la orden de compra a la recepción de la orden."
                 elif payment_term_db == "90_10":
-                    payment_term_english = "90% of the total amount of PO upon delivery of material according to Incoterms 2020 and 10% at take over certificate."
-                    payment_term_spanish = "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020 y el 10% restante con la certificación final."
+                    payment_term_english = "90% of the total amount of PO upon delivery of material according to Incoterms 2020 and 10% when final documentation is approved."
+                    payment_term_spanish = "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020 y el 10% cuando la documentación final sea aprobada."
                 elif payment_term_db == "50_50":
                     payment_term_english = "50% of the total amount of purchase order upon receipt of purchase order. Remaining 50% before be delivered according to Incoterms 2020"
                     payment_term_spanish = "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020"
@@ -477,14 +507,27 @@ class Ui_OrderAccept_Window(object):
                 english_order_date = self.format_date_english(order_date)
                 spanish_order_date = self.format_date_spanish(order_date)
 
-                if self.checkbox_bond.isChecked():
-                    note_bond_english = "INCLUDE WARRANTY BOND NOTE"
-                    note_bond_spanish = "INCLUIR NOTA AVAL"
-                else:
-                    note_bond_english = "Note that for orders with an amount lower than 30.000,00 €, warranty bonds are not issued."
+                if self.bond_agreed.isChecked() == True:
+                    note_bond_english = "The text of warranty bond will be according to the usual document agreed with " + client + " for the last projects."
+                    note_bond_spanish = "El texto del aval será de acuerdo al documento habitual acordado con " + client + " para los últimos proyectos"
+                elif self.bond_not_agreed.isChecked() == True:
+                    note_bond_english = "If required, warranty bond will be provided in the official EIPSA format."
+                    note_bond_spanish = "En caso de ser requerido se facilitará el aval en formato oficial de EIPSA."
+                elif self.not_bond.isChecked() == True:
+                    note_bond_english = "Note that for purchase orders with an amount lower than 30.000,00 €, warranty bonds are not issued."
                     note_bond_spanish = "Les hacemos notar que para pedidos con importe inferior a 30.000,00 € no se emiten avales bancarios de garantía"
+                else:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Generar Acuse")
+                    dlg.setText("Elige una opción para el aval")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+                    del dlg, new_icon
 
-                if self.longformat.isChecked()==True:
+                if self.longformat.isChecked() == True:
                     doc = DocxTemplate(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Pedido.docx")
                     context = {'english_actual_date': english_actual_date,
                                 'num_ref_order': str(num_ref_order).replace("&", "&amp;"),
@@ -528,7 +571,7 @@ class Ui_OrderAccept_Window(object):
                     self.country_orderaccept.setText("")
                     self.responsible_client_orderaccept.setText("")
 
-                elif self.shortformat.isChecked()==True:
+                elif self.shortformat.isChecked() == True:
                     doc = DocxTemplate(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Corto Pedido.docx")
                     context = {'client': client,
                                 'spanish_actual_date': spanish_actual_date,
