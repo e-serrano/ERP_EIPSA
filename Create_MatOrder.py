@@ -689,16 +689,17 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 flange_list.append([code_flange,codefab_flange,tradcodflange,modelflange,notesflange,processflange,materialflange,qtyflange])
                 all_list_parts.append(flange_list)
 
+            print(code_sensor)
             if code_sensor != '':
                 tradcodsensor = model.data(model.index(target_row, 123))
-                modelsensor = (model.data(model.index(target_row, 28)) + '-' + model.data(model.index(target_row, 27)) if code_sensor[:4] == 'BIME'
+                modelsensor = (model.data(model.index(target_row, 28)) + '-' + model.data(model.index(target_row, 27)) if code_sensor[:4] == 'Bime'
                                 else '')
-                notesensor = (model.data(model.index(target_row, 23)) + '-' + model.data(model.index(target_row, 24)) if code_sensor[:4] == 'BIME'
+                notesensor = (model.data(model.index(target_row, 23)) + '-' + model.data(model.index(target_row, 24)) if code_sensor[:4] == 'Bime'
                                 else '')
                 processsensor = ''
                 materialsensor = ('PLATINO' if tradcodsensor[:5] == 'PT100'
                                 else ('AC. INOX.' if model.data(model.index(target_row, 20)) == 'St.Steel' else model.data(model.index(target_row, 20))))
-                qtysensor = (1 if tradcodsensor[:5] == 'PT100' or code_sensor[:4] == 'BIME'
+                qtysensor = (1 if tradcodsensor[:5] == 'PT100' or code_sensor[:4] == 'Bime'
                                 else (float(model.data(model.index(target_row, 73)))/1000) if model.data(model.index(target_row, 73)) != '' else '')
                 sensor_list.append([code_sensor,codefab_sensor,tradcodsensor,modelsensor,notesensor,processsensor,materialsensor,qtysensor])
                 all_list_parts.append(sensor_list)
@@ -718,11 +719,11 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
 
             if code_btb != '':
                 tradcodbtb = model.data(model.index(target_row, 125))
-                modelbtb = (model.data(model.index(target_row, 23)) + '-' + model.data(model.index(target_row, 24)) if code_btb[:2] == 'BI' 
+                modelbtb = "RANGO " + (model.data(model.index(target_row, 23)) + '-' + model.data(model.index(target_row, 24)) if code_btb[:2] == 'BI' 
                             else '')
                 notesbtb = ''
                 processbtb = ''
-                materialbtb = (model.data(model.index(target_row, 20)) + '-' + model.data(model.index(target_row, 21)) if code_btb[:2] == 'BI' 
+                materialbtb = (model.data(model.index(target_row, 20)) if code_btb[:2] == 'BI' 
                             else ('CERÁMICO' if code_btb[:2] == 'CE' else ''))
                 qtybtb = model.data(model.index(target_row, 100))
                 btb_list.append([code_btb,codefab_btb,tradcodbtb,modelbtb,notesbtb,processbtb,materialbtb,qtybtb])
