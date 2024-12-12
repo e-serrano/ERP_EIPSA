@@ -268,6 +268,50 @@ class EditableTableModel(QtSql.QSqlTableModel):
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
 
+class CustomPDF(FPDF):
+    """
+    Custom PDF class extending FPDF for advanced text handling.
+
+    This class provides additional functionalities for creating PDF documents,
+    specifically for managing multi-line text with fixed height.
+
+    Methods:
+        fixed_height_multicell(w, total_h, txt, align_mc, border='LR', fill=False):
+            Outputs text in a multi-cell format with a fixed total height.
+    """
+    def fixed_height_multicell(self, w, total_h, txt, align_mc, border='LRB', fill=False):
+        """
+        Creates a multi-line cell with a fixed total height, dividing text into lines.
+
+        Parameters:
+            w (float): The width of the cell.
+            total_h (float): The total height of the cell.
+            txt (str): The text to be placed in the cell.
+            align_mc (str): The alignment of the text.
+            border (str, optional): Border settings for the cell. Defaults to ''.
+            fill (bool, optional): Whether to fill the cell with color. Defaults to False.
+        """
+        words = txt.split() # Divide text in words
+        lines = []
+        line = ''
+        for word in words:
+            if self.get_string_width(line + word + ' ') > w - 0.5:
+                lines.append(line) # Add line to line list and starts a new one
+                line = word + ' '
+            else:
+                line += word + ' ' # Add word to actual line
+        lines.append(line) # Add last line to line list
+        
+        line_height = total_h / len(lines) # Calculate height of each line to get a total height = total_h
+
+        x, y = self.get_x(), self.get_y() # Save actual position
+
+        for line in lines:
+            # Print each line with the calculated height
+            self.multi_cell(w, line_height, line, border, align_mc, fill)
+            self.set_x(x)
+
+        self.set_xy(x, y + total_h)
 
 class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
     """
@@ -373,14 +417,14 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
         self.hcab.addWidget(self.toolDeleteFilter)
         self.hcabspacer1=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer1)
-        self.toolExpExcel = QtWidgets.QToolButton(self.frame)
-        self.toolExpExcel.setObjectName("ExpExcel_Button")
-        self.toolExpExcel.setToolTip("Exportar a Excel")
+        self.toolExpData = QtWidgets.QToolButton(self.frame)
+        self.toolExpData.setObjectName("ExpData_Button")
+        self.toolExpData.setToolTip("Exportar Datos")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.toolExpExcel.setIcon(icon)
-        self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
-        self.hcab.addWidget(self.toolExpExcel)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Export_Doc.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolExpData.setIcon(icon)
+        self.toolExpData.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolExpData)
         self.hcabspacer3=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer3)
         self.toolAdd = QtWidgets.QToolButton(self.frame)
@@ -404,7 +448,7 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
 
         if self.username == 'm.gil':
             self.toolDeleteFilter.setStyleSheet("border: 1px solid white;")
-            self.toolExpExcel.setStyleSheet("border: 1px solid white;")
+            self.toolExpData.setStyleSheet("border: 1px solid white;")
             self.toolAdd.setStyleSheet("border: 1px solid white;")
             self.toolSeeAll.setStyleSheet("border: 1px solid white;")
 
@@ -476,7 +520,7 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
 
         self.toolAdd.clicked.connect(self.add_new)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
-        self.toolExpExcel.clicked.connect(self.exporttoexcel)
+        self.toolExpData.clicked.connect(self.export_data)
         self.toolSeeAll.clicked.connect(self.query_all_equipment)
 
         self.query_equipment()
@@ -962,48 +1006,6 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
             self.tableEquipment.setColumnHidden(column, False)
         self.hiddencolumns.clear()
 
-# Function to export data to excel
-    def exporttoexcel(self):
-        """
-        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
-
-        Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
-        """
-        if self.proxy.rowCount() == 0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Exportar")
-            dlg.setText("No hay datos cargados")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
-        else:
-            final_data = []
-
-            visible_columns = [col for col in range(self.model.columnCount()) if not self.tableEquipment.isColumnHidden(col)]
-            visible_headers = self.model.getColumnHeaders(visible_columns)
-            for row in range(self.proxy.rowCount()):
-                tag_data = []
-                for column in visible_columns:
-                    value = self.proxy.data(self.proxy.index(row, column))
-                    if isinstance(value, QDate):
-                        value = value.toString("dd/MM/yyyy")
-                    tag_data.append(value)
-                final_data.append(tag_data)
-
-            final_data.insert(0, visible_headers)
-            df = pd.DataFrame(final_data)
-            df.columns = df.iloc[0]
-            df = df[1:]
-
-            df['Firma'] = None
-
-            output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
-            if output_path:
-                df.to_excel(output_path, index=False, header=True)
-
 # Function to enable copy and paste cells
     def keyPressEvent(self, event):
         """
@@ -1325,6 +1327,149 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
 
             del dlg_yes_no, new_icon_yes_no
 
+# Function to open menu to export data
+    def export_data(self):
+        """
+        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
+
+        Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
+        """
+        if self.proxy.rowCount() == 0:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Exportar")
+            dlg.setText("No hay datos cargados")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+        else:
+            final_data = []
+
+            visible_columns = [col for col in range(self.model.columnCount()) if not self.tableEquipment.isColumnHidden(col)]
+            visible_headers = self.model.getColumnHeaders(visible_columns)
+            for row in range(self.proxy.rowCount()):
+                tag_data = []
+                for column in visible_columns:
+                    value = self.proxy.data(self.proxy.index(row, column))
+                    if isinstance(value, QDate):
+                        value = value.toString("dd/MM/yyyy")
+                    tag_data.append(value)
+                final_data.append(tag_data)
+
+            final_data.insert(0, visible_headers)
+            df = pd.DataFrame(final_data)
+            df.columns = df.iloc[0]
+            df = df[1:]
+
+            df['Firma'] = None
+
+            while True:
+                doc_type, ok = QtWidgets.QInputDialog.getItem(self, "Exportación", "Seleccióna un tipo de documento:", ['Excel', 'PDF'], 0, False)
+                if ok and doc_type:
+                    if doc_type == 'Excel':
+                        self.exporttoexcel(df)
+                        break
+                    else:
+                        self.exporttopdf(df)
+                        break
+                else:
+                    break
+
+# Function to export data to excel
+    def exporttoexcel(self, dataframe):
+        """
+        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
+
+        Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
+        """
+
+        output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
+        if output_path:
+            dataframe.to_excel(output_path, index=False, header=True)
+
+# Function to export data to pdf
+    def exporttopdf(self, dataframe):
+        """
+        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
+
+        Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
+        """
+
+        pdf = CustomPDF('P', 'cm', 'A4')
+
+        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+
+        pdf.set_auto_page_break(auto=True)
+        pdf.set_margins(1.5, 1.5)
+
+        pdf.add_page()
+
+        pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eipsa Logo Blanco.png")), 0, 0, 10, 2)
+        pdf.ln()
+        pdf.set_font('Helvetica', 'B', 18)
+        pdf.multi_cell(18, 1, "RELACION EQUIPOS CALIBRADOS MEDIANTE COMPROBACION CON PATRONES E.I.P.S.A.", align='C')
+        pdf.ln(0)
+        pdf.cell(18, 0.5, "")
+        pdf.ln()
+        y_position = pdf.get_y()
+        pdf.set_font('Helvetica', '', 8)
+        pdf.cell(2, 1, "NUMERO", border=1, align='C')
+        pdf.cell(6, 1, "INSTRUMENTO", border=1, align='C')
+        pdf.cell(1.5, 1, "ESCALA", border=1, align='L')
+        pdf.cell(2, 1, "RANGO", border=1, align='L')
+        pdf.multi_cell(2.5, 0.5, "FECHA ULTIMA CALIB.", border=1, align='L')
+        pdf.set_xy(pdf.get_x(), y_position)
+        pdf.multi_cell(2.5, 0.5, "FECHA PROXIMA CALIB.", border=1, align='L')
+        pdf.set_xy(pdf.get_x(), y_position)
+        pdf.cell(1.5, 1, "NOTAS", border=1, align='L')
+        pdf.ln(1)
+
+        for i in range(dataframe.shape[0]):
+            y_position = pdf.get_y()
+            pdf.set_font('DejaVuSansCondensed', '', 8)
+            pdf.cell(2, 0.5, str(dataframe.iloc[i, 1]), border=1, align='L')
+            pdf.cell(6, 0.5, str(dataframe.iloc[i, 2]), border=1, align='L')
+            pdf.cell(1.5, 0.5, str(dataframe.iloc[i, 4]), border=1, align='L')
+            pdf.cell(2, 0.5, str(dataframe.iloc[i, 5]), border=1, align='L')
+            pdf.cell(2.5, 0.5, str(dataframe.iloc[i, 9]), border=1, align='R')
+            pdf.cell(2.5, 0.5, str(dataframe.iloc[i, 10]), border=1, align='R')
+            pdf.cell(1.5, 0.5, "NOTA 1" if "INSTRUMENTO" in str(dataframe.iloc[i, 12]) else '', border=1, align='L')
+            pdf.ln()
+
+        pdf.cell(2, 1, "NOTA 1: ", border=1, align='L')
+        pdf.multi_cell(16, 0.5, "ESTE INSTRUMENTO SE COMPARA CON LA LECTURA DIGITAL DEL MULTÍMETRO CADA VEZ QUE SE EFECTÚA LA CALIBRACIÓN CON REGISTRO GRÁFICO", border=1, align='L')
+        
+        pdf.set_y(27.5)
+        pdf.cell(3, 0.5, '')
+        pdf.ln()
+        pdf.cell(3, 0.5, '')
+        pdf.set_font('Helvetica', '', 9)
+        pdf.cell(11, 0.5, 'CALIBRACIÓN REALIZADA POR: MARIO GIL (Operator)')
+        pdf.set_font('Helvetica', 'B', 9)
+        pdf.cell(4, 0.5, 'CONTROL DE CALIDAD', align='C')
+        pdf.ln()
+        pdf.cell(3, 0.5, 'RIC-001', align='C', border=1)
+        pdf.set_font('Helvetica', '', 9)
+        pdf.cell(11, 0.5, 'CALIBRACIÓN SUPERVISADA POR JESÚS MARTÍNEZ (Supervisor)')
+        pdf.cell(4, 0.5, 'QUALITY-CONTROL', align='C')
+
+        pdf.set_font('Helvetica', '', 8)
+        pdf.cell(12, 0.5, "")
+        pdf.cell(6, 0.5, str(datetime.today().strftime('%d/%m/%Y')), align='C')
+        pdf.ln()
+
+        pdf_buffer = pdf.output()
+
+        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "CERT.pdf"))))
+
+        with open(temp_file_path, "wb") as temp_file:
+            temp_file.write(pdf_buffer)
+
+        self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
+        self.pdf_viewer.showMaximized()
 
 
 
