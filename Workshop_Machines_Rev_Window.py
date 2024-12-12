@@ -1639,6 +1639,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
             pdf.cell(18.1, 0.5, "CARACTERÍSTICAS", border=1, align='C', fill=True)
             pdf.ln(0.5)
             pdf.set_font('Helvetica', '', 9)
+            y_position_characteristics = pdf.get_y()
 
             if results_machine[0][3] != '-':
                 characteristics = str(results_machine[0][3]).splitlines()
@@ -1659,7 +1660,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
                 corrected_image = self.correct_image_orientation(image_path)
                 temp_image_path = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Resources\pdfviewer\temp\temp_corrected_image.png"
                 corrected_image.save(temp_image_path)
-                pdf.image(temp_image_path, 12.6, 4.60, 7, 13)
+                pdf.image(temp_image_path, 12.6, 4.60, 7, y_position_revisions - y_position_characteristics)
 
             if len(results_revisions)>10:
                 pdf.set_y(y_position_revisions)
@@ -1732,6 +1733,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    Workshop_Machines_Rev_Window = Ui_Workshop_Machines_Rev_Window(db, 'm.gil', '73')
+    Workshop_Machines_Rev_Window = Ui_Workshop_Machines_Rev_Window(db, 'm.gil', '47')
     Workshop_Machines_Rev_Window.showMaximized()
     sys.exit(app.exec())
