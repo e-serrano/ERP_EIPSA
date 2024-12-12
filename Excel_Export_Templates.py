@@ -455,7 +455,7 @@ class offer_flow:
                     ws["B46"] = (
                         "TERMINOS DE PAGO:\n"
                         "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emision de factura."
+                        "Transferencia Bancaria: 60 días desde emisión de factura."
                     )
                 elif pay_term == "50_50":
                     ws["B45"] = (
@@ -670,7 +670,7 @@ class offer_flow:
                     ws["B46"] = (
                         "TERMINOS DE PAGO:\n"
                         "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emision de factura."
+                        "Transferencia Bancaria: 60 días desde emisión de factura."
                     )
                 elif pay_term == "50_50":
                     ws["B45"] = (
@@ -1194,7 +1194,7 @@ class offer_short_flow_spanish:
                     ws["B30"] = (
                         "TERMINOS DE PAGO:\n"
                         "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emision de factura."
+                        "Transferencia Bancaria: 60 días desde emisión de factura."
                     )
                 elif pay_term == "50_50":
                     ws["B30"] = (
@@ -1366,7 +1366,7 @@ class offer_short_flow_spanish:
                     ws["B30"] = (
                         "TERMINOS DE PAGO:\n"
                         "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emision de factura."
+                        "Transferencia Bancaria: 60 días desde emisión de factura."
                     )
                 elif pay_term == "50_50":
                     ws["B30"] = (
@@ -1909,7 +1909,7 @@ class offer_short_flow_english:
                     ws["B46"] = (
                         "TERMINOS DE PAGO:\n"
                         "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emision de factura."
+                        "Transferencia Bancaria: 60 días desde emisión de factura."
                     )
                 elif pay_term == "50_50":
                     ws["B45"] = (
@@ -2124,7 +2124,7 @@ class offer_short_flow_english:
                     ws["B46"] = (
                         "TERMINOS DE PAGO:\n"
                         "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emision de factura."
+                        "Transferencia Bancaria: 60 días desde emisión de factura."
                     )
                 elif pay_term == "50_50":
                     ws["B45"] = (
@@ -2727,7 +2727,7 @@ class offer_temp:
                     ws["B46"] = (
                         "TERMINOS DE PAGO:\n"
                         "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emision de factura."
+                        "Transferencia Bancaria: 60 días desde emisión de factura."
                     )
                 elif pay_term == "50_50":
                     ws["B45"] = (
@@ -2944,7 +2944,7 @@ class offer_temp:
                     ws["B46"] = (
                         "TERMINOS DE PAGO:\n"
                         "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emision de factura."
+                        "Transferencia Bancaria: 60 días desde emisión de factura."
                     )
                 elif pay_term == "50_50":
                     ws["B45"] = (
@@ -3507,7 +3507,7 @@ class offer_short_temp_spanish:
                     ws["B35"] = (
                         "TERMINOS DE PAGO:\n"
                         "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emision de factura."
+                        "Transferencia Bancaria: 60 días desde emisión de factura."
                     )
                 elif pay_term == "50_50":
                     ws["B35"] = (
@@ -3683,7 +3683,7 @@ class offer_short_temp_spanish:
                     ws["B35"] = (
                         "TERMINOS DE PAGO:\n"
                         "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emision de factura."
+                        "Transferencia Bancaria: 60 días desde emisión de factura."
                     )
                 elif pay_term == "50_50":
                     ws["B35"] = (
@@ -4265,7 +4265,7 @@ class offer_short_temp_english:
                     ws["B49"] = (
                         "TERMINOS DE PAGO:\n"
                         "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emision de factura."
+                        "Transferencia Bancaria: 60 días desde emisión de factura."
                     )
                 elif pay_term == "50_50":
                     ws["B48"] = (
@@ -4482,7 +4482,7 @@ class offer_short_temp_english:
                     ws["B49"] = (
                         "TERMINOS DE PAGO:\n"
                         "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emision de factura."
+                        "Transferencia Bancaria: 60 días desde emisión de factura."
                     )
                 elif pay_term == "50_50":
                     ws["B48"] = (
@@ -4937,7 +4937,7 @@ class offer_level:
                     ws["B43"] = (
                         "TERMINOS DE PAGO:\n"
                         "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emision de factura."
+                        "Transferencia Bancaria: 60 días desde emisión de factura."
                     )
                 elif pay_term == "50_50":
                     ws["B42"] = (
@@ -5130,7 +5130,7 @@ class offer_level:
                     ws["B43"] = (
                         "TERMINOS DE PAGO:\n"
                         "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emision de factura."
+                        "Transferencia Bancaria: 60 días desde emisión de factura."
                     )
                 elif pay_term == "50_50":
                     ws["B42"] = (
@@ -5555,7 +5555,7 @@ class offer_short_level_spanish:
                     ws["B29"] = (
                         "TERMINOS DE PAGO:\n"
                         "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emision de factura."
+                        "Transferencia Bancaria: 60 días desde emisión de factura."
                     )
                 elif pay_term == "50_50":
                     ws["B29"] = (
@@ -5707,7 +5707,7 @@ class offer_short_level_spanish:
                     ws["B29"] = (
                         "TERMINOS DE PAGO:\n"
                         "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emision de factura."
+                        "Transferencia Bancaria: 60 días desde emisión de factura."
                     )
                 elif pay_term == "50_50":
                     ws["B29"] = (
@@ -6151,7 +6151,7 @@ class offer_short_level_english:
                     ws["B42"] = (
                         "TERMINOS DE PAGO:\n"
                         "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emision de factura."
+                        "Transferencia Bancaria: 60 días desde emisión de factura."
                     )
                 elif pay_term == "50_50":
                     ws["B41"] = (
@@ -6344,7 +6344,7 @@ class offer_short_level_english:
                     ws["B42"] = (
                         "TERMINOS DE PAGO:\n"
                         "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emision de factura."
+                        "Transferencia Bancaria: 60 días desde emisión de factura."
                     )
                 elif pay_term == "50_50":
                     ws["B41"] = (
