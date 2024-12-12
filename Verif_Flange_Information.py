@@ -696,35 +696,35 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         self.Standard_Flange.setFont(font)
         self.Standard_Flange.setObjectName("Standard_Flange")
         self.gridLayout_2.addWidget(self.Standard_Flange, 3, 0, 1, 1)
-        self.Size_Flange = QtWidgets.QComboBox(parent=self.frame)
+        self.Size_Flange = QtWidgets.QLineEdit(parent=self.frame)
         self.Size_Flange.setMinimumSize(QtCore.QSize(100, 30))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Size_Flange.setFont(font)
         self.Size_Flange.setObjectName("Size_Flange")
         self.gridLayout_2.addWidget(self.Size_Flange, 3, 1, 1, 1)
-        self.Rating_Flange = QtWidgets.QComboBox(parent=self.frame)
+        self.Rating_Flange = QtWidgets.QLineEdit(parent=self.frame)
         self.Rating_Flange.setMinimumSize(QtCore.QSize(100, 30))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Rating_Flange.setFont(font)
         self.Rating_Flange.setObjectName("Rating_Flange")
         self.gridLayout_2.addWidget(self.Rating_Flange, 3, 2, 1, 1)
-        self.Facing_Flange = QtWidgets.QComboBox(parent=self.frame)
+        self.Facing_Flange = QtWidgets.QLineEdit(parent=self.frame)
         self.Facing_Flange.setMinimumSize(QtCore.QSize(100, 30))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Facing_Flange.setFont(font)
         self.Facing_Flange.setObjectName("Facing_Flange")
         self.gridLayout_2.addWidget(self.Facing_Flange, 3, 3, 1, 1)
-        self.Schedule_Flange = QtWidgets.QComboBox(parent=self.frame)
+        self.Schedule_Flange = QtWidgets.QLineEdit(parent=self.frame)
         self.Schedule_Flange.setMinimumSize(QtCore.QSize(100, 30))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.Schedule_Flange.setFont(font)
         self.Schedule_Flange.setObjectName("Schedule_Flange")
         self.gridLayout_2.addWidget(self.Schedule_Flange, 3, 4, 1, 1)
-        self.PlateThk_Flange = QtWidgets.QComboBox(parent=self.frame)
+        self.PlateThk_Flange = QtWidgets.QLineEdit(parent=self.frame)
         self.PlateThk_Flange.setMinimumSize(QtCore.QSize(100, 30))
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -837,7 +837,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         """
         self.tableInformation.setRowCount(0)
 
-        code_flange = self.Standard_Flange.currentText() + "-" + self.Size_Flange.currentText() + "-" + self.Rating_Flange.currentText()
+        code_flange = self.Standard_Flange.currentText() + "-" + self.Size_Flange.text() + "-" + self.Rating_Flange.text()
         query_flange_rf_data = ("""SELECT dim_o, dim_tf, dim_w, dim_lrf, num_tal, dim_h, dim_rf, dim_ah, dim_x,
                                 REPLACE(TO_CHAR(
                                 (REPLACE(dim_h, ',', '.')::numeric + REPLACE(dim_y, ',', '.')::numeric), 
@@ -859,21 +859,21 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            if self.Facing_Flange.currentText() == 'RF':
+            if self.Facing_Flange.text() == 'RF':
                 cur.execute(query_flange_rf_data, (code_flange,))
                 results_flange=cur.fetchall()
                 columns = ["ØInt","ØO", "Tf", "ØW", "ØL", "Nº Tal", "H", "ØRF", "ØAh", "ØX", "J", "Torn."]
-            elif self.Facing_Flange.currentText() == 'RTJ':
+            elif self.Facing_Flange.text() == 'RTJ':
                 cur.execute(query_flange_rtj_data, (code_flange,))
                 results_flange=cur.fetchall()
                 columns = ["ØInt","ØO", "Tf", "ØW", "ØL", "Nº Tal", "ØP", "E", "F", "Økmin", "ØRF", "ØAh", "ØX", "J", "Torn."]
             else:
                 results_flange = None
 
-            cur.execute(query_pipe_diam, (self.Size_Flange.currentText(), self.Schedule_Flange.currentText(),))
+            cur.execute(query_pipe_diam, (self.Size_Flange.text(), self.Schedule_Flange.text(),))
             results_pipe_diam=cur.fetchall()
 
-            cur.execute(query_bolts, (self.Size_Flange.currentText() + " " + self.Rating_Flange.currentText() + " " + self.Facing_Flange.currentText() + " " + self.PlateThk_Flange.currentText() + " SQE",))
+            cur.execute(query_bolts, (self.Size_Flange.text() + " " + self.Rating_Flange.text() + " " + self.Facing_Flange.text() + " " + self.PlateThk_Flange.text() + " SQE",))
             results_torn=cur.fetchall()
 
             if len(results_flange) != 0 and results_flange is not None:
@@ -920,9 +920,9 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
                 self.tableInformation.setSortingEnabled(False)
                 self.adjust_table()
 
-                if self.Facing_Flange.currentText() == 'RF':
+                if self.Facing_Flange.text() == 'RF':
                     self.image_path = r'\\nas01\DATOS\Comunes\EIPSA-ERP\Resources\Plantillas planos\BRIDA RF VERIFICACION.png'
-                elif self.Facing_Flange.currentText() == 'RTJ':
+                elif self.Facing_Flange.text() == 'RTJ':
                     self.image_path = r'\\nas01\DATOS\Comunes\EIPSA-ERP\Resources\Plantillas planos\BRIDA RTJ VERIFICACION.png'
                 else:
                     self.image_path = None
@@ -1050,11 +1050,11 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
                 conn.close()
 
         self.Standard_Flange.addItems(['', 'B16.36','B16.47 SeriesA','B16.47 SeriesB','B16.5'])
-        self.Size_Flange.addItems([""] + [x[0] for x in results_size])
-        self.Rating_Flange.addItems([""] + [x[0] for x in results_rating])
-        self.Facing_Flange.addItems([""] + [x[0] for x in results_facing])
-        self.Schedule_Flange.addItems([""] + [x[0] for x in results_schedule])
-        self.PlateThk_Flange.addItems([""] + [x[0] for x in results_thk])
+        # self.Size_Flange.addItems([""] + [x[0] for x in results_size])
+        # self.Rating_Flange.addItems([""] + [x[0] for x in results_rating])
+        # self.Facing_Flange.addItems([""] + [x[0] for x in results_facing])
+        # self.Schedule_Flange.addItems([""] + [x[0] for x in results_schedule])
+        # self.PlateThk_Flange.addItems([""] + [x[0] for x in results_thk])
 
 # Function to correct image orientation
     def correct_image_orientation(self,image_path):
@@ -1092,7 +1092,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         Generates a PDF datasheet for the flange with details and revisions.
         Opens the generated PDF in the viewer.
         """
-        code_flange = self.Standard_Flange.currentText() + "-" + self.Size_Flange.currentText() + "-" + self.Rating_Flange.currentText()
+        code_flange = self.Standard_Flange.currentText() + "-" + self.Size_Flange.text() + "-" + self.Rating_Flange.text()
         query_flange_rf_data = ("""SELECT dim_o, dim_tf, dim_w, dim_lrf, num_tal, dim_h, dim_rf, dim_ah, dim_x,
                                 REPLACE(TO_CHAR(
                                 (REPLACE(dim_h, ',', '.')::numeric + REPLACE(dim_y, ',', '.')::numeric), 
@@ -1113,14 +1113,14 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            if self.Facing_Flange.currentText() == 'RF':
+            if self.Facing_Flange.text() == 'RF':
                 cur.execute(query_flange_rf_data, (code_flange,))
                 results_flange=cur.fetchall()
-            elif self.Facing_Flange.currentText() == 'RTJ':
+            elif self.Facing_Flange.text() == 'RTJ':
                 cur.execute(query_flange_rtj_data, (code_flange,))
                 results_flange=cur.fetchall()
             
-            cur.execute(query_pipe_diam, (self.Size_Flange.currentText(), self.Schedule_Flange.currentText(),))
+            cur.execute(query_pipe_diam, (self.Size_Flange.text(), self.Schedule_Flange.text(),))
             results_pipe_diam=cur.fetchall()
 
             # cur.execute(query_flange_revision, (self.flange_id,))
@@ -1181,15 +1181,15 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
             pdf.ln()
 
             pdf.set_font('Helvetica', 'B', 16)
-            pdf.cell(4.5, 1, self.Size_Flange.currentText(), border='LB', align='C')
-            pdf.cell(3.5, 1, str(self.Rating_Flange.currentText()) + "#", border='LB', align='C')
-            pdf.cell(1.5, 1, self.Facing_Flange.currentText(), border='LB', align='C')
+            pdf.cell(4.5, 1, self.Size_Flange.text(), border='LB', align='C')
+            pdf.cell(3.5, 1, str(self.Rating_Flange.text()) + "#", border='LB', align='C')
+            pdf.cell(1.5, 1, self.Facing_Flange.text(), border='LB', align='C')
             pdf.cell(2.5, 1, "WN", border='LB', align='C')
-            pdf.cell(3, 1, self.Schedule_Flange.currentText(), border='LB', align='C')
+            pdf.cell(3, 1, self.Schedule_Flange.text(), border='LB', align='C')
             pdf.cell(3, 1, "", border='LBR', align='C')
             pdf.ln()
 
-            if self.Facing_Flange.currentText() == 'RF':
+            if self.Facing_Flange.text() == 'RF':
                 pdf.set_font('Helvetica', 'B', 9)
                 pdf.cell(1.7, 0.5, "ØInt", border=1, align='C', fill=True)
                 pdf.cell(1.63, 0.5, "ØO", border=1, align='C', fill=True)
@@ -1218,21 +1218,21 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
                 pdf.cell(1.63, 0.5, str(results_flange[0][9]), border=1, align='C')
                 pdf.ln(1)
 
-                for i in range(20):
-                    pdf.cell(1.7, 0.5, "", border=1)
-                    pdf.cell(1.63, 0.5, "", border=1)
-                    pdf.cell(1.63, 0.5, "", border=1)
-                    pdf.cell(1.63, 0.5, "", border=1)
-                    pdf.cell(1.63, 0.5, "", border=1)
-                    pdf.cell(1.63, 0.5, "", border=1)
-                    pdf.cell(1.63, 0.5, "", border=1)
-                    pdf.cell(1.63, 0.5, "", border=1)
-                    pdf.cell(1.63, 0.5, "", border=1)
-                    pdf.cell(1.63, 0.5, "", border=1)
-                    pdf.cell(1.63, 0.5, "", border=1)
+                for i in range(13):
+                    pdf.cell(1.7, 0.75, "", border=1)
+                    pdf.cell(1.63, 0.75, "", border=1)
+                    pdf.cell(1.63, 0.75, "", border=1)
+                    pdf.cell(1.63, 0.75, "", border=1)
+                    pdf.cell(1.63, 0.75, "", border=1)
+                    pdf.cell(1.63, 0.75, "", border=1)
+                    pdf.cell(1.63, 0.75, "", border=1)
+                    pdf.cell(1.63, 0.75, "", border=1)
+                    pdf.cell(1.63, 0.75, "", border=1)
+                    pdf.cell(1.63, 0.75, "", border=1)
+                    pdf.cell(1.63, 0.75, "", border=1)
                     pdf.ln()
 
-            elif self.Facing_Flange.currentText() == 'RTJ':
+            elif self.Facing_Flange.text() == 'RTJ':
                 pdf.set_font('Helvetica', 'B', 9)
                 pdf.cell(1.44, 0.5, "ØInt", border=1, align='C', fill=True)
                 pdf.cell(1.38, 0.5, "ØO", border=1, align='C', fill=True)
@@ -1265,20 +1265,20 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
                 pdf.cell(1.38, 0.5, str(results_flange[0][11]), border=1, align='C')
                 pdf.ln(1)
 
-                for i in range(20):
-                    pdf.cell(1.44, 0.5, "", border=1)
-                    pdf.cell(1.38, 0.5, "", border=1)
-                    pdf.cell(1.38, 0.5, "", border=1)
-                    pdf.cell(1.38, 0.5, "", border=1)
-                    pdf.cell(1.38, 0.5, "", border=1)
-                    pdf.cell(1.38, 0.5, "", border=1)
-                    pdf.cell(1.38, 0.5, "", border=1)
-                    pdf.cell(1.38, 0.5, "", border=1)
-                    pdf.cell(1.38, 0.5, "", border=1)
-                    pdf.cell(1.38, 0.5, "", border=1)
-                    pdf.cell(1.38, 0.5, "", border=1)
-                    pdf.cell(1.38, 0.5, "", border=1)
-                    pdf.cell(1.38, 0.5, "", border=1)
+                for i in range(13):
+                    pdf.cell(1.44, 0.75, "", border=1)
+                    pdf.cell(1.38, 0.75, "", border=1)
+                    pdf.cell(1.38, 0.75, "", border=1)
+                    pdf.cell(1.38, 0.75, "", border=1)
+                    pdf.cell(1.38, 0.75, "", border=1)
+                    pdf.cell(1.38, 0.75, "", border=1)
+                    pdf.cell(1.38, 0.75, "", border=1)
+                    pdf.cell(1.38, 0.75, "", border=1)
+                    pdf.cell(1.38, 0.75, "", border=1)
+                    pdf.cell(1.38, 0.75, "", border=1)
+                    pdf.cell(1.38, 0.75, "", border=1)
+                    pdf.cell(1.38, 0.75, "", border=1)
+                    pdf.cell(1.38, 0.75, "", border=1)
                     pdf.ln()
 
             pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/QualityControlStamp.png")), 14, 26, 5, 3)
