@@ -375,11 +375,6 @@ class Ui_OrderAccept_Window(object):
                         FROM orders
                         WHERE "num_order" = %s
                         """)
-            commands_checkprojects = ("""
-                        SELECT * 
-                        FROM offers
-                        WHERE "client" = %s and "state" = 'Adjudicada'
-                        """)
             conn = None
             try:
             # read the connection parameters
@@ -498,8 +493,8 @@ class Ui_OrderAccept_Window(object):
                     payment_term_english = "50% of the total amount of purchase order upon receipt of purchase order. Remaining 50% before be delivered according to Incoterms 2020"
                     payment_term_spanish = "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020"
                 elif payment_term_db == "Others" or payment_term_db == None:
-                        payment_term_english = "PAYMENT TERMS TO BE DEFINED"
-                        payment_term_spanish = "TERMINOS DE PAGO POR DEFINIR"
+                    payment_term_english = "PAYMENT TERMS TO BE DEFINED"
+                    payment_term_spanish = "TERMINOS DE PAGO POR DEFINIR"
 
                 english_estimated_date = self.format_date_english(expected_date)
                 spanish_estimated_date = self.format_date_spanish(expected_date)
@@ -564,13 +559,6 @@ class Ui_OrderAccept_Window(object):
                     dlg.exec()
                     del dlg, new_icon
 
-                    self.numorder_orderaccept.setText("")
-                    self.address_orderaccept.setText("")
-                    self.zipcode_orderaccept.setText("")
-                    self.city_orderaccept.setText("")
-                    self.country_orderaccept.setText("")
-                    self.responsible_client_orderaccept.setText("")
-
                 elif self.shortformat.isChecked() == True:
                     doc = DocxTemplate(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Corto Pedido.docx")
                     context = {'client': client,
@@ -600,13 +588,6 @@ class Ui_OrderAccept_Window(object):
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
                     dlg.exec()
                     del dlg, new_icon
-
-                    self.numorder_orderaccept.setText("")
-                    self.address_orderaccept.setText("")
-                    self.zipcode_orderaccept.setText("")
-                    self.city_orderaccept.setText("")
-                    self.country_orderaccept.setText("")
-                    self.responsible_client_orderaccept.setText("")
 
                 else:
                     dlg = QtWidgets.QMessageBox()
