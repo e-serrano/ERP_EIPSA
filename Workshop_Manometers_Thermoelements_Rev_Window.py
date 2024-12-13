@@ -1407,11 +1407,11 @@ class Ui_Workshop_Manometers_Thermoelements_Rev_Window(QtWidgets.QMainWindow):
 # Function to add a new line
     def add_new(self):
         """
-        Inserts a new empty entry into the equipments_workshop_revisions table.
+        Inserts a new empty entry into the manometers_thermoelements_workshop_revisions table.
         Commits the changes to the database and handles any errors.
         """
         commands_new=("""
-                        INSERT INTO verification.equipments_workshop_revisions (equipment_id)
+                        INSERT INTO verification.manometers_thermoelements_workshop_revisions (equipment_id)
                         VALUES(%s)
                         """)
         conn = None

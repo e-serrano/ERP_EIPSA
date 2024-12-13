@@ -904,7 +904,7 @@ class Ui_Workshop_Gas_Flowmeters_Rev_Window(QtWidgets.QMainWindow):
         self.tableRevisions.setSortingEnabled(False)
 
     # Change all column names
-        headers_names = ["", "", "Lectura Equipo", "Lectura Patrón", "Patrón Corr", "Patrón Corr. (unidad)", "Corr. Calculada"]
+        headers_names = ["", "", "Lectura Patrón", "Lectura Equipo", "Desviación"]
 
         self.model.setAllColumnHeaders(headers_names)
 
@@ -1407,11 +1407,11 @@ class Ui_Workshop_Gas_Flowmeters_Rev_Window(QtWidgets.QMainWindow):
 # Function to add a new line
     def add_new(self):
         """
-        Inserts a new empty entry into the equipments_workshop_revisions table.
+        Inserts a new empty entry into the gas_flowmeters_workshop_revisions table.
         Commits the changes to the database and handles any errors.
         """
         commands_new=("""
-                        INSERT INTO verification.equipments_workshop_revisions (equipment_id)
+                        INSERT INTO verification.gas_flowmeters_workshop_revisions (equipment_id)
                         VALUES(%s)
                         """)
         conn = None
