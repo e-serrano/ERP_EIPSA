@@ -1199,8 +1199,79 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_DB_Manuf.clicked.connect(self.dbmanufedit)
             self.Button_OT.clicked.connect(self.otorder)
             self.HeaderOT_scp.editingFinished.connect(self.save_otscp)
-
+        elif username in ["j.paredes"]:
+            self.Button_Purchases = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Purchases.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Purchases.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_Purchases.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Purchases.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_Purchases.setText("")
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Purchasing.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Purchases.setIcon(icon2)
+            self.Button_Purchases.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Purchases.setObjectName("Button_Purchases")
+            self.Button_Purchases.setToolTip("Compras")
+            self.Header.addWidget(self.Button_Purchases)
+            self.Button_Purchases.clicked.connect(self.purchase)
         elif username in ["j.valtierra"]:
+            self.Button_Purchases = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Purchases.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Purchases.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_Purchases.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Purchases.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_Purchases.setText("")
+            icon2 = QtGui.QIcon()
+            icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Purchasing.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Purchases.setIcon(icon2)
+            self.Button_Purchases.setIconSize(QtCore.QSize(40, 40))
+            self.Button_Purchases.setObjectName("Button_Purchases")
+            self.Button_Purchases.setToolTip("Compras")
+            self.Header.addWidget(self.Button_Purchases)
+            spacerItem14 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem14)
             self.Button_Deliveries = QtWidgets.QPushButton(parent=self.frame)
             self.Button_Deliveries.setMinimumSize(QtCore.QSize(50, 50))
             self.Button_Deliveries.setMaximumSize(QtCore.QSize(50, 50))
@@ -1381,6 +1452,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_Nuclear.setIconSize(QtCore.QSize(40, 40))
             self.Button_Nuclear.setObjectName("Button_Nuclear")
             self.Header.addWidget(self.Button_Nuclear)
+            self.Button_Purchases.clicked.connect(self.purchase)
             self.Button_Deliveries.clicked.connect(self.deliveries)
             self.Button_OT.clicked.connect(self.otorder)
             self.Button_TestMenu.clicked.connect(self.insert_test)
@@ -2457,6 +2529,20 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         ot_number = self.HeaderOT_scp.text()
         with open(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Resources\scpwin_ot.txt", "wb") as ot_file:
             ot_file.write(ot_number.encode('utf-8'))
+
+# Function to open menu with purchase department functions
+    def purchase(self):
+        """
+        Opens a new window for open purchase menu. 
+        """
+        from Purchasing_Menu import Ui_Purchasing_Menu
+        self.purchasing_window=QtWidgets.QMainWindow()
+        self.ui=Ui_Purchasing_Menu(self.name, self.username)
+        self.ui.setupUi(self.purchasing_window)
+        self.purchasing_window.show()
+
+
+
 
 
 if __name__ == "__main__":
