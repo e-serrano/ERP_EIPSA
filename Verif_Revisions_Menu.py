@@ -37,8 +37,8 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
             Verif_Revisions_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
         """
         Verif_Revisions_Menu.setObjectName("Verif_Revisions_Menu")
-        Verif_Revisions_Menu.setMinimumSize(QtCore.QSize(400, 650))
-        Verif_Revisions_Menu.setMaximumSize(QtCore.QSize(400, 650))
+        Verif_Revisions_Menu.setMinimumSize(QtCore.QSize(400, 750))
+        Verif_Revisions_Menu.setMaximumSize(QtCore.QSize(400, 750))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Verif_Revisions_Menu.setWindowIcon(icon)
@@ -150,6 +150,18 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.Button_Tools.setObjectName("Button_Tools")
         self.Button_Tools.setText("Herramientas")
         self.verticalLayout_3.addWidget(self.Button_Tools)
+
+        self.Button_GasMeters = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_GasMeters.setMinimumSize(QtCore.QSize(200, 50))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.Button_GasMeters.setFont(font)
+        self.Button_GasMeters.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_GasMeters.setObjectName("Button_GasMeters")
+        self.Button_GasMeters.setText("Med. Caudal Gas (RCG-001)")
+        self.verticalLayout_3.addWidget(self.Button_GasMeters)
+
         self.Button_Calibers = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Calibers.setMinimumSize(QtCore.QSize(200, 50))
         font = QtGui.QFont()
@@ -386,6 +398,27 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
 
         self.manometers_thermoelements_window = Ui_Workshop_Manometers_Thermoelements_Window(db_manometers_thermoelements, self.username)
         self.manometers_thermoelements_window.showMaximized()
+
+# Function to open window with gas flowmetes
+    def gas_flowmeters(self):
+        """
+        Opens the "Workshop Gas_Flowmeters" window, establishes a database connection.
+        """
+        from Workshop_Gas_Flowmeters_Window import Ui_Workshop_Gas_Flowmeters_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_gas_flowmeter = createConnection(user_database, password_database)
+        if not db_gas_flowmeter:
+            sys.exit()
+
+        self.gas_flowmeter_window = Ui_Workshop_Gas_Flowmeters_Window(db_gas_flowmeter, self.username)
+        self.gas_flowmeter_window.showMaximized()
+
 
 
 
