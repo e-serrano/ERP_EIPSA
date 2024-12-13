@@ -274,11 +274,13 @@ class CustomPDF(FPDF):
 
     This class provides additional functionalities for creating PDF documents,
     specifically for managing multi-line text with fixed height.
-
-    Methods:
-        fixed_height_multicell(w, total_h, txt, align_mc, border='LR', fill=False):
-            Outputs text in a multi-cell format with a fixed total height.
     """
+
+    def __init__(self, master, certificate):
+        super().__init__('P', 'cm', 'A4')
+        self.master = master
+        self.certificate = certificate
+
     def fixed_height_multicell(self, w, total_h, txt, align_mc, border='LRB', fill=False):
         """
         Creates a multi-line cell with a fixed total height, dividing text into lines.
@@ -312,6 +314,34 @@ class CustomPDF(FPDF):
             self.set_x(x)
 
         self.set_xy(x, y + total_h)
+
+    def header(self):
+        """
+        Creates the header
+        """
+        self.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eipsa Logo Blanco.png")), 0.8, 0, 9.9, 3)
+        self.set_font('Helvetica', '', 9)
+        self.set_xy(13.5, 1)
+        self.multi_cell(6, 0.5, "CALIBRACIÓN INTERNA PARA MEDIDORES DE CAUDAL DE GAS", align='R')
+        self.ln()
+        self.multi_cell(17, 0.5, 'Rango de Gas verificado por comparación según la instrucción CEM-I-001 E-2 y el patrón "' + self.master + '" con certificado ENAC: ' + self.certificate)
+        self.ln(0.5)
+
+    def footer(self):
+        """
+        Creates the footer
+        """
+        self.set_xy(1.5,-1.5)
+        self.set_font('Helvetica', '', 9)
+        self.cell(1.5, 0.5, 'RCG-001')
+        self.cell(11.5, 0.5, '')
+        self.cell(5, 0.5, 'Fecha: ' + date.today().strftime("%d/%m/%y"), align='R')
+        self.ln()
+        self.set_font('Helvetica', 'B', 9)
+        self.cell(1.5, 0.5, '')
+        self.cell(11.5, 0.5, '')
+        self.cell(5, 0.5, 'Departamento de Calidad', align='R')
+
 
 class Ui_Workshop_Gas_Flowmeters_Window(QtWidgets.QMainWindow):
     """
@@ -1395,79 +1425,153 @@ class Ui_Workshop_Gas_Flowmeters_Window(QtWidgets.QMainWindow):
         Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
         """
 
-        pdf = CustomPDF('P', 'cm', 'A4')
+        master_name = dataframe.iloc[0,5]
 
-        # pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-        # pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+        commands_master=("""
+                        SELECT certificate_1 FROM verification.calibrated_masters
+                        WHERE number_item = %s
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of principal command
+            data=(master_name,)
+            cur.execute(commands_master, data)
+            results = cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
 
-        # pdf.set_auto_page_break(auto=True)
-        # pdf.set_margins(1.5, 1.5)
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
 
-        # pdf.add_page()
-
-        # pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eipsa Logo Blanco.png")), 0, 0, 10, 2)
-        # pdf.ln()
-        # pdf.set_font('Helvetica', 'B', 18)
-        # pdf.multi_cell(18, 1, "RELACION EQUIPOS CALIBRADOS MEDIANTE COMPROBACION CON PATRONES E.I.P.S.A.", align='C')
-        # pdf.ln(0)
-        # pdf.cell(18, 0.5, "")
-        # pdf.ln()
-        # y_position = pdf.get_y()
-        # pdf.set_font('Helvetica', '', 8)
-        # pdf.cell(2, 1, "NUMERO", border=1, align='C')
-        # pdf.cell(6, 1, "INSTRUMENTO", border=1, align='C')
-        # pdf.cell(1.5, 1, "ESCALA", border=1, align='L')
-        # pdf.cell(2, 1, "RANGO", border=1, align='L')
-        # pdf.multi_cell(2.5, 0.5, "FECHA ULTIMA CALIB.", border=1, align='L')
-        # pdf.set_xy(pdf.get_x(), y_position)
-        # pdf.multi_cell(2.5, 0.5, "FECHA PROXIMA CALIB.", border=1, align='L')
-        # pdf.set_xy(pdf.get_x(), y_position)
-        # pdf.cell(1.5, 1, "NOTAS", border=1, align='L')
-        # pdf.ln(1)
-
-        # for i in range(dataframe.shape[0]):
-        #     y_position = pdf.get_y()
-        #     pdf.set_font('DejaVuSansCondensed', '', 8)
-        #     pdf.cell(2, 0.5, str(dataframe.iloc[i, 1]), border=1, align='L')
-        #     pdf.cell(6, 0.5, str(dataframe.iloc[i, 2]), border=1, align='L')
-        #     pdf.cell(1.5, 0.5, str(dataframe.iloc[i, 4]), border=1, align='L')
-        #     pdf.cell(2, 0.5, str(dataframe.iloc[i, 5]), border=1, align='L')
-        #     pdf.cell(2.5, 0.5, str(dataframe.iloc[i, 9]), border=1, align='R')
-        #     pdf.cell(2.5, 0.5, str(dataframe.iloc[i, 10]), border=1, align='R')
-        #     pdf.cell(1.5, 0.5, "NOTA 1" if "INSTRUMENTO" in str(dataframe.iloc[i, 12]) else '', border=1, align='L')
-        #     pdf.ln()
-
-        # pdf.cell(2, 1, "NOTA 1: ", border=1, align='L')
-        # pdf.multi_cell(16, 0.5, "ESTE INSTRUMENTO SE COMPARA CON LA LECTURA DIGITAL DEL MULTÍMETRO CADA VEZ QUE SE EFECTÚA LA CALIBRACIÓN CON REGISTRO GRÁFICO", border=1, align='L')
+        certificate = results[0][0].split("\\")[-1].split(" ")[0]
         
-        # pdf.set_y(27.5)
-        # pdf.cell(3, 0.5, '')
-        # pdf.ln()
-        # pdf.cell(3, 0.5, '')
-        # pdf.set_font('Helvetica', '', 9)
-        # pdf.cell(11, 0.5, 'CALIBRACIÓN REALIZADA POR: MARIO GIL (Operator)')
-        # pdf.set_font('Helvetica', 'B', 9)
-        # pdf.cell(4, 0.5, 'CONTROL DE CALIDAD', align='C')
-        # pdf.ln()
-        # pdf.cell(3, 0.5, 'RIC-001', align='C', border=1)
-        # pdf.set_font('Helvetica', '', 9)
-        # pdf.cell(11, 0.5, 'CALIBRACIÓN SUPERVISADA POR JESÚS MARTÍNEZ (Supervisor)')
-        # pdf.cell(4, 0.5, 'QUALITY-CONTROL', align='C')
+        pdf = CustomPDF(master_name, certificate)
 
-        # pdf.set_font('Helvetica', '', 8)
-        # pdf.cell(12, 0.5, "")
-        # pdf.cell(6, 0.5, str(datetime.today().strftime('%d/%m/%Y')), align='C')
-        # pdf.ln()
+        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
 
-        # pdf_buffer = pdf.output()
+        pdf.set_auto_page_break(auto=True)
+        pdf.set_margins(1.5, 1.5)
 
-        # temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "CERT.pdf"))))
+        pdf.set_fill_color(191,191,191)
 
-        # with open(temp_file_path, "wb") as temp_file:
-        #     temp_file.write(pdf_buffer)
+        pdf.add_page()
 
-        # self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
-        # self.pdf_viewer.showMaximized()
+        pdf.set_font('Helvetica', 'B', 15)
+        pdf.cell(18, 1, "MEDIDORES DE CAUDAL DE GAS", border=1, align='C')
+        pdf.ln()
+
+        y_position = pdf.get_y()
+        pdf.set_font('Helvetica', 'B', 9)
+        pdf.cell(2.5, 1, "EQUIPO", border=1, fill=True)
+        pdf.cell(7.5, 1, "SITUACIÓN", border=1, fill=True)
+        pdf.cell(3, 1, "MARCA", border=1, fill=True)
+        pdf.multi_cell(2.5, 0.5, "FECHA CALIBRACIÓN", border=1, fill=True)
+        pdf.set_xy(17, y_position)
+        pdf.multi_cell(2.5, 0.5, "PRÓXIMA CALIBRACIÓN", border=1, fill=True)
+        pdf.ln(0)
+
+        for i in range(dataframe.shape[0]):
+            pdf.set_font('DejaVuSansCondensed', '', 8)
+            pdf.cell(2.5, 0.5, str(dataframe.iloc[i, 1]), border=1, align='L')
+            pdf.cell(7.5, 0.5, str(dataframe.iloc[i, 2]), border=1, align='L')
+            pdf.cell(3, 0.5, str(dataframe.iloc[i, 3]), border=1, align='L')
+            pdf.cell(2.5, 0.5, str(dataframe.iloc[i, 6]), border=1, align='R')
+            pdf.cell(2.5, 0.5, str(dataframe.iloc[i, 7]), border=1, align='R')
+            pdf.ln()
+
+        pdf.add_page()
+
+        for i in range(dataframe.shape[0]):
+            pdf.set_font('DejaVuSansCondensed-Bold', '', 8)
+            pdf.cell(3, 0.5, 'EQUIPO', border=1, align='C',fill=True)
+            pdf.cell(3, 0.5, str(dataframe.iloc[i, 1]), border=1, align='C')
+            pdf.ln()
+            pdf.cell(6, 0.5, 'Patrón (' + str(dataframe.iloc[i, 5]) + ')', border=1, align='C',fill=True)
+            pdf.cell(6, 0.5, 'Lectura Directa', border=1, align='C',fill=True)
+            pdf.cell(6, 0.5, 'Desviación', border=1, align='C',fill=True)
+            pdf.ln()
+            pdf.set_font('DejaVuSansCondensed', '', 8)
+
+            commands_rev=("""
+                        SELECT * FROM verification.gas_flowmeters_workshop_revisions
+                        WHERE equipment_id = %s
+                        """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of principal command
+                data=(dataframe.iloc[i, 0],)
+                cur.execute(commands_rev, data)
+                results = cur.fetchall()
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
+
+            for element in results:
+                pdf.cell(3, 0.5, str(element[2]), border=1, align='R')
+                pdf.cell(3, 0.5, str(dataframe.iloc[i, 4]), border=1, align='L')
+                pdf.cell(3, 0.5, str(element[3]), border=1, align='R')
+                pdf.cell(3, 0.5, str(dataframe.iloc[i, 4]), border=1, align='L')
+                pdf.cell(3, 0.5, str(int(element[4])), border=1, align='R')
+                pdf.cell(3, 0.5, str(dataframe.iloc[i, 4]), border=1, align='L')
+                pdf.ln()
+
+            pdf.cell(18, 0.5, '')
+            pdf.ln()
+            y_position = pdf.get_y()
+
+            if y_position > 25:
+                pdf.add_page()
+
+        pdf_buffer = pdf.output()
+
+        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "CERT.pdf"))))
+
+        with open(temp_file_path, "wb") as temp_file:
+            temp_file.write(pdf_buffer)
+
+        self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
+        self.pdf_viewer.showMaximized()
 
 
 
