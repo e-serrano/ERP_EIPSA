@@ -1542,7 +1542,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         # self.tableAssembly.setModel(None)
         self.tableAssembly_P.setModel(self.proxy_P)
 
-        if filterColumn in self.checkbox_filters:
+        if filterColumn in self.checkbox_filters_P:
             del self.checkbox_filters_P[filterColumn]
 
         self.checkbox_states_P[self.logicalIndex].clear()
