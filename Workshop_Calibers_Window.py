@@ -248,7 +248,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
             Qt.ItemFlags: The flags for the specified item.
         """
         flags = super().flags(index)
-        if index.column() in [0,5]:
+        if index.column() in [0,4]:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
