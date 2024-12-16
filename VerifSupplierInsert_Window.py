@@ -11,7 +11,8 @@ from config import config
 import psycopg2
 import os
 from datetime import *
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfilename, askopenfilenames, asksaveasfilename
+import PyPDF2
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -690,8 +691,23 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.frame.setObjectName("frame")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 1)
+        # spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        # self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 1)
+        self.hcab=QtWidgets.QHBoxLayout()
+        self.hcab.setObjectName("hcab")
+        self.toolPDF = QtWidgets.QToolButton(self.frame)
+        self.toolPDF.setObjectName("PDF_Button")
+        self.toolPDF.setToolTip("Imprimir PDF")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolPDF.setIcon(icon)
+        self.toolPDF.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolPDF)
+
+        if self.username in ['m.gil', 'j.tena']:
+            self.toolPDF.setStyleSheet("border: 1px solid white;")
+
+        self.gridLayout_2.addLayout(self.hcab, 0, 0, 1, 1)
         self.tableRecords = CustomTableWidget()
         self.tableRecords.setObjectName("tableWidget")
         self.tableRecords.setColumnCount(8)
@@ -967,6 +983,8 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.retranslateUi(VerifSupplierInsert_Window)
         QtCore.QMetaObject.connectSlotsByName(VerifSupplierInsert_Window)
 
+        self.toolPDF.clicked.connect(self.merge_pdfs)
+        
         self.Button_Cancel.clicked.connect(VerifSupplierInsert_Window.close)
         self.Button_Insert.clicked.connect(self.insert)
         self.Button_Edit.clicked.connect(self.edit)
@@ -1601,6 +1619,54 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.state.setStyleSheet(f"color: rgb({text_color[0]}, {text_color[1]}, {text_color[2]})")
 
 
+    def merge_pdfs(self):
+        files_to_merge = askopenfilenames(title='Selecciona archivos PDF',
+                                            filetypes=[('Archivos PDF', '*.pdf')])
+        if files_to_merge:
+            pdf_merged = asksaveasfilename(defaultextension=".pdf",
+                                                        filetypes=[('Archivos PDF', '*.pdf')],
+                                                        title="Guardar archivo combinado como")
+            if pdf_merged:
+                writer = PyPDF2.PdfWriter()
+                for file in files_to_merge:
+                    with open(file, 'rb') as f:
+                        lector = PyPDF2.PdfReader(f)
+                        for pagina in range(len(lector.pages)):
+                            writer.add_page(lector.pages[pagina])
+                
+                with open(pdf_merged, 'wb') as f_salida:
+                    writer.write(f_salida)
+
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Combinar PDF")
+                dlg.setText(f'Archivos combinados guardados como:\n{pdf_merged}')
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+                del dlg, new_icon
+            else:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Combinar PDF")
+                dlg.setText('Operación cancelada al guardar el archivo.')
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg, new_icon
+
+        else:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Combinar PDF")
+            dlg.setText('No se seleccionaron archivos.')
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
 
 
 if __name__ == "__main__":
