@@ -749,6 +749,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
 
         self.tableInformation=CustomTableWidget()
         self.tableInformation.setObjectName("tableInformation")
+        self.tableInformation.setMinimumSize(QtCore.QSize(250, 16777215))
         self.tableInformation.setMaximumSize(QtCore.QSize(250, 16777215))
         self.tableInformation.setColumnCount(2)
         for i in range(self.tableInformation.columnCount()):
