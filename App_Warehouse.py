@@ -1725,15 +1725,15 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
             num_order (str): The order number used to filter the drawing records.
         """
         if num_order[:2] != 'AL':
-            query_m_dwg = (""" SELECT '', id, num_order, drawing_number, TO_CHAR(printed_date, 'DD/MM/YYYY'), drawing_description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
+            query_m_dwg = (""" SELECT '', id, num_order, drawing_number, printed_date, drawing_description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
                             FROM verification.m_drawing_verification WHERE UPPER(num_order) LIKE UPPER('%%'||%s||'%%')
                             ORDER BY drawing_number""")
 
-            query_of_dwg = ("""SELECT '', id, num_order, drawing_number, TO_CHAR(printed_date, 'DD/MM/YYYY'), drawing_description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
+            query_of_dwg = ("""SELECT '', id, num_order, drawing_number, printed_date, drawing_description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
                             FROM verification.workshop_of_drawings WHERE UPPER(num_order) LIKE UPPER('%%'||%s||'%%')
                             ORDER BY drawing_number""")
             
-            query_dim_dwg = ("""SELECT '', id, num_order, drawing_number, TO_CHAR(printed_date, 'DD/MM/YYYY'), drawing_description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
+            query_dim_dwg = ("""SELECT '', id, num_order, drawing_number, printed_date, drawing_description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
                             FROM verification.workshop_dim_drawings WHERE UPPER(num_order) LIKE UPPER('%%'||%s||'%%')
                             ORDER BY drawing_number""")
             
