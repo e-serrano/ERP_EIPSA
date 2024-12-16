@@ -1234,7 +1234,7 @@ class EditableTableModelDim(QtSql.QSqlTableModel):
         # Flags logic based on user permissions
         flags = super().flags(index)
         if self.username in ['j.sanz', 'j.zofio']:
-            if index.column() >= 7 or index.column() in [0,1,3]:
+            if index.column() >= 7 or index.column() in [0,1]:
                 flags &= ~Qt.ItemFlag.ItemIsEditable
                 return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
             else:
@@ -1454,7 +1454,7 @@ class EditableTableModelOf(QtSql.QSqlTableModel):
         """
         flags = super().flags(index)
         if self.username in ['j.sanz', 'j.zofio']:
-            if index.column() >= 7 or index.column() in [0,1,3]:
+            if index.column() >= 7 or index.column() in [0,1]:
                 flags &= ~Qt.ItemFlag.ItemIsEditable
                 return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
             else:
@@ -1673,7 +1673,7 @@ class EditableTableModelM(QtSql.QSqlTableModel):
         """
         flags = super().flags(index)
         if self.username in ['j.sanz', 'j.zofio']:
-            if index.column() >= 7 or index.column() in [0,1,3]:
+            if index.column() >= 7 or index.column() in [0,1]:
                 flags &= ~Qt.ItemFlag.ItemIsEditable
                 return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
             else:

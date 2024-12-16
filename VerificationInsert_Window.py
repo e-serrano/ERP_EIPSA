@@ -1579,7 +1579,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.num_order_value = self.num_order.text().upper()
 
         query_warehouse = ("""
-                        SELECT id, num_order, drawing_number, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), TO_CHAR(verif_al_drawing_date, 'DD/MM/YYYY'),
+                        SELECT id, num_order, drawing_number, printed_date, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), TO_CHAR(verif_al_drawing_date, 'DD/MM/YYYY'),
                         description, image, document,  warehouse_state, verif_al_drawing_state
                         FROM verification.al_drawing_verification WHERE UPPER(verification.al_drawing_verification."num_order") LIKE UPPER('%%'||%s||'%%')
                         """)
@@ -1594,7 +1594,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             cur.execute(query_warehouse, (self.num_order_value,))
             results=cur.fetchall()
 
-            column_headers = ['ID', 'Nº Pedido', 'Nº Plano', 'Fecha Almacén', 'Fecha Verif.', 'Descripción', 'Foto', 'PDF Plano', 'E_warehouse', 'E_verif']
+            column_headers = ['ID', 'Nº Pedido', 'Nº Plano', 'Fecha Emisión', 'Fecha Almacén', 'Fecha Verif.', 'Descripción', 'Foto', 'PDF Plano', 'E_warehouse', 'E_verif']
 
         # close communication with the PostgreSQL database server
             cur.close()
@@ -1602,12 +1602,12 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             conn.commit()
 
             self.tableTags.setRowCount(len(results))
-            self.tableTags.setColumnCount(10)
+            self.tableTags.setColumnCount(11)
             tablerow=0
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(10):
+                for column in range(11):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -1622,15 +1622,15 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
             self.tableTags.verticalHeader().hide()
             self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
-            self.tableTags.setItemDelegateForColumn(4, AlignDelegate_Custom('E_verif', self.tableTags))
+            self.tableTags.setItemDelegateForColumn(5, AlignDelegate_Custom('E_verif', self.tableTags))
             self.tableTags.setSortingEnabled(False)
             self.tableTags.setHorizontalHeaderLabels(column_headers)
             self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-            self.tableTags.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.ResizeMode.Stretch)
             self.tableTags.horizontalHeader().setSectionResizeMode(8, QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableTags.horizontalHeader().setSectionResizeMode(9, QtWidgets.QHeaderView.ResizeMode.Stretch)
             self.tableTags.hideColumn(0)
-            self.tableTags.hideColumn(8)
             self.tableTags.hideColumn(9)
+            self.tableTags.hideColumn(10)
             self.tableTags.sortByColumn(2, QtCore.Qt.SortOrder.AscendingOrder)
 
         except (Exception, psycopg2.DatabaseError) as error:

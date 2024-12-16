@@ -1872,7 +1872,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                 if conn is not None:
                     conn.close()
         else:
-            query_al_dwg = ("""SELECT '', id, num_order, drawing_number, description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
+            query_al_dwg = ("""SELECT '', id, num_order, drawing_number, printed_date, description, TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs
                             FROM verification.al_drawing_verification WHERE UPPER(num_order) LIKE UPPER('%%'||%s||'%%')
                             ORDER BY drawing_number""")
             
@@ -1887,7 +1887,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                 cur.execute(query_al_dwg, (num_order,))
                 results_al=cur.fetchall()
 
-                column_headers = ["", "ID", "Nº Pedido", "Nº Plano Dim.", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
+                column_headers = ["", "ID", "Nº Pedido", "Nº Plano Dim.", "Fecha Emisión", "Descripción", "Fecha Almacén", "Estado Almacén", "Obs. Almacén"]
 
             # close communication with the PostgreSQL database server
                 cur.close()
@@ -1895,14 +1895,14 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
                 conn.commit()
 
                 self.tableDimDwg.setRowCount(len(results_al))
-                self.tableDimDwg.setColumnCount(8)
+                self.tableDimDwg.setColumnCount(9)
                 self.tableOfDwg.setColumnCount(0)
                 self.tableMDwg.setColumnCount(0)
                 tablerow=0
 
             # fill the Qt Table with the query results
                 for row in results_al:
-                    for column in range(8):
+                    for column in range(9):
                         if column == 0:
                             checkbox_others = QtWidgets.QCheckBox()
                             checkbox_others.setChecked(False)

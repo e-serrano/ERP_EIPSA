@@ -151,7 +151,7 @@ class Ui_UpdateTableExist_Window(object):
 
         query_databasetables = """SELECT table_name
                                 FROM information_schema.tables
-                                WHERE table_schema = 'purch_fact' AND table_type = 'BASE TABLE';"""
+                                WHERE table_schema = 'verification' AND table_type = 'BASE TABLE';"""
 
         conn = None
         try:
@@ -201,7 +201,7 @@ class Ui_UpdateTableExist_Window(object):
 
 #Function to import data into and existing table from and Excel where first row is column name
     def importtableexist(self):
-        table_name='purch_fact.' + self.TableName_ImportTableExist.currentText()
+        table_name='verification.' + self.TableName_ImportTableExist.currentText()
 
         if self.label_name_file.text() == "":
             dlg = QtWidgets.QMessageBox()
@@ -222,7 +222,7 @@ class Ui_UpdateTableExist_Window(object):
             cursor = conn.cursor()
 
         #Importing excel file into dataframe
-            df_table = pd.read_excel(excel_file, dtype={'ot_num': str, 'plate_thk':str})
+            df_table = pd.read_excel(excel_file, dtype={'image': str, 'document':str})
             # df_table['total_qty_elements'] = df_table['total_qty_elements'].apply(lambda x: 'nan' if pd.isna(x) else int(x))
             # df_table['id_dest_country'] = df_table['id_dest_country'].apply(lambda x: 'nan' if pd.isna(x) else int(x))
             # df_table['id_client'] = df_table['id_client'].apply(lambda x: 'nan' if pd.isna(x) else int(x))
@@ -269,7 +269,7 @@ class Ui_UpdateTableExist_Window(object):
                         set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
                         # print(set_clause)
 
-                        where_clause = f"id = '\{id_value}\'"
+                        where_clause = f"id = {id_value}"
 
                     # Creating the update query and executing it after checking existing tags and id
                         sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
