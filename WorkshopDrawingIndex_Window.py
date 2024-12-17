@@ -3892,7 +3892,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         results_description=cur.fetchall()
 
                                         if item_type in ['C. RING', 'F+C.RING', 'F+P', 'M.RUN', 'P', 'RO']:
-                                            description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                            description = (str(len(results_flow)) + "-" + 'Placa' if results_description[0][0] in ['F+P', 'P'] else ('Placa M.Run' if results_description[0][0] == 'M.RUN' else results_description[0][0]) + " " + 
+                                                        results_description[0][1] + results_description[0][2] + 
                                                         " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][5] + " " +
                                                         results_description[0][6] + " ESPESOR " + results_description[0][7])
 
