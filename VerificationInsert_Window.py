@@ -1392,25 +1392,25 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                 commands_tags = (
                 f"""SELECT id_tag_flow, tag, num_order, item_type, dim_drawing, of_drawing, '' as of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), '' as final_verif_of_sensor_date, TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images, final_verif_dim_state, final_verif_of_eq_state, '' as final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_flow' as id_column,'tags_data.tags_flow' as db_table
                 FROM tags_data.tags_flow
-                WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state = 'PURCHASED'
+                WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state in ('PURCHASED', 'HOLD')
 
                 UNION
 
                 SELECT id_tag_temp, tag, num_order, item_type, dim_drawing, of_drawing, of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_sensor_date, 'DD/MM/YYYY'), TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images, final_verif_dim_state, final_verif_of_eq_state, final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_temp' as id_column, 'tags_data.tags_temp' as db_table
                 FROM tags_data.tags_temp
-                WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state = 'PURCHASED'
+                WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state in ('PURCHASED', 'HOLD')
 
                 UNION
 
                 SELECT id_tag_level, tag, num_order, item_type, dim_drawing, of_drawing, '' as of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), '' as final_verif_of_sensor_date, TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images, final_verif_dim_state, final_verif_of_eq_state, '' as final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_level' as id_column, 'tags_data.tags_level' as db_table
                 FROM tags_data.tags_level
-                WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state = 'PURCHASED'
+                WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state in ('PURCHASED', 'HOLD')
 
                 UNION
 
                 SELECT id_tag_others, tag, num_order, description, dim_drawing, of_drawing, '' as of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), '' as final_verif_of_sensor_date, TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images, final_verif_dim_state, final_verif_of_eq_state, '' as final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_others' as id_column, 'tags_data.tags_others' as db_table
                 FROM tags_data.tags_others
-                WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state = 'PURCHASED'
+                WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state in ('PURCHASED', 'HOLD')
 
                 ORDER BY tag
                 """)
