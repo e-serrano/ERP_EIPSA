@@ -416,6 +416,7 @@ class Ui_OrderActivation_Window(object):
                         results_mailcopy=cur.fetchall()
                         mails_copy = [x[0] for x in results_mailcopy]
                         mails_copy.insert(0,'ana-calvo@eipsa.es')
+                        mails_copy.insert(1, email_responsible)
 
                         mail = email_order_activation(numorder, num_ref_order, client, final_client, expected_date, delivery_time, name_responsible, mails_sendto, mails_copy, adit_info, email_responsible, extras_text)
                         mail.send_email()
