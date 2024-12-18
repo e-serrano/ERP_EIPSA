@@ -86,7 +86,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 text_color = QtGui.QColor(255, 255, 255)
 
             painter.setPen(QtGui.QPen(text_color))
-            painter.drawText(horizontalPosition, verticalPosition, str(index.data()).replace('.',',')) if index.data() != 0.0 else painter.drawText(horizontalPosition, verticalPosition, '')
+            painter.drawText(horizontalPosition, verticalPosition, str(index.data()).replace('.',',')) if index.sibling(index.row(), 18).data() != 0.0 else painter.drawText(horizontalPosition, verticalPosition, '')
 
         if index.column() == 23:  # Column to paint
             tolerance_index = index.sibling(index.row(), 24)  # Index for column to check text
@@ -100,7 +100,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 text_color = QtGui.QColor(255, 255, 255)
 
             painter.setPen(QtGui.QPen(text_color))
-            painter.drawText(horizontalPosition, verticalPosition, str(index.data()).replace('.',',')) if index.data() != 0.0 else painter.drawText(horizontalPosition, verticalPosition, '')
+            painter.drawText(horizontalPosition, verticalPosition, str(index.data()).replace('.',',')) if index.sibling(index.row(), 22).data() != 0.0 else painter.drawText(horizontalPosition, verticalPosition, '')
 
         if index.column() == 27:  # Column to paint
             tolerance_index = index.sibling(index.row(), 28)  # Index for column to check text
@@ -114,7 +114,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 text_color = QtGui.QColor(255, 255, 255)
 
             painter.setPen(QtGui.QPen(text_color))
-            painter.drawText(horizontalPosition, verticalPosition, str(index.data()).replace('.',',')) if index.data() != 0.0 else painter.drawText(horizontalPosition, verticalPosition, '')
+            painter.drawText(horizontalPosition, verticalPosition, str(index.data()).replace('.',',')) if index.sibling(index.row(), 26).data() != 0.0 else painter.drawText(horizontalPosition, verticalPosition, '')
 
         if index.column() == 31:  # Column to paint
             tolerance_index = index.sibling(index.row(), 32)  # Index for column to check text
@@ -128,7 +128,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 text_color = QtGui.QColor(255, 255, 255)
 
             painter.setPen(QtGui.QPen(text_color))
-            painter.drawText(horizontalPosition, verticalPosition, str(index.data()).replace('.',',')) if index.data() != 0.0 else painter.drawText(horizontalPosition, verticalPosition, '')
+            painter.drawText(horizontalPosition, verticalPosition, str(index.data()).replace('.',',')) if index.sibling(index.row(), 30).data() != 0.0 else painter.drawText(horizontalPosition, verticalPosition, '')
 
 class EditableComboBoxDelegate(QtWidgets.QStyledItemDelegate):
     """
