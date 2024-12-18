@@ -3085,7 +3085,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.Button_FactDollar.clicked.connect(self.submitdollarinvoice)
         self.Button_DelivNote.clicked.connect(self.generate_delivnote)
 
-        self.Button_New.clicked.connect(self.createinvoice)
+        self.Button_New.clicked.connect(lambda: self.createinvoice())
         self.Button_Up.clicked.connect(self.go_top)
         self.Button_Down.clicked.connect(self.go_bottom)
 
@@ -3134,6 +3134,9 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.loadinvoicetable()
 
         self.label_IDInvoice.setText('NUEVA')
+        self.Destination_Invoice.setText('S/ALMACEN')
+        self.Transport_Invoice.setText('N/MEDIOS')
+        self.DestCountry_Invoice.setCurrentText('ESPAÑA')
 
         if self.numinvoice is not None:
             commands_querytableinvoice = ("""
@@ -3442,7 +3445,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             # self.loadinvoicetable()
 
 # Function to create new invoice
-    def createinvoice(self, invoice_date=''):
+    def createinvoice(self, invoice_date=None):
         """
         Creates a new entry in database after validating form inputs.
         """
@@ -3450,7 +3453,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                         INSERT INTO purch_fact.invoice_header ("num_invoice","date_invoice")
                         VALUES (%s,%s)
                         """)
-        query_idinvoice = "SELECT id FROM purch_fact.invoice_header ORDER BY id"
+        query_idinvoice = "SELECT id, num_invoice FROM purch_fact.invoice_header ORDER BY id"
         conn = None
         try:
         # read the connection parameters
@@ -3459,14 +3462,16 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands one by one
-            data = ('',invoice_date,)
-            cur.execute(commands_insert_invoice, data)
-
             cur.execute(query_idinvoice)
             result_idorder = cur.fetchall()
 
+            idinvoice = int(result_idorder[-1][0]) + 1
+            numinvoice = result_idorder[-1][1].split("/")[0] + "/" + '{:03}'.format(int(result_idorder[-1][1].split("/")[1]) + 1)
+
+            data = (numinvoice,invoice_date,)
+            cur.execute(commands_insert_invoice, data)
+
         # get id from table
-            idinvoice = result_idorder[-1][0]
             self.label_IDInvoice.setText(str(idinvoice))
         # close communication with the PostgreSQL database server
             cur.close()
@@ -3775,7 +3780,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                         if iva is not None:
                             pdf.cell(2.3, 0.50, "IVA:", align='R')
                             pdf.set_font('DejaVuSansCondensed-Bold', size=9)
-                            iva_amount = int(iva) * float(self.TaxBase_Invoice.text()) / 100
+                            iva_amount = float(iva) * float(self.TaxBase_Invoice.text()) / 100
                             pdf.cell(1.5, 0.5, str(iva) + ' %', align='L')
                             pdf.cell(2.55, 0.5, '{:,.2f}'.format(float(iva_amount)).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
                         else:
@@ -4852,25 +4857,25 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                     conn.close()
 
             self.InvoiceNumber_Invoice.setText(str(results_invoices[0][0]))
-            self.DelivNote_Invoice.setText(str(results_invoices[0][1]))
-            self.Date_Invoice.setText(str(results_invoices[0][2]))
-            self.Client_Invoice.setCurrentText(str(results_invoices[0][3]))
-            self.OurRef_Invoice.setText(str(results_invoices[0][4]))
-            self.TheirRef_Invoice.setText(str(results_invoices[0][5]))
-            self.Comment_Invoice.setText(str(results_invoices[0][6]))
-            self.Destination_Invoice.setText(str(results_invoices[0][7]))
-            self.Transport_Invoice.setText(str(results_invoices[0][8]))
-            self.Application_Invoice.setCurrentText(str(results_invoices[0][9]))
+            self.DelivNote_Invoice.setText(str(results_invoices[0][1]) if results_invoices[0][1] is not None else '')
+            self.Date_Invoice.setText(str(results_invoices[0][2]) if results_invoices[0][2] is not None else '')
+            self.Client_Invoice.setCurrentText(str(results_invoices[0][3]) if results_invoices[0][3] is not None else '')
+            self.OurRef_Invoice.setText(str(results_invoices[0][4]) if results_invoices[0][4] is not None else '')
+            self.TheirRef_Invoice.setText(str(results_invoices[0][5]) if results_invoices[0][5] is not None else '')
+            self.Comment_Invoice.setText(str(results_invoices[0][6]) if results_invoices[0][6] is not None else '')
+            self.Destination_Invoice.setText(str(results_invoices[0][7]) if results_invoices[0][7] is not None else '')
+            self.Transport_Invoice.setText(str(results_invoices[0][8]) if results_invoices[0][8] is not None else '')
+            self.Application_Invoice.setCurrentText(str(results_invoices[0][9]) if results_invoices[0][9] is not None else '')
             self.DestCountry_Invoice.setCurrentText(str(results_invoices[0][10]) if results_invoices[0][10] is not None else '')
-            self.GrossWeight_Invoice.setText(str(results_invoices[0][11]))
-            self.NetWeight_Invoice.setText(str(results_invoices[0][12]))
-            self.Dimensions_Invoice.setText(str(results_invoices[0][13]))
-            self.MercType_Invoice.setText(str(results_invoices[0][14]))
-            self.TxtCon1_Invoice.setText(str(results_invoices[0][15]))
-            self.TxtCon2_Invoice.setText(str(results_invoices[0][16]))
-            self.TxtCon3_Invoice.setText(str(results_invoices[0][17]))
-            self.TxtCon4_Invoice.setText(str(results_invoices[0][18]))
-            self.TxtCon5_Invoice.setText(str(results_invoices[0][19]))
+            self.GrossWeight_Invoice.setText(str(results_invoices[0][11]) if results_invoices[0][11] is not None else '')
+            self.NetWeight_Invoice.setText(str(results_invoices[0][12]) if results_invoices[0][12] is not None else '')
+            self.Dimensions_Invoice.setText(str(results_invoices[0][13]) if results_invoices[0][13] is not None else '')
+            self.MercType_Invoice.setText(str(results_invoices[0][14]) if results_invoices[0][14] is not None else '')
+            self.TxtCon1_Invoice.setText(str(results_invoices[0][15]) if results_invoices[0][15] is not None else '')
+            self.TxtCon2_Invoice.setText(str(results_invoices[0][16]) if results_invoices[0][16] is not None else '')
+            self.TxtCon3_Invoice.setText(str(results_invoices[0][17]) if results_invoices[0][17] is not None else '')
+            self.TxtCon4_Invoice.setText(str(results_invoices[0][18]) if results_invoices[0][18] is not None else '')
+            self.TxtCon5_Invoice.setText(str(results_invoices[0][19]) if results_invoices[0][19] is not None else '')
             self.Con1Eur_Invoice.setText(str(results_invoices[0][20]) if results_invoices[0][20] is not None else '')
             self.Con2Eur_Invoice.setText(str(results_invoices[0][21]) if results_invoices[0][21] is not None else '')
             self.Con3Eur_Invoice.setText(str(results_invoices[0][22]) if results_invoices[0][22] is not None else '')
@@ -4887,16 +4892,16 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             self.Qty_Elements.setText(str(results_invoices[0][33]) if results_invoices[0][33] is not None else '')
             self.TaxBase_Invoice.setText(str(results_invoices[0][34].replace(".","").replace(",",".")[:results_invoices[0][34].find(" €")]) if results_invoices[0][34] is not None else '')
             self.IVACL_Invoice.setText(str(results_invoices[0][35]) if results_invoices[0][35] is not None else '')
-            self.ClAlb_Invoice.setText(str(results_invoices[0][36]))
+            self.ClAlb_Invoice.setText(str(results_invoices[0][36]) if results_invoices[0][36] is not None else '')
             self.DateAlb_Invoice.setText(str(results_invoices[0][37]) if results_invoices[0][37] is not None else '')
-            self.AtteAlb_Invoice.setText(str(results_invoices[0][38]))
-            self.DestAlb_Invoice.setText(str(results_invoices[0][39]))
+            self.AtteAlb_Invoice.setText(str(results_invoices[0][38]) if results_invoices[0][38] is not None else '')
+            self.DestAlb_Invoice.setText(str(results_invoices[0][39]) if results_invoices[0][39] is not None else '')
             self.AddressAlb_Invoice.setText(str(results_invoices[0][40]) if results_invoices[0][40] is not None else '')
             self.ZCAlb_Invoice.setText(str(results_invoices[0][41]) if results_invoices[0][41] is not None else '')
             self.CityAlb_Invoice.setText(str(results_invoices[0][42]) if results_invoices[0][42] is not None else '')
-            self.ProvinceAlb_Invoice.setText(str(results_invoices[0][43]))
-            self.CountryAlb_Invoice.setText(str(results_invoices[0][44]))
-            self.ObsAlb_Invoice.setText(str(results_invoices[0][45]))
+            self.ProvinceAlb_Invoice.setText(str(results_invoices[0][43]) if results_invoices[0][43] is not None else '')
+            self.CountryAlb_Invoice.setText(str(results_invoices[0][44]) if results_invoices[0][44] is not None else '')
+            self.ObsAlb_Invoice.setText(str(results_invoices[0][45]) if results_invoices[0][45] is not None else '')
             self.label_ClientGroup.setText(str(results_invoices[0][46]) if results_invoices[0][46] is not None else '')
             self.PayDate_Invoice.setText(str(results_invoices[0][47]) if results_invoices[0][47] is not None else '')
             self.AgInterm.setText(str(results_invoices[0][48]) if results_invoices[0][48] is not None else '')
