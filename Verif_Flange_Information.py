@@ -745,12 +745,11 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         self.flange_image = QtWidgets.QLabel(parent=self.frame)
         self.flange_image.setText("")
         self.flange_image.setObjectName("flange_image")
-        self.gridLayout_2.addWidget(self.flange_image, 5, 0, 1, 6)
+        self.gridLayout_2.addWidget(self.flange_image, 5, 0, 1, 5)
 
         self.tableInformation=CustomTableWidget()
         self.tableInformation.setObjectName("tableInformation")
         self.tableInformation.setMinimumSize(QtCore.QSize(250, 16777215))
-        self.tableInformation.setMaximumSize(QtCore.QSize(250, 16777215))
         self.tableInformation.setColumnCount(2)
         for i in range(self.tableInformation.columnCount()):
             item = QtWidgets.QTableWidgetItem()
@@ -765,7 +764,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         else:
             self.tableInformation.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
         self.tableInformation.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-        self.gridLayout_2.addWidget(self.tableInformation, 5, 6, 1, 1)
+        self.gridLayout_2.addWidget(self.tableInformation, 5, 5, 1, 3)
 
         self.hLayout3 = QtWidgets.QHBoxLayout()
         self.hLayout3.setObjectName("hLayout3")
