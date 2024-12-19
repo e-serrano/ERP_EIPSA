@@ -1390,25 +1390,41 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
             if len(results) != 0:
                 commands_tags = (
-                f"""SELECT id_tag_flow, tag, num_order, item_type, dim_drawing, of_drawing, '' as of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), '' as final_verif_of_sensor_date, TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images, final_verif_dim_state, final_verif_of_eq_state, '' as final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_flow' as id_column,'tags_data.tags_flow' as db_table
+                f"""SELECT id_tag_flow, tag, num_order, item_type || ' ' || line_size || ' ' || rating || ' ' || facing || ' ' || schedule || ' ' || 
+                flange_material || ' ' || flange_type || ' ' || tube_material || ' ' || tapping_num_size || ' ' || element_material || ' ' || 
+                plate_type || ' ' || plate_thk || ' ' || plate_std || ' ' || gasket_material || ' ' || bolts_nuts_material as item_colum,
+                dim_drawing, of_drawing, '' as of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), '' as final_verif_of_sensor_date,
+                TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images,
+                final_verif_dim_state, final_verif_of_eq_state, '' as final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_flow' as id_column,'tags_data.tags_flow' as db_table
                 FROM tags_data.tags_flow
                 WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state in ('PURCHASED', 'HOLD')
 
                 UNION
 
-                SELECT id_tag_temp, tag, num_order, item_type, dim_drawing, of_drawing, of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_sensor_date, 'DD/MM/YYYY'), TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images, final_verif_dim_state, final_verif_of_eq_state, final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_temp' as id_column, 'tags_data.tags_temp' as db_table
+                SELECT id_tag_temp, tag, num_order, item_type || ' ' || tw_type || ' ' || flange_size || ' ' || flange_rating || ' ' ||
+                flange_facing || ' ' || std_tw || ' ' || material_tw || ' ' || std_length || ' ' || ins_length || ' ' || root_diam || ' ' || tip_diam || ' ' || 
+                sensor_element || ' ' || sheath_stem_material || ' ' || sheath_stem_diam || ' ' || insulation as item_colum,
+                dim_drawing, of_drawing, of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_sensor_date, 'DD/MM/YYYY'),
+                TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images,
+                final_verif_dim_state, final_verif_of_eq_state, final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_temp' as id_column, 'tags_data.tags_temp' as db_table
                 FROM tags_data.tags_temp
                 WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state in ('PURCHASED', 'HOLD')
 
                 UNION
 
-                SELECT id_tag_level, tag, num_order, item_type, dim_drawing, of_drawing, '' as of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), '' as final_verif_of_sensor_date, TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images, final_verif_dim_state, final_verif_of_eq_state, '' as final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_level' as id_column, 'tags_data.tags_level' as db_table
+                SELECT id_tag_level, tag, num_order, item_type || ' ' || body_material || ' ' || proc_conn_size || ' ' || proc_conn_rating || ' ' || conn_type || ' ' || visibility || ' ' || gasket_mica as item_colum,
+                dim_drawing, of_drawing, '' as of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), '' as final_verif_of_sensor_date,
+                TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images,
+                final_verif_dim_state, final_verif_of_eq_state, '' as final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_level' as id_column, 'tags_data.tags_level' as db_table
                 FROM tags_data.tags_level
                 WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state in ('PURCHASED', 'HOLD')
 
                 UNION
 
-                SELECT id_tag_others, tag, num_order, description, dim_drawing, of_drawing, '' as of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), '' as final_verif_of_sensor_date, TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images, final_verif_dim_state, final_verif_of_eq_state, '' as final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_others' as id_column, 'tags_data.tags_others' as db_table
+                SELECT id_tag_others, tag, num_order, description,
+                dim_drawing, of_drawing, '' as of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), '' as final_verif_of_sensor_date,
+                TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images,
+                final_verif_dim_state, final_verif_of_eq_state, '' as final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_others' as id_column, 'tags_data.tags_others' as db_table
                 FROM tags_data.tags_others
                 WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state in ('PURCHASED', 'HOLD')
 
