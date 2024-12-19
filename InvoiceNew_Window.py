@@ -2726,8 +2726,8 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.tableInvoice.setObjectName("tableInvoice")
         self.tableInvoice.setMinimumSize(QtCore.QSize(16777215, 250))
         # self.tableInvoice.setMaximumSize(QtCore.QSize(16777215, 16777215))
-        self.tableInvoice.setColumnCount(13)
-        for i in range(13):
+        self.tableInvoice.setColumnCount(15)
+        for i in range(15):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -3267,6 +3267,10 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         item.setText(_translate("Invoice_Window", "Grupo Cliente"))
         item = self.tableInvoice.horizontalHeaderItem(12)
         item.setText(_translate("Invoice_Window", "Fecha Pago"))
+        item = self.tableInvoice.horizontalHeaderItem(13)
+        item.setText(_translate("Invoice_Window", "Dimensiones"))
+        item = self.tableInvoice.horizontalHeaderItem(14)
+        item.setText(_translate("Invoice_Window", "Fecha Envío"))
 
 # Function to save changes into database
     def saveChanges(self):
@@ -4243,7 +4247,8 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         commands_invoice = """SELECT fact.id, fact.num_invoice, fact.num_delivnote, TO_CHAR(fact.date_invoice,'DD/MM/YYYY'),
                             client.name, fact.our_ref, fact.their_ref,
                             fact.invoice_comments, fact.application, country.name,
-                            TO_CHAR(fact.date_delivnote,'DD/MM/YYYY'), fact.client_group, TO_CHAR(fact.pay_date,'DD/MM/YYYY')
+                            TO_CHAR(fact.date_delivnote,'DD/MM/YYYY'), fact.client_group, TO_CHAR(fact.pay_date,'DD/MM/YYYY'),
+                            fact.weight_dispatch, fact.date_dispatch
                             FROM purch_fact.invoice_header AS fact
                             LEFT OUTER JOIN purch_fact.clients AS client ON fact.id_client = client.id
                             LEFT OUTER JOIN purch_fact.destination_country AS country ON fact.id_dest_country = country.id
@@ -4266,7 +4271,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results_invoice:
-                for column in range(13):
+                for column in range(15):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -4299,6 +4304,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.tableInvoice.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableInvoice.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableInvoice.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableInvoice.horizontalHeader().setSectionResizeMode(13, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableInvoice.verticalHeader().hide()
 
         self.tableInvoice.hideColumn(0)
