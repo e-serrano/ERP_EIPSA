@@ -355,10 +355,7 @@ class Ui_OrderActivation_Window(object):
                                 )
                                 """)
             commands_mail_copy = ("""SELECT email FROM users_data.registration
-                                WHERE (profile = 'Dirección'
-                                OR
-                                profile = 'SubDirección'
-                                )
+                                WHERE (profile = 'Dirección')
                                 """)
             commands_queryorder = ("""
                                     SELECT orders."num_order",offers."responsible", orders."num_ref_order", offers."client", offers."final_client", TO_CHAR(orders."expected_date", 'DD-MM-YYYY'), offers."delivery_time"
