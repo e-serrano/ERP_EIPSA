@@ -1030,7 +1030,7 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
                             if col in [4, 5, 16, 17, 18, 21, 24]:  # date column
                                 date_str = item.text()
                                 if date_str:  
-                                    date_obj = datetime.strptime(date_str, "%d/%m/%Y") if date_str != '' else ''
+                                    date_obj = datetime.strptime(date_str, "%d/%m/%Y") if date_str not in ['', ' '] else ''
                                     column_data.append(date_obj)
                                 else:
                                     column_data.append('')
@@ -1152,9 +1152,9 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
         self.tableQueryOrder.show_unique_values_menu(logical_index, popup_pos, header_height)
 
 
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     QueryOrder_Window = Ui_QueryOrder_Window('Técnico')
-#     QueryOrder_Window.show()
-#     sys.exit(app.exec())
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    QueryOrder_Window = Ui_QueryOrder_Window('Comercial')
+    QueryOrder_Window.show()
+    sys.exit(app.exec())
