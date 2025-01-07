@@ -2606,16 +2606,56 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
             pdf.ln(0.5)
 
             for row in range(df_client.shape[0]):
+
+                query_delivnote = ("""
+                            SELECT "date_delivnote", "notes"
+                            FROM verification.delivnote_suppliers
+                            WHERE "supplier_order_num" = %s
+                            """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    cur.execute(query_delivnote,(str(df_client.iloc[row, 3]),))
+                    results_delivnote=cur.fetchall()
+
+                    date_delivnote = results_delivnote[0][0]
+                    note_delivnote = results_delivnote[0][1]
+
+                    if note_delivnote is not None and 'PARCIAL' in note_delivnote:
+                        pdf.set_fill_color(247, 220, 111)
+                    else:
+                        pdf.set_fill_color(0, 255, 0)
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
                 pdf.set_font("DejaVuSansCondensed", size=8)
-                pdf.multi_cell(3, 0.5, str(df_client.iloc[row, 1]), max_line_height=pdf.font_size, align='L')
+                pdf.multi_cell(3, 0.5, str(df_client.iloc[row, 1]), max_line_height=pdf.font_size, align='L', fill=True if date_delivnote is not None else False)
                 y_position=pdf.get_y()
                 pdf.set_xy(4, y_position - 0.5)
-                pdf.multi_cell(5, 0.5, str(df_client.iloc[row, 2]), max_line_height=pdf.font_size, align='L')
+                pdf.multi_cell(5, 0.5, str(df_client.iloc[row, 2]), max_line_height=pdf.font_size, align='L', fill=True if date_delivnote is not None else False)
                 pdf.set_xy(9, y_position - 0.5)
-                pdf.cell(2, 0.5, str(df_client.iloc[row, 3]), align="C")
-                pdf.cell(2, 0.5, str(df_client.iloc[row, 4]), align="C")
-                pdf.cell(1.5, 0.5, str(df_client.iloc[row, 5]), align="C")
-                pdf.cell(1.5, 0.5, str(df_client.iloc[row, 6]), align='C')
+                pdf.cell(2, 0.5, str(df_client.iloc[row, 3]), align="C", fill=True if date_delivnote is not None else False)
+                pdf.cell(2, 0.5, str(df_client.iloc[row, 4]), align="C", fill=True if date_delivnote is not None else False)
+                pdf.cell(1.5, 0.5, str(df_client.iloc[row, 5]), align="C", fill=True if date_delivnote is not None else False)
+                pdf.cell(1.5, 0.5, str(df_client.iloc[row, 6]), align='C', fill=True if date_delivnote is not None else False)
                 # pdf.cell(2, 0.5, str(self.format_value(df_client.iloc[row, 7])), align="C")
                 # pdf.cell(2, 0.5, str(self.format_value(df_client.iloc[row, 8])), align="C")
                 pdf.ln(0.75)
