@@ -165,7 +165,7 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
         self.tableNotifications.verticalHeader().setVisible(True)
         self.tableNotifications.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableNotifications.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableNotifications.setSortingEnabled(True)
+        self.tableNotifications.setSortingEnabled(False)
         self.tableNotifications.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         HistoryNotifications_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
@@ -255,6 +255,7 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
             self.tableNotifications.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             self.tableNotifications.hideColumn(0)
             self.tableNotifications.hideColumn(1)
+            self.tableNotifications.sortByColumn(2, QtCore.Qt.SortOrder.AscendingOrder)
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
