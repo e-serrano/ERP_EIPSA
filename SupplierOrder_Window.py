@@ -972,6 +972,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
     "\n"
     "QComboBox QAbstractItemView::item:hover {\n"
     "background-color: blue;\n"
+    "color: white;\n"
     "}"
     )
         else:
