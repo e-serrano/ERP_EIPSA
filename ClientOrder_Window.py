@@ -2414,9 +2414,8 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                 new_quant_deliv = float(deliv_quant_1) + float(deliv_quant_2) + float(deliv_quant_3)
                 old_quant_deliv = float(old_quant_deliv_1) + float(old_quant_deliv_2) + float(old_quant_deliv_3)
 
-                new_stock= str(float(stock) - old_quant_deliv + new_quant_deliv)
-                new_available_stock= str(float(available_stock) - old_quant_deliv + new_quant_deliv + (float(old_quant) - float(quantity)))
-
+                new_stock= str(float(stock) + old_quant_deliv - new_quant_deliv)
+                new_available_stock= str(float(available_stock) + old_quant_deliv - new_quant_deliv + (float(new_quant_deliv) - float(quantity)))
                 query_available_stock = ("""UPDATE purch_fact.supplies
                                         SET "physical_stock" = %s, "available_stock" = %s 
                                         WHERE "id" = %s""")
