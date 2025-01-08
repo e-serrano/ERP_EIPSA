@@ -519,7 +519,8 @@ class Ui_CalibrationPrintCertificate_Window(object):
                             num_blanks = math.ceil((14 - y_position) / 0.8)
 
                             for i in range(num_blanks):
-                                pdf.cell(3, 0.8, border=1)
+                                pdf.set_x(0.5)
+                                pdf.cell(3.5, 0.8, border=1)
                                 for j in range(4):
                                     pdf.cell(1.1, 0.8, border=1)
                                     pdf.cell(1, 0.8, border=1)
