@@ -2380,7 +2380,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
             self.Position_SupplierOrder.setText(str(int(position) + 1))
 
-            self.position_table_record(supply_name)
+            self.position_table_record(str(int(position)))
 
 # Function to modify record data
     def modifyrecord(self):
@@ -4001,16 +4001,16 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 self.loadformorder(item.row())
                 return
 
-    def position_table_record(self, record_name):
+    def position_table_record(self, record_position):
         """
         Selects and scrolls to the row in the Client Order record table based on the input position.
         """
-        text_position = record_name
+        text_position = record_position
 
         self.tableRecords.clearSelection()
 
         for i in range(self.tableRecords.rowCount()):
-            item = self.tableRecords.item(i, 2)
+            item = self.tableRecords.item(i, 1)
             if item is not None and text_position.upper() in item.text().upper():
                 item.setSelected(True)
                 self.tableRecords.scrollToItem(item)
