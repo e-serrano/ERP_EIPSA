@@ -408,6 +408,7 @@ class Ui_OrderActivation_Window(object):
                         cur.execute(commands_mail_sendto)
                         results_mailto=cur.fetchall()
                         mails_sendto = [x[1] for x in results_mailto]
+                        mails_sendto.insert(0,'miguel-sahuquillo@eipsa.es')
 
                         cur.execute(commands_mail_copy)
                         results_mailcopy=cur.fetchall()
