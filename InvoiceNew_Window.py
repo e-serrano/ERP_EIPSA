@@ -3510,318 +3510,334 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.calculate_totalorder()
         id_invoice = self.label_IDInvoice.text()
 
-        if id_invoice == '':
+        try:
+            if id_invoice == '':
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Emitir Factura")
+                dlg.setText("Selecciona una factura")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg,new_icon
+            else:
+                gross_weight = self.GrossWeight_Invoice.text()
+                net_weight = self.NetWeight_Invoice.text()
+                dimensions = self.Dimensions_Invoice.text()
+                merc_type = self.MercType_Invoice.text()
+                txtcon1 = self.TxtCon1_Invoice.text()
+                txtcon2 = self.TxtCon2_Invoice.text()
+                txtcon3 = self.TxtCon3_Invoice.text()
+                txtcon4 = self.TxtCon4_Invoice.text()
+                txtcon5 = self.TxtCon5_Invoice.text()
+                con1_euro = self.Con1Eur_Invoice.text() if self.Con1Eur_Invoice.text() != '' else None
+                con2_euro = self.Con2Eur_Invoice.text() if self.Con2Eur_Invoice.text() != '' else None
+                con3_euro = self.Con3Eur_Invoice.text() if self.Con3Eur_Invoice.text() != '' else None
+                con4_euro = self.Con4Eur_Invoice.text() if self.Con4Eur_Invoice.text() != '' else None
+                con5_euro = self.Con5Eur_Invoice.text() if self.Con5Eur_Invoice.text() != '' else None
+                data_adic1 = self.AditData1_Invoice.text()
+                data_adic2 = self.AditData2_Invoice.text()
+                tax_base_amount = float(self.TaxBase_Invoice.text()) if self.TaxBase_Invoice.text() != '' else None
+                iva = self.IVACL_Invoice.text() if self.IVACL_Invoice.text() != '' else None
+                cl_delivnote = self.ClAlb_Invoice.text()
+                date_delivnote = self.DateAlb_Invoice.text() if self.DateAlb_Invoice.text() != '' else None
+                atte_delivnote = self.AtteAlb_Invoice.text()
+                dest_delivnote = self.DestAlb_Invoice.text()
+                address_delivnote = self.AddressAlb_Invoice.text()
+                zc_delivnote = self.ZCAlb_Invoice.text()
+                city_delivnote = self.CityAlb_Invoice.text()
+                province_delivnote = self.ProvinceAlb_Invoice.text()
+                country_delivnote = self.CountryAlb_Invoice.text()
+                obs_delivnote = self.ObsAlb_Invoice.toPlainText()
+                total_qty_elements = self.Qty_Elements.text()
+
+                commands_submit_invoice = ("""
+                                UPDATE purch_fact.invoice_header
+                                SET "gross_weight" = %s, "net_weight" = %s, "dimensions" = %s, "merc_type" = %s,
+                                "txtcon1" = %s, "txtcon2" = %s, "txtcon3" = %s, "txtcon4" = %s, "txtcon5" = %s,
+                                "con1_euro" = %s, "con2_euro" = %s, "con3_euro" = %s, "con4_euro" = %s, "con5_euro" = %s,
+                                "data_adic1" = %s, "data_adic2" = %s, "iva" = %s, "cl_delivnote" = %s,
+                                "date_delivnote" = %s, "atte_delivnote" = %s, "dest_delivnote" = %s, "address_delivnote" = %s, "zc_delivnote" = %s,
+                                "city_delivnote" = %s, "province_delivnote" = %s, "country_delivnote" = %s, "obs_delivnote" = %s, "tax_base_amount" = %s,
+                                "total_qty_elements" = %s
+                                WHERE "id" = %s""")
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands one by one
+                    data = (gross_weight, net_weight, dimensions, merc_type,
+                            txtcon1, txtcon2, txtcon3, txtcon4, txtcon5,
+                            con1_euro, con2_euro, con3_euro, con4_euro, con5_euro,
+                            data_adic1, data_adic2, iva, cl_delivnote,
+                            date_delivnote, atte_delivnote, dest_delivnote, address_delivnote, zc_delivnote,
+                            city_delivnote, province_delivnote, country_delivnote, obs_delivnote, tax_base_amount,
+                            total_qty_elements, id_invoice)
+                    cur.execute(commands_submit_invoice, data)
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Factura en euros emitida con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+                dlg_yes_no = QtWidgets.QMessageBox()
+                new_icon_yes_no = QtGui.QIcon()
+                new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                dlg_yes_no.setWindowTitle("ERP EIPSA")
+                dlg_yes_no.setText("¿Quieres imprimir la factura?\n")
+                dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                result = dlg_yes_no.exec()
+
+                if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                    from PDF_Styles import client_invoice
+                    while True:
+                        answer, ok = QtWidgets.QInputDialog.getItem(self, "Albarán", "¿Con logo?:", ['Sí', 'No'], 0, False)
+                        if ok and answer:
+                            if answer == 'Sí':
+                                pdf = client_invoice(id_invoice, 'Yes')
+                            else:
+                                pdf = client_invoice(id_invoice, 'No')
+                            pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
+                            pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+                            pdf.set_auto_page_break(auto=True, margin=2)
+                            pdf.add_page()
+                            pdf.alias_nb_pages()
+
+                            id_list=[]
+
+                            for row in range(self.proxy_records.rowCount()):
+                                first_column_value = self.proxy_records.data(self.proxy_records.index(row, 0))
+                                id_list.append(first_column_value)
+
+                            for element in id_list:
+                                for row in range(self.model_records.rowCount()):
+                                    if self.model_records.data(self.model_records.index(row, 0)) == element:
+                                        target_row = row
+                                        break
+                                if target_row is not None:
+                                    position_text = str(self.model_records.data(self.model_records.index(target_row, 2)))
+                                    quantity_text = str(self.model_records.data(self.model_records.index(target_row, 3)))
+                                    description_text = str(self.model_records.data(self.model_records.index(target_row, 4)))
+                                    length_description=len(description_text)
+
+                                pdf.set_x(1.5)
+                                y_position = pdf.get_y()
+                                pdf.set_font('DejaVuSansCondensed', '', 9)
+                                pdf.cell(1, 0.53, position_text, align='C')
+                                pdf.cell(0.2, 0.53, "")
+                                pdf.cell(1.25, 0.53, quantity_text, align='C')
+                                pdf.cell(0.2, 0.53, "")
+                                x_position = pdf.get_x()
+                                pdf.multi_cell(11.5, 0.53, description_text, align='J')
+                                y_position_multicell = pdf.get_y()
+                                pdf.set_y(y_position)
+                                pdf.set_x(x_position + 11.7)
+                                pdf.set_font('DejaVuSansCondensed', size=9)
+                                pdf.cell(0.2, 0.53, "")
+                                pdf.cell(1.94, 0.53, str('{:,.2f}'.format(float(self.model_records.data(self.model_records.index(target_row, 5))))).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+                                pdf.cell(0.2, 0.53, "")
+                                pdf.cell(2.05, 0.53, str('{:,.2f}'.format(float(self.model_records.data(self.model_records.index(target_row, 7))))).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+                                pdf.set_font('Helvetica', size=9)
+                                pdf.ln(1.5)
+                                y_position = y_position_multicell
+
+                                if pdf.page_no()<=1:
+                                    mark0=9.9
+                                    pdf.set_line_width(0.05)
+                                    pdf.line(1.3, y_position, 1.3, mark0)
+                                    pdf.line(20.4, y_position, 20.4, mark0)
+                                    pdf.set_line_width(0.01)
+                                    pdf.line(2.6, y_position, 2.6, mark0)
+                                    pdf.line(4.05, y_position, 4.05, mark0)
+                                    pdf.line(15.95, y_position, 15.95, mark0)
+                                    pdf.line(18.1, y_position, 18.1, mark0)
+
+                                else:
+                                    mark0 = 3.8
+                                    pdf.set_line_width(0.05)
+                                    pdf.line(1.3, y_position, 1.3, mark0)
+                                    pdf.line(20.4, y_position, 20.4, mark0)
+                                    pdf.set_line_width(0.01)
+                                    pdf.line(2.6, y_position, 2.6, mark0)
+                                    pdf.line(4.05, y_position, 4.05, mark0)
+                                    pdf.line(15.95, y_position, 15.95, mark0)
+                                    pdf.line(18.1, y_position, 18.1, mark0)
+
+                                if y_position > 26:
+                                    if length_description <75:
+                                        mark2=0
+                                    elif 75<=length_description <=150:
+                                        mark2 = 0.5
+                                    else:
+                                        mark2 = 1.5
+
+                                    pdf.set_line_width(0.05)
+                                    pdf.line(1.3, y_position + mark2, 1.3, 25)
+                                    pdf.line(20.4, y_position + mark2, 20.4, 25)
+                                    pdf.set_line_width(0.01)
+                                    pdf.line(2.6, y_position + mark2, 2.6, 25)
+                                    pdf.line(4.05, y_position + mark2, 4.05, 25)
+                                    pdf.line(15.95, y_position + mark2, 15.95, 25)
+                                    pdf.line(18.1, y_position + mark2, 18.1, 25)
+
+                            x_position = pdf.get_x()
+                            y_position = y_position_multicell
+                            pdf.set_xy(x_position, y_position)
+                            pdf.set_line_width(0.05)
+                            pdf.line(1.3,y_position,20.4,y_position)
+
+                            pdf.cell(14, 0.6, "")
+                            pdf.set_font('Helvetica', 'B', 9)
+                            pdf.cell(2.3, 0.6, "Total Materiales:", align='R')
+
+                            pdf.set_font('DejaVuSansCondensed', size=9)
+                            pdf.cell(3, 0.6, '{:,.2f}'.format(float(self.TotalEur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+                            pdf.ln(1)
+                            pdf.set_font('DejaVuSansCondensed', '', 8)
+                            pdf.cell(14, 0.50, "")
+
+                            if txtcon1 == '':
+                                pdf.cell(2.3, 0.50, '', align='R')
+                                pdf.cell(3, 0.5, '', align='R')
+                            else:
+                                pdf.cell(2.3, 0.50, txtcon1, align='R')
+                                pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con1Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+
+                            pdf.ln(0.5)
+                            pdf.cell(14, 0.50, "")
+
+                            if txtcon2 == '':
+                                pdf.cell(2.3, 0.50, '', align='R')
+                                pdf.cell(3, 0.5, '', align='R')
+                            else:
+                                pdf.cell(2.3, 0.50, txtcon2, align='R')
+                                pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con2Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+
+                            pdf.ln(0.5)
+                            pdf.cell(14, 0.50, "")
+
+                            if txtcon3 == '':
+                                pdf.cell(2.3, 0.50, '', align='R')
+                                pdf.cell(3, 0.5, '', align='R')
+                            else:
+                                pdf.cell(2.3, 0.50, txtcon3, align='R')
+                                pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con3Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+
+                            pdf.ln(0.5)
+                            pdf.cell(14, 0.50, "")
+
+                            if txtcon4 == '':
+                                pdf.cell(2.3, 0.50, '', align='R')
+                                pdf.cell(3, 0.5, '', align='R')
+                            else:
+                                pdf.cell(2.3, 0.50, txtcon4, align='R')
+                                pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con4Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+
+                            pdf.ln(0.5)
+                            pdf.cell(14, 0.50, "")
+
+                            if txtcon5 == '':
+                                pdf.cell(2.3, 0.50, '', align='R')
+                                pdf.cell(3, 0.5, '', align='R')
+                            else:
+                                pdf.cell(2.3, 0.50, txtcon5, align='R')
+                                pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con5Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+
+                            pdf.ln(1)
+                            pdf.set_font('Helvetica', 'B', 9)
+                            pdf.cell(14, 0.50, "")
+                            pdf.cell(2.3, 0.50, "Base Imponible:", align='R')
+                            pdf.set_font('DejaVuSansCondensed-Bold', size=9)
+                            pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.TaxBase_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+                            pdf.ln(0.5)
+                            pdf.set_font('Helvetica', 'B', 9)
+                            pdf.cell(12.95, 0.50, "")
+
+                            if iva is not None:
+                                pdf.cell(2.3, 0.50, "IVA:", align='R')
+                                pdf.set_font('DejaVuSansCondensed-Bold', size=9)
+                                iva_amount = float(iva) * float(self.TaxBase_Invoice.text()) / 100
+                                pdf.cell(1.5, 0.5, str(iva) + ' %', align='L')
+                                pdf.cell(2.55, 0.5, '{:,.2f}'.format(float(iva_amount)).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+                            else:
+                                pdf.cell(2.3, 0.50, "", align='R')
+                                iva_amount = 0
+                                pdf.cell(1.5, 0.5, '', align='L')
+                                pdf.cell(2.55, 0.5, '', align='R')
+
+                            pdf.ln(0.7)
+                            pdf.cell(14, 0.50, "")
+                            pdf.set_font('Helvetica', 'B', 11)
+                            pdf.set_line_width(0.05)
+                            pdf.cell(5.3, 0.6, "Total:",1, align='L')
+                            pdf.set_font('DejaVuSansCondensed-Bold', size=11)
+                            total_invoice = float(self.TaxBase_Invoice.text()) + iva_amount
+                            pdf.cell(0, 0.6, '{:,.2f}'.format(float(total_invoice)).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
+                            pdf.ln(1)
+
+                            pdf_buffer = pdf.output()
+
+                            temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp_invoice.pdf"))))
+
+                            with open(temp_file_path, "wb") as temp_file:
+                                temp_file.write(pdf_buffer)
+
+                            pdf.close()
+
+                            self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
+                            self.pdf_viewer.showMaximized()
+                            
+                            break
+                        else:
+                            break
+
+                del dlg_yes_no, new_icon_yes_no
+
+                self.loadinvoicetable()
+
+        except Exception as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.join(basedir, "Resources/Iconos/icon.ico")), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Emitir Factura")
-            dlg.setText("Selecciona una factura")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("1Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
-            del dlg,new_icon
-        else:
-            gross_weight = self.GrossWeight_Invoice.text()
-            net_weight = self.NetWeight_Invoice.text()
-            dimensions = self.Dimensions_Invoice.text()
-            merc_type = self.MercType_Invoice.text()
-            txtcon1 = self.TxtCon1_Invoice.text()
-            txtcon2 = self.TxtCon2_Invoice.text()
-            txtcon3 = self.TxtCon3_Invoice.text()
-            txtcon4 = self.TxtCon4_Invoice.text()
-            txtcon5 = self.TxtCon5_Invoice.text()
-            con1_euro = self.Con1Eur_Invoice.text() if self.Con1Eur_Invoice.text() != '' else None
-            con2_euro = self.Con2Eur_Invoice.text() if self.Con2Eur_Invoice.text() != '' else None
-            con3_euro = self.Con3Eur_Invoice.text() if self.Con3Eur_Invoice.text() != '' else None
-            con4_euro = self.Con4Eur_Invoice.text() if self.Con4Eur_Invoice.text() != '' else None
-            con5_euro = self.Con5Eur_Invoice.text() if self.Con5Eur_Invoice.text() != '' else None
-            data_adic1 = self.AditData1_Invoice.text()
-            data_adic2 = self.AditData2_Invoice.text()
-            tax_base_amount = float(self.TaxBase_Invoice.text()) if self.TaxBase_Invoice.text() != '' else None
-            iva = self.IVACL_Invoice.text() if self.IVACL_Invoice.text() != '' else None
-            cl_delivnote = self.ClAlb_Invoice.text()
-            date_delivnote = self.DateAlb_Invoice.text() if self.DateAlb_Invoice.text() != '' else None
-            atte_delivnote = self.AtteAlb_Invoice.text()
-            dest_delivnote = self.DestAlb_Invoice.text()
-            address_delivnote = self.AddressAlb_Invoice.text()
-            zc_delivnote = self.ZCAlb_Invoice.text()
-            city_delivnote = self.CityAlb_Invoice.text()
-            province_delivnote = self.ProvinceAlb_Invoice.text()
-            country_delivnote = self.CountryAlb_Invoice.text()
-            obs_delivnote = self.ObsAlb_Invoice.toPlainText()
-            total_qty_elements = self.Qty_Elements.text()
+            del dlg, new_icon
 
-            commands_submit_invoice = ("""
-                            UPDATE purch_fact.invoice_header
-                            SET "gross_weight" = %s, "net_weight" = %s, "dimensions" = %s, "merc_type" = %s,
-                            "txtcon1" = %s, "txtcon2" = %s, "txtcon3" = %s, "txtcon4" = %s, "txtcon5" = %s,
-                            "con1_euro" = %s, "con2_euro" = %s, "con3_euro" = %s, "con4_euro" = %s, "con5_euro" = %s,
-                            "data_adic1" = %s, "data_adic2" = %s, "iva" = %s, "cl_delivnote" = %s,
-                            "date_delivnote" = %s, "atte_delivnote" = %s, "dest_delivnote" = %s, "address_delivnote" = %s, "zc_delivnote" = %s,
-                            "city_delivnote" = %s, "province_delivnote" = %s, "country_delivnote" = %s, "obs_delivnote" = %s, "tax_base_amount" = %s,
-                            "total_qty_elements" = %s
-                            WHERE "id" = %s""")
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                data = (gross_weight, net_weight, dimensions, merc_type,
-                        txtcon1, txtcon2, txtcon3, txtcon4, txtcon5,
-                        con1_euro, con2_euro, con3_euro, con4_euro, con5_euro,
-                        data_adic1, data_adic2, iva, cl_delivnote,
-                        date_delivnote, atte_delivnote, dest_delivnote, address_delivnote, zc_delivnote,
-                        city_delivnote, province_delivnote, country_delivnote, obs_delivnote, tax_base_amount,
-                        total_qty_elements, id_invoice)
-                cur.execute(commands_submit_invoice, data)
-
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Factura en euros emitida con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
-
-            except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
-
-            dlg_yes_no = QtWidgets.QMessageBox()
-            new_icon_yes_no = QtGui.QIcon()
-            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg_yes_no.setWindowIcon(new_icon_yes_no)
-            dlg_yes_no.setWindowTitle("ERP EIPSA")
-            dlg_yes_no.setText("¿Quieres imprimir la factura?\n")
-            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-            result = dlg_yes_no.exec()
-
-            if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                from PDF_Styles import client_invoice
-                while True:
-                    answer, ok = QtWidgets.QInputDialog.getItem(self, "Albarán", "¿Con logo?:", ['Sí', 'No'], 0, False)
-                    if ok and answer:
-                        if answer == 'Sí':
-                            pdf = client_invoice(id_invoice, 'Yes')
-                        else:
-                            pdf = client_invoice(id_invoice, 'No')
-                        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
-                        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
-                        pdf.set_auto_page_break(auto=True, margin=2)
-                        pdf.add_page()
-                        pdf.alias_nb_pages()
-
-                        id_list=[]
-
-                        for row in range(self.proxy_records.rowCount()):
-                            first_column_value = self.proxy_records.data(self.proxy_records.index(row, 0))
-                            id_list.append(first_column_value)
-
-                        for element in id_list:
-                            for row in range(self.model_records.rowCount()):
-                                if self.model_records.data(self.model_records.index(row, 0)) == element:
-                                    target_row = row
-                                    break
-                            if target_row is not None:
-                                position_text = str(self.model_records.data(self.model_records.index(target_row, 2)))
-                                quantity_text = str(self.model_records.data(self.model_records.index(target_row, 3)))
-                                description_text = str(self.model_records.data(self.model_records.index(target_row, 4)))
-                                length_description=len(description_text)
-
-                            pdf.set_x(1.5)
-                            y_position = pdf.get_y()
-                            pdf.set_font('Helvetica', '', 9)
-                            pdf.cell(1, 0.53, position_text, align='C')
-                            pdf.cell(0.2, 0.53, "")
-                            pdf.cell(1.25, 0.53, quantity_text, align='C')
-                            pdf.cell(0.2, 0.53, "")
-                            x_position = pdf.get_x()
-                            pdf.multi_cell(11.5, 0.53, description_text, align='J')
-                            pdf.set_y(y_position)
-                            pdf.set_x(x_position + 11.7)
-                            pdf.set_font('DejaVuSansCondensed', size=9)
-                            pdf.cell(0.2, 0.53, "")
-                            pdf.cell(1.94, 0.53, str('{:,.2f}'.format(float(self.model_records.data(self.model_records.index(target_row, 5))))).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
-                            pdf.cell(0.2, 0.53, "")
-                            pdf.cell(2.05, 0.53, str('{:,.2f}'.format(float(self.model_records.data(self.model_records.index(target_row, 7))))).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
-                            pdf.set_font('Helvetica', size=9)
-                            pdf.ln(1.5)
-                            y_position = pdf.get_y()
-
-                            if pdf.page_no()<=1:
-                                mark0=9.9
-                                pdf.set_line_width(0.05)
-                                pdf.line(1.3, y_position, 1.3, mark0)
-                                pdf.line(20.4, y_position, 20.4, mark0)
-                                pdf.set_line_width(0.01)
-                                pdf.line(2.6, y_position, 2.6, mark0)
-                                pdf.line(4.05, y_position, 4.05, mark0)
-                                pdf.line(15.95, y_position, 15.95, mark0)
-                                pdf.line(18.1, y_position, 18.1, mark0)
-
-                            else:
-                                mark0 = 3.8
-                                pdf.set_line_width(0.05)
-                                pdf.line(1.3, y_position, 1.3, mark0)
-                                pdf.line(20.4, y_position, 20.4, mark0)
-                                pdf.set_line_width(0.01)
-                                pdf.line(2.6, y_position, 2.6, mark0)
-                                pdf.line(4.05, y_position, 4.05, mark0)
-                                pdf.line(15.95, y_position, 15.95, mark0)
-                                pdf.line(18.1, y_position, 18.1, mark0)
-
-                            if y_position > 26:
-                                if length_description <75:
-                                    mark2=0
-                                elif 75<=length_description <=150:
-                                    mark2 = 0.5
-                                else:
-                                    mark2 = 1.5
-
-                                pdf.set_line_width(0.05)
-                                pdf.line(1.3, y_position + mark2, 1.3, 25)
-                                pdf.line(20.4, y_position + mark2, 20.4, 25)
-                                pdf.set_line_width(0.01)
-                                pdf.line(2.6, y_position + mark2, 2.6, 25)
-                                pdf.line(4.05, y_position + mark2, 4.05, 25)
-                                pdf.line(15.95, y_position + mark2, 15.95, 25)
-                                pdf.line(18.1, y_position + mark2, 18.1, 25)
-
-                        x_position = pdf.get_x()
-                        y_position = pdf.get_y()
-                        pdf.set_line_width(0.05)
-                        pdf.line(1.3,y_position,20.4,y_position)
-
-                        pdf.cell(14, 0.6, "")
-                        pdf.set_font('Helvetica', 'B', 9)
-                        pdf.cell(2.3, 0.6, "Total Materiales:", align='R')
-
-                        pdf.set_font('DejaVuSansCondensed', size=9)
-                        pdf.cell(3, 0.6, '{:,.2f}'.format(float(self.TotalEur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
-                        pdf.ln(1)
-                        pdf.set_font('Helvetica', '', 8)
-                        pdf.cell(14, 0.50, "")
-
-                        if txtcon1 == '':
-                            pdf.cell(2.3, 0.50, '', align='R')
-                            pdf.cell(3, 0.5, '', align='R')
-                        else:
-                            pdf.cell(2.3, 0.50, txtcon1, align='R')
-                            pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con1Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
-
-                        pdf.ln(0.5)
-                        pdf.cell(14, 0.50, "")
-
-                        if txtcon2 == '':
-                            pdf.cell(2.3, 0.50, '', align='R')
-                            pdf.cell(3, 0.5, '', align='R')
-                        else:
-                            pdf.cell(2.3, 0.50, txtcon2, align='R')
-                            pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con2Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
-
-                        pdf.ln(0.5)
-                        pdf.cell(14, 0.50, "")
-
-                        if txtcon3 == '':
-                            pdf.cell(2.3, 0.50, '', align='R')
-                            pdf.cell(3, 0.5, '', align='R')
-                        else:
-                            pdf.cell(2.3, 0.50, txtcon3, align='R')
-                            pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con3Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
-
-                        pdf.ln(0.5)
-                        pdf.cell(14, 0.50, "")
-
-                        if txtcon4 == '':
-                            pdf.cell(2.3, 0.50, '', align='R')
-                            pdf.cell(3, 0.5, '', align='R')
-                        else:
-                            pdf.cell(2.3, 0.50, txtcon4, align='R')
-                            pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con4Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
-
-                        pdf.ln(0.5)
-                        pdf.cell(14, 0.50, "")
-
-                        if txtcon5 == '':
-                            pdf.cell(2.3, 0.50, '', align='R')
-                            pdf.cell(3, 0.5, '', align='R')
-                        else:
-                            pdf.cell(2.3, 0.50, txtcon5, align='R')
-                            pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.Con5Eur_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
-
-                        pdf.ln(1)
-                        pdf.set_font('Helvetica', 'B', 9)
-                        pdf.cell(14, 0.50, "")
-                        pdf.cell(2.3, 0.50, "Base Imponible:", align='R')
-                        pdf.set_font('DejaVuSansCondensed-Bold', size=9)
-                        pdf.cell(3, 0.5, '{:,.2f}'.format(float(self.TaxBase_Invoice.text())).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
-                        pdf.ln(0.5)
-                        pdf.set_font('Helvetica', 'B', 9)
-                        pdf.cell(12.95, 0.50, "")
-
-                        if iva is not None:
-                            pdf.cell(2.3, 0.50, "IVA:", align='R')
-                            pdf.set_font('DejaVuSansCondensed-Bold', size=9)
-                            iva_amount = float(iva) * float(self.TaxBase_Invoice.text()) / 100
-                            pdf.cell(1.5, 0.5, str(iva) + ' %', align='L')
-                            pdf.cell(2.55, 0.5, '{:,.2f}'.format(float(iva_amount)).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
-                        else:
-                            pdf.cell(2.3, 0.50, "", align='R')
-                            iva_amount = 0
-                            pdf.cell(1.5, 0.5, '', align='L')
-                            pdf.cell(2.55, 0.5, '', align='R')
-
-                        pdf.ln(0.7)
-                        pdf.cell(14, 0.50, "")
-                        pdf.set_font('Helvetica', 'B', 11)
-                        pdf.set_line_width(0.05)
-                        pdf.cell(5.3, 0.6, "Total:",1, align='L')
-                        pdf.set_font('DejaVuSansCondensed-Bold', size=11)
-                        total_invoice = float(self.TaxBase_Invoice.text()) + iva_amount
-                        pdf.cell(0, 0.6, '{:,.2f}'.format(float(total_invoice)).replace(',', ' ').replace('.', ',').replace(' ', '.') + ' €', align='R')
-                        pdf.ln(1)
-
-                        pdf_buffer = pdf.output()
-
-                        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp_invoice.pdf"))))
-
-                        with open(temp_file_path, "wb") as temp_file:
-                            temp_file.write(pdf_buffer)
-
-                        pdf.close()
-
-                        self.pdf_viewer.open(QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
-                        self.pdf_viewer.showMaximized()
-                        
-                        break
-                    else:
-                        break
-
-            del dlg_yes_no, new_icon_yes_no
-
-            self.loadinvoicetable()
 
 # Function to submit dollar invoice
     def submitdollarinvoice(self):
