@@ -416,7 +416,17 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
 
         # Iterate over all rows to hide them as necessary
         for row in range(self.rowCount()):
-            self.setRowHidden(row, row in self.general_rows_to_hide)
+            hidden = False
+
+            for col, filters in self.column_filters.items():
+                if filters:
+                    item = self.item(row, col)
+                    item_value = item.text() if item else ""
+                    if item_value not in filters:
+                        hidden = True
+                        break
+
+            self.setRowHidden(row, hidden)
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
@@ -500,8 +510,7 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
                             break
             if show_row:
                 item = self.item(row, column_index)
-                if item:
-                    unique_values.add(item.text())
+                unique_values.add(item.text() if item else '')
         return unique_values
 
 # Function to get values filtered by all columns
@@ -517,6 +526,20 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
             filtered_values[col] = filters
         return filtered_values
 
+# Function to sort column
+    def sort_column(self, column_index, sortOrder):
+        """
+        Sorts the specified column based on the given order. If the column is a date column, a custom sort method is used.
+
+        Args:
+            column_index (int): The index of the column to sort.
+            sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
+        if 'Fecha' in self.horizontalHeaderItem(column_index).text():
+            self.custom_sort(column_index, sortOrder)
+        else:
+            self.sortByColumn(column_index, sortOrder)
+
 # Function to sort column based on special datatypes
     def custom_sort(self, column, order):
         """
@@ -529,7 +552,7 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
         row_count = self.rowCount()
 
         indexes = list(range(row_count))
-        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd-MM-yyyy"))
+        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd/MM/yyyy"))
 
         if order == QtCore.Qt.SortOrder.DescendingOrder:
             indexes.reverse()
@@ -787,7 +810,17 @@ class CustomTableWidgetOthers(QtWidgets.QTableWidget):
 
         # Iterate over all rows to hide them as necessary
         for row in range(self.rowCount()):
-            self.setRowHidden(row, row in self.general_rows_to_hide)
+            hidden = False
+
+            for col, filters in self.column_filters.items():
+                if filters:
+                    item = self.item(row, col)
+                    item_value = item.text() if item else ""
+                    if item_value not in filters:
+                        hidden = True
+                        break
+
+            self.setRowHidden(row, hidden)
 
         header_item = self.horizontalHeaderItem(column_index)
         if len(self.general_rows_to_hide) > 0:
@@ -871,8 +904,7 @@ class CustomTableWidgetOthers(QtWidgets.QTableWidget):
                             break
             if show_row:
                 item = self.item(row, column_index)
-                if item:
-                    unique_values.add(item.text())
+                unique_values.add(item.text() if item else '')
         return unique_values
 
 # Function to get values filtered by all columns
@@ -897,7 +929,7 @@ class CustomTableWidgetOthers(QtWidgets.QTableWidget):
             column_index (int): The index of the column to sort.
             sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
         """
-        if self.horizontalHeaderItem(column_index).text() in ['Fecha']:
+        if 'Fecha' in self.horizontalHeaderItem(column_index).text():
             self.custom_sort(column_index, sortOrder)
         else:
             self.sortByColumn(column_index, sortOrder)
