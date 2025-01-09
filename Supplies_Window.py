@@ -896,6 +896,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         self.model.dataChanged.connect(self.saveChanges)
         self.username = username
         self.id_supply = ''
+        self.reference_supply = ''
         self.setupUi(self)
 
     def closeEvent(self, event):
@@ -1910,6 +1911,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         self.loadquotations(self.model.data(self.model.index(source_index.row(), 0)))
         if self.model.data(self.model.index(source_index.row(), 3)) is not None and self.model.data(self.model.index(source_index.row(), 4)) is not None:
             self.id_supply = self.model.data(self.model.index(source_index.row(), 0))
+            self.reference_supply = self.model.data(self.model.index(source_index.row(), 3)) + " | " + self.model.data(self.model.index(source_index.row(), 4)) + " | " + str(self.model.data(self.model.index(source_index.row(), 0)))
 
 # Function to edit reference or description of supplies
     def edit_supply(self, index):
@@ -2064,7 +2066,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         if self.id_supply != '':
             from ReportPurchaseRefDate_Window import Ui_ReportPurRefDate_Window
             self.purchaserefdate_window=QtWidgets.QMainWindow()
-            self.ui=Ui_ReportPurRefDate_Window(self.username, self.id_supply)
+            self.ui=Ui_ReportPurRefDate_Window(self.username, self.reference_supply)
             self.ui.setupUi(self.purchaserefdate_window)
             self.purchaserefdate_window.showMaximized()
 
