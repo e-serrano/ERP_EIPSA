@@ -2398,7 +2398,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                 cur.execute(query_supplyid, (supply_id,))
                 result_supplyid = cur.fetchone()
 
-                query_quantitysupply = ("""SELECT pending, deliv_quant_1, deliv_quant_2, deliv_quant_3
+                query_quantitysupply = ("""SELECT quantity, deliv_quant_1, deliv_quant_2, deliv_quant_3, quantity
                                         FROM purch_fact.client_ord_detail WHERE id = %s""")
                 cur.execute(query_quantitysupply, (record_id,))
                 result_quantity = cur.fetchone()
@@ -2416,7 +2416,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                 old_quant_deliv = float(old_quant_deliv_1) + float(old_quant_deliv_2) + float(old_quant_deliv_3)
 
                 new_stock= str(float(stock) + old_quant_deliv - new_quant_deliv)
-                new_available_stock= str(float(available_stock) + old_quant_deliv - new_quant_deliv + (float(new_quant_deliv) - float(quantity)))
+                new_available_stock= str(float(available_stock) + float(old_quant) - float(quantity))
                 query_available_stock = ("""UPDATE purch_fact.supplies
                                         SET "physical_stock" = %s, "available_stock" = %s 
                                         WHERE "id" = %s""")
