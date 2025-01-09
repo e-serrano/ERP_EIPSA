@@ -717,7 +717,7 @@ class Ui_ReportPurRefDate_Window(object):
             if conn is not None:
                 conn.close()
 
-        list_supplies=[x[3] + ' | ' + x[4] for x in results_supplies]
+        list_supplies=[x[3] + ' | ' + x[4] + ' | ' +  str(x[0]) for x in results_supplies]
         self.ItemName.addItems([''] + sorted(list_supplies))
 
         self.ItemName.currentTextChanged.connect(self.loaddata)
@@ -759,101 +759,102 @@ class Ui_ReportPurRefDate_Window(object):
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
         supply_name = self.ItemName.currentText()
-        supply_name = supply_name[:supply_name.find(" |")]
+        supply_id = supply_name.split('|')[-1].strip()
 
-        query1 = """
-                SELECT so_header."order_date", suppliers."name", so_header."supplier_order_num", so_det."supplier_ord_header_id"
-                FROM purch_fact.suppliers AS suppliers
-                LEFT JOIN (purch_fact.supplier_ord_header AS so_header LEFT JOIN purch_fact."supplier_ord_detail" AS so_det ON so_header."id" = so_det."supplier_ord_header_id") ON suppliers."id" = so_header."supplier_id"
-                GROUP BY so_header."order_date", suppliers."name", so_header."supplier_order_num", so_det."supplier_ord_header_id"
-                HAVING (((so_det."supplier_ord_header_id") Is Not Null))
-                ORDER BY so_header."supplier_order_num"
-                """
+        if len(supply_name.split('|')) == 3:
+            query1 = """
+                    SELECT so_header."order_date", suppliers."name", so_header."supplier_order_num", so_det."supplier_ord_header_id"
+                    FROM purch_fact.suppliers AS suppliers
+                    LEFT JOIN (purch_fact.supplier_ord_header AS so_header LEFT JOIN purch_fact."supplier_ord_detail" AS so_det ON so_header."id" = so_det."supplier_ord_header_id") ON suppliers."id" = so_header."supplier_id"
+                    GROUP BY so_header."order_date", suppliers."name", so_header."supplier_order_num", so_det."supplier_ord_header_id"
+                    HAVING (((so_det."supplier_ord_header_id") Is Not Null))
+                    ORDER BY so_header."supplier_order_num"
+                    """
 
-        query2 = """
-                SELECT so_det."supplier_ord_header_id", supplies."reference", supplies."description", so_det."quantity", so_det."unit_value", supplies."id"
-                FROM purch_fact.supplies AS supplies
-                LEFT JOIN purch_fact.supplier_ord_detail AS so_det ON supplies."id" = so_det."supply_id"
-                WHERE (((so_det."supplier_ord_header_id") Is Not Null))
-                ORDER BY supplies."reference"
-                """
+            query2 = """
+                    SELECT so_det."supplier_ord_header_id", supplies."reference", supplies."description", so_det."quantity", so_det."unit_value", supplies."id"
+                    FROM purch_fact.supplies AS supplies
+                    LEFT JOIN purch_fact.supplier_ord_detail AS so_det ON supplies."id" = so_det."supply_id"
+                    WHERE (((so_det."supplier_ord_header_id") Is Not Null))
+                    ORDER BY supplies."reference"
+                    """
 
-        query3 = f"""
-                SELECT query2."reference", query2."description", query1."name", query1."order_date", query1."supplier_order_num", query2."quantity", query2."unit_value"
-                FROM ({query1}) AS query1 
-                RIGHT JOIN ({query2}) AS query2 ON query1."supplier_ord_header_id" = query2."supplier_ord_header_id"
-                ORDER BY query2."reference"
-                """
-        commands_supplies = f"""
-                            SELECT query3."name", TO_CHAR(query3."order_date", 'DD/MM/YYYY') AS formatted_date, query3."supplier_order_num", query3."quantity", query3."unit_value", CAST(("quantity"*CAST(query3."unit_value" AS numeric)) AS money) AS SBTOT
-                            FROM ({query3}) AS query3
-                            WHERE (query3."reference"='{supply_name}')
-                            ORDER BY query3."order_date" DESC
-                            """
-        conn = None
+            query3 = f"""
+                    SELECT query2."id", query2."reference", query2."description", query1."name", query1."order_date", query1."supplier_order_num", query2."quantity", query2."unit_value"
+                    FROM ({query1}) AS query1 
+                    RIGHT JOIN ({query2}) AS query2 ON query1."supplier_ord_header_id" = query2."supplier_ord_header_id"
+                    ORDER BY query2."reference"
+                    """
+            commands_supplies = f"""
+                                SELECT query3."name", TO_CHAR(query3."order_date", 'DD/MM/YYYY') AS formatted_date, query3."supplier_order_num", query3."quantity", query3."unit_value", CAST(("quantity"*CAST(query3."unit_value" AS numeric)) AS money) AS SBTOT
+                                FROM ({query3}) AS query3
+                                WHERE (query3."id"='{int(supply_id)}')
+                                ORDER BY query3."order_date" DESC
+                                """
+            conn = None
 
-        try:
-        # read the connection parameters
-            params = config()
-        # connect to the PostgreSQL server
-            conn = psycopg2.connect(**params)
-            cur = conn.cursor()
-        # execution of commands one by one
-            cur.execute(commands_supplies)
-            results=cur.fetchall()
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands one by one
+                cur.execute(commands_supplies)
+                results=cur.fetchall()
 
-            self.df = pd.DataFrame(results, columns=["Nombre", "Fecha Pedido", "Nº Pedido", "Cantidad", "Total", "Subtotal"])
-        # close communication with the PostgreSQL database server
-            cur.close()
-        # commit the changes
-            conn.commit()
+                self.df = pd.DataFrame(results, columns=["Nombre", "Fecha Pedido", "Nº Pedido", "Cantidad", "Total", "Subtotal"])
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
 
-            self.tableWidget.setRowCount(len(results))
-            tablerow=0
+                self.tableWidget.setRowCount(len(results))
+                tablerow=0
 
-            font = QtGui.QFont()
-            font.setPointSize(int(14//self.scale))
+                font = QtGui.QFont()
+                font.setPointSize(int(14//self.scale))
 
-        # fill the Qt Table with the query results
-            for row in results:
-                for column in range(6):
-                    value = row[column]
-                    if value is None:
-                        value = ''
-                    it = QtWidgets.QTableWidgetItem(str(value))
-                    it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
-                    it.setFont(font)
-                    self.tableWidget.setItem(tablerow, column, it)
+            # fill the Qt Table with the query results
+                for row in results:
+                    for column in range(6):
+                        value = row[column]
+                        if value is None:
+                            value = ''
+                        it = QtWidgets.QTableWidgetItem(str(value))
+                        it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                        it.setFont(font)
+                        self.tableWidget.setItem(tablerow, column, it)
 
-                self.tableWidget.setItemDelegateForRow(tablerow, AlignDelegate(self.tableWidget))
-                tablerow+=1
+                    self.tableWidget.setItemDelegateForRow(tablerow, AlignDelegate(self.tableWidget))
+                    tablerow+=1
 
-            self.tableWidget.verticalHeader().hide()
-            self.tableWidget.setSortingEnabled(False)
-            self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+                self.tableWidget.verticalHeader().hide()
+                self.tableWidget.setSortingEnabled(False)
+                self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
 
-            if self.username == 'd.marquez':
-                self.tableWidget.setStyleSheet("gridline-color: rgb(128, 128, 128);")
-                self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
-            else:
-                self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
+                if self.username == 'd.marquez':
+                    self.tableWidget.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+                    self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
+                else:
+                    self.tableWidget.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black; font-weight: bold; font-size: 10pt;}")
 
-        except (Exception, psycopg2.DatabaseError) as error:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Ha ocurrido el siguiente error:\n"
-                        + str(error))
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-            dlg.exec()
-            del dlg, new_icon
-        finally:
-            if conn is not None:
-                conn.close()
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
-        self.calculate_total()
+            self.calculate_total()
 
 
     def generate_excel(self):
