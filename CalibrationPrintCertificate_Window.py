@@ -404,8 +404,21 @@ class Ui_CalibrationPrintCertificate_Window(object):
                     master_element = df.iloc[0,1]
                     isolation = "" if df.iloc[0,18] is None else df.iloc[0,18] + "-" + "" if df.iloc[0,19] is None else df.iloc[0,19]
 
-                    pdf = calibration_certificate(numorder, cert_date, sensor_type, master_element, isolation)
-                    # pdf = calibration_certificate_spanish(numorder, cert_date, sensor_type, master_element)
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("¿Es de tipo nuclear?\n")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                    result = dlg.exec()
+                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                        pdf = calibration_certificate_spanish(numorder, cert_date, sensor_type, master_element)
+                    else:
+                        pdf = calibration_certificate(numorder, cert_date, sensor_type, master_element, isolation)
+                    del dlg, new_icon
+
                     pdf.set_auto_page_break(auto=True, margin=2)
                     pdf.add_page()
                     pdf.alias_nb_pages()
@@ -490,8 +503,15 @@ class Ui_CalibrationPrintCertificate_Window(object):
                             pdf.line(0.5, (y_position + 0.8 * num_blanks), 28.8, (y_position + 0.8 * num_blanks))
                             pdf.set_line_width(0.01)
 
-                        pdf.set_xy(25, pdf.get_y() + 2)
-                        pdf.cell(1, 0.8, 'QUALITY DEPARTMENT', align='C')
+                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            pdf.set_font('Helvetica', 'B', 8)
+                            pdf.multi_cell(12, 0.5, ('OBSERVACIONES: MEDIDAS TOMADAS CON MULTÍMETRO PATRÓN (EIPSA-036)\n'
+                                                    'PROCEDIMIENTO APLICABLE: CE-01 REV.E-2\n'
+                                                    'LOS VALORES OBTENIDOS CUMPLEN CON LA NORMA DIN 43760 (IEC 60751)'), align='L')
+                            pdf.ln()
+                        else:
+                            pdf.set_xy(25, pdf.get_y() + 2)
+                            pdf.cell(1, 0.8, 'QUALITY DEPARTMENT', align='C')
 
                         path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
                         for folder in os.listdir(path):
@@ -531,17 +551,24 @@ class Ui_CalibrationPrintCertificate_Window(object):
                                 pdf.ln(0.8)
 
                             pdf.set_line_width(0.05)
-                            pdf.line(1, y_position, 1, (y_position + 0.8 * num_blanks))
+                            pdf.line(0.5, y_position, 0.5, (y_position + 0.8 * num_blanks))
                             pdf.line(4, y_position, 4, (y_position + 0.8 * num_blanks))
                             pdf.line(10.2, y_position, 10.2, (y_position + 0.8 * num_blanks))
                             pdf.line(16.4, y_position, 16.4, (y_position + 0.8 * num_blanks))
                             pdf.line(22.6, y_position, 22.6, (y_position + 0.8 * num_blanks))
                             pdf.line(28.8, y_position, 28.8, (y_position + 0.8 * num_blanks))
-                            pdf.line(1, (y_position + 0.8 * num_blanks), 28.8, (y_position + 0.8 * num_blanks))
+                            pdf.line(0.5, (y_position + 0.8 * num_blanks), 28.8, (y_position + 0.8 * num_blanks))
                             pdf.set_line_width(0.01)
 
-                        pdf.set_xy(25, pdf.get_y() + 2)
-                        pdf.cell(1, 0.8, 'QUALITY DEPARTMENT', align='C')
+                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            pdf.set_font('Helvetica', 'B', 8)
+                            pdf.multi_cell(12, 0.5, ('OBSERVACIONES: MEDIDAS TOMADAS CON MULTÍMETRO PATRÓN (EIPSA-036)\n'
+                                                    'PROCEDIMIENTO APLICABLE: CE-01 REV.E-2\n'
+                                                    'LOS VALORES OBTENIDOS CUMPLEN CON LA NORMA DIN 43760 (IEC 60751)'), align='L')
+                            pdf.ln()
+                        else:
+                            pdf.set_xy(25, pdf.get_y() + 2)
+                            pdf.cell(1, 0.8, 'QUALITY DEPARTMENT', align='C')
 
                         path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
                         for folder in sorted(os.listdir(path)):
@@ -569,7 +596,10 @@ class Ui_CalibrationPrintCertificate_Window(object):
                     if output_path:
                         try:
                             reader = PdfReader(output_path2)
-                            page_overlay = PdfReader(self.new_content(pdf.get_y())).pages[0]
+                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                page_overlay = PdfReader(self.new_content(17)).pages[0]
+                            else:
+                                page_overlay = PdfReader(self.new_content(pdf.get_y())).pages[0]
 
                             reader.pages[len(reader.pages) - 1].merge_page(page2=page_overlay)
                             writer = PdfWriter()
