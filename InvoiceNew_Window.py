@@ -87,48 +87,48 @@ class CustomTableWidgetInvoice(QtWidgets.QTableWidget):
         if column_index not in self.column_filters:
             self.column_filters[column_index] = set()
 
-        scroll_menu = QtWidgets.QScrollArea()
-        scroll_menu.setWidgetResizable(True)
-        scroll_widget = QtWidgets.QWidget(scroll_menu)
-        scroll_menu.setWidget(scroll_widget)
-        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+    #     scroll_menu = QtWidgets.QScrollArea()
+    #     scroll_menu.setWidgetResizable(True)
+    #     scroll_widget = QtWidgets.QWidget(scroll_menu)
+    #     scroll_menu.setWidget(scroll_widget)
+    #     scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
 
-        checkboxes = []
+    #     checkboxes = []
 
-        select_all_checkbox = QtWidgets.QCheckBox("Seleccionar todo")
-        if column_index in self.checkbox_states:
-            select_all_checkbox.setCheckState(QtCore.Qt.CheckState(self.checkbox_states[column_index].get("Seleccionar todo", QtCore.Qt.CheckState(2))))
-        else:
-            select_all_checkbox.setCheckState(QtCore.Qt.CheckState(2))
-        scroll_layout.addWidget(select_all_checkbox)
-        checkboxes.append(select_all_checkbox)
+    #     select_all_checkbox = QtWidgets.QCheckBox("Seleccionar todo")
+    #     if column_index in self.checkbox_states:
+    #         select_all_checkbox.setCheckState(QtCore.Qt.CheckState(self.checkbox_states[column_index].get("Seleccionar todo", QtCore.Qt.CheckState(2))))
+    #     else:
+    #         select_all_checkbox.setCheckState(QtCore.Qt.CheckState(2))
+    #     scroll_layout.addWidget(select_all_checkbox)
+    #     checkboxes.append(select_all_checkbox)
 
-        unique_values = self.get_unique_values(column_index)
-        filtered_values = self.get_filtered_values()
+    #     unique_values = self.get_unique_values(column_index)
+    #     filtered_values = self.get_filtered_values()
 
-        for value in sorted(unique_values):
-            checkbox = QtWidgets.QCheckBox(value)
-            if select_all_checkbox.isChecked(): 
-                checkbox.setCheckState(QtCore.Qt.CheckState(2))
-            else:
-                if column_index in self.checkbox_states and value in self.checkbox_states[column_index]:
-                    checkbox.setCheckState(QtCore.Qt.CheckState(self.checkbox_states[column_index][value]))
-                elif filtered_values is None or value in filtered_values[column_index]:
-                    checkbox.setCheckState(QtCore.Qt.CheckState(2))
-                else:
-                    checkbox.setCheckState(QtCore.Qt.CheckState(0))
-            scroll_layout.addWidget(checkbox)
-            checkboxes.append(checkbox)
+    #     for value in sorted(unique_values):
+    #         checkbox = QtWidgets.QCheckBox(value)
+    #         if select_all_checkbox.isChecked(): 
+    #             checkbox.setCheckState(QtCore.Qt.CheckState(2))
+    #         else:
+    #             if column_index in self.checkbox_states and value in self.checkbox_states[column_index]:
+    #                 checkbox.setCheckState(QtCore.Qt.CheckState(self.checkbox_states[column_index][value]))
+    #             elif filtered_values is None or value in filtered_values[column_index]:
+    #                 checkbox.setCheckState(QtCore.Qt.CheckState(2))
+    #             else:
+    #                 checkbox.setCheckState(QtCore.Qt.CheckState(0))
+    #         scroll_layout.addWidget(checkbox)
+    #         checkboxes.append(checkbox)
 
-        select_all_checkbox.stateChanged.connect(lambda state: self.set_all_checkboxes_state(checkboxes, state, column_index))
+    #     select_all_checkbox.stateChanged.connect(lambda state: self.set_all_checkboxes_state(checkboxes, state, column_index))
 
-        for value, checkbox in zip(sorted(unique_values), checkboxes[1:]):
-            checkbox.stateChanged.connect(lambda checked, value=value, checkbox=checkbox: self.apply_filter(column_index, value, checked))
+    #     for value, checkbox in zip(sorted(unique_values), checkboxes[1:]):
+    #         checkbox.stateChanged.connect(lambda checked, value=value, checkbox=checkbox: self.apply_filter(column_index, value, checked))
 
-    # Action for drop down menu and adding scroll area as widget
-        action_scroll_menu = QtWidgets.QWidgetAction(menu)
-        action_scroll_menu.setDefaultWidget(scroll_menu)
-        menu.addAction(action_scroll_menu)
+    # # Action for drop down menu and adding scroll area as widget
+    #     action_scroll_menu = QtWidgets.QWidgetAction(menu)
+    #     action_scroll_menu.setDefaultWidget(scroll_menu)
+    #     menu.addAction(action_scroll_menu)
 
         menu.exec(header_pos - QtCore.QPoint(0, header_height))
 
@@ -4305,6 +4305,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.tableInvoice.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableInvoice.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.ResizeMode.Interactive)
         self.tableInvoice.horizontalHeader().setSectionResizeMode(13, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableInvoice.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
         self.tableInvoice.verticalHeader().hide()
 
         self.tableInvoice.hideColumn(0)
