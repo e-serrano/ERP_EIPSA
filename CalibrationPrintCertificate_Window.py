@@ -193,6 +193,16 @@ class Ui_CalibrationPrintCertificate_Window(object):
         self.Sensor.setFont(font)
         self.Sensor.setObjectName("Sensor")
         self.gridlayout.addWidget(self.Sensor, 2, 1, 1, 1)
+        self.checkbox_nuclear = QtWidgets.QCheckBox(parent=self.frame)
+        self.checkbox_nuclear.setEnabled(True)
+        self.checkbox_nuclear.setMinimumSize(QtCore.QSize(200, 30))
+        self.checkbox_nuclear.setMaximumSize(QtCore.QSize(200, 30))
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.checkbox_nuclear.setFont(font)
+        self.checkbox_nuclear.setObjectName("checkbox_nuclear")
+        self.checkbox_nuclear.setText('Nuclear')
+        self.gridlayout.addWidget(self.checkbox_nuclear, 3, 1, 1, 1)
         self.gridLayout_2.addLayout(self.gridlayout, 1, 0, 1, 1)
         spacerItem2 = QtWidgets.QSpacerItem(20, 30, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem2, 2, 0, 1, 1)
@@ -404,16 +414,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                     master_element = df.iloc[0,1]
                     isolation = "" if df.iloc[0,18] is None else df.iloc[0,18] + "-" + "" if df.iloc[0,19] is None else df.iloc[0,19]
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("¿Es de tipo nuclear?\n")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                    result = dlg.exec()
-                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                    if self.checkbox_nuclear.checkState() == QtCore.Qt.CheckState.Checked:
                         pdf = calibration_certificate_spanish(numorder, cert_date, sensor_type, master_element)
                     else:
                         pdf = calibration_certificate(numorder, cert_date, sensor_type, master_element, isolation)
@@ -503,7 +504,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                             pdf.line(0.5, (y_position + 0.8 * num_blanks), 28.8, (y_position + 0.8 * num_blanks))
                             pdf.set_line_width(0.01)
 
-                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                        if self.checkbox_nuclear.checkState() == QtCore.Qt.CheckState.Checked:
                             pdf.set_font('Helvetica', 'B', 8)
                             pdf.multi_cell(12, 0.5, ('OBSERVACIONES: MEDIDAS TOMADAS CON MULTÍMETRO PATRÓN (EIPSA-036)\n'
                                                     'PROCEDIMIENTO APLICABLE: CE-01 REV.E-2\n'
@@ -560,7 +561,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                             pdf.line(0.5, (y_position + 0.8 * num_blanks), 28.8, (y_position + 0.8 * num_blanks))
                             pdf.set_line_width(0.01)
 
-                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                        if self.checkbox_nuclear.checkState() == QtCore.Qt.CheckState.Checked:
                             pdf.set_font('Helvetica', 'B', 8)
                             pdf.multi_cell(12, 0.5, ('OBSERVACIONES: MEDIDAS TOMADAS CON MULTÍMETRO PATRÓN (EIPSA-036)\n'
                                                     'PROCEDIMIENTO APLICABLE: CE-01 REV.E-2\n'
@@ -596,7 +597,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                     if output_path:
                         try:
                             # reader = PdfReader(output_path2)
-                            # if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            # if self.checkbox_nuclear.checkState() == QtCore.Qt.CheckState.Checked:
                             #     page_overlay = PdfReader(self.new_content(17)).pages[0]
                             # else:
                             #     page_overlay = PdfReader(self.new_content(pdf.get_y())).pages[0]
