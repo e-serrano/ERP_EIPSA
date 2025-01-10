@@ -1281,7 +1281,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
                     pdf.cell(1.38, 0.75, "", border=1)
                     pdf.ln()
 
-            pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/QualityControlStamp.png")), 14, 26, 5, 3)
+            # pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/QualityControlStamp.png")), 14, 26, 5, 3)
 
             pdf_buffer = pdf.output()
 

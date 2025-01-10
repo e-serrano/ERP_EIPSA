@@ -595,16 +595,16 @@ class Ui_CalibrationPrintCertificate_Window(object):
 
                     if output_path:
                         try:
-                            reader = PdfReader(output_path2)
-                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                                page_overlay = PdfReader(self.new_content(17)).pages[0]
-                            else:
-                                page_overlay = PdfReader(self.new_content(pdf.get_y())).pages[0]
+                            # reader = PdfReader(output_path2)
+                            # if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            #     page_overlay = PdfReader(self.new_content(17)).pages[0]
+                            # else:
+                            #     page_overlay = PdfReader(self.new_content(pdf.get_y())).pages[0]
 
-                            reader.pages[len(reader.pages) - 1].merge_page(page2=page_overlay)
-                            writer = PdfWriter()
-                            writer.append_pages_from_reader(reader)
-                            writer.write(output_path)
+                            # reader.pages[len(reader.pages) - 1].merge_page(page2=page_overlay)
+                            # writer = PdfWriter()
+                            # writer.append_pages_from_reader(reader)
+                            # writer.write(output_path)
 
                             dlg = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
