@@ -20,7 +20,9 @@ import locale
 import os
 from datetime import *
 import pandas as pd
-from tkinter.filedialog import asksaveasfilename
+from tkinter.filedialog import asksaveasfilename, askopenfilename
+from openpyxl import load_workbook
+from openpyxl.styles import PatternFill
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -754,12 +756,21 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.toolExpExcel = QtWidgets.QToolButton(self.frame)
         self.toolExpExcel.setObjectName("ExpExcel_Button")
         self.toolExpExcel.setToolTip("Exportar a Excel")
-        self.hcab.addWidget(self.toolExpExcel)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolExpExcel.setIcon(icon)
         self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
-
+        self.hcab.addWidget(self.toolExpExcel)
+        self.hcabspacer3=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer3)
+        self.toolCompare = QtWidgets.QToolButton(self.frame)
+        self.toolCompare.setObjectName("toolCompare")
+        self.toolCompare.setToolTip("Comparar con pedido inicial")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Comparison.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolCompare.setIcon(icon)
+        self.toolCompare.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolCompare)
         self.hcabspacer2=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer2)
         self.gridLayout_2.addLayout(self.hcab, 0, 0, 1, 1)
@@ -974,6 +985,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolShow.clicked.connect(self.show_columns)
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
+        # self.toolCompare.clicked.connect(self.data_comparison)
         try:
             self.Numoffer_EditTags.returnPressed.connect(self.query_tags)
         except Exception as error:
@@ -3093,6 +3105,98 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             self.hiddencolumns.append(column)
 
         self.context_menu.close()
+
+# Function to compare table with Excel with initial values and generate excel with cells with differences painted
+    def data_comparison(self):
+        """
+        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
+
+        Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
+        """
+        if self.proxy.rowCount() == 0:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Exportar")
+            dlg.setText("No hay datos cargados")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+        else:
+            final_data = []
+
+            visible_columns = [col for col in range(self.model.columnCount()) if not self.tableEditTags.isColumnHidden(col)]
+            visible_headers = self.model.getColumnHeaders(visible_columns)
+            for row in range(self.proxy.rowCount()):
+                tag_data = []
+                for column in visible_columns:
+                    value = self.proxy.data(self.proxy.index(row, column))
+                    if isinstance(value, QDate):
+                        value = value.toString("dd/MM/yyyy")
+                    tag_data.append(value)
+                final_data.append(tag_data)
+
+            final_data.insert(0, visible_headers)
+            df_generated = pd.DataFrame(final_data)
+            df_generated.columns = df_generated.iloc[0]
+
+            if self.variable == 'Caudal':
+                df_generated = df_generated.iloc[1:,:39]
+            
+            elif self.variable == 'Temperatura':
+                df_generated = df_generated.iloc[1:,:39]
+
+        output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
+        if output_path:
+            df_generated.to_excel(output_path, index=False, header=True)
+        
+        comparison_file = askopenfilename(filetypes=[("Excel files", "*.xlsx")])
+
+        if not comparison_file:
+            print("No se seleccionó ningún archivo.")
+            return
+
+        # Read Excel file with original data
+        if self.variable == 'Caudal':
+            df_original = pd.read_excel(comparison_file, usecols=range(39), skiprows=7, dtype=str, keep_default_na=False)
+        elif self.variable == 'Temperatura':
+            df_original = pd.read_excel(comparison_file, usecols=range(39), skiprows=7, dtype=str, keep_default_na=False)
+
+        if df_generated.shape != df_original.shape:
+            print("Los archivos tienen diferentes formas y no se pueden comparar.")
+            return
+
+        # Open generated excel
+        workbook = load_workbook(output_path)
+        sheet = workbook.active
+
+        # Red fill for diferencesRelleno rojo para diferencias
+        fill_red = PatternFill(start_color="fa5151", end_color="fa5151", fill_type="solid")
+
+        # Sorting both dataframes by ID
+        df_generated = df_generated.sort_values(by=df_generated.columns[0])
+        df_original = df_original.sort_values(by=df_original.columns[0])
+
+        # Compare cell by cell
+        for row in range(df_generated.shape[0]):
+            for col in range(df_generated.shape[1]):
+                gen_value = df_generated.iloc[row, col]
+                comp_value = df_original.iloc[row, col]
+
+                print(gen_value, comp_value)
+
+                if pd.isna(gen_value) and pd.isna(comp_value):
+                    continue  # Both cell are NaN, no differences
+
+                if gen_value != comp_value:
+                    # Fill cell in red if there is difference
+                    excel_row = row + 2  # +2 to adjust to Excel index (1-based) and header
+                    excel_col = col + 1  # +1 to adjust to Excel index (1-based)
+                    sheet.cell(row=excel_row, column=excel_col).fill = fill_red
+
+        # Save file with differences filled
+        workbook.save(output_path)
 
 
 if __name__ == "__main__":

@@ -18,7 +18,7 @@ from datetime import *
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
 
-class Ui_OrderAccept_Window(object):
+class Ui_OrderAccept_Window(QtWidgets.QMainWindow):
     """
     UI class for the Order Accept window.
     """
@@ -29,7 +29,9 @@ class Ui_OrderAccept_Window(object):
         Args:
             username (str): username associated with the window.
         """
+        super(Ui_OrderAccept_Window, self).__init__()
         self.username=username
+        self.setupUi(self)
 
     def setupUi(self, OrderAccept_Window):
         """
@@ -558,34 +560,51 @@ class Ui_OrderAccept_Window(object):
                     del dlg, new_icon
 
                 elif self.shortformat.isChecked() == True:
-                    doc = DocxTemplate(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Corto Pedido.docx")
-                    context = {'client': client,
-                                'spanish_actual_date': spanish_actual_date,
+                    while True:
+                        answer, ok = QtWidgets.QInputDialog.getItem(self, "Acuse Pedido", "¿En inglés?:", ['Sí', 'No'], 0, False)
+                        if ok and answer:
+                            if answer == 'Sí':
+                                doc = DocxTemplate(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Corto Pedido - Inglés.docx")
+                            else:
+                                doc = DocxTemplate(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\Plantilla Acuse Corto Pedido.docx")
+                            context = {'english_actual_date': english_actual_date,
                                 'num_ref_order': str(num_ref_order).replace("&", "&amp;"),
                                 'num_order': num_order,
+                                'english_order_date': english_order_date,
                                 'spanish_order_date': spanish_order_date,
                                 'order_amount': order_amount,
                                 'delivery_term': delivery_term,
                                 'delivery_time': delivery_time,
+                                'payment_term_english': payment_term_english,
+                                'payment_term_spanish': payment_term_spanish,
+                                'english_estimated_date': english_estimated_date,
+                                'spanish_estimated_date': spanish_estimated_date,
+                                'num_offer': num_offer,
+                                'client': client,
+                                'note_bond_english': note_bond_english,
                                 'note_bond_spanish': note_bond_spanish,
                                 'address_client': address_client,
                                 'zipcode_client': zipcode_client,
                                 'city_client': city_client, 
                                 'country_client': country_client,
                                 'client_responsible': client_responsible}
-                    doc.render(context)
-                    self.save_document(doc)
+                            doc.render(context)
+                            self.save_document(doc)
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Generar Acuse")
-                    dlg.setText("Acuse generado con éxito\n\n"
-                                "Revise los apartados de plazo de entrega, incoterms y aval")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("Generar Acuse")
+                            dlg.setText("Acuse generado con éxito\n\n"
+                                        "Revise los apartados de plazo de entrega, incoterms y aval")
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                            dlg.exec()
+                            del dlg, new_icon
+
+                            break
+                        else:
+                            break
 
                 else:
                     dlg = QtWidgets.QMessageBox()
