@@ -1094,9 +1094,10 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
                         self.checkbox_states_AL[column][str(value)] = True
                 self.dict_valuesuniques_AL[column] = list_valuesUnique
 
-        for i in range(1,4):
-            self.tableWorkshop_P.hideColumn(i)
-            self.tableWorkshop_PA.hideColumn(i)
+        self.tableWorkshop_P.hideColumn(1)
+        self.tableWorkshop_P.hideColumn(3)
+        self.tableWorkshop_PA.hideColumn(1)
+        self.tableWorkshop_PA.hideColumn(3)
         for i in range(5,11):
             self.tableWorkshop_P.hideColumn(i)
             self.tableWorkshop_PA.hideColumn(i)
@@ -1110,7 +1111,7 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
             self.tableWorkshop_P.hideColumn(i)
             self.tableWorkshop_PA.hideColumn(i)
 
-        headers=['Nº Pedido', '','','','Fecha Contractual','','','','','','',
+        headers=['Nº Pedido', '','Nº Ref','','Fecha Contractual','','','','','','',
                 '% Fabricación','Cambios %','Fecha Recepción','F. Prevista Taller','Observaciones',
                 '','','','F. Prevista Montaje','','','','','','OK','','','','','','']
 
@@ -1495,8 +1496,8 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
                         self.checkbox_states_P[column][str(value)] = True
                 self.dict_valuesuniques_P[column] = list_valuesUnique
 
-        for i in range(1,4):
-            self.tableWorkshop_P.hideColumn(i)
+        self.tableWorkshop_P.hideColumn(1)
+        self.tableWorkshop_P.hideColumn(3)
         for i in range(5,11):
             self.tableWorkshop_P.hideColumn(i)
         for i in range(16,19):
@@ -1506,7 +1507,7 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         for i in range(26,32):
             self.tableWorkshop_P.hideColumn(i)
 
-        headers=['Nº Pedido', '','','','Fecha Contractual','','','','','','',
+        headers=['Nº Pedido', '','Nº Ref','','Fecha Contractual','','','','','','',
                 '% Fabricación','Cambios %','Fecha Recepción','F. Prevista Taller','Observaciones',
                 '','','','F. Prevista Montaje','','','','','','OK','','','','','','']
 
@@ -1837,8 +1838,8 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
                         self.checkbox_states_PA[column][str(value)] = True
                 self.dict_valuesuniques_PA[column] = list_valuesUnique
 
-        for i in range(1,4):
-            self.tableWorkshop_PA.hideColumn(i)
+        self.tableWorkshop_PA.hideColumn(1)
+        self.tableWorkshop_PA.hideColumn(3)
         for i in range(5,11):
             self.tableWorkshop_PA.hideColumn(i)
         for i in range(16,19):
@@ -1848,7 +1849,7 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
         for i in range(26,32):
             self.tableWorkshop_PA.hideColumn(i)
 
-        headers=['Nº Pedido', '','','','Fecha Contractual','','','','','','',
+        headers=['Nº Pedido', '','Nº Ref','','Fecha Contractual','','','','','','',
                 '% Fabricación','Cambios %','Fecha Recepción','F. Prevista Taller','Observaciones',
                 '','','','F. Prevista Montaje','','','','','','OK','','','','','','']
 

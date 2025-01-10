@@ -852,9 +852,10 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                         self.checkbox_states_PA[column][str(value)] = True
                 self.dict_valuesuniques_PA[column] = list_valuesUnique
 
-        for i in range(1,4):
-            self.tableAssembly_P.hideColumn(i)
-            self.tableAssembly_PA.hideColumn(i)
+        self.tableAssembly_P.hideColumn(1)
+        self.tableAssembly_P.hideColumn(3)
+        self.tableAssembly_PA.hideColumn(1)
+        self.tableAssembly_PA.hideColumn(3)
         for i in range(5,14):
             self.tableAssembly_P.hideColumn(i)
             self.tableAssembly_PA.hideColumn(i)
@@ -867,7 +868,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             self.tableAssembly_P.hideColumn(i)
             self.tableAssembly_PA.hideColumn(i)
 
-        headers=['Nº Pedido', '','','','F. Cont.','','','','','','','','','','F. Prev. Taller','',
+        headers=['Nº Pedido', '','Nº Ref','','F. Cont.','','','','','','','','','','F. Prev. Taller','',
                 '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones',
                 '', '', '', '','OK', '', '', '', '', '']
 
@@ -964,8 +965,8 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                         self.checkbox_states_P[column][str(value)] = True
                 self.dict_valuesuniques_P[column] = list_valuesUnique
 
-        for i in range(1,4):
-            self.tableAssembly_P.hideColumn(i)
+        self.tableAssembly_P.hideColumn(1)
+        self.tableAssembly_P.hideColumn(3)
         for i in range(5,14):
             self.tableAssembly_P.hideColumn(i)
         self.tableAssembly_P.hideColumn(15)
@@ -974,7 +975,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         for i in range(26,32):
             self.tableAssembly_P.hideColumn(i)
 
-        headers=['Nº Pedido', '','','','F. Cont.','','','','','','','','','','F. Prev. Taller','',
+        headers=['Nº Pedido', '','Nº Ref','','F. Cont.','','','','','','','','','','F. Prev. Taller','',
                 '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones',
                 '', '', '', '','OK', '', '', '', '', '']
 
@@ -1033,8 +1034,8 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                         self.checkbox_states_PA[column][str(value)] = True
                 self.dict_valuesuniques_PA[column] = list_valuesUnique
 
-        for i in range(1,4):
-            self.tableAssembly_PA.hideColumn(i)
+        self.tableAssembly_PA.hideColumn(1)
+        self.tableAssembly_PA.hideColumn(3)
         for i in range(5,16):
             self.tableAssembly_PA.hideColumn(i)
         for i in range(21,25):
@@ -1042,7 +1043,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         for i in range(26,32):
             self.tableAssembly_PA.hideColumn(i)
 
-        headers=['Nº Pedido', '','','','F. Cont.','','','','','','','','','','F. Prev. Taller','',
+        headers=['Nº Pedido', '','Nº Ref','','F. Cont.','','','','','','','','','','F. Prev. Taller','',
                 '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones',
                 '', '', '', '','OK', '', '', '', '', '']
 
