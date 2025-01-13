@@ -532,14 +532,22 @@ class Ui_New_Order_Window(object):
                                             )
                                             VALUES (%s,%s,%s,%s)
                                             """)
+                    commands_project_client = ("""SELECT client, project FROM offers WHERE num_offer = %s""")
 
                     cur.execute(commands_usernames)
                     results_usernames=cur.fetchall()
                     results_usernames.append(['m.sahuquillo',])
 
+                    cur.execute(commands_project_client, (self.num_offer,))
+                    results_project_client=cur.fetchall()
+
                     if numorder[-1] != 'R':
                         for user_data in results_usernames:
-                            data = (user_data[0], "Nuevo pedido: " + numorder, "Pendiente", actual_date)
+                            if user_data[0] == 'e.carrillo':
+                                data = (user_data[0], "Nuevo pedido: " + numorder + "\nProyecto: " + results_project_client[0][1] + "\nCliente: " + results_project_client[0][0], "Pendiente", actual_date)
+                                cur.execute(commands_notification_neworder, data)
+                            else:
+                                data = (user_data[0], "Nuevo pedido: " + numorder, "Pendiente", actual_date)
                             cur.execute(commands_notification_neworder, data)
                     else:
                         data = ('m.sahuquillo', "Nuevo pedido: " + numorder, "Pendiente", actual_date)
