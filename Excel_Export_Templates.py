@@ -6794,6 +6794,175 @@ class doc_situation:
             wb.save(output_path)
             return output_path
 
+class vendor_progress_report:
+    """
+    A class to manage document situation of an order
+    
+    Attributes:
+        num_ref (str): The reference number for the document.
+    """
+    def __init__(self, num_ref):
+        """
+        Initializes a vendor_progress_report instance with project reference.
+        
+        Args:
+            num_ref (str): The reference number for the project.
+        """
+        self.num_ref = num_ref
+
+        query_flow = ('''
+            SELECT tags_data.tags_flow."num_po"
+            FROM tags_data.tags_flow
+            WHERE UPPER (tags_data.tags_flow."num_po") LIKE UPPER('%%'||%s||'%%')
+            ''')
+        query_temp = ('''
+            SELECT tags_data.tags_temp."num_po"
+            FROM tags_data.tags_temp
+            WHERE UPPER (tags_data.tags_temp."num_po") LIKE UPPER('%%'||%s||'%%')
+            ''')
+        query_level = ('''
+            SELECT tags_data.tags_level."num_po"
+            FROM tags_data.tags_level
+            WHERE UPPER (tags_data.tags_level."num_po") LIKE UPPER('%%'||%s||'%%')
+            ''')
+        query_others = ('''
+            SELECT tags_data.tags_others."num_po"
+            FROM tags_data.tags_others
+            WHERE UPPER (tags_data.tags_others."num_po") LIKE UPPER('%%'||%s||'%%')
+            ''')
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(query_flow,(num_ref,))
+            results_flow=cur.fetchall()
+            cur.execute(query_temp,(num_ref,))
+            results_temp=cur.fetchall()
+            cur.execute(query_level,(num_ref,))
+            results_level=cur.fetchall()
+            cur.execute(query_others,(num_ref,))
+            results_others=cur.fetchall()
+
+            if len(results_flow) != 0 and len(results_temp) != 0:
+                self.variable = 'Caudal+Temp'
+            elif len(results_flow) != 0 and len(results_level) != 0:
+                self.variable = 'Caudal+Nivel'
+            elif len(results_flow) != 0:
+                self.variable = 'Caudal'
+            elif len(results_temp) != 0:
+                self.variable = 'Temperatura'
+            elif len(results_level) != 0:
+                self.variable = 'Nivel'
+            elif len(results_others) != 0:
+                self.variable = 'Otros'
+            else:
+                self.variable = ''
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        if self.variable == 'Caudal+Temp':
+            self.table_query = "tags_data.tags_flow"
+            self.table_query2 = "tags_data.tags_temp"
+        elif self.variable =='Caudal+Nivel':
+            self.table_query = 'tags_data.tags_flow'
+            self.table_query2 = 'tags_data.tags_level'
+        elif self.variable == 'Caudal':
+            self.table_query = "tags_data.tags_flow"
+        elif self.variable == 'Temperatura':
+            self.table_query = "tags_data.tags_temp"
+        elif self.variable == 'Nivel':
+            self.table_query = "tags_data.tags_level"
+        elif self.variable == 'Otros':
+            self.table_query = "tags_data.tags_others"
+
+        commands_query_data = (
+                    f"""SELECT orders."num_ref_order", '' as suppl, tags_data."position", tags_data."subposition", tags_data."tag", '' as empty_column, tags_data."item_type",
+                    '' as empty_column2, '' as empty_column3, 'FCA' as incoterm,
+                    'Poligono Industrial Igarsa, Naves 4-8, 28860, Paracuellos de Jarama, Spain' as delivery_place, 0 as item_ship_qty,
+                    0 as qty_unit, 1 as irc_qty, TO_CHAR(tags_data."irc_date", 'DD/MM/YYYY'), 1 as rn_qty, tags_data."rn_delivery", TO_CHAR(tags_data."rn_date", 'DD/MM/YYYY'),
+                    '' as osd_number, TO_CHAR(tags_data."contractual_date", 'DD/MM/YYYY'), '' as forecast_date, '' as deviation, 'EIPSA' as manufacturer,
+                    'Poligono Industrial Igarsa, Naves 4-8, 28860, Paracuellos de Jarama, Spain' as fab_location, tags_data."inspection", '' as remarks
+                    FROM {self.table_query} AS tags_data
+                    JOIN orders ON (orders."num_ref_order" = tags_data."num_po")
+                    WHERE tags_data."num_po" LIKE UPPER ('%%'||'{self.num_ref}'||'%%')
+                    ORDER BY tags_data."tag"
+                    """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(commands_query_data,(self.num_ref,))
+            results_progress=cur.fetchall()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            print(error)
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        column_headers = ['PO Number', 'Suppl.', 'Pos', 'Sub', 'TAG', '', 'Ident Description',
+                        'D1', 'SCH1', 'Incoterm', 'Delivery Place', 'Item Ship. Qty', 'Quantity Unit', 'IRC QTY', 'IRC date',
+                        'RN QTY', 'RN Number', 'RN date', 'OSD Number', 'Contractual Delivery Date', 'Forecast Delivery Date', 'DEVIATION (days)',
+                        'Manufacturer', 'Fab. Location', 'Final Inspection Date', 'Remarks']
+
+        self.data_vpr = pd.DataFrame(data=results_progress, columns=column_headers)
+
+
+    def save_excel_doc(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
+        file_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Excel Files", "*.xlsx")])
+
+        if file_path:
+            writer = pd.ExcelWriter(file_path, engine='openpyxl')
+            self.data_vpr.to_excel(writer, index=False, sheet_name='Sheet1')
+
+            # Set date format
+            date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
+            for col_num in range(25):
+                if col_num in [15, 18, 20, 21, 25]:  
+                    for row_num in range(1, self.data_vpr.shape[0] + 5):
+                        cell = writer.sheets['Sheet1'].cell(row=row_num, column=col_num)
+                        cell.style = date_style
+
+            writer._save()
+
 # Templates for technicals
 class nuclear_annexes:
     """
