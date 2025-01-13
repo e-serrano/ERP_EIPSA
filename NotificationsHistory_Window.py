@@ -253,8 +253,8 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
             self.tableNotifications.verticalHeader().hide()
             self.tableNotifications.setItemDelegate(AlignDelegate(self.tableNotifications))
             self.tableNotifications.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableNotifications.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             self.tableNotifications.hideColumn(0)
-            self.tableNotifications.hideColumn(1)
             self.tableNotifications.sortByColumn(2, QtCore.Qt.SortOrder.AscendingOrder)
 
         except (Exception, psycopg2.DatabaseError) as error:
@@ -329,7 +329,9 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
         if item.column() == 2 and item.text().split(': ')[0]=='Nuevo pedido':
             num_order = item.text().split(': ')[1]
             self.edit_tag(num_order)
-
+        elif item.column() == 1:
+            self.id_notification = item.text()
+            self.show_dialog(self.id_notification)
 
 # Function to open window for tag edition
     def edit_tag(self, num_order):
@@ -350,6 +352,109 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
 
         self.edit_tags_app = Ui_EditTags_Technical_Window(self.username, db_tags_tech_not, num_order)
         self.edit_tags_app.show()
+
+# Function to show dialog to insert notes
+    def show_dialog(self, id_notification):
+        """
+        Displays a dialog window allowing the user to view and edit notes.
+        """
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            commands_notifications = f" SELECT notes FROM notifications.notifications_orders WHERE id = {id_notification}"
+            cur.execute(commands_notifications)
+            results=cur.fetchall()
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        dlg = QtWidgets.QDialog()
+        dlg.setWindowTitle("Dialog")
+        dlg.setGeometry(50, 50, 900, 600)
+        dlg.setWindowModality(QtCore.Qt.WindowModality.NonModal)
+
+        vLayout = QtWidgets.QVBoxLayout(dlg)
+
+        btn = QtWidgets.QPushButton("Guardar")
+        vLayout.addWidget(btn)
+        btn.clicked.connect(self.save_notes)
+        
+        self.te = QtWidgets.QTextEdit()
+        self.te.setText(str(results[0][0] if results[0][0] is not None else ''))
+        self.te.setStyleSheet("background-color: transparent;")
+        vLayout.addWidget(self.te)
+
+        # dlg.exec()
+
+        dlg.show()
+
+        self.dialog = dlg
+
+# Function to save notes
+    def save_notes(self):
+        """
+        Saves the supplier order comments to the database.
+        """
+        id_notification = self.id_notification
+        notes_notification = self.te.toPlainText()
+
+        commands_updateorder = ("""
+                        UPDATE notifications.notifications_orders
+                        SET "notes" = %s
+                        WHERE "id" = %s
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of principal command
+            data=(notes_notification, id_notification,)
+            cur.execute(commands_updateorder, data)
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+
 
 
 if __name__ == "__main__":
