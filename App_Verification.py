@@ -1013,7 +1013,7 @@ class Ui_App_Verification(object):
         self.ui.setupUi(self.verifpieces_window)
         self.verifpieces_window.show()
 
-
+# Funtion to update revision date for machines
     def update_machines_revision(self):
         """
         Updates the revisions for machines
