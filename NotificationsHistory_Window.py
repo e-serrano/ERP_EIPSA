@@ -327,7 +327,7 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
             item (QtWidgets.QTableWidgetItem): The item that was double-clicked.
         """
         if item.column() == 2 and item.text().split(': ')[0]=='Nuevo pedido':
-            num_order = item.text().split(': ')[1]
+            num_order = item.text().split(': ')[1].split('\n')[0]
             self.edit_tag(num_order)
         elif item.column() == 1:
             self.id_notification = item.text()
@@ -460,6 +460,6 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    HistoryNotifications_Window = Ui_HistoryNotifications_Window('s.sanchez')
+    HistoryNotifications_Window = Ui_HistoryNotifications_Window('e.carrillo')
     HistoryNotifications_Window.show()
     sys.exit(app.exec())
