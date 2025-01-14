@@ -482,6 +482,8 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         self.tableDispatch.horizontalHeader().sectionClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableDispatch, self.model, self.proxy))
         self.model.dataChanged.connect(self.saveChanges)
 
+        self.tableDispatch.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableDispatch, self.model, self.proxy)
+
 
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, Dispatch_Window):
@@ -560,6 +562,8 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
 
         self.model.setAllColumnHeaders(headers)
         self.model.dataChanged.connect(self.saveChanges)
+
+        self.tableDispatch.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableDispatch, self.model, self.proxy)
 
 # Function to delete all filters when tool button is clicked
     def delete_allFilters(self):
@@ -964,6 +968,50 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
 
             return text_doc.toPlainText()
 
+# Function for key events
+    def custom_keyPressEvent(self, event, table, model, proxy):
+        """
+        Handles custom key events for cell operations in the table, including delete, copy, paste, and custom shortcuts.
+
+        Args:
+            event (QtGui.QKeyEvent): The key event to handle.
+            table (QtWidgets.QTableView or QtWidgets.QTableWidget): The table that is handling the event.
+            model (QtCore.QAbstractItemModel): The model associated with the table.
+            proxy (QtCore.QSortFilterProxyModel): The proxy model used for filtering or sorting, if applicable.
+        """
+        if event.key() == QtCore.Qt.Key.Key_Delete: # Event when delete key is pressed
+            selected_indexes = table.selectionModel().selectedIndexes()
+            if not selected_indexes:
+                return
+            
+            model = table.model()
+            model_indexes = [model.mapToSource(index) for index in selected_indexes]
+
+            if isinstance(model, QtCore.QSortFilterProxyModel):
+                model_indexes = [model.mapToSource(index) for index in selected_indexes]
+                for index in model_indexes:
+                    model.sourceModel().setData(index, None)
+            else:
+                model_indexes = selected_indexes
+                for index in model_indexes:
+                    model.setData(index, None)
+
+        elif event.modifiers() and QtCore.Qt.KeyboardModifier.ControlModifier: # Event when ctrl + comma is pressed
+            if event.key() == QtCore.Qt.Key.Key_Comma:
+                selected_indexes = table.selectionModel().selectedIndexes()
+                if not selected_indexes:
+                    return
+
+                model = table.model()
+
+                if isinstance(model, QtCore.QSortFilterProxyModel):
+                    model_indexes = [model.mapToSource(index) for index in selected_indexes]
+                    for index in model_indexes:
+                        model.sourceModel().setData(index, date.today().strftime("%d/%m/%Y"))
+                else:
+                    model_indexes = selected_indexes
+                    for index in model_indexes:
+                        model.setData(index, date.today().strftime("%d/%m/%Y"))
 
 
 
