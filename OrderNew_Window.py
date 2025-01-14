@@ -541,17 +541,17 @@ class Ui_New_Order_Window(object):
                     cur.execute(commands_project_client, (self.num_offer,))
                     results_project_client=cur.fetchall()
 
-                    if numorder[-1] != 'R':
-                        for user_data in results_usernames:
+                    for user_data in results_usernames:
+                        if numorder[-1] != 'R':
                             if user_data[0] == 'e.carrillo':
                                 data = (user_data[0], "Nuevo pedido: " + numorder + "\nProyecto: " + results_project_client[0][1] + "\nCliente: " + results_project_client[0][0], "Pendiente", actual_date)
                                 cur.execute(commands_notification_neworder, data)
                             else:
                                 data = (user_data[0], "Nuevo pedido: " + numorder, "Pendiente", actual_date)
                             cur.execute(commands_notification_neworder, data)
-                    else:
-                        data = ('m.sahuquillo', "Nuevo pedido: " + numorder, "Pendiente", actual_date)
-                        cur.execute(commands_notification_neworder, data)
+                        else:
+                            data = ('m.sahuquillo', "Nuevo pedido: " + numorder, "Pendiente", actual_date)
+                            cur.execute(commands_notification_neworder, data)
 
                 # close communication with the PostgreSQL database server
                     cur.close()
