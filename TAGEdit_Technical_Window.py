@@ -1446,7 +1446,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     elif self.variable == 'Otros':
                         self.model.setTable("tags_data.tags_others")
                         self.model.table_check = "tags_data.tags_others"
-                        self.initial_column = 15
+                        self.initial_column = 11
                         self.initial_column2 = 25
                     self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
                     self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
