@@ -921,6 +921,11 @@ class Ui_EditTags_WorkshopDrawings_Window(QtWidgets.QMainWindow):
                         self.variable2 = 'Nivel'
                         self.model.setTable("tags_data.tags_flow")
                         self.model2.setTable("tags_data.tags_level")
+                    elif self.variable =='Temp+Nivel':
+                        self.variable = 'Temperatura'
+                        self.variable2 = 'Nivel'
+                        self.model.setTable("tags_data.tags_temp")
+                        self.model2.setTable("tags_data.tags_level")
                     elif self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
                     elif self.variable == 'Temperatura':
@@ -929,8 +934,8 @@ class Ui_EditTags_WorkshopDrawings_Window(QtWidgets.QMainWindow):
                         self.model.setTable("tags_data.tags_level")
                     elif self.variable == 'Otros':
                         self.model.setTable("tags_data.tags_others")
-                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND tag_state = 'PURCHASED'")
-                    self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
+                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND tag_state <> 'FOR INVOICING'")
+                    self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND tag_state <> 'FOR INVOICING'")
 
         if self.variable != '':
             self.tableEditTags.setModel(None)

@@ -846,7 +846,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                 self.model.setTable("tags_data.tags_level")
             elif self.variable == 'Otros':
                 self.model.setTable("tags_data.tags_others")
-            self.model.setFilter(f"tag <>'' AND UPPER(tag) LIKE '%{self.tag.upper()}%'")
+            self.model.setFilter(f"tag <>'' AND UPPER(tag) LIKE '%{self.tag.upper()}%' AND tag_state <> 'FOR INVOICING'")
 
         if self.variable != '':
             self.tableEditTags.setModel(None)

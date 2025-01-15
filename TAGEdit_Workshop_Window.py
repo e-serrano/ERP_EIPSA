@@ -1372,6 +1372,13 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                         self.model2.setTable("tags_data.tags_level")
                         self.variable_cells = [47,48]
                         self.variable_cells2 = [51,52]
+                    elif self.variable =='Temp+Nivel':
+                        self.variable = 'Temperatura'
+                        self.variable2 = 'Nivel'
+                        self.model.setTable("tags_data.tags_temp")
+                        self.model2.setTable("tags_data.tags_level")
+                        self.variable_cells = [57,58,62]
+                        self.variable_cells2 = [51,52]
                     elif self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
                         self.variable_cells = [47,48]
@@ -1385,8 +1392,8 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                     elif self.variable == 'Otros':
                         self.model.setTable("tags_data.tags_others")
                         self.variable_cells = [15,16]
-                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
-                    self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
+                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND tag_state <> 'FOR INVOICING'")
+                    self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND tag_state <> 'FOR INVOICING'")
 
         if self.variable != '':
             self.tableEditTags2.hide()

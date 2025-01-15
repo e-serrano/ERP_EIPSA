@@ -1376,6 +1376,8 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                             self.variable = 'Caudal+Temp'
                         elif len(results_flow) != 0 and len(results_level) != 0:
                             self.variable = 'Caudal+Nivel'
+                        elif len(results_temp) != 0 and len(results_level) != 0:
+                            self.variable = 'Temp+Nivel'
                         elif len(results_flow) != 0:
                             self.variable = 'Caudal'
                         elif len(results_temp) != 0:
@@ -1428,6 +1430,17 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         self.initial_column2 = 72
                         self.initial_column_ = 40
                         self.initial_column2_ = 66
+                    elif self.variable =='Temp+Nivel':
+                        self.variable = 'Temperatura'
+                        self.variable2 = 'Nivel'
+                        self.model.setTable("tags_data.tags_temp")
+                        self.model2.setTable("tags_data.tags_level")
+                        self.model.table_check = "tags_data.tags_temp"
+                        self.model2.table_check = "tags_data.tags_level"
+                        self.initial_column = 72
+                        self.initial_column2 = 72
+                        self.initial_column_ = 80
+                        self.initial_column2_ = 66
                     elif self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
                         self.model.table_check = "tags_data.tags_flow"
@@ -1448,8 +1461,8 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         self.model.table_check = "tags_data.tags_others"
                         self.initial_column = 11
                         self.initial_column2 = 25
-                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
-                    self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
+                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND tag_state <> 'FOR INVOICING'")
+                    self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND tag_state <> 'FOR INVOICING'")
 
         if self.variable != '':
             self.tableEditTags.setModel(None)
