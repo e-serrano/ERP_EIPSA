@@ -3131,6 +3131,8 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.Button_AddReg.clicked.connect(self.addrecord)
         self.Button_ImportReg.clicked.connect(self.import_tags)
 
+        self.Button_InsertInvoice.clicked.connect(self.import_invoice)
+
         self.Button_FactEuro.clicked.connect(self.submiteuroinvoice)
         self.Button_FactDollar.clicked.connect(self.submitdollarinvoice)
         self.Button_DelivNote.clicked.connect(self.generate_delivnote)
@@ -3225,7 +3227,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
             self.label_IDInvoice.setText(str(results_invoices[0][0]))
 
-            self.Filter_Invoice.textChanged.connect(self.position_table(self.numinvoice))
+            # self.Filter_Invoice.textChanged.connect(self.position_table(self.numinvoice))
 
             self.loadforminvoice(None, self.label_IDInvoice.text())
 
@@ -5125,7 +5127,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 # Function when client combobox is changed
     def clientchange(self):
         """
-        Updates the client information (intermediary agent, client group, VAT value, IBAN, and BIC) based on the selected client.
+        Updates the client information (intermediary agent, client group, IVA, IBAN, and BIC) based on the selected client.
         """
         client_name = self.Client_Invoice.currentText()
 
@@ -5620,6 +5622,71 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         item.setSelected(True)
         self.tableInvoice.scrollToItem(item)
         self.loadforminvoice(item.row())
+
+# Function to import invoices from excel
+    def import_invoice(self):
+        import_file = askopenfilename(filetypes=[("Excel files", "*.xlsx")])
+
+        if import_file:
+            df_invoice = pd.read_excel(import_file, na_values=['N/A'], keep_default_na=False)
+
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, name FROM purch_fact.clients")
+            results_clients = cursor.fetchall()
+
+            table_clients = pd.DataFrame(results_clients, columns=['id_client', 'name'])
+
+            df_invoice = df_invoice.merge(table_clients, left_on='client', right_on='name', how='left')
+        # Deleting column with client name
+            df_invoice = df_invoice.drop(columns=['client','name'])
+
+            try:
+        # Loop through each row of the DataFrame and insert the data into the table
+                for index, row in df_invoice.iterrows():
+                    # Create a list of pairs (column_name, column_value) for each column with value
+                        columns_values = [(column, row[column]) for column in df_invoice.columns if not pd.isnull(row[column])]
+
+                    # Creating string for columns names
+                        columns = ', '.join([column for column, _ in columns_values])
+
+                    # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
+                        values = ', '.join(['NULL' if value == '' and column in ['date_invoice'] else "'{}'".format(value.replace('\'', '\'\'')) for column, value in columns_values])
+
+                    # Creating insertion query and executing it
+                        sql_insertion = f"INSERT INTO purch_fact.invoice_header ({columns}) VALUES ({values})"
+                        cursor.execute(sql_insertion)
+
+                cursor.close()
+                conn.commit()
+
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Datos importados con éxito")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+                del dlg, new_icon
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                print(error)
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap("//nas01/DATOS/Comunes/EIPSA-ERP/Iconos/icon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText(error)
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
 
 
