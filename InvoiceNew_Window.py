@@ -5298,7 +5298,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                             length_description=len(description_text)
 
                             pdf.set_x(1.5)
-                            pdf.set_font('Helvetica', '', 9)
+                            pdf.set_font('DejaVuSansCondensed', '', 9)
                             pdf.cell(1, 0.53, position_text, align='C')
                             pdf.cell(0.2, 0.53, "")
                             pdf.cell(1.25, 0.53, quantity_text, align='C')
@@ -5644,6 +5644,10 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         # Deleting column with client name
             df_invoice = df_invoice.drop(columns=['client','name'])
 
+            df_invoice['destination'] = 'S/ALMACEN'
+            df_invoice['transport'] = 'N/MEDIOS'
+            df_invoice['id_dest_country'] = 1
+
             try:
         # Loop through each row of the DataFrame and insert the data into the table
                 for index, row in df_invoice.iterrows():
@@ -5654,7 +5658,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                         columns = ', '.join([column for column, _ in columns_values])
 
                     # Creating string for columns values. For money/amount values, dots are replaced for commas to avoid insertion problems
-                        values = ', '.join(['NULL' if value == '' and column in ['date_invoice'] else "'{}'".format(value.replace('\'', '\'\'')) for column, value in columns_values])
+                        values = ', '.join(['NULL' if value == '' and column in ['date_invoice'] else "'{}'".format(value) for column, value in columns_values])
 
                     # Creating insertion query and executing it
                         sql_insertion = f"INSERT INTO purch_fact.invoice_header ({columns}) VALUES ({values})"
@@ -5687,6 +5691,8 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             finally:
                 if conn is not None:
                     conn.close()
+
+            self.loadinvoicetable()
 
 
 
