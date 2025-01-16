@@ -1415,7 +1415,7 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
         """
         Adjusts the size of the report table.
         """
-        self.tableReports.horizontalHeader().setDefaultSectionSize(200)
+        self.tableReports.horizontalHeader().setDefaultSectionSize(500)
         self.tableReports.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableReports.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         for i in range(2,10):
