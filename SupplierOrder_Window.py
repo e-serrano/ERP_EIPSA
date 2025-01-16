@@ -3699,14 +3699,14 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             y_position = pdf.get_y()
 
             # Calculate height of content to add
-            total_content_height = pdf.get_multicell_height(13.795, coments) + 0.5 + 0.5 + 0.5  # Height of each cell plus line break
+            total_content_height = pdf.get_multicell_height(19.35, coments) + 0.5 + 0.5 + 0.5  # Height of each cell plus line break
 
             # Verify if exists enough space on actual page
             if y_position + total_content_height < 29.8:
                 # If exists, add content on actual page
                 pdf.set_font('DejaVuSansCondensed-Bold', size=8)
                 x_position = pdf.get_x()
-                pdf.multi_cell(13.795, 0.3, coments) if coments is not None else pdf.cell(13.795, 0.3, coments)
+                pdf.multi_cell(19.35, 0.3, coments) if coments is not None else pdf.cell(19.35, 0.3, coments)
             else:
                 # If not exists, add content on next page
                 pdf.add_page()
@@ -3719,11 +3719,11 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 pdf.ln(1)
                 pdf.set_font('DejaVuSansCondensed-Bold', size=8)
                 x_position = pdf.get_x()
-                pdf.multi_cell(13.795, 0.3, coments) if coments is not None else pdf.cell(13.795, 0.3, coments)
+                pdf.multi_cell(19.35, 0.3, coments) if coments is not None else pdf.cell(19.35, 0.3, coments)
 
             # Restore original Y position after add content
             pdf.set_y(y_position)
-            pdf.set_x(x_position + 13.795)
+            pdf.set_x(x_position + 19.35)
             pdf.ln(1)
 
             pdf_buffer = pdf.output()
@@ -3788,7 +3788,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             y_position = pdf_verification.get_y()
 
             # Calculate height of content to add
-            total_content_height = pdf_verification.get_multicell_height(13.795, coments) + 0.5 + 0.5 + 0.5  # Height of each cell plus line break
+            total_content_height = pdf_verification.get_multicell_height(19.35, coments) + 0.5 + 0.5 + 0.5  # Height of each cell plus line break
 
             # Verify if exists enough space on actual page
             if y_position + total_content_height < 29.8:
@@ -3802,7 +3802,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 pdf_verification.ln(1)
                 pdf_verification.set_font('DejaVuSansCondensed-Bold', size=8)
                 x_position = pdf_verification.get_x()
-                pdf_verification.multi_cell(13.795, 0.3, coments) if coments is not None else pdf_verification.cell(13.795, 0.3, coments)
+                pdf_verification.multi_cell(19.35, 0.3, coments) if coments is not None else pdf_verification.cell(19.35, 0.3, coments)
             else:
                 # If not exists, add content on next page
                 pdf_verification.add_page()
@@ -3815,11 +3815,11 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 pdf_verification.ln(1)
                 pdf_verification.set_font('DejaVuSansCondensed-Bold', size=8)
                 x_position = pdf_verification.get_x()
-                pdf_verification.multi_cell(13.795, 0.3, coments) if coments is not None else pdf_verification.cell(13.795, 0.3, coments)
+                pdf_verification.multi_cell(19.35, 0.3, coments) if coments is not None else pdf_verification.cell(19.35, 0.3, coments)
 
             # Restore original Y position after add content
             pdf_verification.set_y(y_position)
-            pdf_verification.set_x(x_position + 13.795)
+            pdf_verification.set_x(x_position + 19.35)
             pdf_verification.ln(1)
 
             output_path = "//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALBARANES/PENDIENTES/" + num_order + ".pdf"
