@@ -7,11 +7,13 @@ from datetime import *
 import os
 import re
 from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import Qt, QMimeData
+from PyQt6.QtCore import Qt, QMimeData, QDate
 from PyQt6.QtGui import QKeySequence
 import sys
 from config import config
 import psycopg2
+import pandas as pd
+from tkinter.filedialog import asksaveasfilename
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -718,6 +720,19 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.frame.setObjectName("frame")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
         self.gridLayout_2.setObjectName("gridLayout_2")
+        self.hcab=QtWidgets.QHBoxLayout()
+        self.hcab.setObjectName("hcab")
+        self.toolExpExcel = QtWidgets.QToolButton(self.frame)
+        self.toolExpExcel.setObjectName("ExpExcel_Button")
+        self.toolExpExcel.setToolTip("Exportar a Excel")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolExpExcel.setIcon(icon)
+        self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolExpExcel)
+        self.hcabspacer=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer)
+        self.gridLayout_2.addLayout(self.hcab, 0, 0, 1, 1)
         self.tabwidget = QtWidgets.QTabWidget(self.frame)
         self.tabwidget.setObjectName("tabwidget")
         self.tab_P = QtWidgets.QWidget()
@@ -769,7 +784,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.tableAssembly_PA.setObjectName("tableAssembly_PA")
         self.gridLayout_4.addWidget(self.tableAssembly_PA, 2, 0, 1, 1)
 
-        self.gridLayout_2.addWidget(self.tabwidget, 0, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.tabwidget, 1, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         Assembly_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=Assembly_Window)
@@ -789,6 +804,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(Assembly_Window)
 
         self.query_data()
+        self.toolExpExcel.clicked.connect(self.exporttoexcel)
 
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, Assembly_Window):
@@ -1908,6 +1924,60 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         # table.selectionModel().select(index, QtCore.QItemSelectionModel.SelectionFlag.Select)
         # table.verticalScrollBar().setSliderPosition(scroll_position)
 
+# Function to export data to excel
+    def exporttoexcel(self):
+        """
+        Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
+
+        Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
+        """
+
+        final_data1 = []
+        final_data2 = []
+        final_data3 = []
+
+        visible_columns = [col for col in range(self.model_P.columnCount()) if not self.tableWorkshop_P.isColumnHidden(col)]
+        visible_headers = self.model_P.getColumnHeaders(visible_columns)
+        for row in range(self.proxy_P.rowCount()):
+            tag_data = []
+            for column in visible_columns:
+                value = self.proxy_P.data(self.proxy_P.index(row, column))
+                if isinstance(value, QDate):
+                    value = value.toString("dd/MM/yyyy")
+                elif column in [11,21]:
+                    value = int(value) if value != '' else 0
+                tag_data.append(value)
+            final_data1.append(tag_data)
+
+        final_data1.insert(0, visible_headers)
+        df_P = pd.DataFrame(final_data1)
+        df_P.columns = df_P.iloc[0]
+        df_P = df_P[1:]
+
+        visible_columns = [col for col in range(self.model_PA.columnCount()) if not self.tableWorkshop_PA.isColumnHidden(col)]
+        visible_headers = self.model_PA.getColumnHeaders(visible_columns)
+        for row in range(self.proxy_PA.rowCount()):
+            tag_data = []
+            for column in visible_columns:
+                value = self.proxy_PA.data(self.proxy_PA.index(row, column))
+                if isinstance(value, QDate):
+                    value = value.toString("dd/MM/yyyy")
+                elif column in [16,21]:
+                    value = int(value) if value != '' else 0
+                tag_data.append(value)
+            final_data2.append(tag_data)
+
+        final_data2.insert(0, visible_headers)
+        df_PA = pd.DataFrame(final_data2)
+        df_PA.columns = df_PA.iloc[0]
+        df_PA = df_PA[1:]
+
+        output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
+        if output_path:
+            df_P.to_excel(output_path, index=False, header=True)
+            with pd.ExcelWriter(output_path, engine='xlsxwriter') as writer:
+                df_P.to_excel(writer, sheet_name='P-', index=False)
+                df_PA.to_excel(writer, sheet_name='PA-', index=False)
 
 
 
