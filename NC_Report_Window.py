@@ -209,8 +209,8 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                         match_found = True
                         break
                 
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
-                    expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion[0]):
+                    expresion = QtCore.QDate.fromString(expresion[0], "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
@@ -218,7 +218,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                         break
 
                 else:
-                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion[0]))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
                         match_found = True
                         break
@@ -329,7 +329,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
         """
         flags = super().flags(index)
         # return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
-        if index.column() in [12]:
+        if index.column() in [11,12]:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -819,7 +819,7 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
         if self.username == 'm.gil':
             self.tableReports.hideColumn(3)
 
-        self.tableReports.doubleClicked.connect(lambda index: self.open_pics(index))
+        self.tableReports.doubleClicked.connect(lambda index: self.item_double_clicked(index))
 
 # Function to load table and setting in the window
     def query_all_reports(self):
@@ -897,7 +897,7 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
         if self.username == 'm.gil':
             self.tableReports.hideColumn(3)
 
-        self.tableReports.doubleClicked.connect(lambda index: self.open_pics(index))
+        self.tableReports.doubleClicked.connect(lambda index: self.item_double_clicked(index))
 
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex):
@@ -1020,11 +1020,9 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
         """
         for column, filters in self.checkbox_filters.items():
             if filters:
-                self.proxy.setFilter(filters, column)
+                self.proxy.setFilter(filters, column, exact_match=True)
             else:
                 self.proxy.setFilter(None, column)
-
-        self.adjust_table()
 
 # Function when select all checkbox is clicked
     def on_select_all_toggled(self, checked, action_name):
@@ -1607,6 +1605,14 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
         dlg.exec()
         del dlg, new_icon
 
+# Function when double-clicked on item
+    def item_double_clicked(self, index):
+        if index.column() == 12:
+            self.open_pics(index)
+        elif index.column() == 11:
+            self.id_value = self.proxy.data(self.proxy.index(index.row(), 0))
+            self.show_dialog()
+
 # Function to open photos
     def open_pics(self, index):
         """
@@ -1618,25 +1624,24 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
         Raises:
             Exception: If there is an error while trying to open the folder, a message box displays the error details.
         """
-        if index.column() == 12:
-            value = index.data()
+        value = index.data()
 
-            if value != '':
-                try:
-                    file_path = os.path.normpath(value)
-                    os.startfile(file_path)
+        if value != '':
+            try:
+                file_path = os.path.normpath(value)
+                os.startfile(file_path)
 
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
 
 # Function photos to reports
     def add_images(self):
@@ -1695,8 +1700,123 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
 
                     self.model.select()
 
+# Function to show dialog to insert order comments
+    def show_dialog(self):
+        """
+        Displays a dialog window allowing the user to view and edit text.
+        """
 
+        commands_loadreport = ("""
+                        SELECT "cause_analysis" FROM verification.nc_report
+                        WHERE "id" = %s
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of principal command
+            data=(self.id_value,)
+            cur.execute(commands_loadreport, data)
+            results = cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
 
+        dlg = QtWidgets.QDialog()
+        dlg.setWindowTitle("Dialog")
+        dlg.setGeometry(50, 50, 900, 600)
+        dlg.setWindowModality(QtCore.Qt.WindowModality.NonModal)
+
+        vLayout = QtWidgets.QVBoxLayout(dlg)
+
+        btn = QtWidgets.QPushButton("Guardar")
+        vLayout.addWidget(btn)
+        btn.clicked.connect(self.save_report_cause)
+        
+        self.te = QtWidgets.QTextEdit()
+        self.te.setText(results[0][0])
+        self.te.setStyleSheet("background-color: transparent;")
+        vLayout.addWidget(self.te)
+
+        # dlg.exec()
+
+        dlg.show()
+
+        self.dialog = dlg
+
+        self.dialog.closeEvent = self.on_close_event
+
+# Function to save analysis cause
+    def save_report_cause(self):
+        """
+        Saves the supplier order comments to the database.
+        """
+        cause_text = self.te.toPlainText()
+
+        commands_updatereport = ("""
+                        UPDATE verification.nc_report
+                        SET "cause_analysis" = %s
+                        WHERE "id" = %s
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of principal command
+            data=(cause_text, self.id_value,)
+            cur.execute(commands_updatereport, data)
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+# Function to execute query function when window is closed
+    def on_close_event(self, event):
+        """
+        Handles the event when the window is closed. 
+
+        Calls the `query_drawings` method to update the drawing data before accepting the close event.
+
+        Args:
+            event (QtGui.QCloseEvent): The close event object that is processed.
+        """
+        self.query_reports()
+        event.accept()
 
 
 
