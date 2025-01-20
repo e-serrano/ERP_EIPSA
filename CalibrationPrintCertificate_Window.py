@@ -418,7 +418,6 @@ class Ui_CalibrationPrintCertificate_Window(object):
                         pdf = calibration_certificate_spanish(numorder, cert_date, sensor_type, master_element)
                     else:
                         pdf = calibration_certificate(numorder, cert_date, sensor_type, master_element, isolation)
-                    del dlg, new_icon
 
                     pdf.set_auto_page_break(auto=True, margin=2)
                     pdf.add_page()
@@ -596,6 +595,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
 
                     if output_path:
                         try:
+                            pdf.output(output_path)
                             # reader = PdfReader(output_path2)
                             # if self.checkbox_nuclear.checkState() == QtCore.Qt.CheckState.Checked:
                             #     page_overlay = PdfReader(self.new_content(17)).pages[0]
