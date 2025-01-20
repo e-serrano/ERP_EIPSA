@@ -329,7 +329,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
         """
         flags = super().flags(index)
         # return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
-        if index.column() in [11,12]:
+        if index.column() in [10,11,12,14]:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -1607,11 +1607,15 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
 
 # Function when double-clicked on item
     def item_double_clicked(self, index):
-        if index.column() == 12:
-            self.open_pics(index)
+        self.id_value = self.proxy.data(self.proxy.index(index.row(), 0))
+        if index.column() == 10:
+            self.show_dialog_description()
         elif index.column() == 11:
-            self.id_value = self.proxy.data(self.proxy.index(index.row(), 0))
-            self.show_dialog()
+            self.show_dialog_cause()
+        elif index.column() == 12:
+            self.open_pics(index)
+        elif index.column() == 14:
+            self.show_dialog_action()
 
 # Function to open photos
     def open_pics(self, index):
@@ -1700,8 +1704,113 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
 
                     self.model.select()
 
-# Function to show dialog to insert order comments
-    def show_dialog(self):
+# Function to show dialog to insert report description
+    def show_dialog_description(self):
+        """
+        Displays a dialog window allowing the user to view and edit text.
+        """
+
+        commands_loadreport = ("""
+                        SELECT "description" FROM verification.nc_report
+                        WHERE "id" = %s
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of principal command
+            data=(self.id_value,)
+            cur.execute(commands_loadreport, data)
+            results = cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        dlg = QtWidgets.QDialog()
+        dlg.setWindowTitle("Dialog")
+        dlg.setGeometry(50, 50, 900, 600)
+        dlg.setWindowModality(QtCore.Qt.WindowModality.NonModal)
+
+        vLayout = QtWidgets.QVBoxLayout(dlg)
+
+        btn = QtWidgets.QPushButton("Guardar")
+        vLayout.addWidget(btn)
+        btn.clicked.connect(self.save_report_description)
+        
+        self.te_description = QtWidgets.QTextEdit()
+        self.te_description.setText(results[0][0])
+        self.te_description.setStyleSheet("background-color: transparent;")
+        vLayout.addWidget(self.te_description)
+
+        # dlg.exec()
+
+        dlg.show()
+
+        self.dialog = dlg
+
+        self.dialog.closeEvent = self.on_close_event
+
+# Function to save description
+    def save_report_description(self):
+        """
+        Saves the description to the database.
+        """
+        description_text = self.te_description.toPlainText()
+
+        commands_updatereport = ("""
+                        UPDATE verification.nc_report
+                        SET "description" = %s
+                        WHERE "id" = %s
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of principal command
+            data=(description_text, self.id_value,)
+            cur.execute(commands_updatereport, data)
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+# Function to show dialog to insert report cause
+    def show_dialog_cause(self):
         """
         Displays a dialog window allowing the user to view and edit text.
         """
@@ -1751,10 +1860,10 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
         vLayout.addWidget(btn)
         btn.clicked.connect(self.save_report_cause)
         
-        self.te = QtWidgets.QTextEdit()
-        self.te.setText(results[0][0])
-        self.te.setStyleSheet("background-color: transparent;")
-        vLayout.addWidget(self.te)
+        self.te_cause = QtWidgets.QTextEdit()
+        self.te_cause.setText(results[0][0])
+        self.te_cause.setStyleSheet("background-color: transparent;")
+        vLayout.addWidget(self.te_cause)
 
         # dlg.exec()
 
@@ -1764,12 +1873,12 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
 
         self.dialog.closeEvent = self.on_close_event
 
-# Function to save analysis cause
+# Function to save report cause
     def save_report_cause(self):
         """
-        Saves the supplier order comments to the database.
+        Saves the report cause to the database.
         """
-        cause_text = self.te.toPlainText()
+        cause_text = self.te_cause.toPlainText()
 
         commands_updatereport = ("""
                         UPDATE verification.nc_report
@@ -1785,6 +1894,111 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
             cur = conn.cursor()
         # execution of principal command
             data=(cause_text, self.id_value,)
+            cur.execute(commands_updatereport, data)
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+# Function to show dialog to insert report corrective action
+    def show_dialog_action(self):
+        """
+        Displays a dialog window allowing the user to view and edit text.
+        """
+
+        commands_loadreport = ("""
+                        SELECT "corrective_action" FROM verification.nc_report
+                        WHERE "id" = %s
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of principal command
+            data=(self.id_value,)
+            cur.execute(commands_loadreport, data)
+            results = cur.fetchall()
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        dlg = QtWidgets.QDialog()
+        dlg.setWindowTitle("Dialog")
+        dlg.setGeometry(50, 50, 900, 600)
+        dlg.setWindowModality(QtCore.Qt.WindowModality.NonModal)
+
+        vLayout = QtWidgets.QVBoxLayout(dlg)
+
+        btn = QtWidgets.QPushButton("Guardar")
+        vLayout.addWidget(btn)
+        btn.clicked.connect(self.save_report_action)
+        
+        self.te_action = QtWidgets.QTextEdit()
+        self.te_action.setText(results[0][0])
+        self.te_action.setStyleSheet("background-color: transparent;")
+        vLayout.addWidget(self.te_action)
+
+        # dlg.exec()
+
+        dlg.show()
+
+        self.dialog = dlg
+
+        self.dialog.closeEvent = self.on_close_event
+
+# Function to save report corrective action
+    def save_report_action(self):
+        """
+        Saves the report corrective action to the database.
+        """
+        action_text = self.te_action.toPlainText()
+
+        commands_updatereport = ("""
+                        UPDATE verification.nc_report
+                        SET "corrective_action" = %s
+                        WHERE "id" = %s
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of principal command
+            data=(action_text, self.id_value,)
             cur.execute(commands_updatereport, data)
         # close communication with the PostgreSQL database server
             cur.close()
