@@ -246,6 +246,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.Button_CalibratedMasters.clicked.connect(self.calibrated_masters)
         self.Button_ThreadMasters.clicked.connect(self.thread_masters)
         self.Button_WeldMasters.clicked.connect(self.weld_equipment)
+        self.Button_GasMeters.clicked.connect(self.gas_flowmeters)
 
         QtCore.QMetaObject.connectSlotsByName(Verif_Revisions_Menu)
 
