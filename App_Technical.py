@@ -14,7 +14,7 @@ import psycopg2
 import sys
 import configparser
 from Database_Connection import createConnection, createConnection_name
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfilename, askdirectory
 import pandas as pd
 import os
 import io
@@ -2248,57 +2248,169 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         Raises:
             Exception: If there is an error during the PDF editing process.
         """
-        pdf_file = askopenfilename(filetypes=[("Archivos PDF", "*.pdf")], title="Seleccionar archivo pdf")
 
-        if pdf_file:
-            excel_file = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Importación\Importar Tags Cálculos.xlsx"
+        while True:
+            answer, ok = QtWidgets.QInputDialog.getItem(self, "Texto en PDF", "¿Que quieres incluir?:", ['Notas', 'TAGS'], 0, False)
+            if ok and answer:
+                if answer == 'Notas':
+                    dlg4 = QtWidgets.QInputDialog()
+                    new_icon4 = QtGui.QIcon()
+                    new_icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg4.setWindowIcon(new_icon4)
+                    dlg4.setWindowTitle('Texto en PDF')
+                    dlg4.setLabelText('Nº Pedido:')
 
-            try:
-                reader = PdfReader(pdf_file)
+                    while True:
+                        clickedButton4 = dlg4.exec()
+                        if clickedButton4 == 1:
+                            order_number = dlg4.textValue()
+                            if order_number != '':
+                                query_flow = ('''
+                                    SELECT tags_data.tags_flow."tag", tags_data.tags_flow."technical_notes"
+                                    FROM tags_data.tags_flow
+                                    WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
+                                    ''')
+                                query_temp = ('''
+                                    SELECT tags_data.tags_temp."tag", tags_data.tags_temp."technical_notes"
+                                    FROM tags_data.tags_temp
+                                    WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
+                                    ''')
+                                query_level = ('''
+                                    SELECT tags_data.tags_level."tag", tags_data.tags_level."technical_notes"
+                                    FROM tags_data.tags_level
+                                    WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
+                                    ''')
+                                conn = None
+                                try:
+                                # read the connection parameters
+                                    params = config()
+                                # connect to the PostgreSQL server
+                                    conn = psycopg2.connect(**params)
+                                    cur = conn.cursor()
+                                # execution of commands
+                                    cur.execute(query_flow,(order_number,))
+                                    results_flow=cur.fetchall()
+                                    cur.execute(query_temp,(order_number,))
+                                    results_temp=cur.fetchall()
+                                    cur.execute(query_level,(order_number,))
+                                    results_level=cur.fetchall()
 
-                df_data = pd.read_excel(excel_file)
+                                    columns = ["tag", "technical_notes"]
+                                    df_flow = pd.DataFrame(results_flow, columns=columns)
+                                    df_temp = pd.DataFrame(results_temp, columns=columns)
+                                    df_level = pd.DataFrame(results_level, columns=columns)
 
-                for row in range(df_data.shape[0]):
-                    page_overlay = PdfReader(self.new_content(df_data.iloc[row,1], df_data.iloc[row,2])).pages[0] # PdfReader(self.new_content(df_data.iloc[row,1], df_data.iloc[row,2], orientation)).pages[0]
-                    reader.pages[int(df_data.iloc[row,0]) - 1].merge_page(page2=page_overlay)
+                                    # Concatenate dataframes
+                                    df_combined = pd.concat([df_flow, df_temp, df_level], ignore_index=True)
 
-                path_parts = pdf_file.rsplit('/', 1)
-                first_part = path_parts[0] + "/"
-                name, extension = path_parts[1].rsplit('.', 1)
+                                    df_combined = df_combined.dropna()
 
-                output_path = first_part + name + ".pdf"
+                                    original_path = askdirectory(title="Seleccionar carpeta con PDFs")
 
-                if output_path:
+                                    for row in range(df_data.shape[0]):
+                                        reader = PdfReader(original_path + "/" + str(df_data.iloc[row,0]) + ".pdf")
+                                        page_overlay = PdfReader(self.new_content_notes(df_data.iloc[row,0])).pages[0] # PdfReader(self.new_content_notes(df_data.iloc[row,1], df_data.iloc[row,2], orientation)).pages[0]
+                                        reader.pages[int(df_data.iloc[row,0]) - 1].merge_page(page2=page_overlay)
 
-                    writer = PdfWriter()
-                    writer.append_pages_from_reader(reader)
-                    writer.write(output_path)
+                                        writer = PdfWriter()
+                                        writer.append_pages_from_reader(reader)
+                                        writer.write(original_path + "/" + str(df_data.iloc[row,0]) + ".pdf")
 
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("PDF Generado con éxito")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
+                                    dlg = QtWidgets.QMessageBox()
+                                    new_icon = QtGui.QIcon()
+                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg.setWindowIcon(new_icon)
+                                    dlg.setWindowTitle("ERP EIPSA")
+                                    dlg.setText("PDFs editados con éxito")
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                                    dlg.exec()
+                                    del dlg, new_icon
 
-            except Exception as error:
-                print(error)
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
+                                # close communication with the PostgreSQL database server
+                                    cur.close()
+                                # commit the changes
+                                    conn.commit()
+                                except (Exception, psycopg2.DatabaseError) as error:
+                                    dlg = QtWidgets.QMessageBox()
+                                    new_icon = QtGui.QIcon()
+                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg.setWindowIcon(new_icon)
+                                    dlg.setWindowTitle("ERP EIPSA")
+                                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                + str(error))
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                    dlg.exec()
+                                    del dlg, new_icon
+                                finally:
+                                    if conn is not None:
+                                        conn.close()
+                                break
+                            dlg_error = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg_error.setWindowIcon(new_icon)
+                            dlg_error.setWindowTitle("Texto en PDF")
+                            dlg_error.setText("El número de pedido no puede estar vacío. Introduce un valor válido.")
+                            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg_error.exec()
+                            del dlg_error,new_icon
+                        else:
+                            break
+                else:
+                    pdf_file = askopenfilename(filetypes=[("Archivos PDF", "*.pdf")], title="Seleccionar archivo pdf")
+
+                    if pdf_file:
+                        excel_file = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Importación\Importar Tags Cálculos.xlsx"
+
+                        try:
+                            reader = PdfReader(pdf_file)
+
+                            df_data = pd.read_excel(excel_file)
+
+                            for row in range(df_data.shape[0]):
+                                page_overlay = PdfReader(self.new_content_tags(df_data.iloc[row,1], df_data.iloc[row,2])).pages[0] # PdfReader(self.new_content_tags(df_data.iloc[row,1], df_data.iloc[row,2], orientation)).pages[0]
+                                reader.pages[int(df_data.iloc[row,0]) - 1].merge_page(page2=page_overlay)
+
+                            path_parts = pdf_file.rsplit('/', 1)
+                            first_part = path_parts[0] + "/"
+                            name, extension = path_parts[1].rsplit('.', 1)
+
+                            output_path = first_part + name + ".pdf"
+
+                            if output_path:
+
+                                writer = PdfWriter()
+                                writer.append_pages_from_reader(reader)
+                                writer.write(output_path)
+
+                                dlg = QtWidgets.QMessageBox()
+                                new_icon = QtGui.QIcon()
+                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                dlg.setWindowIcon(new_icon)
+                                dlg.setWindowTitle("ERP EIPSA")
+                                dlg.setText("PDF Generado con éxito")
+                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                                dlg.exec()
+                                del dlg, new_icon
+
+                        except Exception as error:
+                            print(error)
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("ERP EIPSA")
+                            dlg.setText("Ha ocurrido el siguiente error:\n"
+                                        + str(error))
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                            dlg.exec()
+                            del dlg, new_icon
+                break
+            else:
+                break
 
 # Function to create PDF with specific text in a position
-    def new_content(self, value, type_eq):
+    def new_content_tags(self, value, type_eq):
         """
         Generates a PDF containing a new content based on the specified value and equipment type.
 
@@ -2329,6 +2441,26 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         else:
             pdf.add_page()
             pdf.text(x_position, y_position, value)
+
+        return io.BytesIO(pdf.output())
+
+# Function to create PDF with specific note in a position
+    def new_content_notes(self, technical_note):
+        """
+        Generates a PDF containing a new content based on the specified value and equipment type.
+
+        Args:
+            technical_note (str): The content to be added to the PDF.
+
+        Returns:
+            io.BytesIO: A byte stream containing the generated PDF.
+        """
+        pdf = FPDF(unit='mm')
+        pdf.set_font("helvetica", "", 10)
+        pdf.set_text_color(0, 0, 0)
+
+        pdf.add_page()
+        pdf.text(30,30,"nota")#x_position, y_position, technical_note)
 
         return io.BytesIO(pdf.output())
 
