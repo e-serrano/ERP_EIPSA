@@ -2305,26 +2305,26 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
                                     df_combined = df_combined.dropna()
 
-                                    original_path = askdirectory(title="Seleccionar carpeta con PDFs")
+                                    if df_data.shape[0] > 0:
+                                        original_path = askdirectory(title="Seleccionar carpeta con PDFs")
+                                        for row in range(df_data.shape[0]):
+                                            reader = PdfReader(original_path + "/" + str(df_data.iloc[row,0]) + ".pdf")
+                                            page_overlay = PdfReader(self.new_content_notes(df_data.iloc[row,0])).pages[0] # PdfReader(self.new_content_notes(df_data.iloc[row,1], df_data.iloc[row,2], orientation)).pages[0]
+                                            reader.pages[int(df_data.iloc[row,0]) - 1].merge_page(page2=page_overlay)
 
-                                    for row in range(df_data.shape[0]):
-                                        reader = PdfReader(original_path + "/" + str(df_data.iloc[row,0]) + ".pdf")
-                                        page_overlay = PdfReader(self.new_content_notes(df_data.iloc[row,0])).pages[0] # PdfReader(self.new_content_notes(df_data.iloc[row,1], df_data.iloc[row,2], orientation)).pages[0]
-                                        reader.pages[int(df_data.iloc[row,0]) - 1].merge_page(page2=page_overlay)
+                                            writer = PdfWriter()
+                                            writer.append_pages_from_reader(reader)
+                                            writer.write(original_path + "/CON NOTA/" + str(df_data.iloc[row,0]) + ".pdf")
 
-                                        writer = PdfWriter()
-                                        writer.append_pages_from_reader(reader)
-                                        writer.write(original_path + "/" + str(df_data.iloc[row,0]) + ".pdf")
-
-                                    dlg = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg.setWindowIcon(new_icon)
-                                    dlg.setWindowTitle("ERP EIPSA")
-                                    dlg.setText("PDFs editados con éxito")
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                    dlg.exec()
-                                    del dlg, new_icon
+                                        dlg = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg.setWindowIcon(new_icon)
+                                        dlg.setWindowTitle("ERP EIPSA")
+                                        dlg.setText("PDFs editados con éxito")
+                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                                        dlg.exec()
+                                        del dlg, new_icon
 
                                 # close communication with the PostgreSQL database server
                                     cur.close()
@@ -2460,7 +2460,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         pdf.set_text_color(0, 0, 0)
 
         pdf.add_page()
-        pdf.text(30,30,"nota")#x_position, y_position, technical_note)
+        pdf.text(225, 20, "nota")#x_position, y_position, technical_note)
 
         return io.BytesIO(pdf.output())
 
