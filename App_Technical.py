@@ -2305,16 +2305,23 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
                                     df_combined = df_combined.dropna()
 
+                                    excel_file = askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")], title="Seleccionar archivo Excel")
+                                    df_data = pd.read_excel(excel_file)
+
                                     if df_data.shape[0] > 0:
                                         original_path = askdirectory(title="Seleccionar carpeta con PDFs")
                                         for row in range(df_data.shape[0]):
-                                            reader = PdfReader(original_path + "/" + str(df_data.iloc[row,0]) + ".pdf")
-                                            page_overlay = PdfReader(self.new_content_notes(df_data.iloc[row,0])).pages[0] # PdfReader(self.new_content_notes(df_data.iloc[row,1], df_data.iloc[row,2], orientation)).pages[0]
-                                            reader.pages[int(df_data.iloc[row,0]) - 1].merge_page(page2=page_overlay)
+                                            file_path = original_path + "/" + str(df_data.iloc[row,0]) + ".pdf"
+                                            if not os.path.exists(file_path):
+                                                print(f"Archivo no encontrado: {file_path}")
+                                                continue
+                                            reader = PdfReader(file_path)
+                                            page_overlay = PdfReader(self.new_content_notes(str(df_data.iloc[row,1]))).pages[0] # PdfReader(self.new_content_notes(df_data.iloc[row,1], df_data.iloc[row,2], orientation)).pages[0]
+                                            reader.pages[0].merge_page(page2=page_overlay)
 
                                             writer = PdfWriter()
                                             writer.append_pages_from_reader(reader)
-                                            writer.write(original_path + "/CON NOTA/" + str(df_data.iloc[row,0]) + ".pdf")
+                                            writer.write(original_path + "/" + str(df_data.iloc[row,0]) + ".pdf")
 
                                         dlg = QtWidgets.QMessageBox()
                                         new_icon = QtGui.QIcon()
@@ -2338,6 +2345,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                     dlg.setWindowTitle("ERP EIPSA")
                                     dlg.setText("Ha ocurrido el siguiente error:\n"
                                                 + str(error))
+                                    print(error)
                                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                                     dlg.exec()
                                     del dlg, new_icon
@@ -2456,11 +2464,17 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             io.BytesIO: A byte stream containing the generated PDF.
         """
         pdf = FPDF(unit='mm')
-        pdf.set_font("helvetica", "", 10)
+        pdf.add_font('COURIERTXT', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/COURIERTXT.ttf")))
+        pdf.set_font("courier", "", 10)
         pdf.set_text_color(0, 0, 0)
 
         pdf.add_page()
-        pdf.text(225, 20, "nota")#x_position, y_position, technical_note)
+        pdf.set_xy(20,230)
+        pdf.set_font("courier", "B", 10)
+        pdf.cell(150, 5, "NOTES:")
+        pdf.set_xy(20,235)
+        pdf.set_font("courier", "", 10)
+        pdf.multi_cell(150, 5, str(technical_note)) #x_position, y_position, technical_note)
 
         return io.BytesIO(pdf.output())
 
