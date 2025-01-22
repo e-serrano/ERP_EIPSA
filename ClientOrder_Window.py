@@ -1216,6 +1216,27 @@ class AlignDelegate_records(QtWidgets.QStyledItemDelegate):
 
             option.backgroundBrush = color
 
+class ScrollableComboBox(QtWidgets.QComboBox):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setEditable(True)
+        self.match_text = ""  # To store entered text
+        self.lineEdit().textChanged.connect(self.store_text)
+
+    def store_text(self, text):
+        self.match_text = text  # Storing text of line edit
+
+    def showPopup(self):
+        # Call to original method
+        super().showPopup()
+        
+        if self.match_text:
+            index = self.findText(self.match_text, flags=QtCore.Qt.MatchFlag.MatchContains) # Search first partial match
+            if index != -1:  # If found
+                popup = self.view()  # Obtain view of dropdown
+                popup.setCurrentIndex(popup.model().index(index, 0))  # Select index
+                popup.scrollTo(popup.model().index(index, 0), hint=popup.ScrollHint.PositionAtTop) 
+
 class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
     """
     UI class for the New Offer window.
@@ -1296,6 +1317,11 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
     "QComboBox QAbstractItemView::item:hover {\n"
     "background-color: blue;\n"
     "color: white;\n"
+        "}\n"
+    "\n"
+    "QComboBox QAbstractItemView::item:selected {\n"
+    "background-color: blue;\n"
+    "color: white;\n"
     "}"
     )
         else:
@@ -1362,7 +1388,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         self.label_Client.setFont(font)
         self.label_Client.setObjectName("label_Client")
         self.gridLayout_2.addWidget(self.label_Client, 1, 1, 1, 1)
-        self.Client_ClientOrder = QtWidgets.QComboBox(parent=self.frame)
+        self.Client_ClientOrder = ScrollableComboBox()
         self.Client_ClientOrder.setEditable(True)
         self.Client_ClientOrder.setMinimumSize(QtCore.QSize(int(500//1.5), int(35//1.5)))
         # self.Client_ClientOrder.setMaximumSize(QtCore.QSize(int(500//1.5), int(35//1.5)))
@@ -1452,7 +1478,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         self.label_Supply.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Supply.setObjectName("label_Supply")
         self.gridLayout_2.addWidget(self.label_Supply, 5, 1, 1, 1)
-        self.Supply_ClientOrder = QtWidgets.QComboBox(parent=self.frame)
+        self.Supply_ClientOrder = ScrollableComboBox()
         self.Supply_ClientOrder.setEditable(True)
         self.Supply_ClientOrder.setMinimumSize(QtCore.QSize(int(500//1.5), int(35//1.5)))
         # self.Supply_ClientOrder.setMaximumSize(QtCore.QSize(int(700//1.5), int(35//1.5)))
@@ -2006,7 +2032,6 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         item.setText(_translate("ClientOrder_Window", "Entrega 2"))
         item = self.tableRecord.horizontalHeaderItem(9)
         item.setText(_translate("ClientOrder_Window", "Entrega 3"))
-
 
 # Function to create client order
     def createorder(self):
