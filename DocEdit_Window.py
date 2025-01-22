@@ -1530,6 +1530,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
             df_table.replace('nan', 'N/A', inplace=True)
 
             df_table['state_date'] = df_table['state_date'].apply(self.format_date)
+            df_table = df_table.drop(columns=['XX','ESTADOS POSIBLES'])
 
             try:
         # Loop through each row of the DataFrame and insert the data into the table
@@ -1548,7 +1549,7 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
 
                         set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
 
-                        where_clause = f"num_doc_eipsa = '{id_value}'"
+                        where_clause = f"num_doc_eipsa = {id_value}"
 
                     # Creating the update query and executing it after checking existing tags and id
                         sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
