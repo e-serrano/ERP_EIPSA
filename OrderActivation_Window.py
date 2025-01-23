@@ -364,10 +364,16 @@ class Ui_OrderActivation_Window(object):
                                     WHERE orders."num_order" = %s
                                     ORDER BY orders."num_order"
                                     """)
+            commands_ultrasound = ("""UPDATE orders
+                                        SET order_extras = %s
+                                        WHERE num_order = %s""")
             try:
                 params = config()
                 conn = psycopg2.connect(**params)
                 cursor = conn.cursor()
+
+                if self.checkbox_ultrasound.checkState() == QtCore.Qt.CheckState.Checked:
+                    cursor.execute(commands_ultrasound, ("Ultrasonidos", numorder,))
 
                 cursor.execute(commands_queryorder, (numorder,))
                 results_queryorder=cursor.fetchall()

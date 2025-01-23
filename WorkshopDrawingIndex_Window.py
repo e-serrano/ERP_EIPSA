@@ -2087,6 +2087,16 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.NumItems_IndexDwg.setEnabled(False)
         self.NumItems_IndexDwg.setObjectName("NumItems_IndexDwg")
         self.gridLayout_2.addWidget(self.NumItems_IndexDwg, 2, 3, 1, 1)
+        self.label_Extras = QtWidgets.QLabel(parent=self.frame)
+        # self.label_DateAssembly.setMinimumSize(QtCore.QSize(150, 25))
+        self.label_Extras.setMaximumSize(QtCore.QSize(150, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Extras.setFont(font)
+        self.label_Extras.setStyleSheet("color: red;")
+        self.label_Extras.setObjectName("label_Extras")
+        self.gridLayout_2.addWidget(self.label_Extras, 2, 4, 1, 2)
         self.label_ExpDate = QtWidgets.QLabel(parent=self.frame)
         self.label_ExpDate.setMinimumSize(QtCore.QSize(150, 25))
         self.label_ExpDate.setMaximumSize(QtCore.QSize(150, 25))
@@ -2322,7 +2332,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             SELECT orders."num_order", registration."name", registration."surname",
                             TO_CHAR(orders."expected_date",'dd/MM/yyyy'), offers."material",
                             orders."recep_date_workshop", orders."recep_date_assembly",
-                            orders."num_ref_order", orders."items_number"
+                            orders."num_ref_order", orders."items_number", orders."order_extras"
                             FROM offers
                             INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                             INNER JOIN users_data.registration AS registration ON (offers."responsible"=registration."username")
@@ -2367,6 +2377,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             self.DateAssembly_IndexDwg.setText(results_queryorder[0][6])
             self.PO_IndexDwg.setText(str(results_queryorder[0][7]))
             self.NumItems_IndexDwg.setText(str(results_queryorder[0][8]))
+            self.label_Extras.setText(str(results_queryorder[0][9]))
 
             self.checkbox_states = {}
             self.dict_valuesuniques = {}
