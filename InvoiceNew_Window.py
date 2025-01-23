@@ -3174,6 +3174,16 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.Con4Dollar_Invoice.editingFinished.connect(self.calculate_totalorder)
         self.Con5Dollar_Invoice.editingFinished.connect(self.calculate_totalorder)
 
+        self.ClAlb_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.DateAlb_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.AtteAlb_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.DestAlb_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.AddressAlb_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.ZCAlb_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.CityAlb_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.ProvinceAlb_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.CountryAlb_Invoice.editingFinished.connect(self.save_data_on_database)
+
         # delete_action_record = QtGui.QAction("Eliminar Fila", self)
         # delete_action_record.triggered.connect(lambda: self.delete_register(self.tableRecords, "purch_fact.invoice_detail"))
 
