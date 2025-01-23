@@ -2377,7 +2377,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             self.DateAssembly_IndexDwg.setText(results_queryorder[0][6])
             self.PO_IndexDwg.setText(str(results_queryorder[0][7]))
             self.NumItems_IndexDwg.setText(str(results_queryorder[0][8]))
-            self.label_Extras.setText(str(results_queryorder[0][9]))
+            self.label_Extras.setText(str(results_queryorder[0][9])) if results_queryorder[0][9] is not None else self.label_Extras.setText("")
 
             self.checkbox_states = {}
             self.dict_valuesuniques = {}
