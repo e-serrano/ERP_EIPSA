@@ -886,7 +886,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
 
         headers=['Nº Pedido', '','Nº Ref','','F. Cont.','','','','','','','','','','F. Prev. Taller','',
                 '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones',
-                '', '', '', '','OK', '', '', '', '', '']
+                '', '', '', '','OK', '', '', '', '', '','','Extras']
 
         self.tableAssembly_P.setItemDelegate(AlignDelegate(self.tableAssembly_P))
         self.color_delegate = ColorDelegate(self)
@@ -993,7 +993,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
 
         headers=['Nº Pedido', '','Nº Ref','','F. Cont.','','','','','','','','','','F. Prev. Taller','',
                 '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones',
-                '', '', '', '','OK', '', '', '', '', '']
+                '', '', '', '','OK', '', '', '', '', '','','Extras']
 
         self.tableAssembly_P.setItemDelegate(AlignDelegate(self.tableAssembly_P))
         self.color_delegate = ColorDelegate(self)
@@ -1061,7 +1061,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
 
         headers=['Nº Pedido', '','Nº Ref','','F. Cont.','','','','','','','','','','F. Prev. Taller','',
                 '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones',
-                '', '', '', '','OK', '', '', '', '', '']
+                '', '', '', '','OK', '', '', '', '', '','','Extras']
 
         self.tableAssembly_PA.setItemDelegate(AlignDelegate(self.tableAssembly_PA))
         self.color_delegate = ColorDelegate(self)

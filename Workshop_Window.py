@@ -1129,7 +1129,7 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
 
         headers=['Nº Pedido', '','Nº Ref','','Fecha Contractual','','','','','','',
                 '% Fabricación','Cambios %','Fecha Recepción','F. Prevista Taller','Observaciones',
-                '','','','F. Prevista Montaje','','','','','','OK','','','','','','']
+                '','','','F. Prevista Montaje','','','','','','OK','','','','','','','Extras']
 
         headers_AL=['Nº Pedido', 'Fecha Pedido', 'Tipo Equipo', 'Cantidad', 'Detalle', 'Observaciones']
 
@@ -1525,7 +1525,7 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
 
         headers=['Nº Pedido', '','Nº Ref','','Fecha Contractual','','','','','','',
                 '% Fabricación','Cambios %','Fecha Recepción','F. Prevista Taller','Observaciones',
-                '','','','F. Prevista Montaje','','','','','','OK','','','','','','']
+                '','','','F. Prevista Montaje','','','','','','OK','','','','','','','Extras']
 
         self.tableWorkshop_P.setItemDelegate(ColorDelegate(self.tableWorkshop_P))
         self.tableWorkshop_P.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -1867,7 +1867,7 @@ class Ui_Workshop_Window(QtWidgets.QMainWindow):
 
         headers=['Nº Pedido', '','Nº Ref','','Fecha Contractual','','','','','','',
                 '% Fabricación','Cambios %','Fecha Recepción','F. Prevista Taller','Observaciones',
-                '','','','F. Prevista Montaje','','','','','','OK','','','','','','']
+                '','','','F. Prevista Montaje','','','','','','OK','','','','','','','Extras']
 
         self.tableWorkshop_PA.setItemDelegate(ColorDelegate(self.tableWorkshop_PA))
         self.tableWorkshop_PA.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
