@@ -459,7 +459,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
             column_index (int): The index of the column to sort.
             sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
         """
-        if column_index == 11:
+        if column_index in [1,2,13]:
             self.custom_sort(column_index, sortOrder)
         else:
             self.sortByColumn(column_index, sortOrder)
