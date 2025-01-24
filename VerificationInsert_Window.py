@@ -225,6 +225,8 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
         self.checkbox_states = {}
         self.rows_hidden = {}
         self.general_rows_to_hide = set()
+        self.sorted_column = None
+        self.sort_order = None
 
 # Function to show the menu
     def show_unique_values_menu(self, column_index, header_pos, header_height):
@@ -535,6 +537,9 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
             column_index (int): The index of the column to sort.
             sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
         """
+        self.sorted_column = column_index
+        self.sort_order = sortOrder
+
         if 'Fecha' in self.horizontalHeaderItem(column_index).text():
             self.custom_sort(column_index, sortOrder)
         else:
@@ -589,6 +594,19 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
             self.show_unique_values_menu(logical_index, header_pos, header_height)
         else:
             super().contextMenuEvent(event)
+
+# Function to get the current state of the table
+    def get_sort_state(self):
+        """
+        Returns the current column and sort order of the table.
+
+        Returns:
+            tuple: A tuple containing the column index and the sort order (Qt.SortOrder).
+        """
+        header = self.horizontalHeader()
+        sort_column = header.sortIndicatorSection()
+        sort_order = header.sortIndicatorOrder()
+        return sort_column, sort_order
 
 class CustomTableWidgetOthers(QtWidgets.QTableWidget):
     """
@@ -1535,6 +1553,11 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                 finally:
                     if conn is not None:
                         conn.close()
+
+                sort_column, sort_order = self.tableTags.get_sort_state()
+
+                if sort_column is not None and sort_order is not None:
+                    self.tableTags.sortByColumn(sort_column, sort_order)
 
 # Function to load data of table others
     def queryothers(self):
