@@ -5400,16 +5400,17 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
                 cursor = conn.cursor()
 
             #Importing excel file into dataframe
-                df_table = pd.read_excel(fname, na_values=['N/A'], keep_default_na=False)
+                df_table = pd.read_excel(fname, na_values=['N/A'], skiprows=14, keep_default_na=False)
                 df_table.insert(0, 'invoice_header_id', id_invoice)
                 df_table = df_table.astype(str)
                 df_table.replace('nan', 'N/A', inplace=True)
+                df_final = df_table.iloc[:,:6]
 
                 try:
-            # Loop through each row of the DataFrame and insert the data into the table
-                    for index, row in df_table.iterrows():
+                # Loop through each row of the DataFrame and insert the data into the table
+                    for index, row in df_final.iterrows():
                         # Create a list of pairs (column_name, column_value) for each column with value
-                            columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
+                            columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
 
                         # Creating string for columns names
                             columns = ', '.join([column for column, _ in columns_values])
