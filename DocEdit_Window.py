@@ -901,23 +901,25 @@ class Ui_EditDoc_Window(QtWidgets.QMainWindow):
         self.tableEditDocs.hideColumn(10)
 
 # Function to save changes into database
-    def saveChanges(self):
+    def saveChanges(self, topLeft, bottomRight):
         """
         Saves changes made to the data models and updates unique values for each column.
         """
-        self.model.submitAll()
+        if topLeft == bottomRight:
+            # self.model.submitAll()
+            self.model.submit()
 
-        for column in range(self.model.columnCount()):
-            list_valuesUnique = []
-            for row in range(self.model.rowCount()):
-                value = self.model.record(row).value(column)
-                if value not in list_valuesUnique:
-                    if isinstance(value, QtCore.QDate):
-                        value=value.toString("dd/MM/yyyy")
-                    list_valuesUnique.append(str(value))
-                    if value not in self.checkbox_states[column]:
-                        self.checkbox_states[column][value] = True
-            self.dict_valuesuniques[column] = list_valuesUnique
+            for column in range(self.model.columnCount()):
+                list_valuesUnique = []
+                for row in range(self.model.rowCount()):
+                    value = self.model.record(row).value(column)
+                    if value not in list_valuesUnique:
+                        if isinstance(value, QtCore.QDate):
+                            value=value.toString("dd/MM/yyyy")
+                        list_valuesUnique.append(str(value))
+                        if value not in self.checkbox_states[column]:
+                            self.checkbox_states[column][value] = True
+                self.dict_valuesuniques[column] = list_valuesUnique
 
 # Function to query documents data into table
     def query_documents(self):
