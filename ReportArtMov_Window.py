@@ -465,6 +465,27 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
+class ScrollableComboBox(QtWidgets.QComboBox):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setEditable(True)
+        self.match_text = ""  # To store entered text
+        self.lineEdit().textChanged.connect(self.store_text)
+
+    def store_text(self, text):
+        self.match_text = text  # Storing text of line edit
+
+    def showPopup(self):
+        # Call to original method
+        super().showPopup()
+        
+        if self.match_text:
+            index = self.findText(self.match_text, flags=QtCore.Qt.MatchFlag.MatchContains) # Search first partial match
+            if index != -1:  # If found
+                popup = self.view()  # Obtain view of dropdown
+                popup.setCurrentIndex(popup.model().index(index, 0))  # Select index
+                popup.scrollTo(popup.model().index(index, 0), hint=popup.ScrollHint.PositionAtTop) 
+
 class Ui_ArtMov_Window(object):
     def __init__(self, username, ref_supply = None):
         """
@@ -504,7 +525,7 @@ class Ui_ArtMov_Window(object):
     "  border-radius: 3px;\n"
     "  color: #fff;\n"
     "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-    "  font-size: 12px;\n"
+    "  font-size: 13px;\n"
     "  font-weight: 800;\n"
     "  line-height: 1.15385;\n"
     "  margin: 0;\n"
@@ -541,6 +562,12 @@ class Ui_ArtMov_Window(object):
     "\n"
     "QComboBox QAbstractItemView::item:hover {\n"
     "background-color: blue;\n"
+    "color: white;\n"
+    "}\n"
+    "\n"
+    "QComboBox QAbstractItemView::item:selected {\n"
+    "background-color: blue;\n"
+    "color: white;\n"
     "}"
     )
         else:
@@ -611,7 +638,7 @@ class Ui_ArtMov_Window(object):
         self.label_item.setFont(font)
         self.label_item.setObjectName("label_item")
         self.gridLayout1.addWidget(self.label_item, 0, 0, 1, 1)
-        self.ItemName = QtWidgets.QComboBox(parent=self.frame)
+        self.ItemName = ScrollableComboBox()
         self.ItemName.setMinimumSize(QtCore.QSize(0, int(35//self.scale)))
         self.ItemName.setMaximumSize(QtCore.QSize(16777215, int(35//self.scale)))
         self.ItemName.setEditable(True)

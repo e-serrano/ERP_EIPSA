@@ -810,6 +810,26 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
+class ScrollableComboBox(QtWidgets.QComboBox):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setEditable(True)
+        self.match_text = ""  # To store entered text
+        self.lineEdit().textChanged.connect(self.store_text)
+
+    def store_text(self, text):
+        self.match_text = text  # Storing text of line edit
+
+    def showPopup(self):
+        # Call to original method
+        super().showPopup()
+        
+        if self.match_text:
+            index = self.findText(self.match_text, flags=QtCore.Qt.MatchFlag.MatchContains) # Search first partial match
+            if index != -1:  # If found
+                popup = self.view()  # Obtain view of dropdown
+                popup.setCurrentIndex(popup.model().index(index, 0))  # Select index
+                popup.scrollTo(popup.model().index(index, 0), hint=popup.ScrollHint.PositionAtTop) 
 
 class Ui_Quotation_Window(QtWidgets.QMainWindow):
     """
@@ -890,6 +910,12 @@ class Ui_Quotation_Window(QtWidgets.QMainWindow):
     "\n"
     "QComboBox QAbstractItemView::item:hover {\n"
     "background-color: blue;\n"
+    "color: white;\n"
+    "}\n"
+    "\n"
+    "QComboBox QAbstractItemView::item:selected {\n"
+    "background-color: blue;\n"
+    "color: white;\n"
     "}"
     )
         else:
@@ -972,7 +998,7 @@ class Ui_Quotation_Window(QtWidgets.QMainWindow):
         self.label_Supplier.setFont(font)
         self.label_Supplier.setObjectName("label_Supplier")
         self.gridLayout_2.addWidget(self.label_Supplier, 1, 6, 1, 1)
-        self.Supplier_Quotation = QtWidgets.QComboBox(parent=self.frame)
+        self.Supplier_Quotation = ScrollableComboBox()
         self.Supplier_Quotation.setEditable(True)
         self.Supplier_Quotation.setMinimumSize(QtCore.QSize(int(300//1.5), int(35//1.5)))
         self.Supplier_Quotation.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
@@ -1018,7 +1044,7 @@ class Ui_Quotation_Window(QtWidgets.QMainWindow):
         self.label_Supply.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignTop)
         self.label_Supply.setObjectName("label_Supply")
         self.gridLayout_2.addWidget(self.label_Supply, 5, 1, 1, 1)
-        self.Supply_Quotation = QtWidgets.QComboBox(parent=self.frame)
+        self.Supply_Quotation = ScrollableComboBox()
         self.Supply_Quotation.setEditable(True)
         self.Supply_Quotation.setMinimumSize(QtCore.QSize(0, int(35//1.5)))
         self.Supply_Quotation.setMaximumSize(QtCore.QSize(16777215, int(35//1.5)))
