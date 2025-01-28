@@ -301,7 +301,7 @@ class Ui_Login_Window(object):
         the username and password. Depending on the user's role, opens the corresponding application 
         window. Displays error messages for invalid username, incorrect password, or unrecognized roles.
         """
-        login_username = self.username_login.text().lower()
+        login_username = self.username_login.text().lower() if self.username_login.text().lower() != 'm' else 'm.sahuquillo'
         login_password = self.password_login.text()
 
         if login_username == '' or login_password == '':
