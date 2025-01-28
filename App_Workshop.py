@@ -39,7 +39,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
 
-class Ui_App_Workshop(object):
+class Ui_App_Workshop(QtWidgets.QMainWindow):
     """
     Main application window for the workshop app.
 
@@ -55,9 +55,11 @@ class Ui_App_Workshop(object):
             name (str): The name of the user.
             username (str): The username of the user.
         """
+        super().__init__() 
         self.name=name
         self.username=username
         self.calibration_window = None
+        self.setupUi(self)
 
 
     def setupUi(self, App_Workshop):
@@ -721,7 +723,87 @@ class Ui_App_Workshop(object):
 
 # Function to open window with manufacture times table
     def times(self):
-        print('ordenes de compra')
+        """
+        Prompts the user for various inputs to open window with manufacturing times
+        """
+        dlg = QtWidgets.QInputDialog()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle('Consultar tiempos')
+        dlg.setLabelText('Inserte pedido:')
+
+        dlg2 = QtWidgets.QInputDialog()
+        new_icon2 = QtGui.QIcon()
+        new_icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg2.setWindowIcon(new_icon2)
+        dlg2.setWindowTitle('Consultar tiempos')
+        dlg2.setLabelText('Inserte número OT:')
+
+        while True:
+            query_type, ok = QtWidgets.QInputDialog.getItem(self, "Consultar tiempos", "Selecciona como consultar:", ['Número OT', 'Pedido'], 0, False)
+            if ok and query_type:
+                if query_type != '':
+                    if query_type[0] == 'P':
+                        while True:
+                            clickedButton = dlg.exec()
+                            if clickedButton == 1:
+                                numorder = dlg.textValue()
+                                if numorder != '':
+                                    from FabTimes_Window import Ui_FabTimes_Window
+                                    self.timesfab_window=QtWidgets.QMainWindow()
+                                    self.ui = Ui_FabTimes_Window(self.username, numorder)
+                                    self.ui.setupUi(self.timesfab_window)
+                                    self.timesfab_window.showMaximized()
+                                    break
+                                dlg_error = QtWidgets.QMessageBox()
+                                new_icon = QtGui.QIcon()
+                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                dlg_error.setWindowIcon(new_icon)
+                                dlg_error.setWindowTitle("Consultar tiempos")
+                                dlg_error.setText("El pedido no puede estar vacío")
+                                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                dlg_error.exec()
+                                del dlg_error,new_icon
+                            else:
+                                break
+                        break
+
+                    else:
+                        while True:
+                            clickedButton = dlg2.exec()
+                            if clickedButton == 1:
+                                num_ot = dlg2.textValue()
+                                if num_ot != '':
+                                    from FabTimes_Window import Ui_FabTimes_Window
+                                    self.timesfab_window=QtWidgets.QMainWindow()
+                                    self.ui = Ui_FabTimes_Window(self.username, num_ot)
+                                    self.ui.setupUi(self.timesfab_window)
+                                    self.timesfab_window.showMaximized()
+                                    break
+                                dlg_error = QtWidgets.QMessageBox()
+                                new_icon = QtGui.QIcon()
+                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                dlg_error.setWindowIcon(new_icon)
+                                dlg_error.setWindowTitle("Consultar tiempos")
+                                dlg_error.setText("El número OT no puede estar vacío")
+                                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                dlg_error.exec()
+                                del dlg_error,new_icon
+                            else:
+                                break
+                        break
+                dlg_error = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg_error.setWindowIcon(new_icon)
+                dlg_error.setWindowTitle("Consultar tiempos")
+                dlg_error.setText("Selecciona un tipo")
+                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg_error.exec()
+                del dlg_error,new_icon
+            else:
+                break
 
 # Function to show menu when Profile button is clicked 
     def showMenu(self):
