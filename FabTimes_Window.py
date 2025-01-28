@@ -857,9 +857,9 @@ class Ui_FabTimes_Window(object):
 
         if reference_query[0] == 'P':
             commands_querytable = ("""
-                        SELECT orders."ot_num", TO_CHAR(times."date_ot", 'DD/MM/YYYY'), times."start_hour", times."end_hour",
+                        SELECT DISTINCT orders."ot_num", TO_CHAR(times."date_ot", 'DD/MM/YYYY'), times."start_hour", times."end_hour",
                         REPLACE(TO_CHAR(times."total_time", '90.00'), '.', ':'), REPLACE(TO_CHAR(times."time_ot", '90.00'), '.', ':'),
-                        personal."name", operations."name", times."cent_total_time", times."cent_time_ot"
+                        personal."name", operations."name", times."cent_total_time", times."cent_time_ot", times."date_ot"
                         FROM fabrication.imp_ot AS times
                         JOIN fabrication.personal AS personal ON times."personal_id" = personal."code"
                         JOIN fabrication.operations AS operations ON times."operations_id" = operations."id"
@@ -894,7 +894,7 @@ class Ui_FabTimes_Window(object):
             cur.execute(commands_querytable,(reference_query,))
             results=cur.fetchall()
 
-            dataframe_times = pd.DataFrame(results, columns=['Num. OT', 'Fecha', 'Inicio', 'Fin', 'Total', 'Efectivo', 'Nombre', 'Operación', 'Total C', 'Efectivo C'])
+            dataframe_times = pd.DataFrame(results, columns=['Num. OT', 'Fecha', 'Inicio', 'Fin', 'Total', 'Efectivo', 'Nombre', 'Operación', 'Total C', 'Efectivo C', 'Fecha OT'])
 
         # close communication with the PostgreSQL database server
             cur.close()
@@ -928,6 +928,7 @@ class Ui_FabTimes_Window(object):
             dlg.setWindowTitle("ERP EIPSA")
             dlg.setText("Ha ocurrido el siguiente error:\n"
                         + str(error))
+            print(error)
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
             del dlg, new_icon
@@ -1114,7 +1115,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     FabTimes = QtWidgets.QMainWindow()
-    ui = Ui_FabTimes_Window('j.martinez','P-24/074')
+    ui = Ui_FabTimes_Window('j.martinez','P-24/091')
     ui.setupUi(FabTimes)
     FabTimes.show()
     sys.exit(app.exec())
