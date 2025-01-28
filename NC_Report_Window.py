@@ -1760,6 +1760,26 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
         self.te_description.setStyleSheet("background-color: transparent;")
         vLayout.addWidget(self.te_description)
 
+        if self.username == 'm.gil':
+            dlg.setStyleSheet("background-color: #121212; color: white;")
+            btn.setStyleSheet("""
+            QPushButton {
+                background-color: black;
+                color: white;
+                border: 1px solid white;
+                border-radius: 5px;
+                padding: 5px 10px;
+            }
+            QPushButton:hover {
+                background-color: lightblue;
+                color: black;
+            }
+            QPushButton:pressed {
+                background-color: darkblue;
+                color: white;
+            }
+        """)
+
         # dlg.exec()
 
         dlg.show()
@@ -1865,6 +1885,26 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
         self.te_cause.setStyleSheet("background-color: transparent;")
         vLayout.addWidget(self.te_cause)
 
+        if self.username == 'm.gil':
+            dlg.setStyleSheet("background-color: #121212; color: white;")
+            btn.setStyleSheet("""
+            QPushButton {
+                background-color: black;
+                color: white;
+                border: 1px solid white;
+                border-radius: 5px;
+                padding: 5px 10px;
+            }
+            QPushButton:hover {
+                background-color: lightblue;
+                color: black;
+            }
+            QPushButton:pressed {
+                background-color: darkblue;
+                color: white;
+            }
+        """)
+
         # dlg.exec()
 
         dlg.show()
@@ -1969,6 +2009,26 @@ class Ui_NC_Report_Window(QtWidgets.QMainWindow):
         self.te_action.setText(results[0][0])
         self.te_action.setStyleSheet("background-color: transparent;")
         vLayout.addWidget(self.te_action)
+
+        if self.username == 'm.gil':
+            dlg.setStyleSheet("background-color: #121212; color: white;")
+            btn.setStyleSheet("""
+            QPushButton {
+                background-color: black;
+                color: white;
+                border: 1px solid white;
+                border-radius: 5px;
+                padding: 5px 10px;
+            }
+            QPushButton:hover {
+                background-color: lightblue;
+                color: black;
+            }
+            QPushButton:pressed {
+                background-color: darkblue;
+                color: white;
+            }
+        """)
 
         # dlg.exec()
 
