@@ -47,7 +47,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         if index.column() == 5: # Checking column number and painting if apply
             value = str(index.data())
             if value != '':
-                fecha_str_split = value.split('-')
+                fecha_str_split = value.split('/')
                 fecha_str_qdate = QtCore.QDate(int(fecha_str_split[2]), int(fecha_str_split[1]), int(fecha_str_split[0]))
                 delay_date=QtCore.QDate.currentDate().addDays(-10)
 
@@ -810,7 +810,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
 
         delay_date=QtCore.QDate.currentDate().addDays(-10)
         commands_documentation = ("""
-                    SELECT "num_doc_eipsa","num_order","doc_title","state","revision",TO_CHAR("state_date", 'DD-MM-YYYY'),"tracking"
+                    SELECT "num_doc_eipsa","num_order","doc_title","state","revision","state_date","tracking"
                     FROM documentation
                     WHERE (
                     "state" IS NULL OR "state" IN ('','Enviado','Comentado','Com. Mayores','Com. Menores')
@@ -1960,7 +1960,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.tableDocs.setRowCount(0)
         delay_date=QtCore.QDate.currentDate().addDays(-10)
         commands_documentation = ("""
-                    SELECT "num_doc_eipsa","num_order","doc_title","state","revision",TO_CHAR("state_date", 'DD-MM-YYYY'),"tracking"
+                    SELECT "num_doc_eipsa","num_order","doc_title","state","revision","state_date","tracking"
                     FROM documentation
                     WHERE (
                     "state" IS NULL OR "state" IN ('','Enviado','Comentado','Com. Mayores','Com. Menores')

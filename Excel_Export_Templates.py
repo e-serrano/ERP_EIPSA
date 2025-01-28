@@ -6684,10 +6684,16 @@ class doc_situation:
         commands_queryalldoc = ("""
                     SELECT documentation."num_order",orders."num_ref_order",offers."client",TO_CHAR(orders."order_date", 'DD/MM/YYYY'),product_type."variable",
                     documentation."num_doc_client",documentation."num_doc_eipsa",documentation."doc_title",document_type."doc_type",documentation."state",documentation."revision",
-                    TO_CHAR(documentation."state_date", 'DD/MM/YYYY'), TO_CHAR(documentation."date_first_rev", 'DD/MM/YYYY'),
-                    (documentation."state_date" - documentation."date_first_rev") AS difference,
+                    TO_CHAR(TO_DATE(documentation."state_date", 'DD/MM/YYYY'), 'DD/MM/YYYY'),
+                    TO_CHAR(TO_DATE(documentation."date_first_rev", 'DD/MM/YYYY'), 'DD/MM/YYYY'),
+                    (TO_DATE(documentation."state_date", 'DD/MM/YYYY') - TO_DATE(documentation."date_first_rev", 'DD/MM/YYYY')) AS difference,
                     CAST(SUBSTRING(offers."delivery_time" FROM POSITION('-' IN offers."delivery_time") + 1) AS INTEGER) AS delivery_weeks,
-                    TO_CHAR((documentation."state_date" + INTERVAL '7 days' * CAST(SUBSTRING(offers."delivery_time" FROM POSITION('-' IN offers."delivery_time") + 1) AS INTEGER)), 'DD/MM/YYYY') AS new_date, documentation."tracking"
+                    TO_CHAR(
+                        (TO_DATE(documentation."state_date", 'DD/MM/YYYY') + INTERVAL '7 days' * 
+                        CAST(SUBSTRING(offers."delivery_time" FROM POSITION('-' IN offers."delivery_time") + 1) AS INTEGER)), 
+                        'DD/MM/YYYY'
+                    ) AS new_date,
+                    documentation."tracking"
                     FROM documentation
                     INNER JOIN orders ON (orders."num_order" = documentation."num_order")
                     INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
