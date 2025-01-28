@@ -476,7 +476,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         row_count = self.rowCount()
 
         indexes = list(range(row_count))
-        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd-MM-yyyy"))
+        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd/MM/yyyy"))
 
         if order == QtCore.Qt.SortOrder.DescendingOrder:
             indexes.reverse()
@@ -686,7 +686,7 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
         commands_queryalldoc = ("""
                         SELECT documentation."num_order", TO_CHAR(orders."order_date", 'DD-MM-YYYY'), TO_CHAR(orders."expected_date", 'DD-MM-YYYY'), orders."num_ref_order", offers."client", product_type."variable", documentation."num_doc_client",
                         documentation."num_doc_eipsa", documentation."doc_title", document_type."doc_type", documentation."critical", documentation."state",
-                        documentation."revision", TO_CHAR(documentation."state_date", 'DD-MM-YYYY'), documentation."tracking", hist_doc."hist_rev_column"
+                        documentation."revision", "state_date", documentation."tracking", hist_doc."hist_rev_column"
                         FROM documentation
                         INNER JOIN orders ON (orders."num_order" = documentation."num_order")
                         INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
