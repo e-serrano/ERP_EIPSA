@@ -3163,6 +3163,12 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.Transport_Invoice.editingFinished.connect(self.save_data_on_database)
         self.PayDate_Invoice.editingFinished.connect(self.save_data_on_database)
 
+        self.TxtCon1_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.TxtCon2_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.TxtCon3_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.TxtCon4_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.TxtCon5_Invoice.editingFinished.connect(self.save_data_on_database)
+
         self.Con1Eur_Invoice.editingFinished.connect(self.calculate_totalorder)
         self.Con2Eur_Invoice.editingFinished.connect(self.calculate_totalorder)
         self.Con3Eur_Invoice.editingFinished.connect(self.calculate_totalorder)
@@ -3173,6 +3179,10 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.Con3Dollar_Invoice.editingFinished.connect(self.calculate_totalorder)
         self.Con4Dollar_Invoice.editingFinished.connect(self.calculate_totalorder)
         self.Con5Dollar_Invoice.editingFinished.connect(self.calculate_totalorder)
+
+        self.AditData1_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.AditData2_Invoice.editingFinished.connect(self.save_data_on_database)
+        self.IVACL_Invoice.editingFinished.connect(self.save_data_on_database)
 
         self.ClAlb_Invoice.editingFinished.connect(self.save_data_on_database)
         self.DateAlb_Invoice.editingFinished.connect(self.save_data_on_database)
@@ -5122,7 +5132,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         total_tax_base =  total_tax_base_euro if float(self.TotalEur_Invoice.text()) != 0.00 else total_tax_base_dolar * float(self.ValCotDollar_Invoice.text() if self.ValCotDollar_Invoice.text() != '' else 0)
         self.TaxBase_Invoice.setText('{:.2f}'.format(total_tax_base))
 
-        # self.save_data_on_database()
+        self.save_data_on_database()
 
 # Function to calculate the total number of elements
     def calculate_elements(self):
