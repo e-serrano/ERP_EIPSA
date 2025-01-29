@@ -697,7 +697,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.hcab.setObjectName("hcab")
         self.toolPDF = QtWidgets.QToolButton(self.frame)
         self.toolPDF.setObjectName("PDF_Button")
-        self.toolPDF.setToolTip("Imprimir PDF")
+        self.toolPDF.setToolTip("Combinar PDF")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolPDF.setIcon(icon)
@@ -1620,51 +1620,63 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 
 
     def merge_pdfs(self):
-        files_to_merge = askopenfilenames(title='Selecciona archivos PDF',
-                                            filetypes=[('Archivos PDF', '*.pdf')])
-        if files_to_merge:
-            pdf_merged = asksaveasfilename(defaultextension=".pdf",
-                                                        filetypes=[('Archivos PDF', '*.pdf')],
-                                                        title="Guardar archivo combinado como")
-            if pdf_merged:
-                writer = PyPDF2.PdfWriter()
-                for file in files_to_merge:
-                    with open(file, 'rb') as f:
-                        lector = PyPDF2.PdfReader(f)
-                        for pagina in range(len(lector.pages)):
-                            writer.add_page(lector.pages[pagina])
-                
-                with open(pdf_merged, 'wb') as f_salida:
-                    writer.write(f_salida)
+        try:
+            files_to_merge = askopenfilenames(title='Selecciona archivos PDF',
+                                                filetypes=[('Archivos PDF', '*.pdf')])
+            if files_to_merge:
+                pdf_merged = asksaveasfilename(defaultextension=".pdf",
+                                                            filetypes=[('Archivos PDF', '*.pdf')],
+                                                            title="Guardar archivo combinado como")
+                if pdf_merged:
+                    writer = PyPDF2.PdfWriter()
+                    for file in files_to_merge:
+                        with open(file, 'rb') as f:
+                            lector = PyPDF2.PdfReader(f)
+                            for pagina in range(len(lector.pages)):
+                                writer.add_page(lector.pages[pagina])
+                    
+                    with open(pdf_merged, 'wb') as f_salida:
+                        writer.write(f_salida)
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Combinar PDF")
-                dlg.setText(f'Archivos combinados guardados como:\n{pdf_merged}')
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Combinar PDF")
+                    dlg.setText(f'Archivos combinados guardados como:\n{pdf_merged}')
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
+                else:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Combinar PDF")
+                    dlg.setText('Operación cancelada al guardar el archivo.')
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+                    del dlg, new_icon
+
             else:
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
                 dlg.setWindowTitle("Combinar PDF")
-                dlg.setText('Operación cancelada al guardar el archivo.')
+                dlg.setText('No se seleccionaron archivos.')
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg.exec()
                 del dlg, new_icon
 
-        else:
+        except Exception as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Combinar PDF")
-            dlg.setText('No se seleccionaron archivos.')
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.setText(f'Ha ocurrido el siguiente error:\n{error}')
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
             dlg.exec()
             del dlg, new_icon
 
