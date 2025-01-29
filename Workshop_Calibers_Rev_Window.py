@@ -1910,7 +1910,7 @@ class Ui_Workshop_Calibers_Rev_Window(QtWidgets.QMainWindow):
                 pdf.cell(2.5, 0.5, str(item[18]) if item[18] is not None else '', border=1, align='C', fill=True)
                 pdf.ln(0.5)
 
-            pdf.fixed_height_multicell(18.25, 2, results_caliber[0][10], 'L','LR')
+            pdf.fixed_height_multicell(18.25, 2, results_caliber[0][10] if not 'PRINCIPAL' in results_caliber[0][10] else '', 'L','LR')
             pdf.ln(3)
             pdf.set_font('Helvetica', 'B', 9)
             pdf.cell(2.5, 0.5, 'TEMPERATURA: 23°C ± 2°C', align='L')

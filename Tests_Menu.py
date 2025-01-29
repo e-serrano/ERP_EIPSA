@@ -9,11 +9,104 @@ import sys
 from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
-import os
+import os, io
 import datetime
+from fpdf import FPDF
+from PDF_Viewer import PDF_Viewer
+import pandas as pd
+from pathlib import Path
+from pypdf import PdfReader, PdfWriter
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
+class CustomPDF(FPDF):
+    """
+    Custom PDF class extending FPDF for advanced text handling.
+
+    This class provides additional functionalities for creating PDF documents,
+    specifically for managing multi-line text with fixed height.
+
+    Methods:
+        fixed_height_multicell(w, total_h, txt, align_mc, border='LR', fill=False):
+            Outputs text in a multi-cell format with a fixed total height.
+    """
+    def fixed_height_multicell(self, w, total_h, txt, align_mc, border, fill=False):
+        """
+        Creates a multi-line cell with a fixed total height, dividing text into lines.
+
+        Parameters:
+            w (float): The width of the cell.
+            total_h (float): The total height of the cell.
+            txt (str): The text to be placed in the cell.
+            align_mc (str): The alignment of the text.
+            border (str, optional): Border settings for the cell. Defaults to ''.
+            fill (bool, optional): Whether to fill the cell with color. Defaults to False.
+        """
+        words = txt.split() # Divide text in words
+        lines = []
+        line = ''
+        for word in words:
+            if self.get_string_width(line + word + ' ') > w - 0.5:
+                lines.append(line) # Add line to line list and starts a new one
+                line = word + ' '
+            else:
+                line += word + ' ' # Add word to actual line
+        lines.append(line) # Add last line to line list
+        
+        line_height = total_h / len(lines) # Calculate height of each line to get a total height = total_h
+
+        x, y = self.get_x(), self.get_y() # Save actual position
+
+        for i, line in enumerate(lines):
+            # Add the bottom border only to the last line
+            if i == len(lines) - 1:
+                current_border = border  # Add bottom border to the last line
+            else:
+                current_border = border
+            # Print each line with the calculated height
+            self.multi_cell(w, line_height, line, current_border, align_mc, fill)
+            self.set_x(x)
+
+        self.set_xy(x, y + total_h)
+
+    def calculate_min_height(self, w, texts):
+        """
+        Calculate the minimum height needed to fit multiple texts in a fixed-width cell based on the longest text.
+        
+        Parameters:
+            w (float): The width of the cell.
+            texts (list): A list of 5 texts (strings) to fit within the cell.
+
+        Returns:
+            float: The minimum height required based on the longest text in terms of line count,
+                with a minimum of 0.5.
+        """
+        max_lines = 0
+
+        for txt in texts:
+            words = txt.split()
+            line = ''
+            lines = 0
+
+            # Calculate the number of lines needed for the current text
+            for word in words:
+                if self.get_string_width(line + word + ' ') > w - 0.5:
+                    lines += 1  # Start a new line
+                    line = word + ' '
+                else:
+                    line += word + ' '
+
+            lines += 1  # Account for the last line
+            
+            # Track the maximum number of lines
+            if lines > max_lines:
+                max_lines = lines
+
+        # Calculate the total height required for the longest text
+        total_height = max_lines * 0.25
+
+        # Ensure the height is at least 0.5
+        return max(0.5, total_height)
 
 class Ui_Tests_Menu(QtWidgets.QMainWindow):
     """
@@ -28,6 +121,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         """
         super().__init__()
         self.username = username
+        self.pdf_viewer = PDF_Viewer()
         self.setupUi(self)
 
     def setupUi(self, Tests_Menu):
@@ -39,8 +133,8 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         """
         Tests_Menu.setObjectName("Tests_Menu")
         Tests_Menu.resize(680, 425)
-        Tests_Menu.setMinimumSize(QtCore.QSize(280, 425))
-        Tests_Menu.setMaximumSize(QtCore.QSize(280, 425))
+        Tests_Menu.setMinimumSize(QtCore.QSize(280, 475))
+        Tests_Menu.setMaximumSize(QtCore.QSize(280, 475))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Tests_Menu.setWindowIcon(icon)
@@ -143,21 +237,34 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         self.Button_ultrasound.setObjectName("Button_ultrasound")
         self.Button_ultrasound.setText("   Ultrasonidos")
         self.verticalLayout_3.addWidget(self.Button_ultrasound)
-        self.Button_query = QtWidgets.QPushButton(parent=self.frame)
-        self.Button_query.setMinimumSize(QtCore.QSize(200, 50))
-        # self.Button_query.setMaximumSize(QtCore.QSize(200, 50))
+        self.Button_tests = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_tests.setMinimumSize(QtCore.QSize(200, 50))
+        # self.Button_tests.setMaximumSize(QtCore.QSize(200, 50))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
-        self.Button_query.setFont(font)
-        self.Button_query.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_tests.setFont(font)
+        self.Button_tests.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         icon12 = QtGui.QIcon()
         icon12.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Caliber_White.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Button_query.setIcon(icon12)
-        self.Button_query.setIconSize(QtCore.QSize(40, 40))
-        self.Button_query.setObjectName("Button_query")
-        self.Button_query.setText("   Pruebas")
-        self.verticalLayout_3.addWidget(self.Button_query)
+        self.Button_tests.setIcon(icon12)
+        self.Button_tests.setIconSize(QtCore.QSize(40, 40))
+        self.Button_tests.setObjectName("Button_tests")
+        self.Button_tests.setText("   Pruebas")
+        self.verticalLayout_3.addWidget(self.Button_tests)
+
+        self.Button_calibration_sheet = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_calibration_sheet.setMinimumSize(QtCore.QSize(200, 50))
+        # self.Button_tests.setMaximumSize(QtCore.QSize(200, 50))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.Button_calibration_sheet.setFont(font)
+        self.Button_calibration_sheet.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_calibration_sheet.setObjectName("Button_calibration_sheet")
+        self.Button_calibration_sheet.setText("Ficha Calibración")
+        self.verticalLayout_3.addWidget(self.Button_calibration_sheet)
+
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
         sizePolicy.setHorizontalStretch(0)
@@ -192,7 +299,8 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         self.Button_PMI.clicked.connect(self.insert_pmi)
         self.Button_ultrasound.clicked.connect(self.insert_ultrasound)
         self.Button_XRay.clicked.connect(self.insert_xray)
-        self.Button_query.clicked.connect(self.query_test)
+        self.Button_tests.clicked.connect(self.query_test)
+        self.Button_calibration_sheet.clicked.connect(self.calibration_sheet)
 
         QtCore.QMetaObject.connectSlotsByName(Tests_Menu)
 
@@ -512,7 +620,7 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
         self.ui.setupUi(self.testquery_window)
         self.testquery_window.showMaximized()
 
-    # Function to check date format
+# Function to check date format
     def is_valid_date(self, date_str):
         """
         Checks if the provided date string is in a valid format.
@@ -533,9 +641,165 @@ class Ui_Tests_Menu(QtWidgets.QMainWindow):
             
         return False
 
+# Function to generate calibration sheet
+    def calibration_sheet(self):
+        """
+        Generates a PDF datasheet for the calibers.
+        Opens the generated PDF in the viewer.
+        """
+        query_calibers= ("""SELECT calibers.equipment_number, calibers.type_caliber, calibers.range_caliber || ' mm' as range, TO_CHAR(calibers.next_check_date, 'DD/MM/YYYY'),
+                            'CP-40' as master, masters.certificate_1
+                            FROM verification.calibers_workshop as calibers
+                            LEFT JOIN verification.calibrated_masters as masters ON 'EIPSA-CP-40' = masters.number_item
+                            WHERE calibers.notes = 'PRINCIPAL'
+
+                            UNION
+
+                            SELECT manometers.number, manometers.instrument, manometers.range|| ' ' || manometers.scale as range, TO_CHAR(manometers.next_revision, 'DD/MM/YYYY'),
+                            manometers.master, masters.certificate_1
+                            FROM verification.manometers_thermoelements_workshop as manometers
+                            LEFT JOIN verification.calibrated_masters as masters ON manometers.master = masters.number_item
+                            WHERE manometers.instrument = 'MANOMETRO'""")
+
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(query_calibers)
+            results_caliber=cur.fetchall()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            print(error)
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        df_data = pd.DataFrame(results_caliber, columns=['Número', 'Instrumento', 'Rango', 'Próxima Revisión', 'Patrón', 'Certificado Patrón'])
+        df_data = df_data.sort_values(by='Número')
+        df_data["Certificado Patrón"] = df_data["Certificado Patrón"].apply(lambda x: Path(x).stem)
+        df_data["Certificado Patrón"] = df_data["Certificado Patrón"].apply(lambda x: x.split()[0])
+
+        pdf = CustomPDF('P', 'cm', 'A4')
+
+        pdf.add_font('DejaVuSansCondensed', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed.ttf")))
+        pdf.add_font('DejaVuSansCondensed-Bold', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/DejaVuSansCondensed-Bold.ttf")))
+
+        pdf.set_auto_page_break(auto=True)
+        pdf.set_margins(2, 1)
+
+        pdf.add_page()
+
+        pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eipsa Logo Blanco.png")), 2, 1, 8, 2)
+        pdf.set_font('Helvetica', '', 6)
+        pdf.set_xy(14.5, 1.4)
+        pdf.multi_cell(5.1, 0.3, f"Pol.Ind. IGARSA - Naves 3, 4, 5, 6, 7 y 8\n"
+        "28860 Paracuellos de Jarama. Madrid (ESPAÑA)\n"
+        "Tel.: (+34) 91 658 21 18\n"
+        "E-mail: info@eipsa.es - Web: http://www.eipsa.es\n", align='L')
+        pdf.set_font('Helvetica', 'BU', 16)
+        pdf.set_xy(2,3)
+        pdf.cell(17, 1, "FICHA DE CALIBRACIÓN", align='C')
+        pdf.ln()
+        pdf.set_font('Helvetica', 'B', 16)
+        pdf.cell(17, 1, "Calibration Sheet", align='C')
+        pdf.ln(1)
+        pdf.set_fill_color(191, 191, 191)
+        pdf.set_font('Helvetica', '', 9)
+        pdf.fixed_height_multicell(17, 1.5, "Certificamos que en la fecha indicada se ha procedido según la instrucción CEM-I-001 a la comprobación mediante comparación del patrón referenciado habiéndose obtenido los resultados reflejados, habiéndose sido aceptado para su uso", 'L', None)
+        pdf.ln(0.5)
+        pdf.fixed_height_multicell(17, 1, "We certify that on the indicated date we have proceeded according to the instruction CEM-I-001 to check by comparing the referenced pattern, having been accepted for its use.", 'L', None)
+        pdf.ln(0.5)
+
+        pdf.set_font('Helvetica', 'B', 9)
+        pdf.cell(1.75, 0.5, "Numero", border=1, align='C')
+        pdf.cell(3, 0.5, "Instrumento", border=1, align='C')
+        pdf.cell(2.25, 0.5, "Rango", border=1, align='C')
+        pdf.cell(4, 0.5, "Fecha Próx. Calibración", border=1, align='C')
+        pdf.cell(2, 0.5, "Patrón", border=1, align='C')
+        pdf.cell(4, 0.5, "Certificado Patrón", border=1, align='C')
+        pdf.ln()
+        pdf.set_font('Helvetica', '', 8)
+        pdf.cell(1.75, 0.5, "Number", border=1, align='C')
+        pdf.cell(3, 0.5, "Instrument", border=1, align='C')
+        pdf.cell(2.25, 0.5, "Range", border=1, align='C')
+        pdf.cell(4, 0.5, "Next Calibration Date", border=1, align='C')
+        pdf.cell(2, 0.5, "Master", border=1, align='C')
+        pdf.cell(4, 0.5, "Master Calibration", border=1, align='C')
+        pdf.ln()
+
+        for index, row in df_data.iterrows():
+            pdf.cell(1.75, 1, str(row['Número']), border=1, align='C')
+            x_position = pdf.get_x()
+            y_position = pdf.get_y()
+            pdf.cell(3, 0.5, str(row['Instrumento']), border=1, align='C')
+            pdf.cell(2.25, 1, str(row['Rango']), border=1, align='C')
+            pdf.cell(4, 1, str(row['Próxima Revisión']), border=1, align='C')
+            pdf.cell(2, 1, str(row['Patrón']), border=1, align='C')
+            pdf.cell(4, 1, str(row['Certificado Patrón']), border=1, align='C')
+            pdf.set_xy(x_position, y_position + 0.5)
+            pdf.cell(3, 0.5, 'Vernier Caliper' if 'PIE' in str(row['Instrumento']) else 'Manometer', border=1, align='C')
+
+            pdf.ln()
+
+        pdf.ln(2.5)
+
+        y_position = pdf.get_y()
+
+        pdf.set_font('Helvetica', '', 9)
+        pdf.cell(11, 0.5, "")
+        pdf.cell(4, 0.5, "Departamendo de Calidad", align='C')
+        pdf.ln()
+        pdf.set_font('Helvetica', '', 8)
+        pdf.cell(11, 0.5, "")
+        pdf.cell(4, 0.5, "Quality Department", align='C')
+        pdf.ln()
+
+        temp_file_path = os.path.abspath(os.path.join(os.path.abspath(os.path.join(basedir, "Resources/pdfviewer/temp", "temp_calib_cert.pdf"))))
+        pdf.output(temp_file_path)
+
+        reader = PdfReader(temp_file_path)
+        page_overlay = PdfReader(self.new_content(y_position)).pages[0]
+
+        reader.pages[len(reader.pages) - 1].merge_page(page2=page_overlay)
+        writer = PdfWriter()
+        writer.append_pages_from_reader(reader)
+        writer.write(temp_file_path)
+
+        self.pdf_viewer.open(QtCore.QUrl.fromLocalFile(temp_file_path))  # Open PDF on viewer
+        self.pdf_viewer.showMaximized()
 
 
+# Function to include the stamp for new pdf
+    def new_content(self, y_position):
+        """
+        Generates a PDF document with a quality control stamp at a specified vertical position.
 
+        Args:
+            y_position (float): The vertical position (in centimeters) where the 
+                                quality control stamp image will be placed on the page.
+
+        Returns:
+            io.BytesIO: A byte stream containing the generated PDF document.
+        """
+        fpdf = FPDF('P', 'cm', 'A4')
+        fpdf.add_page()
+        fpdf.set_font("helvetica", size=36)
+        fpdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/QualityStamp.png")), 13, y_position - 2, 4, 2)
+        return io.BytesIO(fpdf.output())
 
 
 if __name__ == "__main__":
