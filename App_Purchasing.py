@@ -1067,6 +1067,20 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_QueryTagPrices.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
         self.Button_QueryTagPrices.setObjectName("Button_QueryTagPrices")
         self.verticalLayout_3.addWidget(self.Button_QueryTagPrices)
+        self.Button_QueryDoc = QtWidgets.QPushButton(parent=self.ButtonFrame)
+        self.Button_QueryDoc.setMinimumSize(QtCore.QSize(int(200//1.5), int(50//1.5)))
+        self.Button_QueryDoc.setMaximumSize(QtCore.QSize(int(200//1.5), int(50//1.5)))
+        font = QtGui.QFont()
+        font.setPointSize(int(12//1.5))
+        font.setBold(True)
+        self.Button_QueryDoc.setFont(font)
+        self.Button_QueryDoc.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Documents_Search.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_QueryDoc.setIcon(icon4)
+        self.Button_QueryDoc.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_QueryDoc.setObjectName("Button_QueryDoc")
+        self.verticalLayout_3.addWidget(self.Button_QueryDoc)
         self.PrincipalScreen.addWidget(self.ButtonFrame)
         spacerItem4 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.PrincipalScreen.addItem(spacerItem4)
@@ -1118,6 +1132,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_QueryOrder.clicked.connect(self.query_order)
         self.Button_QueryTag.clicked.connect(self.query_tag)
         self.Button_QueryTagPrices.clicked.connect(self.query_tag_prices)
+        self.Button_QueryDoc.clicked.connect(self.query_documents)
         self.Button_Profile.clicked.connect(self.showMenu)
         self.Button_Welding.clicked.connect(self.welding_data)
         self.Button_Warehouse.clicked.connect(self.warehouse_app)
@@ -1143,6 +1158,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_QueryOrder.setText(_translate("App_Purchasing", "   Consultar Pedidos"))
         self.Button_QueryTag.setText(_translate("App_Purchasing", "    Consultar TAG(s)"))
         self.Button_QueryTagPrices.setText(_translate("App_Purchasing", "    Consultar €€ TAG(s)"))
+        self.Button_QueryDoc.setText(_translate("App_Technical", "    Consultar Docum."))
 
 # Function to open menu with purchase department functions
     def purchase(self):
@@ -1837,6 +1853,15 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
             icon13 = QtGui.QIcon()
             icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Notification.setIcon(icon13)
+
+# Function to open window for documentation query
+    def query_documents(self):
+        """
+        Opens a new window for querying documents. 
+        """
+        from DocQuery_Window import Ui_QueryDoc_Window
+        self.querydoc_menu=Ui_QueryDoc_Window()
+        self.querydoc_menu.show()
 
 
 
