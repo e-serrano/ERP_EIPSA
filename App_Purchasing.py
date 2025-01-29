@@ -417,7 +417,7 @@ class CustomTableWidget(QtWidgets.QTableWidget):
         else:
             super().contextMenuEvent(event)
 
-class Ui_App_Purchasing(object):
+class Ui_App_Purchasing(QtWidgets.QMainWindow):
     """
     Ui_App_Invoicing represents the invoicing application interface.
 
@@ -437,9 +437,11 @@ class Ui_App_Purchasing(object):
         Side Effects:
             Creates an instance of the PDF_Viewer class for PDF handling.
         """
+        super().__init__() 
         self.name=name
         self.username=username
         self.pdf_viewer = PDF_Viewer()
+        self.setupUi(self)
 
 
     def setupUi(self, App_Purchasing):
@@ -736,6 +738,67 @@ class Ui_App_Purchasing(object):
         self.Button_Revisions.setObjectName("Button_Revisions")
         self.Button_Revisions.setToolTip("Revisiones")
         self.Header.addWidget(self.Button_Revisions)
+
+        spacerItem7 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem7)
+        self.Button_Times = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Times.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_Times.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_Times.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'd.marquez':
+            self.Button_Times.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Times.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Times.setText("")
+        icon13 = QtGui.QIcon()
+        icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Clock.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Times.setIcon(icon13)
+        self.Button_Times.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_Times.setObjectName("Button_Times")
+        self.Button_Times.setToolTip("Tiempos Fabricaión")
+        self.Header.addWidget(self.Button_Times)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -749,6 +812,63 @@ class Ui_App_Purchasing(object):
         self.Header.addWidget(self.HeaderName)
         spacerItem2 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem2)
+        self.Button_Notification = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Notification.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_Notification.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_Notification.setToolTip('Notificaciones')
+        self.Button_Notification.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'd.marquez':
+            self.Button_Notification.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Notification.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Notification.setText("")
+        self.Button_Notification.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_Notification.setObjectName("Button_Notification")
+        self.Header.addWidget(self.Button_Notification)
+        spacerItem15 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem15)
         self.Button_Profile = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Profile.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_Profile.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
@@ -1003,8 +1123,11 @@ class Ui_App_Purchasing(object):
         self.Button_Warehouse.clicked.connect(self.warehouse_app)
         self.Button_ActiveOffer.clicked.connect(self.open_active_offers)
         self.Button_Revisions.clicked.connect(self.revisions)
+        self.Button_Times.clicked.connect(self.times)
+        self.Button_Notification.clicked.connect(self.notifications)
 
         self.backup_data()
+        self.load_notifications()
 
 
 # Function to translate and updates the text of various UI elements
@@ -1562,6 +1685,158 @@ class Ui_App_Purchasing(object):
         self.ui=Ui_Verif_Revisions_Menu(self.username)
         self.ui.setupUi(self.revisions_menu)
         self.revisions_menu.show()
+
+# Function to open window with manufacture times table
+    def times(self):
+        """
+        Prompts the user for various inputs to open window with manufacturing times
+        """
+        dlg = QtWidgets.QInputDialog()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle('Consultar tiempos')
+        dlg.setLabelText('Inserte pedido:')
+
+        dlg2 = QtWidgets.QInputDialog()
+        new_icon2 = QtGui.QIcon()
+        new_icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg2.setWindowIcon(new_icon2)
+        dlg2.setWindowTitle('Consultar tiempos')
+        dlg2.setLabelText('Inserte número OT:')
+
+        while True:
+            query_type, ok = QtWidgets.QInputDialog.getItem(self, "Consultar tiempos", "Selecciona como consultar:", ['Número OT', 'Pedido'], 0, False)
+            if ok and query_type:
+                if query_type != '':
+                    if query_type[0] == 'P':
+                        while True:
+                            clickedButton = dlg.exec()
+                            if clickedButton == 1:
+                                numorder = dlg.textValue()
+                                if numorder != '':
+                                    from FabTimes_Window import Ui_FabTimes_Window
+                                    self.timesfab_window=QtWidgets.QMainWindow()
+                                    self.ui = Ui_FabTimes_Window(self.username, numorder)
+                                    self.ui.setupUi(self.timesfab_window)
+                                    self.timesfab_window.showMaximized()
+                                    break
+                                dlg_error = QtWidgets.QMessageBox()
+                                new_icon = QtGui.QIcon()
+                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                dlg_error.setWindowIcon(new_icon)
+                                dlg_error.setWindowTitle("Consultar tiempos")
+                                dlg_error.setText("El pedido no puede estar vacío")
+                                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                dlg_error.exec()
+                                del dlg_error,new_icon
+                            else:
+                                break
+                        break
+
+                    else:
+                        while True:
+                            clickedButton = dlg2.exec()
+                            if clickedButton == 1:
+                                num_ot = dlg2.textValue()
+                                if num_ot != '':
+                                    from FabTimes_Window import Ui_FabTimes_Window
+                                    self.timesfab_window=QtWidgets.QMainWindow()
+                                    self.ui = Ui_FabTimes_Window(self.username, num_ot)
+                                    self.ui.setupUi(self.timesfab_window)
+                                    self.timesfab_window.showMaximized()
+                                    break
+                                dlg_error = QtWidgets.QMessageBox()
+                                new_icon = QtGui.QIcon()
+                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                dlg_error.setWindowIcon(new_icon)
+                                dlg_error.setWindowTitle("Consultar tiempos")
+                                dlg_error.setText("El número OT no puede estar vacío")
+                                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                dlg_error.exec()
+                                del dlg_error,new_icon
+                            else:
+                                break
+                        break
+                dlg_error = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg_error.setWindowIcon(new_icon)
+                dlg_error.setWindowTitle("Consultar tiempos")
+                dlg_error.setText("Selecciona un tipo")
+                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg_error.exec()
+                del dlg_error,new_icon
+            else:
+                break
+
+# Function to open window to check notifications
+    def notifications(self):
+        """
+        Opens a new window to show active notifications. 
+        """
+        from NotificationsHistory_Window import Ui_HistoryNotifications_Window
+        self.notification_window=Ui_HistoryNotifications_Window(self.username)
+        self.notification_window.show()
+        self.notification_window.Button_Cancel.clicked.connect(self.load_notifications)
+
+# Function to load number of notifications
+    def load_notifications(self):
+        """
+        Loads and displays notifications for the user from various tables in the 'notifications' schema.
+        """
+        query_tables_notifications = """SELECT table_name
+                                FROM information_schema.tables
+                                WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(query_tables_notifications)
+            results=cur.fetchall()
+            tables_names=[x[0] for x in results]
+
+            notifications = []
+
+            for table in tables_names:
+                commands_notifications = f" SELECT * FROM notifications.{table} WHERE username = '{self.username}' and state = 'Pendiente'"
+                cur.execute(commands_notifications)
+                results=cur.fetchall()
+
+                for x in results:
+                    notifications.append(x)
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        if len(notifications) != 0:
+            icon13 = QtGui.QIcon()
+            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_on.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        else:
+            icon13 = QtGui.QIcon()
+            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Notification.setIcon(icon13)
 
 
 
