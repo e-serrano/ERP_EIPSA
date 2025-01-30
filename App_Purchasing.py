@@ -1142,6 +1142,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_Notification.clicked.connect(self.notifications)
 
         self.backup_data()
+        self.warning_calibration()
         self.load_notifications()
 
 
@@ -1863,6 +1864,92 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.querydoc_menu=Ui_QueryDoc_Window()
         self.querydoc_menu.show()
 
+# Funtion to set notification for calibration of equipments
+    def warning_calibration(self):
+        """
+        Set a notification if the calibration date of an equipment is close.
+        """
+        commands_check_dates = ("""
+                        SELECT number_item, instrument, certificate_1, TO_CHAR(next_calibration, 'DD/MM/YYYY'), months_advance
+                        FROM verification.calibrated_masters
+                        WHERE notes = ''
+
+                        UNION
+
+                        SELECT number_item, instrument, certificate_1, TO_CHAR(next_calibration, 'DD/MM/YYYY'), months_advance
+                        FROM verification.thread_masters
+
+                        UNION
+
+                        SELECT number_item, instrument, certificate_1, TO_CHAR(next_calibration, 'DD/MM/YYYY'), months_advance
+                        FROM verification.welding_equipment_masters
+                        """)
+        commands_insert_notification = ("""
+                        INSERT INTO notifications.notifications_others (username, message, state)
+                        VALUES (%s,%s,%s)
+                        """)
+        commands_check_notifications = ("""
+                        SELECT *
+                        FROM notifications.notifications_others
+                        WHERE username = %s and message = %s and state = %s
+                        """)
+        conn = None
+        try:
+            # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands_check_dates)
+            results_dates = cur.fetchall()
+
+            df_data = pd.DataFrame(results_dates, columns=['Número', 'Instrumento', 'Certificado', 'Próxima Revisión', 'Meses Preaviso'])
+            df_data = df_data.sort_values(by='Número')
+            df_data["Certificado"] = df_data["Certificado"].apply(lambda x: Path(x).stem)
+            df_data["Certificado"] = df_data["Certificado"].apply(lambda x: x.split()[0])
+
+            df_data["Próxima Revisión"] = pd.to_datetime(df_data["Próxima Revisión"], format="%d/%m/%Y") 
+            df_data["Meses Preaviso"] = pd.to_numeric(df_data["Meses Preaviso"], errors="coerce")
+            df_data["Fecha Aviso"] = df_data["Próxima Revisión"] - pd.to_timedelta(df_data["Meses Preaviso"] * 30, unit="D")
+
+            df_data["Próxima Revisión"] = df_data["Próxima Revisión"].dt.strftime("%d/%m/%Y")
+
+            for index, row in df_data.iterrows():
+                warning_date = row.iloc[5]
+                warning_date = warning_date.date()
+                if warning_date < date.today():
+                    username = self.username
+                    state = 'Pendiente'
+                    message = (f"Número: {row.iloc[0]}\n"
+                            f"Instrumento: {row.iloc[1]}\n"
+                            f"Certificado: {row.iloc[2]}\n"
+                            f"Próxima Revisión: {row.iloc[3]}")
+
+                    cur.execute(commands_check_notifications, (username,message,state,))
+                    results_notifications = cur.fetchall()
+
+                    if len(results_notifications) == 0:
+                        cur.execute(commands_insert_notification, (username,message,state,))
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            print(error)
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
 
 
 if __name__ == "__main__":
