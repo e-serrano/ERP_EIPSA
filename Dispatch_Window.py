@@ -601,11 +601,36 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
                 self.dict_valuesuniques[column] = list_valuesUnique
 
 # Function to save changes into database
-    def saveChanges(self):
+    def saveChanges(self): #, topLeft, bottomRight):
         """
         Saves changes made to the data models and updates unique values for each column.
         """
         self.model.submitAll()
+
+        # if topLeft == bottomRight:
+        #     index = topLeft  # Obtiene el índice de la celda modificada
+
+
+        #     if index.isValid():
+        #         current_value = self.tableDispatch.model().mapToSource(index).data()  # Valor actual desde el modelo fuente
+        #         new_value = self.model.data(index, Qt.ItemDataRole.EditRole)
+
+        #         print(current_value, new_value)
+
+        #         if current_value != new_value:  # Compara el valor actual con el nuevo
+        #             # Establece el nuevo valor en la celda
+        #             if self.model.setData(index, new_value):
+        #                 # Solo llama a submit() si el valor se estableció correctamente
+        #                 if self.model.submit():  # Usa submit() solo para esta celda
+        #                     print("Cambios guardados exitosamente.")
+        #                 else:
+        #                     print('a')
+        #             else:
+        #                 print('b')
+        #         else:
+        #             print('c')
+        #     else:
+        #         print('d')
 
         for column in range(self.model.columnCount()):
             list_valuesUnique = []
