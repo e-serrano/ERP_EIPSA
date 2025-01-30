@@ -883,47 +883,6 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
             icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
             model.setIconColumnHeader(filterColumn, icono)
 
-# Function to enable copy and paste cells
-    def keyPressEvent(self, event):
-        """
-        Handles custom key events for cell operations in the table.
-
-        Args:
-            event (QtGui.QKeyEvent): The key event to handle.
-        """
-        if event.matches(QKeySequence.StandardKey.Copy):
-            selected_indexes = self.tableDispatch.selectionModel().selectedIndexes()
-            if selected_indexes:
-                clipboard = QApplication.clipboard()
-                text = self.get_selected_text(selected_indexes)
-                if isinstance(text, QtCore.QDate):
-                    text=text.toString("dd/MM/yyyy")
-                clipboard.setText(str(text))
-
-        elif event.matches(QKeySequence.StandardKey.Paste):
-            self.model.dataChanged.disconnect(self.saveChanges)
-            selected_indexes = self.tableDispatch.selectionModel().selectedIndexes()
-            if selected_indexes:
-                clipboard = QApplication.clipboard()
-                text = clipboard.text()
-                for index in selected_indexes:
-                    current_row = index.row()
-                    current_column = index.column()
-                    first_column_value = self.proxy.data(self.proxy.index(current_row, 0))
-                    target_row = None
-                    for row in range(self.model.rowCount()):
-                        if self.model.data(self.model.index(row, 0)) == first_column_value:
-                            target_row = row
-                            break
-                    if target_row is not None:
-                        target_index = self.model.index(target_row, current_column)
-                        self.model.setData(target_index, text, Qt.ItemDataRole.EditRole)  # Pegar el valor en todas las celdas seleccionadas
-                self.model.submitAll()
-
-            self.model.dataChanged.connect(self.saveChanges)
-
-        super().keyPressEvent(event)
-
 # Function to get the text of the selected cells
     def get_selected_text(self, indexes):
         """
@@ -979,7 +938,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
             model (QtCore.QAbstractItemModel): The model associated with the table.
             proxy (QtCore.QSortFilterProxyModel): The proxy model used for filtering or sorting, if applicable.
         """
-        if event.key() == QtCore.Qt.Key.Key_Delete: # Event when delete key is pressed
+        if event.key() == QtCore.Qt.Key.Key_Delete:
             selected_indexes = table.selectionModel().selectedIndexes()
             if not selected_indexes:
                 return
@@ -996,7 +955,61 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
                 for index in model_indexes:
                     model.setData(index, None)
 
-        elif event.modifiers() and QtCore.Qt.KeyboardModifier.ControlModifier: # Event when ctrl + comma is pressed
+        elif event.matches(QKeySequence.StandardKey.Copy):
+            selected_indexes = table.selectionModel().selectedIndexes()
+            if not selected_indexes:
+                return
+
+            mime_data = QtCore.QMimeData()
+            data = bytearray()
+
+            if isinstance(model, QtCore.QSortFilterProxyModel):
+                for index in selected_indexes:
+                    source_index = proxy.mapToSource(index)
+                    data += str(model.sourceModel().data(source_index)).encode('utf-8') + b'\t'
+            else:
+                for index in selected_indexes:
+                    data += str(model.data(index)).encode('utf-8') + b'\t'
+
+            mime_data.setData("text/plain", data)
+
+            clipboard = QApplication.clipboard()
+            clipboard.setMimeData(mime_data)
+
+        elif event.matches(QKeySequence.StandardKey.Paste):
+            if table.selectionModel() != None:
+
+                clipboard = QApplication.clipboard()
+                mime_data = clipboard.mimeData()
+
+                if not mime_data.hasFormat("text/plain"):
+                    return
+
+                data = mime_data.data("text/plain").data()
+                values = data.split(b'\t')
+
+                selected_indexes = table.selectionModel().selectedIndexes()
+                if not selected_indexes:
+                    return
+
+                if isinstance(model, QtCore.QSortFilterProxyModel):
+                    model_indexes = [proxy.mapToSource(index) for index in selected_indexes]
+                    if len(values) == 2:
+                        for index in model_indexes:
+                            model.sourceModel().setData(index, values[0].decode('utf-8'))
+                    else:
+                        for index, value in zip(model_indexes, values):
+                            model.sourceModel().setData(index, value.decode('utf-8'))
+                else:
+                    model_indexes = selected_indexes
+                    if len(values) == 2:
+                        for index in model_indexes:
+                            model.setData(index, values[0].decode('utf-8'))
+                    else:
+                        for index, value in zip(model_indexes, values):
+                            model.setData(index, value.decode('utf-8'))
+
+        elif event.modifiers() and QtCore.Qt.KeyboardModifier.ControlModifier:
             if event.key() == QtCore.Qt.Key.Key_Comma:
                 selected_indexes = table.selectionModel().selectedIndexes()
                 if not selected_indexes:
@@ -1012,6 +1025,69 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
                     model_indexes = selected_indexes
                     for index in model_indexes:
                         model.setData(index, date.today().strftime("%d/%m/%Y"))
+
+        elif event.matches(QKeySequence.StandardKey.MoveToNextLine):
+            if table.selectionModel() != None:
+                selected_indexes = table.selectionModel().selectedIndexes()
+                if len(selected_indexes) == 1:
+                    for index in selected_indexes:
+                        current_row = index.row()
+                        current_column = index.column()
+
+                    new_row = current_row + 1 if current_row < model.rowCount() - 1 else current_row
+
+                    table.selectionModel().clearSelection()
+                    new_selection = QtCore.QItemSelection(QtCore.QModelIndex(model.index(new_row, current_column)), QtCore.QModelIndex(model.index(new_row, current_column)))
+                    table.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
+
+        elif event.matches(QKeySequence.StandardKey.MoveToPreviousLine):
+            if table.selectionModel() != None:
+                selected_indexes = table.selectionModel().selectedIndexes()
+                if len(selected_indexes) == 1:
+                    for index in selected_indexes:
+                        current_row = index.row()
+                        current_column = index.column()
+
+                    new_row = current_row - 1 if current_row > 0 else 0
+
+                    table.selectionModel().clearSelection()
+                    new_selection = QtCore.QItemSelection(QtCore.QModelIndex(model.index(new_row, current_column)), QtCore.QModelIndex(model.index(new_row, current_column)))
+                    table.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
+
+        elif event.matches(QKeySequence.StandardKey.MoveToNextChar):
+            if table.selectionModel() != None:
+                selected_indexes = table.selectionModel().selectedIndexes()
+                if len(selected_indexes) == 1:
+                    for index in selected_indexes:
+                        current_row = index.row()
+                        current_column = index.column()
+
+                    new_column = current_column + 1 if current_column < model.columnCount() - 1 else current_column
+
+                    table.selectionModel().clearSelection()
+                    new_selection = QtCore.QItemSelection(QtCore.QModelIndex(model.index(current_row, new_column)), QtCore.QModelIndex(model.index(current_row, new_column)))
+                    table.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
+
+        elif event.matches(QKeySequence.StandardKey.MoveToPreviousChar):
+            if table.selectionModel() != None:
+                selected_indexes = table.selectionModel().selectedIndexes()
+                if len(selected_indexes) == 1:
+                    for index in selected_indexes:
+                        current_row = index.row()
+                        current_column = index.column()
+
+                    new_column = current_column - 1 if current_column > 1 else 1
+
+                    table.selectionModel().clearSelection()
+                    new_selection = QtCore.QItemSelection(QtCore.QModelIndex(model.index(current_row, new_column)), QtCore.QModelIndex(model.index(current_row, new_column)))
+                    table.selectionModel().select(new_selection, QtCore.QItemSelectionModel.SelectionFlag.Select)
+
+        elif event.matches(QKeySequence.StandardKey.InsertParagraphSeparator):
+            current_index = table.currentIndex()
+            if current_index.isValid() and not table.indexWidget(current_index):
+                table.edit(current_index)
+
+        super().keyPressEvent(event)
 
 
 
