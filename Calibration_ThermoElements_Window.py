@@ -728,7 +728,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         if self.username == 'm.gil':
             folder_path = "E:/Fluke/1586A/42280006/data/scan" # //nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CARPETAS IMPORTACIONES CALIBRACION"
 
-            if folder_path:
+            if folder_path and os.path.exists(folder_path) and os.path.isdir(folder_path):
                 for subfolder in os.listdir(folder_path):
                     subfolder_path = os.path.join(folder_path, subfolder)
 
@@ -876,6 +876,16 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                 del dlg, new_icon
 
                 self.query_calibration()
+            else:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Importar Calibraciones")
+                dlg.setText("No se ha encontrado la carpeta de importación")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg, new_icon
 
 # Function to delete all filters when tool button is clicked
     def delete_allFilters(self):
