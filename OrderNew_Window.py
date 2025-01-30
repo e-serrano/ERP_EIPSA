@@ -525,7 +525,7 @@ class Ui_New_Order_Window(object):
                     cur = conn.cursor()
 
                     commands_usernames = ("""SELECT username FROM users_data.registration
-                        WHERE profile IN ('Técnico', 'Compras','Taller')
+                        WHERE profile IN ('Técnico', 'Taller')
                         """)
                     commands_notification_neworder = ("""INSERT INTO notifications.notifications_orders (
                                             "username","message","state","date_creation"
