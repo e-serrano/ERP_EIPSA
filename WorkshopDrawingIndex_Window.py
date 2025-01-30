@@ -89,7 +89,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super().paint(painter, option, index)
 
         if index.column() == 2:  # Column to paint
-            state_column_index = index.sibling(index.row(), 4)  # Index for column to check text
+            state_column_index = index.sibling(index.row(), 6)  # Index for column to check text
             original_text = str(index.data())  # Text of cell to be painted
             value_check = str(state_column_index.data()).upper()  # Text for checking
             text_color = QtGui.QColor(0, 0, 0)
@@ -573,7 +573,7 @@ class AlignDelegate_M(QtWidgets.QStyledItemDelegate):
         super().paint(painter, option, index)
 
         if index.column() == 2:  # Column to paint
-            state_column_index = index.sibling(index.row(), 4)  # Index for column to check text
+            state_column_index = index.sibling(index.row(), 6)  # Index for column to check text
             original_text = str(index.data())  # Text of cell to be painted
             value_check = str(state_column_index.data()).upper()  # Text for checking
             text_color = QtGui.QColor(0, 0, 0)
