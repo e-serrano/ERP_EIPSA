@@ -3557,6 +3557,8 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                 if conn is not None:
                     conn.close()
 
+        self.Quantity_ClientOrder.setFocus()
+
 # Function to check date format
     def is_valid_date(self, date_str):
         """
