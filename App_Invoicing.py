@@ -595,7 +595,7 @@ class Ui_App_Invoicing(object):
         """
         from InvoiceQuery_Window import Ui_QueryInvoice_Window
         self.query_invoice_window=QtWidgets.QMainWindow()
-        self.ui=Ui_QueryInvoice_Window()
+        self.ui=Ui_QueryInvoice_Window(self.username)
         self.ui.setupUi(self.query_invoice_window)
         self.query_invoice_window.showMaximized()
 

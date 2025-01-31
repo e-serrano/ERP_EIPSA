@@ -11,6 +11,9 @@ import psycopg2
 from config import config
 import os
 from datetime import *
+import configparser
+from Database_Connection import createConnection
+import locale
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -426,11 +429,12 @@ class Ui_QueryInvoice_Window(QtWidgets.QMainWindow):
     """
     UI class for the Query Invoice window.
     """
-    def __init__(self):
+    def __init__(self, username):
         """
         Initializes the Ui_QueryInvoice_Window.
         """
         super().__init__()
+        self.username = username
         self.setupUi(self)
 
     def setupUi(self, QueryInvoice_Window):
@@ -518,6 +522,30 @@ class Ui_QueryInvoice_Window(QtWidgets.QMainWindow):
         self.tableQueryInvoice.setSortingEnabled(True)
         self.tableQueryInvoice.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         self.gridLayout_2.addWidget(self.tableQueryInvoice, 1, 0, 1, 11)
+        self.label_SumItems = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumItems.setMinimumSize(QtCore.QSize(40, 10))
+        self.label_SumItems.setMaximumSize(QtCore.QSize(40, 10))
+        self.label_SumItems.setText("")
+        self.label_SumItems.setObjectName("label_SumItems")
+        self.gridLayout_2.addWidget(self.label_SumItems, 2, 7, 1, 1)
+        self.label_SumValue = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumValue.setMinimumSize(QtCore.QSize(80, 20))
+        self.label_SumValue.setMaximumSize(QtCore.QSize(80, 20))
+        self.label_SumValue.setText("")
+        self.label_SumValue.setObjectName("label_SumValue")
+        self.gridLayout_2.addWidget(self.label_SumValue, 2, 8, 1, 1)
+        self.label_CountItems = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountItems.setMinimumSize(QtCore.QSize(60, 10))
+        self.label_CountItems.setMaximumSize(QtCore.QSize(60, 10))
+        self.label_CountItems.setText("")
+        self.label_CountItems.setObjectName("label_CountItems")
+        self.gridLayout_2.addWidget(self.label_CountItems, 2, 9, 1, 1)
+        self.label_CountValue = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountValue.setMinimumSize(QtCore.QSize(80, 10))
+        self.label_CountValue.setMaximumSize(QtCore.QSize(80, 10))
+        self.label_CountValue.setText("")
+        self.label_CountValue.setObjectName("label_CountValue")
+        self.gridLayout_2.addWidget(self.label_CountValue, 2, 10, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         QueryInvoice_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=QueryInvoice_Window)
@@ -533,6 +561,7 @@ class Ui_QueryInvoice_Window(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(QueryInvoice_Window)
         self.tableQueryInvoice.itemDoubleClicked.connect(self.on_item_double_clicked)
         self.tableQueryInvoice.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
+        self.tableQueryInvoice.itemSelectionChanged.connect(self.countSelectedCells)
 
         self.query_all_invoices()
 
@@ -659,7 +688,7 @@ class Ui_QueryInvoice_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-
+# Function to conver money strings to float
     def euro_string_to_float(self, euro_str):
         """
         Converts a string representing an amount in euros to a float.
@@ -687,11 +716,19 @@ class Ui_QueryInvoice_Window(QtWidgets.QMainWindow):
             num_invoice = self.tableQueryInvoice.item(item.row(), 0).text()
 
             from InvoiceNew_Window import Ui_InvoiceNew_Window
-            self.invoice_window=QtWidgets.QMainWindow()
-            self.ui=Ui_InvoiceNew_Window(num_invoice)
-            self.ui.setupUi(self.invoice_window)
-            self.invoice_window.showMaximized()
+            config_obj = configparser.ConfigParser()
+            config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+            dbparam = config_obj["postgresql"]
+            # set your parameters for the database connection URI using the keys from the configfile.ini
+            user_database = dbparam["user"]
+            password_database = dbparam["password"]
 
+            db_invoices_query = createConnection(user_database, password_database)
+            if not db_invoices_query:
+                sys.exit()
+
+            self.invoices_app_query = Ui_InvoiceNew_Window(db_invoices_query, self.username, num_invoice)
+            self.invoices_app_query.showMaximized()
 
 #Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
@@ -704,10 +741,38 @@ class Ui_QueryInvoice_Window(QtWidgets.QMainWindow):
         popup_pos = self.tableQueryInvoice.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableQueryInvoice.show_unique_values_menu(logical_index, popup_pos, header_height)
 
+# Function to count selected cells and sum values
+    def countSelectedCells(self):
+        """
+        Counts the number of selected cells and sums their values. Updates the UI labels with the count and sum.
+        """
+        if len(self.tableQueryInvoice.selectedIndexes()) > 1:
+            locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+            self.label_SumItems.setText("")
+            self.label_SumValue.setText("")
+            self.label_CountItems.setText("")
+            self.label_CountValue.setText("")
+
+            sum_value = sum([self.euro_string_to_float(ix.data()) if (ix.data() is not None and (re.match(r'^[\d.,]+\s€$', ix.data()) and ix.column() in [7, 11, 12]))
+                            else (float(ix.data()) if (ix.data() is not None and ix.data().replace(',', '.', 1).replace('.', '', 1).isdigit() and ix.column() in [15]) else 0) for ix in self.tableQueryInvoice.selectedIndexes()])
+            count_value = len([ix for ix in self.tableQueryInvoice.selectedIndexes() if ix.data() != ""])
+            if sum_value > 0:
+                self.label_SumItems.setText("Suma:")
+                self.label_SumValue.setText(locale.format_string("%.2f", sum_value, grouping=True))
+            if count_value > 0:
+                self.label_CountItems.setText("Recuento:")
+                self.label_CountValue.setText(str(count_value))
+        else:
+            self.label_SumItems.setText("")
+            self.label_SumValue.setText("")
+            self.label_CountItems.setText("")
+            self.label_CountValue.setText("")
+
+
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    QueryInvoice_Window = Ui_QueryInvoice_Window()
+    QueryInvoice_Window = Ui_QueryInvoice_Window('c.zofio')
     QueryInvoice_Window.show()
     sys.exit(app.exec())
