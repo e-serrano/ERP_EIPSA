@@ -715,20 +715,20 @@ class Ui_QueryInvoice_Window(QtWidgets.QMainWindow):
         if item.column() in [0]:
             num_invoice = self.tableQueryInvoice.item(item.row(), 0).text()
 
-            from InvoiceNew_Window import Ui_InvoiceNew_Window
-            config_obj = configparser.ConfigParser()
-            config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
-            dbparam = config_obj["postgresql"]
-            # set your parameters for the database connection URI using the keys from the configfile.ini
-            user_database = dbparam["user"]
-            password_database = dbparam["password"]
+            # from InvoiceNew_Window import Ui_InvoiceNew_Window
+            # config_obj = configparser.ConfigParser()
+            # config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+            # dbparam = config_obj["postgresql"]
+            # # set your parameters for the database connection URI using the keys from the configfile.ini
+            # user_database = dbparam["user"]
+            # password_database = dbparam["password"]
 
-            db_invoices_query = createConnection(user_database, password_database)
-            if not db_invoices_query:
-                sys.exit()
+            # db_invoices_query = createConnection(user_database, password_database)
+            # if not db_invoices_query:
+            #     sys.exit()
 
-            self.invoices_app_query = Ui_InvoiceNew_Window(db_invoices_query, self.username, num_invoice)
-            self.invoices_app_query.showMaximized()
+            # self.invoices_app_query = Ui_InvoiceNew_Window(db_invoices_query, self.username, num_invoice)
+            # self.invoices_app_query.showMaximized()
 
 #Function when clicking on table header
     def on_header_section_clicked(self, logical_index):
