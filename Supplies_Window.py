@@ -1211,6 +1211,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         new_icon = QtGui.QIcon()
         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg.setWindowIcon(new_icon)
+        dlg.resize(500, 200)
         dlg.setWindowTitle('Suministros')
         dlg.setLabelText('Referencia:')
 
@@ -1218,6 +1219,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         new_icon3 = QtGui.QIcon()
         new_icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         dlg3.setWindowIcon(new_icon3)
+        dlg3.resize(500, 200)
         dlg3.setWindowTitle('Suministros')
         dlg3.setLabelText('Descripción:')
 
