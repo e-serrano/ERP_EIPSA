@@ -242,33 +242,24 @@ class CustomProxyModel_P(QtCore.QSortFilterProxyModel):
             if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
                 text = text.toString("yyyy-MM-dd")
 
-            match_found = False 
-
-            for expresion, exact_match in expresions:
+            for expresion in expresions:
                 if expresion == '':  # If expression is empty, match empty cells
                     if text == '':
                         break
 
-                if exact_match:
-                    if text in expresion:  # Verificar si `text` está en la lista `expresion`
-                        match_found = True
-                        break
-                
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', str(expresion)):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
-                        match_found = True
                         break
 
                 else:
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
-                        match_found = True
                         break
 
-            if not match_found:
+            else:
                 return False
         return True
 
@@ -447,33 +438,24 @@ class CustomProxyModel_PA(QtCore.QSortFilterProxyModel):
             if isinstance(text, QtCore.QDate): #Check if filters are QDate. If True, convert to text
                 text = text.toString("yyyy-MM-dd")
 
-            match_found = False 
-
-            for expresion, exact_match in expresions:
+            for expresion in expresions:
                 if expresion == '':  # If expression is empty, match empty cells
                     if text == '':
                         break
 
-                if exact_match:
-                    if text in expresion:  # Verificar si `text` está en la lista `expresion`
-                        match_found = True
-                        break
-                
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', str(expresion)):
                     expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
-                        match_found = True
                         break
 
                 else:
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
-                        match_found = True
                         break
 
-            if not match_found:
+            else:
                 return False
         return True
 

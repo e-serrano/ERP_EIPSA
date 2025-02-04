@@ -234,7 +234,7 @@ class CustomProxyModel_P(QtCore.QSortFilterProxyModel):
                 text = text.toString("yyyy-MM-dd")
 
             for expresion in expresions:
-                if expresion == '':  # Si la expresión es vacía, coincidir con celdas vacías
+                if expresion == '':  # If expression is empty, match empty cells
                     if text == '':
                         break
 
@@ -429,7 +429,7 @@ class CustomProxyModel_PA(QtCore.QSortFilterProxyModel):
                 text = text.toString("yyyy-MM-dd")
 
             for expresion in expresions:
-                if expresion == '':  # Si la expresión es vacía, coincidir con celdas vacías
+                if expresion == '':  # If expression is empty, match empty cells
                     if text == '':
                         break
 
@@ -624,7 +624,7 @@ class CustomProxyModel_AL(QtCore.QSortFilterProxyModel):
                 text = text.toString("yyyy-MM-dd")
 
             for expresion in expresions:
-                if expresion == '':  # Si la expresión es vacía, coincidir con celdas vacías
+                if expresion == '':  # If expression is empty, match empty cells
                     if text == '':
                         break
 
