@@ -562,6 +562,9 @@ class Ui_ExportOffer_Form(object):
                     elif self.variable == 'Caudal+Nivel':
                         offer_flow(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                         offer_level(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                    elif self.variable == 'Temp+Nivel':
+                        offer_temp(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                        offer_level(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
 
                 elif format_offer == 'Short':
                     if self.variable == 'Caudal':
@@ -622,6 +625,19 @@ class Ui_ExportOffer_Form(object):
                             offer_short_level_spanish(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                         else:
                             offer_short_flow_english(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                            offer_short_level_english(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                    elif self.variable == 'Temp+Nivel':
+                        msgbox = QtWidgets.QMessageBox()
+                        msgbox.setWindowTitle("Oferta Corta")
+                        msgbox.setText('¿En qué idioma quieres generar la oferta?')
+                        msgbox.addButton('Español', QtWidgets.QMessageBox.ButtonRole.YesRole)
+                        msgbox.addButton('Inglés', QtWidgets.QMessageBox.ButtonRole.NoRole)
+                        bttn = msgbox.exec()
+                        if bttn == 0:
+                            offer_short_temp_spanish(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                            offer_short_level_spanish(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                        else:
+                            offer_short_temp_english(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                             offer_short_level_english(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
 
                 dlg = QtWidgets.QMessageBox()
