@@ -2369,7 +2369,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
             self.Supply_ClientOrder.setCurrentIndex(0)
             self.Quantity_ClientOrder.setText("")
             self.ObsSupply_ClientOrder.setText("")
-            
+
             self.loadtablerecords()
             self.loadstocks()
 
@@ -2586,6 +2586,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
             self.Deliv1_ClientOrder.setText("")
             self.Deliv2_ClientOrder.setText("")
             self.Deliv3_ClientOrder.setText("")
+            self.ObsSupply_ClientOrder.setText("")
 
             self.loadtablerecords()
 
