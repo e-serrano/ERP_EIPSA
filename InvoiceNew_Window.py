@@ -3419,16 +3419,16 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             txtcon3 = self.TxtCon3_Invoice.text()
             txtcon4 = self.TxtCon4_Invoice.text()
             txtcon5 = self.TxtCon5_Invoice.text()
-            con1_euro = self.Con1Eur_Invoice.text() if self.Con1Eur_Invoice.text() != '' else None
-            con2_euro = self.Con2Eur_Invoice.text() if self.Con2Eur_Invoice.text() != '' else None
-            con3_euro = self.Con3Eur_Invoice.text() if self.Con3Eur_Invoice.text() != '' else None
-            con4_euro = self.Con4Eur_Invoice.text() if self.Con4Eur_Invoice.text() != '' else None
-            con5_euro = self.Con5Eur_Invoice.text() if self.Con5Eur_Invoice.text() != '' else None
-            con1_dollar = self.Con1Dollar_Invoice.text() if self.Con1Dollar_Invoice.text() != '' else None
-            con2_dollar = self.Con2Dollar_Invoice.text() if self.Con2Dollar_Invoice.text() != '' else None
-            con3_dollar = self.Con3Dollar_Invoice.text() if self.Con3Dollar_Invoice.text() != '' else None
-            con4_dollar = self.Con4Dollar_Invoice.text() if self.Con4Dollar_Invoice.text() != '' else None
-            con5_dollar = self.Con5Dollar_Invoice.text() if self.Con5Dollar_Invoice.text() != '' else None
+            con1_euro = self.Con1Eur_Invoice.text().replace(',','.') if self.Con1Eur_Invoice.text() != '' else None
+            con2_euro = self.Con2Eur_Invoice.text().replace(',','.') if self.Con2Eur_Invoice.text() != '' else None
+            con3_euro = self.Con3Eur_Invoice.text().replace(',','.') if self.Con3Eur_Invoice.text() != '' else None
+            con4_euro = self.Con4Eur_Invoice.text().replace(',','.') if self.Con4Eur_Invoice.text() != '' else None
+            con5_euro = self.Con5Eur_Invoice.text().replace(',','.') if self.Con5Eur_Invoice.text() != '' else None
+            con1_dollar = self.Con1Dollar_Invoice.text().replace(',','.') if self.Con1Dollar_Invoice.text() != '' else None
+            con2_dollar = self.Con2Dollar_Invoice.text().replace(',','.') if self.Con2Dollar_Invoice.text() != '' else None
+            con3_dollar = self.Con3Dollar_Invoice.text().replace(',','.') if self.Con3Dollar_Invoice.text() != '' else None
+            con4_dollar = self.Con4Dollar_Invoice.text().replace(',','.') if self.Con4Dollar_Invoice.text() != '' else None
+            con5_dollar = self.Con5Dollar_Invoice.text().replace(',','.') if self.Con5Dollar_Invoice.text() != '' else None
             data_adic1 = self.AditData1_Invoice.text()
             data_adic2 = self.AditData2_Invoice.text()
             tax_base_amount = float(self.TaxBase_Invoice.text()) if self.TaxBase_Invoice.text() != '' else None
@@ -5126,8 +5126,8 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         total_dollar = total_dollar
         self.TotalDollar_Invoice.setText('{:.2f}'.format(total_dollar))
 
-        total_tax_base_euro = float(self.TotalEur_Invoice.text()) + float(self.Con1Eur_Invoice.text() if self.Con1Eur_Invoice.text() != '' else 0) + float(self.Con2Eur_Invoice.text() if self.Con2Eur_Invoice.text() != '' else 0) + float(self.Con3Eur_Invoice.text() if self.Con3Eur_Invoice.text() != '' else 0) + float(self.Con4Eur_Invoice.text() if self.Con4Eur_Invoice.text() != '' else 0) + float(self.Con5Eur_Invoice.text() if self.Con5Eur_Invoice.text() != '' else 0)
-        total_tax_base_dolar =float(self.TotalDollar_Invoice.text()) + float(self.Con1Dollar_Invoice.text() if self.Con1Dollar_Invoice.text() != '' else 0) + float(self.Con2Dollar_Invoice.text() if self.Con2Dollar_Invoice.text() != '' else 0) + float(self.Con3Dollar_Invoice.text() if self.Con3Dollar_Invoice.text() != '' else 0) + float(self.Con4Dollar_Invoice.text() if self.Con4Dollar_Invoice.text() != '' else 0) + float(self.Con5Dollar_Invoice.text() if self.Con5Dollar_Invoice.text() != '' else 0)
+        total_tax_base_euro = float(self.TotalEur_Invoice.text()) + float(self.Con1Eur_Invoice.text().replace(',','.') if self.Con1Eur_Invoice.text() != '' else 0) + float(self.Con2Eur_Invoice.text().replace(',','.') if self.Con2Eur_Invoice.text() != '' else 0) + float(self.Con3Eur_Invoice.text().replace(',','.') if self.Con3Eur_Invoice.text() != '' else 0) + float(self.Con4Eur_Invoice.text().replace(',','.') if self.Con4Eur_Invoice.text() != '' else 0) + float(self.Con5Eur_Invoice.text().replace(',','.') if self.Con5Eur_Invoice.text() != '' else 0)
+        total_tax_base_dolar =float(self.TotalDollar_Invoice.text()) + float(self.Con1Dollar_Invoice.text().replace(',','.') if self.Con1Dollar_Invoice.text() != '' else 0) + float(self.Con2Dollar_Invoice.text().replace(',','.') if self.Con2Dollar_Invoice.text() != '' else 0) + float(self.Con3Dollar_Invoice.text().replace(',','.') if self.Con3Dollar_Invoice.text() != '' else 0) + float(self.Con4Dollar_Invoice.text().replace(',','.') if self.Con4Dollar_Invoice.text() != '' else 0) + float(self.Con5Dollar_Invoice.text().replace(',','.') if self.Con5Dollar_Invoice.text() != '' else 0)
 
         total_tax_base =  total_tax_base_euro if float(self.TotalEur_Invoice.text()) != 0.00 else total_tax_base_dolar * float(self.ValCotDollar_Invoice.text() if self.ValCotDollar_Invoice.text() != '' else 0)
         self.TaxBase_Invoice.setText('{:.2f}'.format(total_tax_base))
