@@ -10,7 +10,9 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
 import os
-from Excel_Export_Templates import offer_flow, offer_temp, offer_level, offer_short_flow_spanish, offer_short_temp_spanish, offer_short_level_spanish, offer_short_flow_english, offer_short_temp_english, offer_short_level_english
+from Excel_Export_Templates import offer_flow, offer_temp, offer_level, offer_flow_temp, \
+    offer_short_flow_spanish, offer_short_temp_spanish, offer_short_level_spanish, \
+    offer_short_flow_english, offer_short_temp_english, offer_short_level_english
 from datetime import *
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -557,8 +559,7 @@ class Ui_ExportOffer_Form(object):
                     elif self.variable == 'Nivel':
                         offer_level(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                     elif self.variable == 'Caudal+Temp':
-                        offer_flow(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
-                        offer_temp(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                        offer_flow_temp(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                     elif self.variable == 'Caudal+Nivel':
                         offer_flow(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                         offer_level(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
