@@ -3076,7 +3076,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     if conn is not None:
                         conn.close()
 
-        elif header_text == 'Fecha OF':
+        elif header_text == 'Fecha OF Equipo':
             if item.text() != '':
                 item_id = self.tableTags.item(item.row(), 0).text()
                 table_name = self.tableTags.item(item.row(), 21).text()
