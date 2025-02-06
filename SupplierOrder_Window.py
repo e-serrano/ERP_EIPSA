@@ -3563,8 +3563,8 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 if conn is not None:
                     conn.close()
 
-            if supply_name != '':
-                self.Quantity_SupplierOrder.setFocus()
+        if supply_name != '':
+            self.Quantity_SupplierOrder.setFocus()
 
 #  Function to calculate the order total amount
     def calculate_totalorder(self):
