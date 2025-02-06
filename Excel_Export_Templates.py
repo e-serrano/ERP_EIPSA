@@ -8226,7 +8226,7 @@ class nuclear_annexes:
         for item in unique_values:
             self.wb.copy_worksheet(ws_initial)
             ws_copy = self.wb["Hoja1 Copy"]
-            ws_copy.title = item
+            ws_copy.title = item.replace('/', '-')
 
             new_df = df[df['tag_sliced']==item]
 
