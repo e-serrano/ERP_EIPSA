@@ -523,35 +523,51 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
             if conn is not None:
                 conn.close()
 
-        tables_db_names = [x[0] for x in results]
+        try:
+            tables_db_names = [x[0] for x in results]
 
-        print(tables_db_names)
+            print(tables_db_names)
 
-        tables_names = ['Verif. Planos AL', 'Valores Fuerza Bola', 'Calibres Taller', 'Revisiones Calibres', 'Patrones Calibrados', 'Calibraciones', 'Albaranes', 'Verif. Planos DIM',
-                        'Verif. EXP', 'Datos Bridas', 'Caudalimetros Gas', 'Revisiones Caudalimetros Gas','Herramientas Taller', 'Revisiones Herramientas', 'Tabla 5 Dureza', 'Tabla 6 Dureza', 'Valores PT100 INTA', 'Valores TC INTA',
-                        'Coladas Liq. Penetrantes', 'Verif. Planos M', 'Máquinas Taller',
-                        'Revisiones Máquinas', 'Manometros', 'Manometros y Termoelementos Taller', 'Revisiones Manometros y Termoelementos Taller', 'Patrones Termoelementos',
-                        'Desplegables No-Conformidad', 'Informes No-Conformidad', 'Verif. Planos OF', 'Equipos. Verif.', 'Verif. PPI',
-                        'Valores PT100 Norma', 'Valores TC B Norma', 'Valores TC C Norma', 'Valores TC E Norma', 'Valores TC J Norma',
-                        'Valores TC K Norma', 'Valores TC N Norma', 'Valores TC R Norma', 'Valores TC S Norma', 'Valores TC T Norma',
-                        'Estados Verif.', 'Estados Almacén', 'Proveedores Albaranes', 'Pruebas Dureza', 'Pruebas Hidróstaticas',
-                        'Pruebas Líquidos Penetrantes', 'Pruebas Otros', 'Patrones Roscas', 'Tolerancias Termoelementos', 'Piezas Adicionales Taller', 'Piezas Taller',
-                        'Equipos Soldadura', 'Planos DIM Taller', 'Planos OF Taller']
+            tables_names = ['Verif. Planos AL', 'Valores Fuerza Bola', 'Calibres Taller', 'Revisiones Calibres', 'Patrones Calibrados', 'Calibraciones', 'Albaranes', 'Verif. Planos DIM',
+                            'Verif. EXP', 'Datos Bridas', 'Caudalimetros Gas', 'Revisiones Caudalimetros Gas','Herramientas Taller', 'Revisiones Herramientas', 'Tabla 5 Dureza', 'Tabla 6 Dureza', 'Humedad y Temperatura Armario','Valores PT100 INTA', 'Valores TC INTA',
+                            'Coladas Liq. Penetrantes', 'Verif. Planos M', 'Máquinas Taller',
+                            'Revisiones Máquinas', 'Manometros', 'Manometros y Termoelementos Taller', 'Revisiones Manometros y Termoelementos Taller', 'Patrones Termoelementos',
+                            'Desplegables No-Conformidad', 'Informes No-Conformidad', 'Verif. Planos OF', 'Equipos. Verif.', 'Verif. PPI',
+                            'Valores PT100 Norma', 'Valores TC B Norma', 'Valores TC C Norma', 'Valores TC E Norma', 'Valores TC J Norma',
+                            'Valores TC K Norma', 'Valores TC N Norma', 'Valores TC R Norma', 'Valores TC S Norma', 'Valores TC T Norma',
+                            'Estados Verif.', 'Estados Almacén', 'Proveedores Albaranes', 'Pruebas Dureza', 'Pruebas Hidróstaticas',
+                            'Pruebas Líquidos Penetrantes', 'Pruebas Otros', 'Patrones Roscas', 'Tolerancias Termoelementos', 'Piezas Adicionales Taller', 'Piezas Taller',
+                            'Equipos Soldadura', 'Planos DIM Taller', 'Planos OF Taller']
 
-        self.dict_tables = dict(zip(tables_db_names, tables_names))
+            self.dict_tables = dict(zip(tables_db_names, tables_names))
 
-        tables_to_delete = ['al_drawing_verification', 'calibers_workshop_revisions', 'calibration_thermoelements', 'delivnote_suppliers', 'dim_drawing_verification', 'flanges_verification',
-                            'gas_flowmeters_workshop','gas_flowmeters_workshop_revisions','handtools_workshop','handtools_workshop_revisions','exp_verification', 'm_drawing_verification', 'machines_workshop',
-                            'machines_workshop_revisions', 'manometers_thermoelements_workshop', 'manometers_thermoelements_workshop_revisions', 'nc_report', 'of_drawing_verification',
-                            'ppi_verification', 'suppliers_verification', 'test_hardness', 'test_hydro',
-                            'test_liquid', 'test_others', 'warehouse_added_pieces', 'workshop_dim_drawings', 'workshop_of_drawings']
+            tables_to_delete = ['al_drawing_verification', 'calibers_workshop_revisions', 'calibration_thermoelements', 'delivnote_suppliers', 'dim_drawing_verification', 'flanges_verification',
+                                'gas_flowmeters_workshop','gas_flowmeters_workshop_revisions','handtools_workshop','handtools_workshop_revisions', 'humidity_temp_closet','exp_verification', 'm_drawing_verification', 'machines_workshop',
+                                'machines_workshop_revisions', 'manometers_thermoelements_workshop', 'manometers_thermoelements_workshop_revisions', 'nc_report', 'of_drawing_verification',
+                                'ppi_verification', 'suppliers_verification', 'test_hardness', 'test_hydro',
+                                'test_liquid', 'test_others', 'warehouse_added_pieces', 'workshop_dim_drawings', 'workshop_of_drawings']
 
-        for table in tables_to_delete:
-            del self.dict_tables[table]
+            for table in tables_to_delete:
+                del self.dict_tables[table]
 
-        list_tables = list(self.dict_tables.values())
-        list_tables.insert(0,"")
-        self.comboBox.addItems(sorted(list_tables))
+            list_tables = list(self.dict_tables.values())
+            list_tables.insert(0,"")
+            self.comboBox.addItems(sorted(list_tables))
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
 
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, DBEditRegVerif_Window):
