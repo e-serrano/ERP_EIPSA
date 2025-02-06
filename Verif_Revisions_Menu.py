@@ -37,8 +37,8 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
             Verif_Revisions_Menu (QtWidgets.QMainWindow): The main window for the UI setup.
         """
         Verif_Revisions_Menu.setObjectName("Verif_Revisions_Menu")
-        Verif_Revisions_Menu.setMinimumSize(QtCore.QSize(400, 750))
-        Verif_Revisions_Menu.setMaximumSize(QtCore.QSize(400, 750))
+        Verif_Revisions_Menu.setMinimumSize(QtCore.QSize(1000, 350))
+        Verif_Revisions_Menu.setMaximumSize(QtCore.QSize(1000, 350))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Verif_Revisions_Menu.setWindowIcon(icon)
@@ -54,7 +54,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
     "QPushButton {\n"
     "background-color: #33bdef;\n"
     "  border: 1px solid transparent;\n"
-    "  border-radius: 3px;\n"
+    "  border-radius: 10px;\n"
     "  color: #fff;\n"
     "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
     "  font-size: 15px;\n"
@@ -91,7 +91,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
     "QPushButton {\n"
     "background-color: #33bdef;\n"
     "  border: 1px solid transparent;\n"
-    "  border-radius: 3px;\n"
+    "  border-radius: 10px;\n"
     "  color: #fff;\n"
     "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
     "  font-size: 15px;\n"
@@ -126,10 +126,10 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.frame.setObjectName("frame")
         self.gridLayout_2 = QtWidgets.QGridLayout(self.frame)
         self.gridLayout_2.setObjectName("gridLayout_2")
-        self.verticalLayout_3 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_3.setContentsMargins(9, 0, -1, 0)
-        self.verticalLayout_3.setSpacing(25)
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.button_layout = QtWidgets.QGridLayout()
+        # self.verticalLayout_3.setContentsMargins(9, 0, -1, 0)
+        self.gridLayout_2.setSpacing(25)
+        self.button_layout.setObjectName("button_layout")
         self.Button_Machines = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Machines.setMinimumSize(QtCore.QSize(200, 50))
         font = QtGui.QFont()
@@ -139,7 +139,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.Button_Machines.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Machines.setObjectName("Button_Machines")
         self.Button_Machines.setText("Máquinas (LMH-001)")
-        self.verticalLayout_3.addWidget(self.Button_Machines)
+        self.button_layout.addWidget(self.Button_Machines, 0, 0, 1, 1)
         self.Button_Tools = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Tools.setMinimumSize(QtCore.QSize(200, 50))
         font = QtGui.QFont()
@@ -149,7 +149,18 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.Button_Tools.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Tools.setObjectName("Button_Tools")
         self.Button_Tools.setText("Herramientas")
-        self.verticalLayout_3.addWidget(self.Button_Tools)
+        self.button_layout.addWidget(self.Button_Tools, 0, 1, 1, 1)
+
+        self.Button_Humidity = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Humidity.setMinimumSize(QtCore.QSize(200, 50))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        self.Button_Humidity.setFont(font)
+        self.Button_Humidity.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Humidity.setObjectName("Button_Humidity")
+        self.Button_Humidity.setText("Humedad y Temperatura")
+        self.button_layout.addWidget(self.Button_Humidity, 0, 2, 1, 1)
 
         self.Button_GasMeters = QtWidgets.QPushButton(parent=self.frame)
         self.Button_GasMeters.setMinimumSize(QtCore.QSize(200, 50))
@@ -160,7 +171,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.Button_GasMeters.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_GasMeters.setObjectName("Button_GasMeters")
         self.Button_GasMeters.setText("Med. Caudal Gas (RCG-001)")
-        self.verticalLayout_3.addWidget(self.Button_GasMeters)
+        self.button_layout.addWidget(self.Button_GasMeters, 1, 0, 1, 1)
 
         self.Button_Calibers = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Calibers.setMinimumSize(QtCore.QSize(200, 50))
@@ -171,7 +182,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.Button_Calibers.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Calibers.setObjectName("Button_Calibers")
         self.Button_Calibers.setText("Eq. Medición Mecánica (REEM-001)")
-        self.verticalLayout_3.addWidget(self.Button_Calibers)
+        self.button_layout.addWidget(self.Button_Calibers, 1, 1, 1, 1)
 
         self.Button_Manometers = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Manometers.setMinimumSize(QtCore.QSize(200, 50))
@@ -182,7 +193,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.Button_Manometers.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Manometers.setObjectName("Button_Manometers")
         self.Button_Manometers.setText("Manómetros y Termoelementos (RIC-001)")
-        self.verticalLayout_3.addWidget(self.Button_Manometers)
+        self.button_layout.addWidget(self.Button_Manometers, 1, 2, 1, 1)
 
         self.Button_CalibratedMasters = QtWidgets.QPushButton(parent=self.frame)
         self.Button_CalibratedMasters.setMinimumSize(QtCore.QSize(200, 50))
@@ -192,8 +203,8 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.Button_CalibratedMasters.setFont(font)
         self.Button_CalibratedMasters.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_CalibratedMasters.setObjectName("Button_CalibratedMasters")
-        self.Button_CalibratedMasters.setText("Patrones Calibrados(RPC-001-01)")
-        self.verticalLayout_3.addWidget(self.Button_CalibratedMasters)
+        self.Button_CalibratedMasters.setText("Patrones Calibrados (RPC-001-01)")
+        self.button_layout.addWidget(self.Button_CalibratedMasters, 2, 0, 1, 1)
         self.Button_ThreadMasters = QtWidgets.QPushButton(parent=self.frame)
         self.Button_ThreadMasters.setMinimumSize(QtCore.QSize(200, 50))
         font = QtGui.QFont()
@@ -202,8 +213,8 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.Button_ThreadMasters.setFont(font)
         self.Button_ThreadMasters.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_ThreadMasters.setObjectName("Button_ThreadMasters")
-        self.Button_ThreadMasters.setText("Patrones Roscas(RPC-001-02)")
-        self.verticalLayout_3.addWidget(self.Button_ThreadMasters)
+        self.Button_ThreadMasters.setText("Patrones Roscas (RPC-001-02)")
+        self.button_layout.addWidget(self.Button_ThreadMasters, 2, 1, 1, 1)
         self.Button_WeldMasters = QtWidgets.QPushButton(parent=self.frame)
         self.Button_WeldMasters.setMinimumSize(QtCore.QSize(200, 50))
         font = QtGui.QFont()
@@ -212,8 +223,8 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.Button_WeldMasters.setFont(font)
         self.Button_WeldMasters.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_WeldMasters.setObjectName("Button_WeldMasters")
-        self.Button_WeldMasters.setText("Equipos Soldadura(RPC-001-03)")
-        self.verticalLayout_3.addWidget(self.Button_WeldMasters)
+        self.Button_WeldMasters.setText("Equipos Soldadura (RPC-001-03)")
+        self.button_layout.addWidget(self.Button_WeldMasters, 2, 2, 1, 1)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(90, 30))
         self.Button_Cancel.setMaximumSize(QtCore.QSize(90, 30))
@@ -224,7 +235,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
 "}"
 )
         self.Button_Cancel.setObjectName("Button_Cancel")
-        self.gridLayout_2.addLayout(self.verticalLayout_3, 0, 0, 1, 2)
+        self.gridLayout_2.addLayout(self.button_layout, 0, 0, 1, 2)
         self.gridLayout_2.addWidget(self.Button_Cancel, 1, 1, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         Verif_Revisions_Menu.setCentralWidget(self.centralwidget)
