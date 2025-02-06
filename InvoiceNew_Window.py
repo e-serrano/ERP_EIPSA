@@ -5665,15 +5665,21 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             cursor.execute("SELECT id, name FROM purch_fact.clients")
             results_clients = cursor.fetchall()
 
-            table_clients = pd.DataFrame(results_clients, columns=['id_client', 'name'])
+            cursor.execute("SELECT id, name FROM purch_fact.destination_country")
+            results_countries = cursor.fetchall()
 
-            df_invoice = df_invoice.merge(table_clients, left_on='client', right_on='name', how='left')
-        # Deleting column with client name
-            df_invoice = df_invoice.drop(columns=['client','name'])
+            table_clients = pd.DataFrame(results_clients, columns=['id_client', 'name_client'])
+            table_countries = pd.DataFrame(results_countries, columns=['id_dest_country', 'name_country'])
 
-            df_invoice['destination'] = 'S/ALMACEN'
-            df_invoice['transport'] = 'N/MEDIOS'
-            df_invoice['id_dest_country'] = 1
+            df_invoice = df_invoice.merge(table_clients, left_on='client', right_on='name_client', how='left')
+            df_invoice = df_invoice.merge(table_countries, left_on='country', right_on='name_country', how='left')
+
+        # Deleting columns with client name and country name
+            df_invoice = df_invoice.drop(columns=['client','name_client','country','name_country'])
+
+            df_invoice['destination'] = df_invoice['destination'].fillna('S/ALMACEN')
+            df_invoice['transport'] = df_invoice['transport'].fillna('N/MEDIOS')
+            df_invoice['id_dest_country'] = df_invoice['id_dest_country'].fillna(1)
 
             try:
         # Loop through each row of the DataFrame and insert the data into the table
