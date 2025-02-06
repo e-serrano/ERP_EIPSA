@@ -60,7 +60,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
-class ColorDelegate(QtWidgets.QItemDelegate):
+class ColorDelegate_Position(QtWidgets.QItemDelegate):
     """
     A custom item delegate for applying background colors to cells in a QTableView or QTableWidget.
 
@@ -93,6 +93,83 @@ class ColorDelegate(QtWidgets.QItemDelegate):
 
         if original_text != '' and original_text != value_check:
             background_color = QtGui.QColor(255, 255, 0) #Yellow
+
+        painter.fillRect(option.rect, background_color)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+
+        super().paint(painter, option, index)
+
+class ColorDelegate_Subposition(QtWidgets.QItemDelegate):
+    """
+    A custom item delegate for applying background colors to cells in a QTableView or QTableWidget.
+
+    Inherits from:
+        QtWidgets.QItemDelegate: Provides custom rendering for table items.
+    """
+    def __init__(self, parent=None):
+        """
+        Initializes the ColorDelegate, setting up the color mapping from the database.
+
+        Args:
+            parent (QtWidgets.QWidget, optional): The parent widget. Defaults to None.
+        """
+        super().__init__(parent)
+
+    def paint(self, painter, option, index: QtCore.QModelIndex):
+        """
+        Paints the background color of the item based on its column and value.
+
+        Args:
+            painter (QtGui.QPainter): The painter used for painting.
+            option (QtWidgets.QStyleOptionViewItem): The style option for the item.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
+        background_color = QtGui.QColor(255, 255, 255)
+
+        state_column_index = index.sibling(index.row(), 7) # Index for column to check text
+        original_text = str(index.data())  # Text of cell to be painted
+        value_check = str(state_column_index.data()).upper()
+
+        if original_text != '' and original_text != value_check:
+            background_color = QtGui.QColor(255, 255, 0) #Yellow
+
+        painter.fillRect(option.rect, background_color)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+
+        super().paint(painter, option, index)
+
+class ColorDelegate_DifferenceAmount(QtWidgets.QItemDelegate):
+    """
+    A custom item delegate for applying background colors to cells in a QTableView or QTableWidget.
+
+    Inherits from:
+        QtWidgets.QItemDelegate: Provides custom rendering for table items.
+    """
+    def __init__(self, parent=None):
+        """
+        Initializes the ColorDelegate, setting up the color mapping from the database.
+
+        Args:
+            parent (QtWidgets.QWidget, optional): The parent widget. Defaults to None.
+        """
+        super().__init__(parent)
+
+    def paint(self, painter, option, index: QtCore.QModelIndex):
+        """
+        Paints the background color of the item based on its column and value.
+
+        Args:
+            painter (QtGui.QPainter): The painter used for painting.
+            option (QtWidgets.QStyleOptionViewItem): The style option for the item.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
+        background_color = QtGui.QColor(255, 255, 255)
+
+        original_text = str(index.data())  # Text of cell to be painted
+
+        if original_text != '':
+            if float(original_text.replace('.','').replace(',','.').replace(' €','')) != 0:
+                background_color = QtGui.QColor(255, 255, 0) #Yellow
 
         painter.fillRect(option.rect, background_color)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
@@ -1219,8 +1296,12 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                         self.initial_column2 = 72
                         self.initial_column_ = 75
                         self.initial_column2_ = 80
-                        self.column_topaint = 157
-                        self.column_topaint2 = 167
+                        self.column_position = 157
+                        self.column_subposition = 158
+                        self.column_difference = 160
+                        self.column_position2 = 167
+                        self.column_subposition2 = 168
+                        self.column_difference2 = 170
                     elif self.variable =='Caudal+Nivel':
                         self.variable = 'Caudal'
                         self.variable2 = 'Nivel'
@@ -1230,28 +1311,40 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                         self.initial_column2 = 72
                         self.initial_column_ = 61
                         self.initial_column2_ = 66
-                        self.column_topaint = 157
-                        self.column_topaint2 = 170
+                        self.column_position = 157
+                        self.column_subposition = 158
+                        self.column_difference = 160
+                        self.column_position2 = 170
+                        self.column_subposition2 = 171
+                        self.column_difference2 = 173
                     elif self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
                         self.initial_column = 67
                         self.initial_column2 = 72
-                        self.column_topaint = 157
+                        self.column_position = 157
+                        self.column_subposition = 158
+                        self.column_difference = 160
                     elif self.variable == 'Temperatura':
                         self.model.setTable("tags_data.tags_temp")
                         self.initial_column = 75
                         self.initial_column2 = 80
-                        self.column_topaint = 167
+                        self.column_position = 167
+                        self.column_subposition = 168
+                        self.column_difference = 170
                     elif self.variable == 'Nivel':
                         self.model.setTable("tags_data.tags_level")
                         self.initial_column = 61
                         self.initial_column2 = 66
-                        self.column_topaint = 170
+                        self.column_position = 170
+                        self.column_subposition = 171
+                        self.column_difference = 173
                     elif self.variable == 'Otros':
                         self.model.setTable("tags_data.tags_others")
                         self.initial_column = 20
                         self.initial_column2 = 25
-                        self.column_topaint = 57
+                        self.column_position = 57
+                        self.column_subposition = 58
+                        self.column_difference = 60
                     self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
                     self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
 
@@ -1266,7 +1359,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
             columns_number=self.model.columnCount()
             for column in range(columns_number):
                 self.tableEditTags.setItemDelegateForColumn(column, None)
-            self.model.column_range = list(range(self.initial_column,self.initial_column + 3)) + list(range(self.initial_column2,columns_number - 8))
+            self.model.column_range = list(range(self.initial_column,self.initial_column + 3)) + list(range(self.initial_column2,columns_number - 9))
 
             if self.variable == 'Caudal':
                 self.tableEditTags.hideColumn(0)
@@ -1323,8 +1416,12 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
 
             # self.tableEditTags.verticalHeader().hide()
             self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
-            self.color_delegate = ColorDelegate(self)
-            self.tableEditTags.setItemDelegateForColumn(self.column_topaint, self.color_delegate)
+            self.color_delegate = ColorDelegate_Position(self)
+            self.tableEditTags.setItemDelegateForColumn(self.column_position, self.color_delegate)
+            self.color_delegate = ColorDelegate_Subposition(self)
+            self.tableEditTags.setItemDelegateForColumn(self.column_subposition, self.color_delegate)
+            self.color_delegate = ColorDelegate_DifferenceAmount(self)
+            self.tableEditTags.setItemDelegateForColumn(self.column_difference, self.color_delegate)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -1458,14 +1555,24 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                             "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas",
                             "Estado Facturación"]
 
+            list_invoice_state = ['', 'Facturado']
+            
             if self.variable == 'Caudal':
                 self.model.setAllColumnHeaders(headers_flow)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_invoice_state)
+                self.tableEditTags.setItemDelegateForColumn(165, self.combo_itemtype)
             elif self.variable == 'Temperatura':
                 self.model.setAllColumnHeaders(headers_temp)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_invoice_state)
+                self.tableEditTags.setItemDelegateForColumn(175, self.combo_itemtype)
             elif self.variable == 'Nivel':
                 self.model.setAllColumnHeaders(headers_level)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_invoice_state)
+                self.tableEditTags.setItemDelegateForColumn(178, self.combo_itemtype)
             elif self.variable == 'Otros':
                 self.model.setAllColumnHeaders(headers_others)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_invoice_state)
+                self.tableEditTags.setItemDelegateForColumn(64, self.combo_itemtype)
 
         # Getting the unique values for each column of the model
             for column in range(self.model.columnCount()):
@@ -1559,8 +1666,12 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
 
                 # self.tableEditTags.verticalHeader().hide()
                 self.tableEditTags2.setItemDelegate(AlignDelegate(self.tableEditTags2))
-                self.color_delegate = ColorDelegate(self)
-                self.tableEditTags2.setItemDelegateForColumn(self.column_topaint2, self.color_delegate)
+                self.color_delegate = ColorDelegate_Position(self)
+                self.tableEditTags2.setItemDelegateForColumn(self.column_position2, self.color_delegate)
+                self.color_delegate = ColorDelegate_Subposition(self)
+                self.tableEditTags2.setItemDelegateForColumn(self.column_subposition2, self.color_delegate)
+                self.color_delegate = ColorDelegate_DifferenceAmount(self)
+                self.tableEditTags2.setItemDelegateForColumn(self.column_difference2, self.color_delegate)
                 self.tableEditTags2.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
                 self.tableEditTags2.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
                 self.tableEditTags2.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -1694,14 +1805,20 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                                 "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas",
                                 "Estado Facturación"]
 
+                list_invoice_state = ['', 'Facturado']
+                
                 if self.variable2 == 'Caudal':
                     self.model2.setAllColumnHeaders(headers_flow)
+                    self.tableEditTags2.setItemDelegateForColumn(165, self.combo_itemtype)
                 elif self.variable2 == 'Temperatura':
                     self.model2.setAllColumnHeaders(headers_temp)
+                    self.tableEditTags2.setItemDelegateForColumn(175, self.combo_itemtype)
                 elif self.variable2 == 'Nivel':
                     self.model2.setAllColumnHeaders(headers_level)
+                    self.tableEditTags2.setItemDelegateForColumn(178, self.combo_itemtype)
                 elif self.variable2 == 'Otros':
                     self.model2.setAllColumnHeaders(headers_others)
+                    self.tableEditTags2.setItemDelegateForColumn(64, self.combo_itemtype)
 
             # Getting the unique values for each column of the model
                 for column in range(self.model2.columnCount()):
