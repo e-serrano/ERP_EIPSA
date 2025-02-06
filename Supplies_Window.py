@@ -1157,6 +1157,15 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         self.Position.textChanged.connect(self.position_table)
         self.loadtablesupplies()
 
+        delete_action_dim = QtGui.QAction("Eliminar Fila", self)
+        delete_action_dim.triggered.connect(lambda: self.delete_register(self.tableSupplies, "purch_fact.supplies"))
+
+        self.context_menu_row = QtWidgets.QMenu(self)
+        self.context_menu_row.addAction(delete_action_dim)
+
+        self.tableSupplies.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.ActionsContextMenu)
+        self.tableSupplies.addActions([delete_action_dim])
+
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, Supplies_Window):
         """
@@ -2110,6 +2119,90 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
                 conn.close()
         
         return sorted(unique_values)
+
+# Function to delete register of database
+    def delete_register(self, table, name):
+        """
+        Deletes selected records from the specified table.
+
+        Args:
+            table (QtWidgets.QTableView): The table widget from which records are selected.
+            name (str): The name of the table from which records will be deleted.
+        """
+        selection_model = table.selectionModel()
+
+        if not selection_model.hasSelection():
+            return
+
+        model = table.model()
+
+        id_values = []
+        selected_indexes = selection_model.selectedRows()
+        for index in selected_indexes:
+            # Obtaining first columns values
+            item_index = model.index(index.row(), 0)
+            if item_index.isValid():
+                value = model.data(item_index)
+                id_values.append(value)
+
+        if len(id_values) != 0:
+            dlg_yes_no = QtWidgets.QMessageBox()
+            new_icon_yes_no = QtGui.QIcon()
+            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+            dlg_yes_no.setWindowTitle("ERP EIPSA")
+            dlg_yes_no.setText("¿Estás seguro de que deseas eliminar los registros?\n")
+            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            result = dlg_yes_no.exec()
+            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    for id_value in id_values:
+                        commands_delete = f"""DELETE FROM {name} WHERE id = '{id_value}'"""
+                        cur.execute(commands_delete)
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Suministros")
+                    dlg.setText("Registros eliminados con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg,new_icon
+
+                    self.loadtablesupplies()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+            del dlg_yes_no, new_icon_yes_no
+
+
 
 
 
