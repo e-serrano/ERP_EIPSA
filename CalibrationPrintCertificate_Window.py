@@ -509,6 +509,15 @@ class Ui_CalibrationPrintCertificate_Window(object):
                                                     'PROCEDIMIENTO APLICABLE: CE-01 REV.E-2\n'
                                                     'LOS VALORES OBTENIDOS CUMPLEN CON LA NORMA DIN 43760 (IEC 60751)'), align='L')
                             pdf.ln()
+                            pdf.set_xy(1, 17)
+                            pdf.set_font('Helvetica', '', 8)
+                            pdf.cell(5, 0.5, 'Madrid, ' + cert_date, 'C')
+                            pdf.cell(7, 0.5, '')
+                            pdf.set_font('Helvetica', '', 8)
+                            pdf.cell(5, 0.5, 'Inspector autorizado', 'C')
+                            pdf.cell(7, 0.5, '')
+                            pdf.set_font('Helvetica', '', 8)
+                            pdf.cell(5, 0.5, 'Inspector EIPSA', 'C')
                         else:
                             pdf.set_xy(25, pdf.get_y() + 2)
                             pdf.cell(1, 0.8, 'QUALITY DEPARTMENT', align='C')
@@ -566,6 +575,15 @@ class Ui_CalibrationPrintCertificate_Window(object):
                                                     'PROCEDIMIENTO APLICABLE: CE-01 REV.E-2\n'
                                                     'LOS VALORES OBTENIDOS CUMPLEN CON LA NORMA DIN 43760 (IEC 60751)'), align='L')
                             pdf.ln()
+                            pdf.set_xy(1, 17)
+                            pdf.set_font('Helvetica', '', 8)
+                            pdf.cell(5, 0.5, 'Madrid, ' + cert_date, 'C')
+                            pdf.cell(7, 0.5, '')
+                            pdf.set_font('Helvetica', '', 8)
+                            pdf.cell(5, 0.5, 'Inspector autorizado', 'C')
+                            pdf.cell(7, 0.5, '')
+                            pdf.set_font('Helvetica', '', 8)
+                            pdf.cell(5, 0.5, 'Inspector EIPSA', 'C')
                         else:
                             pdf.set_xy(25, pdf.get_y() + 2)
                             pdf.cell(1, 0.8, 'QUALITY DEPARTMENT', align='C')
