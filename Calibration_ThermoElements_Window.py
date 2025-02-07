@@ -701,7 +701,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.Button_Print.clicked.connect(self.print_certificate)
         self.toolSaveChanges.clicked.connect(self.saveChanges)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
-        self.toolShow.clicked.connect(self.show_columns)
+        self.toolShow.clicked.connect(self.query_all_calibration)
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
         self.createContextMenu()
         self.query_calibration()
@@ -957,6 +957,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.hiddencolumns = []
 
         self.model.setTable("verification.calibration_thermoelements")
+        self.model.setFilter(f"test_date >= CURRENT_DATE - INTERVAL '3 months'")
 
         self.tableEditCalibration.setModel(None)
         self.tableEditCalibration.setModel(self.proxy)
@@ -983,7 +984,78 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addWidget(self.tableEditCalibration, 3, 0, 1, 1)
         self.tableEditCalibration.setSortingEnabled(False)
         self.tableEditCalibration.horizontalHeader().sectionDoubleClicked.connect(self.on_view_horizontalHeader_sectionClicked)
-        self.tableEditCalibration.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+        # self.tableEditCalibration.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
+        self.tableEditCalibration.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.tableEditCalibration.sortByColumn(0, Qt.SortOrder.AscendingOrder)
+
+    # Change all column names
+        headers_names = ["ID", "Pedido", "Tag", "Label", "Sensor", "Wire", "Patrón", "Fecha",
+                    "User", "Clase", "N.C. Bobina", "N.C. Bulbo", "CA", "Aisl. Caliente", "Cant. Prueba",
+                    "Cant. Pedido", "Notas", "Patrón 1", "Elemento 1", "Error 1", "Tolerancia 1", "Patrón 2",
+                    "Elemento 2", "Error 2", "Tolerancia 2", "Patrón 3", "Elemento 3", "Error 3", "Tolerancia 3", 
+                    "Patrón 4", "Elemento 4", "Error 4", "Tolerancia 4", "Carpeta"]
+
+        self.model.setAllColumnHeaders(headers_names)
+
+    # Getting the unique values for each column of the model
+        for column in range(self.model.columnCount()):
+            list_valuesUnique = []
+            if column not in self.checkbox_states:
+                self.checkbox_states[column] = {}
+                self.checkbox_states[column]['Seleccionar todo'] = True
+                for row in range(self.model.rowCount()):
+                    value = self.model.record(row).value(column)
+                    if value not in list_valuesUnique:
+                        if isinstance(value, QtCore.QDate):
+                            value=value.toString("dd/MM/yyyy")
+                        list_valuesUnique.append(str(value))
+                        self.checkbox_states[column][value] = True
+                self.dict_valuesuniques[column] = list_valuesUnique
+
+        self.selection_model = self.tableEditCalibration.selectionModel()
+        self.selection_model.selectionChanged.connect(self.countSelectedCells)
+
+        self.tableEditCalibration.sortByColumn(7, Qt.SortOrder.DescendingOrder)
+
+# Function to load table and setting in the window
+    def query_all_calibration(self):
+        """
+        Queries the database for calibrations, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
+        self.checkbox_states = {}
+        self.dict_valuesuniques = {}
+        self.dict_ordersort = {}
+        self.hiddencolumns = []
+
+        self.model.setTable("verification.calibration_thermoelements")
+
+        self.tableEditCalibration.setModel(None)
+        self.tableEditCalibration.setModel(self.proxy)
+        self.model.select()
+
+        self.proxy.setSourceModel(self.model)
+        self.tableEditCalibration.setModel(self.proxy)
+
+        columns_number=self.model.columnCount()
+        for column in range(columns_number):
+            self.tableEditCalibration.setItemDelegateForColumn(column, None)
+
+        self.tableEditCalibration.setItemDelegate(AlignDelegate(self.tableEditCalibration))
+        self.tableEditCalibration.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableEditCalibration.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.tableEditCalibration.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        if self.username == 'm.gil':
+            self.tableEditCalibration.setStyleSheet("gridline-color: rgb(128, 128, 128);")
+            self.tableEditCalibration.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
+            self.tableEditCalibration.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
+        else:
+            self.tableEditCalibration.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.tableEditCalibration.setObjectName("tableEditCalibration")
+        self.gridLayout_2.addWidget(self.tableEditCalibration, 3, 0, 1, 1)
+        self.tableEditCalibration.setSortingEnabled(False)
+        self.tableEditCalibration.horizontalHeader().sectionDoubleClicked.connect(self.on_view_horizontalHeader_sectionClicked)
+        # self.tableEditCalibration.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
         self.tableEditCalibration.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.tableEditCalibration.sortByColumn(0, Qt.SortOrder.AscendingOrder)
 
