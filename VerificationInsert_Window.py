@@ -2954,865 +2954,865 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         if sender == self.tableTags:
             header_item = self.tableTags.horizontalHeaderItem(item.column())
             header_text = header_item.text()
+
+            if header_text == 'TAG':
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("TAG")
+                dlg.setText(item.text())
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+                del dlg, new_icon
+
+            elif header_text in ['Fotos', 'Foto', 'PDF Plano']:
+                if item.text() != '':
+                    item_id = self.tableTags.item(item.row(), 0).text()
+
+                    if header_text == 'Fotos':
+                        table_name = self.tableTags.item(item.row(), 21).text()
+                        id_column = self.tableTags.item(item.row(), 20).text()
+                        query_path =f"SELECT tag_images FROM {table_name} WHERE {id_column} = {item_id}"
+                    elif header_text == 'Foto':
+                        query_path =f"""SELECT image FROM verification."al_drawing_verification" WHERE id = {item_id}"""
+                    else:
+                        query_path =f"""SELECT document FROM verification."al_drawing_verification" WHERE id = {item_id}"""
+
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query_path)
+                        results=cur.fetchall()
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                        file_path = os.path.normpath(results[0][0])
+                        os.startfile(file_path)
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+            elif header_text == 'Tipo Equipo':
+                cell_content = item.text()
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Verificación")
+                dlg.setText(cell_content)
+                dlg.exec()
+                del dlg, new_icon
+
+            elif header_text == 'Fecha Dim.':
+                if item.text() != '':
+                    item_id = self.tableTags.item(item.row(), 0).text()
+                    table_name = self.tableTags.item(item.row(), 21).text()
+                    id_column = self.tableTags.item(item.row(), 20).text()
+                    query =f"SELECT TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), final_verif_dim_obs FROM {table_name} WHERE {id_column} = {item_id}"
+
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query)
+                        results=cur.fetchall()
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Plano Dimensional")
+                        dlg.setText("Fecha: " + results[0][0] + "\n"
+                                    "Observaciones: " + results[0][1])
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                        dlg.exec()
+                        del dlg, new_icon
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+            elif header_text == 'Fecha OF Equipo':
+                if item.text() != '':
+                    item_id = self.tableTags.item(item.row(), 0).text()
+                    table_name = self.tableTags.item(item.row(), 21).text()
+                    id_column = self.tableTags.item(item.row(), 20).text()
+                    query =f"SELECT TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), final_verif_of_eq_obs FROM {table_name} WHERE {id_column} = {item_id}"
+
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query)
+                        results=cur.fetchall()
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Plano OF")
+                        dlg.setText("Fecha: " + results[0][0] + "\n"
+                                    "Observaciones: " + results[0][1])
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                        dlg.exec()
+                        del dlg, new_icon
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+            elif header_text == 'Fecha OF Sensor':
+                if item.text() != '':
+                    item_id = self.tableTags.item(item.row(), 0).text()
+                    table_name = self.tableTags.item(item.row(), 21).text()
+                    id_column = self.tableTags.item(item.row(), 20).text()
+                    query =f"SELECT TO_CHAR(final_verif_of_sensor_date, 'DD/MM/YYYY'), final_verif_of_sensor_obs FROM {table_name} WHERE {id_column} = {item_id}"
+
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query)
+                        results=cur.fetchall()
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Plano OF Sensor")
+                        dlg.setText("Fecha: " + results[0][0] + "\n"
+                                    "Observaciones: " + results[0][1])
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                        dlg.exec()
+                        del dlg, new_icon
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+            elif header_text == 'Fecha PH1':
+                if item.text() != '':
+                    item_id = self.tableTags.item(item.row(), 0).text()
+                    table_name = self.tableTags.item(item.row(), 21).text()
+                    id_column = self.tableTags.item(item.row(), 20).text()
+                    query =f"SELECT TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_obs FROM {table_name} WHERE {id_column} = {item_id}"
+
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query)
+                        results=cur.fetchall()
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Prueba Hidrostática 1")
+                        dlg.setText("Fecha: " + results[0][0] + "\n"
+                                    "Manómetro: " + results[0][1] + "\n"
+                                    "Presión: " + results[0][2] + "\n"
+                                    "Observaciones: " + results[0][3])
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                        dlg.exec()
+                        del dlg, new_icon
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+            elif header_text == 'Fecha PH2':
+                if item.text() != '':
+                    item_id = self.tableTags.item(item.row(), 0).text()
+                    table_name = self.tableTags.item(item.row(), 21).text()
+                    id_column = self.tableTags.item(item.row(), 20).text()
+                    query =f"SELECT TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_obs FROM {table_name} WHERE {id_column} = {item_id}"
+
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query)
+                        results=cur.fetchall()
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Prueba Hidrostática 2")
+                        dlg.setText("Fecha: " + results[0][0] + "\n"
+                                    "Manómetro: " + results[0][1] + "\n"
+                                    "Presión: " + results[0][2] + "\n"
+                                    "Observaciones: " + results[0][3])
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                        dlg.exec()
+                        del dlg, new_icon
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+            elif header_text == 'Fecha LP':
+                if item.text() != '':
+                    item_id = self.tableTags.item(item.row(), 0).text()
+                    table_name = self.tableTags.item(item.row(), 21).text()
+                    id_column = self.tableTags.item(item.row(), 20).text()
+                    query =f"SELECT TO_CHAR(lp_date, 'DD/MM/YYYY'), lp_hn_liq1, lp_hn_liq2, lp_hn_liq3, lp_obs FROM {table_name} WHERE {id_column} = {item_id}"
+
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query)
+                        results=cur.fetchall()
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Líquidos Penetrantes")
+                        dlg.setText("Fecha: " + results[0][0] + "\n"
+                                    "9PR5: " + results[0][1] + "\n"
+                                    "9D1B: " + results[0][2] + "\n"
+                                    "996PB: " + results[0][3] + "\n"
+                                    "Observaciones: " + results[0][4])
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                        dlg.exec()
+                        del dlg, new_icon
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+            elif header_text == 'Fecha Almacén':
+                if item.text() != '':
+                    item_id = self.tableTags.item(item.row(), 0).text()
+                    query =f"SELECT TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs FROM verification.al_drawing_verification WHERE id = {item_id}"
+
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query)
+                        results=cur.fetchall()
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Planos AL")
+                        dlg.setText("Fecha: " + (results[0][0] if results[0][0] is not None else "") + "\n"
+                                    "Estado: " + (results[0][1] if results[0][1] is not None else "") + "\n"
+                                    "Observaciones: " + (results[0][2] if results[0][2] is not None else ""))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                        dlg.exec()
+                        del dlg, new_icon
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+            elif header_text == 'Fecha Verif.':
+                if item.text() != '':
+                    item_id = self.tableTags.item(item.row(), 0).text()
+                    query =f"SELECT TO_CHAR(verif_al_drawing_date, 'DD/MM/YYYY'), verif_al_drawing_state, verif_al_drawing_obs FROM verification.al_drawing_verification WHERE id = {item_id}"
+
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query)
+                        results=cur.fetchall()
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Planos AL")
+                        dlg.setText("Fecha: " + (results[0][0] if results[0][0] is not None else "") + "\n"
+                                    "Estado: " + (results[0][1] if results[0][1] is not None else "") + "\n"
+                                    "Observaciones: " + (results[0][2] if results[0][2] is not None else ""))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                        dlg.exec()
+                        del dlg, new_icon
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+            elif header_text == 'Plano Dim.':
+                if item.text() != '':
+                    dim_drawing_number = item.text()
+
+                    commands_select_dim_drawing = ("""
+                                SELECT notes, drawing_description
+                                FROM verification."workshop_dim_drawings"
+                                WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
+                                AND
+                                "drawing_number" = %s
+                                """)
+
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(commands_select_dim_drawing, (self.num_order_value, dim_drawing_number,))
+                        results = cur.fetchall()
+
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Planos Dim.")
+                        dlg.setText("Pedido: " + self.num_order_value + "\n"
+                                    "Plano: " + dim_drawing_number + "\n"
+                                    "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
+                                    "Descripción: " + (results[0][1] if results[0][1] is not None else ""))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                        dlg.exec()
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Planos Dim.")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+            elif header_text in ['OF Equipo', 'OF Sensor']:
+                if item.text() != '':
+                    of_drawing_number = item.text()
+
+                    commands_select_of_drawing = ("""
+                                SELECT notes, drawing_description
+                                FROM verification."workshop_of_drawings"
+                                WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
+                                AND
+                                "drawing_number" = %s
+                                """)
+
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(commands_select_of_drawing, (self.num_order_value, of_drawing_number,))
+                        results = cur.fetchall()
+
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Planos OF")
+                        dlg.setText("Pedido: " + self.num_order_value + "\n"
+                                    "Plano: " + of_drawing_number + "\n"
+                                    "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
+                                    "Descripción: " + (results[0][1] if results[0][1] is not None else ""))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                        dlg.exec()
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Planos OF")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
         else:
             header_item = self.tableOthers.horizontalHeaderItem(item.column())
             header_text = header_item.text()
 
-        if header_text == 'TAG':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("TAG")
-            dlg.setText(item.text())
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-            del dlg, new_icon
-
-        elif header_text in ['Fotos', 'Foto', 'PDF Plano']:
-            if item.text() != '':
-                item_id = self.tableTags.item(item.row(), 0).text()
-
-                if header_text == 'Fotos':
-                    table_name = self.tableTags.item(item.row(), 21).text()
-                    id_column = self.tableTags.item(item.row(), 20).text()
-                    query_path =f"SELECT tag_images FROM {table_name} WHERE {id_column} = {item_id}"
-                elif header_text == 'Foto':
-                    query_path =f"""SELECT image FROM verification."al_drawing_verification" WHERE id = {item_id}"""
-                else:
-                    query_path =f"""SELECT document FROM verification."al_drawing_verification" WHERE id = {item_id}"""
-
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query_path)
-                    results=cur.fetchall()
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                    file_path = os.path.normpath(results[0][0])
-                    os.startfile(file_path)
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-        elif header_text == 'Tipo Equipo':
-            cell_content = item.text()
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Verificación")
-            dlg.setText(cell_content)
-            dlg.exec()
-            del dlg, new_icon
-
-        elif header_text == 'Fecha Dim.':
-            if item.text() != '':
-                item_id = self.tableTags.item(item.row(), 0).text()
-                table_name = self.tableTags.item(item.row(), 21).text()
-                id_column = self.tableTags.item(item.row(), 20).text()
-                query =f"SELECT TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), final_verif_dim_obs FROM {table_name} WHERE {id_column} = {item_id}"
-
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query)
-                    results=cur.fetchall()
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Plano Dimensional")
-                    dlg.setText("Fecha: " + results[0][0] + "\n"
-                                "Observaciones: " + results[0][1])
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-        elif header_text == 'Fecha OF Equipo':
-            if item.text() != '':
-                item_id = self.tableTags.item(item.row(), 0).text()
-                table_name = self.tableTags.item(item.row(), 21).text()
-                id_column = self.tableTags.item(item.row(), 20).text()
-                query =f"SELECT TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), final_verif_of_eq_obs FROM {table_name} WHERE {id_column} = {item_id}"
-
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query)
-                    results=cur.fetchall()
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Plano OF")
-                    dlg.setText("Fecha: " + results[0][0] + "\n"
-                                "Observaciones: " + results[0][1])
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-        elif header_text == 'Fecha OF Sensor':
-            if item.text() != '':
-                item_id = self.tableTags.item(item.row(), 0).text()
-                table_name = self.tableTags.item(item.row(), 21).text()
-                id_column = self.tableTags.item(item.row(), 20).text()
-                query =f"SELECT TO_CHAR(final_verif_of_sensor_date, 'DD/MM/YYYY'), final_verif_of_sensor_obs FROM {table_name} WHERE {id_column} = {item_id}"
-
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query)
-                    results=cur.fetchall()
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Plano OF Sensor")
-                    dlg.setText("Fecha: " + results[0][0] + "\n"
-                                "Observaciones: " + results[0][1])
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-        elif header_text == 'Fecha PH1':
-            if item.text() != '':
-                item_id = self.tableTags.item(item.row(), 0).text()
-                table_name = self.tableTags.item(item.row(), 21).text()
-                id_column = self.tableTags.item(item.row(), 20).text()
-                query =f"SELECT TO_CHAR(ph1_date, 'DD/MM/YYYY'), ph1_manometer, ph1_pressure, ph1_obs FROM {table_name} WHERE {id_column} = {item_id}"
-
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query)
-                    results=cur.fetchall()
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Prueba Hidrostática 1")
-                    dlg.setText("Fecha: " + results[0][0] + "\n"
-                                "Manómetro: " + results[0][1] + "\n"
-                                "Presión: " + results[0][2] + "\n"
-                                "Observaciones: " + results[0][3])
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-        elif header_text == 'Fecha PH2':
-            if item.text() != '':
-                item_id = self.tableTags.item(item.row(), 0).text()
-                table_name = self.tableTags.item(item.row(), 21).text()
-                id_column = self.tableTags.item(item.row(), 20).text()
-                query =f"SELECT TO_CHAR(ph2_date, 'DD/MM/YYYY'), ph2_manometer, ph2_pressure, ph2_obs FROM {table_name} WHERE {id_column} = {item_id}"
-
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query)
-                    results=cur.fetchall()
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Prueba Hidrostática 2")
-                    dlg.setText("Fecha: " + results[0][0] + "\n"
-                                "Manómetro: " + results[0][1] + "\n"
-                                "Presión: " + results[0][2] + "\n"
-                                "Observaciones: " + results[0][3])
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-        elif header_text == 'Fecha LP':
-            if item.text() != '':
-                item_id = self.tableTags.item(item.row(), 0).text()
-                table_name = self.tableTags.item(item.row(), 21).text()
-                id_column = self.tableTags.item(item.row(), 20).text()
-                query =f"SELECT TO_CHAR(lp_date, 'DD/MM/YYYY'), lp_hn_liq1, lp_hn_liq2, lp_hn_liq3, lp_obs FROM {table_name} WHERE {id_column} = {item_id}"
-
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query)
-                    results=cur.fetchall()
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Líquidos Penetrantes")
-                    dlg.setText("Fecha: " + results[0][0] + "\n"
-                                "9PR5: " + results[0][1] + "\n"
-                                "9D1B: " + results[0][2] + "\n"
-                                "996PB: " + results[0][3] + "\n"
-                                "Observaciones: " + results[0][4])
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-        elif header_text == 'Fecha Almacén':
-            if item.text() != '':
-                item_id = self.tableTags.item(item.row(), 0).text()
-                query =f"SELECT TO_CHAR(warehouse_date, 'DD/MM/YYYY'), warehouse_state, warehouse_obs FROM verification.al_drawing_verification WHERE id = {item_id}"
-
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query)
-                    results=cur.fetchall()
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Planos AL")
-                    dlg.setText("Fecha: " + (results[0][0] if results[0][0] is not None else "") + "\n"
-                                "Estado: " + (results[0][1] if results[0][1] is not None else "") + "\n"
-                                "Observaciones: " + (results[0][2] if results[0][2] is not None else ""))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-        elif header_text == 'Fecha Verif.':
-            if item.text() != '':
-                item_id = self.tableTags.item(item.row(), 0).text()
-                query =f"SELECT TO_CHAR(verif_al_drawing_date, 'DD/MM/YYYY'), verif_al_drawing_state, verif_al_drawing_obs FROM verification.al_drawing_verification WHERE id = {item_id}"
-
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query)
-                    results=cur.fetchall()
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Planos AL")
-                    dlg.setText("Fecha: " + (results[0][0] if results[0][0] is not None else "") + "\n"
-                                "Estado: " + (results[0][1] if results[0][1] is not None else "") + "\n"
-                                "Observaciones: " + (results[0][2] if results[0][2] is not None else ""))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-        elif header_text == 'Plano Dim.':
-            if item.text() != '':
-                dim_drawing_number = item.text()
-
-                commands_select_dim_drawing = ("""
-                            SELECT notes, drawing_description
-                            FROM verification."workshop_dim_drawings"
-                            WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
-                            AND
-                            "drawing_number" = %s
-                            """)
-
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(commands_select_dim_drawing, (self.num_order_value, dim_drawing_number,))
-                    results = cur.fetchall()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Planos Dim.")
-                    dlg.setText("Pedido: " + self.num_order_value + "\n"
-                                "Plano: " + dim_drawing_number + "\n"
-                                "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
-                                "Descripción: " + (results[0][1] if results[0][1] is not None else ""))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Planos Dim.")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-        elif header_text in ['OF Equipo', 'OF Sensor']:
-            if item.text() != '':
-                of_drawing_number = item.text()
-
-                commands_select_of_drawing = ("""
-                            SELECT notes, drawing_description
-                            FROM verification."workshop_of_drawings"
-                            WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
-                            AND
-                            "drawing_number" = %s
-                            """)
-
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(commands_select_of_drawing, (self.num_order_value, of_drawing_number,))
-                    results = cur.fetchall()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Planos OF")
-                    dlg.setText("Pedido: " + self.num_order_value + "\n"
-                                "Plano: " + of_drawing_number + "\n"
-                                "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
-                                "Descripción: " + (results[0][1] if results[0][1] is not None else ""))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Planos OF")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-
-        if header_text == 'Nº Plano':
-            if item.column() == (self.tableOthers.columnCount() - 2) and self.num_order.text().upper()[:3] == 'AL-':
-                item_id = self.tableOthers.item(item.row(), 1).text()
-
-                query_path = "SELECT image FROM verification.al_drawing_verification WHERE id = %s"
-
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query_path, (item_id,))
-                    results=cur.fetchall()
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                    file_path = os.path.normpath(results[0][0])
-                    os.startfile(file_path)
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-            elif item.column() == (self.tableOthers.columnCount() - 1) and self.num_order.text().upper()[:3] == 'AL-':
-                item_id = self.tableOthers.item(item.row(), 1).text()
-
-                query_path = "SELECT document FROM verification.al_drawing_verification WHERE id = %s"
-
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(query_path, (item_id,))
-                    results=cur.fetchall()
-
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                    file_path = os.path.normpath(results[0][0])
-                    os.startfile(file_path)
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-            elif item.column() == 2 and item.text() == 'PPI':
-                self.num_order_value = self.num_order.text().upper()
-                order_year = str(datetime.now().year)[:2] + self.num_order_value [self.num_order_value .rfind("/") - 2:self.num_order_value .rfind("/")]
-                
-                if self.num_order_value[:2] == 'PA':
-                    num_order = self.num_order_value
-                    path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
-                    for folder in os.listdir(path):
-                        if num_order.replace("/", "-") in folder:
-                            folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/"
-                            for root, dirs, files in os.walk(folder_path):
-                                for filename in files:
-                                    if fnmatch.fnmatch(filename, '*-PPI*'):
-                                        file_path = os.path.join(root, filename)
-                                        file_path = os.path.normpath(file_path)
-                                        os.startfile(file_path)
-                                        break
-                                else:
-                                    continue
-                                break
-
-                elif self.num_order_value[:2] == 'P-':
-                    num_order = self.num_order_value[:8]
-                    path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
-                    for folder in os.listdir(path):
-                        if num_order.replace("/", "-") in folder:
-                            folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/"
-                            for root, dirs, files in os.walk(folder_path):
-                                for filename in files:
-                                    if fnmatch.fnmatch(filename, '*-PPI.pdf'):
-                                        file_path = os.path.join(root, filename)
-                                        file_path = os.path.normpath(file_path)
-                                        os.startfile(file_path)
-                                        break
-                                else:
-                                    continue
-                                break
-
-            elif item.column() == 2 and item.text()[:2] == 'M-':
-                num_order = self.tableOthers.item(item.row(), 1).text()
-                m_drawing = self.tableOthers.item(item.row(), 2).text()
-                commands_select_m_drawing = ("""
-                            SELECT notes, drawing_description
-                            FROM verification."m_drawing_verification"
-                            WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
-                            AND
-                            "drawing_number" = %s
-                            """)
-
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(commands_select_m_drawing, (num_order, m_drawing,))
-                    results = cur.fetchall()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Planos M")
-                    dlg.setText("Pedido: " + num_order + "\n"
-                                "Plano: " + m_drawing + "\n"
-                                "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
-                                "Descripción: " + (results[0][1] if results[0][1] is not None else ""))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Planos M")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-            elif item.column() == 2 and item.text()[:3] == 'OF-':
-                num_order = self.tableOthers.item(item.row(), 1).text()
-                of_drawing = self.tableOthers.item(item.row(), 2).text()
-                commands_select_of_drawing = ("""
-                            SELECT notes, drawing_description
-                            FROM verification."workshop_of_drawings"
-                            WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
-                            AND
-                            "drawing_number" = %s
-                            """)
-
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(commands_select_of_drawing, (num_order, of_drawing,))
-                    results = cur.fetchall()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Planos OF")
-                    dlg.setText("Pedido: " + num_order + "\n"
-                                "Plano: " + of_drawing + "\n"
-                                "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
-                                "Descripción: " + (results[0][1] if results[0][1] is not None else ""))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Planos OF")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-            elif item.column() == 2 and item.text() not in ['PPI', 'EXP']:
-                num_order = self.tableOthers.item(item.row(), 1).text()
-                dim_drawing = self.tableOthers.item(item.row(), 2).text()
-                commands_select_dim_drawing = ("""
-                            SELECT notes, drawing_description
-                            FROM verification."workshop_dim_drawings"
-                            WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
-                            AND
-                            "drawing_number" = %s
-                            """)
-
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of commands
-                    cur.execute(commands_select_dim_drawing, (num_order, dim_drawing,))
-                    results = cur.fetchall()
-
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Planos Dim.")
-                    dlg.setText("Pedido: " + num_order + "\n"
-                                "Plano: " + dim_drawing + "\n"
-                                "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
-                                "Descripción: " + (results[0][1] if results[0][1] is not None else ""))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                    dlg.exec()
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Planos Dim.")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                    del dlg, new_icon
-
-                finally:
-                    if conn is not None:
-                        conn.close()
+            if header_text == 'Nº Plano':
+                if item.column() == (self.tableOthers.columnCount() - 2) and self.num_order.text().upper()[:3] == 'AL-':
+                    item_id = self.tableOthers.item(item.row(), 1).text()
+
+                    query_path = "SELECT image FROM verification.al_drawing_verification WHERE id = %s"
+
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query_path, (item_id,))
+                        results=cur.fetchall()
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                        file_path = os.path.normpath(results[0][0])
+                        os.startfile(file_path)
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+                elif item.column() == (self.tableOthers.columnCount() - 1) and self.num_order.text().upper()[:3] == 'AL-':
+                    item_id = self.tableOthers.item(item.row(), 1).text()
+
+                    query_path = "SELECT document FROM verification.al_drawing_verification WHERE id = %s"
+
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query_path, (item_id,))
+                        results=cur.fetchall()
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                        file_path = os.path.normpath(results[0][0])
+                        os.startfile(file_path)
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+                elif item.column() == 2 and item.text() == 'PPI':
+                    self.num_order_value = self.num_order.text().upper()
+                    order_year = str(datetime.now().year)[:2] + self.num_order_value [self.num_order_value .rfind("/") - 2:self.num_order_value .rfind("/")]
+                    
+                    if self.num_order_value[:2] == 'PA':
+                        num_order = self.num_order_value
+                        path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
+                        for folder in os.listdir(path):
+                            if num_order.replace("/", "-") in folder:
+                                folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/"
+                                for root, dirs, files in os.walk(folder_path):
+                                    for filename in files:
+                                        if fnmatch.fnmatch(filename, '*-PPI*'):
+                                            file_path = os.path.join(root, filename)
+                                            file_path = os.path.normpath(file_path)
+                                            os.startfile(file_path)
+                                            break
+                                    else:
+                                        continue
+                                    break
+
+                    elif self.num_order_value[:2] == 'P-':
+                        num_order = self.num_order_value[:8]
+                        path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
+                        for folder in os.listdir(path):
+                            if num_order.replace("/", "-") in folder:
+                                folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/"
+                                for root, dirs, files in os.walk(folder_path):
+                                    for filename in files:
+                                        if fnmatch.fnmatch(filename, '*-PPI.pdf'):
+                                            file_path = os.path.join(root, filename)
+                                            file_path = os.path.normpath(file_path)
+                                            os.startfile(file_path)
+                                            break
+                                    else:
+                                        continue
+                                    break
+
+                elif item.column() == 2 and item.text()[:2] == 'M-':
+                    num_order = self.tableOthers.item(item.row(), 1).text()
+                    m_drawing = self.tableOthers.item(item.row(), 2).text()
+                    commands_select_m_drawing = ("""
+                                SELECT notes, drawing_description
+                                FROM verification."m_drawing_verification"
+                                WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
+                                AND
+                                "drawing_number" = %s
+                                """)
+
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(commands_select_m_drawing, (num_order, m_drawing,))
+                        results = cur.fetchall()
+
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Planos M")
+                        dlg.setText("Pedido: " + num_order + "\n"
+                                    "Plano: " + m_drawing + "\n"
+                                    "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
+                                    "Descripción: " + (results[0][1] if results[0][1] is not None else ""))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                        dlg.exec()
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Planos M")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+                elif item.column() == 2 and item.text()[:3] == 'OF-':
+                    num_order = self.tableOthers.item(item.row(), 1).text()
+                    of_drawing = self.tableOthers.item(item.row(), 2).text()
+                    commands_select_of_drawing = ("""
+                                SELECT notes, drawing_description
+                                FROM verification."workshop_of_drawings"
+                                WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
+                                AND
+                                "drawing_number" = %s
+                                """)
+
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(commands_select_of_drawing, (num_order, of_drawing,))
+                        results = cur.fetchall()
+
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Planos OF")
+                        dlg.setText("Pedido: " + num_order + "\n"
+                                    "Plano: " + of_drawing + "\n"
+                                    "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
+                                    "Descripción: " + (results[0][1] if results[0][1] is not None else ""))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                        dlg.exec()
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Planos OF")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+                elif item.column() == 2 and item.text() not in ['PPI', 'EXP']:
+                    num_order = self.tableOthers.item(item.row(), 1).text()
+                    dim_drawing = self.tableOthers.item(item.row(), 2).text()
+                    commands_select_dim_drawing = ("""
+                                SELECT notes, drawing_description
+                                FROM verification."workshop_dim_drawings"
+                                WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
+                                AND
+                                "drawing_number" = %s
+                                """)
+
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(commands_select_dim_drawing, (num_order, dim_drawing,))
+                        results = cur.fetchall()
+
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Planos Dim.")
+                        dlg.setText("Pedido: " + num_order + "\n"
+                                    "Plano: " + dim_drawing + "\n"
+                                    "Notas: " + (results[0][0] if results[0][0] is not None else "") + "\n"
+                                    "Descripción: " + (results[0][1] if results[0][1] is not None else ""))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                        dlg.exec()
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Planos Dim.")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+
+                    finally:
+                        if conn is not None:
+                            conn.close()
 
 # Function to open temporary image
     def open_temp_image(self):
