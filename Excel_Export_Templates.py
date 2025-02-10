@@ -482,7 +482,7 @@ class offer_flow:
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B49"] = rich_string
 
-                ws["A58"] = (
+                ws["A56"] = (
                     "If you require further information related with this offer, please do not hesitate to contact:\n"
                     + responsible
                     + "\n"
@@ -697,7 +697,7 @@ class offer_flow:
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B49"] = rich_string
 
-                ws["A58"] = (
+                ws["A56"] = (
                     "If you require further information related with this offer, please do not hesitate to contact:\n"
                     + responsible
                     + "\n"
