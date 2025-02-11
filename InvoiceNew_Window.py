@@ -5679,7 +5679,7 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
 
             df_invoice['destination'] = df_invoice['destination'].fillna('S/ALMACEN')
             df_invoice['transport'] = df_invoice['transport'].fillna('N/MEDIOS')
-            df_invoice['id_dest_country'] = df_invoice['id_dest_country'].fillna(1)
+            df_invoice['id_dest_country'] = df_invoice['id_dest_country'].fillna(1).astype(int)
 
             try:
         # Loop through each row of the DataFrame and insert the data into the table
