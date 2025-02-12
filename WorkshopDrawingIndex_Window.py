@@ -3838,7 +3838,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                         ((" BRIDAS " + results_description[0][9]) if results_description[0][0] in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6'] else " ") +
                                                         "E:" + results_description[0][5] + 
                                                         (" TOMAS: " + results_description[0][10] if results_description[0][0] in ['NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW'] else "") +
-                                                        (" SALTOS: " + str(int(results_description[0][13])) if results_description[0][0] == 'MULTISTAGE RO' else ""))
+                                                        (" SALTOS: " + str(int(float(results_description[0][13]))) if results_description[0][0] == 'MULTISTAGE RO' else ""))
 
                                         elif item_type in ['NOZZLE BW', 'VWM', 'VWW']:
                                             description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
@@ -3877,7 +3877,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     query_data_flow = ('''
                                         SELECT "item_type"
                                         FROM tags_data.tags_flow
-                                        WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("of_drawing") = %s
+                                        WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("of_drawing") LIKE (%s||'%%')
                                         ''')
                                     conn = None
                                     try:
@@ -3887,57 +3887,110 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         conn = psycopg2.connect(**params)
                                         cur = conn.cursor()
                                     # execution of commands
-                                        cur.execute(query_data_flow,(self.numorder, num_of_drawing,))
+                                        cur.execute(query_data_flow,(self.numorder, num_of_drawing.split('/')[0],))
                                         results_flow=cur.fetchall()
+                                        if len(results_flow) > 0:
 
-                                        item_type = results_flow[0][0]
+                                            item_type = results_flow[0][0]
 
-                                        query_description = ('''
-                                        SELECT item_type, line_size, rating, facing, schedule, element_material,
-                                        plate_type, plate_thk, flange_material, flange_type, tapping_num_size,
-                                        gasket_material, tube_material, stages_number
-                                        FROM tags_data.tags_flow
-                                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_drawing) = %s
-                                        ''')
-                                        cur.execute(query_description,(self.numorder, num_of_drawing,))
-                                        results_description=cur.fetchall()
+                                            query_description = ('''
+                                            SELECT item_type, line_size, rating, facing, schedule, element_material,
+                                            plate_type, plate_thk, flange_material, flange_type, tapping_num_size,
+                                            gasket_material, tube_material, stages_number, internal_diameter
+                                            FROM tags_data.tags_flow
+                                            WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_drawing) LIKE (%s||'%%')
+                                            ''')
+                                            cur.execute(query_description,(self.numorder, num_of_drawing.split('/')[0],))
+                                            results_description=cur.fetchall()
 
-                                        if item_type in ['C. RING', 'F+C.RING', 'F+P', 'M.RUN', 'P', 'RO']:
-                                            description = (str(len(results_flow)) + "-" + ('Placa' if results_description[0][0] in ['F+P', 'P'] else ('Placa M.Run' if results_description[0][0] == 'M.RUN' else results_description[0][0])) + " " + 
-                                                        results_description[0][1] + results_description[0][2] + 
-                                                        " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][5] + " " +
-                                                        results_description[0][6] + " ESPESOR " + results_description[0][7])
+                                            query_check_materials = ('''
+                                            SELECT code
+                                            FROM (
+                                                SELECT code FROM validation_data.flow_element_material WHERE element_material = %s
+                                                UNION ALL
+                                                SELECT code FROM validation_data.flow_flange_material WHERE flange_material = %s
+                                                UNION ALL
+                                                SELECT code FROM validation_data.flow_tube_material WHERE tube_material = %s
+                                            ) AS combined
+                                            GROUP BY code
+                                            HAVING COUNT(*) = 3;
+                                            ''')
 
-                                        elif item_type in ['F', 'F+C.RING', 'F+P', 'M.RUN']:
-                                            description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                                        " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][8] +
-                                                        ((" BRIDAS " + results_description[0][9]) if results_description[0][0] == 'M.RUN' else " ") +
-                                                        " TOMAS: " + results_description[0][10][:-1] + ' ' + " " + "Junta " +
-                                                        ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else 22,2))))
+                                            commands_insert_drawing = ('''
+                                                                        UPDATE verification."workshop_of_drawings"
+                                                                        SET "drawing_description" = %s
+                                                                        WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (drawing_number) LIKE (%s||'%%')
+                                                                        ''')
 
-                                        # elif item_type in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW']:
-                                        #     description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                        #                 " " + results_description[0][3] + " SCH " + results_description[0][4] + " B:" + results_description[0][8] +
-                                        #                 ((" BRIDAS " + results_description[0][9]) if results_description[0][0] in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6'] else " ") +
-                                        #                 "E:" + results_description[0][5] + 
-                                        #                 (" TOMAS: " + results_description[0][10] + '(Conjunto)' if results_description[0][0] in ['NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW'] else "") +
-                                        #                 (results_description[0][13] + " SALTOS: " if results_description[0][0] == 'MULTISTAGE RO' else ""))
+                                            if item_type in ['C. RING', 'F+C.RING', 'F+P', 'M.RUN', 'P', 'RO']:
+                                                description = (str(len(results_flow)) + "-" + ('Placa' if results_description[0][0] in ['F+P', 'P'] else ('Placa M.Run' if results_description[0][0] == 'M.RUN' else results_description[0][0])) + " " + 
+                                                            results_description[0][1] + results_description[0][2] + 
+                                                            " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][5] + " " +
+                                                            results_description[0][6] + " ESPESOR " + results_description[0][7])
 
-                                        # elif item_type in ['NOZZLE BW', 'VWM', 'VWW']:
-                                        #     description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                        #                 " " + (results_description[0][3] if results_description[0][0] in ['VWM', 'VWW'] else "") +
-                                        #                 " SCH " + results_description[0][4] + " T:" + results_description[0][12] +
-                                        #                 "E:" + results_description[0][5] + " TOMAS: " + results_description[0][10] + '(Conjunto)')
+                                                cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
 
-                                        commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
-                                                                    SET "drawing_description" = '{description}'
-                                                                    WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_of_drawing}'"""
-                                        cur.execute(commands_insert_drawing)
+                                            elif item_type in ['F', 'F+C.RING', 'F+P', 'M.RUN']:
+                                                description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                            " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][8] +
+                                                            ((" BRIDAS " + results_description[0][9]) if results_description[0][0] == 'M.RUN' else " ") +
+                                                            " TOMAS: " + results_description[0][10][:-1] + ' ' + " " + "Junta " +
+                                                            ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else 22,2))))
 
-                                    # close communication with the PostgreSQL database server
-                                        cur.close()
-                                    # commit the changes
-                                        conn.commit()
+                                                cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
+                                            
+                                            if item_type in ['MULTISTAGE RO']:
+                                                first_value = int(num_of_drawing.split('/')[0].split('-')[1])
+
+                                                cur.execute(query_check_materials, (results_description[0][5], results_description[0][8], results_description[0][12],))
+                                                results_materials=cur.fetchall()
+
+                                                num_of_drawing = f"OF-{first_value:02d}"
+
+                                                description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                " " + results_description[0][9] + " " + " SCH " + str(results_description[0][4]) + 
+                                                " B:" + results_description[0][8] + " / T:" + results_description[0][12] + " / P:" + results_description[0][5] + " S" + str(int(float(results_description[0][13]))))
+                                                cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
+
+                                                if len(results_materials) == 1 and results_description[0][1] in ['1-1/2"','1-1/4"','1"','1/2"','1/4"','1/8"','2"']:
+                                                    num_of_drawing = 'OF-' + str(first_value + 1)
+                                                    description = (str(len(results_flow)) + " x " + str(int(float(results_description[0][13])) - 1) + " DEDALES " + results_description[0][1]
+                                                    + "SCH " + str(results_description[0][4]) + " T:" + results_description[0][12])
+                                                    cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
+
+                                                    num_of_drawing = 'OF-' + str(first_value + 2)
+                                                    description = (str(len(results_flow)) + " x 1 PLACA Ø = " + str(float(results_description[0][14]) + 2) +
+                                                    " " + results_description[0][5])
+                                                    cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
+                                                else:
+                                                    num_of_drawing = 'OF-' + str(first_value + 1)
+                                                    description = (str(len(results_flow)) + " x " + str(int(float(results_description[0][13])) - 1) + " TUBOS " + results_description[0][1]
+                                                    + "SCH " + str(results_description[0][4]) + " T:" + results_description[0][12])
+                                                    cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
+
+                                                    num_of_drawing = 'OF-' + str(first_value + 2)
+                                                    description = (str(len(results_flow)) + " x " + str(int(float(results_description[0][13]))) + " PLACAS Ø = " + str(float(results_description[0][14]) + 2) +
+                                                    " " + results_description[0][5])
+                                                    cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
+
+                                            # elif item_type in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW']:
+                                            #     description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                            #                 " " + results_description[0][3] + " SCH " + results_description[0][4] + " B:" + results_description[0][8] +
+                                            #                 ((" BRIDAS " + results_description[0][9]) if results_description[0][0] in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6'] else " ") +
+                                            #                 "E:" + results_description[0][5] + 
+                                            #                 (" TOMAS: " + results_description[0][10] + '(Conjunto)' if results_description[0][0] in ['NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW'] else "") +
+                                            #                 (results_description[0][13] + " SALTOS: " if results_description[0][0] == 'MULTISTAGE RO' else ""))
+
+                                            # elif item_type in ['NOZZLE BW', 'VWM', 'VWW']:
+                                            #     description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                            #                 " " + (results_description[0][3] if results_description[0][0] in ['VWM', 'VWW'] else "") +
+                                            #                 " SCH " + results_description[0][4] + " T:" + results_description[0][12] +
+                                            #                 "E:" + results_description[0][5] + " TOMAS: " + results_description[0][10] + '(Conjunto)')
+
+                                        # close communication with the PostgreSQL database server
+                                            cur.close()
+                                        # commit the changes
+                                            conn.commit()
                                     except (Exception, psycopg2.DatabaseError) as error:
                                         dlg = QtWidgets.QMessageBox()
                                         new_icon = QtGui.QIcon()
