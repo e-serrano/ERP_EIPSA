@@ -637,7 +637,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         name (str): Name associated with the window.
         variable (str): Variable used in the window.
     """
-    def __init__(self, db, name=None):
+    def __init__(self, db, username=None):
         """
         Initializes the Ui_EditTags_Commercial_Window with the specified name and database connection.
 
@@ -669,7 +669,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.checkbox_filters2 = {}
         self.tableEditTags2 = None
 
-        self.name = name
+        self.username = username
         self.setupUi(self)
         self.model.dataChanged.connect(self.saveChanges)
 
@@ -1807,7 +1807,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             columns_number=self.model.columnCount()
             for column in range(columns_number):
                 self.tableEditTags.setItemDelegateForColumn(column, None)
-            if self.name is not None:
+            if self.username is not None:
                 self.model.column_range = range(0,columns_number)
             else:
                 self.model.column_range = range(self.initial_column,columns_number)
@@ -1831,6 +1831,9 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(157,columns_number):
                     self.tableEditTags.hideColumn(i)
+                if self.username == 'd.marquez':
+                    for i in range(63,67):
+                        self.tableEditTags.showColumn(i)
 
             elif self.variable == 'Temperatura':
                 for i in range(54,75):
@@ -2101,7 +2104,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 columns_number=self.model2.columnCount()
                 for column in range(columns_number):
                     self.tableEditTags2.setItemDelegateForColumn(column, None)
-                if self.name is not None:
+                if self.username is not None:
                     self.model2.column_range = range(0,columns_number)
                 else:
                     self.model2.column_range = range(self.initial_column2,columns_number)
@@ -2125,6 +2128,9 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(157,columns_number):
                         self.tableEditTags2.hideColumn(i)
+                    if self.username == 'd.marquez':
+                        for i in range(63,67):
+                            self.tableEditTag2.showColumn(i)
 
                 elif self.variable2 == 'Temperatura':
                     for i in range(54,75):
@@ -3227,6 +3233,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    EditTagsCommercial_Window = Ui_EditTags_Commercial_Window(db)
+    EditTagsCommercial_Window = Ui_EditTags_Commercial_Window(db,'d.marquez')
     EditTagsCommercial_Window.show()
     sys.exit(app.exec())

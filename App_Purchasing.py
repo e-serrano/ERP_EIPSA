@@ -1210,7 +1210,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         if not db_tag_com:
             sys.exit()
 
-        self.edit_tags_app = Ui_EditTags_Commercial_Window(db_tag_com)
+        self.edit_tags_app = Ui_EditTags_Commercial_Window(db_tag_com, self.username)
         self.edit_tags_app.showMaximized()
 
 # Function to open window for query tags prices
