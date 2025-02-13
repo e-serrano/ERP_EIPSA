@@ -817,9 +817,21 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         self.toolExpExcel.setToolTip("Exportar a Excel")
         self.hcab.addWidget(self.toolExpExcel)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Download.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolExpExcel.setIcon(icon)
         self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
+
+        self.hcabspacer7=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer7)
+        self.toolImpExcel = QtWidgets.QToolButton(self.frame)
+        self.toolImpExcel.setObjectName("ImpExcel_Button")
+        self.toolImpExcel.setToolTip("Importar Excel")
+        self.hcab.addWidget(self.toolImpExcel)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Upload.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolImpExcel.setIcon(icon)
+        self.toolImpExcel.setIconSize(QtCore.QSize(25, 25))
+
         if self.username == 'j.martinez':
             self.hcabspacer6=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
             self.hcab.addItem(self.hcabspacer6)
@@ -987,6 +999,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         self.toolFabOrder.clicked.connect(self.faborder)
         self.toolInspection.clicked.connect(self.setinspection)
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
+        self.toolImpExcel.clicked.connect(self.importexcel)
         self.Numorder_EditTags.returnPressed.connect(self.query_tags)
         self.model.dataChanged.connect(self.saveChanges)
         self.createContextMenu()
@@ -2895,6 +2908,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
             visible_columns = [col for col in range(self.model.columnCount()) if not self.tableEditTags.isColumnHidden(col)]
             visible_headers = self.model.getColumnHeaders(visible_columns)
+            original_headers = [self.model.record().fieldName(i) for i in range(self.model.columnCount())]
             for row in range(self.proxy.rowCount()):
                 tag_data = []
                 for column in visible_columns:
@@ -2907,6 +2921,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 final_data.append(tag_data)
 
             final_data.insert(0, visible_headers)
+            final_data.insert(1, original_headers)
             df = pd.DataFrame(final_data)
             df.columns = df.iloc[0]
             df = df[1:]
@@ -2914,6 +2929,10 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
             if output_path:
                 df.to_excel(output_path, index=False, header=True)
+
+# Function to import data from excel
+    def importexcel(self):
+        print('a')
 
 # Function to enable copy and paste cells
     def keyPressEvent(self, event):
