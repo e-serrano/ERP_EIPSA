@@ -476,8 +476,8 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                         match_found = True
                         break
                 
-                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion):
-                    expresion = QtCore.QDate.fromString(expresion, "dd/MM/yyyy")
+                elif re.fullmatch(r'^(?:3[01]|[12][0-9]|0?[1-9])([\-/.])(0?[1-9]|1[1-2])\1\d{4}$', expresion[0]):
+                    expresion = QtCore.QDate.fromString(expresion[0], "dd/MM/yyyy")
                     expresion = expresion.toString("yyyy-MM-dd")
                     regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
@@ -485,7 +485,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                         break
 
                 else:
-                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
+                    regex = QtCore.QRegularExpression(f".*{re.escape(str(expresion[0]))}.*", QtCore.QRegularExpression.PatternOption.CaseInsensitiveOption)
                     if regex.match(str(text)).hasMatch():
                         match_found = True
                         break
@@ -503,7 +503,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
     """
     updateFailed = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent=None, column_range=None):
+    def __init__(self, parent=None, column_range=None, table_check=None):
         """
         Initialize the model with user permissions and optional database and column range.
 
@@ -511,9 +511,11 @@ class EditableTableModel(QtSql.QSqlTableModel):
             username (str): The username for permission-based actions.
             parent (QObject, optional): Parent object for the model. Defaults to None.
             column_range (list, optional): A list specifying the range of columns. Defaults to None.
+            table_check (str, optional): A text scpecifying the table selected. Defaults to None
         """
         super().__init__(parent)
         self.column_range = column_range
+        self.table_check = table_check
 
     def setAllColumnHeaders(self, headers):
         """
@@ -572,11 +574,12 @@ class EditableTableModel(QtSql.QSqlTableModel):
             Qt.ItemFlags: The flags for the specified item.
         """
         flags = super().flags(index)
-        if index.column() in self.column_range:
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
-        else:
+
+        if index.column() in range (0,8) or index.column() in self.column_range or index.sibling(index.row(), index.model().columnCount() - 1).data() == 'Facturado':
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        else:
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
     def getColumnHeaders(self, visible_columns):
         """
@@ -707,7 +710,7 @@ class EditableTableModel2(QtSql.QSqlTableModel):
     """
     updateFailed = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent=None, column_range=None):
+    def __init__(self, parent=None, column_range=None, table_check=None):
         """
         Initialize the model with user permissions and optional database and column range.
 
@@ -715,9 +718,11 @@ class EditableTableModel2(QtSql.QSqlTableModel):
             username (str): The username for permission-based actions.
             parent (QObject, optional): Parent object for the model. Defaults to None.
             column_range (list, optional): A list specifying the range of columns. Defaults to None.
+            table_check (str, optional): A text scpecifying the table selected. Defaults to None
         """
         super().__init__(parent)
         self.column_range = column_range
+        self.table_check = table_check
 
     def setAllColumnHeaders(self, headers):
         """
@@ -776,11 +781,27 @@ class EditableTableModel2(QtSql.QSqlTableModel):
             Qt.ItemFlags: The flags for the specified item.
         """
         flags = super().flags(index)
-        if index.column() in self.column_range:
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
-        else:
+
+        value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
+
+        if index.column() == 165 and value == 'Facturado' and self.table_check == 'tags_data.tags_flow':
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        elif index.column() == 178 and value == 'Facturado' and self.table_check == 'tags_data.tags_temp':
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        elif index.column() == 175 and value == 'Facturado' and self.table_check == 'tags_data.tags_level':
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        elif index.column() == 65 and value == 'Facturado' and self.table_check == 'tags_data.tags_others':
+            flags &= ~Qt.ItemFlag.ItemIsEditable
+            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        else:
+            if index.column() == 0 or index.column() in self.column_range:
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+            else:
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
     def getColumnHeaders(self, visible_columns):
         """
@@ -1499,7 +1520,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
             self.tableEditTags.setObjectName("tableEditTags")
             self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
             self.tableEditTags.setSortingEnabled(False)
-            self.tableEditTags.horizontalHeader().sectionDoubleClicked.connect(self.on_view_horizontalHeader_sectionClicked)
+            self.tableEditTags.horizontalHeader().sectionDoubleClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableEditTags, self.model, self.proxy))
             self.tableEditTags.horizontalHeader().customContextMenuRequested.connect(self.showColumnContextMenu)
             self.tableEditTags.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
@@ -1924,7 +1945,6 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
             dlg.exec()
             del dlg, new_icon
 
-
 # Function when header is clicked
     def on_view_horizontalHeader_sectionClicked(self, logicalIndex, table, model, proxy):
         """
@@ -1941,14 +1961,8 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
             self.menuValues = QtWidgets.QMenu(self)
             self.signalMapper = QtCore.QSignalMapper(table)
 
-            valuesUnique_view = []
-            for row in range(table.model().rowCount()):
-                index = table.model().index(row, self.logicalIndex)
-                value = index.data(Qt.ItemDataRole.DisplayRole)
-                if value not in valuesUnique_view:
-                    if isinstance(value, QtCore.QDate):
-                        value=value.toString("dd/MM/yyyy")
-                    valuesUnique_view.append(value)
+            valuesUnique_view = {table.model().index(row, self.logicalIndex).data(Qt.ItemDataRole.DisplayRole) for row in range(table.model().rowCount())}
+            valuesUnique_view = [value.toString("dd/MM/yyyy") if isinstance(value, QtCore.QDate) else value for value in valuesUnique_view]
 
             actionSortAscending = QtGui.QAction("Ordenar Ascendente", table)
             actionSortAscending.triggered.connect(lambda: self.on_actionSortAscending_triggered(table))
@@ -2041,14 +2055,8 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
             self.menuValues = QtWidgets.QMenu(self)
             self.signalMapper = QtCore.QSignalMapper(table)
 
-            valuesUnique_view = []
-            for row in range(table.model().rowCount()):
-                index = table.model().index(row, self.logicalIndex)
-                value = index.data(Qt.ItemDataRole.DisplayRole)
-                if value not in valuesUnique_view:
-                    if isinstance(value, QtCore.QDate):
-                        value=value.toString("dd/MM/yyyy")
-                    valuesUnique_view.append(value)
+            valuesUnique_view = {table.model().index(row, self.logicalIndex).data(Qt.ItemDataRole.DisplayRole) for row in range(table.model().rowCount())}
+            valuesUnique_view = [value.toString("dd/MM/yyyy") if isinstance(value, QtCore.QDate) else value for value in valuesUnique_view]
 
             actionSortAscending = QtGui.QAction("Ordenar Ascendente", table)
             actionSortAscending.triggered.connect(lambda: self.on_actionSortAscending_triggered(table))
@@ -2166,6 +2174,50 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
         # self.tableEditTags.horizontalHeader().setSectionResizeMode(8,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
 # Function when select all checkbox is clicked
+    # def on_select_all_toggled(self, checked, action_name, model):
+    #     """
+    #     Toggles the state of all checkboxes in the filter menu when the 'Select All' checkbox is toggled.
+        
+    #     Args:
+    #         checked (bool): The checked state of the 'Select All' checkbox.
+    #         action_name (str): The name of the action (usually 'Select All').
+    #     """
+    #     filterColumn = self.logicalIndex
+    #     imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+    #     icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
+
+    #     if checked:
+    #         if isinstance(model, EditableTableModel2):
+    #             for checkbox_name, checkbox_widget in self.action_checkbox_map2.items():
+    #                 checkbox_widget.setChecked(checked)
+    #                 self.checkbox_states2[self.logicalIndex][checkbox_name] = checked
+    #         else:
+    #             for checkbox_name, checkbox_widget in self.action_checkbox_map.items():
+    #                 checkbox_widget.setChecked(checked)
+    #                 self.checkbox_states[self.logicalIndex][checkbox_widget.text()] = checked
+
+    #         if isinstance(model, EditableTableModel2):
+                
+    #             if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map2.values()):
+    #                 model.setIconColumnHeader(filterColumn, icono)
+    #             else:
+    #                 model.setIconColumnHeader(filterColumn, '')
+    #         else:
+    #             if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map.values()):
+    #                 model.setIconColumnHeader(filterColumn, icono)
+    #             else:
+    #                 model.setIconColumnHeader(filterColumn, '')
+
+    #     else:
+    #         if isinstance(model, EditableTableModel2):
+    #             for checkbox_name, checkbox_widget in self.action_checkbox_map2.items():
+    #                 checkbox_widget.setChecked(checked)
+    #                 self.checkbox_states2[self.logicalIndex][checkbox_widget.text()] = checked
+    #         else:
+    #             for checkbox_name, checkbox_widget in self.action_checkbox_map.items():
+    #                 checkbox_widget.setChecked(checked)
+    #                 self.checkbox_states[self.logicalIndex][checkbox_widget.text()] = checked
+
     def on_select_all_toggled(self, checked, action_name, model):
         """
         Toggles the state of all checkboxes in the filter menu when the 'Select All' checkbox is toggled.
@@ -2173,42 +2225,28 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
         Args:
             checked (bool): The checked state of the 'Select All' checkbox.
             action_name (str): The name of the action (usually 'Select All').
+            model (QAbstractItemModel): The model associated with the table view.
         """
         filterColumn = self.logicalIndex
-        imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
-        icono = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
 
-        if checked:
-            if isinstance(model, EditableTableModel2):
-                for checkbox_name, checkbox_widget in self.action_checkbox_map2.items():
-                    checkbox_widget.setChecked(checked)
-                    self.checkbox_states2[self.logicalIndex][checkbox_name] = checked
-            else:
-                for checkbox_name, checkbox_widget in self.action_checkbox_map.items():
-                    checkbox_widget.setChecked(checked)
-                    self.checkbox_states[self.logicalIndex][checkbox_widget.text()] = checked
+    # Load icon
+        if not hasattr(self, 'icono_filter_active'):
+            imagen_path = os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))
+            self.icono_filter_active = QtGui.QIcon(QtGui.QPixmap.fromImage(QtGui.QImage(imagen_path)))
+        
+    # Select map and state related to model
+        checkbox_map = self.action_checkbox_map2 if isinstance(model, EditableTableModel2) else self.action_checkbox_map
+        checkbox_states = self.checkbox_states2 if isinstance(model, EditableTableModel2) else self.checkbox_states
 
-            if isinstance(model, EditableTableModel2):
-                
-                if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map2.values()):
-                    model.setIconColumnHeader(filterColumn, icono)
-                else:
-                    model.setIconColumnHeader(filterColumn, '')
-            else:
-                if all(checkbox_widget.isChecked() for checkbox_widget in self.action_checkbox_map.values()):
-                    model.setIconColumnHeader(filterColumn, icono)
-                else:
-                    model.setIconColumnHeader(filterColumn, '')
+    # Change state of checkboxes if necessary
+        for checkbox_name, checkbox_widget in checkbox_map.items():
+            if checkbox_widget.isChecked() != checked:
+                checkbox_widget.setChecked(checked)
+                checkbox_states[self.logicalIndex][checkbox_widget.text()] = checked
 
-        else:
-            if isinstance(model, EditableTableModel2):
-                for checkbox_name, checkbox_widget in self.action_checkbox_map2.items():
-                    checkbox_widget.setChecked(checked)
-                    self.checkbox_states2[self.logicalIndex][checkbox_widget.text()] = checked
-            else:
-                for checkbox_name, checkbox_widget in self.action_checkbox_map.items():
-                    checkbox_widget.setChecked(checked)
-                    self.checkbox_states[self.logicalIndex][checkbox_widget.text()] = checked
+    # Adjust icon of header
+        all_checked = all(checkbox_widget.isChecked() for checkbox_widget in checkbox_map.values())
+        model.setIconColumnHeader(filterColumn, self.icono_filter_active if all_checked else '')
 
 # Function when checkbox of header menu is clicked
     def on_checkbox_toggled(self, checked, action_name, model):
