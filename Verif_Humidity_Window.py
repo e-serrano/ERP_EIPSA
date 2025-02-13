@@ -12,6 +12,7 @@ from config import config
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib import ticker
+import matplotlib.dates as mdates
 from datetime import *
 import numpy as np
 import os
@@ -129,6 +130,8 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
         self.retranslateUi(Humidity_Window)
         QtCore.QMetaObject.connectSlotsByName(Humidity_Window)
 
+        self.loadresults()
+
 
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, Humidity_Window):
@@ -162,24 +165,101 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
             self.canvas1.setParent(None)
             self.canvas1.deleteLater()
 
-        # self.canvas1=FigureCanvas(Figure())
-        # ax=self.canvas1.figure.subplots()
-        # bar_positions1 = np.arange(min(years_offered),max(years_offered)+1) - bar_width / 2
-        # bar_positions2 = np.arange(min(years_offered),max(years_offered)+1) + bar_width / 2
-        # ax.bar(bar_positions1, final_offered_year, width=bar_width, label='Ofertado')
-        # ax.bar(bar_positions2, final_sold_year, width=bar_width, label='Adjudicado')
-        # ax.set_xticks(range(min(years_offered),max(years_offered)+1))
-        # axticks_x=ticker.FuncFormatter(lambda x,pos: '{:02d}'.format(x-2000))
-        # axticks_y=ticker.FuncFormatter(self.format_y_ticks)
-        # ax.xaxis.set_major_formatter(axticks_x)
-        # ax.yaxis.set_major_formatter(axticks_y)
-        # ax.set_title('Ofertado/Adjudicado por años')
-        # ax.set_xlabel('Año')
-        # ax.set_ylabel('Importe (€)')
-        # ax.legend(loc='best')
+        query_humidity_data = ("""
+                        SELECT temperature, humidity, complete_date
+                        FROM verification.humidity_temp_closet
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(query_humidity_data)
+            results=cur.fetchall()
+
+            temp=[float(x[0]) for x in results]
+            humidity=[float(x[1]) for x in results]
+            time_stamp=[x[2] for x in results]
+
+            print(results)
+
+        #     column_headers = ['ID', 'Nº Pedido', 'Nº Plano', 'Fecha Emisión', 'Fecha Almacén', 'Fecha Verif.', 'Descripción', 'Foto', 'PDF Plano', 'E_warehouse', 'E_verif']
+
+        # # close communication with the PostgreSQL database server
+        #     cur.close()
+        # # commit the changes
+        #     conn.commit()
+
+        #     self.tableTags.setRowCount(len(results))
+        #     self.tableTags.setColumnCount(11)
+        #     tablerow=0
+
+        # # fill the Qt Table with the query results
+        #     for row in results:
+        #         for column in range(11):
+        #             value = row[column]
+        #             if value is None:
+        #                 value = ''
+        #             else:
+        #                 if column == (self.tableTags.columnCount() - 4) or column == (self.tableTags.columnCount() - 3):
+        #                     value = row[column].split("/")[-1]
+        #             it = QtWidgets.QTableWidgetItem(str(value))
+        #             it.setFlags(it.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+        #             self.tableTags.setItem(tablerow, column, it)
+
+        #         tablerow+=1
+
+        #     self.tableTags.verticalHeader().hide()
+        #     self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
+        #     self.tableTags.setItemDelegateForColumn(5, AlignDelegate_Custom('E_verif', self.tableTags))
+        #     self.tableTags.setSortingEnabled(False)
+        #     self.tableTags.setHorizontalHeaderLabels(column_headers)
+        #     self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        #     self.tableTags.horizontalHeader().setSectionResizeMode(8, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        #     self.tableTags.horizontalHeader().setSectionResizeMode(9, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        #     self.tableTags.hideColumn(0)
+        #     self.tableTags.hideColumn(9)
+        #     self.tableTags.hideColumn(10)
+        #     self.tableTags.sortByColumn(2, QtCore.Qt.SortOrder.AscendingOrder)
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        self.canvas1=FigureCanvas(Figure())
+        ax=self.canvas1.figure.subplots()
+        ax.set_xlabel("Tiempo")
+        ax.set_ylabel("Valor 1", color="tab:blue")
+        ax.plot(time_stamp, temp, label="Valor 1", color="tab:blue")
+        ax.tick_params(axis="y", labelcolor="tab:blue")
+
+        # Crear un segundo eje Y compartiendo el mismo eje X
+        ax2 = ax.twinx()
+        ax2.set_ylabel("Valor 2", color="tab:red")
+        ax2.plot(time_stamp, humidity, label="Valor 2", color="tab:red")
+        ax2.tick_params(axis="y", labelcolor="tab:red")
+        # ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d %H:%M"))
+        ax.set_title('Ofertado/Adjudicado por años')
+        ax.set_xlabel('Año')
+        ax.set_ylabel('Importe (€)')
+        ax.legend(loc='best')
 
         self.canvas1.setObjectName("Graph1")
-        self.gridLayout_Frame.addLayout(self.canvas1, 2, 0, 1, 1)
+        self.gridLayout_Frame.addWidget(self.canvas1, 2, 0, 1, 2)
 
 
 #Function to remove the layout to update it when combobox changes
