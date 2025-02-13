@@ -3927,7 +3927,6 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                             results_description[0][1] + results_description[0][2] + 
                                                             " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][5] + " " +
                                                             results_description[0][6] + " ESPESOR " + results_description[0][7])
-
                                                 cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
 
                                             elif item_type in ['F', 'F+C.RING', 'F+P', 'M.RUN']:
@@ -3936,23 +3935,21 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                             ((" BRIDAS " + results_description[0][9]) if results_description[0][0] == 'M.RUN' else " ") +
                                                             " TOMAS: " + results_description[0][10][:-1] + ' ' + " " + "Junta " +
                                                             ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else 22,2))))
-
                                                 cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
-                                            
+
                                             if item_type in ['MULTISTAGE RO']:
                                                 first_value = int(num_of_drawing.split('/')[0].split('-')[1])
 
                                                 cur.execute(query_check_materials, (results_description[0][5], results_description[0][8], results_description[0][12],))
                                                 results_materials=cur.fetchall()
 
-                                                num_of_drawing = f"OF-{first_value:02d}"
-
-                                                description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                                " " + results_description[0][9] + " " + " SCH " + str(results_description[0][4]) + 
-                                                " B:" + results_description[0][8] + " / T:" + results_description[0][12] + " / P:" + results_description[0][5] + " S" + str(int(float(results_description[0][13]))))
-                                                cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
-
                                                 if len(results_materials) == 1 and results_description[0][1] in ['1-1/2"','1-1/4"','1"','1/2"','1/4"','1/8"','2"']:
+                                                    num_of_drawing = f"OF-{first_value:02d}"
+                                                    description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                    " " + results_description[0][9] + " " + " SCH " + str(results_description[0][4]) + 
+                                                    " B:" + results_description[0][8] + " S" + str(int(float(results_description[0][13]))) + " DEDALES")
+                                                    cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
+
                                                     num_of_drawing = 'OF-' + str(first_value + 1)
                                                     description = (str(len(results_flow)) + " x " + str(int(float(results_description[0][13])) - 1) + " DEDALES " + results_description[0][1]
                                                     + "SCH " + str(results_description[0][4]) + " T:" + results_description[0][12])
@@ -3962,7 +3959,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                     description = (str(len(results_flow)) + " x 1 PLACA Ø = " + str(float(results_description[0][14]) + 2) +
                                                     " " + results_description[0][5])
                                                     cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
+
                                                 else:
+                                                    num_of_drawing = f"OF-{first_value:02d}"
+                                                    description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                    " " + results_description[0][9] + " " + " SCH " + str(results_description[0][4]) + 
+                                                    " B:" + results_description[0][8] + " S" + str(int(float(results_description[0][13]))) + " TUBOS")
+                                                    cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
+
                                                     num_of_drawing = 'OF-' + str(first_value + 1)
                                                     description = (str(len(results_flow)) + " x " + str(int(float(results_description[0][13])) - 1) + " TUBOS " + results_description[0][1]
                                                     + "SCH " + str(results_description[0][4]) + " T:" + results_description[0][12])
