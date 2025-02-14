@@ -252,6 +252,7 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.Button_Cancel.clicked.connect(Verif_Revisions_Menu.close) # type: ignore
         self.Button_Machines.clicked.connect(self.machines)
         self.Button_Tools.clicked.connect(self.tools)
+        self.Button_Humidity.clicked.connect(self.humidity)
         self.Button_Calibers.clicked.connect(self.calibers)
         self.Button_Manometers.clicked.connect(self.manometers_thermoelements)
         self.Button_CalibratedMasters.clicked.connect(self.calibrated_masters)
@@ -431,7 +432,11 @@ class Ui_Verif_Revisions_Menu(QtWidgets.QMainWindow):
         self.gas_flowmeter_window = Ui_Workshop_Gas_Flowmeters_Window(db_gas_flowmeter, self.username)
         self.gas_flowmeter_window.showMaximized()
 
-
+# Function to open window with humidity and temperature information
+    def humidity(self):
+        from Verif_Humidity_Window import Ui_Humidity_Window
+        self.humiditywindow=Ui_Humidity_Window(self.username)
+        self.humiditywindow.showMaximized()
 
 
 if __name__ == "__main__":
