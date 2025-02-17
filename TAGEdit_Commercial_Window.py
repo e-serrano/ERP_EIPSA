@@ -2964,18 +2964,22 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     if "id_tag_flow" in row:
                         id_value = row["id_tag_flow"]
                         table_name = 'tags_data.tags_flow'
+                        where_clause = f"id_tag_flow = {id_value}"
 
                     elif "id_tag_temp" in row:
                         id_value = row["id_tag_temp"]
                         table_name = 'tags_data.tags_temp'
+                        where_clause = f"id_tag_temp = {id_value}"
 
                     elif "id_tag_level" in row:
                         id_value = row["id_tag_level"]
                         table_name = 'tags_data.tags_level'
+                        where_clause = f"id_tag_level = {id_value}"
 
                     elif "id_tag_others" in row:
                         id_value = row["id_tag_others"]
                         table_name = 'tags_data.tags_others'
+                        where_clause = f"id_tag_others = {id_value}"
 
                     # Creating string for columns names and values
                     columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
@@ -2988,8 +2992,6 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
                 # Creating the SET  and WHERE clause with proper formatting
                     set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
-
-                    where_clause = f"id = {id_value}"
 
                 # Creating the update query and executing it after checking existing tags and id
                     sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
