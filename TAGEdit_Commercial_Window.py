@@ -2965,30 +2965,34 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         id_value = row["id_tag_flow"]
                         table_name = 'tags_data.tags_flow'
                         where_clause = f"id_tag_flow = {id_value}"
+                        df_final = df_table.iloc[:,:34]
 
                     elif "id_tag_temp" in row:
                         id_value = row["id_tag_temp"]
                         table_name = 'tags_data.tags_temp'
                         where_clause = f"id_tag_temp = {id_value}"
+                        df_final = df_table.iloc[:,:39]
 
                     elif "id_tag_level" in row:
                         id_value = row["id_tag_level"]
                         table_name = 'tags_data.tags_level'
                         where_clause = f"id_tag_level = {id_value}"
+                        df_final = df_table.iloc[:,:40]
 
                     elif "id_tag_others" in row:
                         id_value = row["id_tag_others"]
                         table_name = 'tags_data.tags_others'
                         where_clause = f"id_tag_others = {id_value}"
+                        df_final = df_table.iloc[:,:15]
 
                     # Creating string for columns names and values
-                    columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
+                    columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
 
                     columns = ', '.join([column for column, _ in columns_values])
-                    values = ', '.join([f"'{int(float(values))}'" if column in ['flange_rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam'] and values.endswith('.0')
-                                        else (f"'{value.replace('.', ',')}'" if column in ['amount', 'orif_diam', 'dv_diam', 'plate_thk', 'root_diam', 'tip_diam', 'sheath_stem_diam']
+                    values = ', '.join([f"'{int(float(values))}'" if column in ['plug_number', 'tapping_number', 'bolts_quantity', 'extractor_quantity', 'flange_rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam',] and values.endswith('.0')
+                                        else (f"'{value.replace('.', ',')}'" if column in ['amount', 'orif_diam', 'dv_diam', 'plate_thk','plate_ext_diam', 'conical_length', 'straigth_length', 'nozzle_diam', 'length_cut_tw', 'dim_a_sensor', 'dim_b_sensor', 'dim_l_sensor']
                                         else ('NULL' if values == 'N/A' and column in ['std_length', 'ins_length']
-                                        else ('NULL' if value == '' and column in ['rating', 'plate_thk', 'contractual_date']
+                                        else ('NULL' if value == '' and column in ['rating', 'plate_thk', 'contractual_date', 'irc_date', 'rn_date']
                                         else "'{}'".format(value.replace('\'', '\'\''))))) for column, value in columns_values])
 
                 # Creating the SET  and WHERE clause with proper formatting
