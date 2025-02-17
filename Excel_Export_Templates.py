@@ -185,8 +185,9 @@ class offer_flow:
                 # Editing sheet EQUIPMENT DATA
                 sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
 
-                for item_type in df["item_type"].unique():
-                    sheets_confirmed.append(item_type)
+                if int(rev) == 0:
+                    for item_type in df["item_type"].unique():
+                        sheets_confirmed.append(item_type)
 
                 dict_sheets_data = {}
 
@@ -291,18 +292,17 @@ class offer_flow:
                     ws["G3"] = num_ref
                     ws["G4"] = offername_commercial
                     if revchanges != "":
-                        ws["L5"] = rev + " " + revchanges
-                        ws["L5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["L5"].fill = PatternFill("solid", fgColor="FFFF00")
+                        ws["G5"] = rev + " " + revchanges
+                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
+                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
+
+                    if int(rev) > 0:
+                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
+                            for cell in row:
+                                cell.value = None
+                                cell._style = ws["F1"]._style
 
                     last_row = ws.max_row
-
-                    # for col_num, col_name in enumerate(df_toexport.columns, start=1):
-                    #     cell = ws.cell(row=last_row + 1, column=col_num)
-                    #     cell.value = col_name
-                    #     cell._style = ws["Y1"]._style
-
-                    # last_row = ws.max_row
 
                     num_column_amount = df_toexport.columns.get_loc("amount") + 1
 
@@ -341,13 +341,12 @@ class offer_flow:
                             ws[f"A{line}"] = notes
                             ws[f"A{line}"]._style = ws["Z1"]._style
 
-
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "QTY. TOTAL"
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                
+
                 row_amount = last_row + 4
                 for key, value in dict_sheets_data.items():
                     parts_key = key.split(" ")
@@ -388,7 +387,6 @@ class offer_flow:
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["R1"]._style
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["W1"]._style
-
 
             # Editing sheet NOTES
                 sheet_name = "NOTES"  # Selecting  sheet
@@ -496,6 +494,12 @@ class offer_flow:
                         sheet_to_delete = self.wb_commercial[sheet]
                         self.wb_commercial.remove(sheet_to_delete)
 
+                if int(rev) > 0:
+                    sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
+                    for sheet in sheets_confirmed:
+                        sheet_to_delete = self.wb_commercial[sheet]
+                        self.wb_commercial.remove(sheet_to_delete)
+
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
 
@@ -511,9 +515,10 @@ class offer_flow:
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
 
-                sheet_name = "COVER"
-                ws = self.wb_technical[sheet_name]
-                ws["E6"] = offername_technical
+                if int(rev) == 0:
+                    sheet_name = "COVER"
+                    ws = self.wb_technical[sheet_name]
+                    ws["E6"] = offername_technical
 
                 for value_type in df["value_type"].unique():
                     eq_type = (
@@ -606,108 +611,109 @@ class offer_flow:
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
-                sheet_name = "NOTES"  # Selecting  sheet
-                ws = self.wb_technical[sheet_name]
+                if int(rev) == 0:
+                    sheet_name = "NOTES"  # Selecting  sheet
+                    ws = self.wb_technical[sheet_name]
 
-                rich_string = CellRichText(
-                'We are only offering measuring flow elements. Please be informed that our product range includes temperature elements, and glass and magnetic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
-                TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
-                ws["B6"] = rich_string
+                    rich_string = CellRichText(
+                    'We are only offering measuring flow elements. Please be informed that our product range includes temperature elements, and glass and magnetic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
+                    TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
+                    ws["B6"] = rich_string
 
-                rich_string = CellRichText(
-                TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de caudal, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de temperatura e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
-                TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                ws["B7"] = rich_string
+                    rich_string = CellRichText(
+                    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de caudal, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de temperatura e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
+                    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+                    ws["B7"] = rich_string
 
-                rich_string = CellRichText(
-                'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
-                TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August and last two December weeks excluded).')
-                ws["B12"] = rich_string
+                    rich_string = CellRichText(
+                    'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
+                    TextBlock(InlineFont(b=True), 'all equipment'),
+                    ' in the contract, as well as critical documentation (August and last two December weeks excluded).')
+                    ws["B12"] = rich_string
 
-                rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
-                ws["B13"] = rich_string
+                    rich_string = CellRichText(
+                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+                    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+                    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
+                    ws["B13"] = rich_string
 
-                rich_string = CellRichText(
-                'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
-                TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
-                'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
-                ws["B21"] = rich_string
+                    rich_string = CellRichText(
+                    'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
+                    TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
+                    'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
+                    ws["B21"] = rich_string
 
-                rich_string = CellRichText(
-                'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                ws["B22"] = rich_string
+                    rich_string = CellRichText(
+                    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+                    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+                    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+                    ws["B22"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B45"] = (
-                        "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer"
+                    if pay_term == "100_delivery":
+                        ws["B45"] = (
+                            "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
+                            "Payment method: bank transfer"
+                        )
+                        ws["B46"] = (
+                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "100_order":
+                        ws["B45"] = (
+                            "100 % of the total amount of purchase order upon receipt of purchase order.\n"
+                            "Payment method: bank transfer"
+                        )
+                        ws["B46"] = (
+                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
+                            "Método de pago: Transferencia bancaria"
+                        )
+                    elif pay_term == "90_10":
+                        ws["B45"] = (
+                            "PAYMENT TERMS:\n"
+                            "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
+                            "Bank Transfer: 60 days since invoice issue date."
+                        )
+                        ws["B46"] = (
+                            "TERMINOS DE PAGO:\n"
+                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
+                            "Transferencia Bancaria: 60 días desde emisión de factura."
+                        )
+                    elif pay_term == "50_50":
+                        ws["B45"] = (
+                            "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
+                            "Payment method: bank transfer."
+                        )
+                        ws["B46"] = (
+                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "Others":
+                        ws["B45"] = "PAYMENT TERMS TO BE DEFINED"
+                        ws["B45"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
+                        ws["B46"] = "TERMINOS DE PAGO POR DEFINIR"
+                        ws["B46"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+
+                    rich_string = CellRichText(
+                    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+                    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+                    ws["B48"] = rich_string
+
+                    rich_string = CellRichText(
+                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+                    ws["B49"] = rich_string
+
+                    ws["A56"] = (
+                        "If you require further information related with this offer, please do not hesitate to contact:\n"
+                        + responsible
+                        + "\n"
+                        + email
+                        + "\n"
+                        "Telf.: (+34) 916.582.118"
                     )
-                    ws["B46"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "100_order":
-                    ws["B45"] = (
-                        "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B46"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B45"] = (
-                        "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                        "Bank Transfer: 60 days since invoice issue date."
-                    )
-                    ws["B46"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B45"] = (
-                        "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer."
-                    )
-                    ws["B46"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B45"] = "PAYMENT TERMS TO BE DEFINED"
-                    ws["B45"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                    ws["B46"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B46"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
-
-                rich_string = CellRichText(
-                'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-                TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                ws["B48"] = rich_string
-
-                rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B49"] = rich_string
-
-                ws["A56"] = (
-                    "If you require further information related with this offer, please do not hesitate to contact:\n"
-                    + responsible
-                    + "\n"
-                    + email
-                    + "\n"
-                    "Telf.: (+34) 916.582.118"
-                )
-                
-                std = self.wb_technical["1.3"]
-                self.wb_technical.remove(std)
+                    
+                    std = self.wb_technical["1.3"]
+                    self.wb_technical.remove(std)
 
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
@@ -955,8 +961,9 @@ class offer_short_flow_spanish:
                 # Editing sheet EQUIPMENT DATA
                 sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
 
-                for item_type in df["item_type"].unique():
-                    sheets_confirmed.append(item_type)
+                if int(rev) == 0:
+                    for item_type in df["item_type"].unique():
+                        sheets_confirmed.append(item_type)
 
                 dict_sheets_data = {}
 
@@ -1061,18 +1068,17 @@ class offer_short_flow_spanish:
                     ws["G3"] = num_ref
                     ws["G4"] = offername_commercial
                     if revchanges != "":
-                        ws["L5"] = rev + " " + revchanges
-                        ws["L5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["L5"].fill = PatternFill("solid", fgColor="FFFF00")
+                        ws["G5"] = rev + " " + revchanges
+                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
+                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
+
+                    if int(rev) > 0:
+                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
+                            for cell in row:
+                                cell.value = None
+                                cell._style = ws["F1"]._style
 
                     last_row = ws.max_row
-
-                    # for col_num, col_name in enumerate(df_toexport.columns, start=1):
-                    #     cell = ws.cell(row=last_row + 1, column=col_num)
-                    #     cell.value = col_name
-                    #     cell._style = ws["Y1"]._style
-
-                    # last_row = ws.max_row
 
                     num_column_amount = df_toexport.columns.get_loc("amount") + 1
 
@@ -1158,7 +1164,6 @@ class offer_short_flow_spanish:
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["W1"]._style
 
-
             # Editing sheet NOTES
                 sheet_name = "NOTES"  # Selecting  sheet
                 ws = self.wb_commercial[sheet_name]
@@ -1224,6 +1229,12 @@ class offer_short_flow_spanish:
                         sheet_to_delete = self.wb_commercial[sheet]
                         self.wb_commercial.remove(sheet_to_delete)
 
+                if int(rev) > 0:
+                    sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
+                    for sheet in sheets_confirmed:
+                        sheet_to_delete = self.wb_commercial[sheet]
+                        self.wb_commercial.remove(sheet_to_delete)
+
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
 
@@ -1239,9 +1250,10 @@ class offer_short_flow_spanish:
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
 
-                sheet_name = "COVER"
-                ws = self.wb_technical[sheet_name]
-                ws["E6"] = offername_technical
+                if int(rev) == 0:
+                    sheet_name = "COVER"
+                    ws = self.wb_technical[sheet_name]
+                    ws["E6"] = offername_technical
 
                 for value_type in df["value_type"].unique():
                     eq_type = (
@@ -1332,67 +1344,68 @@ class offer_short_flow_spanish:
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
-                sheet_name = "NOTES"  # Selecting  sheet
-                ws = self.wb_technical[sheet_name]
+                if int(rev) == 0:
+                    sheet_name = "NOTES"  # Selecting  sheet
+                    ws = self.wb_technical[sheet_name]
 
-                rich_string = CellRichText(
-                TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de caudal, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de temperatura e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
-                TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                ws["B6"] = rich_string
+                    rich_string = CellRichText(
+                    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de caudal, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de temperatura e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
+                    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+                    ws["B6"] = rich_string
 
-                rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
-                ws["B10"] = rich_string
+                    rich_string = CellRichText(
+                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+                    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+                    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
+                    ws["B10"] = rich_string
 
-                rich_string = CellRichText(
-                'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                ws["B16"] = rich_string
+                    rich_string = CellRichText(
+                    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+                    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+                    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+                    ws["B16"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B30"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
+                    if pay_term == "100_delivery":
+                        ws["B30"] = (
+                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "100_order":
+                        ws["B30"] = (
+                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
+                            "Método de pago: Transferencia bancaria"
+                        )
+                    elif pay_term == "90_10":
+                        ws["B30"] = (
+                            "TERMINOS DE PAGO:\n"
+                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
+                            "Transferencia Bancaria: 60 días desde emisión de factura."
+                        )
+                    elif pay_term == "50_50":
+                        ws["B30"] = (
+                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "Others":
+                        ws["B30"] = "TERMINOS DE PAGO POR DEFINIR"
+                        ws["B30"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+
+                    rich_string = CellRichText(
+                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+                    ws["B28"] = rich_string
+
+                    ws["A34"] = (
+                        "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
+                        + responsible
+                        + "\n"
+                        + email
+                        + "\n"
+                        "Telf.: (+34) 916.582.118"
                     )
-                elif pay_term == "100_order":
-                    ws["B30"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B30"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B30"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B30"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B30"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
 
-                rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B28"] = rich_string
-
-                ws["A34"] = (
-                    "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
-                    + responsible
-                    + "\n"
-                    + email
-                    + "\n"
-                    "Telf.: (+34) 916.582.118"
-                )
-
-                std = self.wb_technical["1.3"]
-                self.wb_technical.remove(std)
+                    std = self.wb_technical["1.3"]
+                    self.wb_technical.remove(std)
 
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
@@ -1640,8 +1653,9 @@ class offer_short_flow_english:
                 # Editing sheet EQUIPMENT DATA
                 sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
 
-                for item_type in df["item_type"].unique():
-                    sheets_confirmed.append(item_type)
+                if int(rev) == 0:
+                    for item_type in df["item_type"].unique():
+                        sheets_confirmed.append(item_type)
 
                 dict_sheets_data = {}
 
@@ -1746,18 +1760,17 @@ class offer_short_flow_english:
                     ws["G3"] = num_ref
                     ws["G4"] = offername_commercial
                     if revchanges != "":
-                        ws["L5"] = rev + " " + revchanges
-                        ws["L5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["L5"].fill = PatternFill("solid", fgColor="FFFF00")
+                        ws["G5"] = rev + " " + revchanges
+                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
+                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
+
+                    if int(rev) > 0:
+                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
+                            for cell in row:
+                                cell.value = None
+                                cell._style = ws["F1"]._style
 
                     last_row = ws.max_row
-
-                    # for col_num, col_name in enumerate(df_toexport.columns, start=1):
-                    #     cell = ws.cell(row=last_row + 1, column=col_num)
-                    #     cell.value = col_name
-                    #     cell._style = ws["Y1"]._style
-
-                    # last_row = ws.max_row
 
                     num_column_amount = df_toexport.columns.get_loc("amount") + 1
 
@@ -1842,7 +1855,6 @@ class offer_short_flow_english:
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["R1"]._style
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["W1"]._style
-
 
             # Editing sheet NOTES
                 sheet_name = "NOTES"  # Selecting  sheet
@@ -1950,6 +1962,12 @@ class offer_short_flow_english:
                         sheet_to_delete = self.wb_commercial[sheet]
                         self.wb_commercial.remove(sheet_to_delete)
 
+                if int(rev) > 0:
+                    sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
+                    for sheet in sheets_confirmed:
+                        sheet_to_delete = self.wb_commercial[sheet]
+                        self.wb_commercial.remove(sheet_to_delete)
+
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
 
@@ -1965,9 +1983,10 @@ class offer_short_flow_english:
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
 
-                sheet_name = "COVER"
-                ws = self.wb_technical[sheet_name]
-                ws["E6"] = offername_technical
+                if int(rev) == 0:
+                    sheet_name = "COVER"
+                    ws = self.wb_technical[sheet_name]
+                    ws["E6"] = offername_technical
 
                 for value_type in df["value_type"].unique():
                     eq_type = (
@@ -2060,108 +2079,109 @@ class offer_short_flow_english:
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
-                sheet_name = "NOTES"  # Selecting  sheet
-                ws = self.wb_technical[sheet_name]
+                if int(rev) == 0:
+                    sheet_name = "NOTES"  # Selecting  sheet
+                    ws = self.wb_technical[sheet_name]
 
-                rich_string = CellRichText(
-                'We are only offering measuring flow elements. Please be informed that our product range includes temperature elements, and glass and magnetic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
-                TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
-                ws["B6"] = rich_string
+                    rich_string = CellRichText(
+                    'We are only offering measuring flow elements. Please be informed that our product range includes temperature elements, and glass and magnetic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
+                    TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
+                    ws["B6"] = rich_string
 
-                rich_string = CellRichText(
-                TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de caudal, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de temperatura e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
-                TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                ws["B7"] = rich_string
+                    rich_string = CellRichText(
+                    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de caudal, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de temperatura e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
+                    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+                    ws["B7"] = rich_string
 
-                rich_string = CellRichText(
-                'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
-                TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August and last two December weeks excluded).')
-                ws["B12"] = rich_string
+                    rich_string = CellRichText(
+                    'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
+                    TextBlock(InlineFont(b=True), 'all equipment'),
+                    ' in the contract, as well as critical documentation (August and last two December weeks excluded).')
+                    ws["B12"] = rich_string
 
-                rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
-                ws["B13"] = rich_string
+                    rich_string = CellRichText(
+                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+                    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+                    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
+                    ws["B13"] = rich_string
 
-                rich_string = CellRichText(
-                'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
-                TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
-                'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
-                ws["B21"] = rich_string
+                    rich_string = CellRichText(
+                    'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
+                    TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
+                    'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
+                    ws["B21"] = rich_string
 
-                rich_string = CellRichText(
-                'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                ws["B22"] = rich_string
+                    rich_string = CellRichText(
+                    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+                    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+                    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+                    ws["B22"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B45"] = (
-                        "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer"
+                    if pay_term == "100_delivery":
+                        ws["B45"] = (
+                            "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
+                            "Payment method: bank transfer"
+                        )
+                        ws["B46"] = (
+                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "100_order":
+                        ws["B45"] = (
+                            "100 % of the total amount of purchase order upon receipt of purchase order.\n"
+                            "Payment method: bank transfer"
+                        )
+                        ws["B46"] = (
+                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
+                            "Método de pago: Transferencia bancaria"
+                        )
+                    elif pay_term == "90_10":
+                        ws["B45"] = (
+                            "PAYMENT TERMS:\n"
+                            "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
+                            "Bank Transfer: 60 days since invoice issue date."
+                        )
+                        ws["B46"] = (
+                            "TERMINOS DE PAGO:\n"
+                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
+                            "Transferencia Bancaria: 60 días desde emisión de factura."
+                        )
+                    elif pay_term == "50_50":
+                        ws["B45"] = (
+                            "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
+                            "Payment method: bank transfer."
+                        )
+                        ws["B46"] = (
+                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "Others":
+                        ws["B45"] = "PAYMENT TERMS TO BE DEFINED"
+                        ws["B45"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
+                        ws["B46"] = "TERMINOS DE PAGO POR DEFINIR"
+                        ws["B46"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+
+                    rich_string = CellRichText(
+                    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+                    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+                    ws["B42"] = rich_string
+
+                    rich_string = CellRichText(
+                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+                    ws["B43"] = rich_string
+
+                    ws["A50"] = (
+                        "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
+                        + responsible
+                        + "\n"
+                        + email
+                        + "\n"
+                        "Telf.: (+34) 916.582.118"
                     )
-                    ws["B46"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "100_order":
-                    ws["B45"] = (
-                        "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B46"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B45"] = (
-                        "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                        "Bank Transfer: 60 days since invoice issue date."
-                    )
-                    ws["B46"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B45"] = (
-                        "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer."
-                    )
-                    ws["B46"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B45"] = "PAYMENT TERMS TO BE DEFINED"
-                    ws["B45"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                    ws["B46"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B46"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
 
-                rich_string = CellRichText(
-                'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-                TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                ws["B42"] = rich_string
-
-                rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B43"] = rich_string
-
-                ws["A50"] = (
-                    "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
-                    + responsible
-                    + "\n"
-                    + email
-                    + "\n"
-                    "Telf.: (+34) 916.582.118"
-                )
-
-                std = self.wb_technical["1.3"]
-                self.wb_technical.remove(std)
+                    std = self.wb_technical["1.3"]
+                    self.wb_technical.remove(std)
 
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
@@ -2399,8 +2419,9 @@ class offer_temp:
                 # Editing sheet EQUIPMENT DATA
                 sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
 
-                for item_type in df["item_type"].unique():
-                    sheets_confirmed.append(item_type)
+                if int(rev) == 0:
+                    for item_type in df["item_type"].unique():
+                        sheets_confirmed.append(item_type)
 
                 dict_sheets_data = {}
 
@@ -2569,18 +2590,17 @@ class offer_temp:
                     ws["G3"] = num_ref
                     ws["G4"] = offername_commercial
                     if revchanges != "":
-                        ws["L5"] = rev + " " + revchanges
-                        ws["L5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["L5"].fill = PatternFill("solid", fgColor="FFFF00")
+                        ws["G5"] = rev + " " + revchanges
+                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
+                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
+
+                    if int(rev) > 0:
+                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
+                            for cell in row:
+                                cell.value = None
+                                cell._style = ws["F1"]._style
 
                     last_row = ws.max_row
-
-                    # for col_num, col_name in enumerate(df_toexport.columns, start=1):
-                    #     cell = ws.cell(row=last_row + 1, column=col_num)
-                    #     cell.value = col_name
-                    #     cell._style = ws["Y1"]._style
-
-                    # last_row = ws.max_row
 
                     num_column_amount = df_toexport.columns.get_loc("amount") + 1
 
@@ -2768,6 +2788,12 @@ class offer_temp:
                         sheet_to_delete = self.wb_commercial[sheet]
                         self.wb_commercial.remove(sheet_to_delete)
 
+                if int(rev) > 0:
+                    sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
+                    for sheet in sheets_confirmed:
+                        sheet_to_delete = self.wb_commercial[sheet]
+                        self.wb_commercial.remove(sheet_to_delete)
+
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
 
@@ -2783,9 +2809,10 @@ class offer_temp:
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
 
-                sheet_name = "COVER"
-                ws = self.wb_technical[sheet_name]
-                ws["E6"] = offername_technical
+                if int(rev) == 0:
+                    sheet_name = "COVER"
+                    ws = self.wb_technical[sheet_name]
+                    ws["E6"] = offername_technical
 
                 for value_type in df["value_type"].unique():
                     eq_type = (
@@ -2880,108 +2907,109 @@ class offer_temp:
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
-                sheet_name = "NOTES"
-                ws = self.wb_technical[sheet_name]
+                if int(rev) == 0:
+                    sheet_name = "NOTES"
+                    ws = self.wb_technical[sheet_name]
 
-                rich_string = CellRichText(
-                'We are only offering measuring temperature elements. Please be informed that our product range includes flow elements, and glass and magentic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
-                TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
-                ws["B6"] = rich_string
+                    rich_string = CellRichText(
+                    'We are only offering measuring temperature elements. Please be informed that our product range includes flow elements, and glass and magentic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
+                    TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
+                    ws["B6"] = rich_string
 
-                rich_string = CellRichText(
-                TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de temperatura, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
-                TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                ws["B7"] = rich_string
+                    rich_string = CellRichText(
+                    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de temperatura, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
+                    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+                    ws["B7"] = rich_string
 
-                rich_string = CellRichText(
-                'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
-                TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August and last two December weeks excluded).')
-                ws["B12"] = rich_string
+                    rich_string = CellRichText(
+                    'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
+                    TextBlock(InlineFont(b=True), 'all equipment'),
+                    ' in the contract, as well as critical documentation (August and last two December weeks excluded).')
+                    ws["B12"] = rich_string
 
-                rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
-                ws["B13"] = rich_string
+                    rich_string = CellRichText(
+                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+                    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+                    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
+                    ws["B13"] = rich_string
 
-                rich_string = CellRichText(
-                'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
-                TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
-                'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
-                ws["B21"] = rich_string
+                    rich_string = CellRichText(
+                    'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
+                    TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
+                    'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
+                    ws["B21"] = rich_string
 
-                rich_string = CellRichText(
-                'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                ws["B22"] = rich_string
+                    rich_string = CellRichText(
+                    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+                    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+                    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+                    ws["B22"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B45"] = (
-                        "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer"
+                    if pay_term == "100_delivery":
+                        ws["B45"] = (
+                            "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
+                            "Payment method: bank transfer"
+                        )
+                        ws["B46"] = (
+                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "100_order":
+                        ws["B45"] = (
+                            "100 % of the total amount of purchase order upon receipt of purchase order.\n"
+                            "Payment method: bank transfer"
+                        )
+                        ws["B46"] = (
+                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
+                            "Método de pago: Transferencia bancaria"
+                        )
+                    elif pay_term == "90_10":
+                        ws["B45"] = (
+                            "PAYMENT TERMS:\n"
+                            "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
+                            "Bank Transfer: 60 days since invoice issue date."
+                        )
+                        ws["B46"] = (
+                            "TERMINOS DE PAGO:\n"
+                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
+                            "Transferencia Bancaria: 60 días desde emisión de factura."
+                        )
+                    elif pay_term == "50_50":
+                        ws["B45"] = (
+                            "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
+                            "Payment method: bank transfer."
+                        )
+                        ws["B46"] = (
+                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "Others":
+                        ws["B45"] = "PAYMENT TERMS TO BE DEFINED"
+                        ws["B45"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
+                        ws["B46"] = "TERMINOS DE PAGO POR DEFINIR"
+                        ws["B46"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+
+                    rich_string = CellRichText(
+                    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+                    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+                    ws["B48"] = rich_string
+
+                    rich_string = CellRichText(
+                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+                    ws["B49"] = rich_string
+
+                    ws["A59"] = (
+                        "If you require further information related with this offer, please do not hesitate to contact:\n"
+                        + responsible
+                        + "\n"
+                        + email
+                        + "\n"
+                        "Telf.: (+34) 916.582.118"
                     )
-                    ws["B46"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "100_order":
-                    ws["B45"] = (
-                        "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B46"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B45"] = (
-                        "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                        "Bank Transfer: 60 days since invoice issue date."
-                    )
-                    ws["B46"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B45"] = (
-                        "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer."
-                    )
-                    ws["B46"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B45"] = "PAYMENT TERMS TO BE DEFINED"
-                    ws["B45"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                    ws["B46"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B46"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
-
-                rich_string = CellRichText(
-                'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-                TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                ws["B48"] = rich_string
-
-                rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B49"] = rich_string
-
-                ws["A59"] = (
-                    "If you require further information related with this offer, please do not hesitate to contact:\n"
-                    + responsible
-                    + "\n"
-                    + email
-                    + "\n"
-                    "Telf.: (+34) 916.582.118"
-                )
-                
-                std = self.wb_technical["1.3"]
-                self.wb_technical.remove(std)
+                    
+                    std = self.wb_technical["1.3"]
+                    self.wb_technical.remove(std)
 
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
@@ -3208,8 +3236,9 @@ class offer_short_temp_spanish:
                 # Editing sheet EQUIPMENT DATA
                 sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
 
-                for item_type in df["item_type"].unique():
-                    sheets_confirmed.append(item_type)
+                if int(rev) == 0:
+                    for item_type in df["item_type"].unique():
+                        sheets_confirmed.append(item_type)
 
                 dict_sheets_data = {}
 
@@ -3377,18 +3406,17 @@ class offer_short_temp_spanish:
                     ws["G3"] = num_ref
                     ws["G4"] = offername_commercial
                     if revchanges != "":
-                        ws["L5"] = rev + " " + revchanges
-                        ws["L5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["L5"].fill = PatternFill("solid", fgColor="FFFF00")
+                        ws["G5"] = rev + " " + revchanges
+                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
+                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
+
+                    if int(rev) > 0:
+                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
+                            for cell in row:
+                                cell.value = None
+                                cell._style = ws["F1"]._style
 
                     last_row = ws.max_row
-
-                    # for col_num, col_name in enumerate(df_toexport.columns, start=1):
-                    #     cell = ws.cell(row=last_row + 1, column=col_num)
-                    #     cell.value = col_name
-                    #     cell._style = ws["Y1"]._style
-
-                    # last_row = ws.max_row
 
                     num_column_amount = df_toexport.columns.get_loc("amount") + 1
 
@@ -3537,6 +3565,12 @@ class offer_short_temp_spanish:
                         sheet_to_delete = self.wb_commercial[sheet]
                         self.wb_commercial.remove(sheet_to_delete)
 
+                if int(rev) > 0:
+                    sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
+                    for sheet in sheets_confirmed:
+                        sheet_to_delete = self.wb_commercial[sheet]
+                        self.wb_commercial.remove(sheet_to_delete)
+
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
 
@@ -3552,9 +3586,10 @@ class offer_short_temp_spanish:
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
 
-                sheet_name = "COVER"
-                ws = self.wb_technical[sheet_name]
-                ws["E6"] = offername_technical
+                if int(rev) == 0:
+                    sheet_name = "COVER"
+                    ws = self.wb_technical[sheet_name]
+                    ws["E6"] = offername_technical
 
                 for value_type in df["value_type"].unique():
                     eq_type = (
@@ -3649,67 +3684,68 @@ class offer_short_temp_spanish:
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
-                sheet_name = "NOTES"
-                ws = self.wb_technical[sheet_name]
+                if int(rev) == 0:
+                    sheet_name = "NOTES"
+                    ws = self.wb_technical[sheet_name]
 
-                rich_string = CellRichText(
-                TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de temperatura, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
-                TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                ws["B6"] = rich_string
+                    rich_string = CellRichText(
+                    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de temperatura, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
+                    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+                    ws["B6"] = rich_string
 
-                rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
-                ws["B10"] = rich_string
+                    rich_string = CellRichText(
+                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+                    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+                    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
+                    ws["B10"] = rich_string
 
-                rich_string = CellRichText(
-                'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                ws["B16"] = rich_string
+                    rich_string = CellRichText(
+                    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+                    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+                    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+                    ws["B16"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B35"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
+                    if pay_term == "100_delivery":
+                        ws["B35"] = (
+                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "100_order":
+                        ws["B35"] = (
+                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
+                            "Método de pago: Transferencia bancaria"
+                        )
+                    elif pay_term == "90_10":
+                        ws["B35"] = (
+                            "TERMINOS DE PAGO:\n"
+                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
+                            "Transferencia Bancaria: 60 días desde emisión de factura."
+                        )
+                    elif pay_term == "50_50":
+                        ws["B35"] = (
+                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "Others":
+                        ws["B35"] = "TERMINOS DE PAGO POR DEFINIR"
+                        ws["B35"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+
+                    rich_string = CellRichText(
+                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+                    ws["B31"] = rich_string
+
+                    ws["A39"] = (
+                        "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
+                        + responsible
+                        + "\n"
+                        + email
+                        + "\n"
+                        "Telf.: (+34) 916.582.118"
                     )
-                elif pay_term == "100_order":
-                    ws["B35"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B35"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B35"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B35"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B35"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
-
-                rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B31"] = rich_string
-
-                ws["A39"] = (
-                    "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
-                    + responsible
-                    + "\n"
-                    + email
-                    + "\n"
-                    "Telf.: (+34) 916.582.118"
-                )
-                
-                std = self.wb_technical["1.3"]
-                self.wb_technical.remove(std)
+                    
+                    std = self.wb_technical["1.3"]
+                    self.wb_technical.remove(std)
 
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
@@ -3937,8 +3973,9 @@ class offer_short_temp_english:
                 # Editing sheet EQUIPMENT DATA
                 sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
 
-                for item_type in df["item_type"].unique():
-                    sheets_confirmed.append(item_type)
+                if int(rev) == 0:
+                    for item_type in df["item_type"].unique():
+                        sheets_confirmed.append(item_type)
 
                 dict_sheets_data = {}
 
@@ -4106,18 +4143,17 @@ class offer_short_temp_english:
                     ws["G3"] = num_ref
                     ws["G4"] = offername_commercial
                     if revchanges != "":
-                        ws["L5"] = rev + " " + revchanges
-                        ws["L5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["L5"].fill = PatternFill("solid", fgColor="FFFF00")
+                        ws["G5"] = rev + " " + revchanges
+                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
+                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
+
+                    if int(rev) > 0:
+                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
+                            for cell in row:
+                                cell.value = None
+                                cell._style = ws["F1"]._style
 
                     last_row = ws.max_row
-
-                    # for col_num, col_name in enumerate(df_toexport.columns, start=1):
-                    #     cell = ws.cell(row=last_row + 1, column=col_num)
-                    #     cell.value = col_name
-                    #     cell._style = ws["Y1"]._style
-
-                    # last_row = ws.max_row
 
                     num_column_amount = df_toexport.columns.get_loc("amount") + 1
 
@@ -4306,6 +4342,12 @@ class offer_short_temp_english:
                         sheet_to_delete = self.wb_commercial[sheet]
                         self.wb_commercial.remove(sheet_to_delete)
 
+                if int(rev) > 0:
+                    sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
+                    for sheet in sheets_confirmed:
+                        sheet_to_delete = self.wb_commercial[sheet]
+                        self.wb_commercial.remove(sheet_to_delete)
+
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
 
@@ -4321,9 +4363,10 @@ class offer_short_temp_english:
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
 
-                sheet_name = "COVER"
-                ws = self.wb_technical[sheet_name]
-                ws["E6"] = offername_technical
+                if int(rev) == 0:
+                    sheet_name = "COVER"
+                    ws = self.wb_technical[sheet_name]
+                    ws["E6"] = offername_technical
 
                 for value_type in df["value_type"].unique():
                     eq_type = (
@@ -4418,108 +4461,109 @@ class offer_short_temp_english:
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
-                sheet_name = "NOTES"
-                ws = self.wb_technical[sheet_name]
+                if int(rev) == 0:
+                    sheet_name = "NOTES"
+                    ws = self.wb_technical[sheet_name]
 
-                rich_string = CellRichText(
-                'We are only offering measuring temperature elements. Please be informed that our product range includes flow elements, and glass and magentic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
-                TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
-                ws["B6"] = rich_string
+                    rich_string = CellRichText(
+                    'We are only offering measuring temperature elements. Please be informed that our product range includes flow elements, and glass and magentic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
+                    TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
+                    ws["B6"] = rich_string
 
-                rich_string = CellRichText(
-                TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de temperatura, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
-                TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                ws["B7"] = rich_string
+                    rich_string = CellRichText(
+                    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de temperatura, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
+                    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+                    ws["B7"] = rich_string
 
-                rich_string = CellRichText(
-                'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
-                TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August and last two December weeks excluded).')
-                ws["B12"] = rich_string
+                    rich_string = CellRichText(
+                    'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
+                    TextBlock(InlineFont(b=True), 'all equipment'),
+                    ' in the contract, as well as critical documentation (August and last two December weeks excluded).')
+                    ws["B12"] = rich_string
 
-                rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
-                ws["B13"] = rich_string
+                    rich_string = CellRichText(
+                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+                    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+                    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
+                    ws["B13"] = rich_string
 
-                rich_string = CellRichText(
-                'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
-                TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
-                'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
-                ws["B21"] = rich_string
+                    rich_string = CellRichText(
+                    'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
+                    TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
+                    'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
+                    ws["B21"] = rich_string
 
-                rich_string = CellRichText(
-                'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                ws["B22"] = rich_string
+                    rich_string = CellRichText(
+                    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+                    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+                    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+                    ws["B22"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B48"] = (
-                        "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer"
+                    if pay_term == "100_delivery":
+                        ws["B48"] = (
+                            "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
+                            "Payment method: bank transfer"
+                        )
+                        ws["B49"] = (
+                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "100_order":
+                        ws["B48"] = (
+                            "100 % of the total amount of purchase order upon receipt of purchase order.\n"
+                            "Payment method: bank transfer"
+                        )
+                        ws["B49"] = (
+                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
+                            "Método de pago: Transferencia bancaria"
+                        )
+                    elif pay_term == "90_10":
+                        ws["B48"] = (
+                            "PAYMENT TERMS:\n"
+                            "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
+                            "Bank Transfer: 60 days since invoice issue date."
+                        )
+                        ws["B49"] = (
+                            "TERMINOS DE PAGO:\n"
+                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
+                            "Transferencia Bancaria: 60 días desde emisión de factura."
+                        )
+                    elif pay_term == "50_50":
+                        ws["B48"] = (
+                            "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
+                            "Payment method: bank transfer."
+                        )
+                        ws["B49"] = (
+                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "Others":
+                        ws["B48"] = "PAYMENT TERMS TO BE DEFINED"
+                        ws["B48"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
+                        ws["B49"] = "TERMINOS DE PAGO POR DEFINIR"
+                        ws["B49"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+
+                    rich_string = CellRichText(
+                    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+                    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+                    ws["B42"] = rich_string
+
+                    rich_string = CellRichText(
+                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+                    ws["B43"] = rich_string
+
+                    ws["A53"] = (
+                        "If you require further information related with this offer, please do not hesitate to contact:\n"
+                        + responsible
+                        + "\n"
+                        + email
+                        + "\n"
+                        "Telf.: (+34) 916.582.118"
                     )
-                    ws["B49"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "100_order":
-                    ws["B48"] = (
-                        "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B49"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B48"] = (
-                        "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                        "Bank Transfer: 60 days since invoice issue date."
-                    )
-                    ws["B49"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B48"] = (
-                        "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer."
-                    )
-                    ws["B49"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B48"] = "PAYMENT TERMS TO BE DEFINED"
-                    ws["B48"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                    ws["B49"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B49"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
-
-                rich_string = CellRichText(
-                'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-                TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                ws["B42"] = rich_string
-
-                rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B43"] = rich_string
-
-                ws["A53"] = (
-                    "If you require further information related with this offer, please do not hesitate to contact:\n"
-                    + responsible
-                    + "\n"
-                    + email
-                    + "\n"
-                    "Telf.: (+34) 916.582.118"
-                )
-                
-                std = self.wb_technical["1.3"]
-                self.wb_technical.remove(std)
+                    
+                    std = self.wb_technical["1.3"]
+                    self.wb_technical.remove(std)
 
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
@@ -4737,8 +4781,9 @@ class offer_level:
                 # Editing sheet EQUIPMENT DATA
                 sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
 
-                for item_type in df["item_type"].unique():
-                    sheets_confirmed.append(item_type)
+                if int(rev) == 0:
+                    for item_type in df["item_type"].unique():
+                        sheets_confirmed.append(item_type)
 
                 dict_sheets_data = {}
 
@@ -4780,18 +4825,17 @@ class offer_level:
                     ws["G3"] = num_ref
                     ws["G4"] = offername_commercial
                     if revchanges != "":
-                        ws["L5"] = rev + " " + revchanges
-                        ws["L5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["L5"].fill = PatternFill("solid", fgColor="FFFF00")
+                        ws["G5"] = rev + " " + revchanges
+                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
+                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
+
+                    if int(rev) > 0:
+                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
+                            for cell in row:
+                                cell.value = None
+                                cell._style = ws["F1"]._style
 
                     last_row = ws.max_row
-
-                    # for col_num, col_name in enumerate(df_toexport.columns, start=1):
-                    #     cell = ws.cell(row=last_row + 1, column=col_num)
-                    #     cell.value = col_name
-                    #     cell._style = ws["Y1"]._style
-
-                    # last_row = ws.max_row
 
                     num_column_amount = df_toexport.columns.get_loc("amount") + 1
 
@@ -4978,6 +5022,12 @@ class offer_level:
                         sheet_to_delete = self.wb_commercial[sheet]
                         self.wb_commercial.remove(sheet_to_delete)
 
+                if int(rev) > 0:
+                    sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
+                    for sheet in sheets_confirmed:
+                        sheet_to_delete = self.wb_commercial[sheet]
+                        self.wb_commercial.remove(sheet_to_delete)
+
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
 
@@ -4993,9 +5043,10 @@ class offer_level:
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
 
-                sheet_name = "COVER"
-                ws = self.wb_technical[sheet_name]
-                ws["E6"] = offername_technical
+                if int(rev) == 0:
+                    sheet_name = "COVER"
+                    ws = self.wb_technical[sheet_name]
+                    ws["E6"] = offername_technical
 
                 for value_type in df["value_type"].unique():
                     eq_type = (
@@ -5066,108 +5117,109 @@ class offer_level:
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
-                sheet_name = "NOTES"
-                ws = self.wb_technical[sheet_name]
+                if int(rev) == 0:
+                    sheet_name = "NOTES"
+                    ws = self.wb_technical[sheet_name]
 
-                rich_string = CellRichText(
-                'We are only offering measuring glass and magnetic level indicators. Please be informed that our product range includes flow elements and temperature elements; all with european certification. (https://www.eipsa.es/en/products)\n',
-                TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
-                ws["B6"] = rich_string
+                    rich_string = CellRichText(
+                    'We are only offering measuring glass and magnetic level indicators. Please be informed that our product range includes flow elements and temperature elements; all with european certification. (https://www.eipsa.es/en/products)\n',
+                    TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
+                    ws["B6"] = rich_string
 
-                rich_string = CellRichText(
-                TextBlock(InlineFont(i=True), 'Estamos ofertando solamente indicadores de nivel de vidrio y magnéticos, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal y elementos de medida de temperatura. (https://www.eipsa.es/productos)\n'),
-                TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                ws["B7"] = rich_string
+                    rich_string = CellRichText(
+                    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente indicadores de nivel de vidrio y magnéticos, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal y elementos de medida de temperatura. (https://www.eipsa.es/productos)\n'),
+                    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+                    ws["B7"] = rich_string
 
-                rich_string = CellRichText(
-                'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
-                TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August and last two December weeks excluded).')
-                ws["B12"] = rich_string
+                    rich_string = CellRichText(
+                    'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
+                    TextBlock(InlineFont(b=True), 'all equipment'),
+                    ' in the contract, as well as critical documentation (August and last two December weeks excluded).')
+                    ws["B12"] = rich_string
 
-                rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
-                ws["B13"] = rich_string
+                    rich_string = CellRichText(
+                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+                    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+                    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
+                    ws["B13"] = rich_string
 
-                rich_string = CellRichText(
-                'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
-                TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
-                'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
-                ws["B21"] = rich_string
+                    rich_string = CellRichText(
+                    'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
+                    TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
+                    'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
+                    ws["B21"] = rich_string
 
-                rich_string = CellRichText(
-                'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                ws["B22"] = rich_string
+                    rich_string = CellRichText(
+                    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+                    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+                    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+                    ws["B22"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B42"] = (
-                        "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer"
+                    if pay_term == "100_delivery":
+                        ws["B42"] = (
+                            "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
+                            "Payment method: bank transfer"
+                        )
+                        ws["B43"] = (
+                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "100_order":
+                        ws["B42"] = (
+                            "100 % of the total amount of purchase order upon receipt of purchase order.\n"
+                            "Payment method: bank transfer"
+                        )
+                        ws["B43"] = (
+                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
+                            "Método de pago: Transferencia bancaria"
+                        )
+                    elif pay_term == "90_10":
+                        ws["B42"] = (
+                            "PAYMENT TERMS:\n"
+                            "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
+                            "Bank Transfer: 60 days since invoice issue date."
+                        )
+                        ws["B43"] = (
+                            "TERMINOS DE PAGO:\n"
+                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
+                            "Transferencia Bancaria: 60 días desde emisión de factura."
+                        )
+                    elif pay_term == "50_50":
+                        ws["B42"] = (
+                            "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
+                            "Payment method: bank transfer."
+                        )
+                        ws["B43"] = (
+                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "Others":
+                        ws["B42"] = "PAYMENT TERMS TO BE DEFINED"
+                        ws["B43"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
+                        ws["B42"] = "TERMINOS DE PAGO POR DEFINIR"
+                        ws["B43"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+
+                    rich_string = CellRichText(
+                    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+                    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+                    ws["B45"] = rich_string
+
+                    rich_string = CellRichText(
+                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+                    ws["B46"] = rich_string
+
+                    ws["A56"] = (
+                        "If you require further information related with this offer, please do not hesitate to contact:\n"
+                        + responsible
+                        + "\n"
+                        + email
+                        + "\n"
+                        "Telf.: (+34) 916.582.118"
                     )
-                    ws["B43"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "100_order":
-                    ws["B42"] = (
-                        "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B43"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B42"] = (
-                        "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                        "Bank Transfer: 60 days since invoice issue date."
-                    )
-                    ws["B43"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B42"] = (
-                        "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer."
-                    )
-                    ws["B43"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B42"] = "PAYMENT TERMS TO BE DEFINED"
-                    ws["B43"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                    ws["B42"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B43"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
 
-                rich_string = CellRichText(
-                'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-                TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                ws["B45"] = rich_string
-
-                rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B46"] = rich_string
-
-                ws["A56"] = (
-                    "If you require further information related with this offer, please do not hesitate to contact:\n"
-                    + responsible
-                    + "\n"
-                    + email
-                    + "\n"
-                    "Telf.: (+34) 916.582.118"
-                )
-
-                std = self.wb_technical["1.3"]
-                self.wb_technical.remove(std)
+                    std = self.wb_technical["1.3"]
+                    self.wb_technical.remove(std)
 
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
@@ -5385,8 +5437,9 @@ class offer_short_level_spanish:
                 # Editing sheet EQUIPMENT DATA
                 sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
 
-                for item_type in df["item_type"].unique():
-                    sheets_confirmed.append(item_type)
+                if int(rev) == 0:
+                    for item_type in df["item_type"].unique():
+                        sheets_confirmed.append(item_type)
 
                 dict_sheets_data = {}
 
@@ -5428,18 +5481,17 @@ class offer_short_level_spanish:
                     ws["G3"] = num_ref
                     ws["G4"] = offername_commercial
                     if revchanges != "":
-                        ws["L5"] = rev + " " + revchanges
-                        ws["L5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["L5"].fill = PatternFill("solid", fgColor="FFFF00")
+                        ws["G5"] = rev + " " + revchanges
+                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
+                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
+
+                    if int(rev) > 0:
+                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
+                            for cell in row:
+                                cell.value = None
+                                cell._style = ws["F1"]._style
 
                     last_row = ws.max_row
-
-                    # for col_num, col_name in enumerate(df_toexport.columns, start=1):
-                    #     cell = ws.cell(row=last_row + 1, column=col_num)
-                    #     cell.value = col_name
-                    #     cell._style = ws["Y1"]._style
-
-                    # last_row = ws.max_row
 
                     num_column_amount = df_toexport.columns.get_loc("amount") + 1
 
@@ -5585,6 +5637,12 @@ class offer_short_level_spanish:
                         sheet_to_delete = self.wb_commercial[sheet]
                         self.wb_commercial.remove(sheet_to_delete)
 
+                if int(rev) > 0:
+                    sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
+                    for sheet in sheets_confirmed:
+                        sheet_to_delete = self.wb_commercial[sheet]
+                        self.wb_commercial.remove(sheet_to_delete)
+
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
 
@@ -5600,9 +5658,10 @@ class offer_short_level_spanish:
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
 
-                sheet_name = "COVER"
-                ws = self.wb_technical[sheet_name]
-                ws["E6"] = offername_technical
+                if int(rev) == 0:
+                    sheet_name = "COVER"
+                    ws = self.wb_technical[sheet_name]
+                    ws["E6"] = offername_technical
 
                 for value_type in df["value_type"].unique():
                     eq_type = (
@@ -5673,67 +5732,68 @@ class offer_short_level_spanish:
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
-                sheet_name = "NOTES"
-                ws = self.wb_technical[sheet_name]
+                if int(rev) == 0:
+                    sheet_name = "NOTES"
+                    ws = self.wb_technical[sheet_name]
 
-                rich_string = CellRichText(
-                TextBlock(InlineFont(i=True), 'Estamos ofertando solamente indicadores de nivel de vidrio y magnéticos, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal y elementos de medida de temperatura. (https://www.eipsa.es/productos)\n'),
-                TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                ws["B6"] = rich_string
+                    rich_string = CellRichText(
+                    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente indicadores de nivel de vidrio y magnéticos, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal y elementos de medida de temperatura. (https://www.eipsa.es/productos)\n'),
+                    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+                    ws["B6"] = rich_string
 
-                rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
-                ws["B10"] = rich_string
+                    rich_string = CellRichText(
+                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+                    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+                    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
+                    ws["B10"] = rich_string
 
-                rich_string = CellRichText(
-                'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                ws["B16"] = rich_string
+                    rich_string = CellRichText(
+                    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+                    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+                    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+                    ws["B16"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B29"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
+                    if pay_term == "100_delivery":
+                        ws["B29"] = (
+                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "100_order":
+                        ws["B29"] = (
+                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
+                            "Método de pago: Transferencia bancaria"
+                        )
+                    elif pay_term == "90_10":
+                        ws["B29"] = (
+                            "TERMINOS DE PAGO:\n"
+                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
+                            "Transferencia Bancaria: 60 días desde emisión de factura."
+                        )
+                    elif pay_term == "50_50":
+                        ws["B29"] = (
+                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "Others":
+                        ws["B29"] = "TERMINOS DE PAGO POR DEFINIR"
+                        ws["B29"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+
+                    rich_string = CellRichText(
+                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+                    ws["B27"] = rich_string
+
+                    ws["A35"] = (
+                        "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
+                        + responsible
+                        + "\n"
+                        + email
+                        + "\n"
+                        "Telf.: (+34) 916.582.118"
                     )
-                elif pay_term == "100_order":
-                    ws["B29"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B29"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B29"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B29"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B29"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
 
-                rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B27"] = rich_string
-
-                ws["A35"] = (
-                    "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
-                    + responsible
-                    + "\n"
-                    + email
-                    + "\n"
-                    "Telf.: (+34) 916.582.118"
-                )
-
-                std = self.wb_technical["1.3"]
-                self.wb_technical.remove(std)
+                    std = self.wb_technical["1.3"]
+                    self.wb_technical.remove(std)
 
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
@@ -5951,8 +6011,9 @@ class offer_short_level_english:
                 # Editing sheet EQUIPMENT DATA
                 sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
 
-                for item_type in df["item_type"].unique():
-                    sheets_confirmed.append(item_type)
+                if int(rev) == 0:
+                    for item_type in df["item_type"].unique():
+                        sheets_confirmed.append(item_type)
 
                 dict_sheets_data = {}
 
@@ -5994,18 +6055,17 @@ class offer_short_level_english:
                     ws["G3"] = num_ref
                     ws["G4"] = offername_commercial
                     if revchanges != "":
-                        ws["L5"] = rev + " " + revchanges
-                        ws["L5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["L5"].fill = PatternFill("solid", fgColor="FFFF00")
+                        ws["G5"] = rev + " " + revchanges
+                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
+                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
+
+                    if int(rev) > 0:
+                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
+                            for cell in row:
+                                cell.value = None
+                                cell._style = ws["F1"]._style
 
                     last_row = ws.max_row
-
-                    # for col_num, col_name in enumerate(df_toexport.columns, start=1):
-                    #     cell = ws.cell(row=last_row + 1, column=col_num)
-                    #     cell.value = col_name
-                    #     cell._style = ws["Y1"]._style
-
-                    # last_row = ws.max_row
 
                     num_column_amount = df_toexport.columns.get_loc("amount") + 1
 
@@ -6192,6 +6252,12 @@ class offer_short_level_english:
                         sheet_to_delete = self.wb_commercial[sheet]
                         self.wb_commercial.remove(sheet_to_delete)
 
+                if int(rev) > 0:
+                    sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
+                    for sheet in sheets_confirmed:
+                        sheet_to_delete = self.wb_commercial[sheet]
+                        self.wb_commercial.remove(sheet_to_delete)
+
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
 
@@ -6207,9 +6273,10 @@ class offer_short_level_english:
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
 
-                sheet_name = "COVER"
-                ws = self.wb_technical[sheet_name]
-                ws["E6"] = offername_technical
+                if int(rev) == 0:
+                    sheet_name = "COVER"
+                    ws = self.wb_technical[sheet_name]
+                    ws["E6"] = offername_technical
 
                 for value_type in df["value_type"].unique():
                     eq_type = (
@@ -6280,108 +6347,109 @@ class offer_short_level_english:
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
-                sheet_name = "NOTES"
-                ws = self.wb_technical[sheet_name]
+                if int(rev) == 0:
+                    sheet_name = "NOTES"
+                    ws = self.wb_technical[sheet_name]
 
-                rich_string = CellRichText(
-                'We are only offering measuring glass and magnetic level indicators. Please be informed that our product range includes flow elements and temperature elements; all with european certification. (https://www.eipsa.es/en/products)\n',
-                TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
-                ws["B6"] = rich_string
+                    rich_string = CellRichText(
+                    'We are only offering measuring glass and magnetic level indicators. Please be informed that our product range includes flow elements and temperature elements; all with european certification. (https://www.eipsa.es/en/products)\n',
+                    TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
+                    ws["B6"] = rich_string
 
-                rich_string = CellRichText(
-                TextBlock(InlineFont(i=True), 'Estamos ofertando solamente indicadores de nivel de vidrio y magnéticos, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal y elementos de medida de temperatura. (https://www.eipsa.es/productos)\n'),
-                TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                ws["B7"] = rich_string
+                    rich_string = CellRichText(
+                    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente indicadores de nivel de vidrio y magnéticos, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de caudal y elementos de medida de temperatura. (https://www.eipsa.es/productos)\n'),
+                    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+                    ws["B7"] = rich_string
 
-                rich_string = CellRichText(
-                'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
-                TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August and last two December weeks excluded).')
-                ws["B12"] = rich_string
+                    rich_string = CellRichText(
+                    'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
+                    TextBlock(InlineFont(b=True), 'all equipment'),
+                    ' in the contract, as well as critical documentation (August and last two December weeks excluded).')
+                    ws["B12"] = rich_string
 
-                rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
-                ws["B13"] = rich_string
+                    rich_string = CellRichText(
+                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+                    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+                    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
+                    ws["B13"] = rich_string
 
-                rich_string = CellRichText(
-                'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
-                TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
-                'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
-                ws["B21"] = rich_string
+                    rich_string = CellRichText(
+                    'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
+                    TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
+                    'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
+                    ws["B21"] = rich_string
 
-                rich_string = CellRichText(
-                'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                ws["B22"] = rich_string
+                    rich_string = CellRichText(
+                    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+                    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+                    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+                    ws["B22"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B41"] = (
-                        "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer"
+                    if pay_term == "100_delivery":
+                        ws["B41"] = (
+                            "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
+                            "Payment method: bank transfer"
+                        )
+                        ws["B42"] = (
+                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "100_order":
+                        ws["B41"] = (
+                            "100 % of the total amount of purchase order upon receipt of purchase order.\n"
+                            "Payment method: bank transfer"
+                        )
+                        ws["B42"] = (
+                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
+                            "Método de pago: Transferencia bancaria"
+                        )
+                    elif pay_term == "90_10":
+                        ws["B41"] = (
+                            "PAYMENT TERMS:\n"
+                            "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
+                            "Bank Transfer: 60 days since invoice issue date."
+                        )
+                        ws["B42"] = (
+                            "TERMINOS DE PAGO:\n"
+                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
+                            "Transferencia Bancaria: 60 días desde emisión de factura."
+                        )
+                    elif pay_term == "50_50":
+                        ws["B41"] = (
+                            "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
+                            "Payment method: bank transfer."
+                        )
+                        ws["B42"] = (
+                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "Others":
+                        ws["B41"] = "PAYMENT TERMS TO BE DEFINED"
+                        ws["B41"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
+                        ws["B42"] = "TERMINOS DE PAGO POR DEFINIR"
+                        ws["B42"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+
+                    rich_string = CellRichText(
+                    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+                    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+                    ws["B38"] = rich_string
+
+                    rich_string = CellRichText(
+                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+                    ws["B39"] = rich_string
+
+                    ws["A49"] = (
+                        "If you require further information related with this offer, please do not hesitate to contact:\n"
+                        + responsible
+                        + "\n"
+                        + email
+                        + "\n"
+                        "Telf.: (+34) 916.582.118"
                     )
-                    ws["B42"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "100_order":
-                    ws["B41"] = (
-                        "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B42"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B41"] = (
-                        "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                        "Bank Transfer: 60 days since invoice issue date."
-                    )
-                    ws["B42"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B41"] = (
-                        "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer."
-                    )
-                    ws["B42"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B41"] = "PAYMENT TERMS TO BE DEFINED"
-                    ws["B41"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                    ws["B42"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B42"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
 
-                rich_string = CellRichText(
-                'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-                TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                ws["B38"] = rich_string
-
-                rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B39"] = rich_string
-
-                ws["A49"] = (
-                    "If you require further information related with this offer, please do not hesitate to contact:\n"
-                    + responsible
-                    + "\n"
-                    + email
-                    + "\n"
-                    "Telf.: (+34) 916.582.118"
-                )
-
-                std = self.wb_technical["1.3"]
-                self.wb_technical.remove(std)
+                    std = self.wb_technical["1.3"]
+                    self.wb_technical.remove(std)
 
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
@@ -6788,9 +6856,15 @@ class offer_flow_temp:
                     ws["G3"] = num_ref
                     ws["G4"] = offername_commercial
                     if revchanges != "":
-                        ws["L5"] = rev + " " + revchanges
-                        ws["L5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["L5"].fill = PatternFill("solid", fgColor="FFFF00")
+                        ws["G5"] = rev + " " + revchanges
+                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
+                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
+
+                    if int(rev) > 0:
+                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
+                            for cell in row:
+                                cell.value = None
+                                cell._style = ws["F1"]._style
 
                     last_row = ws.max_row
 
@@ -7006,18 +7080,17 @@ class offer_flow_temp:
                     ws["G3"] = num_ref
                     ws["G4"] = offername_commercial
                     if revchanges != "":
-                        ws["L5"] = rev + " " + revchanges
-                        ws["L5"].font = Font(name="Calibri", size=14, bold=True)
-                        ws["L5"].fill = PatternFill("solid", fgColor="FFFF00")
+                        ws["G5"] = rev + " " + revchanges
+                        ws["G5"].font = Font(name="Calibri", size=14, bold=True)
+                        ws["G5"].fill = PatternFill("solid", fgColor="FFFF00")
+
+                    if int(rev) > 0:
+                        for row in ws.iter_rows(min_row=2, max_row=4, min_col=6, max_col=7):
+                            for cell in row:
+                                cell.value = None
+                                cell._style = ws["F1"]._style
 
                     last_row = ws.max_row
-
-                    # for col_num, col_name in enumerate(df_toexport.columns, start=1):
-                    #     cell = ws.cell(row=last_row + 1, column=col_num)
-                    #     cell.value = col_name
-                    #     cell._style = ws["Y1"]._style
-
-                    # last_row = ws.max_row
 
                     num_column_amount = df_toexport.columns.get_loc("amount") + 1
 
@@ -7053,7 +7126,6 @@ class offer_flow_temp:
                             ws[f"A{line}"] = notes
                             ws[f"A{line}"]._style = ws["AI1"]._style
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
-
 
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "QTY. TOTAL"
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
@@ -7099,7 +7171,6 @@ class offer_flow_temp:
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["R1"]._style
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["W1"]._style
-
 
             # Editing sheet NOTES
                 sheet_name = "NOTES"  # Selecting  sheet
@@ -7207,6 +7278,12 @@ class offer_flow_temp:
                         sheet_to_delete = self.wb_commercial[sheet]
                         self.wb_commercial.remove(sheet_to_delete)
 
+                if int(rev) > 0:
+                    sheets_confirmed = ["COVER", "1.2", "1.3", "NOTES"]
+                    for sheet in sheets_confirmed:
+                        sheet_to_delete = self.wb_commercial[sheet]
+                        self.wb_commercial.remove(sheet_to_delete)
+
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
 
@@ -7222,9 +7299,10 @@ class offer_flow_temp:
                 # Creating the technical offer using the commercial one as template
                 self.wb_technical = load_workbook(path)
 
-                sheet_name = "COVER"
-                ws = self.wb_technical[sheet_name]
-                ws["E6"] = offername_technical
+                if int(rev) == 0:
+                    sheet_name = "COVER"
+                    ws = self.wb_technical[sheet_name]
+                    ws["E6"] = offername_technical
 
                 for value_type in df_flow["value_type"].unique():
                     eq_type = (
@@ -7400,114 +7478,114 @@ class offer_flow_temp:
                     new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
                     stamp_2.anchor = new_anchor
 
-
                 ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
                 ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
-                sheet_name = "NOTES"  # Selecting  sheet
-                ws = self.wb_technical[sheet_name]
+                if int(rev) == 0:
+                    sheet_name = "NOTES"  # Selecting  sheet
+                    ws = self.wb_technical[sheet_name]
 
-                rich_string = CellRichText(
-                'We are only offering measuring flow elements. Please be informed that our product range includes temperature elements, and glass and magnetic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
-                TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
-                ws["B6"] = rich_string
+                    rich_string = CellRichText(
+                    'We are only offering measuring flow elements. Please be informed that our product range includes temperature elements, and glass and magnetic level indicators; all with european certification. (https://www.eipsa.es/en/products)\n',
+                    TextBlock(InlineFont(b=True), 'The prices quoted could be reduced in case of purchasing our full range of products.'))
+                    ws["B6"] = rich_string
 
-                rich_string = CellRichText(
-                TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de caudal, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de temperatura e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
-                TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
-                ws["B7"] = rich_string
+                    rich_string = CellRichText(
+                    TextBlock(InlineFont(i=True), 'Estamos ofertando solamente elementos de medida de caudal, les informamos que en nuestra gama de fabricación con certificación europea, incluye también elementos de temperatura e indicadores de nivel de vidrio y magnéticos. (https://www.eipsa.es/productos)\n'),
+                    TextBlock(InlineFont(b=True, i=True), 'Los precios ofertados podrían reducirse en caso de compra de toda nuestra gama.'))
+                    ws["B7"] = rich_string
 
-                rich_string = CellRichText(
-                'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
-                TextBlock(InlineFont(b=True), 'all equipment'),
-                ' in the contract, as well as critical documentation (August and last two December weeks excluded).')
-                ws["B12"] = rich_string
+                    rich_string = CellRichText(
+                    'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
+                    TextBlock(InlineFont(b=True), 'all equipment'),
+                    ' in the contract, as well as critical documentation (August and last two December weeks excluded).')
+                    ws["B12"] = rich_string
 
-                rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
-                TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
-                TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
-                ws["B13"] = rich_string
+                    rich_string = CellRichText(
+                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+                    TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
+                    TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
+                    ws["B13"] = rich_string
 
-                rich_string = CellRichText(
-                'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
-                TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
-                'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
-                ws["B21"] = rich_string
+                    rich_string = CellRichText(
+                    'Quotation prepared according to the information provided in the datasheet corresponding to each TAG. ',
+                    TextBlock(InlineFont(u='single'), 'EIPSA does not hold the final responsibility regarding selection of equipment material neither analyze process data.\n'),
+                    'The datasheet will be considered the only technical/contractual document, any other documentation will be considered as complementary documentation with informative purpose.')
+                    ws["B21"] = rich_string
 
-                rich_string = CellRichText(
-                'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
-                TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
-                TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
-                ws["B22"] = rich_string
+                    rich_string = CellRichText(
+                    'Esta oferta ha sido elaborada en base a la información que figura en la hoja de datos correspondiente a cada TAG, ',
+                    TextBlock(InlineFont(i=True, u='single'), 'no siendo responsabilidad final de EIPSA la elección del material a utilizar en los equipos ni analizar datos de proceso.\n'),
+                    TextBlock(InlineFont(i=True),'La hoja de datos será el único documento técnico/contractual, cualquier otra documentación recibida será considerada como documentación complementaria a efectos informativos.'))
+                    ws["B22"] = rich_string
 
-                if pay_term == "100_delivery":
-                    ws["B45"] = (
-                        "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer"
+                    if pay_term == "100_delivery":
+                        ws["B45"] = (
+                            "100% of total amount of purchase order upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain).\n"
+                            "Payment method: bank transfer"
+                        )
+                        ws["B46"] = (
+                            "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "100_order":
+                        ws["B45"] = (
+                            "100 % of the total amount of purchase order upon receipt of purchase order.\n"
+                            "Payment method: bank transfer"
+                        )
+                        ws["B46"] = (
+                            "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
+                            "Método de pago: Transferencia bancaria"
+                        )
+                    elif pay_term == "90_10":
+                        ws["B45"] = (
+                            "PAYMENT TERMS:\n"
+                            "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
+                            "Bank Transfer: 60 days since invoice issue date."
+                        )
+                        ws["B46"] = (
+                            "TERMINOS DE PAGO:\n"
+                            "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
+                            "Transferencia Bancaria: 60 días desde emisión de factura."
+                        )
+                    elif pay_term == "50_50":
+                        ws["B45"] = (
+                            "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
+                            "Payment method: bank transfer."
+                        )
+                        ws["B46"] = (
+                            "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
+                            "Método de pago: Transferencia bancaria."
+                        )
+                    elif pay_term == "Others":
+                        ws["B45"] = "PAYMENT TERMS TO BE DEFINED"
+                        ws["B45"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
+                        ws["B46"] = "TERMINOS DE PAGO POR DEFINIR"
+                        ws["B46"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
+
+                    rich_string = CellRichText(
+                    'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
+                    TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
+                    ws["B48"] = rich_string
+
+                    rich_string = CellRichText(
+                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
+                    ws["B49"] = rich_string
+
+                    ws["A58"] = (
+                        "If you require further information related with this offer, please do not hesitate to contact:\n"
+                        + responsible
+                        + "\n"
+                        + email
+                        + "\n"
+                        "Telf.: (+34) 916.582.118"
                     )
-                    ws["B46"] = (
-                        "Pago del 100% del valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "100_order":
-                    ws["B45"] = (
-                        "100 % of the total amount of purchase order upon receipt of purchase order.\n"
-                        "Payment method: bank transfer"
-                    )
-                    ws["B46"] = (
-                        "Pago del 100% del valor total de la orden de compra a la recepción de la orden.\n"
-                        "Método de pago: Transferencia bancaria"
-                    )
-                elif pay_term == "90_10":
-                    ws["B45"] = (
-                        "PAYMENT TERMS:\n"
-                        "90 % of the total amount of PO upon delivery of material according to Incoterms 2020, FCA (our facilities, Spain) and 10% when final documentation is approved. \n"
-                        "Bank Transfer: 60 days since invoice issue date."
-                    )
-                    ws["B46"] = (
-                        "TERMINOS DE PAGO:\n"
-                        "Pago del 90% del Valor total de la orden de compra a la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España) y el 10% restante cuando la documentación final sea aprobada.\n"
-                        "Transferencia Bancaria: 60 días desde emisión de factura."
-                    )
-                elif pay_term == "50_50":
-                    ws["B45"] = (
-                        "50 % of the total amount of purchase order upon receipt of purchase order. Remaining 50% before material be delivered according to Incoterms 2020, FCA (our facilities, Spain).\n"
-                        "Payment method: bank transfer."
-                    )
-                    ws["B46"] = (
-                        "Pago del 50% del valor total de la orden de compra a la recepción de la orden. El 50% restante antes de la entrega del material según Incoterm 2020, FCA (nuestras instalaciones, España).\n"
-                        "Método de pago: Transferencia bancaria."
-                    )
-                elif pay_term == "Others":
-                    ws["B45"] = "PAYMENT TERMS TO BE DEFINED"
-                    ws["B45"].font = Font(name="Calibri", size=11, bold=True, color="FF0000")
-                    ws["B46"] = "TERMINOS DE PAGO POR DEFINIR"
-                    ws["B46"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
-
-                rich_string = CellRichText(
-                'For amounts greater than 30,000.00 € we can issue a warranty bond (if required) valid until the end of the indicated warranty period.\nBond warranty of 10% will be issued with the invoice of the last supplement.\n',
-                TextBlock(InlineFont(b=True), 'For lower amounts no warranty bond is issued.'))
-                ws["B48"] = rich_string
-
-                rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
-                TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
-                ws["B49"] = rich_string
-
-                ws["A58"] = (
-                    "If you require further information related with this offer, please do not hesitate to contact:\n"
-                    + responsible
-                    + "\n"
-                    + email
-                    + "\n"
-                    "Telf.: (+34) 916.582.118"
-                )
-                
-                std = self.wb_technical["1.3"]
-                self.wb_technical.remove(std)
+                    
+                    std = self.wb_technical["1.3"]
+                    self.wb_technical.remove(std)
 
                 left_text = "Fecha/Date: " + date_offer
                 right_text = "Petición nº/Inquiry: " + num_ref
