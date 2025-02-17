@@ -2932,7 +2932,89 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
 # Function to import data from excel
     def importexcel(self):
-        print('a')
+        input_file = askopenfilename(filetypes=[("Excel files", "*.xlsx")])
+
+        if input_file:
+            params = config()
+            conn = psycopg2.connect(**params)
+            cursor = conn.cursor()
+
+        #Importing excel file into dataframe
+            df_table = pd.read_excel(input_file, skiprows=1, dtype={'image': str, 'document':str})
+            df_table = df_table.astype(str)
+
+            df_table.replace('nan', '', inplace=True)
+            df_table.replace('NaT', '', inplace=True)
+
+            try:
+                for index, row in df_table.iterrows():
+                    if "id_tag_flow" in row:
+                        id_value = row["id_tag_flow"]
+                        table_name = 'tags_data.tags_flow'
+                        where_clause = f"id_tag_flow = {id_value}"
+
+                    elif "id_tag_temp" in row:
+                        id_value = row["id_tag_temp"]
+                        table_name = 'tags_data.tags_temp'
+                        where_clause = f"id_tag_temp = {id_value}"
+
+                    elif "id_tag_level" in row:
+                        id_value = row["id_tag_level"]
+                        table_name = 'tags_data.tags_level'
+                        where_clause = f"id_tag_level = {id_value}"
+
+                    elif "id_tag_others" in row:
+                        id_value = row["id_tag_others"]
+                        table_name = 'tags_data.tags_others'
+                        where_clause = f"id_tag_others = {id_value}"
+
+                    # Creating string for columns names and values
+                    columns_values = [(column, row[column]) for column in df_table.columns if not pd.isnull(row[column])]
+
+                    columns = ', '.join([column for column, _ in columns_values])
+                    values = ', '.join([f"'{int(float(values))}'" if column in ['flange_rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam'] and values.endswith('.0')
+                                        else (f"'{value.replace('.', ',')}'" if column in ['amount', 'orif_diam', 'dv_diam', 'plate_thk', 'root_diam', 'tip_diam', 'sheath_stem_diam']
+                                        else ('NULL' if values == 'N/A' and column in ['std_length', 'ins_length']
+                                        else ('NULL' if value == '' and column in ['rating', 'plate_thk', 'contractual_date']
+                                        else "'{}'".format(value.replace('\'', '\'\''))))) for column, value in columns_values])
+
+                # Creating the SET  and WHERE clause with proper formatting
+                    set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
+
+                # Creating the update query and executing it after checking existing tags and id
+                    sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
+                    cursor.execute(sql_update)
+                    conn.commit()
+
+            # Closing cursor and database connection
+                conn.commit()
+                cursor.close()
+
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Datos actualizados con éxito")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+                del dlg, new_icon
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                print(error)
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
 # Function to enable copy and paste cells
     def keyPressEvent(self, event):

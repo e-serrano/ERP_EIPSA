@@ -2987,8 +2987,9 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     columns = ', '.join([column for column, _ in columns_values])
                     values = ', '.join([f"'{int(float(values))}'" if column in ['flange_rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam'] and values.endswith('.0')
                                         else (f"'{value.replace('.', ',')}'" if column in ['amount', 'orif_diam', 'dv_diam', 'plate_thk', 'root_diam', 'tip_diam', 'sheath_stem_diam']
+                                        else ('NULL' if values == 'N/A' and column in ['std_length', 'ins_length']
                                         else ('NULL' if value == '' and column in ['rating', 'plate_thk', 'contractual_date']
-                                        else "'{}'".format(value.replace('\'', '\'\'')))) for column, value in columns_values])
+                                        else "'{}'".format(value.replace('\'', '\'\''))))) for column, value in columns_values])
 
                 # Creating the SET  and WHERE clause with proper formatting
                     set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
