@@ -924,6 +924,8 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
             new_fname = "//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/HIGROMETRO/importacion " + date.today().strftime("%Y-%m-%d") + ".txt"
 
             os.rename(fname, new_fname)
+
+            self.load_graph()
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
             dlg = QtWidgets.QMessageBox()
