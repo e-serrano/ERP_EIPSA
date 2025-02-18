@@ -870,7 +870,7 @@ class Ui_FabTimes_Window(object):
             self.label.setText('Pedido:')
         else:
             commands_querytable = ("""
-                        SELECT times."number_ot", TO_CHAR(times."date_ot", 'DD/MM/YYYY'), times."start_hour", times."end_hour",
+                        SELECT DISTINCT times."number_ot", TO_CHAR(times."date_ot", 'DD/MM/YYYY'), times."start_hour", times."end_hour",
                         REPLACE(TO_CHAR(times."total_time", '90.00'), '.', ':'), REPLACE(TO_CHAR(times."time_ot", '90.00'), '.', ':'),
                         personal."name", operations."name", times."cent_total_time", times."cent_time_ot", times."date_ot"
                         FROM fabrication.imp_ot AS times
