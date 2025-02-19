@@ -2229,32 +2229,44 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.Button_Description.clicked.connect(self.add_description)
         self.Button_Printer.clicked.connect(self.print_drawings)
 
+        insert_action_dim = QtGui.QAction("Insertar Fila", self)
+        insert_action_dim.triggered.connect(lambda: self.insert_register("verification.workshop_dim_drawings"))
+
         delete_action_dim = QtGui.QAction("Eliminar Fila", self)
         delete_action_dim.triggered.connect(lambda: self.delete_register(self.tableDimDwg, "verification.workshop_dim_drawings"))
 
         self.context_menu_row = QtWidgets.QMenu(self)
+        self.context_menu_row.addAction(insert_action_dim)
         self.context_menu_row.addAction(delete_action_dim)
 
         self.tableDimDwg.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
-        self.tableDimDwg.addActions([delete_action_dim])
+        self.tableDimDwg.addActions([insert_action_dim, delete_action_dim])
+
+        insert_action_of = QtGui.QAction("Insertar Fila", self)
+        insert_action_of.triggered.connect(lambda: self.insert_register("verification.workshop_of_drawings"))
 
         delete_action_of = QtGui.QAction("Eliminar Fila", self)
         delete_action_of.triggered.connect(lambda: self.delete_register(self.tableOfDwg, "verification.workshop_of_drawings"))
 
         self.context_menu_row = QtWidgets.QMenu(self)
+        self.context_menu_row.addAction(insert_action_of)
         self.context_menu_row.addAction(delete_action_of)
 
         self.tableOfDwg.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
-        self.tableOfDwg.addActions([delete_action_of])
+        self.tableOfDwg.addActions([insert_action_of, delete_action_of])
+
+        insert_action_m = QtGui.QAction("Insertar Fila", self)
+        insert_action_m.triggered.connect(lambda: self.insert_register("verification.m_drawing_verification"))
 
         delete_action_m = QtGui.QAction("Eliminar Fila", self)
         delete_action_m.triggered.connect(lambda: self.delete_register(self.tableMDwg, "verification.m_drawing_verification"))
 
         self.context_menu_row = QtWidgets.QMenu(self)
+        self.context_menu_row.addAction(insert_action_m)
         self.context_menu_row.addAction(delete_action_m)
 
         self.tableMDwg.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
-        self.tableMDwg.addActions([delete_action_m])
+        self.tableMDwg.addActions([insert_action_m, delete_action_m])
 
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, WorkshopDrawingIndex_Window):
@@ -3558,7 +3570,6 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                 value = model.data(item_index)
                 id_values.append(value)
 
-
         if len(id_values) != 0:
             dlg_yes_no = QtWidgets.QMessageBox()
             new_icon_yes_no = QtGui.QIcon()
@@ -3615,6 +3626,59 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         conn.close()
 
             del dlg_yes_no, new_icon_yes_no
+
+# Function to insert register in database
+    def insert_register(self, name):
+        """
+        Inserts a new record into the specified table.
+
+        Args:
+            name (str): The name of the table in which the record will be inserted.
+        """
+
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            commands_insert = f"""INSERT INTO {name} (num_order)
+                            VALUES ('{self.Numorder_IndexDwg.text().upper()}')"""
+            cur.execute(commands_insert)
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Indice Planos")
+            dlg.setText("Fila insertada con éxito")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+            dlg.exec()
+            del dlg,new_icon
+
+            self.query_drawings()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
 
 # Function to add descriptions to drawings
     def add_description(self):
