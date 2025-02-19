@@ -1744,9 +1744,9 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         state = self.state_test.currentText()
         notes = self.obs_test.toPlainText()
 
-        manometer1 = self.manometer1.currentText()
+        manometer1 = self.manometer1.currentText().split(" ")[0]
         pressure1 = self.pressure1.text()
-        manometer2 = self.manometer2.currentText()
+        manometer2 = self.manometer2.currentText().split(" ")[0] if self.manometer2.currentText() != '' else ''
         pressure2 = self.pressure2.text()
 
         if num_order == '' or test_date == '':
