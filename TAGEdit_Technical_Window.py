@@ -2946,31 +2946,40 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             df_table.replace('nan', '', inplace=True)
             df_table.replace('NaT', '', inplace=True)
 
+            df_final = df_table.drop([
+                    "pmi_date",
+                    "ph1_date",
+                    "ph2_date",
+                    "lp_date",
+                    "hard_date",
+                    "final_verif_dim_date",
+                    "final_verif_of_eq_date",
+                    "tag_images"
+                    ],
+                    axis=1,
+                    errors="ignore",)
+
             try:
                 for index, row in df_table.iterrows():
                     if "id_tag_flow" in row:
                         id_value = row["id_tag_flow"]
                         table_name = 'tags_data.tags_flow'
                         where_clause = f"id_tag_flow = {id_value}"
-                        df_final = df_table.iloc[:,:71]
 
                     elif "id_tag_temp" in row:
                         id_value = row["id_tag_temp"]
                         table_name = 'tags_data.tags_temp'
                         where_clause = f"id_tag_temp = {id_value}"
-                        df_final = df_table.iloc[:,:79]
 
                     elif "id_tag_level" in row:
                         id_value = row["id_tag_level"]
                         table_name = 'tags_data.tags_level'
                         where_clause = f"id_tag_level = {id_value}"
-                        df_final = df_table.iloc[:,:65]
 
                     elif "id_tag_others" in row:
                         id_value = row["id_tag_others"]
                         table_name = 'tags_data.tags_others'
                         where_clause = f"id_tag_others = {id_value}"
-                        df_final = df_table.iloc[:,:24]
 
                     # Creating string for columns names and values
                     columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
