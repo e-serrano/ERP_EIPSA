@@ -4759,6 +4759,7 @@ class offer_level:
                     axis=1,)
 
                 number_items = df.shape[0]
+                documentation = number_items * 70
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
@@ -4894,6 +4895,8 @@ class offer_level:
                 ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
                 ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
+                ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
                 ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
@@ -5415,6 +5418,7 @@ class offer_short_level_spanish:
                     axis=1,)
 
                 number_items = df.shape[0]
+                documentation = number_items * 70
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
@@ -5550,6 +5554,8 @@ class offer_short_level_spanish:
                 ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)"  if total_amount_material > 6700 else 200)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
                 ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
+                ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
                 ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
@@ -5989,6 +5995,7 @@ class offer_short_level_english:
                     axis=1,)
 
                 number_items = df.shape[0]
+                documentation = number_items * 70
 
                 # Loading Excel Template
                 self.wb_commercial = load_workbook(
@@ -6124,6 +6131,8 @@ class offer_short_level_english:
                 ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
                 ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
+                ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
                 ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
