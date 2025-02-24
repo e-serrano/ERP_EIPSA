@@ -19,7 +19,8 @@ import os
 from datetime import *
 import pandas as pd
 from tkinter.filedialog import asksaveasfilename
-from tkinter import filedialog
+import configparser
+from Database_Connection import createConnection
 import shutil
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -595,6 +596,49 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
 "}")
         self.Button_Import.setObjectName("Button_Import")
         self.hLayout1.addWidget(self.Button_Import)
+        self.Button_Combine = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Combine.setMinimumSize(QtCore.QSize(150, 35))
+        self.Button_Combine.setMaximumSize(QtCore.QSize(150, 35))
+        self.Button_Combine.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.Button_Combine.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 8px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:focus {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255)\n"
+"}\n"
+"\n"
+"QPushButton:focus:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        self.Button_Combine.setObjectName("Button_Combine")
+        self.hLayout1.addWidget(self.Button_Combine)
         self.Button_Print = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Print.setMinimumSize(QtCore.QSize(150, 35))
         self.Button_Print.setMaximumSize(QtCore.QSize(150, 35))
@@ -698,6 +742,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.retranslateUi(CalibrationThermoElements_Window)
         QtCore.QMetaObject.connectSlotsByName(CalibrationThermoElements_Window)
         self.Button_Import.clicked.connect(self.import_data)
+        self.Button_Combine.clicked.connect(self.combine_data)
         self.Button_Print.clicked.connect(self.print_certificate)
         self.toolSaveChanges.clicked.connect(self.saveChanges)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
@@ -715,6 +760,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         CalibrationThermoElements_Window.setWindowTitle(_translate("CalibrationThermoElements_Window", "Calibración Termoelementos"))
         self.tableEditCalibration.setSortingEnabled(True)
         self.Button_Print.setText(_translate("CalibrationThermoElements_Window", "Imprimir"))
+        self.Button_Combine.setText(_translate("CalibrationThermoElements_Window", "Combinar"))
         self.Button_Import.setText(_translate("CalibrationThermoElements_Window", "Importar Datos"))
 
 # Function to import data to database
@@ -1700,6 +1746,109 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
         self.ui.setupUi(self.CalibrationPrintCertificate_Window)
         self.CalibrationPrintCertificate_Window.show()
 
+# Function to combine data from same tags
+    def combine_data(self):
+        selected_indexes = self.tableEditCalibration.selectionModel().selectedIndexes()
+        if not selected_indexes or len(selected_indexes) < 2:
+            return
+        
+        model = self.tableEditCalibration.model()
+        source_model = model.sourceModel()
+
+        model_indexes = {model.mapToSource(index).row() for index in selected_indexes}
+
+        id_values = [source_model.index(row, 0).data() for row in model_indexes]
+        order_values = [source_model.index(row, 1).data() for row in model_indexes]
+        tag_values = [source_model.index(row, 2).data() for row in model_indexes]
+
+        if len(set(order_values)) == 1 and len(set(tag_values)) == 1:
+            query_data = ("""SELECT id, num_order, tag, master_1, element_1, master_2, element_2, master_3, element_3, master_4, element_4
+                            FROM verification.calibration_thermoelements
+                            WHERE id = ANY(%s)
+                            ORDER BY id ASC
+                            """)
+            update_data = ("""UPDATE verification.calibration_thermoelements SET
+                            master_1 = %s, element_1 = %s, master_2 = %s, element_2 = %s,
+                            master_3 = %s, element_3 = %s, master_4 = %s, element_4 = %s
+                            WHERE id = %s
+                            """)
+            delete_query = ("""
+                            DELETE FROM verification.calibration_thermoelements
+                            WHERE ID = ANY(%s)
+                            """)
+            conn = None
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+            # execution of commands
+                cur.execute(query_data,(id_values,))
+                results=cur.fetchall()
+
+                df_data = pd.DataFrame(results, columns=['ID', 'Pedido', 'Tag', 'Elemento 1', 'Patrón 1', 'Elemento 2', 'Patrón 2', 'Elemento 3', 'Patrón 3', 'Elemento 4', 'Patrón 4'])
+
+            # Order by "Elemento 1"
+                df_data = df_data.sort_values(by="Elemento 1", ascending=True).reset_index(drop=True)
+
+            # Take the values of "ID", "Pedido" and "Tag" from the first record
+                merged_data = {
+                    "ID": df_data.loc[0, "ID"],
+                    "Pedido": df_data.loc[0, "Pedido"],
+                    "Tag": df_data.loc[0, "Tag"]
+                }
+
+            # Extract values and sort them
+                elements_masters = list(zip(df_data["Elemento 1"], df_data["Patrón 1"]))
+
+            # Order by "Elemento 1"
+                elements_masters.sort(key=lambda x: x[0])
+
+            # Add dynamically the necessary columns
+                for idx, (elemento, patron) in enumerate(elements_masters, start=1):
+                    merged_data[f"Elemento {idx}"] = elemento
+                    merged_data[f"Patrón {idx}"] = patron
+
+                final_df = pd.DataFrame([merged_data])
+
+            # Update the data in the database with combined values
+                values_to_update = (
+                    final_df.loc[0, "Elemento 1"],
+                    final_df.loc[0, "Patrón 1"],
+                    final_df.loc[0, "Elemento 2"],
+                    final_df.loc[0, "Patrón 2"],
+                    final_df.loc[0, "Elemento 3"],
+                    final_df.loc[0, "Patrón 3"],
+                    final_df.loc[0, "Elemento 4"],
+                    final_df.loc[0, "Patrón 4"],
+                    final_df.loc[0, "ID"],
+                )
+
+                cur.execute(update_data, values_to_update)
+
+            # Delete the other data not necessary
+                id_to_keep = final_df.loc[0, "ID"]
+                ids_to_delete = final_df['ID'].tolist()
+                ids_to_delete.remove(id_to_keep)
+
+                if ids_to_delete:
+                    cur.execute(delete_query, (ids_to_delete,))
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
 
 
