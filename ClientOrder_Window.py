@@ -2382,6 +2382,7 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         """
         Modify the corresponding entry in database after validating form inputs.
         """
+        order_id=self.label_IDOrder.text()
         record_id=self.label_IDRecord.text()
         supply_name=self.Supply_ClientOrder.currentText()
         supply_name=supply_name[:supply_name.find(" |")]
@@ -2392,7 +2393,18 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
         supply_id=self.Supply_ClientOrder.currentText().split("|")[-1].strip().split(":")[1]
         notes_supply=self.ObsSupply_ClientOrder.toPlainText()
 
-        if record_id == "":
+        if order_id == "":
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Modificar Registros")
+            dlg.setText("No puedes hacer lo que estas intentando, flipao")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+
+        elif record_id == "":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
