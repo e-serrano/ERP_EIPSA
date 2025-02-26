@@ -13,7 +13,7 @@ from OrderAccept_Window import Ui_OrderAccept_Window
 import os
 from config import config
 import psycopg2
-from Excel_Export_Templates import order_ovr, doc_situation, vendor_progress_report
+from Excel_Export_Templates import order_ovr, doc_situation, vendor_progress_report, spares_two_years
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -100,40 +100,36 @@ class Ui_ExportDocs_Menu(object):
         self.Button_ExportOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_ExportOffer.setObjectName("Button_ExportOffer")
         self.gridLayout_2.addWidget(self.Button_ExportOffer, 1, 0, 1, 1)
-        spacerItem = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem, 2, 0, 1, 1)
         self.Button_OrderAccept = QtWidgets.QPushButton(parent=self.frame)
         self.Button_OrderAccept.setMinimumSize(QtCore.QSize(250, 35))
         self.Button_OrderAccept.setMaximumSize(QtCore.QSize(250, 35))
         self.Button_OrderAccept.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_OrderAccept.setObjectName("Button_OrderAccept")
-        self.gridLayout_2.addWidget(self.Button_OrderAccept, 3, 0, 1, 1)
-        spacerItem1 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem1, 4, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_OrderAccept, 2, 0, 1, 1)
         self.Button_OVR = QtWidgets.QPushButton(parent=self.frame)
         self.Button_OVR.setMinimumSize(QtCore.QSize(250, 35))
         self.Button_OVR.setMaximumSize(QtCore.QSize(250, 35))
         self.Button_OVR.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_OVR.setObjectName("Button_OVR")
-        self.gridLayout_2.addWidget(self.Button_OVR, 5, 0, 1, 1)
-        spacerItem2 = QtWidgets.QSpacerItem(20, 50, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem2, 6, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_OVR, 3, 0, 1, 1)
         self.Button_DocSituation = QtWidgets.QPushButton(parent=self.frame)
         self.Button_DocSituation.setMinimumSize(QtCore.QSize(250, 35))
         self.Button_DocSituation.setMaximumSize(QtCore.QSize(250, 35))
         self.Button_DocSituation.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_DocSituation.setObjectName("Button_DocSituation")
-        self.gridLayout_2.addWidget(self.Button_DocSituation, 7, 0, 1, 1)
-        spacerItem3 = QtWidgets.QSpacerItem(20, 80, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem3, 8, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_DocSituation, 4, 0, 1, 1)
         self.Button_VPR = QtWidgets.QPushButton(parent=self.frame)
         self.Button_VPR.setMinimumSize(QtCore.QSize(250, 35))
         self.Button_VPR.setMaximumSize(QtCore.QSize(250, 35))
         self.Button_VPR.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_VPR.setObjectName("Button_VPR")
-        self.gridLayout_2.addWidget(self.Button_VPR, 9, 0, 1, 1)
-        spacerItem3 = QtWidgets.QSpacerItem(20, 80, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
-        self.gridLayout_2.addItem(spacerItem3, 10, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_VPR, 5, 0, 1, 1)
+        self.Button_Spares = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Spares.setMinimumSize(QtCore.QSize(250, 35))
+        self.Button_Spares.setMaximumSize(QtCore.QSize(250, 35))
+        self.Button_Spares.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_Spares.setObjectName("Button_Spares")
+        self.gridLayout_2.addWidget(self.Button_Spares, 6, 0, 1, 1)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
         self.horizontalLayout.setObjectName("horizontalLayout")
@@ -146,7 +142,7 @@ class Ui_ExportDocs_Menu(object):
         self.Button_Cancel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Cancel.setObjectName("Button_Cancel")
         self.horizontalLayout.addWidget(self.Button_Cancel)
-        self.gridLayout_2.addLayout(self.horizontalLayout, 11, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.horizontalLayout, 7, 0, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         ExportDocs_Menu.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=ExportDocs_Menu)
@@ -164,6 +160,7 @@ class Ui_ExportDocs_Menu(object):
         self.Button_OVR.clicked.connect(self.order_ovr)
         self.Button_DocSituation.clicked.connect(self.doc_situation)
         self.Button_VPR.clicked.connect(self.vendor_progress)
+        self.Button_Spares.clicked.connect(self.spares)
         QtCore.QMetaObject.connectSlotsByName(ExportDocs_Menu)
 
 
@@ -179,6 +176,7 @@ class Ui_ExportDocs_Menu(object):
         self.Button_OVR.setText(_translate("ExportDocs_Menu", "Generar OVR"))
         self.Button_DocSituation.setText(_translate("ExportDocs_Menu", "Situación Doc."))
         self.Button_VPR.setText(_translate("ExportDocs_Menu", "Generar VPR"))
+        self.Button_Spares.setText(_translate("ExportDocs_Menu", "Generar Repuestos"))
         self.Button_Cancel.setText(_translate("ExportDocs_Menu", "Cancelar"))
 
 # Function to export offers in excel format
@@ -393,7 +391,6 @@ class Ui_ExportDocs_Menu(object):
             else:
                 break
 
-
 # Function to export document situation of orders in excel format
     def vendor_progress(self):
         """
@@ -498,6 +495,86 @@ class Ui_ExportDocs_Menu(object):
                 dlg_error.setWindowIcon(new_icon)
                 dlg_error.setWindowTitle("VPR")
                 dlg_error.setText("La referencia no puede estar vacía. Introduce un valor válido.")
+                dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg_error.exec()
+                del dlg_error,new_icon
+            else:
+                break
+
+# Function to export spares in excel format
+    def spares(self):
+        """
+        Exort spares for a given order
+        """
+        dlg = QtWidgets.QInputDialog()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle('Repuestos 2 años')
+        dlg.setLabelText('Introduce un pedido (P-XX/YYY):')
+
+        while True:
+            clickedButton = dlg.exec()
+            if clickedButton == 1:
+                num_order = dlg.textValue()
+                if num_order != '':
+                    commands_checkorder = ("""
+                            SELECT *
+                            FROM orders
+                            WHERE "num_order" LIKE ('%%'||%s||'%%')
+                            """)
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands one by one
+                        cur.execute(commands_checkorder,(num_order,))
+                        results=cur.fetchall()
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg_error_db = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg_error_db.setWindowIcon(new_icon)
+                        dlg_error_db.setWindowTitle("ERP EIPSA")
+                        dlg_error_db.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg_error_db.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg_error_db.exec()
+                        del dlg_error_db, new_icon
+
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+                    if len(results) == 0:
+                        dlg_no_order = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg_no_order.setWindowIcon(new_icon)
+                        dlg_no_order.setWindowTitle("Repuestos")
+                        dlg_no_order.setText("El número de pedido introducido no existe. Introduce un pedido válido")
+                        dlg_no_order.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                        dlg_no_order.exec()
+                        del dlg, new_icon
+                        break
+
+                    else:
+                        spares_two_years(num_order)
+                        break
+                dlg_error = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg_error.setWindowIcon(new_icon)
+                dlg_error.setWindowTitle("Repuestos")
+                dlg_error.setText("El pedido no puede estar vacío. Introduce un valor válido.")
                 dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg_error.exec()
                 del dlg_error,new_icon

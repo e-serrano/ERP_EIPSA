@@ -15,6 +15,7 @@ from PyQt6 import QtGui, QtWidgets
 import os
 from math import exp
 import re
+import numpy as np
 
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -7680,17 +7681,6 @@ class offer_flow_temp:
         for image in sheet._images:
             image.width -= 22
 
-
-
-
-
-
-
-
-
-
-
-
 # Templates for commercials
 class order_ovr:
     """
@@ -8193,6 +8183,253 @@ class vendor_progress_report:
                         cell.style = date_style
 
             writer._save()
+
+class spares_two_years:
+    """
+    A class to manage spares of two years.
+    
+    Attributes:
+        num_order (str): The order number.
+        dict_orders (dict): A dictionary to store additional order details.
+    """
+    def __init__(self, num_order):
+        """
+        Initializes an spares_two_years instance with order number and an empty dictionary for storing orders.
+        
+        Args:
+            num_order (str): The order number.
+        """
+        self.num_order = num_order
+        dict_orders = {}
+
+        query_order_data = ("""
+                        SELECT orders."num_order", orders."order_date", orders."num_ref_order"
+                        FROM orders
+                        WHERE (
+                        UPPER(orders."num_order") LIKE UPPER('%%'||%s||'%%')
+                        )
+                        ORDER BY orders."num_order"
+                        """)
+
+        query_flow = ('''
+            SELECT tags_data.tags_flow."num_order"
+            FROM tags_data.tags_flow
+            WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
+            ''')
+        query_temp = ('''
+            SELECT tags_data.tags_temp."num_order"
+            FROM tags_data.tags_temp
+            WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
+            ''')
+        query_level = ('''
+            SELECT tags_data.tags_level."num_order"
+            FROM tags_data.tags_level
+            WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
+            ''')
+        query_others = ('''
+            SELECT tags_data.tags_others."num_order"
+            FROM tags_data.tags_others
+            WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
+            ''')
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(query_order_data,(self.num_order,))
+            results_orders=cur.fetchall()
+
+            for result in results_orders:
+                dict_orders[result[0]] = result[1]
+
+            cur.execute(query_flow,(self.num_order,))
+            results_flow=cur.fetchall()
+            cur.execute(query_temp,(self.num_order,))
+            results_temp=cur.fetchall()
+            cur.execute(query_level,(self.num_order,))
+            results_level=cur.fetchall()
+            cur.execute(query_others,(self.num_order,))
+            results_others=cur.fetchall()
+
+            if len(results_flow) != 0:
+                self.variable = 'Caudal'
+            elif len(results_temp) != 0:
+                self.variable = 'Temperatura'
+            elif len(results_level) != 0:
+                self.variable = 'Nivel'
+            elif len(results_others) != 0:
+                self.variable = 'Otros'
+            else:
+                self.variable = ''
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+            if self.variable == 'Caudal':
+                self.table_name = "tags_data.tags_flow"
+            elif self.variable == 'Temperatura':
+                self.table_name = "tags_data.tags_temp"
+            elif self.variable == 'Nivel':
+                self.table_name = "tags_data.tags_level"
+            elif self.variable == 'Otros':
+                self.table_name = "tags_data.tags_others"
+            else:
+                self.table_name = ''
+
+        if self.table_name == "tags_data.tags_flow":
+            commands_tags = f"""
+            SELECT '' AS spare_id, '' AS model_number, '' AS UNIT,
+            tags.tag, tags.line_size || tags.rating || tags.facing || ' Material.' || tags.gasket_material,
+            '' AS group_number, '' AS serial_number,
+            tags.dwg_num_doc_eipsa, docs.num_doc_client
+            FROM {self.table_name} AS tags
+            LEFT JOIN documentation AS docs ON (tags.dwg_num_doc_eipsa = docs.num_doc_eipsa)
+            WHERE tags.num_order LIKE UPPER ('%%'||'{self.num_order}'||'%%')
+            ORDER BY tags.num_order
+            """
+
+        elif self.table_name == "tags_data.tags_temp":
+            commands_tags = f"""
+            SELECT '' AS spare_id, '' AS model_number, '' AS UNIT,
+            tags.tag, tags.tw_type || ' ' || tags.flange_size || tags.flange_rating || tags.flange_facing || ' Material.' || tags.material_tw ||
+            ' - U(mm)=' || tags.ins_length || ' - Rootø(mm)=' || tags.root_diam || ' - Tipø(mm)=' || tags.tip_diam || ' ' || tags.sensor_element,
+            '' AS group_number, '' AS serial_number,
+            tags.dwg_num_doc_eipsa, docs.num_doc_client
+            FROM {self.table_name} AS tags
+            LEFT JOIN documentation AS docs ON (tags.dwg_num_doc_eipsa = docs.num_doc_eipsa)
+            WHERE tags.num_order LIKE UPPER ('%%'||'{self.num_order}'||'%%')
+            ORDER BY tags.num_order
+            """
+            
+
+        if self.variable in ['Caudal', 'Temperatura']:
+            try:
+            # read the connection parameters
+                params = config()
+            # connect to the PostgreSQL server
+                conn = psycopg2.connect(**params)
+                cur = conn.cursor()
+
+                if self.variable != '':
+                    cur.execute(commands_tags)
+                    results=cur.fetchall()
+
+                    column_headers = ['SPARE ID', 'MODEL NUMBER', 'UNIT', 'TAG', 'DESCRIPTION', 'GROUP', 'SERIAL NUMBER', 'VENDOR DRAWING', 'DRAWING']
+
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
+
+            data_tags = pd.DataFrame(data=results, columns=column_headers)
+
+        # Identifying the unique descriptions and assigning an ID to each
+            df_unique = (
+                        data_tags.groupby('DESCRIPTION', as_index=False)
+                        .agg({'DESCRIPTION': 'first', 'TAG': 'count'})  # Counting the number of tags for each description
+                        .rename(columns={'TAG': 'total_number'})
+                        )
+            df_unique = df_unique.sort_values(by='DESCRIPTION').reset_index(drop=True)
+            df_unique.insert(0, 'desc_id', range(1, len(df_unique) + 1))
+            df_unique.insert(1, 'spare_id', "")
+            df_unique.insert(2, 'model_number', "")
+
+            df_unique['recommended_pre'] = np.ceil(df_unique['total_number'] * 0.10).astype(int)
+            df_unique['recommended_two'] = np.ceil(df_unique['total_number'] * 0.20).astype(int)
+            df_unique['approved'] = None
+
+            data_tags['GROUP'] = data_tags['DESCRIPTION'].map(df_unique.set_index('DESCRIPTION')['desc_id'])
+
+            self.wb_spares = load_workbook(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA REPUESTOS.xlsx")
+
+            sheet_name = "APPENDIX 1"
+            ws = self.wb_spares[sheet_name]
+
+            last_row = 3
+            for index, row in data_tags.iterrows():  # Data in desired row
+                for col_num, value in enumerate(row, start=1):
+                    cell = ws.cell(row=last_row, column=col_num)
+                    cell.value = value
+
+                last_row = last_row + 1
+
+            sheet_name = "APPENDIX 2"
+            ws = self.wb_spares[sheet_name]
+
+            last_row = 3
+            for index, row in data_tags.iterrows():  # Data in desired row
+                for col_num, value in enumerate(row, start=1):
+                    cell = ws.cell(row=last_row, column=col_num)
+                    cell.value = value
+
+                last_row = last_row + 1
+
+            sheet_name = "SP TABLE"
+            ws = self.wb_spares[sheet_name]
+
+            last_row = 3
+            for index, row in df_unique.iterrows():  # Data in desired row
+                for col_num, value in enumerate(row, start=1):
+                    cell = ws.cell(row=last_row, column=col_num)
+                    cell.value = value
+
+                last_row = last_row + 1
+
+            self.save_excel_spares()
+
+        else:
+            dlg_error = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg_error.setWindowIcon(new_icon)
+            dlg_error.setWindowTitle("Generar OVR")
+            dlg_error.setText("No existen tags de este pedido en el ERP")
+            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg_error.exec()
+            del dlg_error,new_icon
+
+    def save_excel_spares(self):
+        """Saves the populated Excel workbook to a specified location.
+        Opens a dialog window for the user to select the file path and name.
+        """
+        output_path = asksaveasfilename(
+            defaultextension=".xlsx",
+            filetypes=[("Archivos de Excel", "*.xlsx")],
+            title="Guardar Spares",
+        )
+        if output_path:
+            self.wb_spares.save(output_path)
+            return output_path
 
 # Templates for technicals
 class nuclear_annexes:
