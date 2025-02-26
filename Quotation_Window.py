@@ -1559,6 +1559,8 @@ class Ui_Quotation_Window(QtWidgets.QMainWindow):
 
             self.Supply_Quotation.setFocus()
 
+            self.position_table_record(str(int(supply_id)))
+
 # Function to load data of quotation in form fields
     def loadformquotation(self,current_row):
         """
@@ -1967,10 +1969,10 @@ class Ui_Quotation_Window(QtWidgets.QMainWindow):
         """
         id_quoation=self.label_IDCot.text()
         commands_queryrecord = ("""
-                        SELECT purch_fact.quotation_details."id",purch_fact.supplies."reference", purch_fact.supplies."description",
-                        purch_fact.quotation_details."quantity",purch_fact.quotation_details."currency_value",
+                        SELECT purch_fact.quotation_details."id", purch_fact.supplies."reference", purch_fact.supplies."description",
+                        purch_fact.quotation_details."quantity", purch_fact.quotation_details."currency_value",
                         purch_fact.currency."symbol_currency",
-                        purch_fact.quotation_details."value",purch_fact.quotation_details."notes",purch_fact.quotation_details."supply_id"
+                        purch_fact.quotation_details."value", purch_fact.quotation_details."notes", purch_fact.quotation_details."supply_id"
                         FROM purch_fact.quotation_details
                         LEFT JOIN purch_fact.currency ON (purch_fact.currency."id" = purch_fact.quotation_details."currency_id")
                         LEFT JOIN purch_fact.supplies ON (purch_fact.supplies."id" = purch_fact.quotation_details."supply_id")
@@ -2119,6 +2121,21 @@ class Ui_Quotation_Window(QtWidgets.QMainWindow):
             elif isinstance(focused_widget, QtWidgets.QComboBox):
                 focused_widget.setCurrentIndex(0)
 
+# Function to move table to specific item by text search
+    def position_table_record(self, record_position):
+        """
+        Selects and scrolls to the row in the Client Order record table based on the input position.
+        """
+        text_position = record_position
+
+        self.tableRecords.clearSelection()
+
+        for i in range(self.tableRecords.rowCount()):
+            item = self.tableRecords.item(i, 8)
+            if item is not None and text_position.upper() in item.text().upper():
+                item.setSelected(True)
+                self.tableRecords.scrollToItem(item)
+                return
 
 
 if __name__ == "__main__":
