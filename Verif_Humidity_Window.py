@@ -497,9 +497,6 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
             Humidity_Window (QtWidgets.QMainWindow): The main window for the UI setup.
         """
         Humidity_Window.setObjectName("Humidity_Window")
-        Humidity_Window.resize(1165, 945)
-        Humidity_Window.setMinimumSize(QtCore.QSize(1165, 945))
-        # Humidity_Window.setMaximumSize(QtCore.QSize(1165, 945))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Humidity_Window.setWindowIcon(icon)
@@ -583,7 +580,7 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame.setMinimumSize(QtCore.QSize(1145, 860))
+        # self.frame.setMinimumSize(QtCore.QSize(1145, 860))
         self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame.setObjectName("frame")
@@ -718,7 +715,7 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
         line2, = ax2.plot(time_stamp, humidity, label="Humedad", color="tab:blue")
 
         ax2.fill_between(time_stamp, humidity_limit, humidity, where=([h > lim for h, lim in zip(humidity, humidity_limit)]), 
-                        color="red", alpha=0.3, label="Exceso")  # Resalta cuando supera el límite
+                        color="red", alpha=0.3, label="Exceso")  # Highlight when it exceeds the limit
         ax2.plot(time_stamp, humidity_limit, label="Límite", color="orange", linestyle="--")
 
         ax2.tick_params(axis="y", labelcolor="tab:blue")
@@ -958,7 +955,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Humidity_Window = QtWidgets.QMainWindow()
-    ui = Ui_Humidity_Window('m.gila')
+    ui = Ui_Humidity_Window('m.gil')
     ui.setupUi(Humidity_Window)
     Humidity_Window.show()
     sys.exit(app.exec())
