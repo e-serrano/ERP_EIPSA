@@ -571,6 +571,7 @@ class Ui_Workshop_Thread_Masters_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolExpData.clicked.connect(self.export_data)
         self.toolSeeAll.clicked.connect(self.query_all_masters)
+        self.toolPDF.clicked.connect(self.add_pdf)
 
         self.query_masters()
 
@@ -1412,7 +1413,7 @@ class Ui_Workshop_Thread_Masters_Window(QtWidgets.QMainWindow):
                     # execution of commands
                         if index.column() == 2:
                             cur.execute(commands_insert_1, (pdf_path, value_id,))
-                        else:
+                        elif index.column() == 3:
                             cur.execute(commands_insert_2, (pdf_path, value_id,))
 
                     # close communication with the PostgreSQL database server
