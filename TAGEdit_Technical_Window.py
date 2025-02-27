@@ -2988,7 +2988,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     values = ', '.join([f"'{int(float(value))}'" if column in ['plug_number', 'tapping_number', 'bolts_quantity', 'extractor_quantity', 'flange_rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam',] and value.endswith('.0')
                                         else (f"'{value.replace('.', ',')}'" if column in ['amount', 'orif_diam', 'dv_diam', 'plate_thk','plate_ext_diam', 'conical_length', 'straigth_length', 'nozzle_diam', 'length_cut_tw', 'dim_a_sensor', 'dim_b_sensor', 'dim_l_sensor']
                                         else ('NULL' if value == 'N/A' and column in ['std_length', 'ins_length']
-                                        else ('NULL' if value == '' and column in ['rating', 'plate_thk', 'contractual_date', 'irc_date', 'rn_date', 'purchase_order_date', 'of_date', 'of_sensor_date']
+                                        else ('NULL' if value == '' and column in ['rating', 'plate_thk', 'contractual_date', 'irc_date', 'rn_date', 'purchase_order_date', 'of_date', 'of_sensor_date', 'calc_state_date','dwg_state_date']
                                         else "'{}'".format(value.replace('\'', '\'\''))))) for column, value in columns_values])
 
                 # Creating the SET  and WHERE clause with proper formatting
