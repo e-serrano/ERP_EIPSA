@@ -1071,6 +1071,9 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         self.model = EditableTableModel()
         self.splitter.addWidget(self.tableSupplies)
         self.gridLayout_2.addWidget(self.splitter, 2, 1, 1, 15)
+        self.Button_ReloadTable = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_ReloadTable.setObjectName("Button_ReloadTable")
+        self.gridLayout_2.addWidget(self.Button_ReloadTable, 1, 13, 1, 1)
         self.Button_CheckSupply = QtWidgets.QPushButton(parent=self.frame)
         self.Button_CheckSupply.setObjectName("Button_CheckSupply")
         self.gridLayout_2.addWidget(self.Button_CheckSupply, 1, 14, 1, 1)
@@ -1152,6 +1155,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         self.tableQuotations.itemDoubleClicked.connect(self.loadprice)
         self.tableSupplies.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked)
         self.tableQuotations.horizontalHeader().sectionClicked.connect(self.on_header_sectionquot_clicked)
+        self.Button_ReloadTable.clicked.connect(self.reloadsupplies)
         self.Button_AddSupply.clicked.connect(self.addsupply)
         self.Button_CheckSupply.clicked.connect(self.open_supply_mov)
         self.Position.textChanged.connect(self.position_table)
@@ -1191,6 +1195,7 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         item.setText(_translate("Supplies_Window", "Observaciones"))
         self.Button_AddSupply.setText(_translate("Supplies_Window", "Agregar"))
         self.Button_CheckSupply.setText(_translate("Supplies_Window", "Movimiento"))
+        self.Button_ReloadTable.setText(_translate("Supplies_Window", "Recargar"))
 
 # Function to save changes into database
     def saveChanges(self):
@@ -2202,7 +2207,15 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
 
             del dlg_yes_no, new_icon_yes_no
 
+# Function to reload supplies table and come back to the selected reference
+    def reloadsupplies(self):
+        index = self.tableSupplies.currentIndex()
+        current_row = index.row()
+        current_reference = self.proxy.data(self.proxy.index(current_row, 3))
 
+        self.loadtablesupplies()
+
+        self.position_table(current_reference)
 
 
 
