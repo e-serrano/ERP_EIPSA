@@ -11,6 +11,7 @@ import psycopg2
 from config import config
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+import matplotlib.dates as mdates
 from datetime import *
 import pandas as pd
 import os
@@ -666,6 +667,7 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
         query_humidity_data = ("""
                         SELECT temperature, humidity, humidity_limit, complete_date
                         FROM verification.humidity_temp_closet
+                        WHERE complete_date >= CURRENT_DATE - INTERVAL '3 months'
                         GROUP BY temperature, humidity, humidity_limit, complete_date
                         ORDER BY complete_date ASC
                         """)
@@ -725,6 +727,7 @@ class Ui_Humidity_Window(QtWidgets.QMainWindow):
         ax.tick_params(axis="x")
 
         ax.legend([line1, line2], ["Temperatura", "Humedad"], loc="best", facecolor="none")
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%Y'))
 
         if self.username == 'm.gil':
             ax.set_xlabel("Fecha", color="white")
