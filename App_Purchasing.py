@@ -1142,7 +1142,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_Notification.clicked.connect(self.notifications)
 
         self.backup_data()
-        self.warning_calibration()
+        # self.warning_calibration()
         self.load_notifications()
 
 
@@ -1906,7 +1906,8 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
 
             df_data = pd.DataFrame(results_dates, columns=['Número', 'Instrumento', 'Certificado', 'Próxima Revisión', 'Meses Preaviso'])
             df_data = df_data.sort_values(by='Número')
-            df_data["Certificado"] = df_data["Certificado"].apply(lambda x: Path(x).stem)
+            df_data["Certificado"] = df_data["Certificado"].fillna("")
+            df_data["Certificado"] = df_data["Certificado"].apply(lambda x: Path(x).stem if x else "")
             df_data["Certificado"] = df_data["Certificado"].apply(lambda x: x.split()[0])
 
             df_data["Próxima Revisión"] = pd.to_datetime(df_data["Próxima Revisión"], format="%d/%m/%Y") 
