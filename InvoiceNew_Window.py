@@ -3194,6 +3194,8 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
         self.ProvinceAlb_Invoice.editingFinished.connect(self.save_data_on_database)
         self.CountryAlb_Invoice.editingFinished.connect(self.save_data_on_database)
 
+        self.PayDate_Invoice.editingFinished.connect(self.save_data_on_database)
+
         # delete_action_record = QtGui.QAction("Eliminar Fila", self)
         # delete_action_record.triggered.connect(lambda: self.delete_register(self.tableRecords, "purch_fact.invoice_detail"))
 
@@ -3447,7 +3449,6 @@ class Ui_InvoiceNew_Window(QtWidgets.QMainWindow):
             client_group = self.label_ClientGroup.text() if self.label_ClientGroup.text() != '' else None
             
             destination_dispatch = "FACTURA" if delivnote_number == '-' else None
-            # date_dispatch = "-" if delivnote_number == '-' else None
 
             commands_clientsid = ("""
                             SELECT clients.id
