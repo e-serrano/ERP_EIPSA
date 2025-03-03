@@ -912,7 +912,6 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
 
         menu.exec(self.Calendar.mapToGlobal(point))
 
-
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, App_Comercial):
         """
@@ -975,7 +974,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         """
         from OfferEdit_Menu import Ui_EditOffer_Menu
         self.edit_offer_menu=QtWidgets.QMainWindow()
-        self.ui=Ui_EditOffer_Menu()
+        self.ui=Ui_EditOffer_Menu(self.username)
         self.ui.setupUi(self.edit_offer_menu)
         self.edit_offer_menu.show()
         self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)
@@ -986,7 +985,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         Opens a new window for querying offers. 
         """
         from OfferQuery_Window import Ui_QueryOffer_Window
-        self.query_offer_window=Ui_QueryOffer_Window()
+        self.query_offer_window=Ui_QueryOffer_Window(self.username)
         self.query_offer_window.show()
 
 # Function to open window for create orders
@@ -1705,7 +1704,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         from OfferEdit_Window import Ui_Edit_Offer_Window
         num_offer=item.text()
         self.edit_offer_window=QtWidgets.QMainWindow()
-        self.ui=Ui_Edit_Offer_Window(num_offer)
+        self.ui=Ui_Edit_Offer_Window(self.username, num_offer)
         self.ui.setupUi(self.edit_offer_window)
         self.edit_offer_window.show()
         self.ui.Button_Cancel.clicked.connect(self.update_principal_screen)

@@ -490,11 +490,12 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
     """
     UI class for the Query Offer window.
     """
-    def __init__(self):
+    def __init__(self, username):
         """
         Initializes the Ui_QueryOffer_Window.
         """
         super().__init__()
+        self.username = username
         self.setupUi(self)
 
     def setupUi(self, QueryOffer_Window):
@@ -1042,6 +1043,8 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
             dlg.setText(cell_content)
             dlg.exec()
             del dlg, new_icon
+        elif item.column() == 0:
+            self.editofferform(item)
 
     def export_data(self):
         """
@@ -1144,10 +1147,27 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         popup_pos = self.tableQueryOffer.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableQueryOffer.show_unique_values_menu(logical_index, popup_pos, header_height)
 
+# Function when double clicked cell is in client column
+    def editofferform(self, item):
+        """
+        Opens the offer edit form for the offer number displayed in the clicked item.
+        
+        Args:
+            item (QtWidgets.QTableWidgetItem): The item containing the offer number.
+        """
+        from OfferEdit_Window import Ui_Edit_Offer_Window
+        num_offer=item.text()
+        self.edit_offer_window=QtWidgets.QMainWindow()
+        self.ui=Ui_Edit_Offer_Window(self.username, num_offer)
+        self.ui.setupUi(self.edit_offer_window)
+        self.edit_offer_window.show()
+
+
+
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    QueryOffer_Window = Ui_QueryOffer_Window()
+    QueryOffer_Window = Ui_QueryOffer_Window('d.marquez')
     QueryOffer_Window.show()
     sys.exit(app.exec())

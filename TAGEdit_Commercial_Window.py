@@ -1842,7 +1842,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(157,columns_number):
                     self.tableEditTags.hideColumn(i)
-                if self.username == 'd.marquez':
+                if self.username in ['d.marquez', 'g.lopez']:
                     for i in range(63,67):
                         self.tableEditTags.showColumn(i)
 
@@ -2139,9 +2139,9 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(157,columns_number):
                         self.tableEditTags2.hideColumn(i)
-                    if self.username == 'd.marquez':
+                    if self.username in ['d.marquez', 'g.lopez']:
                         for i in range(63,67):
-                            self.tableEditTag2.showColumn(i)
+                            self.tableEditTags2.showColumn(i)
 
                 elif self.variable2 == 'Temperatura':
                     for i in range(54,75):
@@ -2945,102 +2945,103 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
 # Function to import data from excel
     def importexcel(self):
-        input_file = askopenfilename(filetypes=[("Excel files", "*.xlsx")])
+        if self.username not in ['d.marquez','g.lopez']:
+            input_file = askopenfilename(filetypes=[("Excel files", "*.xlsx")])
 
-        if input_file:
-            params = config()
-            conn = psycopg2.connect(**params)
-            cursor = conn.cursor()
+            if input_file:
+                params = config()
+                conn = psycopg2.connect(**params)
+                cursor = conn.cursor()
 
-        #Importing excel file into dataframe
-            df_table = pd.read_excel(input_file, skiprows=1, dtype={'image': str, 'document':str})
-            df_table = df_table.astype(str)
+            #Importing excel file into dataframe
+                df_table = pd.read_excel(input_file, skiprows=1, dtype={'image': str, 'document':str})
+                df_table = df_table.astype(str)
 
-            df_table.replace('nan', '', inplace=True)
-            df_table.replace('NaT', '', inplace=True)
+                df_table.replace('nan', '', inplace=True)
+                df_table.replace('NaT', '', inplace=True)
 
-            df_final = df_table.drop([
-                    "pmi_date",
-                    "ph1_date",
-                    "ph2_date",
-                    "lp_date",
-                    "hard_date",
-                    "final_verif_dim_date",
-                    "final_verif_of_eq_date",
-                    "tag_images"
-                    ],
-                    axis=1,
-                    errors="ignore",)
+                df_final = df_table.drop([
+                        "pmi_date",
+                        "ph1_date",
+                        "ph2_date",
+                        "lp_date",
+                        "hard_date",
+                        "final_verif_dim_date",
+                        "final_verif_of_eq_date",
+                        "tag_images"
+                        ],
+                        axis=1,
+                        errors="ignore",)
 
-            try:
-                for index, row in df_table.iterrows():
-                    if "id_tag_flow" in row:
-                        id_value = row["id_tag_flow"]
-                        table_name = 'tags_data.tags_flow'
-                        where_clause = f"id_tag_flow = {id_value}"
+                try:
+                    for index, row in df_table.iterrows():
+                        if "id_tag_flow" in row:
+                            id_value = row["id_tag_flow"]
+                            table_name = 'tags_data.tags_flow'
+                            where_clause = f"id_tag_flow = {id_value}"
 
-                    elif "id_tag_temp" in row:
-                        id_value = row["id_tag_temp"]
-                        table_name = 'tags_data.tags_temp'
-                        where_clause = f"id_tag_temp = {id_value}"
+                        elif "id_tag_temp" in row:
+                            id_value = row["id_tag_temp"]
+                            table_name = 'tags_data.tags_temp'
+                            where_clause = f"id_tag_temp = {id_value}"
 
-                    elif "id_tag_level" in row:
-                        id_value = row["id_tag_level"]
-                        table_name = 'tags_data.tags_level'
-                        where_clause = f"id_tag_level = {id_value}"
+                        elif "id_tag_level" in row:
+                            id_value = row["id_tag_level"]
+                            table_name = 'tags_data.tags_level'
+                            where_clause = f"id_tag_level = {id_value}"
 
-                    elif "id_tag_others" in row:
-                        id_value = row["id_tag_others"]
-                        table_name = 'tags_data.tags_others'
-                        where_clause = f"id_tag_others = {id_value}"
+                        elif "id_tag_others" in row:
+                            id_value = row["id_tag_others"]
+                            table_name = 'tags_data.tags_others'
+                            where_clause = f"id_tag_others = {id_value}"
 
-                    # Creating string for columns names and values
-                    columns_values = [(column, row[column]) for column in df_final.columns if column not in ['tapping_size','tapping_number'] and not pd.isnull(row[column])]
+                        # Creating string for columns names and values
+                        columns_values = [(column, row[column]) for column in df_final.columns if column not in ['tapping_size','tapping_number'] and not pd.isnull(row[column])]
 
-                    columns = ', '.join([column for column, _ in columns_values])
-                    values = ', '.join([f"'{int(float(value))}'" if column in ['plug_number', 'tapping_number', 'bolts_quantity', 'extractor_quantity', 'flange_rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam',] and value.endswith('.0')
-                                        else (f"'{value.replace('.', ',')}'" if column in ['amount', 'orif_diam', 'dv_diam', 'plate_thk','plate_ext_diam', 'conical_length', 'straigth_length', 'nozzle_diam', 'length_cut_tw', 'dim_a_sensor', 'dim_b_sensor', 'dim_l_sensor']
-                                        else ('NULL' if value == 'N/A' and column in ['std_length', 'ins_length']
-                                        else ('NULL' if value == '' and column in ['rating', 'plate_thk', 'contractual_date', 'irc_date', 'rn_date', 'purchase_order_date', 'of_date', 'of_sensor_date']
-                                        else "'{}'".format(value.replace('\'', '\'\''))))) for column, value in columns_values])
+                        columns = ', '.join([column for column, _ in columns_values])
+                        values = ', '.join([f"'{int(float(value))}'" if column in ['plug_number', 'tapping_number', 'bolts_quantity', 'extractor_quantity', 'flange_rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam',] and value.endswith('.0')
+                                            else (f"'{value.replace('.', ',')}'" if column in ['amount', 'orif_diam', 'dv_diam', 'plate_thk','plate_ext_diam', 'conical_length', 'straigth_length', 'nozzle_diam', 'length_cut_tw', 'dim_a_sensor', 'dim_b_sensor', 'dim_l_sensor']
+                                            else ('NULL' if value == 'N/A' and column in ['std_length', 'ins_length']
+                                            else ('NULL' if value == '' and column in ['rating', 'plate_thk', 'contractual_date', 'irc_date', 'rn_date', 'purchase_order_date', 'of_date', 'of_sensor_date']
+                                            else "'{}'".format(value.replace('\'', '\'\''))))) for column, value in columns_values])
 
-                # Creating the SET  and WHERE clause with proper formatting
-                    set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
+                    # Creating the SET  and WHERE clause with proper formatting
+                        set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
 
-                # Creating the update query and executing it after checking existing tags and id
-                    sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
-                    cursor.execute(sql_update)
+                    # Creating the update query and executing it after checking existing tags and id
+                        sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
+                        cursor.execute(sql_update)
+                        conn.commit()
+
+                # Closing cursor and database connection
                     conn.commit()
+                    cursor.close()
 
-            # Closing cursor and database connection
-                conn.commit()
-                cursor.close()
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Datos actualizados con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg, new_icon
 
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Datos actualizados con éxito")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                dlg.exec()
-                del dlg, new_icon
-
-            except (Exception, psycopg2.DatabaseError) as error:
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                print(error)
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                dlg.exec()
-                del dlg, new_icon
-            finally:
-                if conn is not None:
-                    conn.close()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    print(error)
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
 
 # Function to enable copy and paste cells
     def keyPressEvent(self, event):
@@ -3231,119 +3232,123 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
         Shows a message box if there is no data to export and allows the user to save the data to an Excel file.
         """
-        if self.proxy.rowCount() == 0:
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Exportar")
-            dlg.setText("No hay datos cargados")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
-        else:
-            final_data = []
+        if self.username not in ['d.marquez','g.lopez']:
+            if self.proxy.rowCount() == 0:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Exportar")
+                dlg.setText("No hay datos cargados")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg,new_icon
+            else:
+                final_data = []
 
-            visible_columns = [col for col in range(self.model.columnCount()) if not self.tableEditTags.isColumnHidden(col)]
-            visible_headers = self.model.getColumnHeaders(visible_columns)
-            for row in range(self.proxy.rowCount()):
-                tag_data = []
-                for column in visible_columns:
-                    value = self.proxy.data(self.proxy.index(row, column))
-                    if isinstance(value, QDate):
-                        value = value.toString("dd/MM/yyyy")
-                    tag_data.append(value)
-                final_data.append(tag_data)
+                visible_columns = [col for col in range(self.model.columnCount()) if not self.tableEditTags.isColumnHidden(col)]
+                visible_headers = self.model.getColumnHeaders(visible_columns)
+                for row in range(self.proxy.rowCount()):
+                    tag_data = []
+                    for column in visible_columns:
+                        value = self.proxy.data(self.proxy.index(row, column))
+                        if isinstance(value, QDate):
+                            value = value.toString("dd/MM/yyyy")
+                        tag_data.append(value)
+                    final_data.append(tag_data)
 
-            final_data.insert(0, visible_headers)
-            df_generated = pd.DataFrame(final_data)
-            df_generated.columns = df_generated.iloc[0]
+                final_data.insert(0, visible_headers)
+                df_generated = pd.DataFrame(final_data)
+                df_generated.columns = df_generated.iloc[0]
 
-            if self.variable == 'Caudal':
-                df_generated = df_generated.iloc[1:,:34]
-            elif self.variable == 'Temperatura':
-                df_generated = df_generated.iloc[1:,:39]
-            elif self.variable == 'Nivel':
-                df_generated = df_generated.iloc[1:,:40]
-            elif self.variable == 'Otros':
-                df_generated = df_generated.iloc[1:,:15]
+                if self.variable == 'Caudal':
+                    df_generated = df_generated.iloc[1:,:34]
+                elif self.variable == 'Temperatura':
+                    df_generated = df_generated.iloc[1:,:39]
+                elif self.variable == 'Nivel':
+                    df_generated = df_generated.iloc[1:,:40]
+                elif self.variable == 'Otros':
+                    df_generated = df_generated.iloc[1:,:15]
 
-        # Sorting dataframe by ID
-            df_generated[df_generated.columns[0]] = df_generated[df_generated.columns[0]].astype(int)
-            df_generated = df_generated.sort_values(by=df_generated.columns[0], ascending=True)
+            # Sorting dataframe by ID
+                df_generated[df_generated.columns[0]] = df_generated[df_generated.columns[0]].astype(int)
+                df_generated = df_generated.sort_values(by=df_generated.columns[0], ascending=True)
 
-            output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar Excel Comparativo")
-            if output_path:
-                df_generated.to_excel(output_path, index=False, header=True)
+                output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar Excel Comparativo")
+                if output_path:
+                    df_generated.to_excel(output_path, index=False, header=True)
 
-            comparison_file = askopenfilename(filetypes=[("Excel files", "*.xlsx")], title="Seleccionar Excel Importación")
+                comparison_file = askopenfilename(filetypes=[("Excel files", "*.xlsx")], title="Seleccionar Excel Importación")
 
-            if not comparison_file:
-                print("No se seleccionó ningún archivo.")
-                return
+                if not comparison_file:
+                    print("No se seleccionó ningún archivo.")
+                    return
 
-        # Read Excel file with original data
-            if self.variable == 'Caudal':
-                df_original = pd.read_excel(comparison_file, usecols=range(34), skiprows=7, dtype=str, keep_default_na=False, na_values=[])
-            elif self.variable == 'Temperatura':
-                df_original = pd.read_excel(comparison_file, usecols=range(39), skiprows=7, dtype=str, keep_default_na=False, na_values=[])
-            elif self.variable == 'Nivel':
-                df_original = pd.read_excel(comparison_file, usecols=range(40), skiprows=7, dtype=str, keep_default_na=False, na_values=[])
-            elif self.variable == 'Otros':
-                df_original = pd.read_excel(comparison_file, usecols=range(15), skiprows=7, dtype=str, keep_default_na=False, na_values=[])
+            # Read Excel file with original data
+                if self.variable == 'Caudal':
+                    df_original = pd.read_excel(comparison_file, usecols=range(34), skiprows=7, dtype=str, keep_default_na=False, na_values=[])
+                elif self.variable == 'Temperatura':
+                    df_original = pd.read_excel(comparison_file, usecols=range(39), skiprows=7, dtype=str, keep_default_na=False, na_values=[])
+                elif self.variable == 'Nivel':
+                    df_original = pd.read_excel(comparison_file, usecols=range(40), skiprows=7, dtype=str, keep_default_na=False, na_values=[])
+                elif self.variable == 'Otros':
+                    df_original = pd.read_excel(comparison_file, usecols=range(15), skiprows=7, dtype=str, keep_default_na=False, na_values=[])
 
-            # if df_generated.shape != df_original.shape:
-            #     print("Los archivos tienen diferentes formas y no se pueden comparar.")
-            #     return
+                # if df_generated.shape != df_original.shape:
+                #     print("Los archivos tienen diferentes formas y no se pueden comparar.")
+                #     return
 
-        # Open generated excel
-            workbook = load_workbook(output_path)
-            sheet = workbook.active
+            # Open generated excel
+                workbook = load_workbook(output_path)
+                sheet = workbook.active
 
-        # Red fill for diferencesRelleno rojo para diferencias
-            fill_red = PatternFill(start_color="fa5151", end_color="fa5151", fill_type="solid")
+            # Red fill for diferencesRelleno rojo para diferencias
+                fill_red = PatternFill(start_color="fa5151", end_color="fa5151", fill_type="solid")
 
-        # Sorting dataframe by ID
-            df_original[df_original.columns[0]] = df_original[df_original.columns[0]].astype(int)
-            df_original = df_original.sort_values(by=df_original.columns[0], ascending=True)
+            # Sorting dataframe by ID
+                df_original[df_original.columns[0]] = df_original[df_original.columns[0]].astype(int)
+                df_original = df_original.sort_values(by=df_original.columns[0], ascending=True)
 
-        # Change date format on dataframe with original data
-            df_original['contractual_date'] = pd.to_datetime(df_original['contractual_date'], errors='coerce')
-            df_original['contractual_date'] = df_original['contractual_date'].dt.strftime('%d/%m/%Y')
-            df_original['amount'] = (df_original['amount'].astype(float))
+            # Change date format on dataframe with original data
+                df_original['contractual_date'] = pd.to_datetime(df_original['contractual_date'], errors='coerce')
+                df_original['contractual_date'] = df_original['contractual_date'].dt.strftime('%d/%m/%Y')
+                df_original['amount'] = (df_original['amount'].astype(float))
 
-        # Change price format on dataframe with final data
-            df_generated['Precio (€)'] = (df_generated['Precio (€)'].str.replace('.', '').str.replace(',', '.').str.replace(' €', '').astype(float))
-            if 'Espesor Placa' in df_generated.columns:
-                df_generated['Espesor Placa'] = (df_generated['Espesor Placa'].str.replace(',', '.').astype(str))
+            # Change price format on dataframe with final data
+                df_generated['Precio (€)'] = (df_generated['Precio (€)'].str.replace('.', '').str.replace(',', '.').str.replace(' €', '').astype(float))
+                if 'Espesor Placa' in df_generated.columns:
+                    df_generated['Espesor Placa'] = (df_generated['Espesor Placa'].str.replace(',', '.').astype(str))
 
-        # Compare cell by cell
-            for row in range(df_generated.shape[0]):
-                for col in range(df_generated.shape[1]):
-                    gen_value = df_generated.iloc[row, col]
-                    comp_value = df_original.iloc[row, col]
+            # Compare cell by cell
+                for row in range(df_generated.shape[0]):
+                    for col in range(df_generated.shape[1]):
+                        gen_value = df_generated.iloc[row, col]
+                        comp_value = df_original.iloc[row, col]
 
-                    if pd.isna(gen_value) and pd.isna(comp_value):
-                        continue  # Both cell are NaN, no differences
+                        if pd.isna(gen_value) and pd.isna(comp_value):
+                            continue  # Both cell are NaN, no differences
 
-                    if gen_value != comp_value:
-                        # Fill cell in red if there is difference
-                        excel_row = row + 2  # +2 to adjust to Excel index (1-based) and header
-                        excel_col = col + 1  # +1 to adjust to Excel index (1-based)
-                        sheet.cell(row=excel_row, column=excel_col).fill = fill_red
+                        if gen_value != comp_value:
+                            # Fill cell in red if there is difference
+                            excel_row = row + 2  # +2 to adjust to Excel index (1-based) and header
+                            excel_col = col + 1  # +1 to adjust to Excel index (1-based)
+                            sheet.cell(row=excel_row, column=excel_col).fill = fill_red
 
-        # Save file with differences filled
-            workbook.save(output_path)
+            # Save file with differences filled
+                workbook.save(output_path)
 
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("ERP EIPSA")
-            dlg.setText("Excel comparativo generado")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-            dlg.exec()
-            del dlg, new_icon
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Excel comparativo generado")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+                del dlg, new_icon
+
+
+
 
 
 if __name__ == "__main__":
@@ -3360,6 +3365,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    EditTagsCommercial_Window = Ui_EditTags_Commercial_Window(db,'d.marquez')
+    EditTagsCommercial_Window = Ui_EditTags_Commercial_Window(db,'g.lopez')
     EditTagsCommercial_Window.show()
     sys.exit(app.exec())

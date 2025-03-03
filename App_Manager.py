@@ -531,7 +531,7 @@ class Ui_App_Manager(object):
         """
         from OfferQuery_Window import Ui_QueryOffer_Window
         self.query_offer_window=QtWidgets.QMainWindow()
-        self.ui=Ui_QueryOffer_Window()
+        self.ui=Ui_QueryOffer_Window(self.username)
         self.ui.setupUi(self.query_offer_window)
         self.query_offer_window.show()
 
@@ -630,21 +630,22 @@ class Ui_App_Manager(object):
 # Function to check if column index of double clicked cell is equal to first column index
     def on_item_double_clicked(self, item):
         """
-        Handles the double-click event on items in a table.
-
+        Handles double-click events on items in a QTableWidget. Opens different forms based on the column of the clicked item.
+        
         Args:
-            item (QTableWidgetItem): The item that was double-clicked.
+            item (QtWidgets.QTableWidgetItem): The item that was double-clicked.
         """
         if item.column() == 2:
             self.clientresume(item)
-
+        elif item.column() == 0:
+            self.editofferform(item)
         elif item.column() in [8,9,10]:
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Ofertas")
+            dlg.setWindowTitle("Manager")
             dlg.setText(cell_content)
             dlg.exec()
 
@@ -663,7 +664,20 @@ class Ui_App_Manager(object):
         self.ui.setupUi(self.client_resume_window)
         self.client_resume_window.show()
 
-
+# Function when double clicked cell is in client column
+    def editofferform(self, item):
+        """
+        Opens the offer edit form for the offer number displayed in the clicked item.
+        
+        Args:
+            item (QtWidgets.QTableWidgetItem): The item containing the offer number.
+        """
+        from OfferEdit_Window import Ui_Edit_Offer_Window
+        num_offer=item.text()
+        self.edit_offer_window=QtWidgets.QMainWindow()
+        self.ui=Ui_Edit_Offer_Window(self.username, num_offer)
+        self.ui.setupUi(self.edit_offer_window)
+        self.edit_offer_window.show()
 
 
 # if __name__ == "__main__":

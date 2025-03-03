@@ -19,6 +19,15 @@ class Ui_EditOffer_Menu(object):
     """
     UI class for the Edit Offer Menu window.
     """
+    def __init__(self, username):
+        """
+        Initializes the Ui_Edit_Offer_Window with the specified offer number.
+
+        Args:
+            username (str, optionañ): offer number associated with the window.
+        """
+        self.username = username
+
     def setupUi(self, EditOffer_Menu):
         """
         Sets up the user interface for the EditOffer_Menu.
@@ -185,7 +194,7 @@ class Ui_EditOffer_Menu(object):
             EditOffer_Menu (QtWidgets.QWidget): The current menu to hide when the new window is shown.
         """
         self.editoffer_window=QtWidgets.QMainWindow()
-        self.ui=Ui_Edit_Offer_Window()
+        self.ui=Ui_Edit_Offer_Window(self.username)
         self.ui.setupUi(self.editoffer_window)
         self.editoffer_window.show()
         EditOffer_Menu.hide()

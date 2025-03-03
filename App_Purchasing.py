@@ -1179,7 +1179,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         """
         from OfferQuery_Window import Ui_QueryOffer_Window
         self.query_offer_window=QtWidgets.QMainWindow()
-        self.ui=Ui_QueryOffer_Window()
+        self.ui=Ui_QueryOffer_Window(self.username)
         self.ui.setupUi(self.query_offer_window)
         self.query_offer_window.showMaximized()
 
