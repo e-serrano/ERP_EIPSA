@@ -571,6 +571,7 @@ class Ui_Workshop_WeldEq_Masters_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolExpData.clicked.connect(self.export_data)
         self.toolSeeAll.clicked.connect(self.query_all_masters)
+        self.toolPDF.clicked.connect(self.add_pdf)
 
         self.query_masters()
 
