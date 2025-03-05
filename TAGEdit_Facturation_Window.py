@@ -20,7 +20,7 @@ import locale
 from datetime import *
 import os
 import pandas as pd
-from tkinter.filedialog import asksaveasfilename
+from tkinter.filedialog import asksaveasfilename, askopenfilename
 
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -835,9 +835,20 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         self.toolExpExcel.setToolTip("Exportar a Excel")
         self.hcab.addWidget(self.toolExpExcel)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Excel.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Download.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolExpExcel.setIcon(icon)
         self.toolExpExcel.setIconSize(QtCore.QSize(25, 25))
+
+        self.hcabspacer7=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer7)
+        self.toolImpExcel = QtWidgets.QToolButton(self.frame)
+        self.toolImpExcel.setObjectName("ImpExcel_Button")
+        self.toolImpExcel.setToolTip("Importar Excel")
+        self.hcab.addWidget(self.toolImpExcel)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Upload.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolImpExcel.setIcon(icon)
+        self.toolImpExcel.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer2=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer2)
         self.toolInvoice = QtWidgets.QToolButton(self.frame)
@@ -999,6 +1010,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolShow.clicked.connect(self.show_columns)
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
+        self.toolImpExcel.clicked.connect(self.importexcel)
         self.toolInvoice.clicked.connect(self.send_to_invoice)
         self.Numorder_EditTags.returnPressed.connect(self.query_tags)
         self.model.dataChanged.connect(self.saveChanges)
@@ -1362,7 +1374,6 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
             self.model.column_range = list(range(self.initial_column,self.initial_column + 3)) + list(range(self.initial_column2,columns_number - 9))
 
             if self.variable == 'Caudal':
-                self.tableEditTags.hideColumn(0)
                 for i in range(3,4):
                     self.tableEditTags.hideColumn(i)
                 for i in range(9,30):
@@ -1375,7 +1386,6 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Temperatura':
-                self.tableEditTags.hideColumn(0)
                 for i in range(3,4):
                     self.tableEditTags.hideColumn(i)
                 for i in range(9,35):
@@ -1388,7 +1398,6 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Nivel':
-                self.tableEditTags.hideColumn(0)
                 for i in range(3,4):
                     self.tableEditTags.hideColumn(i)
                 for i in range(10,36):
@@ -1401,7 +1410,6 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Otros':
-                self.tableEditTags.hideColumn(0)
                 for i in range(3,4):
                     self.tableEditTags.hideColumn(i)
                 for i in range(9,11):
@@ -1613,7 +1621,6 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                 self.model2.column_range = list(range(self.initial_column_,self.initial_column_ + 3)) + list(range(self.initial_column2_,columns_number - 8))
 
                 if self.variable2 == 'Caudal':
-                    self.tableEditTags2.hideColumn(0)
                     for i in range(3,4):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(9,30):
@@ -1626,7 +1633,6 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                         self.tableEditTags2.hideColumn(i)
 
                 elif self.variable2 == 'Temperatura':
-                    self.tableEditTags2.hideColumn(0)
                     for i in range(3,4):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(9,35):
@@ -1639,7 +1645,6 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                         self.tableEditTags2.hideColumn(i)
 
                 elif self.variable2 == 'Nivel':
-                    self.tableEditTags2.hideColumn(0)
                     for i in range(3,4):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(10,36):
@@ -1652,7 +1657,6 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                         self.tableEditTags2.hideColumn(i)
 
                 elif self.variable2 == 'Otros':
-                    self.tableEditTags2.hideColumn(0)
                     for i in range(3,4):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(9,11):
@@ -2337,6 +2341,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
 
             visible_columns = [col for col in range(self.model.columnCount()) if not self.tableEditTags.isColumnHidden(col)]
             visible_headers = self.model.getColumnHeaders(visible_columns)
+            original_headers = [self.model.record().fieldName(col) for col in visible_columns]
             for row in range(self.proxy.rowCount()):
                 tag_data = []
                 for column in visible_columns:
@@ -2347,6 +2352,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                 final_data.append(tag_data)
 
             final_data.insert(0, visible_headers)
+            final_data.insert(1, original_headers)
             df = pd.DataFrame(final_data)
             df.columns = df.iloc[0]
             df = df[1:]
@@ -2354,6 +2360,95 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
             output_path = asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")], title="Guardar archivo de Excel")
             if output_path:
                 df.to_excel(output_path, index=False, header=True)
+
+# Function to import data from excel
+    def importexcel(self):
+        input_file = askopenfilename(filetypes=[("Excel files", "*.xlsx")])
+
+        if input_file:
+            params = config()
+            conn = psycopg2.connect(**params)
+            cursor = conn.cursor()
+
+        #Importing excel file into dataframe
+            df_table = pd.read_excel(input_file, skiprows=1, dtype={'image': str, 'document':str})
+            df_table = df_table.astype(str)
+
+            df_table.replace('nan', '', inplace=True)
+            df_table.replace('NaT', '', inplace=True)
+
+            df_table = df_table.drop(['diff_amount', 'tag_images'], axis=1)
+
+            df_final = df_table.iloc[:, 13:].copy()
+
+            try:
+                for index, row in df_table.iterrows():
+                    if "id_tag_flow" in row:
+                        id_value = row["id_tag_flow"]
+                        table_name = 'tags_data.tags_flow'
+                        where_clause = f"id_tag_flow = {id_value}"
+
+                    elif "id_tag_temp" in row:
+                        id_value = row["id_tag_temp"]
+                        table_name = 'tags_data.tags_temp'
+                        where_clause = f"id_tag_temp = {id_value}"
+
+                    elif "id_tag_level" in row:
+                        id_value = row["id_tag_level"]
+                        table_name = 'tags_data.tags_level'
+                        where_clause = f"id_tag_level = {id_value}"
+
+                    elif "id_tag_others" in row:
+                        id_value = row["id_tag_others"]
+                        table_name = 'tags_data.tags_others'
+                        where_clause = f"id_tag_others = {id_value}"
+
+                    # Creating string for columns names and values
+                    columns_values = [(column, row[column]) for column in df_final.columns if column not in ['tapping_size','tapping_number'] and not pd.isnull(row[column])]
+
+                    columns = ', '.join([column for column, _ in columns_values])
+                    values = ', '.join([f"'{int(float(value))}'" if column in ['pos_fact', 'subpos_fact'] and value.endswith('.0')
+                                        else (f"'{value.replace('.', ',')}'" if column in ['amount_fact']
+                                        else ('NULL' if value == '' and column in ['invoice_state', 'rn_date']
+                                        else "'{}'".format(value.replace('\'', '\'\'')))) for column, value in columns_values])
+
+                # Creating the SET  and WHERE clause with proper formatting
+                    set_clause = ", ".join([f"{column} = {value}" for column, value in zip(columns.split(", ")[1:], values.split(", ")[1:])])
+
+                # Creating the update query and executing it after checking existing tags and id
+                    sql_update = f'UPDATE {table_name} SET {set_clause} WHERE {where_clause}'
+                    cursor.execute(sql_update)
+                    conn.commit()
+
+            # Closing cursor and database connection
+                conn.commit()
+                cursor.close()
+
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Datos actualizados con éxito")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                dlg.exec()
+                del dlg, new_icon
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                print(error)
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
 # Function to enable copy and paste cells
     def keyPressEvent(self, event):
