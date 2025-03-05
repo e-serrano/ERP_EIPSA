@@ -2403,7 +2403,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
             self.tableDimDwg.setModel(None)
             self.tableDimDwg.setModel(self.proxyDim)
-            self.modelDim.setFilter(f"num_order LIKE '{num_order}'")
+            self.modelDim.setFilter(f"num_order LIKE '{num_order}%'")
             self.modelDim.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
             self.modelDim.select()
             self.proxyDim.setSourceModel(self.modelDim)
@@ -2465,7 +2465,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
             self.tableOfDwg.setModel(None)
             self.tableOfDwg.setModel(self.proxyOf)
-            self.modelOf.setFilter(f"num_order LIKE '{num_order}'")
+            self.modelOf.setFilter(f"num_order LIKE '{num_order}%'")
             self.modelOf.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
             self.modelOf.select()
             self.proxyOf.setSourceModel(self.modelOf)
@@ -2527,7 +2527,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
             self.tableMDwg.setModel(None)
             self.tableMDwg.setModel(self.proxyM)
-            self.modelM.setFilter(f"num_order LIKE '{num_order}'")
+            self.modelM.setFilter(f"num_order LIKE '{num_order}%'")
             self.modelM.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
             self.modelM.select()
             self.proxyM.setSourceModel(self.modelM)
