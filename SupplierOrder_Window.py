@@ -1879,7 +1879,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         if self.num_order is not None:
             self.position_table(self.num_order)
 
-        self.Quantity_SupplierOrder.returnPressed.connect(lambda: self.UnitValue_SupplierOrder.setFocus())
+        self.Quantity_SupplierOrder.editingFinished.connect(lambda: (self.UnitValue_SupplierOrder.setFocus(), self.UnitValue_SupplierOrder.selectAll()))
 
 
 # Function to translate and updates the text of various UI elements
