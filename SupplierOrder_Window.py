@@ -1615,6 +1615,11 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.Button_Reload.setMaximumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
         self.Button_Reload.setObjectName("Button_Reload")
         self.gridLayout_2.addWidget(self.Button_Reload, 3, 17, 1, 1)
+        self.Button_CreateQuotation = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_CreateQuotation.setMinimumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
+        self.Button_CreateQuotation.setMaximumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
+        self.Button_CreateQuotation.setObjectName("Button_CreateQuotation")
+        self.gridLayout_2.addWidget(self.Button_CreateQuotation, 4, 17, 1, 1)
         self.Button_AddRecord = QtWidgets.QPushButton(parent=self.frame)
         self.Button_AddRecord.setMinimumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
         self.Button_AddRecord.setMaximumSize(QtCore.QSize(int(120//1.5), int(35//1.5)))
@@ -1859,6 +1864,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.Button_CreateOrder.clicked.connect(self.createorder)
         self.Button_ModifyOrder.clicked.connect(self.modifyorder)
         self.Button_Reload.clicked.connect(self.load_all)
+        self.Button_CreateQuotation.clicked.connect(self.createquotation)
         self.Button_AddRecord.clicked.connect(self.addrecord)
         self.Button_ModifyRecord.clicked.connect(self.modifyrecord)
         self.Button_DeleteRecord.clicked.connect(self.deleterecord)
@@ -1892,6 +1898,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.Button_CreateOrder.setText(_translate("SupplierOrder_Window", "Cr. Ped."))
         self.Button_ModifyOrder.setText(_translate("SupplierOrder_Window", "Mod. Ped."))
         self.Button_Reload.setText(_translate("SupplierOrder_Window", "Recargar"))
+        self.Button_CreateQuotation.setText(_translate("SupplierOrder_Window", "Crear Cot."))
         self.Button_AddRecord.setText(_translate("SupplierOrder_Window", "Ag. Reg."))
         self.Button_ModifyRecord.setText(_translate("SupplierOrder_Window", "Mod. Reg."))
         self.Button_DeleteRecord.setText(_translate("SupplierOrder_Window", "El. Reg."))
@@ -4256,6 +4263,142 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         """
         self.loadtableorders()
         self.load_comboboxes()
+
+# Function to create quotation from supplier order
+    def createquotation(self):
+        order_id=self.label_IDOrd.text()
+
+        if order_id == "":
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Crear Cotización")
+            dlg.setText("Por favor, para elige o un crea un pedido para crear la cotización")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+
+        elif self.tableRecords.rowCount() == 0:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Crear Cotización")
+            dlg.setText("Por favor, añade productos al pedido para crear la cotización")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+
+        else:
+            supplier_name=self.Supplier_SupplierOrder.currentText()
+
+            dlg = QtWidgets.QInputDialog()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle('Crear Cotización')
+            dlg.setLabelText('Insertar fecha:')
+
+            while True:
+                clickedButton = dlg.exec()
+                if clickedButton == 1:
+                    quotation_date = dlg.textValue()
+                    if quotation_date != '':
+                        commands_newquotation = ("""
+                                            INSERT INTO purch_fact.quotation_header (supplier_id, quot_date)
+                                            VALUES (%s,%s,%s)
+                                            """)
+                        
+                        conn = None
+                        try:
+                        # read the connection parameters
+                            params = config()
+                        # connect to the PostgreSQL server
+                            conn = psycopg2.connect(**params)
+                            cur = conn.cursor()
+                        # execution of commands
+                            query_supplier = "SELECT id FROM purch_fact.suppliers WHERE name = %s"
+                            cur.execute(query_supplier, (supplier_name,))
+                            result_supplier = cur.fetchone()
+
+                        # get id from table
+                            supplier_id = result_supplier[0]
+                        # execution of principal command
+                            data=(supplier_id,quotation_date,)
+                            cur.execute(commands_newquotation, data)
+
+                            query_idquotation = "SELECT id FROM purch_fact.quotation_header ORDER BY id"
+                            cur.execute(query_idquotation)
+                            result_idquotation = cur.fetchall()
+
+                        # get id from table
+                            idquotation = result_idquotation[-1][0]
+
+                            for i in range(self.tableRecords.rowCount()):
+                                commands_newrecord = ("""
+                                INSERT INTO purch_fact.quotation_details (
+                                quot_header_id,supply_id,quantity,currency_id,currency_value,value
+                                )
+                                VALUES (%s,%s,%s,%s,%s,%s)
+                                """)
+
+                                supply_id = self.tableRecords.item(i, 12).text()
+                                quantity = self.tableRecords.item(i, 4).text()
+                                currency_id = 1
+                                currency_value = self.tableRecords.item(i, 5).text()
+
+                                euro_value=currency_value.replace(",",".")
+                                euro_value=euro_value[:euro_value.find(" €")]
+
+                                data = (idquotation, supply_id,quantity,currency_id,euro_value, euro_value)
+
+                                cur.execute(commands_newrecord, data)
+
+                        # close communication with the PostgreSQL database server
+                            cur.close()
+                        # commit the changes
+                            conn.commit()
+
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("Crear Cotización")
+                            dlg.setText("Cotización creada con éxito")
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                            dlg.exec()
+
+                            del dlg,new_icon
+
+                        except (Exception, psycopg2.DatabaseError) as error:
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("ERP EIPSA")
+                            dlg.setText("Ha ocurrido el siguiente error:\n"
+                                        + str(error))
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                            dlg.exec()
+                            del dlg, new_icon
+                        finally:
+                            if conn is not None:
+                                conn.close()
+
+                        break
+
+                    dlg_error = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg_error.setWindowIcon(new_icon)
+                    dlg_error.setWindowTitle("Crear Cotización")
+                    dlg_error.setText("La fecha no puede estar vacía")
+                    dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg_error.exec()
+                    del dlg_error,new_icon
+                else:
+                    break
 
 
 
