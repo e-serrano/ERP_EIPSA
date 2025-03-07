@@ -1757,14 +1757,15 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
 
         model_indexes = {model.mapToSource(index).row() for index in selected_indexes}
 
-        id_values = [source_model.index(row, 0).data() for row in model_indexes]
+        id_values = [int(source_model.index(row, 0).data()) for row in model_indexes]
+        id_values = tuple(int(x) for x in id_values)
         order_values = [source_model.index(row, 1).data() for row in model_indexes]
         tag_values = [source_model.index(row, 2).data() for row in model_indexes]
 
         if len(set(order_values)) == 1 and len(set(tag_values)) == 1:
             query_data = ("""SELECT id, num_order, tag, master_1, element_1, master_2, element_2, master_3, element_3, master_4, element_4
                             FROM verification.calibration_thermoelements
-                            WHERE id = ANY(%s)
+                            WHERE id IN %s
                             ORDER BY id ASC
                             """)
             update_data = ("""UPDATE verification.calibration_thermoelements SET
@@ -1774,7 +1775,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                             """)
             delete_query = ("""
                             DELETE FROM verification.calibration_thermoelements
-                            WHERE ID = ANY(%s)
+                            WHERE id IN %s
                             """)
             conn = None
             try:
@@ -1784,7 +1785,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
             # execution of commands
-                cur.execute(query_data,(id_values,))
+                cur.execute(query_data,(tuple(id_values),))
                 results=cur.fetchall()
 
                 df_data = pd.DataFrame(results, columns=['ID', 'Pedido', 'Tag', 'Elemento 1', 'Patrón 1', 'Elemento 2', 'Patrón 2', 'Elemento 3', 'Patrón 3', 'Elemento 4', 'Patrón 4'])
@@ -1829,11 +1830,13 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
 
             # Delete the other data not necessary
                 id_to_keep = final_df.loc[0, "ID"]
+                id_to_keep = [int(x) for x in id_to_keep]
                 ids_to_delete = final_df['ID'].tolist()
+                ids_to_delete = [int(x) for x in ids_to_delete]
                 ids_to_delete.remove(id_to_keep)
 
                 if ids_to_delete:
-                    cur.execute(delete_query, (ids_to_delete,))
+                    cur.execute(delete_query, (tuple(ids_to_delete),))
 
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
