@@ -624,7 +624,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
     "  border-radius: 3px;\n"
     "  color: #fff;\n"
     "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-    "  font-size: 15px;\n"
+    "  font-size: 17px;\n"
     "  font-weight: 800;\n"
     "  line-height: 1.15385;\n"
     "  margin: 0;\n"
@@ -724,7 +724,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.label_date.setMinimumSize(QtCore.QSize(105, 25))
         self.label_date.setMaximumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(14)
         font.setBold(True)
         self.label_date.setFont(font)
         self.label_date.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
@@ -734,7 +734,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.label_id.setMinimumSize(QtCore.QSize(10, 25))
         # self.label_id.setMaximumSize(QtCore.QSize(10, 25))
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(14)
         font.setBold(True)
         self.label_id.setFont(font)
         if self.username in ['m.gil','j.tena']:
@@ -747,7 +747,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.date = QtWidgets.QLineEdit(parent=self.frame)
         self.date.setMinimumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(12)
         self.date.setFont(font)
         self.date.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.date.setObjectName("date")
@@ -756,7 +756,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.label_supplier.setMinimumSize(QtCore.QSize(105, 25))
         self.label_supplier.setMaximumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(14)
         font.setBold(True)
         self.label_supplier.setFont(font)
         self.label_supplier.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
@@ -774,7 +774,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 "  border-radius: 3px;\n"
 "  color: #fff;\n"
 "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
+"  font-size: 17px;\n"
 "  font-weight: 800;\n"
 "  line-height: 1.15385;\n"
 "  margin: 0;\n"
@@ -814,7 +814,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.supplier = QtWidgets.QComboBox(parent=self.frame)
         self.supplier.setMinimumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(12)
         self.supplier.setFont(font)
         self.supplier.setObjectName("supplier")
         self.supplier.setEditable(True)
@@ -823,7 +823,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.label_obs.setMinimumSize(QtCore.QSize(105, 25))
         self.label_obs.setMaximumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(14)
         font.setBold(True)
         self.label_obs.setFont(font)
         self.label_obs.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
@@ -833,7 +833,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.obs.setMinimumSize(QtCore.QSize(105, 25))
         self.obs.setMaximumSize(QtCore.QSize(16777215, 25))
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(12)
         self.obs.setFont(font)
         self.obs.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.obs.setObjectName("obs")
@@ -842,7 +842,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.label_delivnote.setMinimumSize(QtCore.QSize(105, 25))
         self.label_delivnote.setMaximumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(14)
         font.setBold(True)
         self.label_delivnote.setFont(font)
         self.label_delivnote.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
@@ -859,7 +859,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
 "  border-radius: 3px;\n"
 "  color: #fff;\n"
 "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
-"  font-size: 15px;\n"
+"  font-size: 17px;\n"
 "  font-weight: 800;\n"
 "  line-height: 1.15385;\n"
 "  margin: 0;\n"
@@ -901,7 +901,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.delivnote.setMinimumSize(QtCore.QSize(105, 25))
         # self.delivnote.setMaximumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(12)
         self.delivnote.setFont(font)
         self.delivnote.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.delivnote.setObjectName("delivnote")
@@ -911,7 +911,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.label_material.setMinimumSize(QtCore.QSize(105, 25))
         # self.label_material.setMaximumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(14)
         font.setBold(True)
         self.label_material.setFont(font)
         self.label_material.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
@@ -921,7 +921,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.material.setMinimumSize(QtCore.QSize(105, 25))
         # self.material.setMaximumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(12)
         self.material.setFont(font)
         self.material.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.material.setObjectName("material")
@@ -930,7 +930,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.label_state.setMinimumSize(QtCore.QSize(105, 25))
         self.label_state.setMaximumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
-        font.setPointSize(11)
+        font.setPointSize(14)
         font.setBold(True)
         self.label_state.setFont(font)
         self.label_state.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
@@ -940,7 +940,7 @@ class Ui_VerifSupplierInsert_Window(QtWidgets.QMainWindow):
         self.state.setMinimumSize(QtCore.QSize(105, 25))
         # self.state.setMaximumSize(QtCore.QSize(105, 25))
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(12)
         self.state.setFont(font)
         self.state.setObjectName("state")
         self.gridLayout_2.addWidget(self.state, 3, 7, 1, 1)
