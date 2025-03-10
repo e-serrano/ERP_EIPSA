@@ -745,57 +745,58 @@ class Ui_CalibrationPrintCertificate_Window(object):
         numorder = self.num_order_print.text().upper()
         date_test = self.Cert_Date.currentText()
 
-        if numorder=="":
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Imprimir Certificado")
-            dlg.setText("Introduce un número de pedido")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-
-        else:
-            commands_querysensor = ("""
-                        SELECT DISTINCT sensor
-                        FROM verification.calibration_thermoelements
-                        WHERE UPPER("num_order") = UPPER(%s) AND "test_date" = %s
-                        """)
-            conn = None
-            try:
-            # read the connection parameters
-                params = config()
-            # connect to the PostgreSQL server
-                conn = psycopg2.connect(**params)
-                cur = conn.cursor()
-            # execution of commands one by one
-                cur.execute(commands_querysensor, (numorder, date_test,))
-                results_dates=cur.fetchall()
-
-                list_sensor = [x[0] for x in results_dates]
-
-                self.Sensor.clear()
-                self.Sensor.addItems(list_sensor)
-            # close communication with the PostgreSQL database server
-                cur.close()
-            # commit the changes
-                conn.commit()
-
-            except (Exception, psycopg2.DatabaseError) as error:
+        if date_test != '':
+            if numorder=="":
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                 dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("ERP EIPSA")
-                dlg.setText("Ha ocurrido el siguiente error:\n"
-                            + str(error))
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.setWindowTitle("Imprimir Certificado")
+                dlg.setText("Introduce un número de pedido")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                 dlg.exec()
-                del dlg, new_icon
 
-            finally:
-                if conn is not None:
-                    conn.close()
+            else:
+                commands_querysensor = ("""
+                            SELECT DISTINCT sensor
+                            FROM verification.calibration_thermoelements
+                            WHERE UPPER("num_order") = UPPER(%s) AND "test_date" = %s
+                            """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands one by one
+                    cur.execute(commands_querysensor, (numorder, date_test,))
+                    results_dates=cur.fetchall()
+
+                    list_sensor = [x[0] for x in results_dates]
+
+                    self.Sensor.clear()
+                    self.Sensor.addItems(list_sensor)
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                finally:
+                    if conn is not None:
+                        conn.close()
 
 # Function to calculate master values of resistance
     def calculate_master(self, temp, master):
