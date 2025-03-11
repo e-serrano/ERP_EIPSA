@@ -695,7 +695,7 @@ class Ui_App_Verification(object):
         font_id = QtGui.QFontDatabase.addApplicationFont(os.path.abspath(os.path.join(basedir, "Resources/Iconos/DS-DIGI.ttf")))
         if font_id != -1:
             font_family = QtGui.QFontDatabase.applicationFontFamilies(font_id)[0]
-            font = QtGui.QFont(font_family, 450)
+            font = QtGui.QFont(font_family, 550)
         else:
             font = QtGui.QFont("arial", 150)
         font.setBold(True)
