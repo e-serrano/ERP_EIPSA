@@ -418,7 +418,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
             Qt.ItemFlags: The flags for the specified item.
         """
         flags = super().flags(index)
-        if index.column() in range (0,37) or index.column() in self.column_range:
+        if index.column() in range (2,37) or index.column() in self.column_range or index.column() == 0:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -854,11 +854,22 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         self.toolInvoice = QtWidgets.QToolButton(self.frame)
         self.toolInvoice.setObjectName("Invoice_Button")
         self.toolInvoice.setToolTip("Exportar a Factura")
-        self.hcab.addWidget(self.toolInvoice)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Invoice_Send.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.toolInvoice.setIcon(icon)
         self.toolInvoice.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolInvoice)
+        self.hcabspacer3=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer3)
+
+        self.tooladdItem = QtWidgets.QToolButton(self.frame)
+        self.tooladdItem.setObjectName("tooladdItem")
+        self.tooladdItem.setToolTip("Añadir Item")
+        self.hcab.addWidget(self.tooladdItem)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Add.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.tooladdItem.setIcon(icon)
+        self.tooladdItem.setIconSize(QtCore.QSize(25, 25))
 
         self.hcabspacer=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer)
@@ -1012,6 +1023,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
         self.toolImpExcel.clicked.connect(self.importexcel)
         self.toolInvoice.clicked.connect(self.send_to_invoice)
+        self.tooladdItem.clicked.connect(self.add_item)
         self.Numorder_EditTags.returnPressed.connect(self.query_tags)
         self.model.dataChanged.connect(self.saveChanges)
         self.createContextMenu()
@@ -2371,7 +2383,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
             cursor = conn.cursor()
 
         #Importing excel file into dataframe
-            df_table = pd.read_excel(input_file, skiprows=1, dtype={'image': str, 'document':str})
+            df_table = pd.read_excel(input_file, skiprows=1, dtype={'rn_delivery': str})
             df_table = df_table.astype(str)
 
             df_table.replace('nan', '', inplace=True)
@@ -2379,10 +2391,10 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
 
             df_table = df_table.drop(['diff_amount', 'tag_images'], axis=1)
 
-            df_final = df_table.iloc[:, 13:].copy()
+            df_final = df_table.iloc[:, [0] + list(range(13, df_table.shape[1]))].copy()
 
             try:
-                for index, row in df_table.iterrows():
+                for index, row in df_final.iterrows():
                     if "id_tag_flow" in row:
                         id_value = row["id_tag_flow"]
                         table_name = 'tags_data.tags_flow'
@@ -2409,7 +2421,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     columns = ', '.join([column for column, _ in columns_values])
                     values = ', '.join([f"'{int(float(value))}'" if column in ['pos_fact', 'subpos_fact'] and value.endswith('.0')
                                         else (f"'{value.replace('.', ',')}'" if column in ['amount_fact']
-                                        else ('NULL' if value == '' and column in ['invoice_state', 'rn_date']
+                                        else ('NULL' if value == '' and column in ['invoice_state', 'rn_date', 'rn_delivery']
                                         else "'{}'".format(value.replace('\'', '\'\'')))) for column, value in columns_values])
 
                 # Creating the SET  and WHERE clause with proper formatting
@@ -2827,6 +2839,54 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     dlg.exec()
                     del dlg, new_icon
 
+# Function to insert new item
+    def add_item(self):
+        if self.proxy.rowCount() != 0:
+            if self.variable == 'Caudal':
+                table_name = "tags_data.tags_flow"
+            elif self.variable == 'Temperatura':
+                table_name = "tags_data.tags_temp"
+            elif self.variable == 'Nivel':
+                table_name = "tags_data.tags_level"
+            elif self.variable == 'Otros':
+                table_name = "tags_data.tags_others"
+
+            params = config()
+            conn = psycopg2.connect(**params)
+            cursor = conn.cursor()
+            
+            try:
+                # Creating the update query and executing it after checking existing tags and id
+                sql_offer = f"SELECT num_offer FROM orders WHERE num_order = '{self.numorder}'"
+                cursor.execute(sql_offer)
+                results_offer = cursor.fetchall()
+                num_offer = results_offer[0][0]
+
+                sql_insert = f"INSERT INTO {table_name} (num_offer, num_order, tag_state, position, subposition) VALUES ('{num_offer}', '{self.numorder}', 'PURCHASED', 'ZZ', 'ZZ')"
+                cursor.execute(sql_insert)
+                conn.commit()
+
+            # Closing cursor and database connection
+                conn.commit()
+                cursor.close()
+
+                self.query_tags()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                print(error)
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
 
 if __name__ == "__main__":
