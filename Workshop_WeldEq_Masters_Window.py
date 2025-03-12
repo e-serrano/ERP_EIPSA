@@ -1377,6 +1377,9 @@ class Ui_Workshop_WeldEq_Masters_Window(QtWidgets.QMainWindow):
         """
         Adds pdf paths to the selected master in the database.
         """
+        actual_year = datetime.now().year
+        initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS/" + str(actual_year)
+
         selected_indexes = self.tableWeldEqMasters.selectionModel().selectedIndexes()
         if not selected_indexes:
             return
@@ -1387,7 +1390,7 @@ class Ui_Workshop_WeldEq_Masters_Window(QtWidgets.QMainWindow):
                 id_column_index = index.sibling(index.row(), 0)
                 value_id = str(id_column_index.data())
 
-                pdf_path = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS", filetypes=[("Archivos PDF", "*.pdf")],
+                pdf_path = askopenfilename(initialdir=initialdir, filetypes=[("Archivos PDF", "*.pdf")],
                             title="Seleccionar archivo pdf")
 
                 if pdf_path:
