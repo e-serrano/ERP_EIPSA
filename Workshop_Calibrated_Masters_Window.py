@@ -62,6 +62,11 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
+        if index.column() in [2, 3]:
+            value = index.data(QtCore.Qt.ItemDataRole.DisplayRole)
+            if isinstance(value, str) and os.path.exists(value):  # Verifica si es una ruta válida
+                option.text = os.path.basename(value)
+
 class CustomProxyModel(QtCore.QSortFilterProxyModel):
     """
     A custom proxy model that filters table rows based on expressions set for specific columns.
