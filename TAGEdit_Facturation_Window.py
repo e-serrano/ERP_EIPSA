@@ -418,7 +418,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
             Qt.ItemFlags: The flags for the specified item.
         """
         flags = super().flags(index)
-        if index.column() in range (2,37) or index.column() in self.column_range or index.column() == 0:
+        if index.column() in range (2,6) or index.column() in range(8,37) or index.column() in self.column_range or index.column() == 0:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -2568,7 +2568,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                 self.label_CountItems2.setText("")
                 self.label_CountValue2.setText("")
 
-                sum_value = sum([self.euro_string_to_float(str(ix.data())) if re.match(r'^[\d.,]+\s€$', str(ix.data())) else float(str(ix.data()).replace(',', '.')) if str(ix.data()).replace(',', '.').replace('.', '', 1).isdigit() else 0 for ix in self.tableEditTags2.selectedIndexes()])
+                sum_value = sum([self.euro_string_to_float(str(ix.data())) if re.match(r'^-?[\d.,]+\s€$', str(ix.data())) else (float(str(ix.data()).replace(',', '.')) if re.match(r'^-?\d+(\.\d+)?$', str(ix.data()).replace(',', '.')) else 0) for ix in self.tableEditTags2.selectedIndexes()])
                 count_value = len([ix for ix in self.tableEditTags2.selectedIndexes() if ix.data() != ""])
                 if sum_value > 0:
                     self.label_SumItems2.setText("Suma:")
@@ -2589,7 +2589,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                 self.label_CountItems.setText("")
                 self.label_CountValue.setText("")
 
-                sum_value = sum([self.euro_string_to_float(str(ix.data())) if re.match(r'^[\d.,]+\s€$', str(ix.data())) else float(str(ix.data()).replace(',', '.')) if str(ix.data()).replace(',', '.').replace('.', '', 1).isdigit() else 0 for ix in self.tableEditTags.selectedIndexes()])
+                sum_value = sum([self.euro_string_to_float(str(ix.data())) if re.match(r'^-?[\d.,]+\s€$', str(ix.data())) else (float(str(ix.data()).replace(',', '.')) if re.match(r'^-?\d+(\.\d+)?$', str(ix.data()).replace(',', '.')) else 0) for ix in self.tableEditTags.selectedIndexes()])
                 count_value = len([ix for ix in self.tableEditTags.selectedIndexes() if ix.data() != ""])
                 if sum_value > 0:
                     self.label_SumItems.setText("Suma:")
@@ -2614,7 +2614,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         Returns:
             float: The numeric value of the amount as a float.
         """
-        match = re.match(r'^([\d.,]+)\s€$', euro_str)
+        match = re.match(r'^(-?[\d.,]+)\s€$', euro_str) 
         if match:
             number_str = match.group(1)
             number_str = number_str.replace('.', '').replace(',', '.').replace(' €','')
@@ -2857,12 +2857,12 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
             
             try:
                 # Creating the update query and executing it after checking existing tags and id
-                sql_offer = f"SELECT num_offer FROM orders WHERE num_order = '{self.numorder}'"
-                cursor.execute(sql_offer)
-                results_offer = cursor.fetchall()
-                num_offer = results_offer[0][0]
+                # sql_offer = f"SELECT num_offer FROM orders WHERE num_order = '{self.numorder}'"
+                # cursor.execute(sql_offer)
+                # results_offer = cursor.fetchall()
+                # num_offer = results_offer[0][0]
 
-                sql_insert = f"INSERT INTO {table_name} (num_offer, num_order, tag_state, position, subposition) VALUES ('{num_offer}', '{self.numorder}', 'PURCHASED', 'ZZ', 'ZZ')"
+                sql_insert = f"INSERT INTO {table_name} (num_order, tag_state) VALUES ('{self.numorder}', 'PURCHASED')"
                 cursor.execute(sql_insert)
                 conn.commit()
 
