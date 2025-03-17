@@ -1205,7 +1205,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
                 pdf.ln()
 
                 pdf.set_font('Helvetica', '', 9)
-                pdf.cell(1.7, 0.5, str(results_pipe_diam[0][0]), border=1, align='C')
+                pdf.cell(1.7, 0.5, str(results_pipe_diam[0][0]) if len(results_pipe_diam) > 0 else '', border=1, align='C')
                 pdf.cell(1.63, 0.5, str(results_flange[0][0]), border=1, align='C')
                 pdf.cell(1.63, 0.5, str(results_flange[0][1]), border=1, align='C')
                 pdf.cell(1.63, 0.5, str(results_flange[0][2]), border=1, align='C')
