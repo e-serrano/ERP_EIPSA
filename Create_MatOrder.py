@@ -679,13 +679,13 @@ def temp_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 all_list_parts.append(tube_list)
 
             if code_flange != '':
-                tradcodflange = model.data(model.index(target_row, 122)) if 'Helical' not in model.data(model.index(target_row, 9)) else ''
+                tradcodflange = model.data(model.index(target_row, 122)) if model.data(model.index(target_row, 9)) not in ['Buttweld TW','Flanged Helical','Threaded Helical','Van-Stone Helical','VORTICRACK'] else ''
                 modelflange = ''
                 notesflange = ''
                 processflange = ''
                 materialflange = (model.data(model.index(target_row, 30)) if model.data(model.index(target_row, 9)) == 'Van-Stone TW'
-                                    else model.data(model.index(target_row, 14))) if 'Helical' not in model.data(model.index(target_row, 9)) else ''
-                qtyflange = 1 if 'Helical' not in model.data(model.index(target_row, 9)) else ''
+                                    else model.data(model.index(target_row, 14))) if model.data(model.index(target_row, 9)) not in ['Buttweld TW','Flanged Helical','Threaded Helical','Van-Stone Helical','VORTICRACK'] else ''
+                qtyflange = 1 if model.data(model.index(target_row, 9)) not in ['Buttweld TW','Flanged Helical','Threaded Helical','Van-Stone Helical','VORTICRACK'] else ''
                 flange_list.append([code_flange,codefab_flange,tradcodflange,modelflange,notesflange,processflange,materialflange,qtyflange])
                 all_list_parts.append(flange_list)
 
