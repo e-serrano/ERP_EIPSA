@@ -2051,6 +2051,42 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.Button_PaletteT.setIconSize(QtCore.QSize(40, 40))
         self.Button_PaletteT.setObjectName("Button_PaletteT")
         self.gridLayout_2.addWidget(self.Button_PaletteT, 1, 10, 3, 1)
+
+        self.Button_PDFDrawings = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_PDFDrawings.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_PDFDrawings.setMaximumSize(QtCore.QSize(50, 16777215))
+        self.Button_PDFDrawings.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Button_PDFDrawings.setStyleSheet(
+            "QPushButton{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(3, 174, 236);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:hover{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(255, 255, 255);\n"
+            "    border-radius: 10px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:pressed{\n"
+            "    border: 1px solid transparent;\n"
+            "    border-color: rgb(0, 0, 0);\n"
+            "    color: rgb(0,0,0);\n"
+            "    background-color: rgb(200, 200, 200);\n"
+            "    border-radius: 10px;\n"
+            "}"
+        )
+        self.Button_PDFDrawings.setText("")
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Adobe_PDF.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_PDFDrawings.setIcon(icon3)
+        self.Button_PDFDrawings.setIconSize(QtCore.QSize(40, 40))
+        self.Button_PDFDrawings.setObjectName("Button_PDFDrawings")
+        self.gridLayout_2.addWidget(self.Button_PDFDrawings, 1, 11, 3, 1)
         self.label_Type = QtWidgets.QLabel(parent=self.frame)
         self.label_Type.setMinimumSize(QtCore.QSize(100, 25))
         self.label_Type.setMaximumSize(QtCore.QSize(100, 25))
@@ -2166,7 +2202,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.tableMDwg.setObjectName("tableMDwg")
         self.splitter.addWidget(self.tableMDwg)
         self.layout_vertical.addWidget(self.splitter)
-        self.gridLayout_2.addLayout(self.layout_vertical, 4, 0, 1, 12)
+        self.gridLayout_2.addLayout(self.layout_vertical, 4, 0, 1, 13)
         self.hLayout3 = QtWidgets.QHBoxLayout()
         self.hLayout3.setObjectName("hLayout3")
         spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -4564,6 +4600,208 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             conn.close()
 
             self.query_drawings()
+
+
+
+    def generate_drawings(self):
+        if self.username in ['m.gil', 'j.martinez']:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Indice Planos")
+            dlg.setText("Este módulo no esta disponible para tí corazón ❤️")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg,new_icon
+
+        else:
+            self.numorder = self.Numorder_IndexDwg.text()
+
+            if self.numorder=="":
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Introduce un pedido")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg, new_icon
+
+            else:
+                if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', self.numorder):
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("El número de pedido debe tener formato P-XX/YYY o PA-XX/YYY")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                else:
+                    query = ('''
+                            SELECT num_order, product_type."variable"
+                            FROM orders
+                            INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
+                            INNER JOIN product_type ON (product_type."material" = offers."material")
+                            WHERE
+                            UPPER (orders."num_order") LIKE UPPER('%%'||%s||'%%')
+                            ''')
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(query,(self.numorder,))
+                        results_variable=cur.fetchone()
+                        self.variable = results_variable[1] if results_variable != None else ''
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+                    if results_variable == None:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("EL número de pedido no existe")
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                        dlg.exec()
+                        del dlg, new_icon
+
+                    else:
+                        query_flow = ('''
+                            SELECT tags_data.tags_flow."num_order"
+                            FROM tags_data.tags_flow
+                            WHERE UPPER (tags_data.tags_flow."num_order") LIKE UPPER('%%'||%s||'%%')
+                            ''')
+                        query_temp = ('''
+                            SELECT tags_data.tags_temp."num_order"
+                            FROM tags_data.tags_temp
+                            WHERE UPPER (tags_data.tags_temp."num_order") LIKE UPPER('%%'||%s||'%%')
+                            ''')
+                        query_level = ('''
+                            SELECT tags_data.tags_level."num_order"
+                            FROM tags_data.tags_level
+                            WHERE UPPER (tags_data.tags_level."num_order") LIKE UPPER('%%'||%s||'%%')
+                            ''')
+                        query_others = ('''
+                            SELECT tags_data.tags_others."num_order"
+                            FROM tags_data.tags_others
+                            WHERE UPPER (tags_data.tags_others."num_order") LIKE UPPER('%%'||%s||'%%')
+                            ''')
+                        conn = None
+                        try:
+                        # read the connection parameters
+                            params = config()
+                        # connect to the PostgreSQL server
+                            conn = psycopg2.connect(**params)
+                            cur = conn.cursor()
+                        # execution of commands
+                            cur.execute(query_flow,(self.numorder,))
+                            results_flow=cur.fetchall()
+                            cur.execute(query_temp,(self.numorder,))
+                            results_temp=cur.fetchall()
+                            cur.execute(query_level,(self.numorder,))
+                            results_level=cur.fetchall()
+                            cur.execute(query_others,(self.numorder,))
+                            results_others=cur.fetchall()
+
+                            if len(results_flow) != 0:
+                                self.variable = 'Caudal'
+                                self.table_toquery = "tags_data.tags_flow"
+                            elif len(results_temp) != 0:
+                                self.variable = 'Temperatura'
+                                self.table_toquery = "tags_data.tags_temp"
+                            elif len(results_level) != 0:
+                                self.variable = 'Nivel'
+                                self.table_toquery = "tags_data.tags_level"
+                            elif len(results_others) != 0:
+                                self.variable = 'Otros'
+                                self.table_toquery = "tags_data.tags_others"
+                            else:
+                                self.variable = ''
+                                self.table_toquery = ""
+
+                        # close communication with the PostgreSQL database server
+                            cur.close()
+                        # commit the changes
+                            conn.commit()
+                        except (Exception, psycopg2.DatabaseError) as error:
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("ERP EIPSA")
+                            dlg.setText("Ha ocurrido el siguiente error:\n"
+                                        + str(error))
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                            dlg.exec()
+                            del dlg, new_icon
+                        finally:
+                            if conn is not None:
+                                conn.close()
+
+                        if self.table_toquery == "tags_data.tags_temp":
+                            query = ('''
+                                SELECT *
+                                FROM tags_data.tags_temp
+                                WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%')
+                                ''')
+                            conn = None
+                            try:
+                            # read the connection parameters
+                                params = config()
+                            # connect to the PostgreSQL server
+                                conn = psycopg2.connect(**params)
+                                cur = conn.cursor()
+                            # execution of commands
+                                cur.execute(query,(self.numorder,))
+                                results_tags=cur.fetchone()
+                                df_general = pd.DataFrame(results_tags)
+                            # close communication with the PostgreSQL database server
+                                cur.close()
+                            # commit the changes
+                                conn.commit()
+                            except (Exception, psycopg2.DatabaseError) as error:
+                                dlg = QtWidgets.QMessageBox()
+                                new_icon = QtGui.QIcon()
+                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                dlg.setWindowIcon(new_icon)
+                                dlg.setWindowTitle("ERP EIPSA")
+                                dlg.setText("Ha ocurrido el siguiente error:\n"
+                                            + str(error))
+                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                dlg.exec()
+                                del dlg, new_icon
+                            finally:
+                                if conn is not None:
+                                    conn.close()
+
+                            print(df_general)
+
 
 
 if __name__ == "__main__":
