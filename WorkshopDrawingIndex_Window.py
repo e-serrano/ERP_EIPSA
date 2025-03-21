@@ -22,6 +22,8 @@ import sys
 from datetime import *
 import pandas as pd
 from tkinter.filedialog import asksaveasfilename
+from overlay_pdf import flange_dwg_flangedTW
+from pypdf import PdfReader, PdfWriter
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -2264,6 +2266,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         self.Button_PaletteT.clicked.connect(self.colour_palette_T)
         self.Button_Description.clicked.connect(self.add_description)
         self.Button_Printer.clicked.connect(self.print_drawings)
+        self.Button_PDFDrawings.clicked.connect(self.generate_drawings)
 
         insert_action_dim = QtGui.QAction("Insertar Fila", self)
         insert_action_dim.triggered.connect(lambda: self.insert_register("verification.workshop_dim_drawings"))
@@ -4764,6 +4767,25 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             if conn is not None:
                                 conn.close()
 
+                        order_year = str(datetime.now().year)[:2] + self.numorder[self.numorder.rfind("/") - 2:self.numorder.rfind("/")]
+
+                        if self.numorder[:2] == 'PA':
+                            path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
+                            for folder in os.listdir(path):
+                                if self.numorder.replace("/", "-") in folder:
+                                    output_path2 = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/3-Fabricacion/Planos M/"
+                        else:
+                            path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
+                            for folder in sorted(os.listdir(path)):
+                                if self.numorder[:8].replace("/", "-") in folder:
+                                    output_path2 = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/3-Fabricacion/Planos M/"
+
+                        if not os.path.exists(output_path2):
+                            os.makedirs(output_path2)
+
+                        # query de planos M del pedido, si no existe empezar contador en 0, si existen coger el ultimo y empezar contador desde ahi
+
+
                         if self.table_toquery == "tags_data.tags_temp":
                             query = ('''
                                 SELECT *
@@ -4779,7 +4801,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 cur = conn.cursor()
                             # execution of commands
                                 cur.execute(query,(self.numorder,))
-                                results_tags=cur.fetchone()
+                                results_tags=cur.fetchall()
                                 df_general = pd.DataFrame(results_tags)
                             # close communication with the PostgreSQL database server
                                 cur.close()
@@ -4800,7 +4822,55 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 if conn is not None:
                                     conn.close()
 
-                            print(df_general)
+                            df_selected = df_general.iloc[:, [0, 9, 10, 11, 12, 14, 15, 17]].copy()
+
+                            for item in df_selected[9].unique().tolist():
+                                list_drawings = {}
+                                counter_drawings = 0
+
+                                if item == 'Flanged TW':
+                                    df_selected.rename(columns={
+                                        0: 'id', 9: 'type', 10: 'size', 11: 'rating',
+                                        12: 'facing', 14: 'material', 15: 'std_length', 17: 'root_diam'
+                                    }, inplace=True)
+
+                                    df_flanges = df_selected.copy()
+                                    df_flanges['drawing_code'] = df_flanges.apply(
+                                    lambda row: 'TBPC' + str(row['facing']) +
+                                                '-0' + str(row['size'])[0] + ('.5' if ' 1/2' in str(row['size']) else '.0') +
+                                                ('-0' + str(row['rating']) if str(row['rating']) in ['150', '300', '600', '900'] else '-' + str(row['rating'])),
+                                    axis=1)
+
+                                    df_flanges['drawing_path'] = df_flanges.apply(
+                                    lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\B-Bridas\PC-Penetracion Completa\{'RF-RaisedFace' if str(row['facing']) == 'RF' else 'RTJ-RingTypeJoint'}\{str(row['drawing_code'])}.pdf",
+                                    axis=1)
+
+                                    df_flanges['base_diam'] = df_flanges.apply(
+                                    lambda row: 32 if int(row['root_diam']) < 32 else 35,
+                                    axis=1)
+
+                                    grouped_flanges = df_flanges.groupby(['drawing_path','base_diam','material']).count()
+
+                                    for (drawing_path, base_diam, material), row in grouped_flanges.iterrows():
+                                        counter_drawings += 1
+
+                                        writer = PdfWriter()
+                                        reader = PdfReader(drawing_path)
+                                        page_overlay = PdfReader(flange_dwg_flangedTW(self.numorder, material, row.iloc[0])).pages[0]
+                                        reader.pages[0].merge_page(page2=page_overlay)
+
+                                        if base_diam == 32:
+                                            reader.pages[0].merge_page(page2=page_overlay)
+                                            writer.add_page(reader.pages[0])
+                                        elif base_diam == 35:
+                                            reader.pages[1].merge_page(page2=page_overlay)
+                                            writer.add_page(reader.pages[1])
+
+                                        writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
+                                        list_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf","Descripción plano"]
+
+
+                                    df_bars = df_selected.copy()
 
 
 

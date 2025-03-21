@@ -17,9 +17,8 @@ from Database_Connection import createConnection, createConnection_name
 from tkinter.filedialog import askopenfilename, askdirectory
 import pandas as pd
 import os
-import io
-from fpdf import FPDF
 from pypdf import PdfReader, PdfWriter
+from overlay_pdf import new_content_notes, new_content_tags
 
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -2316,7 +2315,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                                                 print(f"Archivo no encontrado: {file_path}")
                                                 continue
                                             reader = PdfReader(file_path)
-                                            page_overlay = PdfReader(self.new_content_notes(str(df_data.iloc[row,1]))).pages[0] # PdfReader(self.new_content_notes(df_data.iloc[row,1], df_data.iloc[row,2], orientation)).pages[0]
+                                            page_overlay = PdfReader(new_content_notes(str(df_data.iloc[row,1]))).pages[0] # PdfReader(self.new_content_notes(df_data.iloc[row,1], df_data.iloc[row,2], orientation)).pages[0]
                                             reader.pages[0].merge_page(page2=page_overlay)
 
                                             writer = PdfWriter()
@@ -2376,7 +2375,7 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                             df_data = pd.read_excel(excel_file)
 
                             for row in range(df_data.shape[0]):
-                                page_overlay = PdfReader(self.new_content_tags(df_data.iloc[row,1], df_data.iloc[row,2])).pages[0] # PdfReader(self.new_content_tags(df_data.iloc[row,1], df_data.iloc[row,2], orientation)).pages[0]
+                                page_overlay = PdfReader(new_content_tags(df_data.iloc[row,1], df_data.iloc[row,2])).pages[0] # PdfReader(self.new_content_tags(df_data.iloc[row,1], df_data.iloc[row,2], orientation)).pages[0]
                                 reader.pages[int(df_data.iloc[row,0]) - 1].merge_page(page2=page_overlay)
 
                             path_parts = pdf_file.rsplit('/', 1)
@@ -2416,67 +2415,6 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
                 break
             else:
                 break
-
-# Function to create PDF with specific text in a position
-    def new_content_tags(self, value, type_eq):
-        """
-        Generates a PDF containing a new content based on the specified value and equipment type.
-
-        Args:
-            value (str): The content to be added to the PDF.
-            type_eq (str): The type of equipment, determining the positioning in the PDF.
-
-        Returns:
-            io.BytesIO: A byte stream containing the generated PDF.
-        """
-        pdf = FPDF(unit='mm')
-        pdf.set_font("helvetica", "", 10)
-        pdf.set_text_color(0, 0, 0)
-
-        excel_file = r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Importación\Importar Tags Cálculos.xlsx"
-        df_data = pd.read_excel(excel_file, sheet_name='Posiciones')
-        df_data = df_data.set_index('type')
-
-        x_position = df_data['x(mm)'][type_eq]
-        y_position = df_data['y(mm)'][type_eq]
-
-        if type_eq == 'MUL':
-            pdf.add_page()
-            pdf.set_xy(x_position, y_position)
-            with pdf.rotation(90):
-                pdf.cell(10, 10, value)
-
-        else:
-            pdf.add_page()
-            pdf.text(x_position, y_position, value)
-
-        return io.BytesIO(pdf.output())
-
-# Function to create PDF with specific note in a position
-    def new_content_notes(self, technical_note):
-        """
-        Generates a PDF containing a new content based on the specified value and equipment type.
-
-        Args:
-            technical_note (str): The content to be added to the PDF.
-
-        Returns:
-            io.BytesIO: A byte stream containing the generated PDF.
-        """
-        pdf = FPDF(unit='mm')
-        pdf.add_font('COURIERTXT', '', os.path.abspath(os.path.join(basedir, "Resources/Iconos/COURIERTXT.ttf")))
-        pdf.set_font("courier", "", 10)
-        pdf.set_text_color(0, 0, 0)
-
-        pdf.add_page()
-        pdf.set_xy(20,230)
-        pdf.set_font("courier", "B", 10)
-        pdf.cell(150, 5, "NOTES:")
-        pdf.set_xy(20,235)
-        pdf.set_font("courier", "", 10)
-        pdf.multi_cell(150, 5, str(technical_note)) #x_position, y_position, technical_note)
-
-        return io.BytesIO(pdf.output())
 
 # Function to show window with tables of all tests
     def query_test(self):
