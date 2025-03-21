@@ -607,9 +607,10 @@ class offer_flow:
                     new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
                     stamp_2.anchor = new_anchor
 
-                ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
-                ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
+                if int(rev) == 0:
+                    ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
+                    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
+                    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
                 if int(rev) == 0:
@@ -1340,9 +1341,10 @@ class offer_short_flow_spanish:
                     new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
                     stamp_2.anchor = new_anchor
 
-                ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
-                ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
+                if int(rev) == 0:
+                    ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
+                    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
+                    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
                 if int(rev) == 0:
@@ -2075,9 +2077,10 @@ class offer_short_flow_english:
                     new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
                     stamp_2.anchor = new_anchor
 
-                ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
-                ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
+                if int(rev) == 0:
+                    ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
+                    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
+                    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
                 if int(rev) == 0:
@@ -2903,9 +2906,10 @@ class offer_temp:
                     new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
                     stamp_2.anchor = new_anchor
 
-                ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
-                ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
+                if int(rev) == 0:
+                    ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
+                    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
+                    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
                 if int(rev) == 0:
@@ -3680,9 +3684,10 @@ class offer_short_temp_spanish:
                     new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
                     stamp_2.anchor = new_anchor
 
-                ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
-                ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
+                if int(rev) == 0:
+                    ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
+                    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
+                    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
                 if int(rev) == 0:
@@ -4457,9 +4462,10 @@ class offer_short_temp_english:
                     new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
                     stamp_2.anchor = new_anchor
 
-                ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
-                ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
+                if int(rev) == 0:
+                    ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
+                    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
+                    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
                 if int(rev) == 0:
@@ -5116,9 +5122,10 @@ class offer_level:
                     new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
                     stamp_2.anchor = new_anchor
 
-                ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
-                ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
+                if int(rev) == 0:
+                    ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
+                    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
+                    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
                 if int(rev) == 0:
@@ -5734,9 +5741,10 @@ class offer_short_level_spanish:
                     new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
                     stamp_2.anchor = new_anchor
 
-                ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
-                ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
+                if int(rev) == 0:
+                    ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
+                    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
+                    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
                 if int(rev) == 0:
@@ -6352,9 +6360,10 @@ class offer_short_level_english:
                     new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
                     stamp_2.anchor = new_anchor
 
-                ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
-                ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
+                if int(rev) == 0:
+                    ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
+                    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
+                    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
                 if int(rev) == 0:
@@ -7488,9 +7497,10 @@ class offer_flow_temp:
                     new_anchor = TwoCellAnchor(_from = from_cell, to = to_cell, editAs='absolute')
                     stamp_2.anchor = new_anchor
 
-                ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
-                ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
-                ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
+                if int(rev) == 0:
+                    ws = self.wb_technical[self.wb_technical.sheetnames[-2]]
+                    ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
+                    ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
 
             # Editing sheet NOTES
                 if int(rev) == 0:
