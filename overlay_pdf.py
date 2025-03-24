@@ -68,6 +68,22 @@ def new_content_tags(value, type_eq):
     return io.BytesIO(pdf.output())
 
 
+def drawing_number(drawing, counter):
+    """
+    Generates a PDF containing a new content based on the specified value and equipment type."
+    """
+    pdf = FPDF(unit='mm')
+    pdf.set_font("helvetica", "B", 12)
+    pdf.set_text_color(49, 49, 229)
+
+    pdf.add_page()
+
+    pdf.set_xy(163, 262)
+
+    pdf.cell(37, 7, f"{str(drawing.split('.')[0])}/{counter:02d}", align='C')
+
+    return io.BytesIO(pdf.output())
+
 
 def flange_dwg_flangedTW(num_order, material, count):
     """
@@ -80,7 +96,7 @@ def flange_dwg_flangedTW(num_order, material, count):
     pdf.add_page()
 
     pdf.set_line_width(1.5)
-    pdf.set_draw_color(49, 49, 229)
+    pdf.set_draw_color(92, 197, 229)
     pdf.rect(20, 8, 185, 282, style='D')
 
     pdf.set_xy(26, 248)
@@ -93,4 +109,40 @@ def flange_dwg_flangedTW(num_order, material, count):
     pdf.cell(49, 9, str(num_order), align='C')
 
     return io.BytesIO(pdf.output())
-    
+
+
+def bar_dwg_flangedTW(num_order, material, item_data):
+    """
+    Generates a PDF containing a new content based on the specified value and equipment type."
+    """
+    pdf = FPDF(unit='mm')
+    pdf.set_font("helvetica", "B", 12)
+    pdf.set_text_color(49, 49, 229)
+
+    pdf.add_page()
+
+    pdf.set_line_width(1.5)
+    pdf.set_draw_color(92, 197, 229)
+    pdf.rect(20, 8, 185, 282, style='D')
+
+    total_count = 0
+
+    pdf.set_xy(27, 20)
+
+    for bore, std_len, cnt in item_data:
+        pdf.cell(15, 5, str(cnt), align='C')
+        pdf.cell(15, 5, str(bore), align='C')
+        pdf.cell(15, 5, str(int(std_len) + 10), align='C')
+        pdf.ln()
+        total_count += cnt
+
+    pdf.set_xy(26, 248)
+    pdf.cell(19, 9, str(total_count), align='C')
+
+    pdf.set_xy(48, 248)
+    pdf.cell(34, 9, str(material), align='C')
+
+    pdf.set_xy(151, 248)
+    pdf.cell(49, 9, str(num_order), align='C')
+
+    return io.BytesIO(pdf.output())
