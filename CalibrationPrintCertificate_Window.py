@@ -609,7 +609,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
                                         dlg.exec()
                                         del dlg, new_icon
 
-                    output_path = "//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS CALIBRACIÓN/" + numorder.replace('/','-') + '-' + sensor_type + "-" + cert_date.replace("/","-") + ".pdf"
+                    output_path = r"\\nas01\DATOS\Comunes\MARIO GIL\VERIFICACION\CERTIFICADOS CALIBRACIÓN\\" + numorder.replace('/','-') + '-' + sensor_type + "-" + cert_date.replace("/","-") + ".pdf"
 
                     if output_path:
                         try:
@@ -635,14 +635,6 @@ class Ui_CalibrationPrintCertificate_Window(object):
                             dlg.exec()
                             del dlg, new_icon
 
-                            # if os.path.isfile(output_path):
-                            #     try:
-                            #         os.startfile(output_path)
-                            #     except Exception as e:
-                            #         print(f"No se pudo abrir el archivo: {e}")
-
-                            os.startfile(output_path)
-
                         except (Exception, psycopg2.DatabaseError) as error:
                             dlg = QtWidgets.QMessageBox()
                             new_icon = QtGui.QIcon()
@@ -654,6 +646,12 @@ class Ui_CalibrationPrintCertificate_Window(object):
                             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                             dlg.exec()
                             del dlg, new_icon
+
+                        if os.path.isfile(output_path):
+                            try:
+                                os.startfile(output_path)
+                            except Exception as e:
+                                print(f"No se pudo abrir el archivo: {e}")
 
 # Function to include the quality stamp for new pdf
     def new_content(self, y_position):
