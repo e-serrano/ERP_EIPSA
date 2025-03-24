@@ -1437,8 +1437,7 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable):
         first_column_value = proxy.data(proxy.index(row, 0))
         description = proxy.data(proxy.index(row, 8))
 
-        if any(valve in description for valve in list_valves_210):
-            id_list.append(first_column_value)
+        id_list.append(first_column_value)
 
     commands_numot = ("""SELECT "ot_num"
                         FROM fabrication.fab_order
@@ -1473,7 +1472,7 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable):
         if len(results) == 0:
             data=(numorder_pedmat + '-PEDMAT', numorder_pedmat, 'PEDIDO DE MATERIALES', 1, '{:06}'.format(int(num_ot) + 1), len(id_list), date.today().strftime("%d/%m/%Y"))
             cur.execute(commands_otpedmat, data)
-            worksheet['B2'].value = num_ot + 1
+            worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
             workbook.save(excel_file_path)
     # close communication with the PostgreSQL database server
         cur.close()
@@ -1495,6 +1494,7 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable):
             conn.close()
 
     if len(id_list) != 0:
+        model_list = []
         valve_model_list = []
         list_1 = []
         list_2 = []
@@ -1521,9 +1521,9 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable):
                     break
             if target_row is not None:
                 description = model.data(model.index(target_row, 8))
+                print(description)
 
                 if any(valve in description for valve in list_valves_210):
-
                     model_valve = re.match(r'(V-\d+-[A-Za-z0-9]+)', description).group(0)
                     material_valve = (re.match(r'(V-\d+-[A-Za-z0-9]+)(.*)', description).group(2).lstrip(' - ').strip()).split(' / ')[0]
                     sch_valve = re.search(r'V-\d+-(\w+)', description).group(1)
@@ -1556,27 +1556,40 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable):
                     if len(description.split(' / ')) > 2: 
                         list_18.append(['NIPLO ' + description.split(' / ')[2],'','','','AC. INOX' if materialvalve == '316' else 'AC. CARBONO',1]) 
 
+                    data_lists = [
+                    (valve_model_list, "df_valvemodel"),
+                    (list_1, "df_list1"),
+                    (list_2, "df_list2"),
+                    (list_3, "df_list3"),
+                    (list_4, "df_list4"),
+                    (list_5, "df_list5"),
+                    (list_6, "df_list6"),
+                    (list_7, "df_list7"),
+                    (list_8, "df_list8"),
+                    (list_9, "df_list9"),
+                    (list_10, "df_list10"),
+                    (list_11, "df_list11"),
+                    (list_12, "df_list12"),
+                    (list_13, "df_list13"),
+                    (list_14, "df_list14"),
+                    (list_15, "df_list15"),
+                    (list_16, "df_list16"),
+                    (list_17, "df_list17"),
+                    (list_18, "df_list18")]
 
-        data_lists = [
-        (valve_model_list, "df_valvemodel"),
-        (list_1, "df_list1"),
-        (list_2, "df_list2"),
-        (list_3, "df_list3"),
-        (list_4, "df_list4"),
-        (list_5, "df_list5"),
-        (list_6, "df_list6"),
-        (list_7, "df_list7"),
-        (list_8, "df_list8"),
-        (list_9, "df_list9"),
-        (list_10, "df_list10"),
-        (list_11, "df_list11"),
-        (list_12, "df_list12"),
-        (list_13, "df_list13"),
-        (list_14, "df_list14"),
-        (list_15, "df_list15"),
-        (list_16, "df_list16"),
-        (list_17, "df_list17"),
-        (list_18, "df_list18")]
+                else:
+                    tradcod = str(description)
+                    sch = ''
+                    design = ''
+                    process = ''
+                    material = ''
+                    qty = 1
+                    model_list.append([tradcod,sch,design,process,material,qty])
+
+                    data_lists = [
+                    (model_list, "df_model"),]
+
+                    print(model_list)
 
         data_frames_with_data = []
 
@@ -1589,6 +1602,8 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable):
 
         if data_frames_with_data:
             df_combined = pd.concat(data_frames_with_data, ignore_index=True)
+
+        print(df_combined)
 
         commands_client = ("""
                             SELECT orders."num_order",orders."num_offer",offers."client"
