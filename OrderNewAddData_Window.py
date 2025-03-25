@@ -421,8 +421,8 @@ class Ui_New_OrderAddData_Window(object):
 
         else:
             self.Validity_NewOrder.setText(str(results[0][1]) if str(results[0][1]) != 'None' else '')
-            self.DelivTime_NewOrder.setText(str(results[0][2]) if str(results[0][2]) != 'None' else '')
-            self.DelivTerm_NewOrder.setText(str(results[0][3]) if str(results[0][3]) != 'None' else '')
+            self.DelivTime_NewOrder.setText(str(results[0][3]) if str(results[0][3]) != 'None' else '')
+            self.DelivTerm_NewOrder.setText(str(results[0][2]) if str(results[0][2]) != 'None' else '')
             
 
             payterm_text = ('100% entrega' if str(results[0][4]) == '100_delivery'

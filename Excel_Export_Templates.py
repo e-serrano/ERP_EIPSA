@@ -8131,11 +8131,21 @@ class vendor_progress_report:
                     f"""SELECT orders."num_ref_order", '' as suppl, tags_data."position", tags_data."subposition", tags_data."tag", '' as empty_column, tags_data."item_type",
                     '' as empty_column2, '' as empty_column3, 'FCA' as incoterm,
                     'Poligono Industrial Igarsa, Naves 4-8, 28860, Paracuellos de Jarama, Spain' as delivery_place, 0 as item_ship_qty,
-                    0 as qty_unit, 1 as irc_qty, TO_CHAR(tags_data."irc_date", 'DD/MM/YYYY'), 1 as rn_qty, tags_data."rn_delivery", TO_CHAR(tags_data."rn_date", 'DD/MM/YYYY'),
-                    '' as osd_number, TO_CHAR(tags_data."contractual_date", 'DD/MM/YYYY'), '' as forecast_date, '' as deviation, 'EIPSA' as manufacturer,
-                    'Poligono Industrial Igarsa, Naves 4-8, 28860, Paracuellos de Jarama, Spain' as fab_location, tags_data."inspection", '' as remarks
+                    1 as qty_unit, 0 as irc_qty, TO_CHAR(tags_data."irc_date", 'DD/MM/YYYY'), 0 as rn_qty, tags_data."rn_delivery", TO_CHAR(tags_data."rn_date", 'DD/MM/YYYY'),
+                    '' as osd_number, TO_CHAR(tags_data."contractual_date", 'DD/MM/YYYY'),
+                    CASE 
+                        WHEN tags_data."dwg_state_date" IS NULL THEN 'HOLD'
+                        ELSE TO_CHAR(tags_data."dwg_state_date" + INTERVAL '7 days' * offers."delivery_time"::integer, 'DD/MM/YYYY')
+                    END AS forecast_date,
+                    CASE 
+                        WHEN tags_data."dwg_state_date" IS NULL THEN NULL
+                        ELSE EXTRACT(DAY FROM (tags_data."dwg_state_date" + INTERVAL '7 days' * offers."delivery_time"::integer - tags_data."contractual_date"))
+                    END AS deviation_days
+                    , 'EIPSA' as manufacturer,
+                    'Poligono Industrial Igarsa, Naves 4-8, 28860, Paracuellos de Jarama, Spain' as fab_location, tags_data."inspection", '' as remarks, tags_data."dwg_state" as drawing_state
                     FROM {self.table_query} AS tags_data
                     JOIN orders ON (orders."num_ref_order" = tags_data."num_po")
+                    JOIN offers ON (offers."num_offer" = orders."num_offer")
                     WHERE tags_data."num_po" LIKE UPPER ('%%'||'{self.num_ref}'||'%%')
                     ORDER BY tags_data."tag"
                     """)
@@ -8169,7 +8179,7 @@ class vendor_progress_report:
         column_headers = ['PO Number', 'Suppl.', 'Pos', 'Sub', 'TAG', '', 'Ident Description',
                         'D1', 'SCH1', 'Incoterm', 'Delivery Place', 'Item Ship. Qty', 'Quantity Unit', 'IRC QTY', 'IRC date',
                         'RN QTY', 'RN Number', 'RN date', 'OSD Number', 'Contractual Delivery Date', 'Forecast Delivery Date', 'DEVIATION (days)',
-                        'Manufacturer', 'Fab. Location', 'Final Inspection Date', 'Remarks']
+                        'Manufacturer', 'Fab. Location', 'Final Inspection Date', 'Remarks', 'Drawing State']
 
         self.data_vpr = pd.DataFrame(data=results_progress, columns=column_headers)
 
