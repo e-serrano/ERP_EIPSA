@@ -12,6 +12,7 @@ from config import config
 import pandas as pd
 from PyQt6.QtWidgets import QFileDialog
 import os
+import locale
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -617,7 +618,19 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
         self.tableQueryDoc.setSortingEnabled(False)
         self.tableQueryDoc.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableQueryDoc.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
-        self.gridLayout_2.addWidget(self.tableQueryDoc, 2, 0, 1, 2)
+        self.gridLayout_2.addWidget(self.tableQueryDoc, 2, 0, 1, 11)
+        self.label_CountItems = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountItems.setMinimumSize(QtCore.QSize(60, 10))
+        self.label_CountItems.setMaximumSize(QtCore.QSize(60, 10))
+        self.label_CountItems.setText("")
+        self.label_CountItems.setObjectName("label_CountItems")
+        self.gridLayout_2.addWidget(self.label_CountItems, 4, 9, 1, 1)
+        self.label_CountValue = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountValue.setMinimumSize(QtCore.QSize(80, 10))
+        self.label_CountValue.setMaximumSize(QtCore.QSize(80, 10))
+        self.label_CountValue.setText("")
+        self.label_CountValue.setObjectName("label_CountValue")
+        self.gridLayout_2.addWidget(self.label_CountValue, 4, 10, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         QueryDoc_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=QueryDoc_Window)
@@ -633,6 +646,7 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
 
         self.Button_Export.clicked.connect(self.export_to_excel)
         self.tableQueryDoc.horizontalHeader().sectionClicked.connect(self.on_header_section_clicked)
+        self.tableQueryDoc.itemSelectionChanged.connect(self.countSelectedCells)
         self.query_all_docs()
 
 
@@ -820,6 +834,29 @@ class Ui_QueryDoc_Window(QtWidgets.QMainWindow):
         header_height = self.tableQueryDoc.horizontalHeader().height()
         popup_pos = self.tableQueryDoc.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableQueryDoc.show_unique_values_menu(logical_index, popup_pos, header_height)
+
+    def countSelectedCells(self):
+        """
+        Counts the number of selected cells and sums their values. Updates the UI labels with the count and sum.
+        """
+        if len(self.tableQueryDoc.selectedIndexes()) > 1:
+            locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+
+            self.label_CountItems.setText("")
+            self.label_CountValue.setText("")
+
+            count_value = len([ix for ix in self.tableQueryDoc.selectedIndexes() if ix.data() != ""])
+
+            if count_value > 0:
+                self.label_CountItems.setText("Recuento:")
+                self.label_CountValue.setText(str(count_value))
+        else:
+            self.label_CountItems.setText("")
+            self.label_CountValue.setText("")
+
+
+
+
 
 
 if __name__ == "__main__":
