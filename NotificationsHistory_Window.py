@@ -366,7 +366,7 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
         # execution of commands
-            commands_notifications = f" SELECT notes FROM notifications.notifications_orders WHERE id = {id_notification}"
+            commands_notifications = f" SELECT notes, message FROM notifications.notifications_orders WHERE id = {id_notification}"
             cur.execute(commands_notifications)
             results=cur.fetchall()
 
@@ -391,7 +391,7 @@ class Ui_HistoryNotifications_Window(QtWidgets.QMainWindow):
                 conn.close()
 
         dlg = QtWidgets.QDialog()
-        dlg.setWindowTitle("Dialog")
+        dlg.setWindowTitle(results[0][1].split('Proyecto')[0].split(': ')[1])
         dlg.setGeometry(50, 50, 900, 600)
         dlg.setWindowModality(QtCore.Qt.WindowModality.NonModal)
 
