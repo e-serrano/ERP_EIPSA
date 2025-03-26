@@ -100,7 +100,6 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 painter.setPen(option.palette.highlightedText().color())
                 painter.setBrush(option.palette.highlight())
             else:
-
                 if "STELLITE" in value_check:
                     start_color = QtGui.QColor(24, 146, 97)  # Dark Green
                     end_color = QtGui.QColor(92, 197, 229)  # Blue
@@ -284,11 +283,17 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 elif 'TANTALO' in value_check:
                     start_color = QtGui.QColor(255, 87, 87)  # Red
                     end_color = QtGui.QColor(92, 197, 229)  # Blue
+                    border_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
                     rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
                     rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
 
                     painter.fillRect(rect_top, start_color)
                     painter.fillRect(rect_bottom, end_color)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
 
                 elif 'F11' in value_check:
                     start_color = QtGui.QColor(255, 157, 59)  # Orange
@@ -451,8 +456,8 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                     painter.fillRect(rect_bottom, end_color)
 
                 elif any(item in value_check for item in ['C70610', 'CUNI 90-10', 'C70690']):
-                    start_color = QtGui.QColor(255, 87, 87)  # Red
-                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(255, 87, 87)  # Red
 
                     rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
                     rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
@@ -768,14 +773,17 @@ class AlignDelegate_M(QtWidgets.QStyledItemDelegate):
                 elif 'TANTALO' in value_check:
                     start_color = QtGui.QColor(255, 87, 87)  # Red
                     end_color = QtGui.QColor(92, 197, 229)  # Blue
+                    border_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
                     rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
                     rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
 
                     painter.fillRect(rect_top, start_color)
                     painter.fillRect(rect_bottom, end_color)
 
-                    painter.fillRect(rect_top, start_color)
-                    painter.fillRect(rect_bottom, end_color)
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
 
                 elif 'F11' in value_check:
                     start_color = QtGui.QColor(255, 157, 59)  # Orange
@@ -938,8 +946,8 @@ class AlignDelegate_M(QtWidgets.QStyledItemDelegate):
                     painter.fillRect(rect_bottom, end_color)
 
                 elif any(item in value_check for item in ['C70610', 'CUNI 90-10', 'C70690']):
-                    start_color = QtGui.QColor(255, 87, 87)  # Red
-                    end_color = QtGui.QColor(255, 255, 0)  # Yellow
+                    start_color = QtGui.QColor(255, 157, 59)  # Orange
+                    end_color = QtGui.QColor(255, 87, 87)  # Red
 
                     rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
                     rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
@@ -4783,8 +4791,47 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         if not os.path.exists(output_path2):
                             os.makedirs(output_path2)
 
-                        # query de planos M del pedido, si no existe empezar contador en 0, si existen coger el ultimo y empezar contador desde ahi
+                        commands_select_m_drawing = ("""
+                            SELECT drawing_number
+                            FROM verification."m_drawing_verification"
+                            WHERE "num_order" = %s
+                            ORDER BY drawing_number DESC
+                            """)
 
+                        conn = None
+                        try:
+                        # read the connection parameters
+                            params = config()
+                        # connect to the PostgreSQL server
+                            conn = psycopg2.connect(**params)
+                            cur = conn.cursor()
+                        # execution of commands
+                            cur.execute(commands_select_m_drawing,(self.numorder,))
+                            results_drawings=cur.fetchall()
+                        # close communication with the PostgreSQL database server
+                            cur.close()
+                        # commit the changes
+                            conn.commit()
+                        except (Exception, psycopg2.DatabaseError) as error:
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("ERP EIPSA")
+                            dlg.setText("Ha ocurrido el siguiente error:\n"
+                                        + str(error))
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                            dlg.exec()
+                            del dlg, new_icon
+                        finally:
+                            if conn is not None:
+                                conn.close()
+
+                        dict_drawings = {}
+                        if len(results_drawings) == 0:
+                            counter_drawings = 0
+                        else:
+                            counter_drawings = int(results_drawings[0][0][-2:])
 
                         if self.table_toquery == "tags_data.tags_temp":
                             query = ('''
@@ -4825,9 +4872,6 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             df_selected = df_general.iloc[:, [0, 9, 10, 11, 12, 14, 15, 17, 21]].copy()
 
                             for item in df_selected[9].unique().tolist():
-                                dict_drawings = {}
-                                counter_drawings = 0
-
                                 if item == 'Flanged TW':
                                     df_selected.rename(columns={
                                         0: 'id', 9: 'type', 10: 'size', 11: 'rating',
@@ -4850,6 +4894,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     axis=1)
 
                                     grouped_flanges = df_flanges.groupby(['drawing_path','base_diam','material']).count()
+                                    total_count = grouped_flanges.sum().iloc[0]
 
                                     for (drawing_path, base_diam, material), row in grouped_flanges.iterrows():
                                         counter_drawings += 1
@@ -4866,7 +4911,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             writer.add_page(reader.pages[1])
 
                                         writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                        dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf","Descripción plano"]
+                                        dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf","Descripción plano",total_count]
 
                                     df_bars = df_selected.copy()
 
@@ -4883,7 +4928,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     axis=1)
 
                                     df_grouped = df_bars.groupby(["drawing_path",'base_diam','material', "bore_diameter", "std_length"]).size().reset_index(name="count")
-                                    grouped_bars = df_grouped.groupby(['drawing_path','base_diam','material']).agg({"bore_diameter":list, "std_length": list, "count": list}).reset_index() 
+                                    grouped_bars = df_grouped.groupby(['drawing_path','base_diam','material']).agg({"bore_diameter":list, "std_length": list, "count": list}).reset_index()
+                                    total_count = grouped_bars['count'].explode().sum() 
 
                                     for _, row in grouped_bars.iterrows():
                                         counter_drawings += 1
@@ -4900,12 +4946,12 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         #     writer.add_page(reader.pages[1])
 
                                         writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                        dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf","Descripción plano"]
+                                        dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf","Descripción plano", total_count]
 
                             for key, value in dict_drawings.items():
                                 writer = PdfWriter()
                                 reader = PdfReader(key)
-                                page_overlay = PdfReader(drawing_number(value[0], counter_drawings)).pages[0]
+                                page_overlay = PdfReader(drawing_number(self.numorder, value, counter_drawings)).pages[0]
                                 reader.pages[0].merge_page(page2=page_overlay)
                                 writer.add_page(reader.pages[0])
 
