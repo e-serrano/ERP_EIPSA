@@ -544,6 +544,43 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.set_header_buttons(self.username)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
+
+        if self.username == 'e.carrillo':
+            self.Button_Notes = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Notes.setMinimumSize(QtCore.QSize(60, 40))
+            self.Button_Notes.setMaximumSize(QtCore.QSize(60, 40))
+            font = QtGui.QFont()
+            font.setPointSize(12)
+            font.setBold(True)
+            self.Button_Notes.setFont(font)
+            self.Button_Notes.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Notes.setText('Notas')
+            self.Button_Notes.setStyleSheet(
+"QPushButton{\n"
+"    border: 1px solid;\n"
+"    color: rgb(3, 174, 236);\n"
+"    border-color: rgb(3, 174, 236);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    border: 1px solid ;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(255, 255, 255);\n"
+"    border-radius: 10px;\n"
+"}\n"
+"\n"
+"QPushButton:pressed{\n"
+"    border: 1px solid;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"    color: rgb(0,0,0);\n"
+"    background-color: rgb(200, 200, 200);\n"
+"    border-radius: 10px;\n"
+"}")
+            self.Header.addWidget(self.Button_Notes)
+            self.Button_Notes.clicked.connect(self.notifications_all)
         spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
         font = QtGui.QFont()
@@ -1751,6 +1788,16 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.notification_window=Ui_HistoryNotifications_Window(self.username)
         self.notification_window.show()
         self.notification_window.Button_Cancel.clicked.connect(self.load_notifications)
+
+# Function to open window with all notifications table
+    def notifications_all(self):
+        """
+        Opens a new window to show active notifications. 
+        """
+        from NotificationsAll_History_Window import Ui_HistoryNotificationsAll_Window
+        self.notification_all_window=Ui_HistoryNotificationsAll_Window(self.username)
+        self.notification_all_window.show()
+        self.notification_all_window.Button_Cancel.clicked.connect(self.load_notifications)
 
 # Function to open window for order query
     def query_order(self):
