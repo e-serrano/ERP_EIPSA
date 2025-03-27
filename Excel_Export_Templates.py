@@ -549,7 +549,8 @@ class offer_flow:
                     )
 
                     ws = self.wb_technical[eq_type]
-                    ws["G4"] = offername_technical
+                    if int(rev) == 0:
+                        ws["G4"] = offername_technical
 
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
@@ -1285,7 +1286,8 @@ class offer_short_flow_spanish:
                     )
 
                     ws = self.wb_technical[eq_type]
-                    ws["G4"] = offername_technical
+                    if int(rev) == 0:
+                        ws["G4"] = offername_technical
 
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
@@ -2019,7 +2021,8 @@ class offer_short_flow_english:
                     )
 
                     ws = self.wb_technical[eq_type]
-                    ws["G4"] = offername_technical
+                    if int(rev) == 0:
+                        ws["G4"] = offername_technical
 
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
@@ -2850,7 +2853,8 @@ class offer_temp:
                     )
 
                     ws = self.wb_technical[eq_type]
-                    ws["G4"] = offername_technical
+                    if int(rev) == 0:
+                        ws["G4"] = offername_technical
 
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
@@ -3628,7 +3632,8 @@ class offer_short_temp_spanish:
                     )
 
                     ws = self.wb_technical[eq_type]
-                    ws["G4"] = offername_technical
+                    if int(rev) == 0:
+                        ws["G4"] = offername_technical
 
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
@@ -4406,7 +4411,8 @@ class offer_short_temp_english:
                     )
 
                     ws = self.wb_technical[eq_type]
-                    ws["G4"] = offername_technical
+                    if int(rev) == 0:
+                        ws["G4"] = offername_technical
 
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
@@ -4852,32 +4858,32 @@ class offer_level:
                             cell = ws.cell(row=last_row + 1, column=col_num)
                             cell.value = value
                             if col_num == num_column_amount:
-                                cell._style = ws["AH1"]._style
+                                cell._style = ws["AG1"]._style
                             else:
-                                cell._style = ws["AC1"]._style
+                                cell._style = ws["AB1"]._style
 
                         last_row = ws.max_row
 
                     ws[f"A{last_row+3}"] = "OFFER VALIDITY: " + validity + " DAYS"
-                    ws[f"A{last_row+3}"]._style = ws["AJ1"]._style
+                    ws[f"A{last_row+3}"]._style = ws["AI1"]._style
                     ws[f"A{last_row+4}"] = (
                         "DELIVERY TIME: "
                         + delivery_time
                         + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
                     )
-                    ws[f"A{last_row+4}"]._style = ws["AJ1"]._style
+                    ws[f"A{last_row+4}"]._style = ws["AI1"]._style
 
                     if notes != "":
                         if isinstance(notes, list):
                             line = last_row + 5
                             for note in notes:
                                 ws[f"A{line}"] = note
-                                ws[f"A{line}"]._style = ws["AJ1"]._style
+                                ws[f"A{line}"]._style = ws["AI1"]._style
                                 line += 1
                         else:
                             line = last_row + 5
                             ws[f"A{line}"] = notes
-                            ws[f"A{line}"]._style = ws["AJ1"]._style
+                            ws[f"A{line}"]._style = ws["AI1"]._style
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
@@ -4890,9 +4896,9 @@ class offer_level:
                     parts_key = key.split(" ")
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
                     ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AB1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AD1"]._style
+                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
 
                     row_amount += 2
 
@@ -4907,24 +4913,24 @@ class offer_level:
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
                 ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
-                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AB1"]._style
+                ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AA1"]._style
                 ws.cell(row=last_row + 3, column=num_column_amount).font = Font(name="Calibri", size=14)
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AB1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AD1"]._style
+                ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["AD1"]._style
+                ws.cell(row=row_amount + 4, column=num_column_amount)._style = ws["AC1"]._style
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).font = Font(name="Calibri", size=14)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["AD1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["AE1"]._style
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["AE1"]._style
+                ws.cell(row=row_amount + 5, column=num_column_amount)._style = ws["AC1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 2)._style = ws["AD1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1)._style = ws["AD1"]._style
                 ws.cell(row=row_amount + 6, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AF1"]._style
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["AB1"]._style
+                ws.cell(row=row_amount + 6, column=num_column_amount)._style = ws["AE1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1)._style = ws["AA1"]._style
                 ws.cell(row=row_amount + 8, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
-                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AG1"]._style
+                ws.cell(row=row_amount + 8, column=num_column_amount)._style = ws["AF1"]._style
 
             # Editing sheet NOTES
                 sheet_name = "NOTES"  # Selecting  sheet
@@ -5066,7 +5072,8 @@ class offer_level:
                         )
 
                     ws = self.wb_technical[eq_type]
-                    ws["G4"] = offername_technical
+                    if int(rev) == 0:
+                        ws["G4"] = offername_technical
 
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
@@ -5551,15 +5558,15 @@ class offer_short_level_spanish:
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
                     ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
+                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
 
                     row_amount += 2
 
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
                 ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
                 ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
-                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)"  if total_amount_material > 6700 else 200)
+                ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
                 ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
                 ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
@@ -5685,7 +5692,8 @@ class offer_short_level_spanish:
                         )
 
                     ws = self.wb_technical[eq_type]
-                    ws["G4"] = offername_technical
+                    if int(rev) == 0:
+                        ws["G4"] = offername_technical
 
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
@@ -6129,8 +6137,8 @@ class offer_short_level_english:
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
                     ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
-                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
+                    ws.cell(row=row_amount + 2, column=num_column_amount)._style = ws["AC1"]._style
 
                     row_amount += 2
 
@@ -6304,7 +6312,8 @@ class offer_short_level_english:
                         )
 
                     ws = self.wb_technical[eq_type]
-                    ws["G4"] = offername_technical
+                    if int(rev) == 0:
+                        ws["G4"] = offername_technical
 
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
@@ -7351,7 +7360,8 @@ class offer_flow_temp:
                     )
 
                     ws = self.wb_technical[eq_type]
-                    ws["G4"] = offername_technical
+                    if int(rev) == 0:
+                        ws["G4"] = offername_technical
 
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
@@ -7441,7 +7451,8 @@ class offer_flow_temp:
                     )
 
                     ws = self.wb_technical[eq_type]
-                    ws["G4"] = offername_technical
+                    if int(rev) == 0:
+                        ws["G4"] = offername_technical
 
                     last_row = dict_sheets_data[eq_type][0]
                     num_column_amount = dict_sheets_data[eq_type][1]
