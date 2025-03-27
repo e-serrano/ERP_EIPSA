@@ -763,9 +763,13 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         self.tableOffer = QtWidgets.QTableWidget(parent=self.frame)
         self.tableOffer.setMinimumSize(QtCore.QSize(650, 280))
         self.tableOffer.setObjectName("tableOffer")
-        self.tableOffer.setColumnCount(10)
+        if self.username == 'l.bravo':
+            number_columns = 11
+        else:
+            number_columns = 10
+        self.tableOffer.setColumnCount(number_columns)
         self.tableOffer.setRowCount(0)
-        for i in range(10):
+        for i in range(number_columns):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -1343,6 +1347,17 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                     ))
                     ORDER BY "num_offer"
                     """)
+        commands_appcomercial_coordination = ("""
+                    SELECT "num_offer","state", "responsible", "client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","notes","important","tracking"
+                    FROM offers
+                    WHERE ("responsible" not in ('a.calvo')
+                    AND
+                    ("state" = 'Presentada'
+                    OR
+                    "state" = 'Registrada'
+                    ))
+                    ORDER BY "num_offer"
+                    """)
         conn = None
         try:
         # read the connection parameters
@@ -1355,14 +1370,21 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
             results_responsible=cur.fetchall()
             match=list(filter(lambda x:self.username in x, results_responsible))
             responsible=match[0][0]
-            cur.execute(commands_appcomercial,(responsible,))
-            results=cur.fetchall()
+            if responsible in ('l.bravo'):
+                cur.execute(commands_appcomercial_coordination)
+                results=cur.fetchall()
+                number_columns = 11
+                self.tableOffer.setHorizontalHeaderLabels(["Nº Oferta", "Estado", "Responsable", "Cliente", "Cliente Final", "Fecha Pres.", "Material", "Importe", "Notas", "Ptos. Importantes", "Seguimiento"])
+            else:
+                cur.execute(commands_appcomercial,(responsible,))
+                results=cur.fetchall()
+                number_columns = 10
             self.tableOffer.setRowCount(len(results))
             tablerow=0
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(10):
+                for column in range(number_columns):
                     value = row[column]
                     if value is None:
                         value = ''
