@@ -127,11 +127,10 @@ def drawing_number(num_order, info_drawing, counter):
         # cur.execute(check_ot)
         # results=cur.fetchall()
         # if len(results) == 0:
-        data=(num_order + f"{str(info_drawing[0].split('.')[0])}/{counter:02d}", num_order, info_drawing[1], 1, '{:06}'.format(int(num_ot) + 1), info_drawing[2], date.today().strftime("%d/%m/%Y"))
+        data=(num_order + "-" + f"{str(info_drawing[0].split('.')[0])}/{counter:02d}", num_order, info_drawing[1], 1, '{:06}'.format(int(num_ot) + 1), info_drawing[2], date.today().strftime("%d/%m/%Y"))
             # cur.execute(insert_ot, data)
             # worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
             # workbook.save(excel_file_path)
-        print(data)
 
     # close communication with the PostgreSQL database server
         cur.close()
@@ -145,7 +144,7 @@ def drawing_number(num_order, info_drawing, counter):
         dlg.setWindowTitle("ERP EIPSA")
         dlg.setText("Ha ocurrido el siguiente error:\n"
                     + str(error))
-        print('error overlay')
+        print(error)
         dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
         dlg.exec()
         del dlg, new_icon

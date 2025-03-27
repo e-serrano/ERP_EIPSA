@@ -4885,6 +4885,10 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                 ('-0' + str(row['rating']) if str(row['rating']) in ['150', '300', '600', '900'] else '-' + str(row['rating'])),
                                     axis=1)
 
+                                    df_flanges['connection'] = df_flanges.apply(
+                                    lambda row: str(row['size']) + " " + str(row['rating']) + "#" + str(row['facing']),
+                                    axis=1)
+                                    
                                     df_flanges['drawing_path'] = df_flanges.apply(
                                     lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\B-Bridas\PC-Penetracion Completa\{'RF-RaisedFace' if str(row['facing']) == 'RF' else 'RTJ-RingTypeJoint'}\{str(row['drawing_code'])}.pdf",
                                     axis=1)
@@ -4893,10 +4897,10 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     lambda row: 32 if int(row['root_diam']) < 32 else 35,
                                     axis=1)
 
-                                    grouped_flanges = df_flanges.groupby(['drawing_path','base_diam','material']).count()
+                                    grouped_flanges = df_flanges.groupby(['drawing_path','connection','base_diam','material']).count()
                                     total_count = grouped_flanges.sum().iloc[0]
 
-                                    for (drawing_path, base_diam, material), row in grouped_flanges.iterrows():
+                                    for (drawing_path, connection, base_diam, material), row in grouped_flanges.iterrows():
                                         counter_drawings += 1
 
                                         writer = PdfWriter()
@@ -4911,7 +4915,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             writer.add_page(reader.pages[1])
 
                                         writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                        dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf","Descripción plano",total_count]
+                                        dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " BPC " + str(connection) + " " +str(material), total_count]
 
                                     df_bars = df_selected.copy()
 
@@ -4946,7 +4950,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         #     writer.add_page(reader.pages[1])
 
                                         writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                        dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf","Descripción plano", total_count]
+                                        dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), total_count]
 
                             for key, value in dict_drawings.items():
                                 writer = PdfWriter()
