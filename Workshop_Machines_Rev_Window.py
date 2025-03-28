@@ -250,7 +250,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
             Qt.ItemFlags: The flags for the specified item.
         """
         flags = super().flags(index)
-        if index.column() in [0,1]:
+        if index.column() in [0,1,5]:
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
@@ -443,6 +443,18 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         self.toolImages.setIcon(icon)
         self.toolImages.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolImages)
+        self.hcabspacer4=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer4)
+
+        self.toolDocument = QtWidgets.QToolButton(self.frame)
+        self.toolDocument.setObjectName("Document_Button")
+        self.toolDocument.setToolTip("Añadir Documento")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Order_New.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolDocument.setIcon(icon)
+        self.toolDocument.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolDocument)
+
         self.hcabspacer3=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer3)
         self.toolAdd = QtWidgets.QToolButton(self.frame)
@@ -477,6 +489,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         if self.username == 'm.gil':
             self.toolDeleteFilter.setStyleSheet("border: 1px solid white;")
             self.toolImages.setStyleSheet("border: 1px solid white;")
+            self.toolDocument.setStyleSheet("border: 1px solid white;")
             self.toolAdd.setStyleSheet("border: 1px solid white;")
             self.toolSaveChanges.setStyleSheet("border: 1px solid white;")
             self.toolPDF.setStyleSheet("border: 1px solid white;")
@@ -638,6 +651,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         self.toolAdd.clicked.connect(self.add_new)
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
         self.toolImages.clicked.connect(self.add_images)
+        self.toolDocument.clicked.connect(self.add_document)
         self.toolSaveChanges.clicked.connect(self.save_information)
         self.toolPDF.clicked.connect(self.datasheet_pdf)
 
@@ -750,7 +764,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
         self.tableRevisions.hideColumn(0)
 
     # Change all column names
-        headers_names = ["ID", "Nº Máquina", "Fecha Rev.", "Horas", "Descripción"]
+        headers_names = ["ID", "Nº Máquina", "Fecha Rev.", "Horas", "Descripción", "Documento"]
 
         self.model.setAllColumnHeaders(headers_names)
 
@@ -1349,6 +1363,66 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
                     conn.close()
 
             self.load_data()
+
+# Function to add images to machines
+    def add_document(self):
+        """
+        Adds a document to the selected machine's record in the database.
+        Updates the document field for the specified machine by selecting a document file from the filesystem.
+        """
+
+        selected_indexes = self.tableRevisions.selectionModel().selectedIndexes()
+        if not selected_indexes:
+            return
+        
+        if len(selected_indexes) == 1:
+            index = selected_indexes[0]
+            if index.column() == 5:
+                id_column_index = index.sibling(index.row(), 0)
+                value_id = str(id_column_index.data())
+
+                document_path = askopenfilename(initialdir="//nas01/DATOS/Comunes/Mario Gil", filetypes=[("Archivos PDF", "*.pdf")],
+                                    title="Seleccionar Documento")
+
+                if document_path:
+                    commands_insert = ("""
+                            UPDATE verification."machines_workshop_revisions"
+                            SET "document_machine" = %s
+                            WHERE "id" = %s
+                            """)
+
+                    conn = None
+                    try:
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of commands
+                        cur.execute(commands_insert, (document_path, value_id,))
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                    except (Exception, psycopg2.DatabaseError) as error:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("Máquinas Taller")
+                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                    + str(error))
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                        dlg.exec()
+                        del dlg, new_icon
+
+                    finally:
+                        if conn is not None:
+                            conn.close()
+
+                    self.load_data()
 
 # Function to add information to machines
     def save_information(self):
