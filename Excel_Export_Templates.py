@@ -361,7 +361,7 @@ class offer_flow:
 
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
                 ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
                 ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200 )
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
                 ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
@@ -1139,7 +1139,7 @@ class offer_short_flow_spanish:
 
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
                 ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
                 ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
                 ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
@@ -1833,7 +1833,7 @@ class offer_short_flow_english:
 
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
                 ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
                 ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
                 ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
@@ -2661,7 +2661,7 @@ class offer_temp:
 
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
                 ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
                 ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
                 ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
@@ -3481,7 +3481,7 @@ class offer_short_temp_spanish:
 
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
                 ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
                 ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
                 ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
@@ -4219,7 +4219,7 @@ class offer_short_temp_english:
 
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
                 ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
                 ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
                 ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
@@ -4904,7 +4904,7 @@ class offer_level:
 
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
                 ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
                 ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
                 ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
@@ -5565,7 +5565,7 @@ class offer_short_level_spanish:
 
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
                 ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
                 ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
                 ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
@@ -6144,7 +6144,7 @@ class offer_short_level_english:
 
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
                 ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
                 ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
                 ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
@@ -7172,7 +7172,7 @@ class offer_flow_temp:
 
                 ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
                 ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT (FCA 2020)"
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
                 ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200 )
                 ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
                 ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
