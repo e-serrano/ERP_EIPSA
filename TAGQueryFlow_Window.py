@@ -12,6 +12,7 @@ import psycopg2
 import os
 import re
 from datetime import *
+import locale
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -629,6 +630,32 @@ class Ui_TAGQueryFlow_Window(QtWidgets.QMainWindow):
         self.tableTags.setColumnCount(0)
         self.tableTags.setRowCount(0)
         self.gridLayout_2.addWidget(self.tableTags, 5, 0, 1, 6)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.label_SumItems = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumItems.setMinimumSize(QtCore.QSize(40, 10))
+        self.label_SumItems.setMaximumSize(QtCore.QSize(40, 10))
+        self.label_SumItems.setText("")
+        self.label_SumItems.setObjectName("label_SumItems")
+        self.horizontalLayout.addWidget(self.label_SumItems)
+        self.label_SumValue = QtWidgets.QLabel(parent=self.frame)
+        self.label_SumValue.setMinimumSize(QtCore.QSize(80, 20))
+        self.label_SumValue.setMaximumSize(QtCore.QSize(80, 20))
+        self.label_SumValue.setText("")
+        self.label_SumValue.setObjectName("label_SumValue")
+        self.horizontalLayout.addWidget(self.label_SumValue)
+        self.label_CountItems = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountItems.setMinimumSize(QtCore.QSize(60, 10))
+        self.label_CountItems.setMaximumSize(QtCore.QSize(60, 10))
+        self.label_CountItems.setText("")
+        self.label_CountItems.setObjectName("label_CountItems")
+        self.horizontalLayout.addWidget(self.label_CountItems)
+        self.label_CountValue = QtWidgets.QLabel(parent=self.frame)
+        self.label_CountValue.setMinimumSize(QtCore.QSize(80, 10))
+        self.label_CountValue.setMaximumSize(QtCore.QSize(80, 10))
+        self.label_CountValue.setText("")
+        self.label_CountValue.setObjectName("label_CountValue")
+        self.horizontalLayout.addWidget(self.label_CountValue)
+        self.gridLayout_2.addLayout(self.horizontalLayout, 6, 5, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.gridLayout_2.addItem(spacerItem1, 11, 1, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
@@ -655,6 +682,7 @@ class Ui_TAGQueryFlow_Window(QtWidgets.QMainWindow):
         self.element_size.returnPressed.connect(self.querytags_filtered)
         self.flange_material.currentTextChanged.connect(self.querytags_filtered)
         self.element_material.currentTextChanged.connect(self.querytags_filtered)
+        self.tableTags.itemSelectionChanged.connect(self.countSelectedCells)
 
         self.load_values()
         self.querytags()
@@ -928,6 +956,53 @@ class Ui_TAGQueryFlow_Window(QtWidgets.QMainWindow):
         self.ui = Ui_TAGQueryPriceHist_Window('Caudal')
         self.ui.setupUi(self.pricehist_window)
         self.pricehist_window.showMaximized()
+
+
+
+    def countSelectedCells(self):
+        """
+        Counts the number of selected cells and sums their values. Updates the UI labels with the count and sum.
+        """
+        if len(self.tableTags.selectedIndexes()) > 1:
+            locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
+            self.label_SumItems.setText("")
+            self.label_SumValue.setText("")
+            self.label_CountItems.setText("")
+            self.label_CountValue.setText("")
+
+            sum_value = sum([self.euro_string_to_float(ix.data()) if (ix.data() is not None and (re.match(r'^[\d.,]+\s€$', ix.data()) and ix.column() == 6))
+                            else (float(ix.data()) if (ix.data() is not None and ix.data().replace(',', '.', 1).replace('.', '', 1).isdigit() and ix.column() == 12) else 0) for ix in self.tableTags.selectedIndexes()])
+            count_value = len([ix for ix in self.tableTags.selectedIndexes() if ix.data() != ""])
+            if sum_value > 0:
+                self.label_SumItems.setText("Suma:")
+                self.label_SumValue.setText(locale.format_string("%.2f", sum_value, grouping=True))
+            if count_value > 0:
+                self.label_CountItems.setText("Recuento:")
+                self.label_CountValue.setText(str(count_value))
+        else:
+            self.label_SumItems.setText("")
+            self.label_SumValue.setText("")
+            self.label_CountItems.setText("")
+            self.label_CountValue.setText("")
+
+    def euro_string_to_float(self, euro_str):
+        """
+        Converts a string representing an amount in euros to a float.
+
+        Args:
+            euro_str (str): A string representing the amount in euros (e.g., "1.234,56 €").
+        
+        Returns:
+            float: The numeric value of the amount as a float.
+        """
+        match = re.match(r'^([\d.,]+)\s€$', euro_str)
+        if match:
+            number_str = match.group(1)
+            number_str = number_str.replace('.', '').replace(',', '.')
+            return float(number_str)
+        else:
+            return 0.0
+
 
 
 if __name__ == "__main__":
