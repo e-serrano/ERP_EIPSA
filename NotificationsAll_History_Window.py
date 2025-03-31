@@ -538,26 +538,15 @@ class Ui_HistoryNotificationsAll_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addItem(spacerItem3, 1, 2, 1, 1)
         self.tableNotifications = CustomTableWidget()
         self.tableNotifications.setObjectName("tableWidget")
-        self.tableNotifications.setColumnCount(3)
+        self.tableNotifications.setColumnCount(4)
         self.tableNotifications.setRowCount(0)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        item.setFont(font)
-        self.tableNotifications.setHorizontalHeaderItem(0, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        item.setFont(font)
-        self.tableNotifications.setHorizontalHeaderItem(1, item)
-        item = QtWidgets.QTableWidgetItem()
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        item.setFont(font)
-        self.tableNotifications.setHorizontalHeaderItem(2, item)
+        for value in range(4):
+            item = QtWidgets.QTableWidgetItem()
+            font = QtGui.QFont()
+            font.setPointSize(10)
+            font.setBold(True)
+            item.setFont(font)
+            self.tableNotifications.setHorizontalHeaderItem(value, item)
         self.gridLayout_2.addWidget(self.tableNotifications, 2, 0, 1, 3)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         HistoryNotificationsAll_Window.setCentralWidget(self.centralwidget)
@@ -580,6 +569,7 @@ class Ui_HistoryNotificationsAll_Window(QtWidgets.QMainWindow):
 
         self.Button_Cancel.clicked.connect(HistoryNotificationsAll_Window.close)
         self.tableNotifications.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
+        self.tableNotifications.itemDoubleClicked.connect(self.on_item_double_clicked)
         self.QueryNotification()
 
 
@@ -591,15 +581,17 @@ class Ui_HistoryNotificationsAll_Window(QtWidgets.QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         HistoryNotificationsAll_Window.setWindowTitle(_translate("HistoryNotificationsAll_Window", "Notificaciones"))
         item = self.tableNotifications.horizontalHeaderItem(0)
-        item.setText(_translate("HistoryNotificationsAll_Window", "Mensaje"))
+        item.setText(_translate("HistoryNotificationsAll_Window", "ID"))
         item = self.tableNotifications.horizontalHeaderItem(1)
-        item.setText(_translate("HistoryNotificationsAll_Window", "Notas"))
+        item.setText(_translate("HistoryNotificationsAll_Window", "Mensaje"))
         item = self.tableNotifications.horizontalHeaderItem(2)
+        item.setText(_translate("HistoryNotificationsAll_Window", "Notas"))
+        item = self.tableNotifications.horizontalHeaderItem(3)
         item.setText(_translate("HistoryNotificationsAll_Window", "Estado"))
         self.Button_Cancel.setText(_translate("HistoryNotificationsAll_Window", "Salir"))
         # self.Button_Export.setText(_translate("HistoryNotificationsAll_Window", "Exportar"))
 
-
+# Function to 
     def QueryNotification(self):
         """
         Queries the database for notifications, configures and populates tables with the query results, 
@@ -617,12 +609,12 @@ class Ui_HistoryNotificationsAll_Window(QtWidgets.QMainWindow):
         # execution of commands
             notifications = []
 
-            commands_notifications = f" SELECT message, notes, state FROM notifications.notifications_orders WHERE username = '{self.username}'"
+            commands_notifications = f" SELECT id, message, notes, state FROM notifications.notifications_orders WHERE username = '{self.username}'"
             cur.execute(commands_notifications)
             results=cur.fetchall()
 
             for x in results:
-                notifications.append([x[0],x[1],x[2]])
+                notifications.append([x[0],x[1],x[2],x[3]])
 
         # close communication with the PostgreSQL database server
             cur.close()
@@ -634,7 +626,7 @@ class Ui_HistoryNotificationsAll_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in notifications:
-                for column in range(3):
+                for column in range(4):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -650,7 +642,8 @@ class Ui_HistoryNotificationsAll_Window(QtWidgets.QMainWindow):
             self.tableNotifications.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             self.tableNotifications.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableNotifications.horizontalHeader().setSectionResizeMode(2,QtWidgets.QHeaderView.ResizeMode.Stretch)
-            self.tableNotifications.sortByColumn(0, QtCore.Qt.SortOrder.DescendingOrder)
+            self.tableNotifications.sortByColumn(1, QtCore.Qt.SortOrder.DescendingOrder)
+            self.tableNotifications.hideColumn(0)
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -677,6 +670,121 @@ class Ui_HistoryNotificationsAll_Window(QtWidgets.QMainWindow):
         header_height = self.tableNotifications.horizontalHeader().height()
         popup_pos = self.tableNotifications.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
         self.tableNotifications.show_unique_values_menu(logical_index, popup_pos, header_height)
+
+# Function to check if column index of double clicked cell is equal to first column index
+    def on_item_double_clicked(self, item):
+        """
+        Handles double-click events on items in a QTableWidget. Opens different forms based on the column of the clicked item.
+        
+        Args:
+            item (QtWidgets.QTableWidgetItem): The item that was double-clicked.
+        """
+        if item.column() == 2:
+            self.id_notification = self.tableNotifications.item(item.row(), 0).text()
+            self.show_dialog(self.id_notification)
+
+# Function to show dialog to insert notes
+    def show_dialog(self, id_notification):
+        """
+        Displays a dialog window allowing the user to view and edit notes.
+        """
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            commands_notifications = f" SELECT notes, message FROM notifications.notifications_orders WHERE id = {id_notification}"
+            cur.execute(commands_notifications)
+            results=cur.fetchall()
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        dlg = QtWidgets.QDialog()
+        dlg.setWindowTitle(results[0][1].split('Proyecto')[0].split(': ')[1])
+        dlg.setGeometry(50, 50, 900, 600)
+        dlg.setWindowModality(QtCore.Qt.WindowModality.NonModal)
+
+        vLayout = QtWidgets.QVBoxLayout(dlg)
+
+        btn = QtWidgets.QPushButton("Guardar")
+        vLayout.addWidget(btn)
+        btn.clicked.connect(self.save_notes)
+        
+        self.te = QtWidgets.QTextEdit()
+        self.te.setText(str(results[0][0] if results[0][0] is not None else ''))
+        self.te.setStyleSheet("background-color: transparent;")
+        vLayout.addWidget(self.te)
+
+        dlg.finished.connect(self.QueryNotification) 
+
+        dlg.show()
+
+        self.dialog = dlg
+
+# Function to save notes
+    def save_notes(self):
+        """
+        Saves the supplier order comments to the database.
+        """
+        id_notification = self.id_notification
+        notes_notification = self.te.toPlainText()
+
+        commands_updateorder = ("""
+                        UPDATE notifications.notifications_orders
+                        SET "notes" = %s
+                        WHERE "id" = %s
+                        """)
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of principal command
+            data=(notes_notification, id_notification,)
+            cur.execute(commands_updateorder, data)
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+
 
 
 if __name__ == "__main__":
