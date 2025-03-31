@@ -1381,7 +1381,7 @@ class Ui_Workshop_Machines_Rev_Window(QtWidgets.QMainWindow):
                 id_column_index = index.sibling(index.row(), 0)
                 value_id = str(id_column_index.data())
 
-                document_path = askopenfilename(initialdir="//nas01/DATOS/Comunes/Mario Gil", filetypes=[("Archivos PDF", "*.pdf")],
+                document_path = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/CERTIFICADOS", filetypes=[("Archivos PDF", "*.pdf")],
                                     title="Seleccionar Documento")
 
                 if document_path:
