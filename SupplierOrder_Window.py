@@ -3559,7 +3559,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
                 self.Stock_SupplierOrder.setText(str(round(stock,2)))
                 self.StockDsp_SupplierOrder.setText(str(round(available_stock,2)))
-                self.StockVrt_SupplierOrder.setText(str(round(available_stock + pending,4)))
+                self.StockVrt_SupplierOrder.setText(str(round(available_stock + pending, 2)))
                 self.UnitValue_SupplierOrder.setText(str(unit_value))
 
             # close communication with the PostgreSQL database server
