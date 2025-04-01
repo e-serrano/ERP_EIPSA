@@ -1840,7 +1840,9 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(154,156):
                     self.tableEditTags.hideColumn(i)
-                for i in range(157,columns_number):
+                for i in range(157,159):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(161,columns_number):
                     self.tableEditTags.hideColumn(i)
                 if self.username in ['d.marquez', 'g.lopez']:
                     for i in range(63,67):
@@ -1865,7 +1867,9 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(164,166):
                     self.tableEditTags.hideColumn(i)
-                for i in range(167,columns_number):
+                for i in range(167,169):
+                    self.tableEditTags.hideColumn(i)
+                for i in range(171,columns_number):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Nivel':
@@ -1885,8 +1889,10 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(167,169):
                     self.tableEditTags.hideColumn(i)
-                for i in range(170,columns_number):
-                    self.tableEditTags.hideColumn(i)
+                for i in range(170,172):
+                        self.tableEditTags2.hideColumn(i)
+                for i in range(174,columns_number):
+                    self.tableEditTags2.hideColumn(i)
 
             elif self.variable == 'Otros':
                 for i in range(17,20):
@@ -1903,8 +1909,10 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(54,56):
                     self.tableEditTags.hideColumn(i)
-                for i in range(57,columns_number):
-                    self.tableEditTags.hideColumn(i)
+                for i in range(57,59):
+                        self.tableEditTags2.hideColumn(i)
+                for i in range(61,columns_number):
+                    self.tableEditTags2.hideColumn(i)
 
             self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
             self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
@@ -1950,7 +1958,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                             "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                             "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
 
             headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Tipo TW",
@@ -1985,7 +1993,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                             "Colada Dureza", "Estado Dureza", "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.",
                             "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF.", "Notas Verif. OF", "Fecha Verif. OF Sensor",
                             "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos",
-                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
 
             headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Modelo",
@@ -2021,7 +2029,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                             "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                             "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
 
             headers_others = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Descripción", "Código Equipo",
@@ -2034,7 +2042,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                             "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                             "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
 
             if self.variable == 'Caudal':
                 self.model.setAllColumnHeaders(headers_flow)
@@ -2137,8 +2145,10 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(154,156):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(157,columns_number):
-                        self.tableEditTags2.hideColumn(i)
+                    for i in range(157,159):
+                        self.tableEditTags.hideColumn(i)
+                    for i in range(161,columns_number):
+                        self.tableEditTags.hideColumn(i)
                     if self.username in ['d.marquez', 'g.lopez']:
                         for i in range(63,67):
                             self.tableEditTags2.showColumn(i)
@@ -2162,8 +2172,10 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(164,166):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(167,columns_number):
-                        self.tableEditTags2.hideColumn(i)
+                    for i in range(167,169):
+                        self.tableEditTags.hideColumn(i)
+                    for i in range(171,columns_number):
+                        self.tableEditTags.hideColumn(i)
 
                 elif self.variable2 == 'Nivel':
                     for i in range(48,61):
@@ -2182,7 +2194,9 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(167,169):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(170,columns_number):
+                    for i in range(170,172):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(174,columns_number):
                         self.tableEditTags2.hideColumn(i)
 
                 elif self.variable2 == 'Otros':
@@ -2200,7 +2214,9 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(54,56):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(57,columns_number):
+                    for i in range(57,59):
+                        self.tableEditTags2.hideColumn(i)
+                    for i in range(61,columns_number):
                         self.tableEditTags2.hideColumn(i)
 
                 self.tableEditTags2.setItemDelegate(AlignDelegate(self.tableEditTags2))
@@ -2247,7 +2263,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                                 "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                                 "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                                 "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                                "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+                                "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
 
                 headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                                 "PO", "Posición", "Subposición", "Tipo", "Tipo TW",
@@ -2282,7 +2298,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                                 "Colada Dureza", "Estado Dureza", "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.",
                                 "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF.", "Notas Verif. OF", "Fecha Verif. OF Sensor",
                                 "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos",
-                                "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+                                "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
 
                 headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                                 "PO", "Posición", "Subposición", "Tipo", "Modelo",
@@ -2318,7 +2334,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                                 "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                                 "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                                 "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                                "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+                                "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
 
                 headers_others = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                                 "PO", "Posición", "Subposición", "Descripción", "Código Equipo",
@@ -2331,7 +2347,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                                 "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                                 "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                                 "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                                "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+                                "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
 
                 if self.variable2 == 'Caudal':
                     self.model2.setAllColumnHeaders(headers_flow)
