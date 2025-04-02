@@ -41,6 +41,332 @@ def imagen_to_base64(imagen):
     base64_data = buffer.data().toBase64().data().decode()
     return base64_data
 
+class FreezeTableWidget(QtWidgets.QTableView):
+    """
+    Custom QTableView that creates a frozen pane for the first two columns to remain fixed while scrolling horizontally. 
+    It synchronizes the vertical scrolling between the main table and the frozen columns.
+
+    Args:
+        model (QAbstractTableModel): The data model that the table displays.
+        variable (str): The type of variable that determines which images to open on double-click (e.g., 'Caudal', 'Temperatura').
+    """
+    def __init__(self, model, variable):
+        """
+        Initializes the FreezeTableWidget by setting up the model, frozen table, and event connections for section resizing 
+        and scrolling. It also establishes the double-click connection for opening images.
+        """
+        super(FreezeTableWidget, self).__init__()
+        self.setModel(model)
+        self.frozenTableView = QtWidgets.QTableView(self)
+        self.init()
+        self.horizontalHeader().sectionResized.connect(self.updateSectionWidth)
+        self.verticalHeader().sectionResized.connect(self.updateSectionHeight)
+        self.frozenTableView.verticalScrollBar().valueChanged.connect(
+            self.verticalScrollBar().setValue)
+        self.verticalScrollBar().valueChanged.connect(
+            self.frozenTableView.verticalScrollBar().setValue)
+        self.variable_table = variable
+        self.doubleClicked.connect(self.open_pics)
+
+    def init(self):
+        """
+        Initializes the appearance and behavior of the frozen table, hiding columns after the second one, and synchronizes
+        selection and scrolling with the main table.
+        """
+        self.frozenTableView.setModel(self.model())
+        self.frozenTableView.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.frozenTableView.verticalHeader().hide()
+        self.frozenTableView.horizontalHeader().setSectionResizeMode(
+                QtWidgets.QHeaderView.ResizeMode.Fixed)
+        self.viewport().stackUnder(self.frozenTableView)
+        self.frozenTableView.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+
+        self.frozenTableView.setSelectionModel(self.selectionModel())
+        for col in range(self.model().columnCount()):
+            if col < 2:
+                self.frozenTableView.setColumnWidth(col, self.columnWidth(col))
+            else:
+                self.frozenTableView.setColumnHidden(col, True)
+        self.frozenTableView.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.frozenTableView.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.frozenTableView.show()
+        self.updateFrozenTableGeometry()
+        self.setHorizontalScrollMode(QtWidgets.QAbstractItemView.ScrollMode.ScrollPerPixel)
+        self.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollMode.ScrollPerPixel)
+        self.frozenTableView.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollMode.ScrollPerPixel)
+
+    def updateSectionWidth(self, logicalIndex, oldSize, newSize):
+        """
+        Updates the width of the corresponding column in the frozen table when resized in the main table.
+
+        Args:
+            logicalIndex (int): The index of the resized column.
+            oldSize (int): The previous size of the column.
+            newSize (int): The new size of the column.
+        """
+        if logicalIndex < 2:
+            self.frozenTableView.setColumnWidth(logicalIndex, newSize)
+            self.updateFrozenTableGeometry()
+
+    def updateSectionHeight(self, logicalIndex, oldSize, newSize):
+        """
+        Updates the row height in the frozen table when resized in the main table.
+
+        Args:
+            logicalIndex (int): The index of the resized row.
+            oldSize (int): The previous height of the row.
+            newSize (int): The new height of the row.
+        """
+        self.frozenTableView.setRowHeight(logicalIndex, newSize)
+
+    def resizeEvent(self, event):
+        """
+        Handles the resizing of the main table, updating the geometry of the frozen table.
+
+        Args:
+            event (QResizeEvent): The resize event.
+        """
+        super(FreezeTableWidget, self).resizeEvent(event)
+        self.updateFrozenTableGeometry()
+
+    def moveCursor(self, cursorAction, modifiers):
+        """
+        Moves the cursor within the table, adjusting the horizontal scroll when the cursor moves past the frozen columns.
+
+        Args:
+            cursorAction (QKeyEvent): The key event associated with cursor movement.
+            modifiers (Qt.KeyboardModifiers): Keyboard modifiers active during cursor movement.
+
+        Returns:
+            QModelIndex: The new position of the cursor after movement.
+        """
+        current = super(FreezeTableWidget, self).moveCursor(cursorAction, modifiers)
+        if (cursorAction == Qt.Key.Key_Left and
+                self.current.column() > 1 and
+                self.visualRect(current).topLeft().x() <
+                self.frozenTableView.columnWidth(0) + self.frozenTableView.columnWidth(1)):
+            newValue = (self.horizontalScrollBar().value() +
+                        self.visualRect(current).topLeft().x() -
+                        self.frozenTableView.columnWidth(0) - self.frozenTableView.columnWidth(1))
+            self.horizontalScrollBar().setValue(newValue)
+        return current
+
+    def scrollTo(self, index, hint):
+        """
+        Scrolls the table to a specific index, only if the column is beyond the frozen columns.
+
+        Args:
+            index (QModelIndex): The index to scroll to.
+            hint (QAbstractItemView.ScrollHint): Scroll hint for how to display the item.
+        """
+        if index.column() > 1:
+            super(FreezeTableWidget, self).scrollTo(index, hint)
+
+    def updateFrozenTableGeometry(self):
+        """
+        Updates the geometry of the frozen table based on the dimensions of the main table.
+        """
+        self.frozenTableView.setGeometry(
+            self.verticalHeader().width() + self.frameWidth(),
+            self.frameWidth(), self.columnWidth(0) + self.columnWidth(1),
+            self.viewport().height() + self.horizontalHeader().height())
+
+    def open_pics(self, index):
+        """
+        Opens the image file associated with the current cell based on the variable and column.
+
+        Args:
+            index (QModelIndex): The index of the selected cell.
+
+        Raises:
+            Exception: If there is an error while trying to open the file, it displays an error message.
+        """
+        if ((self.variable_table == 'Caudal' and index.column() == 156)
+        or (self.variable_table == 'Temperatura' and index.column() == 166)
+        or (self.variable_table == 'Nivel' and index.column() == 169)
+        or (self.variable_table == 'Otros' and index.column() == 56)):
+            value = index.data()
+
+            if value != '':
+                try:
+                    file_path = os.path.normpath(value)
+                    os.startfile(file_path)
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+
+class FreezeTableWidget2(QtWidgets.QTableView):
+    """
+    Custom QTableView that creates a frozen pane for the first two columns to remain fixed while scrolling horizontally. 
+    It synchronizes the vertical scrolling between the main table and the frozen columns.
+
+    Args:
+        model (QAbstractTableModel): The data model that the table displays.
+        variable (str): The type of variable that determines which images to open on double-click (e.g., 'Caudal', 'Temperatura').
+    """
+    def __init__(self, model, variable):
+        """
+        Initializes the FreezeTableWidget2 by setting up the model, frozen table, and event connections for section resizing 
+        and scrolling. It also establishes the double-click connection for opening images.
+        """
+        super(FreezeTableWidget2, self).__init__()
+        self.setModel(model)
+        self.frozenTableView = QtWidgets.QTableView(self)
+        self.init()
+        self.horizontalHeader().sectionResized.connect(self.updateSectionWidth)
+        self.verticalHeader().sectionResized.connect(self.updateSectionHeight)
+        self.frozenTableView.verticalScrollBar().valueChanged.connect(
+            self.verticalScrollBar().setValue)
+        self.verticalScrollBar().valueChanged.connect(
+            self.frozenTableView.verticalScrollBar().setValue)
+        self.variable_table = variable
+        self.doubleClicked.connect(self.open_pics)
+
+    def init(self):
+        """
+        Initializes the appearance and behavior of the frozen table, hiding columns after the second one, and synchronizes
+        selection and scrolling with the main table.
+        """
+        self.frozenTableView.setModel(self.model())
+        self.frozenTableView.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.frozenTableView.verticalHeader().hide()
+        self.frozenTableView.horizontalHeader().setSectionResizeMode(
+                QtWidgets.QHeaderView.ResizeMode.Fixed)
+        self.viewport().stackUnder(self.frozenTableView)
+        self.frozenTableView.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+
+        self.frozenTableView.setSelectionModel(self.selectionModel())
+        for col in range(self.model().columnCount()):
+            if col < 2:
+                self.frozenTableView.setColumnWidth(col, self.columnWidth(col))
+            else:
+                self.frozenTableView.setColumnHidden(col, True)
+        self.frozenTableView.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.frozenTableView.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.frozenTableView.show()
+        self.updateFrozenTableGeometry()
+        self.setHorizontalScrollMode(QtWidgets.QAbstractItemView.ScrollMode.ScrollPerPixel)
+        self.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollMode.ScrollPerPixel)
+        self.frozenTableView.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollMode.ScrollPerPixel)
+
+    def updateSectionWidth(self, logicalIndex, oldSize, newSize):
+        """
+        Updates the width of the corresponding column in the frozen table when resized in the main table.
+
+        Args:
+            logicalIndex (int): The index of the resized column.
+            oldSize (int): The previous size of the column.
+            newSize (int): The new size of the column.
+        """
+        if logicalIndex < 2:
+            self.frozenTableView.setColumnWidth(logicalIndex, newSize)
+            self.updateFrozenTableGeometry()
+
+    def updateSectionHeight(self, logicalIndex, oldSize, newSize):
+        """
+        Updates the row height in the frozen table when resized in the main table.
+
+        Args:
+            logicalIndex (int): The index of the resized row.
+            oldSize (int): The previous height of the row.
+            newSize (int): The new height of the row.
+        """
+        self.frozenTableView.setRowHeight(logicalIndex, newSize)
+
+    def resizeEvent(self, event):
+        """
+        Handles the resizing of the main table, updating the geometry of the frozen table.
+
+        Args:
+            event (QResizeEvent): The resize event.
+        """
+        super(FreezeTableWidget2, self).resizeEvent(event)
+        self.updateFrozenTableGeometry()
+
+    def moveCursor(self, cursorAction, modifiers):
+        """
+        Moves the cursor within the table, adjusting the horizontal scroll when the cursor moves past the frozen columns.
+
+        Args:
+            cursorAction (QKeyEvent): The key event associated with cursor movement.
+            modifiers (Qt.KeyboardModifiers): Keyboard modifiers active during cursor movement.
+
+        Returns:
+            QModelIndex: The new position of the cursor after movement.
+        """
+        current = super(FreezeTableWidget2, self).moveCursor(cursorAction, modifiers)
+        if (cursorAction == Qt.Key.Key_Left and
+                self.current.column() > 1 and
+                self.visualRect(current).topLeft().x() <
+                self.frozenTableView.columnWidth(0) + self.frozenTableView.columnWidth(1)):
+            newValue = (self.horizontalScrollBar().value() +
+                        self.visualRect(current).topLeft().x() -
+                        self.frozenTableView.columnWidth(0) - self.frozenTableView.columnWidth(1))
+            self.horizontalScrollBar().setValue(newValue)
+        return current
+
+    def scrollTo(self, index, hint):
+        """
+        Scrolls the table to a specific index, only if the column is beyond the frozen columns.
+
+        Args:
+            index (QModelIndex): The index to scroll to.
+            hint (QAbstractItemView.ScrollHint): Scroll hint for how to display the item.
+        """
+        if index.column() > 1:
+            super(FreezeTableWidget2, self).scrollTo(index, hint)
+
+    def updateFrozenTableGeometry(self):
+        """
+        Updates the geometry of the frozen table based on the dimensions of the main table.
+        """
+        self.frozenTableView.setGeometry(
+            self.verticalHeader().width() + self.frameWidth(),
+            self.frameWidth(), self.columnWidth(0) + self.columnWidth(1),
+            self.viewport().height() + self.horizontalHeader().height())
+
+    def open_pics(self, index):
+        """
+        Opens the image file associated with the current cell based on the variable and column.
+
+        Args:
+            index (QModelIndex): The index of the selected cell.
+
+        Raises:
+            Exception: If there is an error while trying to open the file, it displays an error message.
+        """
+        if ((self.variable_table == 'Caudal' and index.column() == 156)
+        or (self.variable_table == 'Temperatura' and index.column() == 166)
+        or (self.variable_table == 'Nivel' and index.column() == 169)
+        or (self.variable_table == 'Otros' and index.column() == 56)):
+            value = index.data()
+
+            if value != '':
+                try:
+                    file_path = os.path.normpath(value)
+                    os.startfile(file_path)
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     """
     A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
@@ -937,8 +1263,9 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         self.Button_Query.setObjectName("Button_Query")
         self.hLayout1.addWidget(self.Button_Query)
         self.gridLayout_2.addLayout(self.hLayout1, 1, 0, 1, 1)
-        self.tableEditTags=QtWidgets.QTableView(parent=self.frame)
+        # self.tableEditTags=QtWidgets.QTableView(parent=self.frame)
         self.model = EditableTableModel()
+        self.tableEditTags=FreezeTableWidget(self.model, '')
         self.tableEditTags.setObjectName("tableEditTags")
         self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
         self.hLayout3 = QtWidgets.QHBoxLayout()
@@ -970,7 +1297,9 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         self.label_CountValue.setObjectName("label_CountValue")
         self.hLayout3.addWidget(self.label_CountValue)
         self.gridLayout_2.addLayout(self.hLayout3, 4, 0, 1, 1)
-        self.tableEditTags2=QtWidgets.QTableView(parent=self.frame)
+        # self.tableEditTags2=QtWidgets.QTableView(parent=self.frame)
+        self.model2 = EditableTableModel()
+        self.tableEditTags2=FreezeTableWidget(self.model2, '')
         self.tableEditTags2.setObjectName("tableEditTags2")
         self.gridLayout_2.addWidget(self.tableEditTags2, 5, 0, 1, 1)
         self.tableEditTags2.hide()
