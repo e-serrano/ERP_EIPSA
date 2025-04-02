@@ -42,6 +42,44 @@ def imagen_to_base64(imagen):
     base64_data = buffer.data().toBase64().data().decode()
     return base64_data
 
+class ColorDelegate_DifferenceAmount(QtWidgets.QItemDelegate):
+    """
+    A custom item delegate for applying background colors to cells in a QTableView or QTableWidget.
+
+    Inherits from:
+        QtWidgets.QItemDelegate: Provides custom rendering for table items.
+    """
+    def __init__(self, parent=None):
+        """
+        Initializes the ColorDelegate, setting up the color mapping from the database.
+
+        Args:
+            parent (QtWidgets.QWidget, optional): The parent widget. Defaults to None.
+        """
+        super().__init__(parent)
+
+    def paint(self, painter, option, index: QtCore.QModelIndex):
+        """
+        Paints the background color of the item based on its column and value.
+
+        Args:
+            painter (QtGui.QPainter): The painter used for painting.
+            option (QtWidgets.QStyleOptionViewItem): The style option for the item.
+            index (QtCore.QModelIndex): The model index of the item.
+        """
+        background_color = QtGui.QColor(255, 255, 255)
+
+        original_text = str(index.data())  # Text of cell to be painted
+
+        if original_text != '':
+            if float(original_text.replace('.','').replace(',','.').replace(' €','')) != 0:
+                background_color = QtGui.QColor(255, 255, 0) #Yellow
+
+        painter.fillRect(option.rect, background_color)
+        option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
+
+        super().paint(painter, option, index)
+
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
     """
     A custom item delegate for aligning cell content in a QTableView or QTableWidget to the center.
@@ -1448,6 +1486,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.model2.table_check = "tags_data.tags_temp"
                         self.initial_column = 34
                         self.initial_column2 = 39
+                        self.column_difference = 160
+                        self.column_difference2 = 170
                     elif self.variable =='Caudal+Nivel':
                         self.variable = 'Caudal'
                         self.variable2 = 'Nivel'
@@ -1457,22 +1497,28 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.model2.table_check = "tags_data.tags_level"
                         self.initial_column = 34
                         self.initial_column2 = 40
+                        self.column_difference = 160
+                        self.column_difference2 = 173
                     elif self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
                         self.model.table_check = "tags_data.tags_flow"
                         self.initial_column = 34
+                        self.column_difference = 160
                     elif self.variable == 'Temperatura':
                         self.model.setTable("tags_data.tags_temp")
                         self.model.table_check = "tags_data.tags_temp"
                         self.initial_column = 39
+                        self.column_difference = 170
                     elif self.variable == 'Nivel':
                         self.model.setTable("tags_data.tags_level")
                         self.model.table_check = "tags_data.tags_level"
                         self.initial_column = 40
+                        self.column_difference = 173
                     elif self.variable == 'Otros':
                         self.model.setTable("tags_data.tags_others")
                         self.model.table_check = "tags_data.tags_others"
                         self.initial_column = 15
+                        self.column_difference = 60
                     self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{numorder.upper()}%'")
                     self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{numorder.upper()}%'")
 
@@ -1607,6 +1653,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.model2.table_check = "tags_data.tags_temp"
                     self.initial_column = 34
                     self.initial_column2 = 39
+                    self.column_difference = 160
+                    self.column_differenc2 = 170
                 elif self.variable =='Caudal+Nivel':
                     self.variable = 'Caudal'
                     self.variable2 = 'Nivel'
@@ -1616,22 +1664,28 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.model2.table_check = "tags_data.tags_level"
                     self.initial_column = 34
                     self.initial_column2 = 40
+                    self.column_difference = 160
+                    self.column_differenc2 = 173
                 elif self.variable == 'Caudal':
                     self.model.setTable("tags_data.tags_flow")
                     self.model.table_check = "tags_data.tags_flow"
                     self.initial_column = 34
+                    self.column_difference = 160
                 elif self.variable == 'Temperatura':
                     self.model.setTable("tags_data.tags_temp")
                     self.model.table_check = "tags_data.tags_temp"
                     self.initial_column = 39
+                    self.column_difference = 170
                 elif self.variable == 'Nivel':
                     self.model.setTable("tags_data.tags_level")
                     self.model.table_check = "tags_data.tags_level"
                     self.initial_column = 40
+                    self.column_difference = 173
                 elif self.variable == 'Otros':
                     self.model.setTable("tags_data.tags_others")
                     self.model.table_check = "tags_data.tags_others"
                     self.initial_column = 15
+                    self.column_difference = 60
                 self.model.setFilter(f"num_offer <> '' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
                 self.model2.setFilter(f"num_offer <> '' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
 
@@ -1779,6 +1833,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.model2.table_check = "tags_data.tags_temp"
                         self.initial_column = 34
                         self.initial_column2 = 39
+                        self.column_difference = 160
+                        self.column_difference2 = 170
                     elif self.variable =='Caudal+Nivel':
                         self.variable = 'Caudal'
                         self.variable2 = 'Nivel'
@@ -1788,22 +1844,28 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.model2.table_check = "tags_data.tags_level"
                         self.initial_column = 34
                         self.initial_column2 = 45
+                        self.column_difference = 160
+                        self.column_difference2 = 173
                     elif self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
                         self.model.table_check = "tags_data.tags_flow"
                         self.initial_column = 34
+                        self.column_difference = 160
                     elif self.variable == 'Temperatura':
                         self.model.setTable("tags_data.tags_temp")
                         self.model.table_check = "tags_data.tags_temp"
                         self.initial_column = 39
+                        self.column_difference = 170
                     elif self.variable == 'Nivel':
                         self.model.setTable("tags_data.tags_level")
                         self.model.table_check = "tags_data.tags_level"
                         self.initial_column = 40
+                        self.column_difference = 173
                     elif self.variable == 'Otros':
                         self.model.setTable("tags_data.tags_others")
                         self.model.table_check = "tags_data.tags_others"
                         self.initial_column = 15
+                        self.column_difference = 60
                     self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{numorder.upper()}%' AND num_offer <>'' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
                     self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{numorder.upper()}%' AND num_offer <>'' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
 
@@ -1915,6 +1977,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.tableEditTags2.hideColumn(i)
 
             self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
+            self.color_delegate = ColorDelegate_DifferenceAmount(self)
+            self.tableEditTags.setItemDelegateForColumn(self.column_difference, self.color_delegate)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -2220,6 +2284,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.tableEditTags2.hideColumn(i)
 
                 self.tableEditTags2.setItemDelegate(AlignDelegate(self.tableEditTags2))
+                self.color_delegate = ColorDelegate_DifferenceAmount(self)
+                self.tableEditTags2.setItemDelegateForColumn(self.column_difference2, self.color_delegate)
                 self.tableEditTags2.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
                 self.tableEditTags2.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
                 self.tableEditTags2.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
