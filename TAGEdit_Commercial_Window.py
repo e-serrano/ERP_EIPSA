@@ -3150,7 +3150,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 self.label_CountItems2.setText("")
                 self.label_CountValue2.setText("")
 
-                sum_value = sum([self.euro_string_to_float(str(ix.data())) if re.match(r'^[\d.,]+\s€$', str(ix.data())) else float(str(ix.data()).replace(',', '.')) if str(ix.data()).replace(',', '.').replace('.', '', 1).isdigit() else 0 for ix in self.tableEditTags2.selectedIndexes()])
+                sum_value = sum([self.euro_string_to_float(str(ix.data())) if re.match(r'^-?[\d.,]+\s€$', str(ix.data())) else float(str(ix.data()).replace(',', '.')) if str(ix.data()).replace(',', '.').replace('.', '', 1).isdigit() else 0 for ix in self.tableEditTags2.selectedIndexes()])
                 count_value = len([ix for ix in self.tableEditTags2.selectedIndexes() if ix.data() != ""])
                 if sum_value > 0:
                     self.label_SumItems2.setText("Suma:")
@@ -3171,7 +3171,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 self.label_CountItems.setText("")
                 self.label_CountValue.setText("")
 
-                sum_value = sum([self.euro_string_to_float(str(ix.data())) if re.match(r'^[\d.,]+\s€$', str(ix.data())) else float(str(ix.data()).replace(',', '.')) if str(ix.data()).replace(',', '.').replace('.', '', 1).isdigit() else 0 for ix in self.tableEditTags.selectedIndexes()])
+                sum_value = sum([self.euro_string_to_float(str(ix.data())) if re.match(r'^-?[\d.,]+\s€$', str(ix.data())) else float(str(ix.data()).replace(',', '.')) if str(ix.data()).replace(',', '.').replace('.', '', 1).isdigit() else 0 for ix in self.tableEditTags.selectedIndexes()])
                 count_value = len([ix for ix in self.tableEditTags.selectedIndexes() if ix.data() != ""])
                 if sum_value > 0:
                     self.label_SumItems.setText("Suma:")
@@ -3196,7 +3196,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         Returns:
             float: The numeric value of the amount as a float.
         """
-        match = re.match(r'^([\d.,]+)\s€$', euro_str)
+        match = re.match(r'^(-?[\d.,]+)\s€$', euro_str) 
         if match:
             number_str = match.group(1)
             number_str = number_str.replace('.', '').replace(',', '.').replace(' €','')
