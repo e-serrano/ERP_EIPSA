@@ -1904,7 +1904,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(157,159):
                     self.tableEditTags.hideColumn(i)
-                for i in range(161,columns_number):
+                for i in range(161,columns_number-1):
                     self.tableEditTags.hideColumn(i)
                 if self.username in ['d.marquez', 'g.lopez']:
                     for i in range(63,67):
@@ -1931,7 +1931,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(167,169):
                     self.tableEditTags.hideColumn(i)
-                for i in range(171,columns_number):
+                for i in range(171,columns_number-1):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Nivel':
@@ -1953,7 +1953,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(170,172):
                         self.tableEditTags2.hideColumn(i)
-                for i in range(174,columns_number):
+                for i in range(174,columns_number-1):
                     self.tableEditTags2.hideColumn(i)
 
             elif self.variable == 'Otros':
@@ -1973,7 +1973,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(57,59):
                         self.tableEditTags2.hideColumn(i)
-                for i in range(61,columns_number):
+                for i in range(61,columns_number-1):
                     self.tableEditTags2.hideColumn(i)
 
             self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
@@ -2022,7 +2022,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                             "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                             "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Factura"]
 
             headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Tipo TW",
@@ -2057,7 +2057,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                             "Colada Dureza", "Estado Dureza", "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.",
                             "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF.", "Notas Verif. OF", "Fecha Verif. OF Sensor",
                             "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos",
-                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Factura"]
 
             headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Modelo",
@@ -2093,7 +2093,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                             "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                             "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Factura"]
 
             headers_others = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Descripción", "Código Equipo",
@@ -2106,7 +2106,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                             "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                             "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Factura"]
 
             if self.variable == 'Caudal':
                 self.model.setAllColumnHeaders(headers_flow)
@@ -2211,7 +2211,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(157,159):
                         self.tableEditTags.hideColumn(i)
-                    for i in range(161,columns_number):
+                    for i in range(161,columns_number-1):
                         self.tableEditTags.hideColumn(i)
                     if self.username in ['d.marquez', 'g.lopez']:
                         for i in range(63,67):
@@ -2238,7 +2238,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(167,169):
                         self.tableEditTags.hideColumn(i)
-                    for i in range(171,columns_number):
+                    for i in range(171,columns_number-1):
                         self.tableEditTags.hideColumn(i)
 
                 elif self.variable2 == 'Nivel':
@@ -2260,7 +2260,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(170,172):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(174,columns_number):
+                    for i in range(174,columns_number-1):
                         self.tableEditTags2.hideColumn(i)
 
                 elif self.variable2 == 'Otros':
@@ -2280,7 +2280,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(57,59):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(61,columns_number):
+                    for i in range(61,columns_number-1):
                         self.tableEditTags2.hideColumn(i)
 
                 self.tableEditTags2.setItemDelegate(AlignDelegate(self.tableEditTags2))
@@ -2298,123 +2298,6 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 self.tableEditTags2.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
             # Change all column names
-                headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                                "PO", "Posición", "Subposición", "Tipo", "Tamaño Línea",
-                                "Rating", "Facing", "Schedule", "Material Brida", "Tipo Brida",
-                                "Material Tubo", "Tamaño Tomas (Nº)", "Material Elemento", "Tipo Placa", "Espesor Placa",
-                                "Estándar Placa", "Material Junta", "Material Tornillería", "Con. Válvula", "Material Cuerpo Vlv.",
-                                "Nº Saltos", "Pipe Spec.", "Peso Aprox. (kg)", "Long. Aprox. (mm)", "NACE",
-                                "Precio (€)", "Notas Oferta", "Cambios Comercial", "Fecha Contractual", "Ø Orif. (mm)",
-                                "Ø D/V (mm)", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo",
-                                "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Orden de Compra",
-                                "Fecha Orden Compra", "Notas Orden Compra", 'Plano Dimensional', "Plano OF", "Fecha OF",
-                                "Notas Equipo", "Colada Placa", "Cert. Placa", "Colada Brida", "Cert. Brida", "Nº Tapones",
-                                "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material", "RTJ Espesor", "RTJ Dim",
-                                "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos", "Cantidad Espárragos", "Tamaño Extractor",
-                                "Cantidad Extractor", "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo",
-                                "Cod. Fab. Equipo", "Trad. Equipo", "Cod. Brida Orif.", "Cod. Fab. Brida Orif.", "Cant. Brida Orif.",
-                                "Cod. Brida Línea", "Cod. Fab. Brida Línea", "Cant. Brida Línea", "Cod. Junta", "Cod. Fab. Junta",
-                                "Cant. Junta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería", "Cod. Tapones",
-                                "Cod. Fab. Tapones", "Cant. Tapones", "Cod. Extractor", "Cod. Fab. Extractor", "Cant. Extractor",
-                                "Cod. Placa", "Cod. Fab. Placa", "Cant. Placa", "Cod. Niplo", "Cod. Fab. Niplo",
-                                "Cant. Niplo", "Cod. Mango", "Cod. Fab. Mango", "Cant. Mango", "Cod. Ch. Ring",
-                                "Cod. Fab. Ch. Ring", "Cant. Ch. Ring", "Cod. Tubo", "Cod. Fab. Tubo", "Cant. Tubo",
-                                "Cod. Pieza2", "Cod. Fab. Pieza2", "Cant. Pieza2", "Diam. Int", "Pedido Tipo Tag",
-                                "Trad. Brida. Orif", "Trad. Brida Línea", "Trad. Junta", "Trad. Tornillería", "Trad. Tapones",
-                                "Trad. Extractor", "Trad. Placa", "Trad. Niplo", "Trad. Mango", "Trad. Ch. Ring",
-                                "Trad. Tubo", "Trad. Pieza2", "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
-                                "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
-                                "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
-                                "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
-                                "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
-                                "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
-                                "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                                "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
-
-                headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                                "PO", "Posición", "Subposición", "Tipo", "Tipo TW",
-                                "Tamaño Brida", "Rating Brida", "Facing Brida", "Standard TW", "Material TW",
-                                "Long. STD (mm)", "Long. Ins. (mm)", "Ø Raíz (mm)", "Ø Punta (mm)", "Sensor",
-                                "Material Sheath/Stem", "Ø Sheath/Stem (mm)", "Insulation", "Temp Inf (ºC)", "Temp Sup ºC",
-                                "Material Nipple Ext.", "Long. Nipple Ext. (mm)", "Material Head/Case", "Con. Elec./Diam. Case", "TT/Terminal Insulation",
-                                "Material Brida LapJoint", "Material Junta", "Puntal", "Tubo", "NACE",
-                                "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual", "Stress",
-                                "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Ø Picaje (mm)", "Notas Cálculo",
-                                "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo", "Fecha Estado Cálculo",
-                                "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Planos", "Orden de Compra",
-                                "Fecha Orden Compra", "Notas Orden Compra", "Plano Dimensional", "Plano OF Sensor", "Fecha OF Sensor", 
-                                "Notas Sensor", "Estado Fabricación Sensor", "Plano OF TW", "Fecha OF TW", "Notas TW",
-                                "Estado Fabricación TW", "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
-                                "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)", "Tapón",
-                                "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
-                                "Trad. Equipo", "Cod. Barra", "Cod. Fab. Barra", "Cant. Barra", "Cod. Tubo",
-                                "Cod. Fab. Tubo", "Cant. Tubo", "Cod. Brida", "Cod. Fab. Brida", "Cant. Brida",
-                                "Cod. Sensor", "Cod. Fab. Sensor", "Cant. Sensor", "Cod. Cabeza", "Cod. Fab. Cabeza",
-                                "Cant. Cabeza", "Cod. BTB", "Cod. Fab. BTB", "Cant. BTB", "Cod. Niplo Ext.",
-                                "Cod. Fab. Niplo Ext.", "Cant. Niplo Ext.", "Cod. Muelle", "Cod. Fab. Muelle", "Cant. Muelle",
-                                "Cod. Puntal", "Cod. Fab. Puntal", "Cant. Puntal", "Cod. Tapón", "Cod. Fab. Tapón", "Cant. Tapón",
-                                "Cod. TW", "Cod. Fab. TW", "Cant. TW", "Cod. Adit.", "Cod. Fab. Adit.",
-                                "Cant. Adit", "Pedido Tipo Tag", "Trad. Barra", "Trad. Tubo", "Trad. Brida",
-                                "Trad. Sensor", "Trad. Cabeza", "Trad. BTB", "Trad. Niplo Ext.", "Trad. Muelle",
-                                "Trad. Puntal", "Trad. Tapón", "Trad. TW", "Trad. Adit.", "Fecha PMI", "Fecha PH1",
-                                "Manómetro PH1", "Presión PH1", "Estado PH1", "Notas PH1", "Fecha PH2",
-                                "Manómetro PH2", "Presión PH2", "Estado PH2", "Notas PH2", "Fecha LP",
-                                "LP Colada 9PR5", "LP Colada 9D1B", "LP Colada 996PB", "Estado LP", "Notas LP",
-                                "Fecha Dureza", "Dureza", "Dureza HB", "Bola", "Carga",
-                                "Colada Dureza", "Estado Dureza", "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.",
-                                "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF.", "Notas Verif. OF", "Fecha Verif. OF Sensor",
-                                "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos",
-                                "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
-
-                headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                                "PO", "Posición", "Subposición", "Tipo", "Modelo",
-                                "Material Cuerpo", "Tipo Conex. Proc.", "Tamaño Conex. Proc.", "Rating Conex. Proc.", "Facing Conex. Proc.",
-                                "Tipo Conex.", "Visibilidad (mm)", "Long. C-C (mm)", "Tipo Válv.", "Tipo Conex. Ext.",
-                                "Tamaño Conex. Ext.", "Rating Conex. Ext.", "Facing Conex. Ext.", "Junta", "Tornillería",
-                                "Iluminador", "Mat. Flotador", "Mat. Cubierta", "Escala", "Banderas",
-                                "Cod. IP", "Tipo Brida", "Niplo Hex.", "Niplo Tubo", "Antifrost",
-                                "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
-                                "Dim. Flotador", "Junta Bridas", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Plano",
-                                "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Orden de Compra", "Fecha Orden Compra",
-                                "Notas Orden Compra", "Plano Dimensional", "Plano OF", "Fecha OF", "Notas Equipo",
-                                "Colada Cuerpo", "Cert. Cuerpo", "Colada Cuerpo Vlv", "Cert. Cuerpo Vlv", "Colada Brida Vlv", "Cert. Brida Vlv",
-                                "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
-                                "Trad. Equipo", "Cod. Cuerpo", "Cod. Fab. Cuerpo", "Cant. Cuerpo", "Cod. Cubierta",
-                                "Cod. Fab. Cubierta", "Cant. Cubierta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería",
-                                "Cdo. Niplo Hex.", "Cod. Fab. Niplo Hex.", "Cant. Niplo Hex.", "Cod. Válv.", "Cod. Fab. Válv.",
-                                "Cant. Válv.", "Cod. Brida", "Cod. Fab. Brida", "Cant. Brida", "Cod. DV",
-                                "Cod. Fab. DV", "Cant. DV", "Cod. Escala", "Cod. Fab. Escala", "Cant. Escala",
-                                "Cod. Ilum.", "Cod. Fab. Ilum", "Cant. Ilum", "Cod. Junta Vidrio", "Cod. Fab. Junta Vidrio",
-                                "Cant. Junta Vidrio", "Cod. Vidrio", "Cod. Fab. Vidrio", "Cant. Vidrio", "Cod. Flotador",
-                                "Cod. Fab. Flotador", "Cant. Flotador", "Cod. Mica", "Cod. Fab. Mica", "Cant. Mica",
-                                "Cod. Flags", "Cod. Fab. Flags", "Cant. Flags", "Cod. Junta Brida", "Cod. Fab. Junta Brida",
-                                "Cant. Junta Brida", "Cod. Niplo Tubo", "Cod. Fab. Niplo Tubo", "Cant. Niplo Tubo", "Cod. Antifrost",
-                                "Cod. Fab. Antifrost", "Cant. Antifrost", "Pedido Tipo Tag", "Trad. Cuerpo", "Trad. Cubierta",
-                                "Trad. Tornillería", "Trad. Niplo Hex.", "Trad. Válv", "Trad. Brida", "Trad. DV",
-                                "Trad. Escala", "Trad. Ilum.", "Trad. Junta Vidrio", "Trad. Vidrio", "Trad. Flotador",
-                                "Trad. Mica", "Trad. Flags", "Trad. Junta Brida", "Trad. Niplo Tubo", "Trad. Antifrost",
-                                "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
-                                "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
-                                "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
-                                "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
-                                "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
-                                "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
-                                "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                                "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
-
-                headers_others = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                                "PO", "Posición", "Subposición", "Descripción", "Código Equipo",
-                                "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
-                                "Plano Dimensional", "Plano OF", "Fecha OF", "Colada", "Cert. Colada", "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN",
-                                "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
-                                "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
-                                "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
-                                "LP Colada 996PB", "Estado LP", "Notas LP", "Fecha Dureza", "Dureza",
-                                "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
-                                "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
-                                "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                                "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
-
                 if self.variable2 == 'Caudal':
                     self.model2.setAllColumnHeaders(headers_flow)
                 elif self.variable2 == 'Temperatura':
