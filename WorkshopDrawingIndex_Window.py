@@ -4920,7 +4920,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     df_bars = df_selected.copy()
 
                                     df_bars['base_diam'] = df_bars.apply(
-                                    lambda row: 35 if int(row['root_diam']) < 32 else 35,
+                                    lambda row: 32 if int(row['root_diam']) < 32 else (35 if int(row['root_diam']) < 35 else (38 if int(row['root_diam']) < 38 else 40)),
                                     axis=1)
 
                                     df_bars['drawing_code'] = df_bars.apply(
@@ -4942,12 +4942,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         reader = PdfReader(row["drawing_path"])
                                         page_overlay = PdfReader(bar_dwg_flangedTW(self.numorder, row["material"], zip(row["bore_diameter"], row["std_length"], row["count"]))).pages[0]
 
-                                        # if base_diam == 32:
                                         reader.pages[0].merge_page(page2=page_overlay)
                                         writer.add_page(reader.pages[0])
-                                        # elif base_diam == 35:
-                                        #     reader.pages[1].merge_page(page2=page_overlay)
-                                        #     writer.add_page(reader.pages[1])
 
                                         writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
                                         dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), total_count]
