@@ -400,6 +400,12 @@ class Ui_Login_Window(object):
                     self.app_window.showMaximized()
                     self.Login_Window.close()
 
+                elif rol_app == "Técnico_2":
+                    from App_Technical_2 import Ui_App_Technical_2
+                    self.app_window = Ui_App_Technical_2(match[0][1]+' '+match[0][2], login_username)
+                    self.app_window.showMaximized()
+                    self.Login_Window.close()
+
                 elif rol_app == "Master":
                     from App_Master import Ui_App_Master
                     self.app_window = QtWidgets.QMainWindow()
