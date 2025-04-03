@@ -475,11 +475,11 @@ class Ui_OTFabOrder_Window(object):
                 cur.execute(check_ot)
                 results=cur.fetchall()
                 if len(results) == 0:
-                    data=(self.tableOT.item(row, 0).text(), self.tableOT.item(row, 1).text(), self.tableOT.item(row, 2).text(),
+                    data=(self.tableOT.item(row, 0).text(), self.tableOT.item(row, 1).text() + " // " + self.tableOT.item(row, 8).text(), self.tableOT.item(row, 2).text(),
                         self.tableOT.item(row, 3).text(), self.tableOT.item(row, 4).text(), self.tableOT.item(row, 6).text(), self.tableOT.item(row, 5).text())
                     cur.execute(commands_newot, data)
                 else:
-                    data=(self.tableOT.item(row, 1).text(), self.tableOT.item(row, 2).text(), self.tableOT.item(row, 3).text(),
+                    data=(self.tableOT.item(row, 1).text() + " // " + self.tableOT.item(row, 8).text(), self.tableOT.item(row, 2).text(), self.tableOT.item(row, 3).text(),
                         self.tableOT.item(row, 4).text(), self.tableOT.item(row, 6).text(), self.tableOT.item(row, 5).text(), self.tableOT.item(row, 0).text())
                     cur.execute(commands_updateot, data)
 
