@@ -3940,7 +3940,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
                                                         " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][8] +
                                                         ((" BRIDAS " + results_description[0][9]) if results_description[0][0] == 'M.RUN' else " ") +
-                                                        " TOMAS: " + results_description[0][10][:-1] + ' ' + " " + "Junta " +
+                                                        " TOMAS: " + results_description[0][10][:-1] + ')' + " " + "Junta " +
                                                         ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else '22,2'))))
 
                                         elif item_type in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW']:
@@ -4044,7 +4044,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                                 description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
                                                             " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][8] +
                                                             ((" BRIDAS " + results_description[0][9]) if results_description[0][0] == 'M.RUN' else " ") +
-                                                            " TOMAS: " + results_description[0][10][:-1] + ' ' + " " + "Junta " +
+                                                            " TOMAS: " + results_description[0][10][:-1] + ')' + " " + "Junta " +
                                                             ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else 22,2))))
                                                 cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
 
