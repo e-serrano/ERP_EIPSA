@@ -1848,7 +1848,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
         self.list_supplies=[x[0] + ' | ' + x[1] + ' | ' + str(x[2]) + ' | ' + str(x[3]) + ' | ' + str(x[4])  + ' | ID:' + str(x[5]) for x in results_supplies]
         self.Supply_SupplierOrder.addItems([''] + self.list_supplies)
 
-        list_currency=[x[2] + ' | ' + x[4] for x in results_currency]
+        list_currency=[x[2] for x in results_currency]
         self.Currency_SupplierOrder.addItems(list_currency)
 
         list_payway=[x[0] for x in results_payway]
@@ -3634,9 +3634,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             # final_coments=self.FinalComs_SupplierOrder.toPlainText()
             total_order=self.Total_SupplierOrder.text()
             supplier_name=self.Supplier_SupplierOrder.currentText()
-            currency_symbol=self.Currency_SupplierOrder.currentText()[0]
-            currency_eurovalue=self.Currency_SupplierOrder.currentText().split('|')[1].strip()
-            currency_eurovalue=float(currency_eurovalue[:currency_eurovalue.find(" €")].replace(".",":").replace(",",".").replace(":",""))
+            currency_symbol=self.Currency_SupplierOrder.currentText()
 
             commands_updateorder = ("""
                         UPDATE purch_fact.supplier_ord_header
@@ -3689,13 +3687,13 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
 
                 currency_unitvalue=unitvalue_text[:unitvalue_text.find(" €")]
                 currency_unitvalue=currency_unitvalue.replace(".",":").replace(",",".").replace(":","")
-                currency_unitvalue=float(currency_unitvalue) * currency_eurovalue
+                currency_unitvalue=float(currency_unitvalue)
                 currency_unitvalue=locale.format_string("%.2f", currency_unitvalue, grouping=True) + " " + currency_symbol
 
                 currency_total=total_text[:total_text.find(" €")]
                 currency_total=currency_total.replace(".","")
                 currency_total=currency_total.replace(",",".")
-                currency_total=float(currency_total) * currency_eurovalue
+                currency_total=float(currency_total)
                 currency_total=locale.format_string("%.2f", currency_total, grouping=True) + " " + currency_symbol
 
                 y_position = pdf.get_y()
@@ -3730,7 +3728,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 pdf.ln(1.3)
 
             currency_totalorder=float(total_order[:total_order.find(" €")].replace(".","").replace(",","."))
-            currency_totalorder=currency_totalorder * currency_eurovalue
+            currency_totalorder=currency_totalorder
             currency_totalorder=locale.format_string("%.2f", currency_totalorder, grouping=True) + " " + currency_symbol
 
             pdf.set_fill_color(231, 231, 226)
