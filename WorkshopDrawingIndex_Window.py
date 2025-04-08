@@ -4957,7 +4957,90 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
                                 writer.write(key)
 
+                        elif self.table_toquery == "tags_data.tags_flow":
+                            query = ('''
+                                SELECT *
+                                FROM tags_data.tags_flow
+                                WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%')
+                                ''')
+                            conn = None
+                            try:
+                            # read the connection parameters
+                                params = config()
+                            # connect to the PostgreSQL server
+                                conn = psycopg2.connect(**params)
+                                cur = conn.cursor()
+                            # execution of commands
+                                cur.execute(query,(self.numorder,))
+                                results_tags=cur.fetchall()
+                                df_general = pd.DataFrame(results_tags)
+                            # close communication with the PostgreSQL database server
+                                cur.close()
+                            # commit the changes
+                                conn.commit()
+                            except (Exception, psycopg2.DatabaseError) as error:
+                                dlg = QtWidgets.QMessageBox()
+                                new_icon = QtGui.QIcon()
+                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                dlg.setWindowIcon(new_icon)
+                                dlg.setWindowTitle("ERP EIPSA")
+                                dlg.setText("Ha ocurrido el siguiente error:\n"
+                                            + str(error))
+                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                dlg.exec()
+                                del dlg, new_icon
+                            finally:
+                                if conn is not None:
+                                    conn.close()
 
+                            df_selected = df_general.iloc[:, [0, 9, 10, 11, 12, 14, 15, 17, 21]].copy()
+
+                            for item in df_selected[9].unique().tolist():
+                                if item == 'F+P':
+                                    df_selected.rename(columns={
+                                        0: 'id', 8: 'type', 9: 'size', 10: 'rating',
+                                        11: 'facing', 12: 'schedule', 13: 'material', 16: 'tapping', 21: 'gasket', 61: 'ext_diam'
+                                    }, inplace=True)
+
+                                    df_flanges = df_selected.copy()
+                                    df_flanges['drawing_code'] = df_flanges.apply(
+                                    lambda row: 'CBWNO' + str(row['facing']) +
+                                                '-0' + str(row['size'])[0] + ('.5' if ' 1/2' in str(row['size']) else '.0') +
+                                                ('-0' + str(row['rating']) if str(row['rating']) in ['150', '300', '600', '900'] else '-' + str(row['rating'])),
+                                    axis=1)
+
+                                    df_flanges['connection'] = df_flanges.apply(
+                                    lambda row: str(row['size']) + " " + str(row['rating']) + "#" + str(row['facing']),
+                                    axis=1)
+                                    
+                                    df_flanges['drawing_path'] = df_flanges.apply(
+                                    lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\C-Caudal\B-Bridas\WN-WeldNeck\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\{str(row['drawing_code'])}.pdf",
+                                    axis=1)
+
+                                    grouped_flanges = df_flanges.groupby(['drawing_path','connection', 'schedule','material']).count()
+                                    total_count = grouped_flanges.sum().iloc[0]
+
+                                    for (drawing_path, connection, schedule, material), row in grouped_flanges.iterrows():
+                                        counter_drawings += 1
+
+                                        writer = PdfWriter()
+                                        reader = PdfReader(drawing_path)
+                                        page_overlay = PdfReader(flange_dwg_flangedTW(self.numorder, material, row.iloc[0])).pages[0]
+
+                                        reader.pages[0].merge_page(page2=page_overlay)
+                                        writer.add_page(reader.pages[0])
+
+                                        writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
+                                        dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " BPC " + str(connection) + " " +str(material), total_count]
+
+                            for key, value in dict_drawings.items():
+                                writer = PdfWriter()
+                                reader = PdfReader(key)
+                                page_overlay = PdfReader(drawing_number(self.numorder, value, counter_drawings)).pages[0]
+                                reader.pages[0].merge_page(page2=page_overlay)
+                                writer.add_page(reader.pages[0])
+
+                                writer.write(key)
 
 
 
