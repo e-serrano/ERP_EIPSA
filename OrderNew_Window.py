@@ -443,20 +443,6 @@ class Ui_New_Order_Window(object):
                             SET "state" = %s
                             WHERE "num_offer" = %s;
                             """)
-                # commands_select_ppi = ("""
-                #             SELECT * FROM verification."ppi_verification" WHERE "num_order" = %s
-                #             """)
-                # commands_select_exp = ("""
-                #             SELECT * FROM verification."exp_verification" WHERE "num_order" = %s
-                #             """)
-                # commands_insert_ppi = ("""
-                #             INSERT INTO verification."ppi_verification" (num_order) 
-                #             VALUES(%s)
-                #             """)
-                # commands_insert_exp = ("""
-                #             INSERT INTO verification."exp_verification" (num_order) 
-                #             VALUES(%s)
-                #             """)
                 conn = None
                 try:
                 # read the connection parameters
@@ -470,21 +456,6 @@ class Ui_New_Order_Window(object):
 
                     data = (numorder, numoffer, numref, actual_date, expectdate, notes, amount, num_items, state, numoffer)
                     cur.execute(commands_neworder, data)
-
-                    # if numorder[-1] != 'R':
-                    #     cur.execute(commands_select_ppi, (numorder,))
-                    #     results_ppi = cur.fetchall()
-                    #     if len(results_ppi) == 0:
-                    #         cur.execute(commands_insert_ppi, (numorder,))
-
-                    #     cur.execute(commands_select_exp, (numorder,))
-                    #     results_exp = cur.fetchall()
-                    #     if len(results_exp) == 0:
-                    #         cur.execute(commands_insert_exp, (numorder,))
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
@@ -501,28 +472,6 @@ class Ui_New_Order_Window(object):
                     self.ExpectDate_NewOrder.setText('')
                     self.Notes_NewOrder.setText('')
                     self.Amount_NewOrder.setText('')
-
-                except (Exception, psycopg2.DatabaseError) as error:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("Crear Pedido")
-                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                + str(error))
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                    dlg.exec()
-                finally:
-                    if conn is not None:
-                        conn.close()
-
-                conn = None
-                try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
 
                     commands_usernames = ("""SELECT username FROM users_data.registration
                         WHERE profile IN ('Técnico', 'Taller')
@@ -563,12 +512,11 @@ class Ui_New_Order_Window(object):
                     new_icon = QtGui.QIcon()
                     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                     dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setWindowTitle("Crear Pedido")
                     dlg.setText("Ha ocurrido el siguiente error:\n"
                                 + str(error))
                     dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                     dlg.exec()
-                    del dlg, new_icon
                 finally:
                     if conn is not None:
                         conn.close()
