@@ -10,7 +10,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config  
 import os
-from Email_Styles import email_order_activation
+from Email_Styles import email_order_activation, email_order_activation_manager
 from datetime import *
 
 
@@ -354,11 +354,11 @@ class Ui_OrderActivation_Window(object):
                                 profile = 'Taller'
                                 )
                                 """)
-            commands_mail_copy = ("""SELECT email FROM users_data.registration
+            commands_mail_manager = ("""SELECT email FROM users_data.registration
                                 WHERE (profile = 'Dirección')
                                 """)
             commands_queryorder = ("""
-                                    SELECT orders."num_order",offers."responsible", orders."num_ref_order", offers."client", offers."final_client", TO_CHAR(orders."expected_date", 'DD-MM-YYYY'), offers."delivery_time"
+                                    SELECT orders."num_order",offers."responsible", orders."num_ref_order", offers."client", offers."final_client", TO_CHAR(orders."expected_date", 'DD-MM-YYYY'), offers."delivery_time", orfers."order_amount"
                                     FROM offers
                                     INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                                     WHERE orders."num_order" = %s
@@ -405,6 +405,7 @@ class Ui_OrderActivation_Window(object):
                         final_client = results_queryorder[0][4]
                         expected_date = results_queryorder[0][5]
                         delivery_time = results_queryorder[0][6]
+                        order_amount = results_queryorder[0][7]
                     # execution of commands
                         cur.execute(commands_responsible, (username_responsible,))
                         results_responsible=cur.fetchall()
@@ -415,13 +416,17 @@ class Ui_OrderActivation_Window(object):
                         results_mailto=cur.fetchall()
                         mails_sendto = [x[1] for x in results_mailto]
 
-                        cur.execute(commands_mail_copy)
-                        results_mailcopy=cur.fetchall()
-                        mails_copy = [x[0] for x in results_mailcopy]
-                        mails_copy.insert(0,'ana-calvo@eipsa.es')
-                        mails_copy.insert(1, email_responsible)
+                        mails_copy = []
+                        mails_copy.append('ana-calvo@eipsa.es')
+
+                        cur.execute(commands_mail_manager)
+                        results_manager=cur.fetchall()
+                        mails_manager = [x[0] for x in results_manager]
 
                         mail = email_order_activation(numorder, num_ref_order, client, final_client, expected_date, delivery_time, name_responsible, mails_sendto, mails_copy, adit_info, email_responsible, extras_text)
+                        mail.send_email()
+
+                        mail = email_order_activation_manager(numorder, num_ref_order, client, final_client, expected_date, delivery_time, name_responsible, mails_manager, mails_copy, adit_info, email_responsible, extras_text, order_amount)
                         mail.send_email()
 
                     # close communication with the PostgreSQL database server
