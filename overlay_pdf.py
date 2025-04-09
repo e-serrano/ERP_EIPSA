@@ -121,7 +121,7 @@ def drawing_number(num_order, info_drawing, counter):
         cur = conn.cursor()
     # execution of commands
         # excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
-        # workbook = openpyxl.load_workbook(excel_file_path)
+        # workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
         # worksheet = workbook.active
         # num_ot = worksheet['B2'].value
         # cur.execute(check_ot)
@@ -223,14 +223,14 @@ def flange_dwg_flangedTW(num_order, material, count):
 
     pdf.set_line_width(1)
     pdf.set_draw_color(*map(int, first_color.split(',')))
-    pdf.rect(20, 8, 183, 280, style='D')
+    pdf.rect(25, 8, 178, 280, style='D')
 
     pdf.set_draw_color(*map(int, second_color.split(',')))
-    pdf.rect(19, 7, 185, 282, style='D')
+    pdf.rect(23, 6, 182, 284, style='D')
 
     if border_color is not None:
         pdf.set_draw_color(*map(int, border_color.split(',')))
-        pdf.rect(18, 6, 197, 284, style='D')
+        pdf.rect(21, 4, 186, 288, style='D')
 
     pdf.set_xy(26, 248)
     pdf.cell(19, 9, str(count), align='C')
@@ -268,7 +268,7 @@ def bar_dwg_flangedTW(num_order, material, item_data):
         conn = psycopg2.connect(**params)
         cur = conn.cursor()
     # execution of commands
-        cur.execute(query,('AISI-316+Stellite',))
+        cur.execute(query,(material,))
         results_colors=cur.fetchall()
     # close communication with the PostgreSQL database server
         cur.close()
@@ -312,13 +312,15 @@ def bar_dwg_flangedTW(num_order, material, item_data):
 
     total_count = 0
 
-    pdf.set_xy(27, 20)
+    pdf.set_xy(27, 19)
 
     for bore, std_len, cnt in item_data:
-        pdf.cell(15, 5, str(cnt), align='C')
-        pdf.cell(15, 5, str(bore), align='C')
-        pdf.cell(15, 5, str(int(std_len) + 10), align='C')
+        pdf.cell(15, 6.8, str(cnt), align='C')
+        pdf.cell(15, 6.8, str(bore), align='C')
+        pdf.cell(15, 6.8, str(int(std_len) + 10), align='C')
         pdf.ln()
+        y_pos = pdf.get_y()
+        pdf.set_xy(27, y_pos)
         total_count += cnt
 
     pdf.set_xy(26, 248)
@@ -331,3 +333,127 @@ def bar_dwg_flangedTW(num_order, material, item_data):
     pdf.cell(49, 9, str(num_order), align='C')
 
     return io.BytesIO(pdf.output())
+
+
+def flange_dwg_orifice(num_order, material, schedule, tapping, client, item_data):
+    """
+    Generates a PDF containing a new content based on the specified value and equipment type.
+
+    Args:
+        num_order (str): The order number.
+        material (str): The material code.
+        schedule (str): The schedule of item
+        tapping (str): The tapping configuration
+        client (str): The client of the order
+        item_data (list): The list of items to be included in the PDF.
+    """
+    query = ('''
+        SELECT colors.bg_color_1, colors.bg_color_2, colors.border_color
+        FROM validation_data.material_color_code AS colors
+        JOIN validation_data.flow_flange_material AS flange_materials ON flange_materials.code_material = colors.material
+        WHERE UPPER (flange_materials.flange_material) LIKE UPPER('%%'||%s||'%%')
+        ''')
+    conn = None
+    try:
+    # read the connection parameters
+        params = config()
+    # connect to the PostgreSQL server
+        conn = psycopg2.connect(**params)
+        cur = conn.cursor()
+    # execution of commands
+        cur.execute(query,(material,))
+        results_colors=cur.fetchall()
+    # close communication with the PostgreSQL database server
+        cur.close()
+    # commit the changes
+        conn.commit()
+    except (Exception, psycopg2.DatabaseError) as error:
+        dlg = QtWidgets.QMessageBox()
+        new_icon = QtGui.QIcon()
+        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        dlg.setWindowIcon(new_icon)
+        dlg.setWindowTitle("ERP EIPSA")
+        dlg.setText("Ha ocurrido el siguiente error:\n"
+                    + str(error))
+        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+        dlg.exec()
+        del dlg, new_icon
+    finally:
+        if conn is not None:
+            conn.close()
+
+    first_color = results_colors[0][0]
+    second_color = results_colors[0][1]
+    border_color = results_colors[0][2]
+
+    pdf = FPDF(unit='mm')
+    pdf.set_font("helvetica", "B", 12)
+    pdf.set_text_color(49, 49, 229)
+
+    pdf.add_page()
+
+    pdf.set_line_width(1)
+    pdf.set_draw_color(*map(int, first_color.split(',')))
+    pdf.rect(20, 8, 183, 280, style='D')
+
+    pdf.set_draw_color(*map(int, second_color.split(',')))
+    pdf.rect(19, 7, 185, 282, style='D')
+
+    if border_color is not None:
+        pdf.set_draw_color(*map(int, border_color.split(',')))
+        pdf.rect(18, 6, 197, 284, style='D')
+
+    item_data = list(item_data)
+
+    gasket = item_data[0][0]
+    pipe_int_diam = item_data[0][1]
+    cnt = item_data[0][2]
+
+    pdf.set_draw_color(255, 0, 0)
+
+    if client =='ARAMCO':
+        pdf.line(30, 225, 195.5, 0)
+        pdf.line(30, 225, 195.5, 0)
+    else:
+        pdf.line(30, 192, 33, 195)
+        pdf.line(30, 195, 33, 192)
+
+    if 'SPW' in gasket:
+        x_pos = 158.5
+        y_pos = 219.5
+        pdf.line(100, 235, 198, 235)
+    elif 'RTJ' in gasket:
+        x_pos = 162.5
+        y_pos = 232.5
+    else:
+        x_pos = 158.5
+        y_pos = 230
+        pdf.line(100, 225, 198, 225)
+    pdf.set_xy(x_pos, y_pos)
+    pdf.cell(13, 5, str(cnt), align='C')
+    pdf.cell(13, 5, str(schedule), align='C')
+    pdf.cell(13, 5, str(pipe_int_diam), align='C')
+
+    print(client)
+    pdf.set_xy(26, 248)
+    pdf.cell(19, 9, str(cnt), align='C')
+
+    pdf.set_xy(48, 248)
+    pdf.cell(34, 9, str(material), align='C')
+
+    pdf.set_xy(83, 248)
+    pdf.cell(47, 9, str(tapping[-2:-1]) + " TOMAS POR BRIDA", align='C')
+
+    pdf.set_xy(151, 248)
+    pdf.cell(49, 9, str(num_order), align='C')
+
+    return io.BytesIO(pdf.output())
+
+
+
+
+
+
+
+
+

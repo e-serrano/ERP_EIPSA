@@ -22,8 +22,9 @@ import sys
 from datetime import *
 import pandas as pd
 from tkinter.filedialog import asksaveasfilename
-from overlay_pdf import flange_dwg_flangedTW, bar_dwg_flangedTW, drawing_number
+from overlay_pdf import flange_dwg_flangedTW, bar_dwg_flangedTW, flange_dwg_orifice, drawing_number
 from pypdf import PdfReader, PdfWriter
+
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -4654,7 +4655,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
                 else:
                     query = ('''
-                            SELECT num_order, product_type."variable"
+                            SELECT num_order, product_type."variable", offers."client"
                             FROM orders
                             INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
                             INNER JOIN product_type ON (product_type."material" = offers."material")
@@ -4672,6 +4673,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         cur.execute(query,(self.numorder,))
                         results_variable=cur.fetchone()
                         self.variable = results_variable[1] if results_variable != None else ''
+                        self.client = results_variable[2]
                     # close communication with the PostgreSQL database server
                         cur.close()
                     # commit the changes
@@ -4869,19 +4871,20 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 if conn is not None:
                                     conn.close()
 
-                            df_selected = df_general.iloc[:, [0, 9, 10, 11, 12, 14, 15, 17, 21]].copy()
+                            df_selected = df_general.iloc[:, [0, 9, 10, 11, 12, 14, 15, 17, 21, 64]].copy()
 
                             for item in df_selected[9].unique().tolist():
                                 if item == 'Flanged TW':
                                     df_selected.rename(columns={
                                         0: 'id', 9: 'type', 10: 'size', 11: 'rating',
-                                        12: 'facing', 14: 'material', 15: 'std_length', 17: 'root_diam', 21: 'bore_diameter'
+                                        12: 'facing', 14: 'material', 15: 'std_length', 17: 'root_diam', 21: 'bore_diameter',
+                                        64: 'notes_tw'
                                     }, inplace=True)
 
                                     df_flanges = df_selected.copy()
                                     df_flanges['drawing_code'] = df_flanges.apply(
-                                    lambda row: 'TBPC' + str(row['facing']) +
-                                                '-0' + str(row['size'])[0] + ('.5' if ' 1/2' in str(row['size']) else '.0') +
+                                    lambda row: 'TBPC' + ('RF' if str(row['facing']) == 'FF' else str(row['facing'])) +
+                                                '-0' + str(row['size'])[0] + ('.5' if '1/2' in str(row['size']) else '.0') +
                                                 ('-0' + str(row['rating']) if str(row['rating']) in ['150', '300', '600', '900'] else '-' + str(row['rating'])),
                                     axis=1)
 
@@ -4890,13 +4893,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     axis=1)
                                     
                                     df_flanges['drawing_path'] = df_flanges.apply(
-                                    lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\B-Bridas\PC-Penetracion Completa\{'RF-RaisedFace' if str(row['facing']) == 'RF' else 'RTJ-RingTypeJoint'}\{str(row['drawing_code'])}.pdf",
+                                    lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\B-Bridas\PC-Penetracion Completa\{'RTJ-RingTypeJoint'if str(row['facing']) == 'RTJ' else 'RF-RaisedFace'}\{str(row['drawing_code'])}.pdf",
                                     axis=1)
 
                                     df_flanges['base_diam'] = df_flanges.apply(
-                                    lambda row: 32 if int(row['root_diam']) < 32 else 35,
+                                    lambda row: 30 if int(row['root_diam']) < 30 else (32 if int(row['root_diam']) < 32 else 35),
                                     axis=1)
 
+                                    df_flanges = df_flanges[~df_flanges['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
                                     grouped_flanges = df_flanges.groupby(['drawing_path','connection','base_diam','material']).count()
                                     total_count = grouped_flanges.sum().iloc[0]
 
@@ -4913,6 +4917,9 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         elif base_diam == 35:
                                             reader.pages[1].merge_page(page2=page_overlay)
                                             writer.add_page(reader.pages[1])
+                                        elif base_diam == 30:
+                                            reader.pages[2].merge_page(page2=page_overlay)
+                                            writer.add_page(reader.pages[2])
 
                                         writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
                                         dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " BPC " + str(connection) + " " +str(material), total_count]
@@ -4931,6 +4938,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\S-Soldadas\C-Cilindricas\P-Preparación\{str(row['drawing_code'])}.pdf",
                                     axis=1)
 
+                                    df_bars = df_bars[~df_bars['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
                                     df_grouped = df_bars.groupby(["drawing_path",'base_diam','material', "bore_diameter", "std_length"]).size().reset_index(name="count")
                                     grouped_bars = df_grouped.groupby(['drawing_path','base_diam','material']).agg({"bore_diameter":list, "std_length": list, "count": list}).reset_index()
                                     total_count = grouped_bars['count'].explode().sum() 
@@ -4993,13 +5001,12 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 if conn is not None:
                                     conn.close()
 
-                            df_selected = df_general.iloc[:, [0, 9, 10, 11, 12, 14, 15, 17, 21]].copy()
-
-                            for item in df_selected[9].unique().tolist():
+                            df_selected = df_general.iloc[:, [0, 8, 9, 10, 11, 12, 13, 16, 21, 111]].copy()
+                            for item in df_selected[8].unique().tolist():
                                 if item == 'F+P':
                                     df_selected.rename(columns={
                                         0: 'id', 8: 'type', 9: 'size', 10: 'rating',
-                                        11: 'facing', 12: 'schedule', 13: 'material', 16: 'tapping', 21: 'gasket', 61: 'ext_diam'
+                                        11: 'facing', 12: 'schedule', 13: 'material', 16: 'tapping', 21: 'gasket', 111: 'pipe_int_diam'
                                     }, inplace=True)
 
                                     df_flanges = df_selected.copy()
@@ -5017,21 +5024,22 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\C-Caudal\B-Bridas\WN-WeldNeck\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\{str(row['drawing_code'])}.pdf",
                                     axis=1)
 
-                                    grouped_flanges = df_flanges.groupby(['drawing_path','connection', 'schedule','material']).count()
-                                    total_count = grouped_flanges.sum().iloc[0]
+                                    df_grouped = df_flanges.groupby(['drawing_path','connection', 'schedule', 'material', 'tapping', 'gasket', 'pipe_int_diam']).size().reset_index(name="count")
+                                    grouped_flanges = df_grouped.groupby(['drawing_path','connection','schedule','material','tapping']).agg({"gasket": list, "pipe_int_diam": list, "count": list}).reset_index()
+                                    total_count = grouped_flanges['count'].explode().sum() 
 
-                                    for (drawing_path, connection, schedule, material), row in grouped_flanges.iterrows():
+                                    for _, row in grouped_flanges.iterrows():
                                         counter_drawings += 1
 
                                         writer = PdfWriter()
-                                        reader = PdfReader(drawing_path)
-                                        page_overlay = PdfReader(flange_dwg_flangedTW(self.numorder, material, row.iloc[0])).pages[0]
+                                        reader = PdfReader(row["drawing_path"])
+                                        page_overlay = PdfReader(flange_dwg_orifice(self.numorder, row["material"], row["schedule"], row["tapping"], self.client, zip(row["gasket"], row["pipe_int_diam"], row["count"]))).pages[0]
 
                                         reader.pages[0].merge_page(page2=page_overlay)
                                         writer.add_page(reader.pages[0])
 
                                         writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                        dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " BPC " + str(connection) + " " +str(material), total_count]
+                                        dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " BPC " + str(row["connection"]) + " " +str(row["material"]), total_count]
 
                             for key, value in dict_drawings.items():
                                 writer = PdfWriter()
