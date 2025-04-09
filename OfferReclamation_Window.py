@@ -226,6 +226,20 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                         )
                         ORDER BY offers."num_offer"
                         """)
+        
+        commands_queryrecoffer_coordinator = ("""
+                        SELECT offers."num_offer",TO_CHAR(offers."presentation_date", 'DD-MM-YYYY'),TO_CHAR(offers."last_update", 'DD-MM-YYYY'),
+                        (offers."last_update" - offers."presentation_date") AS "difference_update", TO_CHAR(offers."last_rec", 'DD-MM-YYYY'),
+                        (current_date - offers."last_rec") AS "difference_rec", offers."type_rec",offers."tracking",offers."rec_times", offers."mails"
+                        FROM offers
+                        WHERE (offers."responsible" not in ('a.calvo')
+                        AND
+                        offers."state" = 'Presentada'
+                        AND
+                        offers."last_update" < (current_date - interval '10 days')
+                        )
+                        ORDER BY offers."num_offer"
+                        """)
 
         try:
         # read the connection parameters
@@ -238,7 +252,10 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
             results_responsible=cur.fetchall()
             match=list(filter(lambda x:self.username in x, results_responsible))
             responsible=match[0][0]
-            cur.execute(commands_queryrecoffer, (responsible,))
+            if self.username == 'l.bravo':
+                cur.execute(commands_queryrecoffer_coordinator)
+            else:
+                cur.execute(commands_queryrecoffer, (responsible,))
             results=cur.fetchall()
         # close communication with the PostgreSQL database server
             cur.close()
