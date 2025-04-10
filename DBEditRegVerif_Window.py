@@ -532,7 +532,7 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
                             'Verif. EXP', 'Datos Bridas', 'Caudalimetros Gas', 'Revisiones Caudalimetros Gas','Herramientas Taller', 'Revisiones Herramientas', 'Tabla 5 Dureza', 'Tabla 6 Dureza', 'Humedad y Temperatura Armario','Valores PT100 INTA', 'Valores TC INTA',
                             'Coladas Liq. Penetrantes', 'Verif. Planos M', 'Máquinas Taller',
                             'Revisiones Máquinas', 'Manometros', 'Manometros y Termoelementos Taller', 'Revisiones Manometros y Termoelementos Taller', 'Patrones Termoelementos',
-                            'Desplegables No-Conformidad', 'Informes No-Conformidad', 'Verif. Planos OF', 'Equipos. Verif.', 'Verif. PPI',
+                            'Desplegables No-Conformidad', 'Informes No-Conformidad', 'Verif. Planos OF', 'Equipos. Verif.', 'Verif. PPI', 'Certificados Personal',
                             'Valores PT100 Norma', 'Valores TC B Norma', 'Valores TC C Norma', 'Valores TC E Norma', 'Valores TC J Norma',
                             'Valores TC K Norma', 'Valores TC N Norma', 'Valores TC R Norma', 'Valores TC S Norma', 'Valores TC T Norma',
                             'Estados Verif.', 'Estados Almacén', 'Proveedores Albaranes', 'Pruebas Dureza', 'Pruebas Hidróstaticas',
@@ -544,7 +544,7 @@ class Ui_DBEditRegVerif_Window(QtWidgets.QMainWindow):
             tables_to_delete = ['al_drawing_verification', 'calibers_workshop_revisions', 'calibration_thermoelements', 'delivnote_suppliers', 'dim_drawing_verification', 'flanges_verification',
                                 'gas_flowmeters_workshop','gas_flowmeters_workshop_revisions','handtools_workshop','handtools_workshop_revisions', 'humidity_temp_closet','exp_verification', 'm_drawing_verification', 'machines_workshop',
                                 'machines_workshop_revisions', 'manometers_thermoelements_workshop', 'manometers_thermoelements_workshop_revisions', 'nc_report', 'of_drawing_verification',
-                                'ppi_verification', 'suppliers_verification', 'test_hardness', 'test_hydro',
+                                'ppi_verification', 'staff_certificates', 'suppliers_verification', 'test_hardness', 'test_hydro',
                                 'test_liquid', 'test_others', 'warehouse_added_pieces', 'workshop_dim_drawings', 'workshop_of_drawings']
 
             for table in tables_to_delete:
