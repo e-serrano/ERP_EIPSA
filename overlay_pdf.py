@@ -412,29 +412,34 @@ def flange_dwg_orifice(num_order, material, schedule, tapping, client, item_data
     pdf.set_draw_color(255, 0, 0)
 
     if client =='ARAMCO':
-        pdf.line(30, 225, 195.5, 0)
-        pdf.line(30, 225, 195.5, 0)
+        pdf.line(28, 234, 32, 238)
+        pdf.line(28, 238, 32, 234)
+        pdf.line(33, 231, 58, 231)
     else:
-        pdf.line(30, 192, 33, 195)
-        pdf.line(30, 195, 33, 192)
+        pdf.line(28, 229, 32, 233)
+        pdf.line(28, 233, 32, 229)
+        pdf.line(33, 236, 66, 236)
+        pdf.line(33, 240.5, 71, 240.5)
+
+    pdf.set_xy(111, 223.5)
+    pdf.cell(30, 6, str(tapping.split('(')[0].strip()), align='C')
 
     if 'SPW' in gasket:
         x_pos = 158.5
-        y_pos = 219.5
-        pdf.line(100, 235, 198, 235)
+        y_pos = 229.5
+        pdf.line(100, 240, 201, 240)
     elif 'RTJ' in gasket:
         x_pos = 162.5
         y_pos = 232.5
     else:
         x_pos = 158.5
         y_pos = 230
-        pdf.line(100, 225, 198, 225)
+        pdf.line(100, 233, 201, 233)
     pdf.set_xy(x_pos, y_pos)
-    pdf.cell(13, 5, str(cnt), align='C')
-    pdf.cell(13, 5, str(schedule), align='C')
-    pdf.cell(13, 5, str(pipe_int_diam), align='C')
+    pdf.cell(12.5, 6.5, str(cnt), align='C')
+    pdf.cell(13, 6.5, str(schedule), align='C')
+    pdf.cell(17, 6.5, str(pipe_int_diam), align='C')
 
-    print(client)
     pdf.set_xy(26, 248)
     pdf.cell(19, 9, str(cnt), align='C')
 
