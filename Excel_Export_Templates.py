@@ -8346,9 +8346,21 @@ class spares_two_years:
             WHERE tags.num_order LIKE UPPER ('%%'||'{self.num_order}'||'%%')
             ORDER BY tags.num_order
             """
+
+        elif self.table_name == "tags_data.tags_level":
+            commands_tags = f"""
+            SELECT '' AS spare_id, '' AS model_number, '' AS UNIT,
+            tags.tag, tags.model_num,
+            '' AS group_number, '' AS serial_number,
+            tags.dwg_num_doc_eipsa, docs.num_doc_client
+            FROM {self.table_name} AS tags
+            LEFT JOIN documentation AS docs ON (tags.dwg_num_doc_eipsa = docs.num_doc_eipsa)
+            WHERE tags.num_order LIKE UPPER ('%%'||'{self.num_order}'||'%%') AND tags.item_type in ('Reflex','Transparent')
+            ORDER BY tags.num_order
+            """
             
 
-        if self.variable in ['Caudal', 'Temperatura']:
+        if self.variable in ['Caudal', 'Temperatura', 'Nivel']:
             try:
             # read the connection parameters
                 params = config()
@@ -8395,9 +8407,15 @@ class spares_two_years:
             df_unique.insert(1, 'spare_id', "")
             df_unique.insert(2, 'model_number', "")
 
-            df_unique['recommended_pre'] = np.ceil(df_unique['total_number'] * 0.10).astype(int)
-            df_unique['recommended_two'] = np.ceil(df_unique['total_number'] * 0.20).astype(int)
+            if self.variable == 'Nivel':
+                df_unique['recommended_pre'] = np.ceil((1 if df_unique['DESCRIPTION'][-1] == 'R' else 2) * int(df_unique['DESCRIPTION'][4]) * df_unique['total_number'] * 0.10).astype(int)
+                df_unique['recommended_two'] = np.ceil((1 if df_unique['DESCRIPTION'][-1] == 'R' else 2) * int(df_unique['DESCRIPTION'][4]) * df_unique['total_number'] * 0.20).astype(int)
+            else:
+                df_unique['recommended_pre'] = np.ceil(df_unique['total_number'] * 0.10).astype(int)
+                df_unique['recommended_two'] = np.ceil(df_unique['total_number'] * 0.20).astype(int)
             df_unique['approved'] = None
+
+            df_unique.loc[len(df_unique)] = [len(df_unique) + 1, "", "Gaskets", "", df_unique['recommended_pre'].sum() * 2, df_unique['recommended_two'].sum() * 2]
 
             data_tags['GROUP'] = data_tags['DESCRIPTION'].map(df_unique.set_index('DESCRIPTION')['desc_id'])
 
