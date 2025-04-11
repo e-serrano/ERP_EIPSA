@@ -3941,7 +3941,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
                                                         " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][8] +
                                                         ((" BRIDAS " + results_description[0][9]) if results_description[0][0] == 'M.RUN' else " ") +
-                                                        " TOMAS: " + results_description[0][10][:-1] + ')' + " " + "Junta " +
+                                                        " TOMAS: " + results_description[0][10][:-1] + ' POR BRIDA)' + " " + "Junta " +
                                                         ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else '22,2'))))
 
                                         elif item_type in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW']:
@@ -5039,7 +5039,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         writer.add_page(reader.pages[0])
 
                                         writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                        dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " BPC " + str(row["connection"]) + " " +str(row["material"]), total_count]
+                                        dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(2*total_count) + "-BO " + str(row["connection"]) + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + str(1 if self.client != 'ARAMCO' else 2) + " EXTRACTOR", total_count]
 
                             for key, value in dict_drawings.items():
                                 writer = PdfWriter()

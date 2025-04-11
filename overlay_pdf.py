@@ -436,12 +436,12 @@ def flange_dwg_orifice(num_order, material, schedule, tapping, client, item_data
         y_pos = 230
         pdf.line(100, 233, 201, 233)
     pdf.set_xy(x_pos, y_pos)
-    pdf.cell(12.5, 6.5, str(cnt), align='C')
+    pdf.cell(12.5, 6.5, str(2*cnt), align='C')
     pdf.cell(13, 6.5, str(schedule), align='C')
     pdf.cell(17, 6.5, str(pipe_int_diam), align='C')
 
     pdf.set_xy(26, 248)
-    pdf.cell(19, 9, str(cnt), align='C')
+    pdf.cell(19, 9, str(2*cnt), align='C')
 
     pdf.set_xy(48, 248)
     pdf.cell(34, 9, str(material), align='C')
