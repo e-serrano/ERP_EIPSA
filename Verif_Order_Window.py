@@ -1517,9 +1517,41 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         self.gridLayout3.addWidget(self.label_CountValue_calibration, 2, 5, 1, 1)
         self.splitter.addWidget(self.frame3)
         self.layout_vertical.addWidget(self.splitter)
-        self.gridLayout_2.addLayout(self.layout_vertical, 0, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.layout_vertical, 0, 0, 1, 2)
         spacerItem = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
+        self.Button_Notify = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Notify.setMinimumSize(QtCore.QSize(100, 35))
+        # self.Button_Notify.setMaximumSize(QtCore.QSize(100, 35))
+        self.Button_Notify.setObjectName("Button_Notify")
+        self.Button_Notify.setStyleSheet("QPushButton {\n"
+    "background-color: #33bdef;\n"
+    "  border: 1px solid transparent;\n"
+    "  border-radius: 3px;\n"
+    "  color: #fff;\n"
+    "  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+    "  font-size: 15px;\n"
+    "  font-weight: 800;\n"
+    "  line-height: 1.15385;\n"
+    "  margin: 0;\n"
+    "  outline: none;\n"
+    "  padding: 2px .8em;\n"
+    "  text-align: center;\n"
+    "  text-decoration: none;\n"
+    "  vertical-align: baseline;\n"
+    "  white-space: nowrap;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover {\n"
+    "    background-color: #019ad2;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed {\n"
+    "    background-color: rgb(1, 140, 190);\n"
+    "    border-color: rgb(255, 255, 255);\n"
+    "}")
+        self.gridLayout_2.addWidget(self.Button_Notify, 1, 0, 1, 1)
         self.Button_Insert = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Insert.setMinimumSize(QtCore.QSize(100, 35))
         # self.Button_Insert.setMaximumSize(QtCore.QSize(100, 35))
@@ -1551,7 +1583,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
     "    background-color: rgb(1, 140, 190);\n"
     "    border-color: rgb(255, 255, 255);\n"
     "}")
-        self.gridLayout_2.addWidget(self.Button_Insert, 1, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.Button_Insert, 1, 1, 1, 1)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         Verif_Order_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=Verif_Order_Window)
@@ -1595,6 +1627,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         self.table_drawings.itemDoubleClicked.connect(self.item_double_click)
 
         self.Button_Insert.clicked.connect(self.expedition)
+        self.Button_Notify.clicked.connect(self.notify)
 
         self.query_data()
 
@@ -1652,6 +1685,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         item = self.table_calibrations.horizontalHeaderItem(3)
         item.setText(_translate("TestHardQuery_Window", "Fecha"))
         self.Button_Insert.setText(_translate("TestHardQuery_Window", "Expedir"))
+        self.Button_Notify.setText(_translate("TestHardQuery_Window", "Avisar Expedición"))
 
 # Function to load table and setting in the window
     def query_data(self):
@@ -2258,6 +2292,45 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                                         file_path = os.path.normpath(file_path)
                                         os.startfile(file_path)
 
+# Function to notify
+    def notify(self):
+        actual_date=date.today()
+        actual_date= actual_date.strftime("%d/%m/%Y")
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+
+            commands_notification_neworder = ("""INSERT INTO notifications.notifications_orders (
+                                    "username","message","state","date_creation"
+                                    )
+                                    VALUES (%s,%s,%s,%s)
+                                    """)
+
+            data = ('m.sahuquillo', "Pedido " + self.numorder + " Completado\nGenerar Expedición", "Pendiente", actual_date)
+            cur.execute(commands_notification_neworder, data)
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Crear Pedido")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+        finally:
+            if conn is not None:
+                conn.close()
 
 
 if __name__ == "__main__":

@@ -16,8 +16,7 @@ import locale
 import fnmatch
 from tkinter.filedialog import askopenfilename, askopenfilenames
 import random
-from PIL import Image, ExifTags
-from io import BytesIO
+from Verif_Order_Window import Ui_Verif_Order_Window
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
 
@@ -1170,6 +1169,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.pressure1.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.pressure1.setObjectName("pressure1")
         self.gridLayout_2.addWidget(self.pressure1, 2, 3, 1, 1)
+        self.Button_VerifOrder = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_VerifOrder.setMinimumSize(QtCore.QSize(100, 25))
+        self.Button_VerifOrder.setObjectName("Button_VerifOrder")
+        self.gridLayout_2.addWidget(self.Button_VerifOrder, 2, 6, 1, 1)
         self.label_manometer2 = QtWidgets.QCheckBox(parent=self.frame)
         self.label_manometer2.setMinimumSize(QtCore.QSize(204, 25))
         font = QtGui.QFont()
@@ -1346,6 +1349,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.Button_Photos.clicked.connect(lambda: self.insert_images(self.num_order.text().upper()))
         self.Button_SeePhoto.clicked.connect(self.open_temp_image)
         self.Button_InsertPhoto.clicked.connect(self.insert_temp_image)
+        self.Button_VerifOrder.clicked.connect(self.verif_order)
         self.tableTags.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
         self.tableOthers.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked_others)
         self.state_test.currentTextChanged.connect(self.change_text_color)
@@ -1376,6 +1380,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.Button_Insert.setText(_translate("VerificationInsert_Window", "Insertar"))
         self.Button_SeePhoto.setText(_translate("VerificationInsert_Window", "Ver Foto"))
         self.Button_InsertPhoto.setText(_translate("VerificationInsert_Window", "Insertar Foto"))
+        self.Button_VerifOrder.setText(_translate("VerificationInsert_Window", "Verif. Pedido"))
 
 # Function to update data of both tables
     def query_tables(self):
@@ -3889,6 +3894,15 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg.exec()
             del dlg, new_icon
+
+# Function to open window to check order verification
+    def verif_order(self):
+        if self.num_order.text().upper() is not None and self.num_order.text().upper() != '':
+            self.veriforder_window=QtWidgets.QMainWindow()
+            self.ui=Ui_Verif_Order_Window(self.username, self.num_order.text().upper())
+            self.ui.setupUi(self.veriforder_window)
+            self.veriforder_window.showMaximized()
+
 
 
 
