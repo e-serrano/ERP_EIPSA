@@ -88,18 +88,7 @@ class AlignDelegate_drawings(QtWidgets.QStyledItemDelegate):
                 painter.setPen(option.palette.highlightedText().color())
                 painter.setBrush(option.palette.highlight())
             else:
-
-                if "STELLITE" in value_check:
-                    start_color = QtGui.QColor(24, 146, 97)  # Dark Green
-                    end_color = QtGui.QColor(92, 197, 229)  # Blue
-
-                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                    painter.fillRect(rect_top, start_color)
-                    painter.fillRect(rect_bottom, end_color)
-
-                elif any(item in value_check for item in ['316H', '316TI']):
+                if any(item in value_check for item in ['316H', '316TI']):
                     start_color = QtGui.QColor(92, 197, 229)  # Blue
                     end_color = QtGui.QColor(92, 197, 229)  # Blue
                     border_color = QtGui.QColor(255, 0, 0)  # Red
@@ -239,7 +228,7 @@ class AlignDelegate_drawings(QtWidgets.QStyledItemDelegate):
                     painter.fillRect(rect_top, start_color)
                     painter.fillRect(rect_bottom, end_color)
 
-                elif 'MONEL' in value_check:
+                elif 'MONEL' in value_check or 'ALLOY 400' in value_check:
                     start_color = QtGui.QColor(160, 120, 182)  # Purple
                     end_color = QtGui.QColor(160, 120, 182)  # Purple
 
@@ -527,6 +516,16 @@ class AlignDelegate_drawings(QtWidgets.QStyledItemDelegate):
 
                     painter.fillRect(rect_top, start_color)
                     painter.fillRect(rect_bottom, end_color)
+
+                if "STELLITE" in value_check:
+                    border_color = QtGui.QColor(0, 0, 0)  # Black
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
 
                 textRect = painter.boundingRect(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2), QtCore.Qt.TextFlag.TextDontClip | QtCore.Qt.AlignmentFlag.AlignCenter, original_text,)
                 verticalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).y() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).height() + textRect.height() + 8) / 2)
@@ -1300,6 +1299,66 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         self.Button_Warehouse_Pieces.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_Warehouse_Pieces.setObjectName("Button_Warehouse_Pieces")
         self.Header.addWidget(self.Button_Warehouse_Pieces)
+        spacerItem7 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem7)
+        self.Button_PaletteM = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_PaletteM.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_PaletteM.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_PaletteM.setToolTip('Colores Materiales')
+        self.Button_PaletteM.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'j.tena':
+            self.Button_PaletteM.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_PaletteM.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_PaletteM.setText("")
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Colour_Palette_M.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_PaletteM.setIcon(icon8)
+        self.Button_PaletteM.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_PaletteM.setObjectName("Button_PaletteM")
+        self.Header.addWidget(self.Button_PaletteM)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -1551,6 +1610,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         self.Button_Update.clicked.connect(self.query_all_order)
         self.Button_Warehouse_Pieces.clicked.connect(self.aditional_pieces)
         self.Button_PendingSuppliers.clicked.connect(self.artpend_recep_supplier)
+        self.Button_PaletteM.clicked.connect(self.colour_palette_M)
 
         self.query_all_order()
         self.load_values()
@@ -2740,6 +2800,17 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
 
         return formatted_number
 
+# Function to open material colour palette table
+    def colour_palette_M(self):
+        """
+        Opens the material colour palette table window.
+        """
+        from ColourPaletteM_Window import Ui_PaletteColourM_Window
+
+        self.palettecolourm_window = QtWidgets.QMainWindow()
+        self.ui = Ui_PaletteColourM_Window()
+        self.ui.setupUi(self.palettecolourm_window)
+        self.palettecolourm_window.show()
 
 
 

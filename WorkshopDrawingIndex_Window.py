@@ -101,17 +101,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 painter.setPen(option.palette.highlightedText().color())
                 painter.setBrush(option.palette.highlight())
             else:
-                if "STELLITE" in value_check:
-                    start_color = QtGui.QColor(24, 146, 97)  # Dark Green
-                    end_color = QtGui.QColor(92, 197, 229)  # Blue
-
-                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                    painter.fillRect(rect_top, start_color)
-                    painter.fillRect(rect_bottom, end_color)
-
-                elif 'MONEL' in value_check:
+                if 'MONEL' in value_check:
                     start_color = QtGui.QColor(160, 120, 182)  # Purple
                     end_color = QtGui.QColor(160, 120, 182)  # Purple
 
@@ -545,6 +535,16 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
                     painter.fillRect(rect_top, start_color)
                     painter.fillRect(rect_bottom, end_color)
+
+                if "STELLITE" in value_check:
+                    border_color = QtGui.QColor(0, 0, 0)  # Black
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
 
                 textRect = painter.boundingRect(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2), QtCore.Qt.TextFlag.TextDontClip | QtCore.Qt.AlignmentFlag.AlignCenter, original_text,)
                 verticalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).y() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).height() + textRect.height() + 8) / 2)
@@ -590,18 +590,7 @@ class AlignDelegate_M(QtWidgets.QStyledItemDelegate):
                 painter.setPen(option.palette.highlightedText().color())
                 painter.setBrush(option.palette.highlight())
             else:
-
-                if "STELLITE" in value_check:
-                    start_color = QtGui.QColor(24, 146, 97)  # Dark Green
-                    end_color = QtGui.QColor(92, 197, 229)  # Blue
-
-                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                    painter.fillRect(rect_top, start_color)
-                    painter.fillRect(rect_bottom, end_color)
-
-                elif any(item in value_check for item in ['316H', '316TI']):
+                if any(item in value_check for item in ['316H', '316TI']):
                     start_color = QtGui.QColor(92, 197, 229)  # Blue
                     end_color = QtGui.QColor(92, 197, 229)  # Blue
                     border_color = QtGui.QColor(255, 0, 0)  # Red
@@ -1035,6 +1024,16 @@ class AlignDelegate_M(QtWidgets.QStyledItemDelegate):
 
                     painter.fillRect(rect_top, start_color)
                     painter.fillRect(rect_bottom, end_color)
+
+                if "STELLITE" in value_check:
+                    border_color = QtGui.QColor(0, 0, 0)  # Black
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
 
                 textRect = painter.boundingRect(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2), QtCore.Qt.TextFlag.TextDontClip | QtCore.Qt.AlignmentFlag.AlignCenter, original_text,)
                 verticalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).y() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).height() + textRect.height() + 8) / 2)

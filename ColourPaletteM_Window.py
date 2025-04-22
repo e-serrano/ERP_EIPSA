@@ -40,19 +40,7 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
             value_check = str(state_column_index.data()).upper() # Text for checking
             painter.setPen(QtGui.QColor("black"))
 
-            if 'STELLITE' in value_check:
-                start_color = QtGui.QColor(24, 146, 97)  # Dark Green
-                end_color = QtGui.QColor(92, 197, 229)  # Blue
-
-                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
-                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
-
-                painter.fillRect(rect_top, start_color)
-                painter.fillRect(rect_bottom, end_color)
-                painter.drawText(rect_top, QtCore.Qt.AlignmentFlag.AlignCenter, '665')
-                painter.drawText(rect_bottom, QtCore.Qt.AlignmentFlag.AlignCenter, '634')
-
-            elif any(item in value_check for item in ['316H', '316TI']):
+            if any(item in value_check for item in ['316H', '316TI']):
                 start_color = QtGui.QColor(92, 197, 229)  # Blue
                 end_color = QtGui.QColor(92, 197, 229)  # Blue
                 border_color = QtGui.QColor(255, 0, 0)  # Red
@@ -281,11 +269,17 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
             elif 'TANTALO' in value_check:
                 start_color = QtGui.QColor(255, 87, 87)  # Red
                 end_color = QtGui.QColor(92, 197, 229)  # Blue
+                border_color = QtGui.QColor(24, 146, 97)  # Dark Green
+
                 rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
                 rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
 
                 painter.fillRect(rect_top, start_color)
                 painter.fillRect(rect_bottom, end_color)
+
+                painter.setPen(QtGui.QPen(border_color, 3))
+                painter.drawRect(option.rect)
+                painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
 
                 painter.drawText(rect_top, QtCore.Qt.AlignmentFlag.AlignCenter, '658')
                 painter.drawText(rect_bottom, QtCore.Qt.AlignmentFlag.AlignCenter, '634')
@@ -505,8 +499,8 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 painter.drawText(rect_bottom, QtCore.Qt.AlignmentFlag.AlignCenter, '658')
 
             elif any(item in value_check for item in ['C70610', 'CUNI 90-10', 'C70690']):
-                start_color = QtGui.QColor(255, 87, 87)  # Red
-                end_color = QtGui.QColor(255, 255, 0)  # Yellow
+                start_color = QtGui.QColor(255, 157, 59)  # Orange
+                end_color = QtGui.QColor(255, 87, 87)  # Red
 
                 rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
                 rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
@@ -514,8 +508,8 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
                 painter.fillRect(rect_top, start_color)
                 painter.fillRect(rect_bottom, end_color)
 
-                painter.drawText(rect_top, QtCore.Qt.AlignmentFlag.AlignCenter, '658')
-                painter.drawText(rect_bottom, QtCore.Qt.AlignmentFlag.AlignCenter, '627')
+                painter.drawText(rect_top, QtCore.Qt.AlignmentFlag.AlignCenter, '672')
+                painter.drawText(rect_bottom, QtCore.Qt.AlignmentFlag.AlignCenter, '658')
 
             elif '347' in value_check:
                 start_color = QtGui.QColor(251, 131, 179)  # Pink
@@ -619,6 +613,16 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
 
                 painter.fillRect(rect_top, start_color)
                 painter.fillRect(rect_bottom, end_color)
+
+            if "STELLITE" in value_check:
+                    border_color = QtGui.QColor(0, 0, 0)  # Black
+
+                    rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                    rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                    painter.setPen(QtGui.QPen(border_color, 3))
+                    painter.drawRect(option.rect)
+                    painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0), 0.01))
 
 
 class Ui_PaletteColourM_Window(object):
