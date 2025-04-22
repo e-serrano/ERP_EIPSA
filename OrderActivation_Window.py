@@ -358,7 +358,7 @@ class Ui_OrderActivation_Window(object):
                                 WHERE (profile = 'Dirección')
                                 """)
             commands_queryorder = ("""
-                                    SELECT orders."num_order",offers."responsible", orders."num_ref_order", offers."client", offers."final_client", TO_CHAR(orders."expected_date", 'DD-MM-YYYY'), offers."delivery_time", orfers."order_amount"
+                                    SELECT orders."num_order",offers."responsible", orders."num_ref_order", offers."client", offers."final_client", TO_CHAR(orders."expected_date", 'DD-MM-YYYY'), offers."delivery_time", orders."order_amount"
                                     FROM offers
                                     INNER JOIN orders ON (offers."num_offer"=orders."num_offer")
                                     WHERE orders."num_order" = %s
@@ -416,17 +416,17 @@ class Ui_OrderActivation_Window(object):
                         results_mailto=cur.fetchall()
                         mails_sendto = [x[1] for x in results_mailto]
 
-                        mails_copy = []
-                        mails_copy.append('ana-calvo@eipsa.es')
+                        mails_copy_normal = [email_responsible]
+                        mails_copy_manager = ['ana-calvo@eipsa.es']
 
                         cur.execute(commands_mail_manager)
                         results_manager=cur.fetchall()
                         mails_manager = [x[0] for x in results_manager]
 
-                        mail = email_order_activation(numorder, num_ref_order, client, final_client, expected_date, delivery_time, name_responsible, mails_sendto, mails_copy, adit_info, email_responsible, extras_text)
+                        mail = email_order_activation(numorder, num_ref_order, client, final_client, expected_date, delivery_time, name_responsible, mails_sendto, mails_copy_normal, adit_info, email_responsible, extras_text)
                         mail.send_email()
 
-                        mail = email_order_activation_manager(numorder, num_ref_order, client, final_client, expected_date, delivery_time, name_responsible, mails_manager, mails_copy, adit_info, email_responsible, extras_text, order_amount)
+                        mail = email_order_activation_manager(numorder, num_ref_order, client, final_client, expected_date, delivery_time, name_responsible, mails_manager, mails_copy_manager, adit_info, email_responsible, extras_text, order_amount)
                         mail.send_email()
 
                     # close communication with the PostgreSQL database server
