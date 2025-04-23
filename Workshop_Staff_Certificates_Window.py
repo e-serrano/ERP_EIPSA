@@ -423,7 +423,7 @@ class Ui_Workshop_Staff_Certificates_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Workshop_Staff_Certificates_Window.setWindowIcon(icon)
-        if self.username == 'm.gil':
+        if self.username in ['m.gil', 'd.marquez']:
             Workshop_Staff_Certificates_Window.setStyleSheet(
             ".QFrame {border: 2px solid white;\n"
             "}\n"
@@ -434,7 +434,7 @@ class Ui_Workshop_Staff_Certificates_Window(QtWidgets.QMainWindow):
             "}\n"
             "QMenu::item:selected {background-color: rgb(3, 174, 236);}")
         self.centralwidget = QtWidgets.QWidget(parent=Workshop_Staff_Certificates_Window)
-        if self.username == 'm.gil':
+        if self.username in ['m.gil', 'd.marquez']:
             self.centralwidget.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255);")
         else:
             self.centralwidget.setStyleSheet("background-color: rgb(255, 255, 255);")
@@ -489,7 +489,7 @@ class Ui_Workshop_Staff_Certificates_Window(QtWidgets.QMainWindow):
         self.toolPDF.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolPDF)
 
-        if self.username == 'm.gil':
+        if self.username in ['m.gil', 'd.marquez']:
             self.toolDeleteFilter.setStyleSheet("border: 1px solid white;")
             self.toolExpData.setStyleSheet("border: 1px solid white;")
             self.toolAdd.setStyleSheet("border: 1px solid white;")
@@ -660,7 +660,7 @@ class Ui_Workshop_Staff_Certificates_Window(QtWidgets.QMainWindow):
         # self.color_delegate = ColorDelegate(self)
         # self.tableCertificates.setItemDelegateForColumn(5, self.color_delegate)
 
-        if self.username == 'm.gil':
+        if self.username in ['m.gil', 'd.marquez']:
             self.tableCertificates.setStyleSheet("gridline-color: rgb(128, 128, 128);")
             self.tableCertificates.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid white;}")
             self.tableCertificates.verticalHeader().setStyleSheet("::section{font: 10pt; background-color: #121212; border: 0.5px solid white;}")
@@ -1183,12 +1183,12 @@ class Ui_Workshop_Staff_Certificates_Window(QtWidgets.QMainWindow):
         Adjusts column visibility and resize behavior in the tableCertificates widget.
         """
         self.tableCertificates.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-        self.tableCertificates.horizontalHeader().setSectionResizeMode(2,QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableCertificates.horizontalHeader().setSectionResizeMode(1,QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableCertificates.horizontalHeader().setSectionResizeMode(3,QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableCertificates.horizontalHeader().setSectionResizeMode(5,QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableCertificates.horizontalHeader().setSectionResizeMode(7,QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableCertificates.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableCertificates.verticalHeader().setVisible(False)
-        self.tableCertificates.hideColumn(8)
 
 # Function when item is double clicked
     def item_double_clicked(self,index):

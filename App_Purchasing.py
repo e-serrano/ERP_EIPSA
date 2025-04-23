@@ -558,6 +558,67 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Header.addWidget(self.Button_Welding)
         spacerItem11 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem11)
+
+        self.Button_LiquidVisual = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_LiquidVisual.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_LiquidVisual.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_LiquidVisual.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'd.marquez':
+            self.Button_LiquidVisual.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_LiquidVisual.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_LiquidVisual.setText("")
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Liquids_Visual.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_LiquidVisual.setIcon(icon2)
+        self.Button_LiquidVisual.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_LiquidVisual.setObjectName("Button_LiquidVisual")
+        self.Button_LiquidVisual.setToolTip("Certificados Líquidos")
+        self.Header.addWidget(self.Button_LiquidVisual)
+        spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem8)
         self.Button_Warehouse = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Warehouse.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
         self.Button_Warehouse.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
@@ -1135,6 +1196,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_QueryDoc.clicked.connect(self.query_documents)
         self.Button_Profile.clicked.connect(self.showMenu)
         self.Button_Welding.clicked.connect(self.welding_data)
+        self.Button_LiquidVisual.clicked.connect(self.liquid_visual_certificate)
         self.Button_Warehouse.clicked.connect(self.warehouse_app)
         self.Button_ActiveOffer.clicked.connect(self.open_active_offers)
         self.Button_Revisions.clicked.connect(self.revisions)
@@ -1856,6 +1918,26 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         finally:
             if conn is not None:
                 conn.close()
+
+# Function to open window for liquid visual certificate
+    def liquid_visual_certificate(self):
+        """
+        Opens a new window for liquid visual certificate.
+        """
+        from Workshop_Staff_Certificates_Window import Ui_Workshop_Staff_Certificates_Window
+        config_obj = configparser.ConfigParser()
+        config_obj.read(r"C:\Program Files\ERP EIPSA\database.ini")
+        dbparam = config_obj["postgresql"]
+        # set your parameters for the database connection URI using the keys from the configfile.ini
+        user_database = dbparam["user"]
+        password_database = dbparam["password"]
+
+        db_certificates = createConnection(user_database, password_database)
+        if not db_certificates:
+            sys.exit()
+
+        self.certificates_window = Ui_Workshop_Staff_Certificates_Window(db_certificates, self.username)
+        self.certificates_window.showMaximized()
 
 
 if __name__ == "__main__":
