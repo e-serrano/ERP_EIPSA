@@ -23,7 +23,7 @@ def imagen_to_base64(imagen):
 
     Args:
         imagen: An instance of QImage or QPixmap to be converted.
-    Return: 
+    Return:
         A base64 encoded string representing the image in PNG format.
     """
     buffer = QtCore.QBuffer()
@@ -51,6 +51,38 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
+    def paint(self, painter, option, index):
+        """
+        Custom paint method to render the cell content and apply background colors
+        based on specific conditions for a column's value.
+
+        Args:
+            painter (QPainter): The painter used to render the cell.
+            option (QStyleOptionViewItem): The style options for the cell.
+            index (QModelIndex): The index of the cell being painted.
+        """
+        super().paint(painter, option, index)
+
+        if index.column() == 1:  # Column to paint
+            state_column_index = index.sibling(index.row(), 3) # Index for column to check text
+            value_check = str(state_column_index.data()).upper() # Text for checking
+            painter.setPen(QtGui.QColor("black"))
+
+            if 'AVISADO' in value_check:
+                start_color = QtGui.QColor(25, 200, 100)  # Yellow
+                end_color = QtGui.QColor(25, 200, 100)  # Yellow
+
+                rect_top = option.rect.adjusted(0, 0, 0, -option.rect.height() // 2)
+                rect_bottom = option.rect.adjusted(0, option.rect.height() // 2, 0, 0)
+
+                painter.fillRect(rect_top, start_color)
+                painter.fillRect(rect_bottom, end_color)
+
+                textRect = painter.boundingRect(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2), QtCore.Qt.TextFlag.TextDontClip | QtCore.Qt.AlignmentFlag.AlignCenter, 'EXP',)
+                verticalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).y() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).height() + textRect.height() + 8) / 2)
+                horizontalPosition = int(option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).x() + (option.rect.adjusted(0, 0, 0, -option.rect.height() // 2).width() - textRect.width()) / 2)
+                painter.drawText(horizontalPosition, verticalPosition, 'EXP')
+
 class CustomTableWidget_Tags(QtWidgets.QTableWidget):
     """
     Custom QTableWidget that supports filtering and sorting features.
@@ -67,7 +99,7 @@ class CustomTableWidget_Tags(QtWidgets.QTableWidget):
         """
         Initializes the CustomTableWidget.
 
-        Sets up the initial state of the widget, including filters, checkbox states, 
+        Sets up the initial state of the widget, including filters, checkbox states,
         and hidden rows.
 
         Args:
@@ -86,7 +118,7 @@ class CustomTableWidget_Tags(QtWidgets.QTableWidget):
         """
         Displays a context menu for unique values in a specified column.
 
-        The menu includes options to remove filters, sort the column, and filter by text. 
+        The menu includes options to remove filters, sort the column, and filter by text.
         It also allows the user to select/unselect unique values via checkboxes.
 
         Args:
@@ -135,7 +167,7 @@ class CustomTableWidget_Tags(QtWidgets.QTableWidget):
 
         for value in sorted(unique_values):
             checkbox = QtWidgets.QCheckBox(value)
-            if select_all_checkbox.isChecked(): 
+            if select_all_checkbox.isChecked():
                 checkbox.setCheckState(QtCore.Qt.CheckState(2))
             else:
                 if column_index in self.checkbox_states and value in self.checkbox_states[column_index]:
@@ -292,10 +324,10 @@ class CustomTableWidget_Tags(QtWidgets.QTableWidget):
         """
         filter_dialog = QtWidgets.QDialog(self)
         filter_dialog.setWindowTitle("Filtrar por texto")
-        
+
         label = QtWidgets.QLabel("Texto a filtrar:")
         text_input = QtWidgets.QLineEdit()
-        
+
         filter_button = QtWidgets.QPushButton("Filtrar")
         filter_button.setStyleSheet("QPushButton {\n"
 "background-color: #33bdef;\n"
@@ -335,7 +367,7 @@ class CustomTableWidget_Tags(QtWidgets.QTableWidget):
         filter_dialog.exec()
 
 
-# Function to obtain the unique matching applied filters 
+# Function to obtain the unique matching applied filters
     def get_unique_values(self, column_index):
         """
         Retrieves unique values from the specified column, taking into account any active filters on other columns.
@@ -491,7 +523,7 @@ class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
         """
         Initializes the CustomTableWidget.
 
-        Sets up the initial state of the widget, including filters, checkbox states, 
+        Sets up the initial state of the widget, including filters, checkbox states,
         and hidden rows.
 
         Args:
@@ -510,7 +542,7 @@ class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
         """
         Displays a context menu for unique values in a specified column.
 
-        The menu includes options to remove filters, sort the column, and filter by text. 
+        The menu includes options to remove filters, sort the column, and filter by text.
         It also allows the user to select/unselect unique values via checkboxes.
 
         Args:
@@ -559,7 +591,7 @@ class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
 
         for value in sorted(unique_values):
             checkbox = QtWidgets.QCheckBox(value)
-            if select_all_checkbox.isChecked(): 
+            if select_all_checkbox.isChecked():
                 checkbox.setCheckState(QtCore.Qt.CheckState(2))
             else:
                 if column_index in self.checkbox_states and value in self.checkbox_states[column_index]:
@@ -716,10 +748,10 @@ class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
         """
         filter_dialog = QtWidgets.QDialog(self)
         filter_dialog.setWindowTitle("Filtrar por texto")
-        
+
         label = QtWidgets.QLabel("Texto a filtrar:")
         text_input = QtWidgets.QLineEdit()
-        
+
         filter_button = QtWidgets.QPushButton("Filtrar")
         filter_button.setStyleSheet("QPushButton {\n"
 "background-color: #33bdef;\n"
@@ -759,7 +791,7 @@ class CustomTableWidget_Drawings(QtWidgets.QTableWidget):
         filter_dialog.exec()
 
 
-# Function to obtain the unique matching applied filters 
+# Function to obtain the unique matching applied filters
     def get_unique_values(self, column_index):
         """
         Retrieves unique values from the specified column, taking into account any active filters on other columns.
@@ -915,7 +947,7 @@ class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
         """
         Initializes the CustomTableWidget.
 
-        Sets up the initial state of the widget, including filters, checkbox states, 
+        Sets up the initial state of the widget, including filters, checkbox states,
         and hidden rows.
 
         Args:
@@ -934,7 +966,7 @@ class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
         """
         Displays a context menu for unique values in a specified column.
 
-        The menu includes options to remove filters, sort the column, and filter by text. 
+        The menu includes options to remove filters, sort the column, and filter by text.
         It also allows the user to select/unselect unique values via checkboxes.
 
         Args:
@@ -983,7 +1015,7 @@ class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
 
         for value in sorted(unique_values):
             checkbox = QtWidgets.QCheckBox(value)
-            if select_all_checkbox.isChecked(): 
+            if select_all_checkbox.isChecked():
                 checkbox.setCheckState(QtCore.Qt.CheckState(2))
             else:
                 if column_index in self.checkbox_states and value in self.checkbox_states[column_index]:
@@ -1140,10 +1172,10 @@ class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
         """
         filter_dialog = QtWidgets.QDialog(self)
         filter_dialog.setWindowTitle("Filtrar por texto")
-        
+
         label = QtWidgets.QLabel("Texto a filtrar:")
         text_input = QtWidgets.QLineEdit()
-        
+
         filter_button = QtWidgets.QPushButton("Filtrar")
         filter_button.setStyleSheet("QPushButton {\n"
 "background-color: #33bdef;\n"
@@ -1183,7 +1215,7 @@ class CustomTableWidget_Calibration(QtWidgets.QTableWidget):
         filter_dialog.exec()
 
 
-# Function to obtain the unique matching applied filters 
+# Function to obtain the unique matching applied filters
     def get_unique_values(self, column_index):
         """
         Retrieves unique values from the specified column, taking into account any active filters on other columns.
@@ -1435,9 +1467,9 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
         self.label2.setFont(font)
         self.table_drawings = CustomTableWidget_Drawings()
         self.table_drawings.setObjectName("table_drawings")
-        self.table_drawings.setColumnCount(3)
+        self.table_drawings.setColumnCount(4)
         self.table_drawings.setRowCount(0)
-        for i in range (3):
+        for i in range (4):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -1690,7 +1722,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 # Function to load table and setting in the window
     def query_data(self):
         """
-        Queries the database for tags, drawings and calibrations for given order, configures and populates tables with the query results, 
+        Queries the database for tags, drawings and calibrations for given order, configures and populates tables with the query results,
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
         query_tags = ("""
@@ -1704,17 +1736,17 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                         """)
 
         query_drawings = ("""
-                        SELECT num_order, drawing_number, TO_CHAR(verif_dim_drawing_date, 'DD/MM/YYYY') FROM verification.dim_drawing_verification WHERE num_order LIKE ('%%'||%s||'%%')
+                        SELECT num_order, drawing_number, TO_CHAR(verif_dim_drawing_date, 'DD/MM/YYYY'), verif_dim_drawing_obs FROM verification.dim_drawing_verification WHERE num_order LIKE ('%%'||%s||'%%')
                         UNION
-                        SELECT num_order, drawing_number, TO_CHAR(verif_of_drawing_date, 'DD/MM/YYYY') FROM verification.of_drawing_verification WHERE num_order LIKE ('%%'||%s||'%%')
+                        SELECT num_order, drawing_number, TO_CHAR(verif_of_drawing_date, 'DD/MM/YYYY'), verif_of_drawing_obs FROM verification.of_drawing_verification WHERE num_order LIKE ('%%'||%s||'%%')
                         UNION
-                        SELECT num_order, drawing_number, TO_CHAR(verif_m_drawing_date, 'DD/MM/YYYY') FROM verification.m_drawing_verification WHERE num_order LIKE ('%%'||%s||'%%')
+                        SELECT num_order, drawing_number, TO_CHAR(verif_m_drawing_date, 'DD/MM/YYYY'), verif_m_drawing_obs FROM verification.m_drawing_verification WHERE num_order LIKE ('%%'||%s||'%%')
                         UNION
-                        SELECT num_order, 'PPI' as of_drawing, TO_CHAR(verif_ppi_date, 'DD/MM/YYYY') FROM verification.ppi_verification WHERE num_order LIKE ('%%'||%s||'%%')
+                        SELECT num_order, 'PPI' as of_drawing, TO_CHAR(verif_ppi_date, 'DD/MM/YYYY'), verif_ppi_obs FROM verification.ppi_verification WHERE num_order LIKE ('%%'||%s||'%%')
                         UNION
-                        SELECT num_order, 'EXP' as of_drawing, TO_CHAR(verif_exp_date, 'DD/MM/YYYY') FROM verification.exp_verification WHERE num_order LIKE ('%%'||%s||'%%')
+                        SELECT num_order, 'EXP' as of_drawing, TO_CHAR(verif_exp_date, 'DD/MM/YYYY'), verif_exp_obs FROM verification.exp_verification WHERE num_order LIKE ('%%'||%s||'%%')
                         UNION
-                        SELECT num_order, test_type, TO_CHAR(test_date, 'DD/MM/YYYY') FROM verification.test_others WHERE num_order LIKE ('%%'||%s||'%%')
+                        SELECT num_order, test_type, TO_CHAR(test_date, 'DD/MM/YYYY'), 'id' FROM verification.test_others WHERE num_order LIKE ('%%'||%s||'%%')
                         ORDER BY drawing_number
                         """)
 
@@ -1775,7 +1807,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results_drawings:
-                for column in range(3):
+                for column in range(4):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -1790,7 +1822,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
             # self.table_drawings.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Interactive)
             # self.table_drawings.setColumnWidth(2, 200)
             self.table_drawings.setSortingEnabled(False)
-            # self.table_drawings.hideColumn(0)
+            self.table_drawings.hideColumn(3)
             self.table_drawings.custom_sort_date(0, QtCore.Qt.SortOrder.AscendingOrder)
 
             self.table_calibrations.setRowCount(len(results_calibration))
@@ -1969,7 +2001,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                             """)
                 commands_insert_exp = ("""
                             UPDATE verification."exp_verification"
-                            SET "verif_exp_date" = %s, "verif_exp_state" = %s
+                            SET "verif_exp_date" = %s, "verif_exp_state" = %s, "verif_exp_obs" = %s
                             WHERE "id" = %s
                             """)
                 conn = None
@@ -1985,7 +2017,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
                     if len(results) != 0:
                         if results[0][0] is None:
-                            cur.execute(commands_insert_exp, (verif_date, verif_state, results[0][1], ))
+                            cur.execute(commands_insert_exp, (verif_date, verif_state, "Expedido", results[0][1], ))
 
                         else:
                             dlg_yes_no = QtWidgets.QMessageBox()
@@ -2208,7 +2240,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                     if conn is not None:
                         conn.close()
 
-            elif item.column() == 10: # Msgbox for liquid test 
+            elif item.column() == 10: # Msgbox for liquid test
                 item_id = self.table_tags.item(item.row(), 0).text()
                 table_name = self.table_tags.item(item.row(), 16).text()
                 column_id = self.table_tags.item(item.row(), 17).text()
@@ -2265,7 +2297,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
             elif item.column() == 1 and item.text() == 'PPI':
                 self.num_order_value = self.numorder
                 order_year = str(datetime.now().year)[:2] + self.num_order_value [self.num_order_value .rfind("/") - 2:self.num_order_value .rfind("/")]
-                
+
                 if self.num_order_value[:2] == 'PA':
                     num_order = self.num_order_value
                     path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
@@ -2294,6 +2326,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
 # Function to notify
     def notify(self):
+        num_order = self.numorder
         actual_date=date.today()
         actual_date= actual_date.strftime("%d/%m/%Y")
         conn = None
@@ -2310,23 +2343,51 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
                                     VALUES (%s,%s,%s,%s)
                                     """)
 
+            commands_select_exp = ("""
+                            SELECT verif_exp_date, id
+                            FROM verification."exp_verification"
+                            WHERE "num_order" LIKE UPPER ('%%'||%s||'%%')
+                            """)
+
+            commands_insert_exp = ("""
+                            UPDATE verification."exp_verification"
+                            SET "verif_exp_obs" = %s,
+                            WHERE "id" = %s
+                            """)
+
             data = ('m.sahuquillo', "Pedido " + self.numorder + " Completado\nGenerar Expedición", "Pendiente", actual_date)
             cur.execute(commands_notification_neworder, data)
 
             data_2 = ('m.gil', "Pedido " + self.numorder + " Completado\nExpedición Avisada", "Pendiente", actual_date)
             cur.execute(commands_notification_neworder, data_2)
 
+            cur.execute(commands_select_exp, (num_order, ))
+            results = cur.fetchall()
+
+            if len(results) != 0:
+                if results[0][0] is None:
+                    cur.execute(commands_insert_exp, ("Avisado", results[0][1], ))
+
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
             conn.commit()
+
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Expedición")
+            dlg.setText("Aviso Enviado")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Crear Pedido")
+            dlg.setWindowTitle("Expedición")
             dlg.setText("Ha ocurrido el siguiente error:\n"
                         + str(error))
             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
@@ -2339,6 +2400,6 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    Verif_Order_Window = Ui_Verif_Order_Window('j.valtierra','P-24/069')
+    Verif_Order_Window = Ui_Verif_Order_Window('m.gil','PA-25/042')
     Verif_Order_Window.show()
     sys.exit(app.exec())
