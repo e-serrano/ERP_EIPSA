@@ -460,6 +460,63 @@ class Ui_App_Verification(object):
         self.Header.addWidget(self.HeaderName)
         spacerItem6 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem6)
+        self.Button_Notification = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Notification.setMinimumSize(QtCore.QSize(int(50), int(50)))
+        self.Button_Notification.setMaximumSize(QtCore.QSize(int(50), int(50)))
+        self.Button_Notification.setToolTip('Notificaciones')
+        self.Button_Notification.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'm.gil':
+            self.Button_Notification.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Notification.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Notification.setText("")
+        self.Button_Notification.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_Notification.setObjectName("Button_Notification")
+        self.Header.addWidget(self.Button_Notification)
+        spacerItem15 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem15)
         self.Button_Profile = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Profile.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_Profile.setMaximumSize(QtCore.QSize(50, 50))
@@ -751,6 +808,8 @@ class Ui_App_Verification(object):
         self.Button_Profile.clicked.connect(self.showMenu)
 
         self.update_machines_revision()
+        self.load_notifications()
+        self.Button_Notification.clicked.connect(self.notifications)
 
 
 # Function to translate and updates the text of various UI elements
@@ -1090,6 +1149,74 @@ class Ui_App_Verification(object):
         self.ui=Ui_Verif_Flange_Information_Window(self.username)
         self.ui.setupUi(self.flange_information)
         self.flange_information.showMaximized()
+
+# Function to open window to check notifications
+    def notifications(self):
+        """
+        Opens a new window to show active notifications. 
+        """
+        from NotificationsHistory_Window import Ui_HistoryNotifications_Window
+        self.notification_window=Ui_HistoryNotifications_Window(self.username)
+        self.notification_window.show()
+        self.notification_window.Button_Cancel.clicked.connect(self.load_notifications)
+
+# Function to load number of notifications
+    def load_notifications(self):
+        """
+        Loads and displays notifications for the user from various tables in the 'notifications' schema.
+        """
+        query_tables_notifications = """SELECT table_name
+                                FROM information_schema.tables
+                                WHERE table_schema = 'notifications' AND table_type = 'BASE TABLE';"""
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(query_tables_notifications)
+            results=cur.fetchall()
+            tables_names=[x[0] for x in results]
+
+            notifications = []
+
+            for table in tables_names:
+                commands_notifications = f" SELECT * FROM notifications.{table} WHERE username = '{self.username}' and state = 'Pendiente'"
+                cur.execute(commands_notifications)
+                results=cur.fetchall()
+
+                for x in results:
+                    notifications.append(x)
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        if len(notifications) != 0:
+            icon13 = QtGui.QIcon()
+            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_on.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        else:
+            icon13 = QtGui.QIcon()
+            icon13.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Notif_off.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Notification.setIcon(icon13)
 
 
 if __name__ == "__main__":

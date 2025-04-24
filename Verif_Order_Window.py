@@ -2313,6 +2313,9 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
             data = ('m.sahuquillo', "Pedido " + self.numorder + " Completado\nGenerar Expedición", "Pendiente", actual_date)
             cur.execute(commands_notification_neworder, data)
 
+            data_2 = ('m.gil', "Pedido " + self.numorder + " Completado\nExpedición Avisada", "Pendiente", actual_date)
+            cur.execute(commands_notification_neworder, data_2)
+
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
