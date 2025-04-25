@@ -1301,6 +1301,66 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         self.Header.addWidget(self.Button_Warehouse_Pieces)
         spacerItem7 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem7)
+        self.Button_Supplies = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Supplies.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Supplies.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Supplies.setToolTip('Suministros')
+        self.Button_Supplies.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'j.tena':
+            self.Button_Supplies.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Supplies.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Supplies.setText("")
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Flanges.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Supplies.setIcon(icon4)
+        self.Button_Supplies.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Supplies.setObjectName("Button_Supplies")
+        self.Header.addWidget(self.Button_Supplies)
+        spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem8)
         self.Button_PaletteM = QtWidgets.QPushButton(parent=self.frame)
         self.Button_PaletteM.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_PaletteM.setMaximumSize(QtCore.QSize(50, 50))
