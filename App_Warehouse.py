@@ -1671,6 +1671,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         self.Button_Warehouse_Pieces.clicked.connect(self.aditional_pieces)
         self.Button_PendingSuppliers.clicked.connect(self.artpend_recep_supplier)
         self.Button_PaletteM.clicked.connect(self.colour_palette_M)
+        self.Button_Supplies.clicked.connect(self.supplies_warehouse)
 
         self.query_all_order()
         self.load_values()
@@ -2866,13 +2867,21 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         Opens the material colour palette table window.
         """
         from ColourPaletteM_Window import Ui_PaletteColourM_Window
-
         self.palettecolourm_window = QtWidgets.QMainWindow()
         self.ui = Ui_PaletteColourM_Window()
         self.ui.setupUi(self.palettecolourm_window)
         self.palettecolourm_window.show()
 
-
+# Function to open supplies table
+    def supplies_warehouse(self):
+        """
+        Opens the supplies table window.
+        """
+        from Supplies_Warehouse_Window import Ui_Supplies_Warehouse_Window
+        self.supplies_window = QtWidgets.QMainWindow()
+        self.ui = Ui_Supplies_Warehouse_Window(self.username)
+        self.ui.setupUi(self.supplies_window)
+        self.supplies_window.show()
 
 
 
