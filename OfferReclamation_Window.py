@@ -36,6 +36,391 @@ class AlignDelegate(QtWidgets.QStyledItemDelegate):
         super(AlignDelegate, self).initStyleOption(option, index)
         option.displayAlignment = QtCore.Qt.AlignmentFlag.AlignCenter
 
+class CustomTableWidget(QtWidgets.QTableWidget):
+    """
+    Custom QTableWidget that supports filtering and sorting features.
+
+    Attributes:
+        list_filters (list): Stores filters applied to the table.
+        column_filters (dict): Maps column indices to sets of applied filters.
+        column_actions (dict): Maps column indices to actions related to columns.
+        checkbox_states (dict): Stores the state of checkboxes for filtering.
+        rows_hidden (dict): Maps column indices to sets of hidden row indices.
+        general_rows_to_hide (set): Set of row indices that are hidden across the table.
+    """
+    def __init__(self, parent=None):
+        """
+        Initializes the CustomTableWidget.
+
+        Sets up the initial state of the widget, including filters, checkbox states, 
+        and hidden rows.
+
+        Args:
+            parent (QWidget, optional): The parent widget of this table. Defaults to None.
+        """
+        super().__init__(parent)
+        self.list_filters=[]
+        self.column_filters = {}
+        self.column_actions = {}
+        self.checkbox_states = {}
+        self.rows_hidden = {}
+        self.general_rows_to_hide = set()
+
+# Function to show the menu
+    def show_unique_values_menu(self, column_index, header_pos, header_height):
+        """
+        Displays a context menu for unique values in a specified column.
+
+        The menu includes options to remove filters, sort the column, and filter by text. 
+        It also allows the user to select/unselect unique values via checkboxes.
+
+        Args:
+            column_index (int): The index of the column for which the menu is displayed.
+            header_pos (QPoint): The position of the header in the viewport.
+            header_height (int): The height of the header.
+        """
+        menu = QtWidgets.QMenu(self)
+        actionDeleteFilterColumn = QtGui.QAction("Quitar Filtro")
+        actionDeleteFilterColumn.triggered.connect(lambda: self.delete_filter(column_index))
+        menu.addAction(actionDeleteFilterColumn)
+        menu.addSeparator()
+        actionOrderAsc = menu.addAction("Ordenar Ascendente")
+        actionOrderAsc.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.AscendingOrder))
+        actionOrderDesc = menu.addAction("Ordenar Descendente")
+        actionOrderDesc.triggered.connect(lambda: self.sort_column(column_index, QtCore.Qt.SortOrder.DescendingOrder))
+        menu.addSeparator()
+        actionFilterByText = menu.addAction("Buscar Texto")
+        actionFilterByText.triggered.connect(lambda: self.filter_by_text(column_index))
+        menu.addSeparator()
+
+        menu.setStyleSheet("QMenu::item:selected { background-color: #33bdef; }"
+                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+
+        if column_index not in self.column_filters:
+            self.column_filters[column_index] = set()
+
+        scroll_menu = QtWidgets.QScrollArea()
+        scroll_menu.setWidgetResizable(True)
+        scroll_widget = QtWidgets.QWidget(scroll_menu)
+        scroll_menu.setWidget(scroll_widget)
+        scroll_layout = QtWidgets.QVBoxLayout(scroll_widget)
+
+        checkboxes = []
+
+        select_all_checkbox = QtWidgets.QCheckBox("Seleccionar todo")
+        if column_index in self.checkbox_states:
+            select_all_checkbox.setCheckState(QtCore.Qt.CheckState(self.checkbox_states[column_index].get("Seleccionar todo", QtCore.Qt.CheckState(2))))
+        else:
+            select_all_checkbox.setCheckState(QtCore.Qt.CheckState(2))
+        scroll_layout.addWidget(select_all_checkbox)
+        checkboxes.append(select_all_checkbox)
+
+        unique_values = self.get_unique_values(column_index)
+        filtered_values = self.get_filtered_values()
+
+        for value in sorted(unique_values):
+            checkbox = QtWidgets.QCheckBox(value)
+            if select_all_checkbox.isChecked(): 
+                checkbox.setCheckState(QtCore.Qt.CheckState(2))
+            else:
+                if column_index in self.checkbox_states and value in self.checkbox_states[column_index]:
+                    checkbox.setCheckState(QtCore.Qt.CheckState(self.checkbox_states[column_index][value]))
+                elif filtered_values is None or value in filtered_values[column_index]:
+                    checkbox.setCheckState(QtCore.Qt.CheckState(2))
+                else:
+                    checkbox.setCheckState(QtCore.Qt.CheckState(0))
+            scroll_layout.addWidget(checkbox)
+            checkboxes.append(checkbox)
+
+        select_all_checkbox.stateChanged.connect(lambda state: self.set_all_checkboxes_state(checkboxes, state, column_index))
+
+        for value, checkbox in zip(sorted(unique_values), checkboxes[1:]):
+            checkbox.stateChanged.connect(lambda checked, value=value, checkbox=checkbox: self.apply_filter(column_index, value, checked))
+
+    # Action for drop down menu and adding scroll area as widget
+        action_scroll_menu = QtWidgets.QWidgetAction(menu)
+        action_scroll_menu.setDefaultWidget(scroll_menu)
+        menu.addAction(action_scroll_menu)
+
+        menu.exec(header_pos - QtCore.QPoint(0, header_height))
+
+# Function to delete filter on selected column
+    def delete_filter(self,column_index):
+        """
+        Removes the filter applied to the specified column.
+
+        Unhides previously hidden rows and resets the checkbox state for the column.
+
+        Args:
+            column_index (int): The index of the column from which to delete the filter.
+        """
+        if column_index in self.column_filters:
+            del self.column_filters[column_index]
+        if column_index in self.checkbox_states:
+            del self.checkbox_states[column_index]
+        if column_index in self.rows_hidden:
+            for item in self.rows_hidden[column_index]:
+                self.setRowHidden(item, False)
+                if item in self.general_rows_to_hide:
+                    self.general_rows_to_hide.remove(item)
+            del self.rows_hidden[column_index]
+        header_item = self.horizontalHeaderItem(column_index)
+        header_item.setIcon(QtGui.QIcon())
+
+# Function to set all checkboxes state
+    def set_all_checkboxes_state(self, checkboxes, state, column_index):
+        """
+        Sets the state of all checkboxes in the filter menu for a specific column.
+
+        Args:
+            checkboxes (list): List of checkboxes to update.
+            state (Qt.CheckState): The desired state for the checkboxes.
+            column_index (int): The index of the column for which the checkboxes are set.
+        """
+        if column_index not in self.checkbox_states:
+            self.checkbox_states[column_index] = {}
+
+        for checkbox in checkboxes:
+            checkbox.setCheckState(QtCore.Qt.CheckState(state))
+
+        self.checkbox_states[column_index]["Seleccionar todo"] = state
+
+# Function to apply filters to table
+    def apply_filter(self, column_index, value, checked, text_filter=None, filter_dialog=None):
+        """
+        Applies a filter to the specified column based on the checkbox state and optional text filter.
+
+        Args:
+            column_index (int): The index of the column to filter.
+            value (str): The value to filter by.
+            checked (bool): Indicates if the filter should be applied (True) or removed (False).
+            text_filter (str, optional): Additional text filter for filtering items. Defaults to None.
+            filter_dialog (QDialog, optional): The dialog used for the text filter. Defaults to None.
+        """
+        if column_index not in self.column_filters:
+            self.column_filters[column_index] = set()
+
+        if text_filter is None:
+            if value is None:
+                self.column_filters[column_index] = set()
+            elif checked:
+                self.column_filters[column_index].add(value)
+            elif value in self.column_filters[column_index]:
+                self.column_filters[column_index].remove(value)
+
+        rows_to_hide = set()
+        for row in range(self.rowCount()):
+            show_row = True
+
+            # Check filters for all columns
+            for col, filters in self.column_filters.items():
+                item = self.item(row, col)
+                if item:
+                    item_value = item.text()
+                    if text_filter is None:
+                        if filters and item_value not in filters:
+                            show_row = False
+                            break
+
+        # Filtering by text
+            if text_filter is not None:
+                filter_dialog.accept()
+                item = self.item(row, column_index)
+                if item:
+                    if text_filter.upper() in item.text().upper():
+                        self.column_filters[column_index].add(item.text())
+                    else:
+                        show_row = False
+
+            if not show_row:
+                if row not in self.general_rows_to_hide:
+                    self.general_rows_to_hide.add(row)
+                    rows_to_hide.add(row)
+            else:
+                if row in self.general_rows_to_hide:
+                    self.general_rows_to_hide.remove(row)
+
+        # Update hidden rows for this column depending on checkboxes
+        if checked and text_filter is None:
+            if column_index not in self.rows_hidden:
+                self.rows_hidden[column_index] = set(rows_to_hide)
+            else:
+                self.rows_hidden[column_index].update(rows_to_hide)
+
+        # Update hidden rows for this column depending on filtered text
+        if text_filter is not None and value is None:
+            if column_index not in self.rows_hidden:
+                self.rows_hidden[column_index] = set(rows_to_hide)
+            else:
+                self.rows_hidden[column_index].update(rows_to_hide)
+
+        # Iterate over all rows to hide them as necessary
+        for row in range(self.rowCount()):
+            self.setRowHidden(row, row in self.general_rows_to_hide)
+
+        header_item = self.horizontalHeaderItem(column_index)
+        if len(self.general_rows_to_hide) > 0:
+            header_item.setIcon(QtGui.QIcon(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Filter_Active.png"))))
+        else:
+            header_item.setIcon(QtGui.QIcon())
+
+# Function to apply filters to table based on a desired text
+    def filter_by_text(self, column_index):
+        """
+        Opens a dialog for filtering the specified column by text input.
+
+        Args:
+            column_index (int): The index of the column to filter.
+        """
+        filter_dialog = QtWidgets.QDialog(self)
+        filter_dialog.setWindowTitle("Filtrar por texto")
+        
+        label = QtWidgets.QLabel("Texto a filtrar:")
+        text_input = QtWidgets.QLineEdit()
+        
+        filter_button = QtWidgets.QPushButton("Filtrar")
+        filter_button.setStyleSheet("QPushButton {\n"
+"background-color: #33bdef;\n"
+"  border: 1px solid transparent;\n"
+"  border-radius: 3px;\n"
+"  color: #fff;\n"
+"  font-family: -apple-system,system-ui,\"Segoe UI\",\"Liberation Sans\",sans-serif;\n"
+"  font-size: 15px;\n"
+"  font-weight: 800;\n"
+"  line-height: 1.15385;\n"
+"  margin: 0;\n"
+"  outline: none;\n"
+"  padding: 2px .8em;\n"
+"  text-align: center;\n"
+"  text-decoration: none;\n"
+"  vertical-align: baseline;\n"
+"  white-space: nowrap;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #019ad2;\n"
+"    border-color: rgb(0, 0, 0);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: rgb(1, 140, 190);\n"
+"    border-color: rgb(255, 255, 255);\n"
+"}")
+        filter_button.clicked.connect(lambda: self.apply_filter(column_index, None, False, text_input.text(), filter_dialog))
+
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(label)
+        layout.addWidget(text_input)
+        layout.addWidget(filter_button)
+
+        filter_dialog.setLayout(layout)
+        filter_dialog.exec()
+
+# Function to obtain the unique matching applied filters 
+    def get_unique_values(self, column_index):
+        """
+        Retrieves unique values from the specified column, taking into account any active filters on other columns.
+
+        Args:
+            column_index (int): The index of the column from which to retrieve unique values.
+
+        Returns:
+            set: A set of unique values from the specified column that are visible based on the current filters.
+        """
+        unique_values = set()
+        for row in range(self.rowCount()):
+            show_row = True
+            for col, filters in self.column_filters.items():
+                if col != column_index:
+                    item = self.item(row, col)
+                    if item:
+                        item_value = item.text()
+                        if filters and item_value not in filters:
+                            show_row = False
+                            break
+            if show_row:
+                item = self.item(row, column_index)
+                if item:
+                    unique_values.add(item.text())
+        return unique_values
+
+# Function to get values filtered by all columns
+    def get_filtered_values(self):
+        """
+        Gets the current filter values for all columns.
+
+        Returns:
+            dict: A dictionary where each key is a column index and the value is a set of filters applied to that column.
+        """
+        filtered_values = {}
+        for col, filters in self.column_filters.items():
+            filtered_values[col] = filters
+        return filtered_values
+
+# Function to sort column
+    def sort_column(self, column_index, sortOrder):
+        """
+        Sorts the specified column based on the given order. If the column is a date column, a custom sort method is used.
+
+        Args:
+            column_index (int): The index of the column to sort.
+            sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
+        if column_index in [2, 3, 4, 5]:
+            self.custom_sort(column_index, sortOrder)
+        else:
+            self.sortByColumn(column_index, sortOrder)
+
+# Function to custom sort for date columns
+    def custom_sort(self, column, order):
+        """
+        Custom sorting method for date and numeric columns. Sorts the specified column based on date and numeric values.
+
+        Args:
+            column (int): The index of the column to sort.
+            order (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
+        row_count = self.rowCount()
+
+        indexes = list(range(row_count))
+        indexes.sort(key=lambda i: QtCore.QDateTime.fromString(self.item(i, column).text(), "dd-MM-yyyy"))
+
+        if order == QtCore.Qt.SortOrder.DescendingOrder:
+            indexes.reverse()
+
+        hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
+
+        rows = self.rowCount()
+        for i in range(rows):
+            self.insertRow(i)
+
+        for new_row, old_row in enumerate(indexes):
+            for col in range(self.columnCount()):
+                item = self.takeItem(old_row + rows, col)
+                self.setItem(new_row, col, item)
+
+        for i in range(rows):
+            self.removeRow(rows)
+
+        for row in hidden_rows:
+            self.setRowHidden(row, True)
+
+# Function with the menu configuration
+    def contextMenuEvent(self, event):
+        """
+        Handles the context menu event for the table. Shows a menu for filtering unique values when the header is right-clicked.
+
+        Args:
+            event (QEvent): The event triggered by the context menu action.
+        """
+        if self.horizontalHeader().visualIndexAt(event.pos().x()) >= 0:
+            logical_index = self.horizontalHeader().logicalIndexAt(event.pos().x())
+            header_pos = self.mapToGlobal(self.horizontalHeader().pos())
+            header_height = self.horizontalHeader().height()
+            self.show_unique_values_menu(logical_index, header_pos, header_height)
+        else:
+            super().contextMenuEvent(event)
+
 
 class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
     """
@@ -117,11 +502,11 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.setObjectName("gridLayout_2")
         spacerItem2 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.gridLayout_2.addItem(spacerItem2, 0, 0, 1, 2)
-        self.tableReclamation = QtWidgets.QTableWidget(parent=self.frame)
+        self.tableReclamation = CustomTableWidget()
         self.tableReclamation.setObjectName("tableWidget")
-        self.tableReclamation.setColumnCount(13)
+        self.tableReclamation.setColumnCount(14)
         self.tableReclamation.setRowCount(0)
-        for i in range(13):
+        for i in range(14):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -153,7 +538,7 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         ReclamationOffer_Window.setStatusBar(self.statusbar)
         self.tableReclamation.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
         self.tableReclamation.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        self.tableReclamation.setSortingEnabled(True)
+        self.tableReclamation.setSortingEnabled(False)
         self.tableReclamation.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid black;}")
         ReclamationOffer_Window.setWindowFlag(QtCore.Qt.WindowType.WindowCloseButtonHint, False)
 
@@ -176,28 +561,30 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         item = self.tableReclamation.horizontalHeaderItem(0)
         item.setText(_translate("ReclamationOffer_Window", "Nº Oferta"))
         item = self.tableReclamation.horizontalHeaderItem(1)
-        item.setText(_translate("ReclamationOffer_Window", "Fecha Presentación"))
+        item.setText(_translate("ReclamationOffer_Window", "Responsable"))
         item = self.tableReclamation.horizontalHeaderItem(2)
-        item.setText(_translate("ReclamationOffer_Window", "Última Actualización"))
+        item.setText(_translate("ReclamationOffer_Window", "Fecha Presentación"))
         item = self.tableReclamation.horizontalHeaderItem(3)
-        item.setText(_translate("ReclamationOffer_Window", "Días Dif. Pres. - Act."))
+        item.setText(_translate("ReclamationOffer_Window", "Última Actualización"))
         item = self.tableReclamation.horizontalHeaderItem(4)
-        item.setText(_translate("ReclamationOffer_Window", "Última Reclamación"))
+        item.setText(_translate("ReclamationOffer_Window", "Días Dif. Pres. - Act."))
         item = self.tableReclamation.horizontalHeaderItem(5)
-        item.setText(_translate("ReclamationOffer_Window", "Días Última Rec."))
+        item.setText(_translate("ReclamationOffer_Window", "Última Reclamación"))
         item = self.tableReclamation.horizontalHeaderItem(6)
-        item.setText(_translate("ReclamationOffer_Window", "Tipo Rec."))
+        item.setText(_translate("ReclamationOffer_Window", "Días Última Rec."))
         item = self.tableReclamation.horizontalHeaderItem(7)
-        item.setText(_translate("ReclamationOffer_Window", "Seguimiento"))
+        item.setText(_translate("ReclamationOffer_Window", "Tipo Rec."))
         item = self.tableReclamation.horizontalHeaderItem(8)
-        item.setText(_translate("ReclamationOffer_Window", "Veces Reclamado"))
+        item.setText(_translate("ReclamationOffer_Window", "Seguimiento"))
         item = self.tableReclamation.horizontalHeaderItem(9)
-        item.setText(_translate("ReclamationOffer_Window", "Mails"))
+        item.setText(_translate("ReclamationOffer_Window", "Veces Reclamado"))
         item = self.tableReclamation.horizontalHeaderItem(10)
-        item.setText(_translate("ReclamationOffer_Window", "Rec. 1"))
+        item.setText(_translate("ReclamationOffer_Window", "Mails"))
         item = self.tableReclamation.horizontalHeaderItem(11)
-        item.setText(_translate("ReclamationOffer_Window", "Rec. 2"))
+        item.setText(_translate("ReclamationOffer_Window", "Rec. 1"))
         item = self.tableReclamation.horizontalHeaderItem(12)
+        item.setText(_translate("ReclamationOffer_Window", "Rec. 2"))
+        item = self.tableReclamation.horizontalHeaderItem(13)
         item.setText(_translate("ReclamationOffer_Window", "Rec. 3"))
         self.Button_Cancel.setText(_translate("ReclamationOffer_Window", "Salir"))
         self.Button_Send.setText(_translate("ReclamationOffer_Window", "Reclamar"))
@@ -214,7 +601,7 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                         FROM users_data.initials
                         """)
         commands_queryrecoffer = ("""
-                        SELECT offers."num_offer",TO_CHAR(offers."presentation_date", 'DD-MM-YYYY'),TO_CHAR(offers."last_update", 'DD-MM-YYYY'),
+                        SELECT offers."num_offer",offers."responsible",TO_CHAR(offers."presentation_date", 'DD-MM-YYYY'),TO_CHAR(offers."last_update", 'DD-MM-YYYY'),
                         (offers."last_update" - offers."presentation_date") AS "difference_update", TO_CHAR(offers."last_rec", 'DD-MM-YYYY'),
                         (current_date - offers."last_rec") AS "difference_rec", offers."type_rec",offers."tracking",offers."rec_times", offers."mails"
                         FROM offers
@@ -228,7 +615,7 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
                         """)
         
         commands_queryrecoffer_coordinator = ("""
-                        SELECT offers."num_offer",TO_CHAR(offers."presentation_date", 'DD-MM-YYYY'),TO_CHAR(offers."last_update", 'DD-MM-YYYY'),
+                        SELECT offers."num_offer",offers."responsible",TO_CHAR(offers."presentation_date", 'DD-MM-YYYY'),TO_CHAR(offers."last_update", 'DD-MM-YYYY'),
                         (offers."last_update" - offers."presentation_date") AS "difference_update", TO_CHAR(offers."last_rec", 'DD-MM-YYYY'),
                         (current_date - offers."last_rec") AS "difference_rec", offers."type_rec",offers."tracking",offers."rec_times", offers."mails"
                         FROM offers
@@ -267,8 +654,8 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(13):
-                    if column in [10,11,12]:
+                for column in range(14):
+                    if column in [11,12,13]:
                         radio_button = QtWidgets.QCheckBox()
                         self.tableReclamation.setCellWidget(tablerow, column, radio_button)
                     else:
@@ -284,8 +671,17 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
             self.tableReclamation.verticalHeader().hide()
             self.tableReclamation.setItemDelegate(AlignDelegate(self.tableReclamation))
             self.tableReclamation.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
-            self.tableReclamation.horizontalHeader().setSectionResizeMode(7, QtWidgets.QHeaderView.ResizeMode.Interactive)
-            self.tableReclamation.horizontalHeader().setSectionResizeMode(9, QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableReclamation.horizontalHeader().setDefaultSectionSize(150)
+            self.tableReclamation.horizontalHeader().setSectionResizeMode(8, QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableReclamation.horizontalHeader().setSectionResizeMode(10, QtWidgets.QHeaderView.ResizeMode.Interactive)
+            self.tableReclamation.horizontalHeader().setSectionResizeMode(11, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableReclamation.horizontalHeader().setSectionResizeMode(12, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableReclamation.horizontalHeader().setSectionResizeMode(13, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+
+            self.tableReclamation.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
+
+            if self.username != 'l.bravo':
+                self.tableReclamation.hideColumn(1)
 
         except (Exception, psycopg2.DatabaseError) as error:
             dlg = QtWidgets.QMessageBox()
@@ -331,9 +727,9 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
         for row in range(self.tableReclamation.rowCount()):
             offer = self.tableReclamation.item(row, 0).text()
             reclamation = None
-            checkbox1  = self.tableReclamation.cellWidget(row, 10)
-            checkbox2  = self.tableReclamation.cellWidget(row, 11)
-            checkbox3  = self.tableReclamation.cellWidget(row, 12)
+            checkbox1  = self.tableReclamation.cellWidget(row, 11)
+            checkbox2  = self.tableReclamation.cellWidget(row, 12)
+            checkbox3  = self.tableReclamation.cellWidget(row, 13)
 
             if checkbox1 and checkbox1.isChecked():
                 reclamation = 'Rec1'
@@ -526,10 +922,20 @@ class Ui_ReclamationOffer_Window(QtWidgets.QMainWindow):
             dlg.setText(cell_content)
             dlg.exec()
 
+# Function when clicking on table ¡ header
+    def on_header_section_clicked(self, logical_index):
+        """
+        Handles the click event on the table header.
+        Displays a context menu for unique values in the clicked column header.
+        """
+        header_pos = self.tableReclamation.horizontalHeader().sectionViewportPosition(logical_index)
+        header_height = self.tableReclamation.horizontalHeader().height()
+        popup_pos = self.tableReclamation.viewport().mapToGlobal(QtCore.QPoint(header_pos, header_height))
+        self.tableReclamation.show_unique_values_menu(logical_index, popup_pos, header_height)
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    ReclamationOffer_Window = Ui_ReclamationOffer_Window('Luis Bravo', 'l.bravo')
+    ReclamationOffer_Window = Ui_ReclamationOffer_Window('Luis Bravo', 's.sanz')
     ReclamationOffer_Window.show()
     sys.exit(app.exec())
