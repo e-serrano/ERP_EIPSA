@@ -645,6 +645,7 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
         query_material = ("""
                         SELECT tags."tag", tags."num_offer", tags."num_order", offers."client", tags."amount",
                         tags."item_type", tags."model_num", tags."body_material", tags."cc_length", tags."conn_type",
+                        tags."proc_conn_size" || ' ' || tags."proc_conn_rating" || ' ' || tags."proc_conn_facing",
                         tags."dwg_num_doc_eipsa", tags."dim_drawing", tags."of_drawing"
                         FROM tags_data.tags_level AS tags
                         JOIN offers ON (offers."num_offer" = tags."num_offer")
@@ -667,12 +668,12 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
             conn.commit()
 
             self.tableTags.setRowCount(len(results))
-            self.tableTags.setColumnCount(13)
+            self.tableTags.setColumnCount(14)
             tablerow=0
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(13):
+                for column in range(14):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -682,7 +683,7 @@ class Ui_TAGQueryLevel_Window(QtWidgets.QMainWindow):
 
                 tablerow+=1
 
-            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Cliente', 'Precio', 'Tipo', 'Modelo', 'Material', 'C-C', 'Tipo Conex.', 'Nº Doc. Plano', 'Nº Plano Dim.', 'Nº Plano OF']
+            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Cliente', 'Precio', 'Tipo', 'Modelo', 'Material', 'C-C', 'Tipo Conex.', 'Conexión', 'Nº Doc. Plano', 'Nº Plano Dim.', 'Nº Plano OF']
             
             self.tableTags.verticalHeader().hide()
             self.tableTags.setItemDelegate(AlignDelegate(self.tableTags))
