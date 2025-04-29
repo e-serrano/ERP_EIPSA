@@ -1205,6 +1205,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
 
         self.backup_data()
         # self.warning_calibration()
+        self.visual_certificate_check()
         self.load_notifications()
 
 
@@ -1938,6 +1939,92 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
 
         self.certificates_window = Ui_Workshop_Staff_Certificates_Window(db_certificates, self.username)
         self.certificates_window.showMaximized()
+
+# Function to check visual certificates dates and notify if applies
+    def visual_certificate_check(self):
+        commands_check_snt = ("""
+                        SELECT date_lp_1
+                        FROM verification.staff_certificates
+                        ORDER BY date_lp_1 ASC
+                        """)
+
+        commands_notify_snt = ("""
+                        UPDATE verification.staff_certificates
+                        SET state = 'Pendiente'
+                        WHERE message LIKE '%SNT%'
+                        """)
+
+        commands_check_iso = ("""
+                        SELECT date_lp_2
+                        FROM verification.staff_certificates
+                        ORDER BY date_lp_2 ASC
+                        """)
+
+        commands_notify_iso = ("""
+                        UPDATE verification.staff_certificates
+                        SET state = 'Pendiente'
+                        WHERE message LIKE '%ISO%'
+                        """)
+
+        commands_check_visual = ("""
+                        SELECT date_lp_3
+                        FROM verification.staff_certificates
+                        ORDER BY date_lp_3 ASC
+                        """)
+
+        commands_notify_visual = ("""
+                        UPDATE verification.staff_certificates
+                        SET state = 'Pendiente'
+                        WHERE message LIKE '%visual%'
+                        """)
+
+        conn = None
+        try:
+            # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands one by one
+            cur.execute(commands_check_snt)
+            results_snt = cur.fetchall()
+            for item in results_snt:
+                if item[0] < date.today() - timedelta(days=30):
+                    cur.execute(commands_notify_snt, (item[0],))
+
+            cur.execute(commands_check_iso)
+            results_iso = cur.fetchall()
+            for item in results_iso:
+                if item[0] < date.today() - timedelta(days=60):
+                    cur.execute(commands_notify_iso, (item[0],))
+
+            cur.execute(commands_check_visual)
+            results_visual = cur.fetchall()
+            for item in results_visual:
+                if item[0] < date.today() - timedelta(days=30):
+                    cur.execute(commands_notify_visual, (item[0],))
+
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            print(error)
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+
 
 
 if __name__ == "__main__":
