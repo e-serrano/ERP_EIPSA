@@ -1949,7 +1949,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                         """)
 
         commands_notify_snt = ("""
-                        UPDATE verification.staff_certificates
+                        UPDATE notifications.notifications_others
                         SET state = 'Pendiente'
                         WHERE message LIKE '%SNT%'
                         """)
@@ -1961,19 +1961,19 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
                         """)
 
         commands_notify_iso = ("""
-                        UPDATE verification.staff_certificates
+                        UPDATE notifications.notifications_others
                         SET state = 'Pendiente'
                         WHERE message LIKE '%ISO%'
                         """)
 
         commands_check_visual = ("""
-                        SELECT date_lp_3
+                        SELECT date_visual
                         FROM verification.staff_certificates
-                        ORDER BY date_lp_3 ASC
+                        ORDER BY date_visual ASC
                         """)
 
         commands_notify_visual = ("""
-                        UPDATE verification.staff_certificates
+                        UPDATE notifications.notifications_others
                         SET state = 'Pendiente'
                         WHERE message LIKE '%visual%'
                         """)
@@ -1988,21 +1988,18 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         # execution of commands one by one
             cur.execute(commands_check_snt)
             results_snt = cur.fetchall()
-            for item in results_snt:
-                if item[0] < date.today() - timedelta(days=30):
-                    cur.execute(commands_notify_snt, (item[0],))
+            if results_snt[0][0] < date.today() - timedelta(days=30):
+                cur.execute(commands_notify_snt)
 
             cur.execute(commands_check_iso)
             results_iso = cur.fetchall()
-            for item in results_iso:
-                if item[0] < date.today() - timedelta(days=60):
-                    cur.execute(commands_notify_iso, (item[0],))
+            if results_iso[0][0] < date.today() - timedelta(days=60):
+                cur.execute(commands_notify_iso)
 
             cur.execute(commands_check_visual)
             results_visual = cur.fetchall()
-            for item in results_visual:
-                if item[0] < date.today() - timedelta(days=30):
-                    cur.execute(commands_notify_visual, (item[0],))
+            if results_visual[0][0] < date.today() - timedelta(days=40):
+                cur.execute(commands_notify_visual)
 
         # close communication with the PostgreSQL database server
             cur.close()
