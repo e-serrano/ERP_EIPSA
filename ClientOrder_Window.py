@@ -3020,20 +3020,20 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
 
             selected_indexes = self.tableRecord.selectedIndexes()
             if selected_indexes:
-                for index in selected_indexes:
-                    row_index = index.row()
-                    commands_deliv1_header = ("""
-                                UPDATE purch_fact.client_ord_header
-                                SET "deliv_date_1" = %s, "deliv_note_1" = %s
-                                WHERE "id" = %s
-                                """)
-                    commands_deliv1_detail = ("""
-                                UPDATE purch_fact.client_ord_detail
-                                SET "deliv_date_1" = %s, "deliv_note_1" = %s
-                                WHERE "client_ord_header_id" = %s
-                                """)
-                    conn = None
-                    try:
+                try:
+                    for index in selected_indexes:
+                        row_index = index.row()
+                        commands_deliv1_header = ("""
+                                    UPDATE purch_fact.client_ord_header
+                                    SET "deliv_date_1" = %s, "deliv_note_1" = %s
+                                    WHERE "id" = %s
+                                    """)
+                        commands_deliv1_detail = ("""
+                                    UPDATE purch_fact.client_ord_detail
+                                    SET "deliv_date_1" = %s, "deliv_note_1" = %s
+                                    WHERE "client_ord_header_id" = %s
+                                    """)
+                        conn = None
                     # read the connection parameters
                         params = config()
                     # connect to the PostgreSQL server
@@ -3093,31 +3093,31 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                         # self.root.deiconify()
                         # self.root.destroy()
 
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Añadir 1ª entrega")
-                        dlg.setText("1ª entrega añadida con éxito")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg,new_icon
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Añadir 1ª entrega")
+                    dlg.setText("1ª entrega añadida con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg,new_icon
 
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        print(error)
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
-                    finally:
-                        if conn is not None:
-                            conn.close()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    print(error)
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
 
                 self.loadtablerecords()
                 self.loadstocks()
@@ -3206,20 +3206,20 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
 
             selected_indexes = self.tableRecord.selectedIndexes()
             if selected_indexes:
-                for index in selected_indexes:
-                    row_index = index.row()
-                    commands_deliv2_header = ("""
-                                UPDATE purch_fact.client_ord_header
-                                SET "deliv_date_2" = %s, "deliv_note_2" = %s
-                                WHERE "id" = %s
-                                """)
-                    commands_deliv2_detail = ("""
-                                UPDATE purch_fact.client_ord_detail
-                                SET "deliv_date_2" = %s, "deliv_note_2" = %s
-                                WHERE "client_ord_header_id" = %s
-                                """)
-                    conn = None
-                    try:
+                try:
+                    for index in selected_indexes:
+                        row_index = index.row()
+                        commands_deliv2_header = ("""
+                                    UPDATE purch_fact.client_ord_header
+                                    SET "deliv_date_2" = %s, "deliv_note_2" = %s
+                                    WHERE "id" = %s
+                                    """)
+                        commands_deliv2_detail = ("""
+                                    UPDATE purch_fact.client_ord_detail
+                                    SET "deliv_date_2" = %s, "deliv_note_2" = %s
+                                    WHERE "client_ord_header_id" = %s
+                                    """)
+                        conn = None
                     # read the connection parameters
                         params = config()
                     # connect to the PostgreSQL server
@@ -3279,30 +3279,30 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                         # self.root.deiconify()
                         # self.root.destroy()
 
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Añadir 2ª entrega")
-                        dlg.setText("2ª entrega añadida con éxito")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg,new_icon
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Añadir 2ª entrega")
+                    dlg.setText("2ª entrega añadida con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg,new_icon
 
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
-                    finally:
-                        if conn is not None:
-                            conn.close()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
 
                 self.loadtablerecords()
                 self.loadstocks()
@@ -3391,20 +3391,20 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
 
             selected_indexes = self.tableRecord.selectedIndexes()
             if selected_indexes:
-                for index in selected_indexes:
-                    row_index = index.row()
-                    commands_deliv3_header = ("""
-                                UPDATE purch_fact.client_ord_header
-                                SET "deliv_date_3" = %s, "deliv_note_3" = %s
-                                WHERE "id" = %s
-                                """)
-                    commands_deliv3_detail = ("""
-                                UPDATE purch_fact.client_ord_detail
-                                SET "deliv_date_3" = %s, "deliv_note_3" = %s
-                                WHERE "client_ord_header_id" = %s
-                                """)
-                    conn = None
-                    try:
+                try:
+                    for index in selected_indexes:
+                        row_index = index.row()
+                        commands_deliv3_header = ("""
+                                    UPDATE purch_fact.client_ord_header
+                                    SET "deliv_date_3" = %s, "deliv_note_3" = %s
+                                    WHERE "id" = %s
+                                    """)
+                        commands_deliv3_detail = ("""
+                                    UPDATE purch_fact.client_ord_detail
+                                    SET "deliv_date_3" = %s, "deliv_note_3" = %s
+                                    WHERE "client_ord_header_id" = %s
+                                    """)
+                        conn = None
                     # read the connection parameters
                         params = config()
                     # connect to the PostgreSQL server
@@ -3464,30 +3464,30 @@ class Ui_ClientOrder_Window(QtWidgets.QMainWindow):
                         # self.root.deiconify()
                         # self.root.destroy()
 
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("Añadir 3ª entrega")
-                        dlg.setText("3ª entrega añadida con éxito")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg,new_icon
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Añadir 3ª entrega")
+                    dlg.setText("3ª entrega añadida con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg,new_icon
 
-                    except (Exception, psycopg2.DatabaseError) as error:
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                    + str(error))
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                        dlg.exec()
-                        del dlg, new_icon
-                    finally:
-                        if conn is not None:
-                            conn.close()
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
 
                 self.loadtablerecords()
                 self.loadstocks()

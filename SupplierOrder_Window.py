@@ -3058,46 +3058,37 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 if conn is not None:
                     conn.close()
 
-            if all(element is not None for element in results_check):
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Añadir 1ª entrega")
-                dlg.setText("Ya existe una 1ª entrega para el pedido seleccionado")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg,new_icon
-
-            else:
-                commands_deliv1_header = ("""
-                            UPDATE purch_fact.supplier_ord_header
-                            SET "deliv_date_1" = %s, "deliv_note_1" = %s
-                            WHERE "id" = %s
-                            """)
-                commands_deliv1_detail = ("""
-                            UPDATE purch_fact.supplier_ord_detail
-                            SET "deliv_date_1" = %s, "deliv_note_1" = %s
-                            WHERE "supplier_ord_header_id" = %s
-                            """)
-                conn = None
+            selected_indexes = self.tableRecords.selectedIndexes()
+            if selected_indexes:
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of principal command
-                    data=(date,note,order_id,)
-                    cur.execute(commands_deliv1_header, data)
-                    cur.execute(commands_deliv1_detail, data)
+                    for index in selected_indexes:
+                        row_index = index.row()
+                        commands_deliv1_header = ("""
+                                    UPDATE purch_fact.supplier_ord_header
+                                    SET "deliv_date_1" = %s, "deliv_note_1" = %s
+                                    WHERE "id" = %s
+                                    """)
+                        commands_deliv1_detail = ("""
+                                    UPDATE purch_fact.supplier_ord_detail
+                                    SET "deliv_date_1" = %s, "deliv_note_1" = %s
+                                    WHERE "supplier_ord_header_id" = %s
+                                    """)
+                        conn = None
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of principal command
+                        data=(date,note,order_id,)
+                        cur.execute(commands_deliv1_header, data)
+                        cur.execute(commands_deliv1_detail, data)
 
-                    for row in range(self.tableRecords.rowCount()):
-                        record_id = self.tableRecords.item(row, 0).text()
-                        supply_name = self.tableRecords.item(row, 2).text()
-                        supply_description = self.tableRecords.item(row, 3).text()
-                        supply_id = self.tableRecords.item(row, 12).text()
-                        quant_1 = self.tableRecords.item(row, 8).text()
+                        record_id = self.tableRecords.item(row_index, 0).text()
+                        supply_name = self.tableRecords.item(row_index, 2).text()
+                        supply_description = self.tableRecords.item(row_index, 3).text()
+                        supply_id = self.tableRecords.item(row_index, 12).text()
+                        quant_1 = self.tableRecords.item(row_index, 8).text()
 
                         commands_add_deliv_quant_1 = ("""
                                                         UPDATE purch_fact.supplier_ord_detail
@@ -3124,13 +3115,13 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         new_pending_stock = str(float(pending_stock) - float(quant_1))
                         new_available_stock = str(float(available_stock) + float(quant_1))
                         cur.execute(query_updatestock, (new_stock, new_pending_stock, new_available_stock, supply_id,))
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
 
-                    # self.root.deiconify()
-                    # self.root.destroy()
+                        # self.root.deiconify()
+                        # self.root.destroy()
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
@@ -3242,46 +3233,37 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 if conn is not None:
                     conn.close()
 
-            if all(element is not None for element in results_check):
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Añadir 2ª entrega")
-                dlg.setText("Ya existe una 2ª entrega para el pedido seleccionado")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg,new_icon
-
-            else:
-                commands_deliv2_header = ("""
-                            UPDATE purch_fact.supplier_ord_header
-                            SET "deliv_date_2" = %s, "deliv_note_2" = %s
-                            WHERE "id" = %s
-                            """)
-                commands_deliv2_detail = ("""
-                            UPDATE purch_fact.supplier_ord_detail
-                            SET "deliv_date_2" = %s, "deliv_note_2" = %s
-                            WHERE "supplier_ord_header_id" = %s
-                            """)
-                conn = None
+            selected_indexes = self.tableRecords.selectedIndexes()
+            if selected_indexes:
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of principal command
-                    data=(date,note,order_id,)
-                    cur.execute(commands_deliv2_header, data)
-                    cur.execute(commands_deliv2_detail, data)
+                    for index in selected_indexes:
+                        row_index = index.row()
+                        commands_deliv2_header = ("""
+                                    UPDATE purch_fact.supplier_ord_header
+                                    SET "deliv_date_2" = %s, "deliv_note_2" = %s
+                                    WHERE "id" = %s
+                                    """)
+                        commands_deliv2_detail = ("""
+                                    UPDATE purch_fact.supplier_ord_detail
+                                    SET "deliv_date_2" = %s, "deliv_note_2" = %s
+                                    WHERE "supplier_ord_header_id" = %s
+                                    """)
+                        conn = None
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of principal command
+                        data=(date,note,order_id,)
+                        cur.execute(commands_deliv2_header, data)
+                        cur.execute(commands_deliv2_detail, data)
 
-                    for row in range(self.tableRecords.rowCount()):
-                        record_id = self.tableRecords.item(row, 0).text()
-                        supply_name = self.tableRecords.item(row, 2).text()
-                        supply_description = self.tableRecords.item(row, 3).text()
-                        supply_id = self.tableRecords.item(row, 12).text()
-                        quant_2 = self.tableRecords.item(row, 8).text()
+                        record_id = self.tableRecords.item(row_index, 0).text()
+                        supply_name = self.tableRecords.item(row_index, 2).text()
+                        supply_description = self.tableRecords.item(row_index, 3).text()
+                        supply_id = self.tableRecords.item(row_index, 12).text()
+                        quant_2 = self.tableRecords.item(row_index, 8).text()
 
                         commands_add_deliv_quant_2 = ("""
                                                     UPDATE purch_fact.supplier_ord_detail
@@ -3308,13 +3290,13 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         new_pending_stock = str(float(pending_stock) - float(quant_2))
                         new_available_stock = str(float(available_stock) + float(quant_2))
                         cur.execute(query_updatestock, (new_stock, new_pending_stock, new_available_stock, supply_id,))
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
 
-                    # self.root.deiconify()
-                    # self.root.destroy()
+                        # self.root.deiconify()
+                        # self.root.destroy()
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
@@ -3427,46 +3409,38 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 if conn is not None:
                     conn.close()
 
-            if all(element is not None for element in results_check):
-                dlg = QtWidgets.QMessageBox()
-                new_icon = QtGui.QIcon()
-                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                dlg.setWindowIcon(new_icon)
-                dlg.setWindowTitle("Añadir 3ª entrega")
-                dlg.setText("Ya existe una 3ª entrega para el pedido seleccionado")
-                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                dlg.exec()
-                del dlg,new_icon
-
-            else:
-                commands_deliv3_header = ("""
-                            UPDATE purch_fact.supplier_ord_header
-                            SET "deliv_date_3" = %s, "deliv_note_3" = %s
-                            WHERE "id" = %s
-                            """)
-                commands_deliv3_detail = ("""
-                            UPDATE purch_fact.supplier_ord_detail
-                            SET "deliv_date_3" = %s, "deliv_note_3" = %s
-                            WHERE "supplier_ord_header_id" = %s
-                            """)
-                conn = None
+            selected_indexes = self.tableRecords.selectedIndexes()
+            if selected_indexes:
                 try:
-                # read the connection parameters
-                    params = config()
-                # connect to the PostgreSQL server
-                    conn = psycopg2.connect(**params)
-                    cur = conn.cursor()
-                # execution of principal command
-                    data=(date,note,order_id,)
-                    cur.execute(commands_deliv3_header, data)
-                    cur.execute(commands_deliv3_detail, data)
+                    for index in selected_indexes:
+                        row_index = index.row()
+                        commands_deliv3_header = ("""
+                                    UPDATE purch_fact.supplier_ord_header
+                                    SET "deliv_date_3" = %s, "deliv_note_3" = %s
+                                    WHERE "id" = %s
+                                    """)
+                        commands_deliv3_detail = ("""
+                                    UPDATE purch_fact.supplier_ord_detail
+                                    SET "deliv_date_3" = %s, "deliv_note_3" = %s
+                                    WHERE "supplier_ord_header_id" = %s
+                                    """)
+                        conn = None
+                    
+                    # read the connection parameters
+                        params = config()
+                    # connect to the PostgreSQL server
+                        conn = psycopg2.connect(**params)
+                        cur = conn.cursor()
+                    # execution of principal command
+                        data=(date,note,order_id,)
+                        cur.execute(commands_deliv3_header, data)
+                        cur.execute(commands_deliv3_detail, data)
 
-                    for row in range(self.tableRecords.rowCount()):
-                        record_id = self.tableRecords.item(row, 0).text()
-                        supply_name = self.tableRecords.item(row, 2).text()
-                        supply_description = self.tableRecords.item(row, 3).text()
-                        supply_id = self.tableRecords.item(row, 12).text()
-                        quant_3 = self.tableRecords.item(row, 8).text()
+                        record_id = self.tableRecords.item(row_index, 0).text()
+                        supply_name = self.tableRecords.item(row_index, 2).text()
+                        supply_description = self.tableRecords.item(row_index, 3).text()
+                        supply_id = self.tableRecords.item(row_index, 12).text()
+                        quant_3 = self.tableRecords.item(row_index, 8).text()
 
                         commands_add_deliv_quant_3 = ("""
                             UPDATE purch_fact.supplier_ord_detail
@@ -3493,13 +3467,13 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                         new_pending_stock = str(float(pending_stock) - float(quant_3))
                         new_available_stock = str(float(available_stock) + float(quant_3))
                         cur.execute(query_updatestock, (new_stock, new_pending_stock, new_available_stock, supply_id,))
-                # close communication with the PostgreSQL database server
-                    cur.close()
-                # commit the changes
-                    conn.commit()
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
 
-                    # self.root.deiconify()
-                    # self.root.destroy()
+                        # self.root.deiconify()
+                        # self.root.destroy()
 
                     dlg = QtWidgets.QMessageBox()
                     new_icon = QtGui.QIcon()
