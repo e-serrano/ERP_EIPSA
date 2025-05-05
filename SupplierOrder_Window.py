@@ -3688,6 +3688,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 x_position = pdf.get_x()
                 y_position = pdf.get_y()
                 pdf.multi_cell(6.1, 0.4, description_text, align='L')
+                lines = pdf.get_multicell_height(6.1, description_text)
                 pdf.set_y(y_position)
                 pdf.set_x(x_position + 6.1)
                 pdf.cell(0.2, 0.53, "")
@@ -3699,7 +3700,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 pdf.cell(0.2, 0.53, "")
                 pdf.set_font('DejaVuSansCondensed', size=9)
                 pdf.cell(2.05, 0.53, currency_total, align='R')
-                pdf.ln(1.3)
+                pdf.ln(lines + 0.1)
 
             currency_totalorder=float(total_order[:total_order.find(" €")].replace(".","").replace(",","."))
             currency_totalorder=currency_totalorder
