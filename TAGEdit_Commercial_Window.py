@@ -1338,10 +1338,10 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.variable2 = None
     
         self.model.dataChanged.disconnect(self.saveChanges)
-        numorder = self.Numorder_EditTags.text()
+        self.numorder = self.Numorder_EditTags.text()
         numoffer = self.Numoffer_EditTags.text()
 
-        if numoffer=="" and numorder=="":
+        if numoffer=="" and self.numorder=="":
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -1354,7 +1354,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             self.model.dataChanged.connect(self.saveChanges)
 
         elif numoffer=="":
-            if not re.match(r'^(P|PA|p|pa)-\d{2}/\d{3}.*$', numorder):
+            if not re.match(r'^(P|PA|p|pa)-\d{2}/\d{3}.*$', self.numorder):
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -1383,7 +1383,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    cur.execute(query,(numorder,))
+                    cur.execute(query,(self.numorder,))
                     results_variable=cur.fetchone()
                     self.variable = results_variable[1] if results_variable != None else ''
                 # close communication with the PostgreSQL database server
@@ -1446,13 +1446,13 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         conn = psycopg2.connect(**params)
                         cur = conn.cursor()
                     # execution of commands
-                        cur.execute(query_flow,(numorder,))
+                        cur.execute(query_flow,(self.numorder,))
                         results_flow=cur.fetchall()
-                        cur.execute(query_temp,(numorder,))
+                        cur.execute(query_temp,(self.numorder,))
                         results_temp=cur.fetchall()
-                        cur.execute(query_level,(numorder,))
+                        cur.execute(query_level,(self.numorder,))
                         results_level=cur.fetchall()
-                        cur.execute(query_others,(numorder,))
+                        cur.execute(query_others,(self.numorder,))
                         results_others=cur.fetchall()
 
                         if len(results_flow) != 0 and len(results_temp) != 0:
@@ -1531,10 +1531,10 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.model.table_check = "tags_data.tags_others"
                         self.initial_column = 15
                         self.column_difference = 60
-                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{numorder.upper()}%'")
-                    self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{numorder.upper()}%'")
+                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
+                    self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
 
-        elif numorder=="":
+        elif self.numorder=="":
             query = ('''
                     SELECT num_offer, product_type."variable"
                     FROM offers
@@ -1702,7 +1702,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 self.model2.setFilter(f"num_offer <> '' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
 
         else:
-            if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', numorder.upper()):
+            if not re.match(r'^(P|PA)-\d{2}/\d{3}.*$', self.numorder.upper()):
                 dlg = QtWidgets.QMessageBox()
                 new_icon = QtGui.QIcon()
                 new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -1878,8 +1878,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                         self.model.table_check = "tags_data.tags_others"
                         self.initial_column = 15
                         self.column_difference = 60
-                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{numorder.upper()}%' AND num_offer <>'' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
-                    self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{numorder.upper()}%' AND num_offer <>'' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
+                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND num_offer <>'' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
+                    self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND num_offer <>'' AND UPPER(num_offer) LIKE '%{numoffer.upper()}%'")
 
         if self.variable != '':
             self.tableEditTags.setModel(None)
