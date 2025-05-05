@@ -588,7 +588,7 @@ class Ui_QueryOfferReceived_Window(QtWidgets.QMainWindow):
         item = self.tableQueryOffer.horizontalHeaderItem(4)
         item.setText(_translate("QueryOfferReceived_Window", "Cliente"))
         item = self.tableQueryOffer.horizontalHeaderItem(5)
-        item.setText(_translate("QueryOfferReceived_Window", "Cliente Final"))
+        item.setText(_translate("QueryOfferReceived_Window", "Cl. Final / Planta"))
         item = self.tableQueryOffer.horizontalHeaderItem(6)
         item.setText(_translate("QueryOfferReceived_Window", "Material"))
         item = self.tableQueryOffer.horizontalHeaderItem(7)

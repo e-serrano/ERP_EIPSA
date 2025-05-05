@@ -426,7 +426,7 @@ class Ui_Edit_OfferRec_Window(object):
         Edit_OfferReceived.setWindowTitle(_translate("Edit_OfferReceived", "Editar Oferta"))
         self.label_Description.setText(_translate("Edit_OfferReceived", "Descripción:"))
         self.label_Client.setText(_translate("Edit_OfferReceived", "Cliente:"))
-        self.label_FinalClient.setText(_translate("Edit_OfferReceived", "Cliente Final:"))
+        self.label_FinalClient.setText(_translate("Edit_OfferReceived", "Cl. Final / Planta:"))
         self.label_NumRef.setText(_translate("Edit_OfferReceived", "Nº Referencia:"))
         self.label_RecepDate.setText(_translate("Edit_OfferReceived", "Fecha Recep.:"))
         self.label_LimitDate.setText(_translate("Edit_OfferReceived", "Fecha Límite:"))

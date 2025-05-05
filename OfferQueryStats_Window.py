@@ -669,7 +669,7 @@ class Ui_QueryOfferStats_Window(QtWidgets.QMainWindow):
         item = self.tableQueryOffer.horizontalHeaderItem(5)
         item.setText(_translate("QueryOfferStats_Window", "Cliente"))
         item = self.tableQueryOffer.horizontalHeaderItem(6)
-        item.setText(_translate("QueryOfferStats_Window", "Cliente Final"))
+        item.setText(_translate("QueryOfferStats_Window", "Cl. Final / Planta"))
         item = self.tableQueryOffer.horizontalHeaderItem(7)
         item.setText(_translate("QueryOfferStats_Window", "Proyecto"))
         item = self.tableQueryOffer.horizontalHeaderItem(8)

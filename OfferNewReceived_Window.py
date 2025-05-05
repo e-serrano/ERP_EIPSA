@@ -387,7 +387,7 @@ class Ui_New_OfferReceived_Window(object):
         New_OfferReceived.setWindowTitle(_translate("New_OfferReceived", "Nueva Oferta"))
         self.label_Description.setText(_translate("New_OfferReceived", "Descripción:"))
         self.label_Client.setText(_translate("New_OfferReceived", "Cliente:"))
-        self.label_FinalClient.setText(_translate("New_OfferReceived", "Cliente Final:"))
+        self.label_FinalClient.setText(_translate("New_OfferReceived", "Cl. Final / Planta:"))
         self.label_NumRef.setText(_translate("New_OfferReceived", "Nº Referencia:"))
         self.label_RecepDate.setText(_translate("New_OfferReceived", "Fecha Recep.:"))
         self.label_LimitDate.setText(_translate("New_OfferReceived", "Fecha Límite:"))

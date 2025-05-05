@@ -623,7 +623,7 @@ class Ui_New_Offer_Window(object):
         New_Offer.setWindowTitle(_translate("New_Offer", "Nueva Oferta"))
         self.label_NumOffer.setText(_translate("New_Offer", "*Nº Oferta:"))
         self.label_Client.setText(_translate("New_Offer", "*Cliente:"))
-        self.label_FinalClient.setText(_translate("New_Offer", "Cliente Final:"))
+        self.label_FinalClient.setText(_translate("New_Offer", "Cl. Final / Planta:"))
         self.label_NumRef.setText(_translate("New_Offer", "*Nº Referencia:"))
         self.label_NacExt.setText(_translate("New_Offer", "Nacional/Exterior:"))
         self.label_RecepDate.setText(_translate("New_Offer", "*Fecha Recep.:"))

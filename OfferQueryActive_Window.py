@@ -583,7 +583,7 @@ class Ui_OfferQueryActive_Window(QtWidgets.QMainWindow):
         item = self.tableOffer.horizontalHeaderItem(3)
         item.setText(_translate("OfferQueryActive_Window", "Cliente"))
         item = self.tableOffer.horizontalHeaderItem(4)
-        item.setText(_translate("OfferQueryActive_Window", "Cliente Final"))
+        item.setText(_translate("OfferQueryActive_Window", "Cl. Final / Planta"))
         item = self.tableOffer.horizontalHeaderItem(5)
         item.setText(_translate("OfferQueryActive_Window", "Fecha Pres."))
         item = self.tableOffer.horizontalHeaderItem(6)

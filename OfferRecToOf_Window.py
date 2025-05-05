@@ -572,7 +572,7 @@ class Ui_OfferRecToOf_Window(object):
         OfferRecToOf_Window.setWindowTitle(_translate("OfferRecToOf_Window", "Oferta"))
         self.label_NumOffer.setText(_translate("OfferRecToOf_Window", "Nº Oferta:"))
         self.label_Client.setText(_translate("OfferRecToOf_Window", "Cliente:"))
-        self.label_FinalClient.setText(_translate("OfferRecToOf_Window", "Cliente Final:"))
+        self.label_FinalClient.setText(_translate("OfferRecToOf_Window", "Cl. Final / Planta:"))
         self.label_NumRef.setText(_translate("OfferRecToOf_Window", "Nº Referencia:"))
         self.label_State.setText(_translate("OfferRecToOf_Window", "Estado:"))
         self.label_NacExt.setText(_translate("OfferRecToOf_Window", "Nacional/Exterior:"))

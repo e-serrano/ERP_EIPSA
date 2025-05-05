@@ -676,7 +676,7 @@ class Ui_Edit_Offer_Window(object):
         Edit_Offer_Window.setWindowTitle(_translate("Edit_Offer_Window", "Editar Oferta"))
         self.label_NumOffer.setText(_translate("Edit_Offer_Window", "Nº Oferta:"))
         self.label_Client.setText(_translate("Edit_Offer_Window", "Cliente:"))
-        self.label_FinalClient.setText(_translate("Edit_Offer_Window", "Cliente Final:"))
+        self.label_FinalClient.setText(_translate("Edit_Offer_Window", "Cl. Final / Planta:"))
         self.label_NumRef.setText(_translate("Edit_Offer_Window", "Nº Referencia:"))
         self.label_State.setText(_translate("Edit_Offer_Window", "Estado:"))
         self.label_NacExt.setText(_translate("Edit_Offer_Window", "Nacional/Exterior:"))

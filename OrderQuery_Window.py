@@ -695,7 +695,7 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
         item = self.tableQueryOrder.horizontalHeaderItem(7)
         item.setText(_translate("QueryOrder_Window", "Cliente"))
         item = self.tableQueryOrder.horizontalHeaderItem(8)
-        item.setText(_translate("QueryOrder_Window", "Cliente Final"))
+        item.setText(_translate("QueryOrder_Window", "Cl. Final / Planta"))
         item = self.tableQueryOrder.horizontalHeaderItem(9)
         item.setText(_translate("QueryOrder_Window", "Proyecto"))
         item = self.tableQueryOrder.horizontalHeaderItem(10)

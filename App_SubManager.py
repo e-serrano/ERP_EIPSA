@@ -642,7 +642,7 @@ class Ui_App_SubManager(object):
         item = self.tableOffer.horizontalHeaderItem(3)
         item.setText(_translate("App_SubManager", "Cliente"))
         item = self.tableOffer.horizontalHeaderItem(4)
-        item.setText(_translate("App_SubManager", "Cliente Final"))
+        item.setText(_translate("App_SubManager", "Cl. Final / Planta"))
         item = self.tableOffer.horizontalHeaderItem(5)
         item.setText(_translate("App_SubManager", "Fecha Pres."))
         item = self.tableOffer.horizontalHeaderItem(6)

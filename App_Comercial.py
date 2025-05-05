@@ -942,7 +942,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
         item = self.tableOffer.horizontalHeaderItem(2)
         item.setText(_translate("App_Comercial", "Cliente"))
         item = self.tableOffer.horizontalHeaderItem(3)
-        item.setText(_translate("App_Comercial", "Cliente Final"))
+        item.setText(_translate("App_Comercial", "Cl. Final / Planta"))
         item = self.tableOffer.horizontalHeaderItem(4)
         item.setText(_translate("App_Comercial", "Fecha Pres."))
         item = self.tableOffer.horizontalHeaderItem(5)
@@ -1374,7 +1374,7 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
                 cur.execute(commands_appcomercial_coordination)
                 results=cur.fetchall()
                 number_columns = 11
-                self.tableOffer.setHorizontalHeaderLabels(["Nº Oferta", "Estado", "Responsable", "Cliente", "Cliente Final", "Fecha Pres.", "Material", "Importe", "Notas", "Ptos. Importantes", "Seguimiento"])
+                self.tableOffer.setHorizontalHeaderLabels(["Nº Oferta", "Estado", "Responsable", "Cliente", "Cl. Final / Planta", "Fecha Pres.", "Material", "Importe", "Notas", "Ptos. Importantes", "Seguimiento"])
             else:
                 cur.execute(commands_appcomercial,(responsible,))
                 results=cur.fetchall()
