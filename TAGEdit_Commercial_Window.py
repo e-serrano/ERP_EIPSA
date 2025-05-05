@@ -2888,7 +2888,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
             visible_columns = [col for col in range(self.model.columnCount()) if not self.tableEditTags.isColumnHidden(col)]
             visible_headers = self.model.getColumnHeaders(visible_columns)
-            original_headers = [self.model.record().fieldName(i) for i in range(self.model.columnCount())]
+            original_headers = [self.model.record().fieldName(col) for col in visible_columns]
             for row in range(self.proxy.rowCount()):
                 tag_data = []
                 for column in visible_columns:
