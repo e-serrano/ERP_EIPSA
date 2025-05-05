@@ -819,6 +819,16 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.toolCompare.setIcon(icon)
         self.toolCompare.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolCompare)
+        self.hcabspacer4=QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer4)
+        self.tooladdItem = QtWidgets.QToolButton(self.frame)
+        self.tooladdItem.setObjectName("tooladdItem")
+        self.tooladdItem.setToolTip("Añadir Item")
+        self.hcab.addWidget(self.tooladdItem)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Add.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.tooladdItem.setIcon(icon)
+        self.tooladdItem.setIconSize(QtCore.QSize(25, 25))
         self.hcabspacer2=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer2)
         self.gridLayout_2.addLayout(self.hcab, 0, 0, 1, 1)
@@ -1035,6 +1045,8 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
         self.toolImpExcel.clicked.connect(self.importexcel)
         self.toolCompare.clicked.connect(self.data_comparison)
+        self.tooladdItem.clicked.connect(self.add_item)
+
         try:
             self.Numoffer_EditTags.returnPressed.connect(self.query_tags)
         except Exception as error:
@@ -3312,7 +3324,54 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                 dlg.exec()
                 del dlg, new_icon
 
+# Function to insert new item
+    def add_item(self):
+        if self.proxy.rowCount() != 0:
+            if self.variable == 'Caudal':
+                table_name = "tags_data.tags_flow"
+            elif self.variable == 'Temperatura':
+                table_name = "tags_data.tags_temp"
+            elif self.variable == 'Nivel':
+                table_name = "tags_data.tags_level"
+            elif self.variable == 'Otros':
+                table_name = "tags_data.tags_others"
 
+            params = config()
+            conn = psycopg2.connect(**params)
+            cursor = conn.cursor()
+            
+            try:
+                # Creating the update query and executing it after checking existing tags and id
+                # sql_offer = f"SELECT num_offer FROM orders WHERE num_order = '{self.numorder}'"
+                # cursor.execute(sql_offer)
+                # results_offer = cursor.fetchall()
+                # num_offer = results_offer[0][0]
+
+                sql_insert = f"INSERT INTO {table_name} (num_order, tag_state) VALUES ('{self.numorder}', 'PURCHASED')"
+                cursor.execute(sql_insert)
+                conn.commit()
+
+            # Closing cursor and database connection
+                conn.commit()
+                cursor.close()
+
+                self.query_tags()
+
+            except (Exception, psycopg2.DatabaseError) as error:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("Ha ocurrido el siguiente error:\n"
+                            + str(error))
+                print(error)
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                dlg.exec()
+                del dlg, new_icon
+            finally:
+                if conn is not None:
+                    conn.close()
 
 
 
