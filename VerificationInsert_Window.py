@@ -3903,7 +3903,479 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
             self.ui.setupUi(self.veriforder_window)
             self.veriforder_window.showMaximized()
 
+# Function to delete verification
+    def deverify(self):
+        """
+        Updates data to deverify.
+        """
+        self.num_order_value = self.num_order.text().upper()
+        if self.num_order_value != '':
+            if self.num_order_value[:3] != 'AL-':
+                self.deverify_tags()
+            else:
+                self.deverify_al_drawings()
+        self.deverify_others()
+        self.query_tables()
 
+# Function to deverify tags
+    def deverify_tags(self):
+        """
+        Updates the selected data for a specific order based on user inputs and verification status.
+        Data can be for OF Drawings, Dimensional Drawings, Hydrostatic Test or ND Test
+        """
+        num_order = self.num_order.text().upper()
+        test_date = None
+        state = None
+        notes = None
+
+        manometer1 = None
+        pressure1 = None
+        manometer2 = None
+        pressure2 = None
+
+        if num_order not in ['ALMACÉN', 'ALMACEN', 'INTERNO', 'PROTOTIPOS']:
+            selected_indexes = self.tableTags.selectedIndexes()
+
+            if len(selected_indexes) == 0 and self.tableTags.rowCount() != 0:
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("ERP EIPSA")
+                dlg.setText("No has seleccionado ningún TAG")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg, new_icon
+            else:
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+                    for index in selected_indexes:
+                        column_index = index.column()
+                        row_index = index.row()
+                        id_value = int(self.tableTags.item(row_index, 0).text())
+                        tag = self.tableTags.item(row_index, 1).text()
+                        table_name = self.tableTags.item(row_index, 21).text()
+                        id_column = self.tableTags.item(row_index, 20).text()
+
+                        if column_index == 4 and self.tableTags.item(row_index, column_index).text() != '':
+                            item_date_dim = self.tableTags.item(row_index, 7)
+
+                            dlg_yes_no = QtWidgets.QMessageBox()
+                            new_icon_yes_no = QtGui.QIcon()
+                            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                            dlg_yes_no.setWindowTitle("ERP EIPSA")
+                            dlg_yes_no.setText(f"El tag {tag} ya tiene datos dimensionales\n"
+                                                "¿Estás seguro de que deseas desverificar?")
+                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                            result = dlg_yes_no.exec()
+
+                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                commands_verification = f"UPDATE {table_name} SET final_verif_dim_date = '{test_date}', final_verif_dim_state = '{state}', final_verif_dim_obs = '{notes}', fab_state = '{notes}' WHERE {id_column} = {id_value}"
+                                cur.execute(commands_verification)
+
+                            del dlg_yes_no, new_icon_yes_no
+
+                        elif column_index == 5 and self.tableTags.item(row_index, column_index).text() != '':
+                            item_date_eq = self.tableTags.item(row_index, 8)
+
+                            dlg_yes_no = QtWidgets.QMessageBox()
+                            new_icon_yes_no = QtGui.QIcon()
+                            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                            dlg_yes_no.setWindowTitle("ERP EIPSA")
+                            dlg_yes_no.setText(f"El tag {tag} ya tiene datos de equipo\n"
+                                                "¿Estás seguro de que deseas desverificar?")
+                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                            result = dlg_yes_no.exec()
+
+                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                commands_verification = f"UPDATE {table_name} SET final_verif_of_eq_date = '{test_date}', final_verif_of_eq_state = '{state}', final_verif_of_eq_obs = '{notes}' WHERE {id_column} = {id_value}"
+                                cur.execute(commands_verification)
+
+                            del dlg_yes_no, new_icon_yes_no
+
+                        elif column_index == 6 and table_name == "tags_data.tags_temp" and self.tableTags.item(row_index, column_index).text() != '':
+                            item_date_sensor = self.tableTags.item(row_index, 9)
+
+                            dlg_yes_no = QtWidgets.QMessageBox()
+                            new_icon_yes_no = QtGui.QIcon()
+                            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                            dlg_yes_no.setWindowTitle("ERP EIPSA")
+                            dlg_yes_no.setText(f"El tag {tag} ya tiene datos de sensor\n"
+                                                "¿Estás seguro de que deseas desverificar?")
+                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                            result = dlg_yes_no.exec()
+
+                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                commands_verification = f"UPDATE {table_name} SET final_verif_of_sensor_date = '{test_date}', final_verif_of_sensor_state = '{state}', final_verif_of_sensor_obs = '{notes}' WHERE {id_column} = {id_value}"
+                                cur.execute(commands_verification)
+
+                            del dlg_yes_no, new_icon_yes_no
+
+                        if column_index == 10 and self.tableTags.item(row_index, column_index).text() != '':
+                            dlg_yes_no = QtWidgets.QMessageBox()
+                            new_icon_yes_no = QtGui.QIcon()
+                            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                            dlg_yes_no.setWindowTitle("ERP EIPSA")
+                            dlg_yes_no.setText(f"El tag {tag} ya tiene datos LP\n"
+                                                "¿Estás seguro de que deseas desverificar?")
+                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                            result = dlg_yes_no.exec()
+
+                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                commands_hydrotest = f"UPDATE {table_name} SET ph1_date = '{test_date}', ph1_manometer = '{manometer1}', ph1_pressure = '{pressure1}', ph1_state = '{state}', ph1_obs = '{notes}' WHERE {id_column} = {id_value}"
+                                cur.execute(commands_hydrotest)
+
+                            del dlg_yes_no, new_icon_yes_no
+
+                        if column_index == 11 and self.tableTags.item(row_index, column_index).text() != '':
+                            dlg_yes_no = QtWidgets.QMessageBox()
+                            new_icon_yes_no = QtGui.QIcon()
+                            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                            dlg_yes_no.setWindowTitle("ERP EIPSA")
+                            dlg_yes_no.setText(f"El tag {tag} ya tiene datos LP\n"
+                                                "¿Estás seguro de que deseas desverificar?")
+                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                            result = dlg_yes_no.exec()
+
+                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                commands_hydrotest = f"UPDATE {table_name} SET ph2_date = '{test_date}', ph2_manometer = '{manometer2}', ph2_pressure = '{pressure2}', ph2_state = '{state}', ph2_obs = '{notes}' WHERE {id_column} = {id_value}"
+                                cur.execute(commands_hydrotest)
+
+                            del dlg_yes_no, new_icon_yes_no
+
+                        if column_index == 12 and self.tableTags.item(row_index, column_index).text() != '':
+                            hn_liq1 = None
+                            hn_liq2 = None
+                            hn_liq3 = None
+
+                            dlg_yes_no = QtWidgets.QMessageBox()
+                            new_icon_yes_no = QtGui.QIcon()
+                            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                            dlg_yes_no.setWindowTitle("ERP EIPSA")
+                            dlg_yes_no.setText(f"El tag {tag} ya tiene datos LP\n"
+                                                "¿Estás seguro de que deseas desverificar?")
+                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                            result = dlg_yes_no.exec()
+
+                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                commands_liquidtest = f"UPDATE {table_name} SET lp_date = '{test_date}', lp_hn_liq1 = '{hn_liq1}', lp_hn_liq2 = '{hn_liq2}', lp_hn_liq3 = '{hn_liq3}', lp_state = '{state}', lp_obs = '{notes}' WHERE {id_column} = {id_value}"
+                                cur.execute(commands_liquidtest)
+
+                            del dlg_yes_no, new_icon_yes_no
+
+                    if self.label_manometer1.checkState() == QtCore.Qt.CheckState.Checked:
+                        self.label_manometer1.setCheckState(QtCore.Qt.CheckState.Unchecked)
+
+                    if self.label_manometer2.checkState() == QtCore.Qt.CheckState.Checked:
+                        self.label_manometer2.setCheckState(QtCore.Qt.CheckState.Unchecked)
+
+                    if self.label_lptest.checkState() == QtCore.Qt.CheckState.Checked:
+                        self.label_lptest.setCheckState(QtCore.Qt.CheckState.Unchecked)
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Verificación")
+                    dlg.setText("Datos insertados con éxito")
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                    dlg.exec()
+                    del dlg,new_icon
+
+                    self.querytags()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("ERP EIPSA")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+
+# Function to deverify AL drawings
+    def deverify_al_drawings(self):
+        """
+        Updates the selected data for a specific order based on user inputs and verification status.
+        Data is for AL drawings
+        """
+        selected_indexes = self.tableTags.selectedIndexes()
+
+        if len(selected_indexes) == 0:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("No has seleccionado ningún TAG")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
+        else:
+            for index in selected_indexes:
+                row_index = index.row()
+                id_value = self.tableTags.item(row_index, 0).text()
+                num_order = self.tableTags.item(row_index, 1).text()
+                al_drawing = self.tableTags.item(row_index, 2).text()
+
+                commands_insert_al_drawing = ("""
+                            UPDATE verification."al_drawing_verification"
+                            SET "verif_al_drawing_date" = %s, "verif_al_drawing_state" = %s,"verif_al_drawing_obs" = %s
+                            WHERE "id" = %s
+                            """)
+                conn = None
+                try:
+                # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                # execution of commands
+
+                    dlg_yes_no = QtWidgets.QMessageBox()
+                    new_icon_yes_no = QtGui.QIcon()
+                    new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                    dlg_yes_no.setWindowTitle("ERP EIPSA")
+                    dlg_yes_no.setText(f"Ya ha datos existentes para el plano {al_drawing}\n"
+                                        "¿Deseas desverificar?\n")
+                    dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                    result = dlg_yes_no.exec()
+                    if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                        cur.execute(commands_insert_al_drawing, (None, None, None, id_value, ))
+
+                        self.obs_test.setText('')
+
+                    del dlg_yes_no, new_icon_yes_no
+
+                # close communication with the PostgreSQL database server
+                    cur.close()
+                # commit the changes
+                    conn.commit()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Planos AL")
+                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                + str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                finally:
+                    if conn is not None:
+                        conn.close()
+
+# Function to deverify PPI, EXP, M drawings, OF drawings and Dimensional Drawings
+    def deverify_others(self):
+        """
+        Updates the selected data for a specific order based on user inputs and verification status.
+        Data can be for PPI, EXP, M Drawings, OF Drawings or Dimensional Drawings
+        """
+
+        selected_indexes = self.tableOthers.selectedIndexes()
+
+        if len(selected_indexes) == 0 and self.tableOthers.rowCount() != 0:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("No has seleccionado ningún elemento de Otros")
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            dlg.exec()
+            del dlg, new_icon
+        else:
+            for index in selected_indexes:
+                conn = None
+                try:
+            # read the connection parameters
+                    params = config()
+                # connect to the PostgreSQL server
+                    conn = psycopg2.connect(**params)
+                    cur = conn.cursor()
+                    row_index = index.row()
+                    id_value = int(self.tableOthers.item(row_index, 0).text())
+                    drawing_number = self.tableOthers.item(row_index, 2).text()
+
+                    if drawing_number == 'PPI':
+                        commands_insert_ppi = ("""
+                        UPDATE verification."ppi_verification"
+                        SET "verif_ppi_date" = %s, "verif_ppi_state" = %s,"verif_ppi_obs" = %s
+                        WHERE "id" = %s
+                        """)
+
+                        dlg_yes_no = QtWidgets.QMessageBox()
+                        new_icon_yes_no = QtGui.QIcon()
+                        new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                        dlg_yes_no.setWindowTitle("ERP EIPSA")
+                        dlg_yes_no.setText("Ya ha datos existentes en el PPI\n"
+                                            "¿Deseas desverificar?\n")
+                        dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                        dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                        result = dlg_yes_no.exec()
+                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            cur.execute(commands_insert_ppi, (None, None, None, id_value, ))
+                        del dlg_yes_no, new_icon_yes_no
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                    elif drawing_number == 'EXP':
+                        commands_insert_exp = ("""
+                        UPDATE verification."exp_verification"
+                        SET "verif_exp_date" = %s, "verif_exp_state" = %s,"verif_exp_obs" = %s
+                        WHERE "id" = %s
+                        """)
+
+                        dlg_yes_no = QtWidgets.QMessageBox()
+                        new_icon_yes_no = QtGui.QIcon()
+                        new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                        dlg_yes_no.setWindowTitle("ERP EIPSA")
+                        dlg_yes_no.setText("Ya ha datos existentes en el EXP\n"
+                                            "¿Deseas desverificar?\n")
+                        dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                        dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                        result = dlg_yes_no.exec()
+                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            cur.execute(commands_insert_exp, (None, None, None, id_value, ))
+                        del dlg_yes_no, new_icon_yes_no
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                    elif drawing_number[:2] == 'M-':
+                        commands_insert_m_drawing = ("""
+                        UPDATE verification."m_drawing_verification"
+                        SET "verif_m_drawing_date" = %s, "verif_m_drawing_state" = %s,"verif_m_drawing_obs" = %s
+                        WHERE "id" = %s
+                        """)
+
+                        dlg_yes_no = QtWidgets.QMessageBox()
+                        new_icon_yes_no = QtGui.QIcon()
+                        new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                        dlg_yes_no.setWindowTitle("ERP EIPSA")
+                        dlg_yes_no.setText(f"Ya ha datos existentes para el plano {drawing_number}\n"
+                                    "¿Deseas desverificar?\n")
+                        dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                        dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                        result = dlg_yes_no.exec()
+                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            cur.execute(commands_insert_m_drawing, (None, None, None, id_value, ))
+                        del dlg_yes_no, new_icon_yes_no
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                    elif drawing_number[:2] == 'OF':
+                        commands_insert_of_drawing = ("""
+                        UPDATE verification."of_drawing_verification"
+                        SET "verif_of_drawing_date" = %s, "verif_of_drawing_state" = %s,"verif_of_drawing_obs" = %s
+                        WHERE "id" = %s
+                        """)
+
+                        dlg_yes_no = QtWidgets.QMessageBox()
+                        new_icon_yes_no = QtGui.QIcon()
+                        new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                        dlg_yes_no.setWindowTitle("ERP EIPSA")
+                        dlg_yes_no.setText(f"Ya ha datos existentes para el plano {drawing_number}\n"
+                                    "¿Deseas desverificar?\n")
+                        dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                        dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                        result = dlg_yes_no.exec()
+                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            cur.execute(commands_insert_of_drawing, (None, None, None, id_value, ))
+                        del dlg_yes_no, new_icon_yes_no
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                    else:
+                        commands_insert_dim_drawing = ("""
+                        UPDATE verification."dim_drawing_verification"
+                        SET "verif_dim_drawing_date" = %s, "verif_dim_drawing_state" = %s,"verif_dim_drawing_obs" = %s
+                        WHERE "id" = %s
+                        """)
+
+                        dlg_yes_no = QtWidgets.QMessageBox()
+                        new_icon_yes_no = QtGui.QIcon()
+                        new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                        dlg_yes_no.setWindowTitle("ERP EIPSA")
+                        dlg_yes_no.setText(f"Ya ha datos existentes para el plano {drawing_number}\n"
+                                    "¿Deseas desverificar?\n")
+                        dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                        dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                        result = dlg_yes_no.exec()
+                        if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                            cur.execute(commands_insert_dim_drawing, (None, None, None, id_value, ))
+                        del dlg_yes_no, new_icon_yes_no
+
+                    # close communication with the PostgreSQL database server
+                        cur.close()
+                    # commit the changes
+                        conn.commit()
+
+                except (Exception, psycopg2.DatabaseError) as error:
+                    dlg = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg.setWindowIcon(new_icon)
+                    dlg.setWindowTitle("Verification")
+                    dlg.setText(str(error))
+                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                    dlg.exec()
+                    del dlg, new_icon
+
+                finally:
+                    if conn is not None:
+                        conn.close()
 
 
 if __name__ == "__main__":
