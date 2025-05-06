@@ -3700,7 +3700,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 pdf.cell(0.2, 0.53, "")
                 pdf.set_font('DejaVuSansCondensed', size=9)
                 pdf.cell(2.05, 0.53, currency_total, align='R')
-                pdf.ln(lines + 0.1)
+                pdf.ln(lines + 0.5)
 
             currency_totalorder=float(total_order[:total_order.find(" €")].replace(".","").replace(",","."))
             currency_totalorder=currency_totalorder
@@ -3717,10 +3717,10 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
             y_position = pdf.get_y()
 
             # Calculate height of content to add
-            total_content_height = pdf.get_multicell_height(19.35, coments) + 0.5 + 0.5 + 0.5  # Height of each cell plus line break
+            total_content_height = pdf.get_multicell_height(19.35, coments)  # Height of each cell plus line break
 
             # Verify if exists enough space on actual page
-            if y_position + total_content_height < 29.8:
+            if y_position + total_content_height < 33:
                 # If exists, add content on actual page
                 pdf.set_font('DejaVuSansCondensed-Bold', size=8)
                 x_position = pdf.get_x()
