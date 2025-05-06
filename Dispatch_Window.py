@@ -381,6 +381,15 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         self.toolDeleteFilter.setIcon(icon)
         self.toolDeleteFilter.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolDeleteFilter)
+        self.hcabspacer2=QtWidgets.QSpacerItem(10, 10, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.hcab.addItem(self.hcabspacer2)
+        self.toolDispatchQuery = QtWidgets.QToolButton(self.frame)
+        self.toolDispatchQuery.setObjectName("DispatchQuery_Button")
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Table.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.toolDispatchQuery.setIcon(icon2)
+        self.toolDispatchQuery.setIconSize(QtCore.QSize(25, 25))
+        self.hcab.addWidget(self.toolDispatchQuery)
         self.hcabspacer=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hcab.addItem(self.hcabspacer)
         self.gridLayout_2.addLayout(self.hcab, 0, 0, 1, 1)
@@ -477,7 +486,8 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         self.model.setAllColumnHeaders(headers)
 
         self.toolDeleteFilter.clicked.connect(self.delete_allFilters)
-        self.Button_All.clicked.connect(self.query_all_Dispatch)
+        self.toolDispatchQuery.clicked.connect(self.query_all_Dispatch)
+        self.Button_All.clicked.connect(self.see_all_Dispatch_editable)
         self.tableDispatch.setSortingEnabled(False)
         self.tableDispatch.horizontalHeader().sectionClicked.connect(lambda logicalIndex: self.on_view_horizontalHeader_sectionClicked(logicalIndex, self.tableDispatch, self.model, self.proxy))
         self.model.dataChanged.connect(self.saveChanges)
@@ -494,7 +504,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         Dispatch_Window.setWindowTitle(_translate("EditTags_Window", "Despachos"))
         self.Button_All.setText(_translate("EditTags_Window", "Ver Todos"))
 
-# Function to load all dispatch
+# Function to load all dispatch in new window
     def query_all_Dispatch(self):
         """
         Opens the dispatch table window.
@@ -505,77 +515,76 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         self.ui.setupUi(self.dispatch_query_window)
         self.dispatch_query_window.show()
 
+# Function to load all dispatch in editable table
+    def see_all_Dispatch_editable(self):
+        """
+        Queries the database for all orders, configures and populates tables with the query results, 
+        and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
+        """
+        self.model.dataChanged.disconnect(self.saveChanges)
+        self.delete_allFilters()
+        self.model.clear()
+        self.model.setTable("purch_fact.invoice_header")
+        # self.model.setFilter("date_dispatch IS NULL")
+        self.model.setSort(1, QtCore.Qt.SortOrder.DescendingOrder)
+        self.model.select()
 
+        self.proxy.setSourceModel(self.model)
+        self.tableDispatch.setModel(self.proxy)
 
+        # Getting the unique values for each column of the model
+        for column in range(self.model.columnCount()):
+            list_valuesUnique = []
+            if column not in self.checkbox_states:
+                self.checkbox_states[column] = {}
+                self.checkbox_states[column]['Seleccionar todo'] = True
+                for row in range(self.model.rowCount()):
+                    value = self.model.record(row).value(column)
+                    if value not in list_valuesUnique:
+                        if isinstance(value, QtCore.QDate):
+                            value=value.toString("dd/MM/yyyy")
+                        list_valuesUnique.append(str(value))
+                        self.checkbox_states[column][str(value)] = True
+                self.dict_valuesuniques[column] = list_valuesUnique
 
-        # """
-        # Queries the database for all orders, configures and populates tables with the query results, 
-        # and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
-        # """
-        # self.model.dataChanged.disconnect(self.saveChanges)
-        # self.delete_allFilters()
-        # self.model.clear()
-        # self.model.setTable("purch_fact.invoice_header")
-        # # self.model.setFilter("date_dispatch IS NULL")
-        # self.model.setSort(1, QtCore.Qt.SortOrder.DescendingOrder)
-        # self.model.select()
+        self.tableDispatch.hideColumn(0)
+        self.tableDispatch.hideColumn(1)
+        for i in range(3,5):
+            self.tableDispatch.hideColumn(i)
+        for i in range(6,52):
+            self.tableDispatch.hideColumn(i)
+        self.tableDispatch.hideColumn(58)
+        self.tableDispatch.hideColumn(59)
+        self.tableDispatch.hideColumn(60)
 
-        # self.proxy.setSourceModel(self.model)
-        # self.tableDispatch.setModel(self.proxy)
+        headers=['ID', 'Nº Factura', 'Nº Albarán', '', '', 'Nº Pedido', '', '', '', '',
+                '', '', '', '', '', '', '', '', '', '',
+                '', '', '', '', '', '', '', '', '', '',
+                '', '', '', '', '', '', '', '', '', '',
+                '', '', '', '', '', '', '', '', '', '',
+                '', '', 'Destino', 'Bultos', 'Peso', 'Descripción', 'Transporte', 'Fecha', '', '', '']
 
-        # # Getting the unique values for each column of the model
-        # for column in range(self.model.columnCount()):
-        #     list_valuesUnique = []
-        #     if column not in self.checkbox_states:
-        #         self.checkbox_states[column] = {}
-        #         self.checkbox_states[column]['Seleccionar todo'] = True
-        #         for row in range(self.model.rowCount()):
-        #             value = self.model.record(row).value(column)
-        #             if value not in list_valuesUnique:
-        #                 if isinstance(value, QtCore.QDate):
-        #                     value=value.toString("dd/MM/yyyy")
-        #                 list_valuesUnique.append(str(value))
-        #                 self.checkbox_states[column][str(value)] = True
-        #         self.dict_valuesuniques[column] = list_valuesUnique
+        self.tableDispatch.setItemDelegate(AlignDelegate(self.tableDispatch))
+        # self.color_delegate = ColorDelegate(self)
+        # self.tableDispatch.setItemDelegateForColumn(16, self.color_delegate)
+        # self.tableDispatch.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+        self.tableDispatch.horizontalHeader().setDefaultSectionSize(50)
+        self.tableDispatch.horizontalHeader().resizeSection(5, 125)
+        self.tableDispatch.horizontalHeader().resizeSection(52, 175)
+        self.tableDispatch.horizontalHeader().resizeSection(54, 125)
+        self.tableDispatch.horizontalHeader().resizeSection(55, 300)
+        self.tableDispatch.horizontalHeader().resizeSection(56, 100)
+        self.tableDispatch.horizontalHeader().resizeSection(57, 100)
+        # self.tableDispatch.horizontalHeader().setSectionResizeMode(52, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        # self.tableDispatch.horizontalHeader().setSectionResizeMode(55, QtWidgets.QHeaderView.ResizeMode.Interactive)
+        # self.tableDispatch.horizontalHeader().setSectionResizeMode(57, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.tableDispatch.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
+        self.gridLayout_2.addWidget(self.tableDispatch, 3, 0, 1, 1)
 
-        # self.tableDispatch.hideColumn(0)
-        # self.tableDispatch.hideColumn(1)
-        # for i in range(3,5):
-        #     self.tableDispatch.hideColumn(i)
-        # for i in range(6,52):
-        #     self.tableDispatch.hideColumn(i)
-        # self.tableDispatch.hideColumn(58)
-        # self.tableDispatch.hideColumn(59)
-        # self.tableDispatch.hideColumn(60)
+        self.model.setAllColumnHeaders(headers)
+        self.model.dataChanged.connect(self.saveChanges)
 
-        # headers=['ID', 'Nº Factura', 'Nº Albarán', '', '', 'Nº Pedido', '', '', '', '',
-        #         '', '', '', '', '', '', '', '', '', '',
-        #         '', '', '', '', '', '', '', '', '', '',
-        #         '', '', '', '', '', '', '', '', '', '',
-        #         '', '', '', '', '', '', '', '', '', '',
-        #         '', '', 'Destino', 'Bultos', 'Peso', 'Descripción', 'Transporte', 'Fecha', '', '', '']
-
-        # self.tableDispatch.setItemDelegate(AlignDelegate(self.tableDispatch))
-        # # self.color_delegate = ColorDelegate(self)
-        # # self.tableDispatch.setItemDelegateForColumn(16, self.color_delegate)
-        # # self.tableDispatch.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
-        # self.tableDispatch.horizontalHeader().setDefaultSectionSize(50)
-        # self.tableDispatch.horizontalHeader().resizeSection(5, 125)
-        # self.tableDispatch.horizontalHeader().resizeSection(52, 175)
-        # self.tableDispatch.horizontalHeader().resizeSection(54, 125)
-        # self.tableDispatch.horizontalHeader().resizeSection(55, 300)
-        # self.tableDispatch.horizontalHeader().resizeSection(56, 100)
-        # self.tableDispatch.horizontalHeader().resizeSection(57, 100)
-        # # self.tableDispatch.horizontalHeader().setSectionResizeMode(52, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        # # self.tableDispatch.horizontalHeader().setSectionResizeMode(55, QtWidgets.QHeaderView.ResizeMode.Interactive)
-        # # self.tableDispatch.horizontalHeader().setSectionResizeMode(57, QtWidgets.QHeaderView.ResizeMode.Stretch)
-        # self.tableDispatch.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
-        # self.gridLayout_2.addWidget(self.tableDispatch, 3, 0, 1, 1)
-
-        # self.model.setAllColumnHeaders(headers)
-        # self.model.dataChanged.connect(self.saveChanges)
-
-        # self.tableDispatch.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableDispatch, self.model, self.proxy)
+        self.tableDispatch.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableDispatch, self.model, self.proxy)
 
 # Function to delete all filters when tool button is clicked
     def delete_allFilters(self):
