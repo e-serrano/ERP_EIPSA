@@ -1226,7 +1226,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.Button_Deverify = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Deverify.setMinimumSize(QtCore.QSize(100, 35))
         self.Button_Deverify.setObjectName("Button_Deverify")
-        self.gridLayout_2.addWidget(self.Button_Deverify, 5, 4, 1, 2)
+        self.gridLayout_2.addWidget(self.Button_Deverify, 5, 0, 1, 1)
         self.tableTags = CustomTableWidgetTags()
         self.tableTags.setObjectName("tableWidget")
         self.tableTags.setColumnCount(0)
