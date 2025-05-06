@@ -8325,12 +8325,12 @@ class spares_two_years:
         if self.table_name == "tags_data.tags_flow":
             commands_tags = f"""
             SELECT '' AS spare_id, '' AS model_number, '' AS UNIT,
-            tags.tag, tags.line_size || tags.rating || tags.facing || ' Material.' || tags.gasket_material,
+            tags.tag, tags.line_size || tags.rating || ' Material: ' || tags.gasket_material,
             '' AS group_number, '' AS serial_number,
             tags.dwg_num_doc_eipsa, docs.num_doc_client
             FROM {self.table_name} AS tags
             LEFT JOIN documentation AS docs ON (tags.dwg_num_doc_eipsa = docs.num_doc_eipsa)
-            WHERE tags.num_order LIKE UPPER ('%%'||'{self.num_order}'||'%%')
+            WHERE tags.num_order LIKE UPPER ('%%'||'{self.num_order}'||'%%') AND tags.gasket_material not in ('N/A','OTHERS')
             ORDER BY tags.num_order
             """
 
@@ -8415,7 +8415,7 @@ class spares_two_years:
                 df_unique['recommended_two'] = np.ceil(df_unique['total_number'] * 0.20).astype(int)
             df_unique['approved'] = None
 
-            df_unique.loc[len(df_unique)] = [len(df_unique) + 1, "", "Gaskets", "", df_unique['recommended_pre'].sum() * 2, df_unique['recommended_two'].sum() * 2]
+            df_unique.loc[len(df_unique) + 1] = ["TOTAL", "", "", "Gaskets", "", df_unique['recommended_pre'].sum(), df_unique['recommended_two'].sum(), ""]
 
             data_tags['GROUP'] = data_tags['DESCRIPTION'].map(df_unique.set_index('DESCRIPTION')['desc_id'])
 
