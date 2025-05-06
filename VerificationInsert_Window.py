@@ -1223,6 +1223,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.Button_InsertPhoto.setObjectName("Button_InsertPhoto")
         self.Button_InsertPhoto.setVisible(False)
         self.gridLayout_2.addWidget(self.Button_InsertPhoto, 3, 4, 1, 2)
+        self.Button_Deverify = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Deverify.setMinimumSize(QtCore.QSize(100, 35))
+        self.Button_Deverify.setObjectName("Button_Deverify")
+        self.gridLayout_2.addWidget(self.Button_Deverify, 5, 4, 1, 2)
         self.tableTags = CustomTableWidgetTags()
         self.tableTags.setObjectName("tableWidget")
         self.tableTags.setColumnCount(0)
@@ -1350,6 +1354,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.Button_SeePhoto.clicked.connect(self.open_temp_image)
         self.Button_InsertPhoto.clicked.connect(self.insert_temp_image)
         self.Button_VerifOrder.clicked.connect(self.verif_order)
+        self.Button_Deverify.clicked.connect(self.deverify)
         self.tableTags.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked)
         self.tableOthers.horizontalHeader().sectionDoubleClicked.connect(self.on_header_section_clicked_others)
         self.state_test.currentTextChanged.connect(self.change_text_color)
@@ -1380,6 +1385,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.Button_Insert.setText(_translate("VerificationInsert_Window", "Insertar"))
         self.Button_SeePhoto.setText(_translate("VerificationInsert_Window", "Ver Foto"))
         self.Button_InsertPhoto.setText(_translate("VerificationInsert_Window", "Insertar Foto"))
+        self.Button_Deverify.setText(_translate("VerificationInsert_Window", "Desverificar"))
         self.Button_VerifOrder.setText(_translate("VerificationInsert_Window", "Verif. Pedido"))
 
 # Function to update data of both tables
@@ -4121,7 +4127,6 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                 finally:
                     if conn is not None:
                         conn.close()
-
 
 # Function to deverify AL drawings
     def deverify_al_drawings(self):
