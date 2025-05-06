@@ -270,6 +270,24 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
                 return False
         return True
 
+    def lessThan(self, left, right):
+        leftData = self.sourceModel().data(left)
+        rightData = self.sourceModel().data(right)
+
+        column = left.column()
+
+        # Columns to order as integers
+        numeric_columns = [5, 6]
+
+        if column in numeric_columns:
+            try:
+                return int(leftData) < int(rightData)
+            except (ValueError, TypeError):
+                pass  # If fail, order as string
+
+        # Order by text (default)
+        return str(leftData) < str(rightData)
+
 class EditableTableModel(QtSql.QSqlTableModel):
     """
     A custom SQL table model that supports editable columns, headers, and special flagging behavior based on user permissions.
