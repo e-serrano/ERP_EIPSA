@@ -3930,14 +3930,14 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         Data can be for OF Drawings, Dimensional Drawings, Hydrostatic Test or ND Test
         """
         num_order = self.num_order.text().upper()
-        test_date = None
-        state = None
-        notes = None
+        test_date = 'NULL'
+        state = 'NULL'
+        notes = 'NULL'
 
-        manometer1 = None
-        pressure1 = None
-        manometer2 = None
-        pressure2 = None
+        manometer1 = 'NULL'
+        pressure1 = 'NULL'
+        manometer2 = 'NULL'
+        pressure2 = 'NULL'
 
         if num_order not in ['ALMACÉN', 'ALMACEN', 'INTERNO', 'PROTOTIPOS']:
             selected_indexes = self.tableTags.selectedIndexes()
@@ -3984,7 +3984,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                             result = dlg_yes_no.exec()
 
                             if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                                commands_verification = f"UPDATE {table_name} SET final_verif_dim_date = '{test_date}', final_verif_dim_state = '{state}', final_verif_dim_obs = '{notes}', fab_state = '{notes}' WHERE {id_column} = {id_value}"
+                                commands_verification = f"UPDATE {table_name} SET final_verif_dim_date = {test_date}, final_verif_dim_state = {state}, final_verif_dim_obs = {notes}, fab_state = {notes} WHERE {id_column} = {id_value}"
                                 cur.execute(commands_verification)
 
                             del dlg_yes_no, new_icon_yes_no
@@ -4004,7 +4004,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                             result = dlg_yes_no.exec()
 
                             if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                                commands_verification = f"UPDATE {table_name} SET final_verif_of_eq_date = '{test_date}', final_verif_of_eq_state = '{state}', final_verif_of_eq_obs = '{notes}' WHERE {id_column} = {id_value}"
+                                commands_verification = f"UPDATE {table_name} SET final_verif_of_eq_date = {test_date}, final_verif_of_eq_state = {state}, final_verif_of_eq_obs = {notes} WHERE {id_column} = {id_value}"
                                 cur.execute(commands_verification)
 
                             del dlg_yes_no, new_icon_yes_no
@@ -4024,7 +4024,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                             result = dlg_yes_no.exec()
 
                             if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                                commands_verification = f"UPDATE {table_name} SET final_verif_of_sensor_date = '{test_date}', final_verif_of_sensor_state = '{state}', final_verif_of_sensor_obs = '{notes}' WHERE {id_column} = {id_value}"
+                                commands_verification = f"UPDATE {table_name} SET final_verif_of_sensor_date = {test_date}, final_verif_of_sensor_state = {state}, final_verif_of_sensor_obs = {notes} WHERE {id_column} = {id_value}"
                                 cur.execute(commands_verification)
 
                             del dlg_yes_no, new_icon_yes_no
@@ -4042,7 +4042,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                             result = dlg_yes_no.exec()
 
                             if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                                commands_hydrotest = f"UPDATE {table_name} SET ph1_date = '{test_date}', ph1_manometer = '{manometer1}', ph1_pressure = '{pressure1}', ph1_state = '{state}', ph1_obs = '{notes}' WHERE {id_column} = {id_value}"
+                                commands_hydrotest = f"UPDATE {table_name} SET ph1_date = {test_date}, ph1_manometer = {manometer1}, ph1_pressure = {pressure1}, ph1_state = {state}, ph1_obs = {notes} WHERE {id_column} = {id_value}"
                                 cur.execute(commands_hydrotest)
 
                             del dlg_yes_no, new_icon_yes_no
@@ -4060,7 +4060,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                             result = dlg_yes_no.exec()
 
                             if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                                commands_hydrotest = f"UPDATE {table_name} SET ph2_date = '{test_date}', ph2_manometer = '{manometer2}', ph2_pressure = '{pressure2}', ph2_state = '{state}', ph2_obs = '{notes}' WHERE {id_column} = {id_value}"
+                                commands_hydrotest = f"UPDATE {table_name} SET ph2_date = {test_date}, ph2_manometer = {manometer2}, ph2_pressure = {pressure2}, ph2_state = {state}, ph2_obs = {notes} WHERE {id_column} = {id_value}"
                                 cur.execute(commands_hydrotest)
 
                             del dlg_yes_no, new_icon_yes_no
@@ -4082,7 +4082,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                             result = dlg_yes_no.exec()
 
                             if result == QtWidgets.QMessageBox.StandardButton.Yes:
-                                commands_liquidtest = f"UPDATE {table_name} SET lp_date = '{test_date}', lp_hn_liq1 = '{hn_liq1}', lp_hn_liq2 = '{hn_liq2}', lp_hn_liq3 = '{hn_liq3}', lp_state = '{state}', lp_obs = '{notes}' WHERE {id_column} = {id_value}"
+                                commands_liquidtest = f"UPDATE {table_name} SET lp_date = {test_date}, lp_hn_liq1 = {hn_liq1}, lp_hn_liq2 = {hn_liq2}, lp_hn_liq3 = {hn_liq3}, lp_state = {state}, lp_obs = {notes} WHERE {id_column} = {id_value}"
                                 cur.execute(commands_liquidtest)
 
                             del dlg_yes_no, new_icon_yes_no
