@@ -8324,7 +8324,7 @@ class spares_two_years:
 
         if self.table_name == "tags_data.tags_flow":
             commands_tags = f"""
-            SELECT '' AS spare_id, '' AS model_number, '' AS UNIT,
+            SELECT '' AS spare_id, tags.num_order AS model_number, '' AS UNIT,
             tags.tag, tags.line_size || tags.rating || ' Material: ' || tags.gasket_material,
             '' AS group_number, '' AS serial_number,
             tags.dwg_num_doc_eipsa, docs.num_doc_client
@@ -8336,7 +8336,7 @@ class spares_two_years:
 
         elif self.table_name == "tags_data.tags_temp":
             commands_tags = f"""
-            SELECT '' AS spare_id, '' AS model_number, '' AS UNIT,
+            SELECT '' AS spare_id, tags.num_order AS model_number, '' AS UNIT,
             tags.tag, tags.tw_type || ' ' || tags.flange_size || tags.flange_rating || tags.flange_facing || ' Material.' || tags.material_tw ||
             ' - U(mm)=' || tags.ins_length || ' - Rootø(mm)=' || tags.root_diam || ' - Tipø(mm)=' || tags.tip_diam || ' ' || tags.sensor_element,
             '' AS group_number, '' AS serial_number,
@@ -8349,7 +8349,7 @@ class spares_two_years:
 
         elif self.table_name == "tags_data.tags_level":
             commands_tags = f"""
-            SELECT '' AS spare_id, '' AS model_number, '' AS UNIT,
+            SELECT '' AS spare_id, tags.num_order AS model_number, '' AS UNIT,
             tags.tag, tags.model_num,
             '' AS group_number, '' AS serial_number,
             tags.dwg_num_doc_eipsa, docs.num_doc_client
@@ -8417,7 +8417,10 @@ class spares_two_years:
 
             df_unique.loc[len(df_unique) + 1] = ["TOTAL", "", "", "Gaskets", "", df_unique['recommended_pre'].sum(), df_unique['recommended_two'].sum(), ""]
 
-            data_tags['GROUP'] = data_tags['DESCRIPTION'].map(df_unique.set_index('DESCRIPTION')['desc_id'])
+            data_tags['GROUP'] = (data_tags['DESCRIPTION'].map(df_unique.set_index('DESCRIPTION')['desc_id']).apply(lambda x: f"{int(x):03d}" if pd.notnull(x) else x))
+
+            data_tags['MODEL NUMBER'] = data_tags.apply(lambda row: 'GAS_SP-' + str(row['MODEL NUMBER'])[:8] + '-' + row['GROUP'], axis=1)
+            data_tags['SERIAL NUMBER'] = data_tags.apply(lambda row: 'SN-' + row['MODEL NUMBER'], axis=1)
 
             self.wb_spares = load_workbook(r"\\nas01\DATOS\Comunes\EIPSA-ERP\Plantillas Exportación\PLANTILLA REPUESTOS.xlsx")
 
