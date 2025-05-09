@@ -4880,7 +4880,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         64: 'notes_tw'
                                     }, inplace=True)
 
-                                    df_flanges = df_selected.copy()
+                                    df_flanges = df_selected[df_selected['type'] == item].copy()
+
                                     df_flanges['drawing_code'] = df_flanges.apply(
                                     lambda row: 'TBPC' + ('RF' if str(row['facing']) == 'FF' else str(row['facing'])) +
                                                 '-0' + str(row['size'])[0] + ('.5' if '1/2' in str(row['size']) else '.0') +
@@ -4923,10 +4924,49 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
                                         dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " BPC " + str(connection) + " " +str(material), total_count]
 
-                                    df_bars = df_selected.copy()
+                                    df_bars = df_selected[df_selected['type'] == item].copy()
 
                                     df_bars['base_diam'] = df_bars.apply(
-                                    lambda row: 32 if int(row['root_diam']) < 32 else (35 if int(row['root_diam']) < 35 else (38 if int(row['root_diam']) < 38 else 40)),
+                                    lambda row: 32 if float(row['root_diam'].replace(",",".")) < 32 else (35 if float(row['root_diam'].replace(",",".")) < 35 else (38 if float(row['root_diam'].replace(",",".")) < 38 else 40)),
+                                    axis=1)
+
+                                    df_bars['drawing_code'] = df_bars.apply(
+                                    lambda row: 'TVSCP-Ø' + str(row['base_diam']) + ' Corte-Taladro',
+                                    axis=1)
+
+                                    df_bars['drawing_path'] = df_bars.apply(
+                                    lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\S-Soldadas\C-Cilindricas\P-Preparación\{str(row['drawing_code'])}.pdf",
+                                    axis=1)
+
+                                    df_bars = df_bars[~df_bars['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
+                                    df_grouped = df_bars.groupby(["drawing_path",'base_diam','material', "bore_diameter", "std_length"]).size().reset_index(name="count")
+                                    grouped_bars = df_grouped.groupby(['drawing_path','base_diam','material']).agg({"bore_diameter":list, "std_length": list, "count": list}).reset_index()
+                                    total_count = grouped_bars['count'].explode().sum() 
+
+                                    for _, row in grouped_bars.iterrows():
+                                        counter_drawings += 1
+
+                                        writer = PdfWriter()
+                                        reader = PdfReader(row["drawing_path"])
+                                        page_overlay = PdfReader(bar_dwg_flangedTW(self.numorder, row["material"], zip(row["bore_diameter"], row["std_length"], row["count"]))).pages[0]
+
+                                        reader.pages[0].merge_page(page2=page_overlay)
+                                        writer.add_page(reader.pages[0])
+
+                                        writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
+                                        dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), total_count]
+
+                                elif item in ['Buttweld TW', 'Socket TW']:
+                                    df_selected.rename(columns={
+                                        0: 'id', 9: 'type', 10: 'size', 11: 'rating',
+                                        12: 'facing', 14: 'material', 15: 'std_length', 17: 'root_diam', 21: 'bore_diameter',
+                                        64: 'notes_tw'
+                                    }, inplace=True)
+
+                                    df_bars = df_selected[df_selected['type'] == item].copy()
+
+                                    df_bars['base_diam'] = df_bars.apply(
+                                    lambda row: 32 if float(row['root_diam'].replace(",",".")) < 32 else (35 if float(row['root_diam'].replace(",",".")) < 35 else (38 if float(row['root_diam'].replace(",",".")) < 38 else 40)),
                                     axis=1)
 
                                     df_bars['drawing_code'] = df_bars.apply(
