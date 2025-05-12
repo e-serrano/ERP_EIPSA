@@ -333,7 +333,7 @@ class Ui_ImportTAG_Window(object):
                         seq_id='tags_temp_id_tag_temp_seq'
                         df_final = df_table.iloc[:,1:39]
                         filled_column_names = ["tag", "tag_state", "num_offer", "item_type", "tw_type",
-                                        "flange_size", "flange_rating", "flange_facing", "material_tw", "root_diam",
+                                        "size", "rating", "facing", "material_tw", "root_diam",
                                         "tip_diam", "sensor_element", "sheath_stem_material", "sheath_stem_diam", "insulation",
                                         "temp_inf", "temp_sup", "nipple_ext_material", "nipple_ext_length", "head_case_material",
                                         "elec_conn_case_diam", "tt_cerblock", "material_flange_lj", "gasket_material", "puntal",
@@ -376,7 +376,7 @@ class Ui_ImportTAG_Window(object):
                                 # Creating string for columns names and values
                                     columns = ', '.join([column for column, _ in columns_values])
                                     values = ', '.join([
-                                                f"'{int(float(values))}'" if column in ['flange_rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam'] and values.endswith('.0')
+                                                f"'{int(float(values))}'" if column in ['rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam'] and values.endswith('.0')
                                                 else (f"'{values.replace('.', ',')}'" if column in ['amount', 'root_diam', 'tip_diam', 'sheath_stem_diam']
                                                 else ('NULL' if values == 'N/A' and column in ['std_length', 'ins_length']
                                                 else ('NULL' if values == '' and column in ['num_order','contractual_date']

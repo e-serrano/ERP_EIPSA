@@ -1463,8 +1463,8 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                 UNION
 
-                SELECT id_tag_temp, tag, num_order, item_type || ' ' || tw_type || ' ' || flange_size || ' ' || flange_rating || ' ' ||
-                flange_facing || ' ' || std_tw || ' ' || material_tw || ' ' || std_length || ' ' || ins_length || ' ' || root_diam || ' ' || tip_diam || ' ' || 
+                SELECT id_tag_temp, tag, num_order, item_type || ' ' || tw_type || ' ' || size || ' ' || rating || ' ' ||
+                facing || ' ' || std_tw || ' ' || material_tw || ' ' || std_length || ' ' || ins_length || ' ' || root_diam || ' ' || tip_diam || ' ' || 
                 sensor_element || ' ' || sheath_stem_material || ' ' || sheath_stem_diam || ' ' || insulation as item_colum,
                 dim_drawing, of_drawing, of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_sensor_date, 'DD/MM/YYYY'),
                 TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images,

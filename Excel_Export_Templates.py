@@ -2504,9 +2504,9 @@ class offer_temp:
                     elif eq_type == "TE ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
                                 "tw_type",
-                                "flange_size",
-                                "flange_rating",
-                                "flange_facing",
+                                "size",
+                                "rating",
+                                "facing",
                                 "material_tw",
                                 "std_length",
                                 "root_diam",
@@ -2526,9 +2526,9 @@ class offer_temp:
                     elif eq_type == "BIM ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
                                 "tw_type",
-                                "flange_size",
-                                "flange_rating",
-                                "flange_facing",
+                                "size",
+                                "rating",
+                                "facing",
                                 "material_tw",
                                 "std_length",
                                 "root_diam",
@@ -2543,9 +2543,9 @@ class offer_temp:
                     elif eq_type == "TIT ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
                                 "tw_type",
-                                "flange_size",
-                                "flange_rating",
-                                "flange_facing",
+                                "size",
+                                "rating",
+                                "facing",
                                 "material_tw",
                                 "std_length",
                                 "ins_length",
@@ -2565,9 +2565,9 @@ class offer_temp:
                     elif (eq_type == "SKIN POINT ELEMENTS DATA" or eq_type == "SKIN+TT ELEMENTS DATA"):
                         df_toexport = df_toexport.drop([
                                 "tw_type",
-                                "flange_size",
-                                "flange_rating",
-                                "flange_facing",
+                                "size",
+                                "rating",
+                                "facing",
                                 "material_tw",
                                 "std_length",
                                 "root_diam",
@@ -3323,9 +3323,9 @@ class offer_short_temp_spanish:
                     elif eq_type == "TE ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
                                 "tw_type",
-                                "flange_size",
-                                "flange_rating",
-                                "flange_facing",
+                                "size",
+                                "rating",
+                                "facing",
                                 "material_tw",
                                 "std_length",
                                 "root_diam",
@@ -3345,9 +3345,9 @@ class offer_short_temp_spanish:
                     elif eq_type == "BIM ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
                                 "tw_type",
-                                "flange_size",
-                                "flange_rating",
-                                "flange_facing",
+                                "size",
+                                "rating",
+                                "facing",
                                 "material_tw",
                                 "std_length",
                                 "root_diam",
@@ -3362,9 +3362,9 @@ class offer_short_temp_spanish:
                     elif eq_type == "TIT ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
                                 "tw_type",
-                                "flange_size",
-                                "flange_rating",
-                                "flange_facing",
+                                "size",
+                                "rating",
+                                "facing",
                                 "material_tw",
                                 "std_length",
                                 "root_diam",
@@ -3383,9 +3383,9 @@ class offer_short_temp_spanish:
                     elif (eq_type == "SKIN POINT ELEMENTS DATA" or eq_type == "SKIN+TT ELEMENTS DATA"):
                         df_toexport = df_toexport.drop([
                                 "tw_type",
-                                "flange_size",
-                                "flange_rating",
-                                "flange_facing",
+                                "size",
+                                "rating",
+                                "facing",
                                 "material_tw",
                                 "std_length",
                                 "root_diam",
@@ -4062,9 +4062,9 @@ class offer_short_temp_english:
                     elif eq_type == "TE ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
                                 "tw_type",
-                                "flange_size",
-                                "flange_rating",
-                                "flange_facing",
+                                "size",
+                                "rating",
+                                "facing",
                                 "material_tw",
                                 "std_length",
                                 "root_diam",
@@ -4084,9 +4084,9 @@ class offer_short_temp_english:
                     elif eq_type == "BIM ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
                                 "tw_type",
-                                "flange_size",
-                                "flange_rating",
-                                "flange_facing",
+                                "size",
+                                "rating",
+                                "facing",
                                 "material_tw",
                                 "std_length",
                                 "root_diam",
@@ -4101,9 +4101,9 @@ class offer_short_temp_english:
                     elif eq_type == "TIT ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
                                 "tw_type",
-                                "flange_size",
-                                "flange_rating",
-                                "flange_facing",
+                                "size",
+                                "rating",
+                                "facing",
                                 "material_tw",
                                 "std_length",
                                 "root_diam",
@@ -4122,9 +4122,9 @@ class offer_short_temp_english:
                     elif (eq_type == "SKIN POINT ELEMENTS DATA" or eq_type == "SKIN+TT ELEMENTS DATA"):
                         df_toexport = df_toexport.drop([
                                 "tw_type",
-                                "flange_size",
-                                "flange_rating",
-                                "flange_facing",
+                                "size",
+                                "rating",
+                                "facing",
                                 "material_tw",
                                 "std_length",
                                 "root_diam",
@@ -7015,9 +7015,9 @@ class offer_flow_temp:
                     elif eq_type == "TE ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
                                 "tw_type",
-                                "flange_size",
-                                "flange_rating",
-                                "flange_facing",
+                                "size",
+                                "rating",
+                                "facing",
                                 "material_tw",
                                 "std_length",
                                 "root_diam",
@@ -7037,9 +7037,9 @@ class offer_flow_temp:
                     elif eq_type == "BIM ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
                                 "tw_type",
-                                "flange_size",
-                                "flange_rating",
-                                "flange_facing",
+                                "size",
+                                "rating",
+                                "facing",
                                 "material_tw",
                                 "std_length",
                                 "root_diam",
@@ -7054,9 +7054,9 @@ class offer_flow_temp:
                     elif eq_type == "TIT ELEMENTS DATA":
                         df_toexport = df_toexport.drop([
                                 "tw_type",
-                                "flange_size",
-                                "flange_rating",
-                                "flange_facing",
+                                "size",
+                                "rating",
+                                "facing",
                                 "material_tw",
                                 "std_length",
                                 "ins_length",
@@ -7076,9 +7076,9 @@ class offer_flow_temp:
                     elif (eq_type == "SKIN POINT ELEMENTS DATA" or eq_type == "SKIN+TT ELEMENTS DATA"):
                         df_toexport = df_toexport.drop([
                                 "tw_type",
-                                "flange_size",
-                                "flange_rating",
-                                "flange_facing",
+                                "size",
+                                "rating",
+                                "facing",
                                 "material_tw",
                                 "std_length",
                                 "root_diam",
@@ -8337,7 +8337,7 @@ class spares_two_years:
         elif self.table_name == "tags_data.tags_temp":
             commands_tags = f"""
             SELECT '' AS spare_id, tags.num_order AS model_number, '' AS UNIT,
-            tags.tag, tags.tw_type || ' ' || tags.flange_size || tags.flange_rating || tags.flange_facing || ' Material.' || tags.material_tw ||
+            tags.tag, tags.tw_type || ' ' || tags.size || tags.rating || tags.facing || ' Material.' || tags.material_tw ||
             ' - U(mm)=' || tags.ins_length || ' - Rootø(mm)=' || tags.root_diam || ' - Tipø(mm)=' || tags.tip_diam || ' ' || tags.sensor_element,
             '' AS group_number, '' AS serial_number,
             tags.dwg_num_doc_eipsa, docs.num_doc_client

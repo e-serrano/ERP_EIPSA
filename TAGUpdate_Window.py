@@ -313,7 +313,7 @@ class Ui_TAGUpdate_Window(object):
                             columns_values = [(column, row[column]) for column in df_final.columns if not pd.isnull(row[column])]
                             columns = ', '.join([column for column, _ in columns_values])
                             values = ', '.join([
-                                                f"'{int(float(values))}'" if column in ['flange_rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam'] and values.endswith('.0')
+                                                f"'{int(float(values))}'" if column in ['rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam'] and values.endswith('.0')
                                                 else f"'{values.replace('.', ',')}'" if column in ['amount', 'root_diam', 'tip_diam', 'sheath_stem_diam']
                                                 else ('NULL' if values == 'N/A' and column in ['std_length', 'ins_length']
                                                 else ('NULL' if values == '' and column in ['num_order','contractual_date']

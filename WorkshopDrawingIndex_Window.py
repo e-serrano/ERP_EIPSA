@@ -22,7 +22,7 @@ import sys
 from datetime import *
 import pandas as pd
 from tkinter.filedialog import asksaveasfilename
-from overlay_pdf import flange_dwg_flangedTW, bar_dwg_flangedTW, flange_dwg_orifice, drawing_number
+from overlay_pdf import flange_dwg_flangedTW, bar_dwg_flangedTW, bar_dwg_notflangedTW, flange_dwg_orifice, drawing_number
 from pypdf import PdfReader, PdfWriter
 
 
@@ -4146,7 +4146,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         item_type = results_temp[0][0]
 
                                         query_description = ('''
-                                        SELECT item_type, tw_type, flange_size, flange_rating, flange_facing, geometry, material_tw,
+                                        SELECT item_type, tw_type, size, rating, facing, geometry, material_tw,
                                         ins_length, root_diam, sensor_element, sheath_stem_material, sheath_stem_diam, insulation,
                                         nipple_ext_material, head_case_material, tt_cerblock
                                         FROM tags_data.tags_temp
@@ -4224,7 +4224,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             item_type = results_temp[0][0]
 
                                             query_description = ('''
-                                            SELECT item_type, tw_type, flange_size, flange_rating, flange_facing, geometry, material_tw,
+                                            SELECT item_type, tw_type, size, rating, facing, geometry, material_tw,
                                             ins_length, root_diam
                                             FROM tags_data.tags_temp
                                             WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_drawing) = %s
@@ -4870,14 +4870,13 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 if conn is not None:
                                     conn.close()
 
-                            df_selected = df_general.iloc[:, [0, 9, 10, 11, 12, 14, 15, 17, 21, 64]].copy()
+                            df_selected = df_general.iloc[:, [0, 9, 10, 11, 12, 14, 15, 17, 43, 64]].copy()
 
                             for item in df_selected[9].unique().tolist():
                                 if item == 'Flanged TW':
                                     df_selected.rename(columns={
                                         0: 'id', 9: 'type', 10: 'size', 11: 'rating',
-                                        12: 'facing', 14: 'material', 15: 'std_length', 17: 'root_diam', 21: 'bore_diameter',
-                                        64: 'notes_tw'
+                                        12: 'facing', 14: 'material', 15: 'std_length', 17: 'root_diam', 43: 'dim_tw', 64: 'notes_tw'
                                     }, inplace=True)
 
                                     df_flanges = df_selected[df_selected['type'] == item].copy()
@@ -4926,8 +4925,10 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
                                     df_bars = df_selected[df_selected['type'] == item].copy()
 
+                                    df_bars['bore_diameter'] = df_bars.apply(lambda row: re.search(r':\s*([\d.,]+)',row['dim_tw'].split(' // ')[0].strip()).group(1), axis=1)
+
                                     df_bars['base_diam'] = df_bars.apply(
-                                    lambda row: 32 if float(row['root_diam'].replace(",",".")) < 32 else (35 if float(row['root_diam'].replace(",",".")) < 35 else (38 if float(row['root_diam'].replace(",",".")) < 38 else 40)),
+                                    lambda row: 30 if float(row['root_diam'].replace(",",".")) < 30 else (32 if float(row['root_diam'].replace(",",".")) < 32 else (35 if float(row['root_diam'].replace(",",".")) < 35 else (38 if float(row['root_diam'].replace(",",".")) < 38 else 40))),
                                     axis=1)
 
                                     df_bars['drawing_code'] = df_bars.apply(
@@ -4959,18 +4960,19 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 elif item in ['Buttweld TW', 'Socket TW']:
                                     df_selected.rename(columns={
                                         0: 'id', 9: 'type', 10: 'size', 11: 'rating',
-                                        12: 'facing', 14: 'material', 15: 'std_length', 17: 'root_diam', 21: 'bore_diameter',
-                                        64: 'notes_tw'
+                                        12: 'facing', 14: 'material', 15: 'std_length', 17: 'root_diam', 43: 'dim_tw', 64: 'notes_tw'
                                     }, inplace=True)
 
                                     df_bars = df_selected[df_selected['type'] == item].copy()
 
+                                    df_bars['bore_diameter'] = df_bars.apply(lambda row: re.search(r':\s*([\d.,]+)',row['dim_tw'].split(' // ')[0].strip()).group(1), axis=1)
+
                                     df_bars['base_diam'] = df_bars.apply(
-                                    lambda row: 32 if float(row['root_diam'].replace(",",".")) < 32 else (35 if float(row['root_diam'].replace(",",".")) < 35 else (38 if float(row['root_diam'].replace(",",".")) < 38 else 40)),
+                                    lambda row: 30 if row['size'] == '3/4"' else (35 if row['size'] == '1"' else (45 if row['size'] == '1-1/4"' else (50 if row['size'] == '1-1/2"' else 65))),
                                     axis=1)
 
                                     df_bars['drawing_code'] = df_bars.apply(
-                                    lambda row: 'TVSCP-Ø' + str(row['base_diam']) + ' Corte-Taladro',
+                                    lambda row: 'TVSCP-Ø' + str(row['base_diam']) + ' Corte-Taladro' if float(row['base_diam']) <= 40 else 'TVSCP-ØSuperiores Corte-Taladro',
                                     axis=1)
 
                                     df_bars['drawing_path'] = df_bars.apply(
@@ -4987,7 +4989,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
                                         writer = PdfWriter()
                                         reader = PdfReader(row["drawing_path"])
-                                        page_overlay = PdfReader(bar_dwg_flangedTW(self.numorder, row["material"], zip(row["bore_diameter"], row["std_length"], row["count"]))).pages[0]
+                                        page_overlay = PdfReader(bar_dwg_notflangedTW(self.numorder, row["material"], row['base_diam'], zip(row["bore_diameter"], row["std_length"], row["count"]))).pages[0]
 
                                         reader.pages[0].merge_page(page2=page_overlay)
                                         writer.add_page(reader.pages[0])

@@ -1642,7 +1642,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
             headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Tipo TW",
-                            "Tamaño Brida", "Rating Brida", "Facing Brida", "Standard TW", "Material TW",
+                            "Tamaño", "Rating", "Facing", "Standard TW", "Material TW",
                             "Long. STD (mm)", "Long. Ins. (mm)", "Ø Raíz (mm)", "Ø Punta (mm)", "Sensor",
                             "Material Sheath/Stem", "Ø Sheath/Stem (mm)", "Insulation", "Temp Inf (ºC)", "Temp Sup ºC",
                             "Material Nipple Ext.", "Long. Nipple Ext. (mm)", "Material Head/Case", "Con. Elec./Diam. Case", "TT/Terminal Insulation",
@@ -1673,7 +1673,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                             "Colada Dureza", "Estado Dureza", "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.",
                             "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF.", "Notas Verif. OF", "Fecha Verif. OF Sensor",
                             "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos",
-                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Factura"]
 
             headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Modelo",
@@ -1950,7 +1950,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
 
                 headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                                 "PO", "Posición", "Subposición", "Tipo", "Tipo TW",
-                                "Tamaño Brida", "Rating Brida", "Facing Brida", "Standard TW", "Material TW",
+                                "Tamaño", "Rating", "Facing", "Standard TW", "Material TW",
                                 "Long. STD (mm)", "Long. Ins. (mm)", "Ø Raíz (mm)", "Ø Punta (mm)", "Sensor",
                                 "Material Sheath/Stem", "Ø Sheath/Stem (mm)", "Insulation", "Temp Inf (ºC)", "Temp Sup ºC",
                                 "Material Nipple Ext.", "Long. Nipple Ext. (mm)", "Material Head/Case", "Con. Elec./Diam. Case", "TT/Terminal Insulation",
@@ -1981,7 +1981,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                                 "Colada Dureza", "Estado Dureza", "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.",
                                 "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF.", "Notas Verif. OF", "Fecha Verif. OF Sensor",
                                 "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos",
-                                "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+                                "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Factura"]
 
                 headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                                 "PO", "Posición", "Subposición", "Tipo", "Modelo",
@@ -3012,7 +3012,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         columns_values = [(column, row[column]) for column in df_final.columns if column not in ['tapping_size','tapping_number'] and not pd.isnull(row[column])]
 
                         columns = ', '.join([column for column, _ in columns_values])
-                        values = ', '.join([f"'{int(float(value))}'" if column in ['plug_number', 'tapping_number', 'bolts_quantity', 'extractor_quantity', 'flange_rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam',] and value.endswith('.0')
+                        values = ', '.join([f"'{int(float(value))}'" if column in ['plug_number', 'tapping_number', 'bolts_quantity', 'extractor_quantity', 'rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam',] and value.endswith('.0')
                                             else (f"'{value.replace('.', ',')}'" if column in ['amount', 'orif_diam', 'dv_diam', 'plate_thk','plate_ext_diam', 'conical_length', 'straigth_length', 'nozzle_diam', 'length_cut_tw', 'dim_a_sensor', 'dim_b_sensor', 'dim_l_sensor']
                                             else ('NULL' if value == 'N/A' and column in ['std_length', 'ins_length']
                                             else ('NULL' if value == '' and column in ['rating', 'plate_thk', 'contractual_date', 'irc_date', 'rn_date', 'purchase_order_date', 'of_date', 'of_sensor_date', 'calc_state_date','dwg_state_date','plug_number']

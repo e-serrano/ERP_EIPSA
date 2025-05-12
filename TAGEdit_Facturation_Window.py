@@ -1837,7 +1837,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
 
             headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Tipo TW",
-                            "Tamaño Brida", "Rating Brida", "Facing Brida", "Standard TW", "Material TW",
+                            "Tamaño", "Rating", "Facing", "Standard TW", "Material TW",
                             "Long. STD (mm)", "Long. Ins. (mm)", "Ø Raíz (mm)", "Ø Punta (mm)", "Sensor",
                             "Material Sheath/Stem", "Ø Sheath/Stem (mm)", "Insulation", "Temp Inf (ºC)", "Temp Sup ºC",
                             "Material Nipple Ext.", "Long. Nipple Ext. (mm)", "Material Head/Case", "Con. Elec./Diam. Case", "TT/Terminal Insulation",
@@ -2083,7 +2083,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
 
                 headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                                 "PO", "Posición", "Subposición", "Tipo", "Tipo TW",
-                                "Tamaño Brida", "Rating Brida", "Facing Brida", "Standard TW", "Material TW",
+                                "Tamaño", "Rating", "Facing", "Standard TW", "Material TW",
                                 "Long. STD (mm)", "Long. Ins. (mm)", "Ø Raíz (mm)", "Ø Punta (mm)", "Sensor",
                                 "Material Sheath/Stem", "Ø Sheath/Stem (mm)", "Insulation", "Temp Inf (ºC)", "Temp Sup ºC",
                                 "Material Nipple Ext.", "Long. Nipple Ext. (mm)", "Material Head/Case", "Con. Elec./Diam. Case", "TT/Terminal Insulation",

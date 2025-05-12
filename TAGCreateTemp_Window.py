@@ -941,8 +941,8 @@ class Ui_CreateTAGTemp_Window(object):
             commands_inserttagtemp = ("""
                             INSERT INTO tags_data.tags_temp (
                             "tag","tag_state","num_offer","num_order","num_po",
-                            "position","subposition","item_type","tw_type","flange_size",
-                            "flange_rating","flange_facing","std_tw","material_tw","std_length",
+                            "position","subposition","item_type","tw_type","size",
+                            "rating","facing","std_tw","material_tw","std_length",
                             "ins_length","root_diam","tip_diam","sensor_element","sheath_stem_material",
                             "sheath_stem_diam","insulation","temp_inf","temp_sup","nipple_ext_material",
                             "nipple_ext_length","head_case_material","elec_conn_case_diam","tt_cerblock","material_flange_lj",

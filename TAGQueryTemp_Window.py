@@ -689,7 +689,7 @@ class Ui_TAGQueryTemp_Window(QtWidgets.QMainWindow):
         self.tableTags.setRowCount(0)
         query_material = ("""
                         SELECT tags."tag", tags."num_offer", tags."num_order", offers."client", tags."amount",
-                        tags."item_type", tags."tw_type", tags."flange_size", tags."flange_rating", tags."flange_facing", tags."material_tw", tags."ins_length",
+                        tags."item_type", tags."tw_type", tags."size", tags."rating", tags."facing", tags."material_tw", tags."ins_length",
                         tags."dwg_num_doc_eipsa", tags."dim_drawing", tags."of_sensor_drawing", tags."of_drawing"
                         FROM tags_data.tags_temp AS tags
                         JOIN offers ON (offers."num_offer" = tags."num_offer")
@@ -768,7 +768,7 @@ class Ui_TAGQueryTemp_Window(QtWidgets.QMainWindow):
 
         query_material = ("""
                         SELECT tags."tag", tags."num_offer", tags."num_order", offers."client", tags."amount",
-                        tags."tw_type", tags."flange_size", tags."flange_rating", tags."flange_facing", tags."material_tw", tags."ins_length",
+                        tags."tw_type", tags."size", tags."rating", tags."facing", tags."material_tw", tags."ins_length",
                         tags."dwg_num_doc_eipsa", tags."dim_drawing", tags."of_sensor_drawing", tags."of_drawing"
                         FROM tags_data.tags_temp AS tags
                         JOIN offers ON (offers."num_offer" = tags."num_offer")
