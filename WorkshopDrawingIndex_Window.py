@@ -24,6 +24,7 @@ import pandas as pd
 from tkinter.filedialog import asksaveasfilename
 from overlay_pdf import flange_dwg_flangedTW, bar_dwg_flangedTW, bar_dwg_notflangedTW, flange_dwg_orifice, drawing_number
 from pypdf import PdfReader, PdfWriter
+import fnmatch
 
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -2385,7 +2386,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
         Queries the database for drawings based on the number order, configures and populates tables with the query results, 
         and updates the UI accordingly. Handles potential database errors and updates the UI with appropriate messages.
         """
-        num_order = self.Numorder_IndexDwg.text().upper()
+        self.num_order = self.Numorder_IndexDwg.text().upper()
 
         commands_queryorder = """
                             SELECT orders."num_order", registration."name", registration."surname",
@@ -2406,7 +2407,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             conn = psycopg2.connect(**params)
             cur = conn.cursor()
             # execution of commands one by one
-            data = (num_order,)
+            data = (self.num_order,)
             cur.execute(commands_queryorder, data)
             results_queryorder = cur.fetchall()
 
@@ -2450,7 +2451,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
             self.tableDimDwg.setModel(None)
             self.tableDimDwg.setModel(self.proxyDim)
-            self.modelDim.setFilter(f"num_order LIKE '{num_order}%'")
+            self.modelDim.setFilter(f"num_order LIKE '{self.num_order}%'")
             self.modelDim.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
             self.modelDim.select()
             self.proxyDim.setSourceModel(self.modelDim)
@@ -2512,7 +2513,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
             self.tableOfDwg.setModel(None)
             self.tableOfDwg.setModel(self.proxyOf)
-            self.modelOf.setFilter(f"num_order LIKE '{num_order}%'")
+            self.modelOf.setFilter(f"num_order LIKE '{self.num_order}%'")
             self.modelOf.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
             self.modelOf.select()
             self.proxyOf.setSourceModel(self.modelOf)
@@ -2574,7 +2575,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
             self.tableMDwg.setModel(None)
             self.tableMDwg.setModel(self.proxyM)
-            self.modelM.setFilter(f"num_order LIKE '{num_order}%'")
+            self.modelM.setFilter(f"num_order LIKE '{self.num_order}%'")
             self.modelM.setSort(2, QtCore.Qt.SortOrder.AscendingOrder)
             self.modelM.select()
             self.proxyM.setSourceModel(self.modelM)
@@ -2638,6 +2639,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
             self.tableDimDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableDimDwg, self.modelDim, self.proxyDim)
             self.tableOfDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableOfDwg, self.modelOf, self.proxyOf)
             self.tableMDwg.keyPressEvent = lambda event: self.custom_keyPressEvent(event, self.tableMDwg, self.modelM, self.proxyM)
+
+            self.tableMDwg.doubleClicked.connect(lambda index: self.open_drawings(index))
         else:
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
@@ -4926,6 +4929,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     df_bars = df_selected[df_selected['type'] == item].copy()
 
                                     df_bars['bore_diameter'] = df_bars.apply(lambda row: re.search(r':\s*([\d.,]+)',row['dim_tw'].split(' // ')[0].strip()).group(1), axis=1)
+                                    df_bars['p_length'] = df_bars.apply(lambda row: int(row['std_length']) - int(re.search(r':\s*([\d.,]+)',row['dim_tw'].split(' // ')[1].strip()).group(1)) - 1, axis=1)
 
                                     df_bars['base_diam'] = df_bars.apply(
                                     lambda row: 30 if float(row['root_diam'].replace(",",".")) < 30 else (32 if float(row['root_diam'].replace(",",".")) < 32 else (35 if float(row['root_diam'].replace(",",".")) < 35 else (38 if float(row['root_diam'].replace(",",".")) < 38 else 40))),
@@ -4940,8 +4944,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     axis=1)
 
                                     df_bars = df_bars[~df_bars['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
-                                    df_grouped = df_bars.groupby(["drawing_path",'base_diam','material', "bore_diameter", "std_length"]).size().reset_index(name="count")
-                                    grouped_bars = df_grouped.groupby(['drawing_path','base_diam','material']).agg({"bore_diameter":list, "std_length": list, "count": list}).reset_index()
+                                    df_grouped = df_bars.groupby(["drawing_path",'base_diam','material', "bore_diameter", "std_length","p_length"]).size().reset_index(name="count")
+                                    grouped_bars = df_grouped.groupby(['drawing_path','base_diam','material']).agg({"bore_diameter":list, "std_length": list, "p_length": list, "count": list}).reset_index()
                                     total_count = grouped_bars['count'].explode().sum() 
 
                                     for _, row in grouped_bars.iterrows():
@@ -4949,7 +4953,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
                                         writer = PdfWriter()
                                         reader = PdfReader(row["drawing_path"])
-                                        page_overlay = PdfReader(bar_dwg_flangedTW(self.numorder, row["material"], zip(row["bore_diameter"], row["std_length"], row["count"]))).pages[0]
+                                        page_overlay = PdfReader(bar_dwg_flangedTW(self.numorder, row["material"], zip(row["bore_diameter"], row["std_length"], row["p_length"], row["count"]))).pages[0]
 
                                         reader.pages[0].merge_page(page2=page_overlay)
                                         writer.add_page(reader.pages[0])
@@ -4966,6 +4970,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     df_bars = df_selected[df_selected['type'] == item].copy()
 
                                     df_bars['bore_diameter'] = df_bars.apply(lambda row: re.search(r':\s*([\d.,]+)',row['dim_tw'].split(' // ')[0].strip()).group(1), axis=1)
+                                    df_bars['p_length'] = df_bars.apply(lambda row: int(row['std_length']) - int(re.search(r':\s*([\d.,]+)',row['dim_tw'].split(' // ')[1].strip()).group(1)), axis=1)
 
                                     df_bars['base_diam'] = df_bars.apply(
                                     lambda row: 30 if row['size'] == '3/4"' else (35 if row['size'] == '1"' else (45 if row['size'] == '1-1/4"' else (50 if row['size'] == '1-1/2"' else 65))),
@@ -4980,8 +4985,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     axis=1)
 
                                     df_bars = df_bars[~df_bars['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
-                                    df_grouped = df_bars.groupby(["drawing_path",'base_diam','material', "bore_diameter", "std_length"]).size().reset_index(name="count")
-                                    grouped_bars = df_grouped.groupby(['drawing_path','base_diam','material']).agg({"bore_diameter":list, "std_length": list, "count": list}).reset_index()
+                                    df_grouped = df_bars.groupby(["drawing_path",'base_diam','material', "bore_diameter", "std_length", "p_length"]).size().reset_index(name="count")
+                                    grouped_bars = df_grouped.groupby(['drawing_path','base_diam','material']).agg({"bore_diameter":list, "std_length": list, "p_length": list, "count": list}).reset_index()
                                     total_count = grouped_bars['count'].explode().sum() 
 
                                     for _, row in grouped_bars.iterrows():
@@ -4989,7 +4994,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
                                         writer = PdfWriter()
                                         reader = PdfReader(row["drawing_path"])
-                                        page_overlay = PdfReader(bar_dwg_notflangedTW(self.numorder, row["material"], row['base_diam'], zip(row["bore_diameter"], row["std_length"], row["count"]))).pages[0]
+                                        page_overlay = PdfReader(bar_dwg_notflangedTW(self.numorder, row["material"], row['base_diam'], zip(row["bore_diameter"], row["std_length"], row["p_length"], row["count"]))).pages[0]
 
                                         reader.pages[0].merge_page(page2=page_overlay)
                                         writer.add_page(reader.pages[0])
@@ -5005,6 +5010,39 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 writer.add_page(reader.pages[0])
 
                                 writer.write(key)
+
+                                query_insert_drawing = ("""
+                                    INSERT INTO verification."m_drawing_verification" (num_order, drawing_number, drawing_description, printed_date, printed_state)
+                                    VALUES (%s, %s, %s, %s, %s)
+                                    """)
+
+                                conn = None
+                                try:
+                                # read the connection parameters
+                                    params = config()
+                                # connect to the PostgreSQL server
+                                    conn = psycopg2.connect(**params)
+                                    cur = conn.cursor()
+                                # execution of commands
+                                    cur.execute(query_insert_drawing,(self.numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'))
+                                # close communication with the PostgreSQL database server
+                                    cur.close()
+                                # commit the changes
+                                    conn.commit()
+                                except (Exception, psycopg2.DatabaseError) as error:
+                                    dlg = QtWidgets.QMessageBox()
+                                    new_icon = QtGui.QIcon()
+                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg.setWindowIcon(new_icon)
+                                    dlg.setWindowTitle("ERP EIPSA")
+                                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                + str(error))
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                    dlg.exec()
+                                    del dlg, new_icon
+                                finally:
+                                    if conn is not None:
+                                        conn.close()
 
                         elif self.table_toquery == "tags_data.tags_flow":
                             query = ('''
@@ -5091,6 +5129,112 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
                                 writer.write(key)
 
+                                query_insert_drawing = ("""
+                                    INSERT INTO verification."m_drawing_verification" (num_order, drawing_number, drawing_description, printed_date, printed_state)
+                                    VALUES (%s, %s, %s, %s, %s)
+                                    """)
+
+                                conn = None
+                                try:
+                                # read the connection parameters
+                                    params = config()
+                                # connect to the PostgreSQL server
+                                    conn = psycopg2.connect(**params)
+                                    cur = conn.cursor()
+                                # execution of commands
+                                    cur.execute(query_insert_drawing,(self.numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'))
+                                # close communication with the PostgreSQL database server
+                                    cur.close()
+                                # commit the changes
+                                    conn.commit()
+                                except (Exception, psycopg2.DatabaseError) as error:
+                                    dlg = QtWidgets.QMessageBox()
+                                    new_icon = QtGui.QIcon()
+                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg.setWindowIcon(new_icon)
+                                    dlg.setWindowTitle("ERP EIPSA")
+                                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                + str(error))
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                    dlg.exec()
+                                    del dlg, new_icon
+                                finally:
+                                    if conn is not None:
+                                        conn.close()
+
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("Planos Generados")
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                        dlg.exec()
+                        del dlg, new_icon
+
+                        self.query_drawings()
+
+# Function to open drawings
+    def open_drawings(self, index):
+        """
+        Opens a file based on the provided index and variable.
+
+        Args:
+            index (QModelIndex): The index representing the selected cell in the table.
+
+        Raises:
+            Exception: If there is an error while trying to open the file, a message box displays the error details.
+        """
+
+        if index.column() == 1:
+            model = self.tableMDwg.model()
+            item_index = model.index(index.row(), 2)
+            drawing_number = model.data(item_index)[:4]
+
+            order_year = str(datetime.now().year)[:2] + self.num_order [self.num_order .rfind("/") - 2:self.num_order .rfind("/")]
+
+            if self.num_order[:2] == 'PA':
+                num_order = self.num_order
+                path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
+                for folder in os.listdir(path):
+                    if num_order.replace("/", "-") in folder:
+                        folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/3-Fabricacion/Planos M/"
+                        for root, dirs, files in os.walk(folder_path):
+                            for filename in files:
+                                if fnmatch.fnmatch(filename, f'{drawing_number}*'):
+                                    file_path = os.path.join(root, filename)
+                                    file_path = os.path.normpath(file_path)
+                                    os.startfile(file_path)
+
+            elif self.num_order[:2] == 'P-':
+                num_order = self.num_order[:8]
+                path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
+                for folder in os.listdir(path):
+                    if num_order.replace("/", "-") in folder:
+                        folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/3-Fabricacion/Planos M/"
+                        for root, dirs, files in os.walk(folder_path):
+                            for filename in files:
+                                if fnmatch.fnmatch(filename, f'{drawing_number}*'):
+                                    file_path = os.path.join(root, filename)
+                                    file_path = os.path.normpath(file_path)
+                                    os.startfile(file_path)
+
+        #     if value != '':
+        #         try:
+        #             file_path = os.path.normpath(value)
+        #             os.startfile(file_path)
+
+        #         except (Exception, psycopg2.DatabaseError) as error:
+        #             dlg = QtWidgets.QMessageBox()
+        #             new_icon = QtGui.QIcon()
+        #             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        #             dlg.setWindowIcon(new_icon)
+        #             dlg.setWindowTitle("ERP EIPSA")
+        #             dlg.setText("Ha ocurrido el siguiente error:\n"
+        #                         + str(error))
+        #             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+        #             dlg.exec()
+        #             del dlg, new_icon
 
 
 

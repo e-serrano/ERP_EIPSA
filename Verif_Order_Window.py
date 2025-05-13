@@ -2351,7 +2351,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 
             commands_insert_exp = ("""
                             UPDATE verification."exp_verification"
-                            SET "verif_exp_obs" = %s,
+                            SET "verif_exp_obs" = %s
                             WHERE "id" = %s
                             """)
 
@@ -2379,7 +2379,7 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
             dlg.setWindowIcon(new_icon)
             dlg.setWindowTitle("Expedición")
             dlg.setText("Aviso Enviado")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
             dlg.exec()
 
         except (Exception, psycopg2.DatabaseError) as error:
@@ -2400,6 +2400,6 @@ class Ui_Verif_Order_Window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    Verif_Order_Window = Ui_Verif_Order_Window('m.gil','PA-25/042')
+    Verif_Order_Window = Ui_Verif_Order_Window('m.gil','PA-25/049')
     Verif_Order_Window.show()
     sys.exit(app.exec())

@@ -105,13 +105,14 @@ def drawing_number(num_order, info_drawing, counter):
 
     pdf.cell(37, 7, f"{str(info_drawing[0].split('.')[0])}/{counter:02d}", align='C')
 
-    # check_ot = f"SELECT * FROM fabrication.fab_order WHERE id = '{num_order + f"{str(info_drawing[0].split('.')[0])}/{counter:02d}"}'"
-    # insert_ot = ("""INSERT INTO fabrication.fab_order (
-                    # "id","tag","element","qty_element",
-                    # "ot_num","qty_ot","start_date")
-                    # VALUES (%s,%s,%s,%s,%s,%s,%s)
-                    # """)
-    num_ot = 123
+    order_id = f"{num_order} - {info_drawing[0].split('.')[0]}/{counter:02d} - {info_drawing[1]}"
+    check_ot = f"SELECT * FROM fabrication.fab_order WHERE id = '{order_id}'"
+    insert_ot = ("""INSERT INTO fabrication.fab_order (
+                    "id","tag","element","qty_element",
+                    "ot_num","qty_ot","start_date")
+                    VALUES (%s,%s,%s,%s,%s,%s,%s)
+                    """)
+    # num_ot = 123
     conn = None
     try:
     # read the connection parameters
@@ -120,17 +121,22 @@ def drawing_number(num_order, info_drawing, counter):
         conn = psycopg2.connect(**params)
         cur = conn.cursor()
     # execution of commands
-        # excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
-        # workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
-        # worksheet = workbook.active
-        # num_ot = worksheet['B2'].value
-        # cur.execute(check_ot)
-        # results=cur.fetchall()
-        # if len(results) == 0:
-        data=(num_order + "-" + f"{str(info_drawing[0].split('.')[0])}/{counter:02d}", num_order, info_drawing[1], 1, '{:06}'.format(int(num_ot) + 1), info_drawing[2], date.today().strftime("%d/%m/%Y"))
-            # cur.execute(insert_ot, data)
-            # worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
-            # workbook.save(excel_file_path)
+        excel_file_path = r"\\nas01\DATOS\Comunes\EIPSA Sistemas de Gestion\MasterCTF\Bases\Contador.xlsm"
+        workbook = openpyxl.load_workbook(excel_file_path, keep_vba=True)
+        worksheet = workbook.active
+        num_ot = worksheet['B2'].value
+        cur.execute(check_ot)
+        results=cur.fetchall()
+        if len(results) == 0:
+            data=(order_id, num_order, info_drawing[1], 1, '{:06}'.format(int(num_ot) + 1), int(info_drawing[2]), date.today().strftime("%d/%m/%Y"))
+            cur.execute(insert_ot, data)
+            worksheet['B2'].value = '{:06}'.format(int(num_ot) + 1)
+            workbook.save(excel_file_path)
+
+            num_ot_text = '{:06}'.format(int(num_ot) + 1)
+        else:
+            num_ot = '{:06}'.format(int(results[0][4]))
+            num_ot_text = '{:06}'.format(int(num_ot))
 
     # close communication with the PostgreSQL database server
         cur.close()
@@ -152,9 +158,6 @@ def drawing_number(num_order, info_drawing, counter):
         if conn is not None:
             conn.close()
 
-    
-    num_ot_text = '{:06}'.format(int(num_ot) + 1)
-    
     pdf.set_text_color(0, 0, 0)
     pdf.set_font("IDAutomationHC39M", size=16)
     pdf.set_x(-9)
@@ -314,10 +317,11 @@ def bar_dwg_flangedTW(num_order, material, item_data):
 
     pdf.set_xy(27, 19)
 
-    for bore, std_len, cnt in item_data:
+    for bore, std_len, p_length, cnt in item_data:
         pdf.cell(15, 6.8, str(cnt), align='C')
         pdf.cell(15, 6.8, str(bore), align='C')
         pdf.cell(15, 6.8, str(int(std_len) + 10), align='C')
+        pdf.cell(15, 6.8, str(int(p_length)), align='C')
         pdf.ln()
         y_pos = pdf.get_y()
         pdf.set_xy(27, y_pos)
@@ -406,13 +410,14 @@ def bar_dwg_notflangedTW(num_order, material, base_diam, item_data):
 
     pdf.set_xy(27, 19)
 
-    for bore, std_len, cnt in item_data:
+    for bore, std_len, p_length, cnt in item_data:
         pdf.cell(15, 6.8, str(cnt), align='C')
         pdf.cell(15, 6.8, str(bore), align='C')
         if base_diam < 45:
             pdf.cell(15, 6.8, str(int(std_len) + 10), align='C')
         else:
             pdf.cell(15, 6.8, str(int(std_len) + 10 + 5), align='C')
+        pdf.cell(15, 6.8, str(int(p_length)), align='C')
         pdf.ln()
         y_pos = pdf.get_y()
         pdf.set_xy(27, y_pos)
