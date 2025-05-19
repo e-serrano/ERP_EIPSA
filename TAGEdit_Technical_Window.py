@@ -277,7 +277,7 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
         column = left.column()
 
         # Columns to order as integers
-        numeric_columns = [5, 6]
+        numeric_columns = [6, 7]
 
         if column in numeric_columns:
             try:
