@@ -8155,9 +8155,9 @@ class vendor_progress_report:
                     , 'EIPSA' as manufacturer,
                     'Poligono Industrial Igarsa, Naves 4-8, 28860, Paracuellos de Jarama, Spain' as fab_location, tags_data."inspection", '' as remarks, tags_data."dwg_state" as drawing_state
                     FROM {self.table_query} AS tags_data
-                    JOIN orders ON (orders."num_ref_order" = tags_data."num_po")
-                    JOIN offers ON (offers."num_offer" = orders."num_offer")
-                    WHERE tags_data."num_po" LIKE UPPER ('%%'||'{self.num_ref}'||'%%')
+                    LEFT JOIN orders ON (tags_data."num_order" = orders."num_order")
+                    LEFT JOIN offers ON (orders."num_offer" = offers."num_offer")
+                    WHERE tags_data."num_po" LIKE UPPER ('%%'||'{self.num_ref}'||'%%') and tags_data."tag_state" = 'PURCHASED'
                     ORDER BY tags_data."tag"
                     """)
         conn = None
