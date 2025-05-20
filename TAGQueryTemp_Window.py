@@ -689,7 +689,7 @@ class Ui_TAGQueryTemp_Window(QtWidgets.QMainWindow):
         self.tableTags.setRowCount(0)
         query_material = ("""
                         SELECT tags."tag", tags."num_offer", tags."num_order", offers."client", tags."amount",
-                        tags."item_type", tags."tw_type", tags."size", tags."rating", tags."facing", tags."material_tw", tags."ins_length",
+                        tags."item_type", tags."tw_type", tags."size", tags."rating", tags."facing", tags."material_tw", tags."ins_length", tags."sensor_element",
                         tags."dwg_num_doc_eipsa", tags."dim_drawing", tags."of_sensor_drawing", tags."of_drawing"
                         FROM tags_data.tags_temp AS tags
                         JOIN offers ON (offers."num_offer" = tags."num_offer")
@@ -712,12 +712,12 @@ class Ui_TAGQueryTemp_Window(QtWidgets.QMainWindow):
             conn.commit()
 
             self.tableTags.setRowCount(len(results))
-            self.tableTags.setColumnCount(16)
+            self.tableTags.setColumnCount(17)
             tablerow=0
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(16):
+                for column in range(17):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -727,7 +727,7 @@ class Ui_TAGQueryTemp_Window(QtWidgets.QMainWindow):
 
                 tablerow+=1
 
-            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Cliente', 'Precio', 'Tipo Equipo', 'Tipo TW', 'Tamaño', 'Rating', 'Facing', 'Material TW', 'L. Ins.(mm)',
+            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Cliente', 'Precio', 'Tipo Equipo', 'Tipo TW', 'Tamaño', 'Rating', 'Facing', 'Material TW', 'L. Ins.(mm)', 'Sensor',
                             'Nº Doc. Plano', 'Nº Plano Dim.', 'Nº Plano OF Sensor','Nº Plano OF Equipo']
             
             self.tableTags.verticalHeader().hide()
@@ -768,7 +768,7 @@ class Ui_TAGQueryTemp_Window(QtWidgets.QMainWindow):
 
         query_material = ("""
                         SELECT tags."tag", tags."num_offer", tags."num_order", offers."client", tags."amount",
-                        tags."tw_type", tags."size", tags."rating", tags."facing", tags."material_tw", tags."ins_length",
+                        tags."item_type", tags."tw_type", tags."size", tags."rating", tags."facing", tags."material_tw", tags."ins_length", tags."sensor_element",
                         tags."dwg_num_doc_eipsa", tags."dim_drawing", tags."of_sensor_drawing", tags."of_drawing"
                         FROM tags_data.tags_temp AS tags
                         JOIN offers ON (offers."num_offer" = tags."num_offer")
@@ -799,12 +799,12 @@ class Ui_TAGQueryTemp_Window(QtWidgets.QMainWindow):
             conn.commit()
 
             self.tableTags.setRowCount(len(results))
-            self.tableTags.setColumnCount(15)
+            self.tableTags.setColumnCount(16)
             tablerow=0
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(15):
+                for column in range(16):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -814,7 +814,7 @@ class Ui_TAGQueryTemp_Window(QtWidgets.QMainWindow):
 
                 tablerow+=1
 
-            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Cliente', 'Precio', 'Tipo TW', 'Tamaño', 'Rating', 'Facing', 'Material TW', 'L. Ins.(mm)',
+            column_headers = ['TAG', 'Nº Oferta', 'Nº Pedido', 'Cliente', 'Precio', 'Tipo Equipo', 'Tipo TW', 'Tamaño', 'Rating', 'Facing', 'Material TW', 'L. Ins.(mm)', 'Sensor',
                             'Nº Doc. Plano', 'Nº Plano Dim.', 'Nº Plano OF Sensor','Nº Plano OF Equipo']
             
             self.tableTags.verticalHeader().hide()
