@@ -395,12 +395,12 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
                         self.checkbox_states[column][str(value)] = True
                 self.dict_valuesuniques[column] = list_valuesUnique
 
-        for i in range(1,21):
+        for i in range(1,22):
             self.tableDeliveries.hideColumn(i)
-        for i in range(26,33):
+        for i in range(26,34):
             self.tableDeliveries.hideColumn(i)
 
-        headers=['Nº Pedido', '','','','','','','','','','','','','','','','','','','','',
+        headers=['Nº Pedido', '','','','','','','','','','','','','','','','','','','','','',
                 '% Real Envío', 'Fecha Último Envío', 'Fecha Entregas Parciales', 'Observaciones','OK', '', '', '', '','','']
 
         self.tableDeliveries.setItemDelegate(AlignDelegate(self.tableDeliveries))
@@ -460,13 +460,13 @@ class Ui_Deliveries_Window(QtWidgets.QMainWindow):
                         self.checkbox_states[column][str(value)] = True
                 self.dict_valuesuniques[column] = list_valuesUnique
 
-        for i in range(1,21):
+        for i in range(1,22):
             self.tableDeliveries.hideColumn(i)
-        for i in range(26,33):
+        for i in range(26,34):
             self.tableDeliveries.hideColumn(i)
 
 
-        headers=['Nº Pedido', '','','','','','','','','','','','','','','','','','','','',
+        headers=['Nº Pedido', '','','','','','','','','','','','','','','','','','','','','',
                 '% Real Envío', 'Fecha Último Envío', 'Fecha Entregas Parciales', 'Observaciones','OK', '', '', '', '','','']
 
         self.tableDeliveries.setItemDelegate(AlignDelegate(self.tableDeliveries))

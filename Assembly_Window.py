@@ -859,19 +859,19 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             self.tableAssembly_PA.hideColumn(i)
         self.tableAssembly_P.hideColumn(15)
         self.tableAssembly_PA.hideColumn(15)
-        for i in range(21,22):
+        for i in range(22,23):
             self.tableAssembly_P.hideColumn(i)
             self.tableAssembly_PA.hideColumn(i)
-        self.tableAssembly_P.hideColumn(23)
-        self.tableAssembly_PA.hideColumn(23)
         self.tableAssembly_P.hideColumn(24)
         self.tableAssembly_PA.hideColumn(24)
-        for i in range(26,32):
+        self.tableAssembly_P.hideColumn(25)
+        self.tableAssembly_PA.hideColumn(25)
+        for i in range(27,33):
             self.tableAssembly_P.hideColumn(i)
             self.tableAssembly_PA.hideColumn(i)
 
         headers=['Nº Pedido', '','Nº Ref','','F. Cont.','','','','','','','','','','F. Prev. Taller','',
-                '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones',
+                '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones', 'Fecha Aviso',
                 '', 'Fecha Envío', '', '','OK', '', '', '', '', '','','Extras']
 
         self.tableAssembly_P.setItemDelegate(AlignDelegate(self.tableAssembly_P))
@@ -972,15 +972,15 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         for i in range(5,14):
             self.tableAssembly_P.hideColumn(i)
         self.tableAssembly_P.hideColumn(15)
-        for i in range(21,22):
+        for i in range(22,23):
             self.tableAssembly_P.hideColumn(i)
-        self.tableAssembly_P.hideColumn(23)
         self.tableAssembly_P.hideColumn(24)
-        for i in range(26,32):
+        self.tableAssembly_P.hideColumn(25)
+        for i in range(27,33):
             self.tableAssembly_P.hideColumn(i)
 
         headers=['Nº Pedido', '','Nº Ref','','F. Cont.','','','','','','','','','','F. Prev. Taller','',
-                '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones',
+                '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones', 'Fecha Aviso',
                 '', 'Fecha Envío', '', '','OK', '', '', '', '', '','','Extras']
 
         self.tableAssembly_P.setItemDelegate(AlignDelegate(self.tableAssembly_P))
@@ -1042,15 +1042,15 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.tableAssembly_PA.hideColumn(3)
         for i in range(5,16):
             self.tableAssembly_PA.hideColumn(i)
-        for i in range(21,22):
+        for i in range(22,23):
             self.tableAssembly_PA.hideColumn(i)
-        self.tableAssembly_PA.hideColumn(23)
         self.tableAssembly_PA.hideColumn(24)
-        for i in range(26,32):
+        self.tableAssembly_PA.hideColumn(25)
+        for i in range(27,33):
             self.tableAssembly_PA.hideColumn(i)
 
         headers=['Nº Pedido', '','Nº Ref','','F. Cont.','','','','','','','','','','F. Prev. Taller','',
-                '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones',
+                '% Montaje','Cambios %','F. Rec.','F. Prev. Montaje','Observaciones', 'Fecha Aviso',
                 '', 'Fecha Envío', '', '','OK', '', '', '', '', '','','Extras']
 
         self.tableAssembly_PA.setItemDelegate(AlignDelegate(self.tableAssembly_PA))
