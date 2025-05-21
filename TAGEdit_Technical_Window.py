@@ -297,7 +297,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
     """
     updateFailed = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent=None, column_range=None, table_check=None):
+    def __init__(self, username, parent=None, column_range=None, table_check=None):
         """
         Initialize the model with user permissions and optional database and column range.
 
@@ -310,6 +310,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
         super().__init__(parent)
         self.column_range = column_range
         self.table_check = table_check
+        self.username = username
 
     def setAllColumnHeaders(self, headers):
         """
@@ -369,11 +370,19 @@ class EditableTableModel(QtSql.QSqlTableModel):
         """
         flags = super().flags(index)
 
-        if index.column() in range (0,8) or index.column() in self.column_range or index.sibling(index.row(), index.model().columnCount() - 1).data() == 'Facturado':
-            flags &= ~Qt.ItemFlag.ItemIsEditable
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+        if self.username == 'j.martinez':
+            if index.column() in range (0,8) or index.column() in self.column_range:
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+            else:
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+            
         else:
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+            if index.column() in range (0,8) or index.column() in self.column_range or index.sibling(index.row(), index.model().columnCount() - 1).data() == 'Facturado':
+                flags &= ~Qt.ItemFlag.ItemIsEditable
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+            else:
+                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
     def getColumnHeaders(self, visible_columns):
         """
@@ -693,7 +702,10 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             db (object): Database connection.
         """
         super().__init__()
-        self.model = EditableTableModel()
+        self.username = username
+        self.variable = ''
+
+        self.model = EditableTableModel(self.username)
         self.proxy = CustomProxyModel()
         self.model2 = EditableTableModel2()
         self.proxy2 = CustomProxyModel2()
@@ -718,8 +730,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         self.tableEditTags2 = None
 
         self.model.dataChanged.connect(self.saveChanges)
-        self.username = username
-        self.variable = ''
+        
         self.setupUi(self)
 
     def closeEvent(self, event):
@@ -930,7 +941,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
         self.Button_Query.setObjectName("Button_Query")
         self.hLayout1.addWidget(self.Button_Query)
         self.tableEditTags=QtWidgets.QTableView(parent=self.frame)
-        self.model = EditableTableModel()
+        self.model = EditableTableModel(self.username)
         self.tableEditTags.setObjectName("tableEditTags")
         self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
         self.hLayout3 = QtWidgets.QHBoxLayout()
@@ -3491,6 +3502,6 @@ if __name__ == "__main__":
     if not db:
         sys.exit()
 
-    EditTagsTechnical_Window = Ui_EditTags_Technical_Window('e.carrillo',db)
+    EditTagsTechnical_Window = Ui_EditTags_Technical_Window('j.martinez',db)
     EditTagsTechnical_Window.show()
     sys.exit(app.exec())
