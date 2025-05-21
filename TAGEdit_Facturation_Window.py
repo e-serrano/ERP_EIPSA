@@ -68,6 +68,9 @@ class FreezeTableWidget(QtWidgets.QTableView):
         self.variable_table = variable
         self.doubleClicked.connect(self.open_pics)
 
+        for col in range(2, self.model().columnCount()):
+            self.setColumnHidden(col, True)
+
     def init(self):
         """
         Initializes the appearance and behavior of the frozen table, hiding columns after the second one, and synchronizes
@@ -82,11 +85,7 @@ class FreezeTableWidget(QtWidgets.QTableView):
         self.frozenTableView.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
 
         self.frozenTableView.setSelectionModel(self.selectionModel())
-        for col in range(self.model().columnCount()):
-            if col < 2:
-                self.frozenTableView.setColumnWidth(col, self.columnWidth(col))
-            else:
-                self.frozenTableView.setColumnHidden(col, True)
+        
         self.frozenTableView.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.frozenTableView.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.frozenTableView.show()
@@ -1283,7 +1282,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addLayout(self.hLayout1, 1, 0, 1, 1)
         # self.tableEditTags=QtWidgets.QTableView(parent=self.frame)
         self.model = EditableTableModel()
-        self.tableEditTags=FreezeTableWidget(self.model, '')
+        self.tableEditTags=QtWidgets.QTableView(parent=self.frame) #FreezeTableWidget(self.model, '')
         self.tableEditTags.setObjectName("tableEditTags")
         self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
         self.hLayout3 = QtWidgets.QHBoxLayout()
@@ -1317,7 +1316,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addLayout(self.hLayout3, 4, 0, 1, 1)
         # self.tableEditTags2=QtWidgets.QTableView(parent=self.frame)
         self.model2 = EditableTableModel()
-        self.tableEditTags2=FreezeTableWidget(self.model2, '')
+        self.tableEditTags2=QtWidgets.QTableView(parent=self.frame) #FreezeTableWidget(self.model2, '')
         self.tableEditTags2.setObjectName("tableEditTags2")
         self.gridLayout_2.addWidget(self.tableEditTags2, 5, 0, 1, 1)
         self.tableEditTags2.hide()
@@ -1737,11 +1736,10 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(9,30):
                     self.tableEditTags.hideColumn(i)
-                for i in range(31,33):
+                for i in range(31,68):
                     self.tableEditTags.hideColumn(i)
-                for i in range(34,67):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(72,156):
+                self.tableEditTags.hideColumn(69)
+                for i in range(71,157):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Temperatura':
@@ -1749,11 +1747,10 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(9,35):
                     self.tableEditTags.hideColumn(i)
-                for i in range(36,38):
+                for i in range(36,76):
                     self.tableEditTags.hideColumn(i)
-                for i in range(39,75):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(80,166):
+                self.tableEditTags.hideColumn(77)
+                for i in range(79,167):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Nivel':
@@ -1761,11 +1758,10 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(10,36):
                     self.tableEditTags.hideColumn(i)
-                for i in range(37,39):
+                for i in range(39,62):
                     self.tableEditTags.hideColumn(i)
-                for i in range(40,61):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(66,169):
+                self.tableEditTags.hideColumn(63)
+                for i in range(65,170):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Otros':
@@ -1773,11 +1769,10 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(9,11):
                     self.tableEditTags.hideColumn(i)
-                for i in range(12,14):
+                for i in range(12,21):
                     self.tableEditTags.hideColumn(i)
-                for i in range(15,20):
-                    self.tableEditTags.hideColumn(i)
-                for i in range(25,56):
+                self.tableEditTags.hideColumn(22)
+                for i in range(24,57):
                     self.tableEditTags.hideColumn(i)
 
 
@@ -1789,8 +1784,9 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
             self.tableEditTags.setItemDelegateForColumn(self.column_subposition, self.color_delegate)
             self.color_delegate = ColorDelegate_DifferenceAmount(self)
             self.tableEditTags.setItemDelegateForColumn(self.column_difference, self.color_delegate)
-            self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
-            self.tableEditTags.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableEditTags.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableEditTags.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
             self.tableEditTags.setObjectName("tableEditTags")
@@ -1802,19 +1798,19 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
 
         # Change all column names
             headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                            "PO", "Posición", "Subposición", "Tipo", "Tamaño Línea",
+                            "PO", "Pos.", "Subpos.", "Tipo", "Tamaño Línea",
                             "Rating", "Facing", "Schedule", "Material Brida", "Tipo Brida",
                             "Material Tubo", "Tamaño Tomas (Nº)", "Material Elemento", "Tipo Placa", "Espesor Placa",
                             "Estándar Placa", "Material Junta", "Material Tornillería", "Con. Válvula", "Material Cuerpo Vlv.",
                             "Nº Saltos", "Pipe Spec.", "Peso Aprox. (kg)", "Long. Aprox. (mm)", "NACE",
-                            "Precio (€)", "Notas Oferta", "Cambios Comercial", "Fecha Contractual", "Ø Orif. (mm)",
+                            "Precio (€)", "Notas Oferta", "Cambios Comercial", "F. Cont.", "Ø Orif. (mm)",
                             "Ø D/V (mm)", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo",
                             "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Orden de Compra",
                             "Fecha Orden Compra", "Notas Orden Compra", 'Plano Dimensional', "Plano OF", "Fecha OF",
                             "Notas Equipo", "Colada Placa", "Cert. Placa", "Colada Brida", "Cert. Brida", "Nº Tapones",
                             "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material", "RTJ Espesor", "RTJ Dim",
                             "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos", "Cantidad Espárragos", "Tamaño Extractor",
-                            "Cantidad Extractor", "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo",
+                            "Cantidad Extractor", "Est. Fab.", "Insp.", "F. Insp.", "RN", "Fecha RN", "Cod. Equipo",
                             "Cod. Fab. Equipo", "Trad. Equipo", "Cod. Brida Orif.", "Cod. Fab. Brida Orif.", "Cant. Brida Orif.",
                             "Cod. Brida Línea", "Cod. Fab. Brida Línea", "Cant. Brida Línea", "Cod. Junta", "Cod. Fab. Junta",
                             "Cant. Junta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería", "Cod. Tapones",
@@ -1832,25 +1828,25 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                             "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                             "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas",
-                            "Estado Facturación"]
+                            "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
+                            "Est. Fact."]
 
             headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                            "PO", "Posición", "Subposición", "Tipo", "Tipo TW",
+                            "PO", "Pos.", "Subpos.", "Tipo", "Tipo TW",
                             "Tamaño", "Rating", "Facing", "Standard TW", "Material TW",
                             "Long. STD (mm)", "Long. Ins. (mm)", "Ø Raíz (mm)", "Ø Punta (mm)", "Sensor",
                             "Material Sheath/Stem", "Ø Sheath/Stem (mm)", "Insulation", "Temp Inf (ºC)", "Temp Sup ºC",
                             "Material Nipple Ext.", "Long. Nipple Ext. (mm)", "Material Head/Case", "Con. Elec./Diam. Case", "TT/Terminal Insulation",
                             "Material Brida LapJoint", "Material Junta", "Puntal", "Tubo", "NACE",
-                            "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual", "Stress",
+                            "Precio (€)", "Notas Oferta", "Cambio Comercial", "F. Cont.", "Stress",
                             "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Ø Picaje (mm)", "Notas Cálculo",
                             "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo", "Fecha Estado Cálculo",
                             "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Planos", "Orden de Compra",
                             "Fecha Orden Compra", "Notas Orden Compra", "Plano Dimensional", "Plano OF Sensor", "Fecha OF Sensor", 
-                            "Notas Sensor", "Estado Fabricación Sensor", "Plano OF TW", "Fecha OF TW", "Notas TW",
-                            "Estado Fabricación TW", "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
+                            "Notas Sensor", "Est. Fab. Sensor", "Plano OF TW", "Fecha OF TW", "Notas TW",
+                            "Est. Fab. TW", "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
                             "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)", "Tapón",
-                            "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
+                            "Est. Fab.", "Insp.", "F. Insp.", "RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
                             "Trad. Equipo", "Cod. Barra", "Cod. Fab. Barra", "Cant. Barra", "Cod. Tubo",
                             "Cod. Fab. Tubo", "Cant. Tubo", "Cod. Brida", "Cod. Fab. Brida", "Cant. Brida",
                             "Cod. Sensor", "Cod. Fab. Sensor", "Cant. Sensor", "Cod. Cabeza", "Cod. Fab. Cabeza",
@@ -1868,22 +1864,22 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                             "Colada Dureza", "Estado Dureza", "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.",
                             "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF.", "Notas Verif. OF", "Fecha Verif. OF Sensor",
                             "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos",
-                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas",
-                            "Estado Facturación"]
+                            "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
+                            "Est. Fact."]
 
             headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                            "PO", "Posición", "Subposición", "Tipo", "Modelo",
+                            "PO", "Pos.", "Subpos.", "Tipo", "Modelo",
                             "Material Cuerpo", "Tipo Conex. Proc.", "Tamaño Conex. Proc.", "Rating Conex. Proc.", "Facing Conex. Proc.",
                             "Tipo Conex.", "Visibilidad (mm)", "Long. C-C (mm)", "Tipo Válv.", "Tipo Conex. Ext.",
                             "Tamaño Conex. Ext.", "Rating Conex. Ext.", "Facing Conex. Ext.", "Junta", "Tornillería",
                             "Iluminador", "Mat. Flotador", "Mat. Cubierta", "Escala", "Banderas",
                             "Cod. IP", "Tipo Brida", "Niplo Hex.", "Niplo Tubo", "Antifrost",
-                            "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
+                            "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "F. Cont.",
                             "Dim. Flotador", "Junta Bridas", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Plano",
                             "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Orden de Compra", "Fecha Orden Compra",
                             "Notas Orden Compra", "Plano Dimensional", "Plano OF", "Fecha OF", "Notas Equipo",
                             "Colada Cuerpo", "Cert. Cuerpo", "Colada Cuerpo Vlv", "Cert. Cuerpo Vlv", "Colada Brida Vlv", "Cert. Brida Vlv",
-                            "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
+                            "Est. Fab.", "Insp.", "F. Insp.", "RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
                             "Trad. Equipo", "Cod. Cuerpo", "Cod. Fab. Cuerpo", "Cant. Cuerpo", "Cod. Cubierta",
                             "Cod. Fab. Cubierta", "Cant. Cubierta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería",
                             "Cdo. Niplo Hex.", "Cod. Fab. Niplo Hex.", "Cant. Niplo Hex.", "Cod. Válv.", "Cod. Fab. Válv.",
@@ -1905,13 +1901,13 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                             "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                             "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas",
-                            "Estado Facturación"]
+                            "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
+                            "Est. Fact."]
 
             headers_others = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                            "PO", "Posición", "Subposición", "Descripción", "Código Equipo",
-                            "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
-                            "Plano Dimensional", "Plano OF", "Fecha OF", "Colada", "Cert. Colada", "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN",
+                            "PO", "Pos.", "Subpos.", "Desc.", "Código Equipo",
+                            "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "F. Cont.",
+                            "Plano Dimensional", "Plano OF", "Fecha OF", "Colada", "Cert. Colada", "Est. Fab.", "Insp.", "F. Insp.", "RN", "Fecha RN",
                             "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
                             "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
                             "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
@@ -1919,8 +1915,8 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                             "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                             "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas",
-                            "Estado Facturación"]
+                            "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
+                            "Est. Fact."]
 
             list_invoice_state = ['', 'Facturado']
             
@@ -1979,52 +1975,48 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.setItemDelegateForColumn(column, None)
                 self.model2.column_range = list(range(self.initial_column_,self.initial_column_ + 3)) + list(range(self.initial_column2_,columns_number - 8))
 
-                if self.variable2 == 'Caudal':
+                if self.variable == 'Caudal':
                     for i in range(3,4):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(9,30):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(31,33):
+                    for i in range(31,68):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(34,67):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(72,156):
+                    self.tableEditTags2.hideColumn(69)
+                    for i in range(71,157):
                         self.tableEditTags2.hideColumn(i)
 
-                elif self.variable2 == 'Temperatura':
+                elif self.variable == 'Temperatura':
                     for i in range(3,4):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(9,35):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(36,38):
+                    for i in range(36,76):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(39,75):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(80,166):
+                    self.tableEditTags2.hideColumn(77)
+                    for i in range(79,167):
                         self.tableEditTags2.hideColumn(i)
 
-                elif self.variable2 == 'Nivel':
+                elif self.variable == 'Nivel':
                     for i in range(3,4):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(10,36):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(37,39):
+                    for i in range(39,62):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(40,61):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(66,169):
+                    self.tableEditTags2.hideColumn(63)
+                    for i in range(65,170):
                         self.tableEditTags2.hideColumn(i)
 
-                elif self.variable2 == 'Otros':
+                elif self.variable == 'Otros':
                     for i in range(3,4):
                         self.tableEditTags2.hideColumn(i)
                     for i in range(9,11):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(12,14):
+                    for i in range(12,21):
                         self.tableEditTags2.hideColumn(i)
-                    for i in range(15,20):
-                        self.tableEditTags2.hideColumn(i)
-                    for i in range(25,56):
+                    self.tableEditTags2.hideColumn(22)
+                    for i in range(24,57):
                         self.tableEditTags2.hideColumn(i)
 
                 # self.tableEditTags.verticalHeader().hide()
@@ -2035,7 +2027,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                 self.tableEditTags2.setItemDelegateForColumn(self.column_subposition2, self.color_delegate)
                 self.color_delegate = ColorDelegate_DifferenceAmount(self)
                 self.tableEditTags2.setItemDelegateForColumn(self.column_difference2, self.color_delegate)
-                self.tableEditTags2.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
+                self.tableEditTags2.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
                 self.tableEditTags2.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
                 self.tableEditTags2.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
                 self.tableEditTags2.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
@@ -2048,19 +2040,19 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
 
             # Change all column names
                 headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                                "PO", "Posición", "Subposición", "Tipo", "Tamaño Línea",
+                                "PO", "Pos.", "Subpos.", "Tipo", "Tamaño Línea",
                                 "Rating", "Facing", "Schedule", "Material Brida", "Tipo Brida",
                                 "Material Tubo", "Tamaño Tomas (Nº)", "Material Elemento", "Tipo Placa", "Espesor Placa",
                                 "Estándar Placa", "Material Junta", "Material Tornillería", "Con. Válvula", "Material Cuerpo Vlv.",
                                 "Nº Saltos", "Pipe Spec.", "Peso Aprox. (kg)", "Long. Aprox. (mm)", "NACE",
-                                "Precio (€)", "Notas Oferta", "Cambios Comercial", "Fecha Contractual", "Ø Orif. (mm)",
+                                "Precio (€)", "Notas Oferta", "Cambios Comercial", "F. Cont.", "Ø Orif. (mm)",
                                 "Ø D/V (mm)", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo",
                                 "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Orden de Compra",
                                 "Fecha Orden Compra", "Notas Orden Compra", 'Plano Dimensional', "Plano OF", "Fecha OF",
                                 "Notas Equipo", "Colada Placa", "Cert. Placa", "Colada Brida", "Cert. Brida", "Nº Tapones",
                                 "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material", "RTJ Espesor", "RTJ Dim",
                                 "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos", "Cantidad Espárragos", "Tamaño Extractor",
-                                "Cantidad Extractor", "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo",
+                                "Cantidad Extractor", "Est. Fab.", "Insp.", "F. Insp.", "RN", "Fecha RN", "Cod. Equipo",
                                 "Cod. Fab. Equipo", "Trad. Equipo", "Cod. Brida Orif.", "Cod. Fab. Brida Orif.", "Cant. Brida Orif.",
                                 "Cod. Brida Línea", "Cod. Fab. Brida Línea", "Cant. Brida Línea", "Cod. Junta", "Cod. Fab. Junta",
                                 "Cant. Junta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería", "Cod. Tapones",
@@ -2078,25 +2070,25 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                                 "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                                 "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                                 "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                                "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas",
-                                "Estado Facturación"]
+                                "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
+                                "Est. Fact."]
 
                 headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                                "PO", "Posición", "Subposición", "Tipo", "Tipo TW",
+                                "PO", "Pos.", "Subpos.", "Tipo", "Tipo TW",
                                 "Tamaño", "Rating", "Facing", "Standard TW", "Material TW",
                                 "Long. STD (mm)", "Long. Ins. (mm)", "Ø Raíz (mm)", "Ø Punta (mm)", "Sensor",
                                 "Material Sheath/Stem", "Ø Sheath/Stem (mm)", "Insulation", "Temp Inf (ºC)", "Temp Sup ºC",
                                 "Material Nipple Ext.", "Long. Nipple Ext. (mm)", "Material Head/Case", "Con. Elec./Diam. Case", "TT/Terminal Insulation",
                                 "Material Brida LapJoint", "Material Junta", "Puntal", "Tubo", "NACE",
-                                "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual", "Stress",
+                                "Precio (€)", "Notas Oferta", "Cambio Comercial", "F. Cont.", "Stress",
                                 "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Ø Picaje (mm)", "Notas Cálculo",
                                 "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo", "Fecha Estado Cálculo",
                                 "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Planos", "Orden de Compra",
                                 "Fecha Orden Compra", "Notas Orden Compra", "Plano Dimensional", "Plano OF Sensor", "Fecha OF Sensor", 
-                                "Notas Sensor", "Estado Fabricación Sensor", "Plano OF TW", "Fecha OF TW", "Notas TW",
-                                "Estado Fabricación TW", "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
+                                "Notas Sensor", "Est. Fab. Sensor", "Plano OF TW", "Fecha OF TW", "Notas TW",
+                                "Est. Fab. TW", "Colada Barra", "Cert. Barra", "Colada Brida", "Cert. Brida",
                                 "Long. Corte TW (mm)", "Cota A Sensor (mm)", "Cota B Sensor (mm)", "Cota L Sensor (mm)", "Tapón",
-                                "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
+                                "Est. Fab.", "Insp.", "F. Insp.", "RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
                                 "Trad. Equipo", "Cod. Barra", "Cod. Fab. Barra", "Cant. Barra", "Cod. Tubo",
                                 "Cod. Fab. Tubo", "Cant. Tubo", "Cod. Brida", "Cod. Fab. Brida", "Cant. Brida",
                                 "Cod. Sensor", "Cod. Fab. Sensor", "Cant. Sensor", "Cod. Cabeza", "Cod. Fab. Cabeza",
@@ -2114,22 +2106,22 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                                 "Colada Dureza", "Estado Dureza", "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.",
                                 "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF.", "Notas Verif. OF", "Fecha Verif. OF Sensor",
                                 "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos",
-                                "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas",
-                                "Estado Facturación"]
+                                "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
+                                "Est. Fact."]
 
                 headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                                "PO", "Posición", "Subposición", "Tipo", "Modelo",
+                                "PO", "Pos.", "Subpos.", "Tipo", "Modelo",
                                 "Material Cuerpo", "Tipo Conex. Proc.", "Tamaño Conex. Proc.", "Rating Conex. Proc.", "Facing Conex. Proc.",
                                 "Tipo Conex.", "Visibilidad (mm)", "Long. C-C (mm)", "Tipo Válv.", "Tipo Conex. Ext.",
                                 "Tamaño Conex. Ext.", "Rating Conex. Ext.", "Facing Conex. Ext.", "Junta", "Tornillería",
                                 "Iluminador", "Mat. Flotador", "Mat. Cubierta", "Escala", "Banderas",
                                 "Cod. IP", "Tipo Brida", "Niplo Hex.", "Niplo Tubo", "Antifrost",
-                                "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
+                                "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "F. Cont.",
                                 "Dim. Flotador", "Junta Bridas", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Plano",
                                 "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Orden de Compra", "Fecha Orden Compra",
                                 "Notas Orden Compra", "Plano Dimensional", "Plano OF", "Fecha OF", "Notas Equipo",
                                 "Colada Cuerpo", "Cert. Cuerpo", "Colada Cuerpo Vlv", "Cert. Cuerpo Vlv", "Colada Brida Vlv", "Cert. Brida Vlv",
-                                "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
+                                "Est. Fab.", "Insp.", "F. Insp.", "RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
                                 "Trad. Equipo", "Cod. Cuerpo", "Cod. Fab. Cuerpo", "Cant. Cuerpo", "Cod. Cubierta",
                                 "Cod. Fab. Cubierta", "Cant. Cubierta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería",
                                 "Cdo. Niplo Hex.", "Cod. Fab. Niplo Hex.", "Cant. Niplo Hex.", "Cod. Válv.", "Cod. Fab. Válv.",
@@ -2151,13 +2143,13 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                                 "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                                 "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                                 "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                                "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas",
-                                "Estado Facturación"]
+                                "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
+                                "Est. Fact."]
 
                 headers_others = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
-                                "PO", "Posición", "Subposición", "Descripción", "Código Equipo",
-                                "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual",
-                                "Plano Dimensional", "Plano OF", "Fecha OF", "Colada", "Cert. Colada", "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN",
+                                "PO", "Pos.", "Subpos.", "Desc.", "Código Equipo",
+                                "NACE", "Precio (€)", "Notas Oferta", "Cambio Comercial", "F. Cont.",
+                                "Plano Dimensional", "Plano OF", "Fecha OF", "Colada", "Cert. Colada", "Est. Fab.", "Insp.", "F. Insp.", "RN", "Fecha RN",
                                 "Fecha PMI", "Fecha PH1", "Manómetro PH1", "Presión PH1",
                                 "Estado PH1", "Notas PH1", "Fecha PH2", "Manómetro PH2", "Presión PH2",
                                 "Estado PH2", "Notas PH2", "Fecha LP", "LP Colada 9PR5", "LP Colada 9D1B",
@@ -2165,8 +2157,8 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                                 "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                                 "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                                 "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                                "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas",
-                                "Estado Facturación"]
+                                "Pos.", "Subpos.", "Importe", "Dif.", "CajaBr", "CajaPl", "Desc.", "Notas",
+                                "Est. Fact."]
 
                 list_invoice_state = ['', 'Facturado']
                 
