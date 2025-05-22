@@ -2722,15 +2722,15 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
             cursor = conn.cursor()
 
         #Importing excel file into dataframe
-            df_table = pd.read_excel(input_file, skiprows=1, dtype={'rn_delivery': str})
+            df_table = pd.read_excel(input_file, skiprows=1, dtype={'inspection': str, 'rn_delivery': str})
             df_table = df_table.astype(str)
 
             df_table.replace('nan', '', inplace=True)
             df_table.replace('NaT', '', inplace=True)
 
-            df_table = df_table.drop(['diff_amount', 'tag_images'], axis=1)
+            df_table = df_table.drop(['diff_amount'], axis=1)
 
-            df_final = df_table.iloc[:, [0] + list(range(13, df_table.shape[1]))].copy()
+            df_final = df_table.iloc[:, [0] + list(range(9, df_table.shape[1]))].copy()
 
             try:
                 for index, row in df_final.iterrows():
@@ -2760,7 +2760,7 @@ class Ui_EditTags_Facturation_Window(QtWidgets.QMainWindow):
                     columns = ', '.join([column for column, _ in columns_values])
                     values = ', '.join([f"'{int(float(value))}'" if column in ['pos_fact', 'subpos_fact'] and value.endswith('.0')
                                         else (f"'{value.replace('.', ',')}'" if column in ['amount_fact']
-                                        else ('NULL' if value == '' and column in ['invoice_state', 'rn_date', 'rn_delivery']
+                                        else ('NULL' if value == '' and column in ['invoice_state', 'rn_delivery']
                                         else "'{}'".format(value.replace('\'', '\'\'')))) for column, value in columns_values])
 
                 # Creating the SET  and WHERE clause with proper formatting
