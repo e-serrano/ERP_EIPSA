@@ -8143,21 +8143,23 @@ class vendor_progress_report:
                     '' as empty_column2, '' as empty_column3, 'FCA' as incoterm,
                     'Poligono Industrial Igarsa, Naves 4-8, 28860, Paracuellos de Jarama, Spain' as delivery_place, 0 as item_ship_qty,
                     1 as qty_unit, 0 as irc_qty, TO_CHAR(tags_data."irc_date", 'DD/MM/YYYY'), 0 as rn_qty, tags_data."rn_delivery", TO_CHAR(tags_data."rn_date", 'DD/MM/YYYY'),
-                    '' as osd_number, TO_CHAR(tags_data."contractual_date", 'DD/MM/YYYY'),
+                    '' as osd_number, TO_CHAR(orders."expected_date", 'DD/MM/YYYY'),
                     CASE 
                         WHEN tags_data."dwg_state_date" IS NULL THEN 'HOLD'
                         ELSE TO_CHAR(tags_data."dwg_state_date" + INTERVAL '7 days' * offers."delivery_time"::integer, 'DD/MM/YYYY')
                     END AS forecast_date,
                     CASE 
                         WHEN tags_data."dwg_state_date" IS NULL THEN NULL
-                        ELSE EXTRACT(DAY FROM (tags_data."dwg_state_date" + INTERVAL '7 days' * offers."delivery_time"::integer - tags_data."contractual_date"))
+                        ELSE EXTRACT(DAY FROM (tags_data."dwg_state_date" + INTERVAL '7 days' * offers."delivery_time"::integer - orders."expected_date"))
                     END AS deviation_days
                     , 'EIPSA' as manufacturer,
-                    'Poligono Industrial Igarsa, Naves 4-8, 28860, Paracuellos de Jarama, Spain' as fab_location, tags_data."inspection", '' as remarks, tags_data."dwg_state" as drawing_state
+                    'Poligono Industrial Igarsa, Naves 4-8, 28860, Paracuellos de Jarama, Spain' as fab_location, tags_data."inspection", '' as remarks,
+                    documentation."state" as drawing_state, documentation."state_date" as drawing_state_date
                     FROM {self.table_query} AS tags_data
                     LEFT JOIN orders ON (tags_data."num_order" = orders."num_order")
                     LEFT JOIN offers ON (orders."num_offer" = offers."num_offer")
-                    WHERE tags_data."num_po" LIKE UPPER ('%%'||'{self.num_ref}'||'%%') and tags_data."tag_state" = 'PURCHASED'
+                    LEFT JOIN documentation ON (tags_data."dwg_num_doc_eipsa" = documentation."num_doc_eipsa")
+                    WHERE tags_data."num_po" LIKE UPPER ('%%'||'{self.num_ref}'||'%%') and tags_data."tag_state" in ('PURCHASED', 'FOR INVOICING')
                     ORDER BY tags_data."tag"
                     """)
         conn = None
@@ -8190,7 +8192,7 @@ class vendor_progress_report:
         column_headers = ['PO Number', 'Suppl.', 'Pos', 'Sub', 'TAG', '', 'Ident Description',
                         'D1', 'SCH1', 'Incoterm', 'Delivery Place', 'Item Ship. Qty', 'Quantity Unit', 'IRC QTY', 'IRC date',
                         'RN QTY', 'RN Number', 'RN date', 'OSD Number', 'Contractual Delivery Date', 'Forecast Delivery Date', 'DEVIATION (days)',
-                        'Manufacturer', 'Fab. Location', 'Final Inspection Date', 'Remarks', 'Drawing State']
+                        'Manufacturer', 'Fab. Location', 'Final Inspection Date', 'Remarks', 'Drawing State', 'Drawing Date']
 
         self.data_vpr = pd.DataFrame(data=results_progress, columns=column_headers)
 
@@ -8207,8 +8209,8 @@ class vendor_progress_report:
 
             # Set date format
             date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
-            for col_num in range(25):
-                if col_num in [15, 18, 20, 21, 25]:  
+            for col_num in range(28):
+                if col_num in [15, 18, 20, 21, 25, 28]:  
                     for row_num in range(1, self.data_vpr.shape[0] + 5):
                         cell = writer.sheets['Sheet1'].cell(row=row_num, column=col_num)
                         cell.style = date_style
