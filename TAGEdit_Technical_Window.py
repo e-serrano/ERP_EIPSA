@@ -1503,8 +1503,12 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         self.model.table_check = "tags_data.tags_others"
                         self.initial_column = 11
                         self.initial_column2 = 25
-                    self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND tag_state <> 'FOR INVOICING'")
-                    self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND tag_state <> 'FOR INVOICING'")
+                    if self.username != 'j.martinez':
+                        self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND tag_state <> 'FOR INVOICING'")
+                        self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%' AND tag_state <> 'FOR INVOICING'")
+                    else:
+                        self.model.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
+                        self.model2.setFilter(f"num_order <>'' AND UPPER(num_order) LIKE '%{self.numorder.upper()}%'")
 
         if self.variable != '':
             self.tableEditTags.setModel(None)
