@@ -10,7 +10,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 import psycopg2
 from config import config
 import os
-from Excel_Export_Templates import offer_flow, offer_temp, offer_level, offer_flow_temp, \
+from Excel_Export_Templates import offer_flow, offer_temp, offer_level, offer_flow_temp, offer_flow_temp_level, \
     offer_short_flow_spanish, offer_short_temp_spanish, offer_short_level_spanish, \
     offer_short_flow_english, offer_short_temp_english, offer_short_level_english
 from datetime import *
@@ -566,6 +566,8 @@ class Ui_ExportOffer_Form(object):
                     elif self.variable == 'Temp+Nivel':
                         offer_temp(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
                         offer_level(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
+                    elif self.variable == 'Caudal+Temp+Nivel':
+                        offer_flow_temp_level(numoffer, self.responsible, rev, project, delivery_term, delivery_time, validity, pay_term, testinspection, revchanges, notes)
 
                 elif format_offer == 'Short':
                     if self.variable == 'Caudal':
