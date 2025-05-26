@@ -1788,7 +1788,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                 cur.execute(query_data,(tuple(id_values),))
                 results=cur.fetchall()
 
-                df_data = pd.DataFrame(results, columns=['ID', 'Pedido', 'Tag', 'Elemento 1', 'Patrón 1', 'Elemento 2', 'Patrón 2', 'Elemento 3', 'Patrón 3', 'Elemento 4', 'Patrón 4'])
+                df_data = pd.DataFrame(results, columns=['ID', 'Pedido', 'Tag', 'Patrón 1', 'Elemento 1', 'Patrón 2', 'Elemento 2', 'Patrón 3', 'Elemento 3', 'Patrón 4', 'Elemento 4'])
 
             # Order by "Elemento 1"
                 df_data = df_data.sort_values(by="Elemento 1", ascending=True).reset_index(drop=True)
@@ -1801,42 +1801,55 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                 }
 
             # Extract values and sort them
-                elements_masters = list(zip(df_data["Elemento 1"], df_data["Patrón 1"]))
+                elements_masters = list(zip(df_data["Patrón 1"], df_data["Elemento 1"]))
 
             # Order by "Elemento 1"
                 elements_masters.sort(key=lambda x: x[0])
 
+            # Fill until get 4 elements
+                while len(elements_masters) < 4:
+                    elements_masters.append((None, None))
+
             # Add dynamically the necessary columns
                 for idx, (elemento, patron) in enumerate(elements_masters, start=1):
-                    merged_data[f"Elemento {idx}"] = elemento
-                    merged_data[f"Patrón {idx}"] = patron
+                    merged_data[f"Patrón {idx}"] = elemento
+                    merged_data[f"Elemento {idx}"] = patron
 
                 final_df = pd.DataFrame([merged_data])
 
             # Update the data in the database with combined values
                 values_to_update = (
-                    final_df.loc[0, "Elemento 1"],
-                    final_df.loc[0, "Patrón 1"],
-                    final_df.loc[0, "Elemento 2"],
-                    final_df.loc[0, "Patrón 2"],
-                    final_df.loc[0, "Elemento 3"],
-                    final_df.loc[0, "Patrón 3"],
-                    final_df.loc[0, "Elemento 4"],
-                    final_df.loc[0, "Patrón 4"],
-                    final_df.loc[0, "ID"],
+                    final_df.loc[0, "Patrón 1"] if pd.notnull(final_df.loc[0, "Patrón 1"]) else None,
+                    final_df.loc[0, "Elemento 1"] if pd.notnull(final_df.loc[0, "Elemento 1"]) else None,
+                    final_df.loc[0, "Patrón 2"] if pd.notnull(final_df.loc[0, "Patrón 2"]) else None,
+                    final_df.loc[0, "Elemento 2"] if pd.notnull(final_df.loc[0, "Elemento 2"]) else None,
+                    final_df.loc[0, "Patrón 3"] if pd.notnull(final_df.loc[0, "Patrón 3"]) else None,
+                    final_df.loc[0, "Elemento 3"] if pd.notnull(final_df.loc[0, "Elemento 3"]) else None,
+                    final_df.loc[0, "Patrón 4"] if pd.notnull(final_df.loc[0, "Patrón 4"]) else None,
+                    final_df.loc[0, "Elemento 4"] if pd.notnull(final_df.loc[0, "Elemento 4"]) else None,
+                    int(final_df.loc[0, "ID"])
                 )
 
-                cur.execute(update_data, values_to_update)
+                cur.execute(update_data, (values_to_update))
 
             # Delete the other data not necessary
                 id_to_keep = final_df.loc[0, "ID"]
-                id_to_keep = [int(x) for x in id_to_keep]
-                ids_to_delete = final_df['ID'].tolist()
+                # id_to_keep = [int(x) for x in id_to_keep]
+                ids_to_delete = df_data['ID'].tolist()
+                print(ids_to_delete)
                 ids_to_delete = [int(x) for x in ids_to_delete]
+                print(ids_to_delete)
                 ids_to_delete.remove(id_to_keep)
 
                 if ids_to_delete:
                     cur.execute(delete_query, (tuple(ids_to_delete),))
+
+            # close communication with the PostgreSQL database server
+                cur.close()
+            # commit the changes
+                conn.commit()
+                
+                self.query_calibration()
 
             except (Exception, psycopg2.DatabaseError) as error:
                 dlg = QtWidgets.QMessageBox()
@@ -1846,6 +1859,7 @@ class Ui_Calibration_ThermoElements_Window(QtWidgets.QMainWindow):
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Ha ocurrido el siguiente error:\n"
                             + str(error))
+                print(error)
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
                 del dlg, new_icon
