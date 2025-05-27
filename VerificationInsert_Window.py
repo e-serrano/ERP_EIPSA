@@ -1457,7 +1457,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                 plate_type || ' ' || plate_thk || ' ' || plate_std || ' ' || gasket_material || ' ' || bolts_nuts_material as item_colum,
                 dim_drawing, of_drawing, '' as of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), '' as final_verif_of_sensor_date,
                 TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images,
-                final_verif_dim_state, final_verif_of_eq_state, '' as final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_flow' as id_column,'tags_data.tags_flow' as db_table
+                final_verif_dim_state, final_verif_of_eq_state, '' as final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_flow' as id_column,'tags_data.tags_flow' as db_table, inspection
                 FROM tags_data.tags_flow
                 WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state in ('PURCHASED', 'HOLD')
 
@@ -1468,7 +1468,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                 sensor_element || ' ' || sheath_stem_material || ' ' || sheath_stem_diam || ' ' || insulation as item_colum,
                 dim_drawing, of_drawing, of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_sensor_date, 'DD/MM/YYYY'),
                 TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images,
-                final_verif_dim_state, final_verif_of_eq_state, final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_temp' as id_column, 'tags_data.tags_temp' as db_table
+                final_verif_dim_state, final_verif_of_eq_state, final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_temp' as id_column, 'tags_data.tags_temp' as db_table, inspection
                 FROM tags_data.tags_temp
                 WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state in ('PURCHASED', 'HOLD')
 
@@ -1477,7 +1477,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                 SELECT id_tag_level, tag, num_order, item_type || ' ' || body_material || ' ' || proc_conn_size || ' ' || proc_conn_rating || ' ' || conn_type || ' ' || visibility || ' ' || gasket_mica as item_colum,
                 dim_drawing, of_drawing, '' as of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), '' as final_verif_of_sensor_date,
                 TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images,
-                final_verif_dim_state, final_verif_of_eq_state, '' as final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_level' as id_column, 'tags_data.tags_level' as db_table
+                final_verif_dim_state, final_verif_of_eq_state, '' as final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_level' as id_column, 'tags_data.tags_level' as db_table, inspection
                 FROM tags_data.tags_level
                 WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state in ('PURCHASED', 'HOLD')
 
@@ -1486,13 +1486,13 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                 SELECT id_tag_others, tag, num_order, description,
                 dim_drawing, of_drawing, '' as of_sensor_drawing, TO_CHAR(final_verif_dim_date, 'DD/MM/YYYY'), TO_CHAR(final_verif_of_eq_date, 'DD/MM/YYYY'), '' as final_verif_of_sensor_date,
                 TO_CHAR(ph1_date, 'DD/MM/YYYY'), TO_CHAR(ph2_date, 'DD/MM/YYYY'), TO_CHAR(lp_date, 'DD/MM/YYYY'), tag_images,
-                final_verif_dim_state, final_verif_of_eq_state, '' as final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_others' as id_column, 'tags_data.tags_others' as db_table
+                final_verif_dim_state, final_verif_of_eq_state, '' as final_verif_of_sensor_state, ph1_state, ph2_state, lp_state, 'id_tag_others' as id_column, 'tags_data.tags_others' as db_table, inspection
                 FROM tags_data.tags_others
                 WHERE num_order LIKE UPPER ('%%'||'{self.num_order_value}'||'%%') AND tag_state in ('PURCHASED', 'HOLD')
 
                 ORDER BY tag
                 """)
-                column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Plano Dim.', 'OF Equipo', 'OF Sensor', 'Fecha Dim.', 'Fecha OF Equipo', 'Fecha OF Sensor', 'Fecha PH1', 'Fecha PH2', 'Fecha LP', 'Fotos', 'E_dim', 'E_of', 'E_of_sensor', 'E_ph1', 'E_ph2', 'E_lp', 'id_column', 'db_table']
+                column_headers = ['ID', 'TAG', 'Nº Pedido', 'Tipo Equipo', 'Plano Dim.', 'OF Equipo', 'OF Sensor', 'Fecha Dim.', 'Fecha OF Equipo', 'Fecha OF Sensor', 'Fecha PH1', 'Fecha PH2', 'Fecha LP', 'Fotos', 'E_dim', 'E_of', 'E_of_sensor', 'E_ph1', 'E_ph2', 'E_lp', 'id_column', 'db_table', 'NOI']
 
                 conn = None
                 try:
@@ -1511,7 +1511,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     conn.commit()
 
                     self.tableTags.setRowCount(len(results))
-                    self.num_columns = 22
+                    self.num_columns = 23
                     self.tableTags.setColumnCount(self.num_columns)
                     tablerow=0
 
@@ -1547,7 +1547,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     self.tableTags.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Interactive)
                     self.tableTags.hideColumn(0)
 
-                    for i in range (14, self.num_columns):
+                    for i in range (14, self.num_columns - 1):
                         self.tableTags.hideColumn(i)
 
                 except (Exception, psycopg2.DatabaseError) as error:
