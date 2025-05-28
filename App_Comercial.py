@@ -1699,6 +1699,16 @@ class Ui_App_Comercial(QtWidgets.QMainWindow):
             self.clientresume(item)
         elif item.column() == 0:
             self.editofferform(item)
+        elif item.column() in [7, 8, 9]:
+            cell_content = item.text()
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("Ofertas")
+            dlg.setText(cell_content)
+            dlg.exec()
+
 
 # Function when double clicked cell is in client column
     def clientresume(self, item):
