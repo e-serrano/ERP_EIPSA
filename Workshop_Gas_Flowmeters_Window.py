@@ -319,7 +319,7 @@ class CustomPDF(FPDF):
         """
         Creates the header
         """
-        self.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eipsa Logo Blanco.png")), 0.8, 0, 9.9, 3)
+        self.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eipsa Logo Blanco.png")), 0.8, 0.3, 7, 2)
         self.set_font('Helvetica', '', 9)
         self.set_xy(13.5, 1)
         self.multi_cell(6, 0.5, "CALIBRACIÓN INTERNA PARA MEDIDORES DE CAUDAL DE GAS", align='R')
