@@ -607,6 +607,42 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
         sort_order = header.sortIndicatorOrder()
         return sort_column, sort_order
 
+# Function to get the current filter state of the table
+    def get_filter_state(self):
+        """
+        Returns the current filter state of the table.
+
+        Returns:
+            dict: A dictionary where each key is a column index and the value is a list of filters applied to that column.
+        """
+        return {
+            "checkbox_filters": {
+                col: list(filters) for col, filters in self.column_filters.items() if filters
+            },
+            "text_filters": getattr(self, "text_filters", {})  # si usas text_filters
+        }
+
+# Function to restore the filter state of the table
+    def restore_filter_state(self, saved_filters):
+        """
+        Restores the filter state of the table from a previously saved state.
+
+        Args:
+            saved_filters (dict): Filter state to restore, containing 'checkbox_filters' and 'text_filters'.
+        """
+        self.column_filters.clear()
+        self.rows_hidden.clear()
+        self.general_rows_to_hide.clear()
+
+        # Restaura los filtros por checkbox
+        for col, values in saved_filters.get("checkbox_filters", {}).items():
+            for value in values:
+                self.apply_filter(col, value, checked=True)
+
+        # Restaura filtros por texto si existen
+        for col, text in saved_filters.get("text_filters", {}).items():
+            self.apply_filter(col, None, False, text_filter=text)
+
 class CustomTableWidgetOthers(QtWidgets.QTableWidget):
     """
     Custom QTableWidget that supports filtering and sorting features.
@@ -1570,6 +1606,9 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
 
                 if sort_column is not None and sort_order is not None:
                     self.tableTags.sortByColumn(sort_column, sort_order)
+
+                saved_filters = self.tableTags.get_filter_state()
+                self.tableTags.restore_filter_state(saved_filters)
 
 # Function to load data of table others
     def queryothers(self):
@@ -4084,6 +4123,26 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                             if result == QtWidgets.QMessageBox.StandardButton.Yes:
                                 commands_liquidtest = f"UPDATE {table_name} SET lp_date = {test_date}, lp_hn_liq1 = {hn_liq1}, lp_hn_liq2 = {hn_liq2}, lp_hn_liq3 = {hn_liq3}, lp_state = {state}, lp_obs = {notes} WHERE {id_column} = {id_value}"
                                 cur.execute(commands_liquidtest)
+
+                            del dlg_yes_no, new_icon_yes_no
+
+                        if column_index == 13 and self.tableTags.item(row_index, column_index).text() != '':
+                            images = None
+
+                            dlg_yes_no = QtWidgets.QMessageBox()
+                            new_icon_yes_no = QtGui.QIcon()
+                            new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                            dlg_yes_no.setWindowTitle("ERP EIPSA")
+                            dlg_yes_no.setText(f"El tag {tag} ya tiene fotos\n"
+                                                "¿Estás seguro de que deseas desverificar?")
+                            dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                            result = dlg_yes_no.exec()
+
+                            if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                                commands_images = f"UPDATE {table_name} SET tag_images = {images} WHERE {id_column} = {id_value}"
+                                cur.execute(commands_images)
 
                             del dlg_yes_no, new_icon_yes_no
 
