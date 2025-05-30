@@ -4127,7 +4127,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                             del dlg_yes_no, new_icon_yes_no
 
                         if column_index == 13 and self.tableTags.item(row_index, column_index).text() != '':
-                            images = None
+                            images = 'NULL'
 
                             dlg_yes_no = QtWidgets.QMessageBox()
                             new_icon_yes_no = QtGui.QIcon()
