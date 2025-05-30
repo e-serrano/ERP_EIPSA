@@ -9181,7 +9181,7 @@ class order_ovr:
             if conn is not None:
                 conn.close()
 
-        if self.variable != '':
+        if self.variable != '' and self.table_name != "tags_data.tags_others":
             data_tags = pd.DataFrame(data=results, columns=column_headers)
 
             index_tags = data_tags.columns.get_loc('TAG')
@@ -9216,7 +9216,7 @@ class order_ovr:
             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
             dlg_error.setWindowIcon(new_icon)
             dlg_error.setWindowTitle("Generar OVR")
-            dlg_error.setText("No existen tags de este pedido en el ERP")
+            dlg_error.setText("No se puede generar el OVR para este pedido")
             dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             dlg_error.exec()
             del dlg_error,new_icon
