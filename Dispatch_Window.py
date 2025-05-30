@@ -176,7 +176,24 @@ class EditableTableModel(QtSql.QSqlTableModel):
             column_range (list, optional): A list specifying the range of columns. Defaults to None.
         """
         super().__init__(parent)
+        self._modified_rows = set()
         self.column_range = column_range
+
+    def setData(self, index, value, role=QtCore.Qt.ItemDataRole.EditRole):
+        if role == QtCore.Qt.ItemDataRole.EditRole:
+            current_value = self.data(index, role)
+            if current_value != value:
+                success = super().setData(index, value, role)
+                if success:
+                    self._modified_rows.add(index.row())
+                return success
+        return super().setData(index, value, role)
+
+    def getModifiedRows(self):
+        return list(self._modified_rows)
+
+    def clearModifiedRows(self):
+        self._modified_rows.clear()
 
     def setAllColumnHeaders(self, headers):
         """
@@ -277,6 +294,7 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
             db (object): Database connection.
         """
         super().__init__()
+        self._saving1 = False
         self.model = EditableTableModel()
         self.proxy = CustomProxyModel()
         self.checkbox_states = {}
@@ -653,6 +671,31 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         #     else:
         #         print('d')
 
+        if self._saving1:
+            return  # Avoid recursive entries
+        self._saving1 = True
+
+        db = self.model.database()
+        db.transaction()
+
+        success = True
+        for row in self.model.getModifiedRows():
+            if not self.model.submit():
+                print(f"❌ Error guardando fila {row}: {self.model.lastError().text()}")
+                success = False
+
+        if success:
+            db.commit()
+
+            for row in self.model.getModifiedRows():
+                top_left = self.model.index(row, 0)
+                bottom_right = self.model.index(row, self.model.columnCount() - 1)
+                self.model.dataChanged.emit(top_left, bottom_right)
+        else:
+            db.rollback()
+
+        self.model.clearModifiedRows()
+        
         for column in range(self.model.columnCount()):
             list_valuesUnique = []
             for row in range(self.model.rowCount()):
