@@ -1470,7 +1470,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         self.model2.table_check = "tags_data.tags_level"
                         self.initial_column = 30
                         self.initial_column2 = 72
-                        self.initial_column_ = 40
+                        self.initial_column_ = 36
                         self.initial_column2_ = 66
                     elif self.variable =='Temp+Nivel':
                         self.variable = 'Temperatura'
@@ -1479,9 +1479,9 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                         self.model2.setTable("tags_data.tags_level")
                         self.model.table_check = "tags_data.tags_temp"
                         self.model2.table_check = "tags_data.tags_level"
-                        self.initial_column = 72
-                        self.initial_column2 = 72
-                        self.initial_column_ = 80
+                        self.initial_column = 35
+                        self.initial_column2 = 80
+                        self.initial_column_ = 36
                         self.initial_column2_ = 66
                     elif self.variable == 'Caudal':
                         self.model.setTable("tags_data.tags_flow")
@@ -1496,7 +1496,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     elif self.variable == 'Nivel':
                         self.model.setTable("tags_data.tags_level")
                         self.model.table_check = "tags_data.tags_level"
-                        self.initial_column = 40
+                        self.initial_column = 36
                         self.initial_column2 = 66
                     elif self.variable == 'Otros':
                         self.model.setTable("tags_data.tags_others")
