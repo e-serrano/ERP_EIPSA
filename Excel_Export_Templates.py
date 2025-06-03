@@ -1097,14 +1097,14 @@ class offer_short_flow_spanish:
                         last_row = ws.max_row
 
                     if eq_type == "VENTURI ELEMENTS DATA":
-                        ws[f"A{last_row+3}"] = "PRICES INCLUDE MACHINED INTEGRAL CENTRE SECTION AND ALL STRUCTURAL WELDS 100% RADIOGRAPHED"
+                        ws[f"A{last_row+3}"] = "LOS PRECIOS INCLUYEN LA SECCIÓN CENTRAL INTEGRAL MECANIZADA Y TODAS LAS SOLDADURAS ESTRUCTURALES 100% RADIOGRAFIADAS"
                         ws[f"A{last_row+3}"]._style = ws["Z2"]._style
-                    ws[f"A{last_row+4}"] = "OFFER VALIDITY: " + validity + " DAYS"
+                    ws[f"A{last_row+4}"] = "VALIDEZ DE LA OFERTA: " + validity + " DÍAS"
                     ws[f"A{last_row+4}"]._style = ws["Z1"]._style
                     ws[f"A{last_row+5}"] = (
-                        "DELIVERY TIME: "
+                        "PLAZO DE ENTREGA: "
                         + delivery_time
-                        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
+                        + " SEMANAS DESDE APROBACIÓN DE PLANOS / CÁLCULOS (AGOSTO Y ÚLTIMAS DOS SEMANAS DE DICIEMBRE EXCLUIDOS)"
                     )
                     ws[f"A{last_row+5}"]._style = ws["Z1"]._style
 
@@ -1122,14 +1122,14 @@ class offer_short_flow_spanish:
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "QTY. TOTAL"
+                ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "CANTIDAD TOTAL"
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
                 
                 row_amount = last_row + 4
                 for key, value in dict_sheets_data.items():
                     parts_key = key.split(" ")
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "IMPORTE TOTAL DE " + parts_key[0] + " " + parts_key[1] + " (CANTIDAD: " + str(value[3]) + ")"
                     ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["R1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
@@ -1137,15 +1137,15 @@ class offer_short_flow_spanish:
 
                     row_amount += 2
 
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "IMPORTE TOTAL DEL MATERIAL"
                 ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING Y TRANSPORTE"
                 ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
+                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "PRUEBAS E INSPECCIÓN"
                 ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTACIÓN"
                 ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "IMPORTE TOTAL DE LA OFERTA"
                 ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
                 ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["R1"]._style
@@ -3440,12 +3440,12 @@ class offer_short_temp_spanish:
 
                         last_row = ws.max_row
 
-                    ws[f"A{last_row+3}"] = "OFFER VALIDITY: " + validity + " DAYS"
+                    ws[f"A{last_row+3}"] = "VALIDEZ DE LA OFERTA: " + validity + " DÍAS"
                     ws[f"A{last_row+3}"]._style = ws["AI1"]._style
                     ws[f"A{last_row+4}"] = (
-                        "DELIVERY TIME: "
+                        "PLAZO DE ENTREGA: "
                         + delivery_time
-                        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
+                        + " SEMANAS DESDE APROBACIÓN DE PLANOS / CÁLCULOS (AGOSTO Y ÚLTIMAS DOS SEMANAS DE DICIEMBRE EXCLUIDOS)"
                     )
                     ws[f"A{last_row+4}"]._style = ws["AI1"]._style
 
@@ -3464,14 +3464,14 @@ class offer_short_temp_spanish:
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "QTY. TOTAL"
+                ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "CANTIDAD TOTAL"
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
                 
                 row_amount = last_row + 4
                 for key, value in dict_sheets_data.items():
                     parts_key = key.split(" ")
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "IMPORTE TOTAL DE " + parts_key[0] + " " + parts_key[1] + " (CANTIDAD: " + str(value[3]) + ")"
                     ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
@@ -3479,15 +3479,15 @@ class offer_short_temp_spanish:
 
                     row_amount += 2
 
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "IMPORTE TOTAL DEL MATERIAL"
                 ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING Y TRANSPORTE"
                 ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
+                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "PRUEBAS E INSPECCIÓN"
                 ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTACIÓN"
                 ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "IMPORTE TOTAL DE LA OFERTA"
                 ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
                 ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AA1"]._style
@@ -5525,12 +5525,12 @@ class offer_short_level_spanish:
 
                         last_row = ws.max_row
 
-                    ws[f"A{last_row+3}"] = "OFFER VALIDITY: " + validity + " DAYS"
+                    ws[f"A{last_row+3}"] = "VALIDEZ DE LA OFERTA: " + validity + " DÍAS"
                     ws[f"A{last_row+3}"]._style = ws["AI1"]._style
                     ws[f"A{last_row+4}"] = (
-                        "DELIVERY TIME: "
+                        "PLAZO DE ENTREGA: "
                         + delivery_time
-                        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
+                        + " SEMANAS DESDE APROBACIÓN DE PLANOS / CÁLCULOS (AGOSTO Y ÚLTIMAS DOS SEMANAS DE DICIEMBRE EXCLUIDOS)"
                     )
                     ws[f"A{last_row+4}"]._style = ws["AI1"]._style
 
@@ -5548,14 +5548,14 @@ class offer_short_level_spanish:
 
                     dict_sheets_data[eq_type] = [last_row, num_column_amount, df_toexport["amount"].sum(), df_toexport.shape[0]]
 
-                ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "QTY. TOTAL"
+                ws.cell(row=last_row + 3, column=num_column_amount - 1).value = "CANTIDAD TOTAL"
                 ws.cell(row=last_row + 3, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
                 ws.cell(row=last_row + 3, column=num_column_amount).value = number_items
                 
                 row_amount = last_row + 4
                 for key, value in dict_sheets_data.items():
                     parts_key = key.split(" ")
-                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF " + parts_key[0] + " " + parts_key[1] + " (QTY: " + str(value[3]) + ")"
+                    ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "IMPORTE TOTAL " + parts_key[0] + " " + parts_key[1] + " (CANTIDAD: " + str(value[3]) + ")"
                     ws.cell(row=row_amount + 2, column=num_column_amount).value = value[2]
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1)._style = ws["AA1"]._style
                     ws.cell(row=row_amount + 2, column=num_column_amount - 1).alignment = Alignment(horizontal='right')
@@ -5563,15 +5563,15 @@ class offer_short_level_spanish:
 
                     row_amount += 2
 
-                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "TOTAL AMOUNT OF MATERIAL"
+                ws.cell(row=row_amount + 2, column=num_column_amount - 1).value = "IMPORTE TOTAL DEL MATERIAL"
                 ws.cell(row=row_amount + 2, column=num_column_amount).value = total_amount_material
-                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING AND TRANSPORT"
+                ws.cell(row=row_amount + 4, column=num_column_amount - 1).value = "PACKING Y TRANSPORTE"
                 ws.cell(row=row_amount + 4, column=num_column_amount).value = (f"=MROUND({get_column_letter(num_column_amount)}{row_amount + 2}*0.03,10)" if total_amount_material > 6700 else 200)
-                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "TESTS & INSPECTION"
+                ws.cell(row=row_amount + 5, column=num_column_amount - 1).value = "PRUEBAS E INSPECCIÓN"
                 ws.cell(row=row_amount + 5, column=num_column_amount).value = float(testinspection)
-                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTATION"
+                ws.cell(row=row_amount + 6, column=num_column_amount - 1).value = "DOCUMENTACIÓN"
                 ws.cell(row=row_amount + 6, column=num_column_amount).value = documentation
-                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "TOTAL AMOUNT OF BID"
+                ws.cell(row=row_amount + 8, column=num_column_amount - 1).value = "IMPORTE TOTAL DE LA OFERTA"
                 ws.cell(row=row_amount + 8, column=num_column_amount).value = f"=SUM({get_column_letter(num_column_amount)}{row_amount + 2}:{get_column_letter(num_column_amount)}{row_amount + 6})"
 
                 ws.cell(row=last_row + 3, column=num_column_amount - 1)._style = ws["AA1"]._style
