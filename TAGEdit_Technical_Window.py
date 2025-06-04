@@ -2864,11 +2864,12 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                 cursor = conn.cursor()
 
             #Importing excel file into dataframe
-                df_table = pd.read_excel(input_file, skiprows=1, dtype={'image': str, 'document':str})
+                df_table = pd.read_excel(input_file, keep_default_na=False, skiprows=1, dtype={'image': str, 'document':str})
+                df_table = df_table.fillna('')
                 df_table = df_table.astype(str)
 
-                df_table.replace('nan', '', inplace=True)
-                df_table.replace('NaT', '', inplace=True)
+                # df_table.replace('nan', '', inplace=True)
+                # df_table.replace('NaT', '', inplace=True)
 
                 df_final = df_table.drop([
                         "pmi_date",
