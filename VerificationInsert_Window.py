@@ -2639,7 +2639,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                             id_value = int(self.tableTags.item(index.row(), 0).text())
                                             table_name = self.tableTags.item(index.row(), 21).text()
                                             id_column = self.tableTags.item(index.row(), 20).text()
-                                            commands_image_tag = f"UPDATE {table_name} SET tag_images = '{self.fname_image}' WHERE {id_column} = {id_value}"
+                                            if index.column() == 22:
+                                                commands_image_tag = f"UPDATE {table_name} SET tag_images = '{self.fname_image}' WHERE {id_column} = {id_value}"
+                                            elif index.column() == 23:
+                                                commands_image_tag = f"UPDATE {table_name} SET tag_images2 = '{self.fname_image}' WHERE {id_column} = {id_value}"
                                             cur.execute(commands_image_tag)
 
                                     # close communication with the PostgreSQL database server
@@ -2715,7 +2718,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                                 id_value = int(self.tableTags.item(selected_indexes[i].row(), 0).text())
                                                 table_name = self.tableTags.item(selected_indexes[i].row(), 21).text()
                                                 id_column = self.tableTags.item(selected_indexes[i].row(), 20).text()
-                                                commands_image_tag = f"UPDATE {table_name} SET tag_images = '{self.fname_images[i]}' WHERE {id_column} = {id_value}"
+                                                if selected_indexes[i].column() == 22:
+                                                    commands_image_tag = f"UPDATE {table_name} SET tag_images = '{self.fname_images[i]}' WHERE {id_column} = {id_value}"
+                                                elif selected_indexes[i].column() == 23:
+                                                    commands_image_tag = f"UPDATE {table_name} SET tag_images2 = '{self.fname_images[i]}' WHERE {id_column} = {id_value}"
                                                 cur.execute(commands_image_tag)
 
                                         # close communication with the PostgreSQL database server
@@ -2779,7 +2785,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                             id_value = int(self.tableTags.item(selected_indexes[i].row(), 0).text())
                                             table_name = self.tableTags.item(selected_indexes[i].row(), 21).text()
                                             id_column = self.tableTags.item(selected_indexes[i].row(), 20).text()
-                                            commands_image_tag = f"UPDATE {table_name} SET tag_images = '{random.choice(self.fname_images)}' WHERE {id_column} = {id_value}"
+                                            if selected_indexes[i].column() == 22:
+                                                commands_image_tag = f"UPDATE {table_name} SET tag_images = '{random.choice(self.fname_images)}' WHERE {id_column} = {id_value}"
+                                            elif selected_indexes[i].column() == 23:
+                                                commands_image_tag = f"UPDATE {table_name} SET tag_images2 = '{random.choice(self.fname_images)}' WHERE {id_column} = {id_value}"
                                             cur.execute(commands_image_tag)
 
                                     # close communication with the PostgreSQL database server
