@@ -1581,6 +1581,7 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
                     self.tableTags.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.Interactive)
                     self.tableTags.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Interactive)
+                    self.tableTags.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Interactive)
                     self.tableTags.hideColumn(0)
 
                     for i in range (14, self.num_columns - 2):
@@ -3034,6 +3035,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                         table_name = self.tableTags.item(item.row(), 21).text()
                         id_column = self.tableTags.item(item.row(), 20).text()
                         query_path =f"SELECT tag_images FROM {table_name} WHERE {id_column} = {item_id}"
+                    elif header_text == 'Fotos2':
+                        table_name = self.tableTags.item(item.row(), 21).text()
+                        id_column = self.tableTags.item(item.row(), 20).text()
+                        query_path =f"SELECT tag_images2 FROM {table_name} WHERE {id_column} = {item_id}"
                     elif header_text == 'Foto':
                         query_path =f"""SELECT image FROM verification."al_drawing_verification" WHERE id = {item_id}"""
                     else:
