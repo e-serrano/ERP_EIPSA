@@ -4851,7 +4851,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             query = ('''
                                 SELECT *
                                 FROM tags_data.tags_temp
-                                WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%')
+                                WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and tag_state = 'PURCHASED'
                                 ''')
                             conn = None
                             try:
@@ -4887,6 +4887,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
                             for item in df_selected[9].unique().tolist():
                                 if item == 'Flanged TW':
+                                    df_selected = df_selected[df_selected[9] == 'Flanged TW'].copy()
                                     df_selected.rename(columns={
                                         0: 'id', 9: 'type', 10: 'size', 11: 'rating',
                                         12: 'facing', 14: 'material', 15: 'std_length', 17: 'root_diam', 43: 'dim_tw', 64: 'notes_tw'
@@ -4972,6 +4973,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                         dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), total_count]
 
                                 elif item in ['Buttweld TW', 'Socket TW']:
+                                    df_selected = df_selected[df_selected[9] in ['Buttweld TW', 'Socket TW']].copy()
                                     df_selected.rename(columns={
                                         0: 'id', 9: 'type', 10: 'size', 11: 'rating',
                                         12: 'facing', 14: 'material', 15: 'std_length', 17: 'root_diam', 43: 'dim_tw', 64: 'notes_tw'
@@ -5058,7 +5060,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             query = ('''
                                 SELECT *
                                 FROM tags_data.tags_flow
-                                WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%')
+                                WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and tag_state = 'PURCHASED'
                                 ''')
                             conn = None
                             try:
@@ -5093,6 +5095,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             df_selected = df_general.iloc[:, [0, 8, 9, 10, 11, 12, 13, 16, 21, 111]].copy()
                             for item in df_selected[8].unique().tolist():
                                 if item == 'F+P':
+                                    df_selected = df_selected[df_selected[8] == 'F+P'].copy()
+
                                     df_selected.rename(columns={
                                         0: 'id', 8: 'type', 9: 'size', 10: 'rating',
                                         11: 'facing', 12: 'schedule', 13: 'material', 16: 'tapping', 21: 'gasket', 111: 'pipe_int_diam'
@@ -5101,8 +5105,8 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     df_flanges = df_selected.copy()
                                     df_flanges['drawing_code'] = df_flanges.apply(
                                     lambda row: 'CBWNO' + str(row['facing']) +
-                                                '-0' + str(row['size'])[0] + ('.5' if ' 1/2' in str(row['size']) else '.0') +
-                                                ('-0' + str(row['rating']) if str(row['rating']) in ['150', '300', '600', '900'] else '-' + str(row['rating'])),
+                                                ('-0' if len(str(row['size'])) == 2 else '-') + str(row['size']).split('"')[0] + ('.5' if ' 1/2' in str(row['size']) else '.0') +
+                                                ('-0' + str(row['rating']) if str(row['rating']) in ['150', '300', '600', '900'] else '-' + str(row['rating'])) + ('-SA' if int(row['size'].split('"')[0])> 24 else ''),
                                     axis=1)
 
                                     df_flanges['connection'] = df_flanges.apply(
@@ -5114,21 +5118,27 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     axis=1)
 
                                     df_grouped = df_flanges.groupby(['drawing_path','connection', 'schedule', 'material', 'tapping', 'gasket', 'pipe_int_diam']).size().reset_index(name="count")
-                                    grouped_flanges = df_grouped.groupby(['drawing_path','connection','schedule','material','tapping']).agg({"gasket": list, "pipe_int_diam": list, "count": list}).reset_index()
+                                    grouped_flanges = df_grouped.groupby(['drawing_path','connection','schedule','material','tapping', 'gasket']).agg({"pipe_int_diam": list, "count": list}).reset_index()
                                     total_count = grouped_flanges['count'].explode().sum() 
 
                                     for _, row in grouped_flanges.iterrows():
                                         counter_drawings += 1
 
                                         writer = PdfWriter()
-                                        reader = PdfReader(row["drawing_path"])
-                                        page_overlay = PdfReader(flange_dwg_orifice(self.numorder, row["material"], row["schedule"], row["tapping"], self.client, zip(row["gasket"], row["pipe_int_diam"], row["count"]))).pages[0]
 
-                                        reader.pages[0].merge_page(page2=page_overlay)
-                                        writer.add_page(reader.pages[0])
+                                        with open(row["drawing_path"], 'rb') as f:
+                                            reader = PdfReader(f)
+                                            base_page = reader.pages[0]
 
-                                        writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                        dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(2*total_count) + "-BO " + str(row["connection"]) + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + str(1 if self.client != 'ARAMCO' else 2) + " EXTRACTOR", total_count]
+                                            pdf_buffer = flange_dwg_orifice(self.numorder, row["material"], row["schedule"], row["tapping"], row["gasket"], self.client, zip(row["pipe_int_diam"], row["count"]))
+
+                                            page_overlay = PdfReader(pdf_buffer).pages[0]
+                                            
+                                            base_page.merge_page(page2=page_overlay)
+                                            writer.add_page(base_page)
+
+                                            writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
+                                            dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(2*sum(row['count'])) + "-BO " + str(row["connection"]) + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + str(1 if self.client != 'ARAMCO' else 2) + " EXTRACTOR", 2*sum(row['count'])]
 
                             for key, value in dict_drawings.items():
                                 writer = PdfWriter()

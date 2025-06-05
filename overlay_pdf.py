@@ -435,7 +435,7 @@ def bar_dwg_notflangedTW(num_order, material, base_diam, item_data):
     return io.BytesIO(pdf.output())
 
 
-def flange_dwg_orifice(num_order, material, schedule, tapping, client, item_data):
+def flange_dwg_orifice(num_order, material, schedule, tapping, gasket, client, item_data):
     """
     Generates a PDF containing a new content based on the specified value and equipment type.
 
@@ -505,9 +505,8 @@ def flange_dwg_orifice(num_order, material, schedule, tapping, client, item_data
 
     item_data = list(item_data)
 
-    gasket = item_data[0][0]
-    pipe_int_diam = item_data[0][1]
-    cnt = item_data[0][2]
+    pipe_int_diam = item_data[0][0]
+    cnt = item_data[0][1]
 
     pdf.set_draw_color(255, 0, 0)
 
@@ -533,7 +532,7 @@ def flange_dwg_orifice(num_order, material, schedule, tapping, client, item_data
         y_pos = 232.5
     else:
         x_pos = 158.5
-        y_pos = 230
+        y_pos = 236
         pdf.line(100, 233, 201, 233)
     pdf.set_xy(x_pos, y_pos)
     pdf.cell(12.5, 6.5, str(2*cnt), align='C')
@@ -544,10 +543,12 @@ def flange_dwg_orifice(num_order, material, schedule, tapping, client, item_data
     pdf.cell(19, 9, str(2*cnt), align='C')
 
     pdf.set_xy(48, 248)
+    pdf.set_font("helvetica", "B", 8)
     pdf.cell(34, 9, str(material), align='C')
 
     pdf.set_xy(83, 248)
-    pdf.cell(47, 9, str(tapping[-2:-1]) + " TOMAS POR BRIDA", align='C')
+    pdf.set_font("helvetica", "B", 12)
+    pdf.cell(47, 9, str(tapping[-2:-1]) + " POR BRIDA", align='C')
 
     pdf.set_xy(151, 248)
     pdf.cell(49, 9, str(num_order), align='C')
