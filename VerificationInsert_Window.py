@@ -1580,8 +1580,11 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                     self.tableTags.setHorizontalHeaderLabels(column_headers)
                     self.tableTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Stretch)
                     self.tableTags.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.Interactive)
+                    self.tableTags.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.Interactive)
                     self.tableTags.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.Interactive)
                     self.tableTags.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeMode.Interactive)
+                    self.tableTags.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeMode.Interactive)
+                    self.tableTags.horizontalHeader().setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeMode.Interactive)
                     self.tableTags.hideColumn(0)
 
                     for i in range (14, self.num_columns - 2):
