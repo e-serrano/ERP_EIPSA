@@ -729,6 +729,12 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.gridLayout_4.setObjectName("gridLayout_4")
         self.hLayout_P = QtWidgets.QHBoxLayout()
         self.hLayout_P.setObjectName("hLayout_P")
+        self.Button_ShowRef_P = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_ShowRef_P.setMinimumSize(QtCore.QSize(150, 35))
+        self.Button_ShowRef_P.setMaximumSize(QtCore.QSize(150, 35))
+        self.Button_ShowRef_P.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.Button_ShowRef_P.setObjectName("Button_ShowRef_P")
+        self.hLayout_P.addWidget(self.Button_ShowRef_P)
         self.Button_All_P = QtWidgets.QPushButton(parent=self.frame)
         self.Button_All_P.setMinimumSize(QtCore.QSize(150, 35))
         self.Button_All_P.setMaximumSize(QtCore.QSize(150, 35))
@@ -748,6 +754,12 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.gridLayout_3.addWidget(self.tableAssembly_P, 2, 0, 1, 1)
         self.hLayout_PA = QtWidgets.QHBoxLayout()
         self.hLayout_PA.setObjectName("hLayout_PA")
+        self.Button_ShowRef_PA = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_ShowRef_PA.setMinimumSize(QtCore.QSize(150, 35))
+        self.Button_ShowRef_PA.setMaximumSize(QtCore.QSize(150, 35))
+        self.Button_ShowRef_PA.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.Button_ShowRef_PA.setObjectName("Button_ShowRef_PA")
+        self.hLayout_PA.addWidget(self.Button_ShowRef_PA)
         self.Button_All_PA = QtWidgets.QPushButton(parent=self.frame)
         self.Button_All_PA.setMinimumSize(QtCore.QSize(150, 35))
         self.Button_All_PA.setMaximumSize(QtCore.QSize(150, 35))
@@ -799,6 +811,8 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.Button_All_PA.setText(_translate("EditTags_Window", "Ver Todos"))
         self.Button_BG_P.setText(_translate("EditTags_Window", "Pintar Fondo"))
         self.Button_BG_PA.setText(_translate("EditTags_Window", "Pintar Fondo"))
+        self.Button_ShowRef_P.setText(_translate("EditTags_Window", "Ver Nº Ref"))
+        self.Button_ShowRef_PA.setText(_translate("EditTags_Window", "Ver Nº Ref"))
 
 # Function to load orders on tables
     def query_data(self):
@@ -850,15 +864,12 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                         self.checkbox_states_PA[column][str(value)] = True
                 self.dict_valuesuniques_PA[column] = list_valuesUnique
 
-        self.tableAssembly_P.hideColumn(1)
-        self.tableAssembly_P.hideColumn(3)
-        self.tableAssembly_PA.hideColumn(1)
-        self.tableAssembly_PA.hideColumn(3)
-        for i in range(5,14):
+        for i in range(1,4):
             self.tableAssembly_P.hideColumn(i)
             self.tableAssembly_PA.hideColumn(i)
-        self.tableAssembly_P.hideColumn(15)
-        self.tableAssembly_PA.hideColumn(15)
+        for i in range(5,16):
+            self.tableAssembly_P.hideColumn(i)
+            self.tableAssembly_PA.hideColumn(i)
         for i in range(22,23):
             self.tableAssembly_P.hideColumn(i)
             self.tableAssembly_PA.hideColumn(i)
@@ -899,6 +910,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
 
         self.Button_All_P.clicked.connect(self.query_all_P_Assembly)
         self.Button_BG_P.clicked.connect(lambda event: self.colour_picker(self.tableAssembly_P))
+        self.Button_ShowRef_P.clicked.connect(lambda event: self.show_ref(self.tableAssembly_P, self.Button_ShowRef_P))
         self.tableAssembly_P.setSortingEnabled(False)
         self.tableAssembly_P.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked_P)
         self.tableAssembly_P.doubleClicked.connect(self.query_order)
@@ -929,6 +941,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
 
         self.Button_All_PA.clicked.connect(self.query_all_PA_Assembly)
         self.Button_BG_PA.clicked.connect(lambda event: self.colour_picker(self.tableAssembly_PA))
+        self.Button_ShowRef_PA.clicked.connect(lambda event: self.show_ref(self.tableAssembly_PA, self.Button_ShowRef_PA))
         self.tableAssembly_PA.setSortingEnabled(False)
         self.tableAssembly_PA.horizontalHeader().sectionClicked.connect(self.on_view_horizontalHeader_sectionClicked_PA)
         self.tableAssembly_PA.doubleClicked.connect(self.query_order)
@@ -967,11 +980,10 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                         self.checkbox_states_P[column][str(value)] = True
                 self.dict_valuesuniques_P[column] = list_valuesUnique
 
-        self.tableAssembly_P.hideColumn(1)
-        self.tableAssembly_P.hideColumn(3)
-        for i in range(5,14):
+        for i in range(1,4):
             self.tableAssembly_P.hideColumn(i)
-        self.tableAssembly_P.hideColumn(15)
+        for i in range(5,16):
+            self.tableAssembly_P.hideColumn(i)
         for i in range(22,23):
             self.tableAssembly_P.hideColumn(i)
         self.tableAssembly_P.hideColumn(24)
@@ -1038,8 +1050,8 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                         self.checkbox_states_PA[column][str(value)] = True
                 self.dict_valuesuniques_PA[column] = list_valuesUnique
 
-        self.tableAssembly_PA.hideColumn(1)
-        self.tableAssembly_PA.hideColumn(3)
+        for i in range(1,4):
+            self.tableAssembly_PA.hideColumn(i)
         for i in range(5,16):
             self.tableAssembly_PA.hideColumn(i)
         for i in range(22,23):
@@ -1856,6 +1868,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
 
             self.index_drawing_window.closeEvent = lambda event: self.close_drawing_window(num_order, event)
 
+# Function to handle the close event of the drawing window
     def close_drawing_window(self, num_order, event):
         """
         Handles the close event of index drawing window.
@@ -1914,6 +1927,7 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         # table.selectionModel().select(index, QtCore.QItemSelectionModel.SelectionFlag.Select)
         # table.verticalScrollBar().setSliderPosition(scroll_position)
 
+
 # Function to export data to excel
     def exporttoexcel(self):
         """
@@ -1968,6 +1982,18 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             with pd.ExcelWriter(output_path, engine='xlsxwriter') as writer:
                 df_P.to_excel(writer, sheet_name='P-', index=False)
                 df_PA.to_excel(writer, sheet_name='PA-', index=False)
+
+
+# Function to show or hide reference number in the table
+    def show_ref(self, table, button):
+        if table.isColumnHidden(2):
+            table.showColumn(2)
+            button.setText("Ocultar Nº Ref")
+        else:
+            table.hideColumn(2)
+            button.setText("Ver Nº Ref")
+
+
 
 
 
