@@ -4667,7 +4667,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
                 else:
                     query = ('''
-                            SELECT num_order, product_type."variable", offers."client"
+                            SELECT num_order, product_type."variable", offers."client", offers."final_client"
                             FROM orders
                             INNER JOIN offers ON (offers."num_offer" = orders."num_offer")
                             INNER JOIN product_type ON (product_type."material" = offers."material")
@@ -4686,6 +4686,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         results_variable=cur.fetchone()
                         self.variable = results_variable[1] if results_variable != None else ''
                         self.client = results_variable[2]
+                        self.final_client = results_variable[3]
                     # close communication with the PostgreSQL database server
                         cur.close()
                     # commit the changes
@@ -5130,7 +5131,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             reader = PdfReader(f)
                                             base_page = reader.pages[0]
 
-                                            pdf_buffer = flange_dwg_orifice(self.numorder, row["material"], row["schedule"], row["tapping"], row["gasket"], self.client, zip(row["pipe_int_diam"], row["count"]))
+                                            pdf_buffer = flange_dwg_orifice(self.numorder, row["material"], row["schedule"], row["tapping"], row["gasket"], self.client, self.final_client, zip(row["pipe_int_diam"], row["count"]))
 
                                             page_overlay = PdfReader(pdf_buffer).pages[0]
                                             
@@ -5138,7 +5139,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             writer.add_page(base_page)
 
                                             writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                            dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(2*sum(row['count'])) + "-BO " + str(row["connection"]) + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + str(1 if self.client != 'ARAMCO' else 2) + " EXTRACTOR", 2*sum(row['count'])]
+                                            dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(2*sum(row['count'])) + "-BO " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + str(1 if ('ARAMCO' not in self.client and 'ARAMCO' not in self.final_client) else 2) + " EXTRACTOR", 2*sum(row['count'])]
 
                             for key, value in dict_drawings.items():
                                 writer = PdfWriter()

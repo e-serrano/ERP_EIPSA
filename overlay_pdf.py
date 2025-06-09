@@ -435,7 +435,7 @@ def bar_dwg_notflangedTW(num_order, material, base_diam, item_data):
     return io.BytesIO(pdf.output())
 
 
-def flange_dwg_orifice(num_order, material, schedule, tapping, gasket, client, item_data):
+def flange_dwg_orifice(num_order, material, schedule, tapping, gasket, client, final_client, item_data):
     """
     Generates a PDF containing a new content based on the specified value and equipment type.
 
@@ -445,6 +445,7 @@ def flange_dwg_orifice(num_order, material, schedule, tapping, gasket, client, i
         schedule (str): The schedule of item
         tapping (str): The tapping configuration
         client (str): The client of the order
+        final_client (str): The final client of the order.
         item_data (list): The list of items to be included in the PDF.
     """
     query = ('''
@@ -510,7 +511,7 @@ def flange_dwg_orifice(num_order, material, schedule, tapping, gasket, client, i
 
     pdf.set_draw_color(255, 0, 0)
 
-    if client =='ARAMCO':
+    if 'ARAMCO' in client or 'ARAMCO' in final_client:
         pdf.line(28, 234, 32, 238)
         pdf.line(28, 238, 32, 234)
         pdf.line(33, 231, 58, 231)
