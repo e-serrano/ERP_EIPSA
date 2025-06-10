@@ -1041,7 +1041,7 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
             "SELECT schedule FROM validation_data.flow_schedule",
             "SELECT flange_material FROM validation_data.flow_flange_material",
             "SELECT flange_type FROM validation_data.flow_flange_type",
-            "SELECT element_material FROM validation_data.flow_element_material",
+            "SELECT tube_material FROM validation_data.flow_tube_material",
             "SELECT tapping FROM validation_data.flow_tapping",
             "SELECT element_material FROM validation_data.flow_element_material",
             "SELECT plate_type FROM validation_data.flow_plate_type",
