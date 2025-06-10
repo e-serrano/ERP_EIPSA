@@ -1329,6 +1329,23 @@ class Ui_TestHydroInsert_Window(QtWidgets.QMainWindow):
                                                                         VALUES ('{num_order}', '{tag}', '{item_type}', '{test_date1}', '{manometer1}', '{pressure1}', '{test_state1}', '{notes1}', {test_date2}, '{manometer2}', '{pressure2}', '{test_state2}', '{notes2}', '{qty}')"""
                                                         cur.execute(commands_inserthydrotest)
 
+                                                        if self.lp_test.checkState() == QtCore.Qt.CheckState.Checked:
+                                                            query_hn_liq = ("""
+                                                            SELECT liquid, heat_number FROM verification.liquid_heat_number
+                                                            """)
+                                                            cur.execute(query_hn_liq)
+                                                            results_hn=cur.fetchall()
+                                                            match_liq1 = list(filter(lambda x: x[0] == '9PR5', results_hn))
+                                                            match_liq2 = list(filter(lambda x: x[0] == '9D1B', results_hn))
+                                                            match_liq3 = list(filter(lambda x: x[0] == '996PB', results_hn))
+
+                                                            hn_liq1=match_liq1[0][1]
+                                                            hn_liq2=match_liq2[0][1]
+                                                            hn_liq3=match_liq3[0][1]
+                                                            commands_liquidtest = f"""INSERT INTO verification.test_liquid (num_order, tag, item_type, test_date, hn_liq1, hn_liq2, hn_liq3,test_state, obs, quantity)
+                                                                                    VALUES ('{num_order}', '{tag}', '{item_type}', '{test_date1}', '{hn_liq1}', '{hn_liq2}', '{hn_liq3}', '{test_state1}', '{notes1}', '{qty}')"""
+                                                            cur.execute(commands_liquidtest)
+
                                                     # close communication with the PostgreSQL database server
                                                         cur.close()
                                                     # commit the changes
