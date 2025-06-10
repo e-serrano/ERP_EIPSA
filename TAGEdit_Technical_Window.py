@@ -2838,6 +2838,8 @@ class Ui_EditTags_Technical_Window(QtWidgets.QMainWindow):
                     value = self.proxy.data(self.proxy.index(row, column))
                     if isinstance(value, QDate):
                         value = value.toString("dd/MM/yyyy")
+                    elif column in [55] and self.variable == 'Caudal':
+                        value = int(value) if value != '' else 0
                     elif column in [15,16,41,42,70,71,72,73] and self.variable == 'Temperatura':
                         value = int(value) if value != '' else 0
                     tag_data.append(value)
