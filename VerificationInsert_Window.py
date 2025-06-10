@@ -207,7 +207,7 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
         rows_hidden (dict): Maps column indices to sets of hidden row indices.
         general_rows_to_hide (set): Set of row indices that are hidden across the table.
     """
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, db_conn=None):
         """
         Initializes the CustomTableWidget.
 
@@ -226,6 +226,10 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
         self.general_rows_to_hide = set()
         self.sorted_column = None
         self.sort_order = None
+
+        # Drag & drop setup
+        self.setAcceptDrops(True)
+        self.db_conn = db_conn
 
 # Function to show the menu
     def show_unique_values_menu(self, column_index, header_pos, header_height):
@@ -642,6 +646,67 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
         # Restaura filtros por texto si existen
         for col, text in saved_filters.get("text_filters", {}).items():
             self.apply_filter(col, None, False, text_filter=text)
+
+# Function to handle drag and drop events
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            for url in event.mimeData().urls():
+                if url.toLocalFile().lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif')):
+                    event.acceptProposedAction()
+                    return
+        event.ignore()
+
+    def dragMoveEvent(self, event):
+        self.dragEnterEvent(event)
+
+    def dropEvent(self, event: QtGui.QDropEvent):
+        if event.mimeData().hasUrls():
+            for url in event.mimeData().urls():
+                file_path = url.toLocalFile()
+                if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif')):
+                    pos = event.position().toPoint()
+                    row = self.rowAt(pos.y())
+                    col = self.columnAt(pos.x())
+
+                    if row != -1 and col != -1:
+                        self.setItem(row, col, QtWidgets.QTableWidgetItem(file_path))
+                        self.save_path_to_db(row, col, file_path)
+                        event.acceptProposedAction()
+                    return
+        event.ignore()
+
+    def save_path_to_db(self, row, col, path):
+        # Only save if the column is 22 or 23
+        if col not in [22, 23]:
+            return
+
+        # Obtain the ID, table name, and column ID from the row
+        id_item = self.item(row, 0)
+        table_item = self.item(row, 21)
+        column_id_item =self.item(row, 20)
+
+        if not id_item or not table_item:
+            print("ID o tabla vacía")
+            return
+
+        record_id = id_item.text()
+        table_name = table_item.text()
+        column_id = column_id_item.text()
+
+        column_name = "tag_images" if col == 22 else "tag_images2"
+
+        try:
+            cursor = self.db_conn.cursor()
+            query = f'UPDATE {table_name} SET {column_name} = %s WHERE {column_id} = %s'
+            cursor.execute(query, (path, record_id))
+            self.db_conn.commit()
+            cursor.close()
+        except Exception as e:
+            print(f"Error al guardar en DB: {e}")
+            self.db_conn.rollback()
+
+
+
 
 class CustomTableWidgetOthers(QtWidgets.QTableWidget):
     """
@@ -1263,7 +1328,10 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         self.Button_Deverify.setMinimumSize(QtCore.QSize(100, 35))
         self.Button_Deverify.setObjectName("Button_Deverify")
         self.gridLayout_2.addWidget(self.Button_Deverify, 5, 0, 1, 1)
-        self.tableTags = CustomTableWidgetTags()
+        params = config()
+    # connect to the PostgreSQL server
+        conn = psycopg2.connect(**params)
+        self.tableTags = CustomTableWidgetTags(db_conn=conn)
         self.tableTags.setObjectName("tableWidget")
         self.tableTags.setColumnCount(0)
         self.tableTags.setRowCount(0)
