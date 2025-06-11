@@ -2506,9 +2506,9 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 available_stock = result_supplyid[3]
 
                 old_pending = result_quantity[0]
-                old_quant_deliv_1 = result_quantity[1]
-                old_quant_deliv_2 = result_quantity[2]
-                old_quant_deliv_3 = result_quantity[3]
+                old_quant_deliv_1 = result_quantity[1] if result_quantity[1] is not None else 0
+                old_quant_deliv_2 = result_quantity[2] if result_quantity[2] is not None else 0
+                old_quant_deliv_3 = result_quantity[3] if result_quantity[3] is not None else 0
 
                 new_quant_deliv = float(deliv_quant_1) + float(deliv_quant_2) + float(deliv_quant_3)
                 old_quant_deliv = float(old_quant_deliv_1) + float(old_quant_deliv_2) + float(old_quant_deliv_3)
@@ -2541,6 +2541,7 @@ class Ui_SupplierOrder_Window(QtWidgets.QMainWindow):
                 dlg.setWindowTitle("ERP EIPSA")
                 dlg.setText("Ha ocurrido el siguiente error:\n"
                             + str(error))
+                print(error)
                 dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                 dlg.exec()
                 del dlg, new_icon
