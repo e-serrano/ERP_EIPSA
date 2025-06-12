@@ -619,9 +619,9 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         self.gridLayout_2.addItem(spacerItem, 2, 0, 1, 1)
         self.tableQueryOffer = CustomTableWidget()
         self.tableQueryOffer.setObjectName("tableQueryOffer")
-        self.tableQueryOffer.setColumnCount(20)
+        self.tableQueryOffer.setColumnCount(21)
         self.tableQueryOffer.setRowCount(0)
-        for i in range(20):
+        for i in range(21):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -708,28 +708,30 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         item = self.tableQueryOffer.horizontalHeaderItem(7)
         item.setText(_translate("QueryOffer_Window", "Proyecto"))
         item = self.tableQueryOffer.horizontalHeaderItem(8)
-        item.setText(_translate("QueryOffer_Window", "Material"))
+        item.setText(_translate("QueryOffer_Window", "Nac. /Ext."))
         item = self.tableQueryOffer.horizontalHeaderItem(9)
-        item.setText(_translate("QueryOffer_Window", "Importe"))
+        item.setText(_translate("QueryOffer_Window", "Material"))
         item = self.tableQueryOffer.horizontalHeaderItem(10)
-        item.setText(_translate("QueryOffer_Window", "Tipo Tarifa"))
+        item.setText(_translate("QueryOffer_Window", "Importe"))
         item = self.tableQueryOffer.horizontalHeaderItem(11)
-        item.setText(_translate("QueryOffer_Window", "Notas"))
+        item.setText(_translate("QueryOffer_Window", "Tipo Tarifa"))
         item = self.tableQueryOffer.horizontalHeaderItem(12)
-        item.setText(_translate("QueryOffer_Window", "Nº Equipos"))
+        item.setText(_translate("QueryOffer_Window", "Notas"))
         item = self.tableQueryOffer.horizontalHeaderItem(13)
-        item.setText(_translate("QueryOffer_Window", "Fecha Recepción"))
+        item.setText(_translate("QueryOffer_Window", "Nº Equipos"))
         item = self.tableQueryOffer.horizontalHeaderItem(14)
-        item.setText(_translate("QueryOffer_Window", "Portal"))
+        item.setText(_translate("QueryOffer_Window", "Fecha Recepción"))
         item = self.tableQueryOffer.horizontalHeaderItem(15)
-        item.setText(_translate("QueryOffer_Window", "Fecha Límite"))
+        item.setText(_translate("QueryOffer_Window", "Portal"))
         item = self.tableQueryOffer.horizontalHeaderItem(16)
-        item.setText(_translate("QueryOffer_Window", "Fecha Presentación"))
+        item.setText(_translate("QueryOffer_Window", "Fecha Límite"))
         item = self.tableQueryOffer.horizontalHeaderItem(17)
-        item.setText(_translate("QueryOffer_Window", "Veces Rec."))
+        item.setText(_translate("QueryOffer_Window", "Fecha Presentación"))
         item = self.tableQueryOffer.horizontalHeaderItem(18)
-        item.setText(_translate("QueryOffer_Window", "Seguimiento"))
+        item.setText(_translate("QueryOffer_Window", "Veces Rec."))
         item = self.tableQueryOffer.horizontalHeaderItem(19)
+        item.setText(_translate("QueryOffer_Window", "Seguimiento"))
+        item = self.tableQueryOffer.horizontalHeaderItem(20)
         item.setText(_translate("QueryOffer_Window", "Ptos. Importantes"))
         self.label_Months.setText(_translate("QueryOffer_Window", "Meses/Año:"))
 
@@ -761,7 +763,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
 
         commands_queryoffer = ("""
                         (SELECT offers."num_offer", EXTRACT(YEAR FROM (offers."register_date")) as year_offer, users_data.initials."initials", offers."state", offers."num_ref_offer", offers."client",
-                        offers."final_client", offers."project", offers."material", offers."offer_amount", offers."rate_type", offers."notes", offers."items_number",
+                        offers."final_client", offers."project", offers."nac_ext", offers."material", offers."offer_amount", offers."rate_type", offers."notes", offers."items_number",
                         TO_CHAR(offers."recep_date",'dd/MM/yyyy'), offers."portal", TO_CHAR(offers."limit_date",'dd/MM/yyyy'), TO_CHAR(offers."presentation_date",'dd/MM/yyyy'), offers."rec_times", offers."tracking", offers."important"
                         FROM offers
                         INNER JOIN product_type ON (offers."material"=product_type."material")
@@ -769,7 +771,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
                         ORDER BY offers."num_offer")
                         UNION ALL
                         (SELECT CAST(received_offers."id_offer" AS TEXT), EXTRACT(YEAR FROM (received_offers."register_date")) as year_offer, users_data.initials."initials", received_offers."state", received_offers."num_ref_offer", received_offers."client",
-                        received_offers."final_client", '' as project, received_offers."material", '' as amount, '' as rate_type, received_offers."description", received_offers."items_number",
+                        received_offers."final_client", '' as project, 'Exterior' as nac_ext, received_offers."material", '' as amount, '' as rate_type, received_offers."description", received_offers."items_number",
                         TO_CHAR(received_offers."recep_date",'dd/MM/yyyy'), '' as portal, TO_CHAR(received_offers."limit_date",'dd/MM/yyyy'), '' as presentation_date, 0 as rec_times, '' as tracking, '' as important
                         FROM received_offers
                         INNER JOIN product_type ON (received_offers."material"=product_type."material")
@@ -792,7 +794,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(20):
+                for column in range(21):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -809,7 +811,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
             self.tableQueryOffer.horizontalHeader().setDefaultSectionSize(150)
             # self.tableQueryOffer.horizontalHeader().setSectionResizeMode(4,QtWidgets.QHeaderView.ResizeMode.Interactive)
             # self.tableQueryOffer.horizontalHeader().setSectionResizeMode(18,QtWidgets.QHeaderView.ResizeMode.Interactive)
-            self.tableQueryOffer.horizontalHeader().setSectionResizeMode(19,QtWidgets.QHeaderView.ResizeMode.Stretch)
+            self.tableQueryOffer.horizontalHeader().setSectionResizeMode(20,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
 
         # close communication with the PostgreSQL database server
@@ -856,7 +858,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
             self.tableQueryOffer.setRowCount(0)
             commands_queryoffer = ("""
                         (SELECT offers."num_offer", EXTRACT(YEAR FROM (offers."register_date")) as year_offer, users_data.initials."initials", offers."state", offers."num_ref_offer", offers."client",
-                        offers."final_client", offers."project", offers."material", offers."offer_amount", offers."rate_type", offers."notes", offers."items_number",
+                        offers."final_client", offers."project", offers."nac_ext", offers."material", offers."offer_amount", offers."rate_type", offers."notes", offers."items_number",
                         TO_CHAR(offers."recep_date",'dd/MM/yyyy'), offers."portal", TO_CHAR(offers."limit_date",'dd/MM/yyyy'), TO_CHAR(offers."presentation_date",'dd/MM/yyyy'), offers."rec_times", offers."tracking", offers."important"
                         FROM offers
                         INNER JOIN product_type ON (offers."material"=product_type."material")
@@ -865,7 +867,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
                         ORDER BY offers."num_offer")
                         UNION ALL
                         (SELECT CAST(received_offers."id_offer" AS TEXT), EXTRACT(YEAR FROM (received_offers."register_date")) as year_offer, users_data.initials."initials", received_offers."state", received_offers."num_ref_offer", received_offers."client",
-                        received_offers."final_client", '' as project, received_offers."material", '' as amount, '' as rate_type, received_offers."description", received_offers."items_number",
+                        received_offers."final_client", '' as project, 'Exterior' as nac_ext, received_offers."material", '' as amount, '' as rate_type, received_offers."description", received_offers."items_number",
                         TO_CHAR(received_offers."recep_date",'dd/MM/yyyy'), '' as portal, TO_CHAR(received_offers."limit_date",'dd/MM/yyyy'), '' as presentation_date, 0 as rec_times, '' as tracking, '' as important
                         FROM received_offers
                         INNER JOIN product_type ON (received_offers."material"=product_type."material")
@@ -875,7 +877,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
                         """)
             commands_queryoffer_dates1 = ("""
                         (SELECT offers."num_offer", EXTRACT(YEAR FROM (offers."register_date")) as year_offer, users_data.initials."initials", offers."state", offers."num_ref_offer", offers."client",
-                        offers."final_client", offers."project", offers."material", offers."offer_amount", offers."rate_type", offers."notes", offers."items_number",
+                        offers."final_client", offers."project", offers."nac_ext", offers."material", offers."offer_amount", offers."rate_type", offers."notes", offers."items_number",
                         TO_CHAR(offers."recep_date",'dd/MM/yyyy'), offers."portal", TO_CHAR(offers."limit_date",'dd/MM/yyyy'), TO_CHAR(offers."presentation_date",'dd/MM/yyyy'), offers."rec_times", offers."tracking", offers."important"
                         FROM offers
                         INNER JOIN product_type ON (offers."material"=product_type."material")
@@ -886,7 +888,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
                         ORDER BY offers."num_offer")
                         UNION ALL
                         (SELECT CAST(received_offers."id_offer" AS TEXT), EXTRACT(YEAR FROM (received_offers."register_date")) as year_offer, users_data.initials."initials", received_offers."state", received_offers."num_ref_offer", received_offers."client",
-                        received_offers."final_client", '' as project, received_offers."material", '' as amount, '' as rate_type, received_offers."description", received_offers."items_number",
+                        received_offers."final_client", '' as project, 'Exterior' as nac_ext, received_offers."material", '' as amount, '' as rate_type, received_offers."description", received_offers."items_number",
                         TO_CHAR(received_offers."recep_date",'dd/MM/yyyy'), '' as portal, TO_CHAR(received_offers."limit_date",'dd/MM/yyyy'), '' as presentation_date, 0 as rec_times, '' as tracking, '' as important
                         FROM received_offers
                         INNER JOIN product_type ON (received_offers."material"=product_type."material")
@@ -898,7 +900,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
                         """)
             commands_queryoffer_dates2 = ("""
                         (SELECT offers."num_offer", EXTRACT(YEAR FROM (offers."register_date")) as year_offer, users_data.initials."initials", offers."state", offers."num_ref_offer", offers."client",
-                        offers."final_client", offers."project", offers."material", offers."offer_amount", offers."rate_type", offers."notes", offers."items_number",
+                        offers."final_client", offers."project", offers."nac_ext", 'Exterior' as nac_ext, offers."material", offers."offer_amount", offers."rate_type", offers."notes", offers."items_number",
                         TO_CHAR(offers."recep_date",'dd/MM/yyyy'), offers."portal", TO_CHAR(offers."limit_date",'dd/MM/yyyy'), TO_CHAR(offers."presentation_date",'dd/MM/yyyy'), offers."rec_times", offers."tracking", offers."important"
                         FROM offers
                         INNER JOIN product_type ON (offers."material"=product_type."material")
@@ -942,7 +944,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
 
             # fill the Qt Table with the query results
                 for row in results:
-                    for column in range(20):
+                    for column in range(21):
                         value = row[column]
                         if value is None:
                             value = ''
@@ -959,7 +961,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
                 self.tableQueryOffer.horizontalHeader().setDefaultSectionSize(150)
                 # self.tableQueryOffer.horizontalHeader().setSectionResizeMode(4,QtWidgets.QHeaderView.ResizeMode.Interactive)
                 # self.tableQueryOffer.horizontalHeader().setSectionResizeMode(18,QtWidgets.QHeaderView.ResizeMode.Interactive)
-                self.tableQueryOffer.horizontalHeader().setSectionResizeMode(19,QtWidgets.QHeaderView.ResizeMode.Stretch)
+                self.tableQueryOffer.horizontalHeader().setSectionResizeMode(20,QtWidgets.QHeaderView.ResizeMode.Stretch)
 
 
             # close communication with the PostgreSQL database server
@@ -993,8 +995,8 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
             self.label_CountItems.setText("")
             self.label_CountValue.setText("")
 
-            sum_value = sum([self.euro_string_to_float(ix.data()) if (ix.data() is not None and (re.match(r'^[\d.,]+\s€$', ix.data()) and ix.column() == 9))
-                            else (float(ix.data()) if (ix.data() is not None and ix.data().replace(',', '.', 1).replace('.', '', 1).isdigit() and ix.column() == 12) else 0) for ix in self.tableQueryOffer.selectedIndexes()])
+            sum_value = sum([self.euro_string_to_float(ix.data()) if (ix.data() is not None and (re.match(r'^[\d.,]+\s€$', ix.data()) and ix.column() == 10))
+                            else (float(ix.data()) if (ix.data() is not None and ix.data().replace(',', '.', 1).replace('.', '', 1).isdigit() and ix.column() == 13) else 0) for ix in self.tableQueryOffer.selectedIndexes()])
             count_value = len([ix for ix in self.tableQueryOffer.selectedIndexes() if ix.data() != ""])
             if sum_value > 0:
                 self.label_SumItems.setText("Suma:")
@@ -1033,7 +1035,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
         Args:
             item (QtWidgets.QTableWidgetItem): The item that was double-clicked.
         """
-        if item.column() in [9,16,17]:
+        if item.column() in [10,17,18]:
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
@@ -1059,14 +1061,14 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
                     if not self.tableQueryOffer.isRowHidden(row):
                         item = self.tableQueryOffer.item(row,col)
                         if item is not None:
-                            if col in [13, 15, 16]:  # date column
+                            if col in [14, 16, 17]:  # date column
                                 date_str = item.text()
                                 if date_str:  
                                     date_obj = datetime.strptime(date_str, "%d/%m/%Y")
                                     column_data.append(date_obj)
                                 else:
                                     column_data.append('')
-                            elif col in [9]:  # currency columns
+                            elif col in [10]:  # currency columns
                                 currency_str = item.text()
                                 if currency_str:
                                     currency_str=currency_str.replace(".","")
@@ -1076,7 +1078,7 @@ class Ui_QueryOffer_Window(QtWidgets.QMainWindow):
                                     column_data.append(currency_value)
                                 else:
                                     column_data.append('')
-                            elif col in [12]:  # integer columns
+                            elif col in [13]:  # integer columns
                                 integer_str = item.text()
                                 if integer_str:
                                     integer_value = int(integer_str)
