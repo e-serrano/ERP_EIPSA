@@ -2068,7 +2068,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Tamaño Línea",
                             "Rating", "Facing", "Schedule", "Material Brida", "Tipo Brida",
-                            "Material Tubo", "Tamaño Tomas (Nº)", "Material Elemento", "Tipo Placa", "Espesor Placa",
+                            "Material Tubo", "Tamaño Tomas (Nº x Brida)", "Material Elemento", "Tipo Placa", "Espesor Placa",
                             "Estándar Placa", "Material Junta", "Material Tornillería", "Con. Válvula", "Material Cuerpo Vlv.",
                             "Nº Saltos", "Pipe Spec.", "Peso Aprox. (kg)", "Long. Aprox. (mm)", "NACE",
                             "Precio (€)", "Notas Oferta", "Cambios Comercial", "Fecha Contractual", "Ø Orif. (mm)",
