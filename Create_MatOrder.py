@@ -184,7 +184,7 @@ def flow_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 processextractor = ''
                 material_extractor = re.search(r"^(.*?) / (\S+)(?:\s(\S+))?(?:\s)?(?:\s(.+))?$", model.data(model.index(target_row, 22))) if model.data(model.index(target_row, 22)) != 'N/A' else ""
                 term_1 = material_extractor.group(1) if material_extractor != "" else ""
-                term_4 = material_extractor.group(4) if material_extractor != "" else ""
+                term_4 = material_extractor.group(4)  if material_extractor and material_extractor.group(4) else ""
                 materialextractor = f"{term_1} {term_4}" if material_extractor != "" else ""
                 qtyextractor = model.data(model.index(target_row, 66))
                 extractor_list.append([code_extractor,codefab_extractor,tradcodextractor,sizebrida,designextractor,processextractor,materialextractor,qtyextractor])
