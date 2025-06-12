@@ -1171,7 +1171,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             "SELECT flags_color_mat FROM validation_data.level_flags_color_mat",
             "SELECT ip_code FROM validation_data.level_ip_code",
             "SELECT flange_type FROM validation_data.level_flange_type",
-            "SELECT nipple FROM validation_data.level_nipple",
+            "SELECT nipple FROM validation_data.level_nipple_hex",
             "SELECT nipple FROM validation_data.level_nipple",
             "SELECT antifrost FROM validation_data.level_antifrost",
             "SELECT nace FROM validation_data.level_nace",
