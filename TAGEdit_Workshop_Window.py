@@ -182,11 +182,12 @@ class FreezeTableWidget(QtWidgets.QTableView):
         Raises:
             Exception: If there is an error while trying to open the file, it displays an error message.
         """
-        if ((self.variable_table == 'Caudal' and index.column() == 156)
-        or (self.variable_table == 'Temperatura' and index.column() == 166)
-        or (self.variable_table == 'Nivel' and index.column() == 169)
-        or (self.variable_table == 'Otros' and index.column() == 56)):
+        if ((self.variable_table == 'Caudal' and index.column() in [156, 166])
+        or (self.variable_table == 'Temperatura' and index.column() in [166, 176])
+        or (self.variable_table == 'Nivel' and index.column() in [169, 179])
+        or (self.variable_table == 'Otros' and index.column() in [56, 66])):
             value = index.data()
+
 
             if value != '':
                 try:
@@ -575,11 +576,8 @@ class EditableTableModel(QtSql.QSqlTableModel):
         """
         flags = super().flags(index)
 
-        if index.column() in range (0,8) or index.column() in self.column_range or index.sibling(index.row(), index.model().columnCount() - 1).data() == 'Facturado':
-            flags &= ~Qt.ItemFlag.ItemIsEditable
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        else:
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+        flags &= ~Qt.ItemFlag.ItemIsEditable
+        return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
     def getColumnHeaders(self, visible_columns):
         """
@@ -1444,7 +1442,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(154,156):
                     self.tableEditTags.hideColumn(i)
-                for i in range(157,columns_number):
+                for i in range(157,columns_number-1):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Temperatura':
@@ -1464,7 +1462,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(164,166):
                     self.tableEditTags.hideColumn(i)
-                for i in range(167,columns_number):
+                for i in range(167,columns_number-1):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Nivel':
@@ -1482,7 +1480,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(167,169):
                     self.tableEditTags.hideColumn(i)
-                for i in range(170,columns_number):
+                for i in range(170,columns_number-1):
                     self.tableEditTags.hideColumn(i)
 
             elif self.variable == 'Otros':
@@ -1498,7 +1496,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                     self.tableEditTags.hideColumn(i)
                 for i in range(54,56):
                     self.tableEditTags.hideColumn(i)
-                for i in range(57,columns_number):
+                for i in range(57,columns_number-1):
                     self.tableEditTags.hideColumn(i)
 
             if self.name != 'Jesús Martínez':
@@ -1515,7 +1513,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
             self.tableEditTags.setItemDelegate(AlignDelegate(self.tableEditTags))
             self.tableEditTags.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode.Interactive)
             self.tableEditTags.horizontalHeader().setSectionResizeMode(0,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
-            self.tableEditTags.horizontalHeader().setSectionResizeMode(columns_number-1,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+            self.tableEditTags.horizontalHeader().setSectionResizeMode(columns_number-2,QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
             self.tableEditTags.horizontalHeader().setStyleSheet("::section{font: 800 10pt; background-color: #33bdef; border: 1px solid black;}")
             self.tableEditTags.setObjectName("tableEditTags")
             self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
@@ -1528,7 +1526,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
             headers_flow = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Tamaño Línea",
                             "Rating", "Facing", "Schedule", "Material Brida", "Tipo Brida",
-                            "Material Tubo", "Tamaño Tomas (Nº)", "Material Elemento", "Tipo Placa", "Espesor Placa",
+                            "Material Tubo", "Tamaño Tomas (Nº x Brida)", "Material Elemento", "Tipo Placa", "Espesor Placa",
                             "Estándar Placa", "Material Junta", "Material Tornillería", "Con. Válvula", "Material Cuerpo Vlv.",
                             "Nº Saltos", "Pipe Spec.", "Peso Aprox. (kg)", "Long. Aprox. (mm)", "NACE",
                             "Precio (€)", "Notas Oferta", "Cambios Comercial", "Fecha Contractual", "Ø Orif. (mm)",
@@ -1536,7 +1534,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                             "Fecha Estado Cálculo", "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Orden de Compra",
                             "Fecha Orden Compra", "Notas Orden Compra", 'Plano Dimensional', "Plano OF", "Fecha OF",
                             "Notas Equipo", "Colada Placa", "Cert. Placa", "Colada Brida", "Cert. Brida", "Nº Tapones",
-                            "Tamaño Tomas", "Nº Tomas", "RTJ Porta Material", "RTJ Espesor", "RTJ Dim",
+                            "Tamaño Tomas", "Nº Tomas x Brida", "RTJ Porta Material", "RTJ Espesor", "RTJ Dim",
                             "Ø Ext. Placa (mm)", "Mango", "Tamaño Espárragos", "Cantidad Espárragos", "Tamaño Extractor",
                             "Cantidad Extractor", "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo",
                             "Cod. Fab. Equipo", "Trad. Equipo", "Cod. Brida Orif.", "Cod. Fab. Brida Orif.", "Cant. Brida Orif.",
@@ -1556,7 +1554,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                             "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                             "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Fact", "Fotos 2"]
 
             headers_temp = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Tipo TW",
@@ -1591,7 +1589,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                             "Colada Dureza", "Estado Dureza", "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.",
                             "Notas Verif. Dim", "Fecha Verif. OF", "Estado Verif. OF.", "Notas Verif. OF", "Fecha Verif. OF Sensor",
                             "Estado Verif. OF Sensor", "Notas Verif. OF Sensor", "Fotos",
-                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Factura"]
+                            "Posición", "Subposición", "Importe Factura", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Fact", "Fotos 2"]
 
             headers_level = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Tipo", "Modelo",
@@ -1604,7 +1602,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                             "Dim. Flotador", "Junta Bridas", "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Plano",
                             "Estado Plano", "Fecha Estado Plano", "Notas Plano", "Orden de Compra", "Fecha Orden Compra",
                             "Notas Orden Compra", "Plano Dimensional", "Plano OF", "Fecha OF", "Notas Equipo",
-                            "Colada Cuerpo", "Cert. Cuerpo", "Colada Cuerpo Vlv", "Cert. Cuerpo Vlv", "Colada Brida Vlv", "Cert. Brida Vlv"
+                            "Colada Cuerpo", "Cert. Cuerpo", "Colada Cuerpo Vlv", "Cert. Cuerpo Vlv", "Colada Brida Vlv", "Cert. Brida Vlv",
                             "Estado Fabricación", "Inspección", "Fecha Inspección", "Envío RN", "Fecha RN", "Cod. Equipo", "Cod. Fab. Equipo",
                             "Trad. Equipo", "Cod. Cuerpo", "Cod. Fab. Cuerpo", "Cant. Cuerpo", "Cod. Cubierta",
                             "Cod. Fab. Cubierta", "Cant. Cubierta", "Cod. Tornillería", "Cod. Fab. Tornillería", "Cant. Tornillería",
@@ -1627,7 +1625,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                             "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                             "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Fact", "Fotos 2"]
 
             headers_others = ["ID", "TAG", "Estado", "Nº Oferta", "Nº Pedido",
                             "PO", "Posición", "Subposición", "Descripción", "Código Equipo",
@@ -1640,7 +1638,7 @@ class Ui_EditTags_Workshop_Window(QtWidgets.QMainWindow):
                             "Dureza HB", "Bola", "Carga", "Colada Dureza", "Estado Dureza",
                             "Notas Dureza", "Fecha Verif. Dim.", "Estado Verif. Dim.", "Notas Verif. Dim", "Fecha Verif. OF",
                             "Estado Verif. OF", "Notas Verif. OF", "Fotos",
-                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas"]
+                            "Posición", "Subposición", "Importe", "Diferencia", "CajaBr", "CajaPl", "Descripción", "Notas", "Estado Fact", "Fotos 2"]
 
             if self.variable == 'Caudal':
                 self.model.setAllColumnHeaders(headers_flow)
