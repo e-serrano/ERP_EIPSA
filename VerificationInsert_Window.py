@@ -684,6 +684,7 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
         id_item = self.item(row, 0)
         table_item = self.item(row, 21)
         column_id_item =self.item(row, 20)
+        images_item = self.item(row, 22) if col == 22 else self.item(row, 23)
 
         if not id_item or not table_item:
             print("ID o tabla vacía")
@@ -692,15 +693,38 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
         record_id = id_item.text()
         table_name = table_item.text()
         column_id = column_id_item.text()
+        images_value = images_item.text()
 
         column_name = "tag_images" if col == 22 else "tag_images2"
 
         try:
-            cursor = self.db_conn.cursor()
-            query = f'UPDATE {table_name} SET {column_name} = %s WHERE {column_id} = %s'
-            cursor.execute(query, (path, record_id))
-            self.db_conn.commit()
-            cursor.close()
+            if images_value == '':
+                cursor = self.db_conn.cursor()
+                query = f'UPDATE {table_name} SET {column_name} = %s WHERE {column_id} = %s'
+                cursor.execute(query, (path, record_id))
+                self.db_conn.commit()
+                cursor.close()
+
+            else:
+                dlg_yes_no = QtWidgets.QMessageBox()
+                new_icon_yes_no = QtGui.QIcon()
+                new_icon_yes_no.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg_yes_no.setWindowIcon(new_icon_yes_no)
+                dlg_yes_no.setWindowTitle("ERP EIPSA")
+                dlg_yes_no.setText(f"El tag ya tiene imagen\n"
+                                    "¿Estás seguro de que deseas sobreescribir los datos?")
+                dlg_yes_no.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg_yes_no.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                result = dlg_yes_no.exec()
+
+                if result == QtWidgets.QMessageBox.StandardButton.Yes:
+                    cursor = self.db_conn.cursor()
+                    query = f'UPDATE {table_name} SET {column_name} = %s WHERE {column_id} = %s'
+                    cursor.execute(query, (path, record_id))
+                    self.db_conn.commit()
+                    cursor.close()
+
+                del dlg_yes_no, new_icon_yes_no
         except Exception as e:
             print(f"Error al guardar en DB: {e}")
             self.db_conn.rollback()
