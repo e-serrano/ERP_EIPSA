@@ -972,7 +972,7 @@ class Ui_EditTags_Verification_Window(QtWidgets.QMainWindow):
                             "Material Nipple Ext.", "Long. Nipple Ext. (mm)", "Material Head/Case", "Con. Elec./Diam. Case", "TT/Terminal Insulation",
                             "Material Brida LapJoint", "Material Junta", "Puntal", "Tubo", "NACE",
                             "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual", "Stress",
-                            "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Ø Picaje (mm)", "Notas Cálculo",
+                            "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Bore // Tip", "Notas Cálculo",
                             "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo", "Fecha Estado Cálculo",
                             "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Planos", "Orden de Compra",
                             "Fecha Orden Compra", "Notas Orden Compra", "Plano Dimensional", "Plano OF Sensor", "Fecha OF Sensor", 

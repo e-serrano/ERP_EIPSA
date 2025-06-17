@@ -2106,7 +2106,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                             "Material Nipple Ext.", "Long. Nipple Ext. (mm)", "Material Head/Case", "Con. Elec./Diam. Case", "TT/Terminal Insulation",
                             "Material Brida LapJoint", "Material Junta", "Puntal", "Tubo", "NACE",
                             "Precio (€)", "Notas Oferta", "Cambio Comercial", "Fecha Contractual", "Stress",
-                            "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Ø Picaje (mm)", "Notas Cálculo",
+                            "Geometría", "Long. Cónica (mm)", "Long. Recta (mm)", "Bore // Tip", "Notas Cálculo",
                             "Cambios Técnicos", "Notas Técnicas", "Nº Doc. EIPSA Cálculo", "Estado Cálculo", "Fecha Estado Cálculo",
                             "Nº Doc. EIPSA Plano", "Estado Plano", "Fecha Estado Plano", "Notas Planos", "Orden de Compra",
                             "Fecha Orden Compra", "Notas Orden Compra", "Plano Dimensional", "Plano OF Sensor", "Fecha OF Sensor", 
@@ -3039,7 +3039,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
 
                         columns = ', '.join([column for column, _ in columns_values])
                         values = ', '.join([f"'{int(float(value))}'" if column in ['plug_number', 'tapping_number', 'bolts_quantity', 'extractor_quantity', 'rating', 'sheath_stem_diam', 'nipple_ext_length', 'temp_inf', 'temp_sup', 'root_diam', 'tip_diam',] and value.endswith('.0')
-                                            else (f"'{value.replace('.', ',')}'" if column in ['amount', 'orif_diam', 'dv_diam', 'plate_thk','plate_ext_diam', 'conical_length', 'straigth_length', 'nozzle_diam', 'length_cut_tw', 'dim_a_sensor', 'dim_b_sensor', 'dim_l_sensor']
+                                            else (f"'{value.replace('.', ',')}'" if column in ['amount', 'orif_diam', 'dv_diam', 'plate_thk','plate_ext_diam', 'conical_length', 'straigth_length', 'bore_tip', 'length_cut_tw', 'dim_a_sensor', 'dim_b_sensor', 'dim_l_sensor']
                                             else ('NULL' if value == 'N/A' and column in ['std_length', 'ins_length']
                                             else ('NULL' if value == '' and column in ['rating', 'plate_thk', 'contractual_date', 'irc_date', 'rn_date', 'purchase_order_date', 'of_date', 'of_sensor_date']
                                             else "'{}'".format(value.replace('\'', '\'\''))))) for column, value in columns_values])
