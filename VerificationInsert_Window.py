@@ -667,15 +667,17 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
                     pos = event.position().toPoint()
                     row = self.rowAt(pos.y())
                     col = self.columnAt(pos.x())
+                    images_item = self.item(row, 22) if col == 22 else self.item(row, 23)
+                    images_value = images_item.text() if images_item is not None else ''
 
                     if row != -1 and col != -1:
                         self.setItem(row, col, QtWidgets.QTableWidgetItem(file_path))
-                        self.save_path_to_db(row, col, file_path)
+                        self.save_path_to_db(row, col, file_path, images_value)
                         event.acceptProposedAction()
                     return
         event.ignore()
 
-    def save_path_to_db(self, row, col, path):
+    def save_path_to_db(self, row, col, path, previous_value):
         # Only save if the column is 22 or 23
         if col not in [22, 23]:
             return
@@ -684,7 +686,6 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
         id_item = self.item(row, 0)
         table_item = self.item(row, 21)
         column_id_item =self.item(row, 20)
-        images_item = self.item(row, 22) if col == 22 else self.item(row, 23)
 
         if not id_item or not table_item:
             print("ID o tabla vacía")
@@ -693,12 +694,11 @@ class CustomTableWidgetTags(QtWidgets.QTableWidget):
         record_id = id_item.text()
         table_name = table_item.text()
         column_id = column_id_item.text()
-        images_value = images_item.text()
 
         column_name = "tag_images" if col == 22 else "tag_images2"
 
         try:
-            if images_value == '':
+            if previous_value == '':
                 cursor = self.db_conn.cursor()
                 query = f'UPDATE {table_name} SET {column_name} = %s WHERE {column_id} = %s'
                 cursor.execute(query, (path, record_id))
