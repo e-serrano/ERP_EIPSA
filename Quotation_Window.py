@@ -2133,8 +2133,9 @@ class Ui_Quotation_Window(QtWidgets.QMainWindow):
         for i in range(self.tableRecords.rowCount()):
             item = self.tableRecords.item(i, 8)
             if item is not None and text_position.upper() in item.text().upper():
-                item.setSelected(True)
-                self.tableRecords.scrollToItem(item)
+                item_selected = self.tableRecords.item(i, 1)
+                item_selected.setSelected(True)
+                self.tableRecords.scrollToItem(item_selected)
                 return
 
 
