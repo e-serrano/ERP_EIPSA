@@ -251,16 +251,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
         value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
 
-        if index.column() == 165 and value == 'Facturado' and self.table_check == 'tags_data.tags_flow':
-            flags &= ~Qt.ItemFlag.ItemIsEditable
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        elif index.column() == 178 and value == 'Facturado' and self.table_check == 'tags_data.tags_temp':
-            flags &= ~Qt.ItemFlag.ItemIsEditable
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        elif index.column() == 175 and value == 'Facturado' and self.table_check == 'tags_data.tags_level':
-            flags &= ~Qt.ItemFlag.ItemIsEditable
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        elif index.column() == 65 and value == 'Facturado' and self.table_check == 'tags_data.tags_others':
+        if index.sibling(index.row(), index.model().columnCount() - 2).data() == 'Facturado':
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:

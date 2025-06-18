@@ -378,7 +378,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
                 return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
             
         else:
-            if index.column() in range (0,8) or index.column() in self.column_range or index.sibling(index.row(), index.model().columnCount() - 1).data() == 'Facturado':
+            if index.column() in range (0,8) or index.column() in self.column_range or index.sibling(index.row(), index.model().columnCount() - 2).data() == 'Facturado':
                 flags &= ~Qt.ItemFlag.ItemIsEditable
                 return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
             else:
