@@ -2202,9 +2202,11 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
             if self.variable == 'Caudal':
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
                 self.tableEditTags.setItemDelegateForColumn(2, self.combo_itemtype)
-                for i in range(16):
+                for i in range(15):
                     self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_flow[i]]))
                     self.tableEditTags.setItemDelegateForColumn(i+8, self.combo_itemtype)
+                self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, sorted([x[0] for x in self.all_results_flow[15]]))
+                self.tableEditTags.setItemDelegateForColumn(29, self.combo_itemtype)
             elif self.variable == 'Temperatura':
                 self.combo_itemtype = EditableComboBoxDelegate(self.tableEditTags, list_tag_state)
                 self.tableEditTags.setItemDelegateForColumn(2, self.combo_itemtype)
