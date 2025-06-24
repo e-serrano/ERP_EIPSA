@@ -1817,6 +1817,8 @@ class Ui_Supplies_Window(QtWidgets.QMainWindow):
         self.tableSupplies.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.tableSupplies.horizontalHeader().setSectionResizeMode(10, QtWidgets.QHeaderView.ResizeMode.Stretch)
 
+        self.tableSupplies.selectionModel().currentChanged.connect(self.load_item_quotations)
+
 # Function to order column ascending
     def on_actionSortAscending_triggered(self):
         """
