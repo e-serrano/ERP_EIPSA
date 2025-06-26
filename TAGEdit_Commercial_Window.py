@@ -1719,7 +1719,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.initial_column = 34
                     self.initial_column2 = 39
                     self.column_difference = 160
-                    self.column_differenc2 = 170
+                    self.column_difference2 = 170
                 elif self.variable =='Caudal+Nivel':
                     self.variable = 'Caudal'
                     self.variable2 = 'Nivel'
@@ -1730,7 +1730,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
                     self.initial_column = 34
                     self.initial_column2 = 40
                     self.column_difference = 160
-                    self.column_differenc2 = 173
+                    self.column_difference2 = 173
                 elif self.variable == 'Caudal':
                     self.model.setTable("tags_data.tags_flow")
                     self.model.table_check = "tags_data.tags_flow"
