@@ -1523,6 +1523,7 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable):
                 description = model.data(model.index(target_row, 8))
                 print(description)
 
+            # Order for 2V-210 valves
                 if any(valve in description for valve in list_valves_210):
                     model_valve = re.match(r'(V-\d+-[A-Za-z0-9]+)', description).group(0)
                     material_valve = (re.match(r'(V-\d+-[A-Za-z0-9]+)(.*)', description).group(2).lstrip(' - ').strip()).split(' / ')[0]
@@ -1576,6 +1577,28 @@ def others_matorder(proxy, model, numorder, numorder_pedmat, variable):
                     (list_16, "df_list16"),
                     (list_17, "df_list17"),
                     (list_18, "df_list18")]
+
+            # Order for CN-32219
+                if 'CN-32219' in description:
+                    list_1.append(['BRIDA BLIND 4" 900# RTJ', 'ø293 x 53 mm', '', '', '321', 1])
+                    list_2.append(['TUBO 1/4" SCH 40S (ø13,5 x ESP 2,3 mm)','(2323x' + 1 +')+(1753x' + 1 + ')+(1183x' + 1 + ')', '', '', '321', str(round(5260 / 1000, 2))])
+                    list_3.append(['TUBO 3" SCH 80S','2664 x ' * 1, '', '', '321', str(round(2680 / 1000, 2))])
+                    list_4.append(['BARRA ø25 x LONG. 30 mm (1/4" NPT-H)','', '', '', '321', 1])
+                    list_5.append(['BARRA ø25 x LONG. 40 mm (1/4" NPT-H x 1/4" SW)','REDUCCIÓN 1/4"SW A 1/4" NPT-H', '', '', '321', 3])
+                    list_6.append(['ACCESORIO FIJACIÓN BARRA ø20 x LONG 34 mm', '', '', '', '321', 3])
+                    list_7.append(['CAP SOLDADO BARRA ø90 x LONG 67 mm', '', '', '', '321', 1])
+                    list_8.append(['EMPTAPÓN DE PURGA 1/4" NPT-M (EXAG. 17 e/c x LONG. 31 mm)AQUETADURA', 'EXAG. 17 e/c (ø20 mm)', '', '', '321', 1])
+
+
+                    data_lists = [
+                    (list_1, "df_list1"),
+                    (list_2, "df_list2"),
+                    (list_3, "df_list3"),
+                    (list_4, "df_list4"),
+                    (list_5, "df_list5"),
+                    (list_6, "df_list6"),
+                    (list_7, "df_list7"),
+                    (list_8, "df_list8")]
 
                 else:
                     tradcod = str(description)
