@@ -1018,43 +1018,63 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
         """
         Exports the visible data from the table to an Excel file. If no data is loaded, displays a warning message.
         """
+        date_columns = [4, 5, 16, 17, 18, 21, 24]
+        integer_columns = [11, 19, 22, 25]
+
+        if self.rol_app == 'Técnico':
+            currency_columns = []
+            date_columns_excel = [5, 6, 15, 16, 17, 20, 23]
+            currency_columns_excel = []
+        else:
+            currency_columns = [14, 15]
+            date_columns_excel = [5, 6, 17, 18, 19, 22, 25]
+            currency_columns_excel = [15, 16]
+
         if self.tableQueryOrder.rowCount() > 0:
             df = pd.DataFrame()
+
             for col in range(self.tableQueryOrder.columnCount()):
-                header = self.tableQueryOrder.horizontalHeaderItem(col).text()
-                column_data = []
-                for row in range(self.tableQueryOrder.rowCount()):
-                    if not self.tableQueryOrder.isRowHidden(row):
-                        item = self.tableQueryOrder.item(row,col)
-                        if item is not None:
-                            if col in [4, 5, 16, 17, 18, 21, 24]:  # date column
-                                date_str = item.text()
-                                if date_str:  
-                                    date_obj = datetime.strptime(date_str, "%d/%m/%Y") if date_str not in ['', ' '] else ''
-                                    column_data.append(date_obj)
+                if not self.tableQueryOrder.isColumnHidden(col):
+                    header = self.tableQueryOrder.horizontalHeaderItem(col).text()
+                    column_data = []
+
+                    for row in range(self.tableQueryOrder.rowCount()):
+                        if not self.tableQueryOrder.isRowHidden(row):
+                            item = self.tableQueryOrder.item(row,col)
+                            if item is not None:
+
+                                if col in date_columns:
+                                    date_str = item.text()
+                                    if date_str:  
+                                        date_obj = datetime.strptime(date_str, "%d/%m/%Y") if date_str not in ['', ' '] else ''
+                                        column_data.append(date_obj)
+                                    else:
+                                        column_data.append('')
+
+                                elif col in currency_columns:
+                                    currency_str = item.text()
+                                    if currency_str:
+                                        currency_str=currency_str.replace(".","")
+                                        currency_str=currency_str.replace(",",".")
+                                        currency_str=currency_str[:currency_str.find(" €")]
+                                        currency_value = float(currency_str)
+                                        column_data.append(currency_value)
+                                    else:
+                                        column_data.append('')
+
+                                elif col in integer_columns:
+                                    integer_str = item.text()
+                                    if integer_str:
+                                        integer_value = int(integer_str)
+                                        column_data.append(integer_value)
+                                    else:
+                                        column_data.append('')
+
                                 else:
-                                    column_data.append('')
-                            elif col in [14, 15]:  # currency columns
-                                currency_str = item.text()
-                                if currency_str:
-                                    currency_str=currency_str.replace(".","")
-                                    currency_str=currency_str.replace(",",".")
-                                    currency_str=currency_str[:currency_str.find(" €")]
-                                    currency_value = float(currency_str)
-                                    column_data.append(currency_value)
-                                else:
-                                    column_data.append('')
-                            elif col in [11, 19, 22, 25]:  # integer columns
-                                integer_str = item.text()
-                                if integer_str:
-                                    integer_value = int(integer_str)
-                                    column_data.append(integer_value)
-                                else:
-                                    column_data.append('')
+                                    column_data.append(item.text())
                             else:
-                                column_data.append(item.text())
-                        else:
-                            column_data.append('')
+                                column_data.append('')
+
                 df[header] = column_data
 
             root = tk.Tk()
@@ -1071,12 +1091,12 @@ class Ui_QueryOrder_Window(QtWidgets.QMainWindow):
                 date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
                 currency_style  = NamedStyle(name='currency_style ', number_format='#,##0.00" €"')
                 for col_num in range(1, self.tableQueryOrder.columnCount() + 1):
-                    if col_num in [5, 6, 17, 18, 19, 22, 25]:  
+                    if col_num in date_columns_excel:  
                         for row_num in range(2, self.tableQueryOrder.rowCount() + 2):
                             cell = writer.sheets['Sheet1'].cell(row=row_num, column=col_num)
                             cell.style = date_style
 
-                    elif col_num in [15, 16]:  
+                    elif col_num in currency_columns_excel:  
                         for row_num in range(2, self.tableQueryOrder.rowCount() + 2):
                             cell = writer.sheets['Sheet1'].cell(row=row_num, column=col_num)
                             cell.style = currency_style
