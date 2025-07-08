@@ -527,7 +527,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         Verif_Flange_Information_Window.setWindowIcon(icon)
-        if self.username == 'm.gil':
+        if self.username in ['m.gil', 'j.tena']:
             Verif_Flange_Information_Window.setStyleSheet("QWidget {\n"
     "background-color: #121212; color: rgb(255, 255, 255);\n"
     "}\n"
@@ -625,7 +625,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
         self.toolPDF.setIconSize(QtCore.QSize(25, 25))
         self.hcab.addWidget(self.toolPDF)
 
-        if self.username == 'm.gil':
+        if self.username in ['m.gil', 'j.tena']:
             self.toolPDF.setStyleSheet("border: 1px solid white;")
 
         self.hcabspacer6=QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -758,7 +758,7 @@ class Ui_Verif_Flange_Information_Window(QtWidgets.QMainWindow):
             font.setBold(True)
             item.setFont(font)
             self.tableInformation.setHorizontalHeaderItem(i, item)
-        if self.username == 'm.gil':
+        if self.username in ['m.gil', 'j.tena']:
             self.tableInformation.setStyleSheet("gridline-color: rgb(128, 128, 128);")
             self.tableInformation.horizontalHeader().setStyleSheet("QHeaderView::section {background-color: #33bdef; border: 1px solid white; font-weight: bold; font-size: 10pt;}")
         else:

@@ -1301,6 +1301,66 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         self.Header.addWidget(self.Button_Warehouse_Pieces)
         spacerItem7 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem7)
+        self.Button_Flanges = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_Flanges.setMinimumSize(QtCore.QSize(50, 50))
+        self.Button_Flanges.setMaximumSize(QtCore.QSize(50, 50))
+        self.Button_Flanges.setToolTip('Bridas')
+        self.Button_Flanges.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'j.tena':
+            self.Button_Flanges.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_Flanges.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_Flanges.setText("")
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Flanges.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Button_Flanges.setIcon(icon4)
+        self.Button_Flanges.setIconSize(QtCore.QSize(int(40), int(40)))
+        self.Button_Flanges.setObjectName("Button_Flanges")
+        self.Header.addWidget(self.Button_Flanges)
+        spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem8)
         self.Button_Supplies = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Supplies.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_Supplies.setMaximumSize(QtCore.QSize(50, 50))
@@ -1354,13 +1414,13 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
     "}")
         self.Button_Supplies.setText("")
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Flanges.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon4.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Warehouse.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Button_Supplies.setIcon(icon4)
         self.Button_Supplies.setIconSize(QtCore.QSize(int(40), int(40)))
         self.Button_Supplies.setObjectName("Button_Supplies")
         self.Header.addWidget(self.Button_Supplies)
-        spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.Header.addItem(spacerItem8)
+        spacerItem9 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem9)
         self.Button_PaletteM = QtWidgets.QPushButton(parent=self.frame)
         self.Button_PaletteM.setMinimumSize(QtCore.QSize(50, 50))
         self.Button_PaletteM.setMaximumSize(QtCore.QSize(50, 50))
@@ -1670,6 +1730,7 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         self.Button_Update.clicked.connect(self.query_all_order)
         self.Button_Warehouse_Pieces.clicked.connect(self.aditional_pieces)
         self.Button_PendingSuppliers.clicked.connect(self.artpend_recep_supplier)
+        self.Button_Flanges.clicked.connect(self.flanges_information)
         self.Button_PaletteM.clicked.connect(self.colour_palette_M)
         self.Button_Supplies.clicked.connect(self.supplies_warehouse)
 
@@ -2883,6 +2944,16 @@ class Ui_App_Warehouse(QtWidgets.QMainWindow):
         self.ui.setupUi(self.supplies_window)
         self.supplies_window.show()
 
+# Function to open menu with different types of revisions
+    def flanges_information(self):
+        """
+        Initializes and displays the flanges information for the current user.
+        """
+        from Verif_Flange_Information import Ui_Verif_Flange_Information_Window
+        self.flange_information=QtWidgets.QMainWindow()
+        self.ui=Ui_Verif_Flange_Information_Window(self.username)
+        self.ui.setupUi(self.flange_information)
+        self.flange_information.showMaximized()
 
 
 
