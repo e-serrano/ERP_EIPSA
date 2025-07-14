@@ -17,7 +17,7 @@ import psycopg2
 import pandas as pd
 from PDF_Viewer import PDF_Viewer
 from PDF_Styles import welding_homologation
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.styles import NamedStyle
 from openpyxl.utils.dataframe import dataframe_to_rows
 import configparser
@@ -856,7 +856,6 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_Revisions.setObjectName("Button_Revisions")
         self.Button_Revisions.setToolTip("Revisiones")
         self.Header.addWidget(self.Button_Revisions)
-
         spacerItem7 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem7)
         self.Button_Times = QtWidgets.QPushButton(parent=self.frame)
@@ -917,6 +916,67 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_Times.setObjectName("Button_Times")
         self.Button_Times.setToolTip("Tiempos Fabricaión")
         self.Header.addWidget(self.Button_Times)
+
+        spacerItem8 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.Header.addItem(spacerItem8)
+        self.Button_OfferSummary = QtWidgets.QPushButton(parent=self.frame)
+        self.Button_OfferSummary.setMinimumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_OfferSummary.setMaximumSize(QtCore.QSize(int(50//1.5), int(50//1.5)))
+        self.Button_OfferSummary.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        if self.username == 'd.marquez':
+            self.Button_OfferSummary.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(38, 38, 38);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        else:
+            self.Button_OfferSummary.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+        self.Button_OfferSummary.setText("")
+        icon14 = QtGui.QIcon()
+        icon14.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Clock.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        # self.Button_OfferSummary.setIcon(icon14)
+        self.Button_OfferSummary.setIconSize(QtCore.QSize(int(40//1.5), int(40//1.5)))
+        self.Button_OfferSummary.setObjectName("Button_OfferSummary")
+        self.Button_OfferSummary.setToolTip("Resumen Ofertas")
+        self.Header.addWidget(self.Button_OfferSummary)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.Header.addItem(spacerItem1)
         self.HeaderName = QtWidgets.QLabel(parent=self.frame)
@@ -1201,6 +1261,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_ActiveOffer.clicked.connect(self.open_active_offers)
         self.Button_Revisions.clicked.connect(self.revisions)
         self.Button_Times.clicked.connect(self.times)
+        self.Button_OfferSummary.clicked.connect(self.offers_summary)
         self.Button_Notification.clicked.connect(self.notifications)
 
         self.backup_data()
@@ -1622,9 +1683,12 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         """
         Converts a euro-formatted string to a float.
         """
-        value = value.replace(".", "")
-        value = value.replace(",", ".")
-        value = value[: value.find(" €")]
+        if value is not None:
+            value = value.replace(".", "")
+            value = value.replace(",", ".")
+            value = value[: value.find(" €")]
+        else:
+            value = 0
         return float(value)
 
 # Function to open warehouse window
@@ -2001,6 +2065,125 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
             if results_visual[0][0] < date.today() - timedelta(days=40):
                 cur.execute(commands_notify_visual)
 
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            print(error)
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+# Function to export offers summary
+    def offers_summary(self):
+        conn = None
+        try:
+            # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            commands_offers_1 = ("""
+                            SELECT num_offer, state, client, final_client, TO_CHAR(register_date, 'DD/MM/YYYY'), nac_ext, offer_amount, EXTRACT(YEAR FROM register_date) as offer_year
+                            FROM offers
+                            WHERE EXTRACT(YEAR FROM register_date) = %s
+                            ORDER BY num_offer ASC
+                            """)
+            commands_offers_2 = ("""
+                            SELECT num_offer, state, client, final_client, TO_CHAR(register_date, 'DD/MM/YYYY'), nac_ext, offer_amount, EXTRACT(YEAR FROM register_date) as offer_year
+                            FROM offers
+                            WHERE EXTRACT(YEAR FROM register_date) BETWEEN %s AND %s
+                            ORDER BY num_offer ASC
+                            """)
+
+            dlg = QtWidgets.QInputDialog()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle('Resumen Ofertas')
+            dlg.setLabelText('Inserte primer año:')
+
+            dlg2 = QtWidgets.QInputDialog()
+            new_icon2 = QtGui.QIcon()
+            new_icon2.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg2.setWindowIcon(new_icon2)
+            dlg2.setWindowTitle('Resumen Ofertas')
+            dlg2.setLabelText('Inserte segundo año (si aplica):')
+
+            while True:
+                clickedButton = dlg.exec()
+                if clickedButton == 1:
+                    date_1 = dlg.textValue()
+                    if date_1 != '':
+                        while True:
+                            clickedButton2 = dlg2.exec()
+                            if clickedButton2 == 1:
+                                date_2 = dlg2.textValue()
+                                if date_2 != '':
+                                    cur.execute(commands_offers_2, (date_1, date_2,))
+                                else:
+                                    cur.execute(commands_offers_1, (date_1,))
+
+                                results_offers = cur.fetchall()
+                                df_offers = pd.DataFrame(results_offers, columns=['Oferta', 'Estado', 'Cliente', 'Cliente Final', 'Fecha Reg.', 'Nac./Ext.', 'Importe', 'Año'])
+
+                                existing_workbook = r"\\nas01\DATOS\Comunes\ENRIQUE SERRANO\05 COSAS DANI\RESUMEN OFERTAS.xlsm"
+                                wb = load_workbook(existing_workbook, keep_vba=True)
+                                ws = wb["TABLA"]
+
+                                max_row = ws.max_row
+                                if max_row > 1:
+                                    ws.delete_rows(2, max_row)
+
+                                df_offers["Importe"] = df_offers["Importe"].apply(self.euros_to_float)
+
+                                for index, row in df_offers.iterrows():
+                                    fecha_str = row['Fecha Reg.']
+                                    if fecha_str is not None:
+                                        fecha_obj = datetime.strptime(fecha_str, '%d/%m/%Y').date()
+                                        df_offers.at[index, 'Fecha Reg.'] = fecha_obj
+
+                                for r_idx, row in enumerate(dataframe_to_rows(df_offers, index=False, header=True), 1):
+                                    ws.append(row)
+
+                                # currency_style = NamedStyle(name='currency', number_format='#,##0.00 €')
+                                # date_style = NamedStyle(name='date_style', number_format='DD/MM/YYYY')
+
+                                # # Apply Styles
+                                # for cell in ws['E']:
+                                #     cell.style = date_style
+                                
+                                # for cell in ws['G']:
+                                #     cell.style = currency_style
+
+                                wb.save(existing_workbook)
+                                break
+
+                            else:
+                                break
+                        break
+                    dlg_error = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg_error.setWindowIcon(new_icon)
+                    dlg_error.setWindowTitle("Resumen Ofertas")
+                    dlg_error.setText("El primer año no puede estar vacío")
+                    dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg_error.exec()
+                    del dlg_error,new_icon
+                else:
+                    break
         # close communication with the PostgreSQL database server
             cur.close()
         # commit the changes
