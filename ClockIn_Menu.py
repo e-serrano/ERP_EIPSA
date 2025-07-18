@@ -140,7 +140,7 @@ class Ui_ClockIn_Menu(QtWidgets.QMainWindow):
         self.retranslateUi(ClockIn_Menu)
         self.Button_Cancel.clicked.connect(ClockIn_Menu.close) # type: ignore
         self.Button_Import.clicked.connect(lambda: self.importclockin(ClockIn_Menu))
-        self.Button_Query.clicked.connect(lambda: self.clockin(ClockIn_Menu))
+        self.Button_Query.clicked.connect(lambda: self.clockin())
         QtCore.QMetaObject.connectSlotsByName(ClockIn_Menu)
 
 
