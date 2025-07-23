@@ -477,11 +477,11 @@ class offer_flow:
                 ws["B48"] = rich_string
 
                 rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B49"] = rich_string
 
-                ws["A56"] = (
+                ws["A58"] = (
                     "If you require further information related with this offer, please do not hesitate to contact:\n"
                     + responsible
                     + "\n"
@@ -702,11 +702,11 @@ class offer_flow:
                     ws["B48"] = rich_string
 
                     rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                     TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                     ws["B49"] = rich_string
 
-                    ws["A56"] = (
+                    ws["A58"] = (
                         "If you require further information related with this offer, please do not hesitate to contact:\n"
                         + responsible
                         + "\n"
@@ -1214,11 +1214,11 @@ class offer_short_flow_spanish:
                     ws["B30"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
 
                 rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B28"] = rich_string
 
-                ws["A34"] = (
+                ws["A36"] = (
                     "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
                     + responsible
                     + "\n"
@@ -1396,11 +1396,11 @@ class offer_short_flow_spanish:
                         ws["B30"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
 
                     rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                     TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                     ws["B28"] = rich_string
 
-                    ws["A34"] = (
+                    ws["A36"] = (
                         "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
                         + responsible
                         + "\n"
@@ -1949,11 +1949,11 @@ class offer_short_flow_english:
                 ws["B42"] = rich_string
 
                 rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B43"] = rich_string
 
-                ws["A50"] = (
+                ws["A52"] = (
                     "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
                     + responsible
                     + "\n"
@@ -2174,11 +2174,11 @@ class offer_short_flow_english:
                     ws["B42"] = rich_string
 
                     rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                     TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                     ws["B43"] = rich_string
 
-                    ws["A50"] = (
+                    ws["A52"] = (
                         "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
                         + responsible
                         + "\n"
@@ -2777,11 +2777,11 @@ class offer_temp:
                 ws["B48"] = rich_string
 
                 rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B49"] = rich_string
 
-                ws["A59"] = (
+                ws["A61"] = (
                     "If you require further information related with this offer, please do not hesitate to contact:\n"
                     + responsible
                     + "\n"
@@ -3004,11 +3004,11 @@ class offer_temp:
                     ws["B48"] = rich_string
 
                     rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                     TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                     ws["B49"] = rich_string
 
-                    ws["A59"] = (
+                    ws["A61"] = (
                         "If you require further information related with this offer, please do not hesitate to contact:\n"
                         + responsible
                         + "\n"
@@ -3556,11 +3556,11 @@ class offer_short_temp_spanish:
                     ws["B35"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
 
                 rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B31"] = rich_string
 
-                ws["A39"] = (
+                ws["A41"] = (
                     "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
                     + responsible
                     + "\n"
@@ -3742,11 +3742,11 @@ class offer_short_temp_spanish:
                         ws["B35"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
 
                     rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                     TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                     ws["B31"] = rich_string
 
-                    ws["A39"] = (
+                    ws["A41"] = (
                         "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
                         + responsible
                         + "\n"
@@ -4335,11 +4335,11 @@ class offer_short_temp_english:
                 ws["B42"] = rich_string
 
                 rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B43"] = rich_string
 
-                ws["A53"] = (
+                ws["A55"] = (
                     "If you require further information related with this offer, please do not hesitate to contact:\n"
                     + responsible
                     + "\n"
@@ -4562,11 +4562,11 @@ class offer_short_temp_english:
                     ws["B42"] = rich_string
 
                     rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                     TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                     ws["B43"] = rich_string
 
-                    ws["A53"] = (
+                    ws["A55"] = (
                         "If you require further information related with this offer, please do not hesitate to contact:\n"
                         + responsible
                         + "\n"
@@ -5020,11 +5020,11 @@ class offer_level:
                 ws["B45"] = rich_string
 
                 rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B46"] = rich_string
 
-                ws["A56"] = (
+                ws["A58"] = (
                     "If you require further information related with this offer, please do not hesitate to contact:\n"
                     + responsible
                     + "\n"
@@ -5223,11 +5223,11 @@ class offer_level:
                     ws["B45"] = rich_string
 
                     rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                     TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                     ws["B46"] = rich_string
 
-                    ws["A56"] = (
+                    ws["A58"] = (
                         "If you require further information related with this offer, please do not hesitate to contact:\n"
                         + responsible
                         + "\n"
@@ -5640,11 +5640,11 @@ class offer_short_level_spanish:
                     ws["B29"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
 
                 rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B27"] = rich_string
 
-                ws["A35"] = (
+                ws["A37"] = (
                     "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
                     + responsible
                     + "\n"
@@ -5802,11 +5802,11 @@ class offer_short_level_spanish:
                         ws["B29"].font = Font(name="Calibri", size=11, bold=True, italic=True, color="FF0000")
 
                     rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                     TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                     ws["B27"] = rich_string
 
-                    ws["A35"] = (
+                    ws["A37"] = (
                         "Si necesita más información relacionada con esta oferta, no dude en ponerse en contacto con:\n"
                         + responsible
                         + "\n"
@@ -6260,11 +6260,11 @@ class offer_short_level_english:
                 ws["B38"] = rich_string
 
                 rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B39"] = rich_string
 
-                ws["A49"] = (
+                ws["A51"] = (
                     "If you require further information related with this offer, please do not hesitate to contact:\n"
                     + responsible
                     + "\n"
@@ -6463,11 +6463,11 @@ class offer_short_level_english:
                     ws["B38"] = rich_string
 
                     rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                     TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                     ws["B39"] = rich_string
 
-                    ws["A49"] = (
+                    ws["A51"] = (
                         "If you require further information related with this offer, please do not hesitate to contact:\n"
                         + responsible
                         + "\n"
@@ -7288,11 +7288,11 @@ class offer_flow_temp:
                 ws["B48"] = rich_string
 
                 rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B49"] = rich_string
 
-                ws["A58"] = (
+                ws["A60"] = (
                     "If you require further information related with this offer, please do not hesitate to contact:\n"
                     + responsible
                     + "\n"
@@ -7602,11 +7602,11 @@ class offer_flow_temp:
                     ws["B48"] = rich_string
 
                     rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                     TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                     ws["B49"] = rich_string
 
-                    ws["A58"] = (
+                    ws["A60"] = (
                         "If you require further information related with this offer, please do not hesitate to contact:\n"
                         + responsible
                         + "\n"
@@ -8558,11 +8558,11 @@ class offer_flow_temp_level:
                 ws["B48"] = rich_string
 
                 rich_string = CellRichText(
-                'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                 TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                 ws["B49"] = rich_string
 
-                ws["A62"] = (
+                ws["A64"] = (
                     "If you require further information related with this offer, please do not hesitate to contact:\n"
                     + responsible
                     + "\n"
@@ -8937,11 +8937,11 @@ class offer_flow_temp_level:
                     ws["B48"] = rich_string
 
                     rich_string = CellRichText(
-                    'Para importes superiores a 30.000,00, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
+                    'Para importes superiores a 30.000,00 €, si es requerido, podremos emitir aval de garantía y estará vigente hasta el final del periodo de garantía indicado.\nEl aval del 10% será emitido con la factura del último suplemento.\n',
                     TextBlock(InlineFont(i=True, b=True), 'Por debajo de dicha cantidad, no se emitirán avales.'))
                     ws["B49"] = rich_string
 
-                    ws["A62"] = (
+                    ws["A64"] = (
                         "If you require further information related with this offer, please do not hesitate to contact:\n"
                         + responsible
                         + "\n"
