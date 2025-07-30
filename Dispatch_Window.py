@@ -543,7 +543,8 @@ class Ui_Dispatch_Window(QtWidgets.QMainWindow):
         self.delete_allFilters()
         self.model.clear()
         self.model.setTable("purch_fact.invoice_header")
-        # self.model.setFilter("date_dispatch IS NULL")
+        current_year = int(QtCore.QDate.currentDate().year())
+        self.model.setFilter(f"(EXTRACT(YEAR FROM date_invoice) = {current_year} OR EXTRACT(YEAR FROM date_invoice) = {current_year - 1} )")
         self.model.setSort(1, QtCore.Qt.SortOrder.DescendingOrder)
         self.model.select()
 
