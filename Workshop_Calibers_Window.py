@@ -699,7 +699,7 @@ class Ui_Workshop_Calibers_Window(QtWidgets.QMainWindow):
         self.tableCalibers.verticalHeader().setVisible(False)
 
     # Change all column names
-        headers_names = ["ID", "Nº Equipo", "Tipo", "Localización", "Fecha Comp.", "Próx. Comp.", "Rango", "Precisión", "Patrón", "Marca", "Referencia", "Caja/Etiqueta", "Notas"]
+        headers_names = ["ID", "Nº Equipo", "Tipo", "Localización", "Fecha Comp.", "Próx. Comp.", "Rango", "Precisión", "Patrón", "Marca", "Referencia", "Caja/Etiqueta", "Notas", "Imagen", "Fecha Compra"]
 
         self.model.setAllColumnHeaders(headers_names)
 
@@ -767,7 +767,7 @@ class Ui_Workshop_Calibers_Window(QtWidgets.QMainWindow):
         self.tableCalibers.setSortingEnabled(False)
 
     # Change all column names
-        headers_names = ["ID", "Nº Equipo", "Tipo", "Localización", "Fecha Comp.", "Próx. Comp.", "Rango", "Precisión", "Patrón", "Marca", "Referencia", "Caja/Etiqueta", "Notas"]
+        headers_names = ["ID", "Nº Equipo", "Tipo", "Localización", "Fecha Comp.", "Próx. Comp.", "Rango", "Precisión", "Patrón", "Marca", "Referencia", "Caja/Etiqueta", "Notas", "Imagen", "Fecha Compra"]
 
         self.model.setAllColumnHeaders(headers_names)
 
