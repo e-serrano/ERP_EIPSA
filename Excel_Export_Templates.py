@@ -4869,7 +4869,7 @@ class offer_level:
                     ws[f"A{last_row+4}"] = (
                         "DELIVERY TIME: "
                         + delivery_time
-                        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
+                        + " WEEKS SINCE DRAWING APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
                     )
                     ws[f"A{last_row+4}"]._style = ws["AI1"]._style
 
@@ -4947,13 +4947,13 @@ class offer_level:
                 ws["B7"] = rich_string
 
                 rich_string = CellRichText(
-                'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
+                'Delivery time ' + delivery_time + ' weeks since drawing approval of ',
                 TextBlock(InlineFont(b=True), 'all equipment'),
                 ' in the contract, as well as critical documentation (August and last two December weeks excluded).')
                 ws["B12"] = rich_string
 
                 rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos de la ',
                 TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
                 TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
                 ws["B13"] = rich_string
@@ -5150,13 +5150,13 @@ class offer_level:
                     ws["B7"] = rich_string
 
                     rich_string = CellRichText(
-                    'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
+                    'Delivery time ' + delivery_time + ' weeks since drawing approval of ',
                     TextBlock(InlineFont(b=True), 'all equipment'),
                     ' in the contract, as well as critical documentation (August and last two December weeks excluded).')
                     ws["B12"] = rich_string
 
                     rich_string = CellRichText(
-                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos de la ',
                     TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
                     TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
                     ws["B13"] = rich_string
@@ -5530,7 +5530,7 @@ class offer_short_level_spanish:
                     ws[f"A{last_row+4}"] = (
                         "PLAZO DE ENTREGA: "
                         + delivery_time
-                        + " SEMANAS DESDE APROBACIÓN DE PLANOS / CÁLCULOS (AGOSTO Y ÚLTIMAS DOS SEMANAS DE DICIEMBRE EXCLUIDOS)"
+                        + " SEMANAS DESDE APROBACIÓN DE PLANOS (AGOSTO Y ÚLTIMAS DOS SEMANAS DE DICIEMBRE EXCLUIDOS)"
                     )
                     ws[f"A{last_row+4}"]._style = ws["AI1"]._style
 
@@ -5603,7 +5603,7 @@ class offer_short_level_spanish:
                 ws["B6"] = rich_string
 
                 rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos de la ',
                 TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
                 TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
                 ws["B10"] = rich_string
@@ -5765,7 +5765,7 @@ class offer_short_level_spanish:
                     ws["B6"] = rich_string
 
                     rich_string = CellRichText(
-                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+                    'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos de la ',
                     TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
                     TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
                     ws["B10"] = rich_string
@@ -6109,7 +6109,7 @@ class offer_short_level_english:
                     ws[f"A{last_row+4}"] = (
                         "DELIVERY TIME: "
                         + delivery_time
-                        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
+                        + " WEEKS SINCE DRAWING APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
                     )
                     ws[f"A{last_row+4}"]._style = ws["AI1"]._style
 
@@ -6187,13 +6187,13 @@ class offer_short_level_english:
                 ws["B7"] = rich_string
 
                 rich_string = CellRichText(
-                'Delivery time ' + delivery_time + ' weeks since drawing / calculation approval of ',
+                'Delivery time ' + delivery_time + ' weeks since drawing approval of ',
                 TextBlock(InlineFont(b=True), 'all equipment'),
                 ' in the contract, as well as critical documentation (August and last two December weeks excluded).')
                 ws["B12"] = rich_string
 
                 rich_string = CellRichText(
-                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos y cálculos de la ',
+                'Plazo de entrega ' + delivery_time + ' semanas desde aprobación de planos de la ',
                 TextBlock(InlineFont(b=True, i=True), 'totalidad de los equipos'),
                 TextBlock(InlineFont(i=True),' amparados por el contrato, asi como la documentación crítica (Agosto y las dos últimas semanas de diciembre excluidos).'))
                 ws["B13"] = rich_string
@@ -8407,7 +8407,7 @@ class offer_flow_temp_level:
                     ws[f"A{last_row+4}"] = (
                         "DELIVERY TIME: "
                         + delivery_time
-                        + " WEEKS SINCE DRAWING / CALCULATION APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
+                        + " WEEKS SINCE DRAWING APPROVAL (AUGUST AND LAST TWO DECEMBER WEEKS EXCLUDED)"
                     )
                     ws[f"A{last_row+4}"]._style = ws["AI1"]._style
 
