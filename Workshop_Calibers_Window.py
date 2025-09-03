@@ -839,7 +839,10 @@ class Ui_Workshop_Calibers_Window(QtWidgets.QMainWindow):
         self.menuValues.addSeparator()
 
         scroll_menu = QtWidgets.QScrollArea()
-        scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
+        if self.username == 'm.gil':
+            scroll_menu.setStyleSheet("background-color: #121212; color: rgb(255, 255, 255)")
+        else:
+            scroll_menu.setStyleSheet("background-color: rgb(255, 255, 255)")
         scroll_menu.setWidgetResizable(True)
         scroll_widget = QtWidgets.QWidget(scroll_menu)
         scroll_menu.setWidget(scroll_widget)
@@ -892,10 +895,16 @@ class Ui_Workshop_Calibers_Window(QtWidgets.QMainWindow):
         self.menuValues.addAction(accept_button)
         self.menuValues.addAction(cancel_button)
 
-        self.menuValues.setStyleSheet("QMenu { color: black; }"
-                                        "QMenu { background-color: rgb(255, 255, 255); }"
-                                        "QMenu::item:selected { background-color: #33bdef; }"
-                                        "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        if self.username == 'm.gil':
+            self.menuValues.setStyleSheet("QMenu { color: white; }"
+                                            "QMenu { background-color: #121212; }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
+                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        else:
+            self.menuValues.setStyleSheet("QMenu { color: black; }"
+                                            "QMenu { background-color: rgb(255, 255, 255); }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
+                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
         headerPos = self.tableCalibers.mapToGlobal(self.tableCalibers.horizontalHeader().pos())        
 
@@ -1200,6 +1209,16 @@ class Ui_Workshop_Calibers_Window(QtWidgets.QMainWindow):
         self.context_menu = QtWidgets.QMenu(self)
         hide_columns_action = self.context_menu.addAction("Ocultar Columnas")
         hide_columns_action.triggered.connect(self.hideSelectedColumns)
+        if self.username == 'm.gil':
+            self.context_menu.setStyleSheet("QMenu { color: white; }"
+                                            "QMenu { background-color: #121212; }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
+                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
+        else:
+            self.context_menu.setStyleSheet("QMenu { color: black; }"
+                                            "QMenu { background-color: rgb(255, 255, 255); }"
+                                            "QMenu::item:selected { background-color: #33bdef; }"
+                                            "QMenu::item:pressed { background-color: rgb(1, 140, 190); }")
 
 # Function to show context menu when right-click
     def showColumnContextMenu(self, pos):
