@@ -1530,7 +1530,7 @@ class Ui_Workshop_Thread_Masters_Window(QtWidgets.QMainWindow):
         pdf.add_page()
 
         pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eipsa Logo Blanco.png")), 0, 0, 10, 2)
-        pdf.ln()
+        pdf.ln(1)
         pdf.set_font('Helvetica', 'B', 18)
         pdf.multi_cell(18, 1, "RELACION DE PATRONES PARA MEDICIONES DE ROSCAS, CALIBRADO Y FRECUENCIA DE CALIBRACION", align='C')
         pdf.ln(0)

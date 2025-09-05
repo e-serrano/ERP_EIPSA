@@ -1408,7 +1408,7 @@ class Ui_Workshop_Manometers_Thermoelements_Window(QtWidgets.QMainWindow):
         pdf.add_page()
 
         pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eipsa Logo Blanco.png")), 0, 0, 10, 2)
-        pdf.ln()
+        pdf.ln(1)
         pdf.set_font('Helvetica', 'B', 18)
         pdf.multi_cell(18, 1, "RELACION EQUIPOS CALIBRADOS MEDIANTE COMPROBACION CON PATRONES E.I.P.S.A.", align='C')
         pdf.ln(0)

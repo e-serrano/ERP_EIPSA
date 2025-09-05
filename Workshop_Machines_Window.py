@@ -294,26 +294,63 @@ class CustomPDF(FPDF):
         """
         words = txt.split() # Divide text in words
         lines = []
-        line = ''
+        line=''
         for word in words:
             if self.get_string_width(line + word + ' ') > w - 0.5:
-                lines.append(line) # Add line to line list and starts a new one
+                if line:  # Add the current line only if it's not empty
+                    lines.append(line.rstrip())
                 line = word + ' '
             else:
                 line += word + ' ' # Add word to actual line
-        lines.append(line) # Add last line to line list
+        if line.strip():  # Add the last line if it contains text
+            lines.append(line.rstrip())
         
         line_height = total_h / len(lines) # Calculate height of each line to get a total height = total_h
 
         x, y = self.get_x(), self.get_y() # Save actual position
 
-        for line in lines:
+        for i, line in enumerate(lines):
+            # Add the bottom border only to the last line
+            if i == len(lines) - 1:
+                current_border = border + 'B'  # Add bottom border to the last line
+            elif i == 0:
+                current_border = border + 'T'
+            else:
+                current_border = border
+
+        # for line in lines:
             # Print each line with the calculated height
-            self.multi_cell(w, line_height, line, border, align_mc, fill)
+            self.multi_cell(w, line_height, line, current_border, align_mc, fill)
             self.set_x(x)
 
         self.set_xy(x, y + total_h)
 
+    def header(self):
+        """
+        Creates the header
+        """
+        self.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eipsa Logo Blanco.png")), 0.8, 0.3, 7, 2)
+        self.set_font('Helvetica', '', 9)
+        self.set_xy(13.5, 1)
+        self.multi_cell(6, 0.5, "LISTADO DE MÁQUINAS", align='R')
+        self.ln(1)
+
+    def get_multicell_height(self, width, text):
+        """
+        Calculates the height of a multi-line cell given its width and text.
+
+        Parameters:
+            width (float): The width of the cell.
+            text (str): The text to be measured.
+
+        Returns:
+            float: The calculated height of the multi-line cell.
+        """
+        lines = 0
+        if text is not None:
+            for line in text.split('\n'):
+                lines += self.get_string_width(line) // width + 1
+        return lines * self.font_size * 1.3
 
 class Ui_Workshop_Machines_Window(QtWidgets.QMainWindow):
     """
@@ -1374,7 +1411,17 @@ class Ui_Workshop_Machines_Window(QtWidgets.QMainWindow):
                         self.exporttoexcel(df)
                         break
                     else:
-                        self.exporttopdf(df)
+                        while True:
+                            doc_content, ok = QtWidgets.QInputDialog.getItem(self, "Exportación", "¿Que quieres imprimir?:", ['Listado', 'Hoja Firmas'], 0, False)
+                            if ok and doc_type:
+                                if doc_content == 'Listado':
+                                    self.exporttopdf(df, 'Listado')
+                                    break
+                                else:
+                                    self.exporttopdf(df, 'Firmas')
+                                    break
+                            else:
+                                break
                         break
                 else:
                     break
@@ -1392,7 +1439,7 @@ class Ui_Workshop_Machines_Window(QtWidgets.QMainWindow):
             dataframe.to_excel(output_path, index=False, header=True)
 
 # Function to export data to pdf
-    def exporttopdf(self, dataframe):
+    def exporttopdf(self, dataframe, doc_content):
         """
         Exports the visible data from the table to a PDF file. If no data is loaded, displays a warning message.
 
@@ -1411,33 +1458,107 @@ class Ui_Workshop_Machines_Window(QtWidgets.QMainWindow):
 
         pdf.set_fill_color(75,172,198)
 
-        pdf.image(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Eipsa Logo Blanco.png")), 0, 0, 10, 2)
-        pdf.ln()
-        pdf.set_font('Helvetica', 'B', 18)
-        pdf.multi_cell(18, 1, "LISTADO MÁQUINAS", align='C')
-        pdf.ln(0)
-        pdf.cell(18, 0.5, "")
-        pdf.ln()
-        pdf.set_font('Helvetica', '', 8)
-        pdf.cell(4.5, 0.5, "MARCA", border=1, align='C', fill=True)
-        pdf.cell(4.5, 0.5, "TIPO", border=1, align='C', fill=True)
-        pdf.cell(1.75, 0.5, "ULT. REV.", border=1, align='C', fill=True)
-        pdf.cell(1.75, 0.5, "PROX. REV.", border=1, align='C', fill=True)
-        pdf.cell(1, 0.5, "AÑO", border=1, align='C', fill=True)
-        pdf.cell(1, 0.5, "NAVE", border=1, align='C', fill=True)
-        pdf.cell(3.5, 0.5, "NOTAS", border=1, align='C', fill=True)
-        pdf.ln()
-
-        for i in range(dataframe.shape[0]):
+        if doc_content == 'Listado':
             pdf.set_font('Helvetica', '', 8)
-            pdf.cell(4.5, 0.5, dataframe.iloc[i, 1], border=1, align='C')
-            pdf.cell(4.5, 0.5, dataframe.iloc[i, 2], border=1, align='C')
-            pdf.cell(1.75, 0.5, str(dataframe.iloc[i, 3]) if str(dataframe.iloc[i, 3]) != 'nan' else '', border=1, align='C')
-            pdf.cell(1.75, 0.5, str(dataframe.iloc[i, 4]) if str(dataframe.iloc[i, 4]) != 'nan' else '', border=1, align='C')
-            pdf.cell(1, 0.5, str(dataframe.iloc[i, 5]), border=1, align='C')
-            pdf.cell(1, 0.5, str(dataframe.iloc[i, 6]) if str(dataframe.iloc[i, 5]) != '' else '', border=1, align='C')
-            pdf.cell(3.5, 0.5, str(dataframe.iloc[i, 7]) if str(dataframe.iloc[i, 6]) != '' else '', border=1, align='C')
+            pdf.cell(4.5, 0.5, "MARCA", border=1, align='C', fill=True)
+            pdf.cell(4.5, 0.5, "TIPO", border=1, align='C', fill=True)
+            pdf.cell(1.75, 0.5, "ULT. REV.", border=1, align='C', fill=True)
+            pdf.cell(1.75, 0.5, "PROX. REV.", border=1, align='C', fill=True)
+            pdf.cell(1, 0.5, "AÑO", border=1, align='C', fill=True)
+            pdf.cell(1, 0.5, "NAVE", border=1, align='C', fill=True)
+            pdf.cell(3.5, 0.5, "NOTAS", border=1, align='C', fill=True)
             pdf.ln()
+
+            for i in range(dataframe.shape[0]):
+                pdf.set_font('Helvetica', '', 8)
+                pdf.cell(4.5, 0.5, dataframe.iloc[i, 1], border=1, align='C')
+                pdf.cell(4.5, 0.5, dataframe.iloc[i, 2], border=1, align='C')
+                pdf.cell(1.75, 0.5, str(dataframe.iloc[i, 3]) if str(dataframe.iloc[i, 3]) != 'nan' else '', border=1, align='C')
+                pdf.cell(1.75, 0.5, str(dataframe.iloc[i, 4]) if str(dataframe.iloc[i, 4]) != 'nan' else '', border=1, align='C')
+                pdf.cell(1, 0.5, str(dataframe.iloc[i, 5]), border=1, align='C')
+                pdf.cell(1, 0.5, str(dataframe.iloc[i, 6]) if str(dataframe.iloc[i, 6]) != '' else '', border=1, align='C')
+                pdf.cell(3.5, 0.5, str(dataframe.iloc[i, 7]) if str(dataframe.iloc[i, 7]) != '' else '', border=1, align='C')
+                pdf.ln()
+
+        else:
+            dataframe = dataframe[dataframe['Notas'] != 'mantenimiento externo'].copy()
+            pdf.set_font('Helvetica', '', 8)
+            pdf.cell(3, 0.5, "MARCA", border=1, align='C', fill=True)
+            pdf.cell(4, 0.5, "TIPO", border=1, align='C', fill=True)
+            pdf.cell(1.75, 0.5, "ULT. REV.", border=1, align='C', fill=True)
+            pdf.cell(1.75, 0.5, "PROX. REV.", border=1, align='C', fill=True)
+            pdf.cell(1, 0.5, "AÑO", border=1, align='C', fill=True)
+            pdf.cell(1, 0.5, "NAVE", border=1, align='C', fill=True)
+            pdf.cell(2, 0.5, "NOTAS", border=1, align='C', fill=True)
+            pdf.cell(3.5, 0.5, "FIRMA", border=1, align='C', fill=True)
+            pdf.ln()
+
+            for i in range(dataframe.shape[0]):
+                pdf.set_font('Helvetica', '', 8)
+                x_position = pdf.get_x()
+                y_position = pdf.get_y()
+                total_content_height = pdf.get_multicell_height(3, dataframe.iloc[i, 2]) + 0.5 + 0.5 + 0.5
+
+                if y_position + total_content_height < 29.8:
+                    if len(dataframe.iloc[i, 1]) > 10:
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.fixed_height_multicell(3, 1, dataframe.iloc[i, 1], 'C','LR')
+                        pdf.set_y(y_position)
+                        pdf.set_x(x_position + 3)
+                    else:
+                        pdf.cell(3, 1, dataframe.iloc[i, 1], align='C', border=1)
+
+                    if len(dataframe.iloc[i, 2]) > 10:
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.fixed_height_multicell(4, 1, dataframe.iloc[i, 2], 'C','LR')
+                        pdf.set_y(y_position)
+                        pdf.set_x(x_position + 4)
+                    else:
+                        pdf.cell(4, 1, dataframe.iloc[i, 2], align='C', border=1)
+                    
+                    pdf.cell(1.75, 1, str(dataframe.iloc[i, 3]) if str(dataframe.iloc[i, 3]) != 'nan' else '', border=1, align='C')
+                    pdf.cell(1.75, 1, str(dataframe.iloc[i, 4]) if str(dataframe.iloc[i, 4]) != 'nan' else '', border=1, align='C')
+                    pdf.cell(1, 1, str(dataframe.iloc[i, 5]), border=1, align='C')
+                    pdf.cell(1, 1, str(dataframe.iloc[i, 6]) if str(dataframe.iloc[i, 6]) != '' else '', border=1, align='C')
+                    pdf.cell(2, 1, str(dataframe.iloc[i, 7]) if str(dataframe.iloc[i, 7]) != '' else '', border=1, align='C')
+                    pdf.cell(3.5, 1, '', border=1, align='C')
+                    pdf.ln()
+
+                else:
+                    # If not exists, add content on next page
+                    pdf.add_page()
+                    pdf.ln(1)
+                    x_position = pdf.get_x()
+                    y_position = pdf.get_y()
+
+                    if len(dataframe.iloc[i, 1]) > 10:
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.fixed_height_multicell(3, 1, dataframe.iloc[i, 1], 'C','LR')
+                        pdf.set_y(y_position)
+                        pdf.set_x(x_position + 3)
+                    else:
+                        pdf.cell(3, 1, dataframe.iloc[i, 1], align='C', border=1)
+
+                    if len(dataframe.iloc[i, 2]) > 10:
+                        x_position = pdf.get_x()
+                        y_position = pdf.get_y()
+                        pdf.fixed_height_multicell(4, 1, dataframe.iloc[i, 2], 'C','LR')
+                        pdf.set_y(y_position)
+                        pdf.set_x(x_position + 4)
+                    else:
+                        pdf.cell(4, 1, dataframe.iloc[i, 2], align='C', border=1)
+                    
+                    pdf.cell(1.75, 1, str(dataframe.iloc[i, 3]) if str(dataframe.iloc[i, 3]) != 'nan' else '', border=1, align='C')
+                    pdf.cell(1.75, 1, str(dataframe.iloc[i, 4]) if str(dataframe.iloc[i, 4]) != 'nan' else '', border=1, align='C')
+                    pdf.cell(1, 1, str(dataframe.iloc[i, 5]), border=1, align='C')
+                    pdf.cell(1, 1, str(dataframe.iloc[i, 6]) if str(dataframe.iloc[i, 6]) != '' else '', border=1, align='C')
+                    pdf.cell(2, 1, str(dataframe.iloc[i, 7]) if str(dataframe.iloc[i, 7]) != '' else '', border=1, align='C')
+                    pdf.cell(3.5, 1, '', border=1, align='C')
+                    pdf.ln()
+                    
 
         pdf.set_y(27.5)
         pdf.set_font('Helvetica', 'B', 8)
