@@ -800,6 +800,24 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
         self.query_data()
         self.toolExpExcel.clicked.connect(self.exporttoexcel)
 
+        description_action_p = QtGui.QAction("Descripción a Albarán", self)
+        description_action_p.triggered.connect(lambda: self.insert_description(self.tableAssembly_P))
+
+        self.context_menu_row = QtWidgets.QMenu(self)
+        self.context_menu_row.addAction(description_action_p)
+
+        self.tableAssembly_P.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
+        self.tableAssembly_P.addActions([description_action_p])
+
+        description_action_pa = QtGui.QAction("Descripción a Albarán", self)
+        description_action_pa.triggered.connect(lambda: self.insert_description(self.tableAssembly_PA))
+
+        self.context_menu_row = QtWidgets.QMenu(self)
+        self.context_menu_row.addAction(description_action_pa)
+
+        self.tableAssembly_PA.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
+        self.tableAssembly_PA.addActions([description_action_pa])
+
 # Function to translate and updates the text of various UI elements
     def retranslateUi(self, Assembly_Window):
         """
@@ -1994,6 +2012,92 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
             button.setText("Ver Nº Ref")
 
 
+# Function to insert order description in delivery note
+    def insert_description(self, table):
+        """
+        Inserts the description of the selected drawing into the delivery note description field.
+
+        Args:
+            table (QtWidgets.QTableView or QtWidgets.QTableWidget): The table from which to get the selected drawing description.
+        """
+        selection_model = table.selectionModel()
+
+        if not selection_model.hasSelection():
+            return
+
+        model = table.model()
+
+        selected_indexes = selection_model.selectedIndexes()
+        if len(selected_indexes) == 1:
+            # Obtaining first columns values
+            item_index = model.index(selected_indexes[0].row(), 20)
+            if item_index.isValid():
+                description = model.data(item_index)
+
+            dlg = QtWidgets.QInputDialog()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle('Descripción Albarán')
+            dlg.setLabelText('Inserte número albarán:')
+
+            while True:
+                clickedButton = dlg.exec()
+                if clickedButton == 1:
+                    delivnote_number = dlg.textValue()
+                    if delivnote_number != '':
+                        conn = None
+                        try:
+                        # read the connection parameters
+                            params = config()
+                        # connect to the PostgreSQL server
+                            conn = psycopg2.connect(**params)
+                            cur = conn.cursor()
+                        # execution of commands
+                            commands_update = f"""UPDATE purch_fact.invoice_header SET description_dispatch = {description} WHERE num_delivnote = '{delivnote_number}'"""
+                            # cur.execute(commands_update)
+
+                        # close communication with the PostgreSQL database server
+                            cur.close()
+                        # commit the changes
+                            conn.commit()
+
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("Descripción Albarán")
+                            dlg.setText("Descripción añadida")
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                            dlg.exec()
+                            del dlg,new_icon
+
+                        except (Exception, psycopg2.DatabaseError) as error:
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("ERP EIPSA")
+                            dlg.setText("Ha ocurrido el siguiente error:\n"
+                                        + str(error))
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                            dlg.exec()
+                            del dlg, new_icon
+                        finally:
+                            if conn is not None:
+                                conn.close()
+                        break
+                    dlg_error = QtWidgets.QMessageBox()
+                    new_icon = QtGui.QIcon()
+                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                    dlg_error.setWindowIcon(new_icon)
+                    dlg_error.setWindowTitle("Descripción Albarán")
+                    dlg_error.setText("El número de albarán no puede estar vacío")
+                    dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                    dlg_error.exec()
+                    del dlg_error,new_icon
+                else:
+                    break
 
 
 
