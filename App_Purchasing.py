@@ -1265,7 +1265,7 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         self.Button_Notification.clicked.connect(self.notifications)
 
         self.backup_data()
-        # self.warning_calibration()
+        self.warning_calibration()
         self.visual_certificate_check()
         self.load_notifications()
 
@@ -2052,17 +2052,17 @@ class Ui_App_Purchasing(QtWidgets.QMainWindow):
         # execution of commands one by one
             cur.execute(commands_check_snt)
             results_snt = cur.fetchall()
-            if results_snt[0][0] < date.today() - timedelta(days=30):
+            if date.today() >= results_snt[0][0] - timedelta(days=30):
                 cur.execute(commands_notify_snt)
 
             cur.execute(commands_check_iso)
             results_iso = cur.fetchall()
-            if results_iso[0][0] < date.today() - timedelta(days=60):
+            if date.today() >= results_iso[0][0] - timedelta(days=60):
                 cur.execute(commands_notify_iso)
 
             cur.execute(commands_check_visual)
             results_visual = cur.fetchall()
-            if results_visual[0][0] < date.today() - timedelta(days=40):
+            if date.today() >= results_visual[0][0] - timedelta(days=40):
                 cur.execute(commands_notify_visual)
 
         # close communication with the PostgreSQL database server
