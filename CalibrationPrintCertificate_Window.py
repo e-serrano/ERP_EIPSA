@@ -267,7 +267,7 @@ class Ui_CalibrationPrintCertificate_Window(object):
         """
         Generates a PDF datasheet for the calibration with details.
         """
-        numorder=self.num_order_print.text()
+        numorder=self.num_order_print.text().upper()
         sensor_type=self.Sensor.currentText()
         cert_date = self.Cert_Date.currentText()
 
