@@ -2054,8 +2054,8 @@ class Ui_Assembly_Window(QtWidgets.QMainWindow):
                             conn = psycopg2.connect(**params)
                             cur = conn.cursor()
                         # execution of commands
-                            commands_update = f"""UPDATE purch_fact.invoice_header SET description_dispatch = {description} WHERE num_delivnote = '{delivnote_number}'"""
-                            # cur.execute(commands_update)
+                            commands_update = f"""UPDATE purch_fact.invoice_header SET description_dispatch = '{description}' WHERE num_delivnote = '{delivnote_number}'"""
+                            cur.execute(commands_update)
 
                         # close communication with the PostgreSQL database server
                             cur.close()
