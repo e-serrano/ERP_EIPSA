@@ -661,9 +661,12 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
                         (SELECT supplier_ord."id", supplier_ord."notes", TO_CHAR(supplier_ord."order_date",'dd/MM/yyyy'), TO_CHAR(supplier_ord."delivery_date",'dd/MM/yyyy'),
                         TO_CHAR(supplier_ord."deliv_date_1",'dd/MM/yyyy'), TO_CHAR(supplier_ord."deliv_date_2",'dd/MM/yyyy'), TO_CHAR(supplier_ord."deliv_date_3",'dd/MM/yyyy'),
                         CASE 
-                            WHEN SUM(supplier_detail."quantity") <> SUM(supplier_detail."pending") 
-                                    THEN 'Completo' 
-                                    ELSE 'Incompleto' 
+                            WHEN COALESCE(SUM(supplier_detail."quantity"),0) = 0
+                                AND COALESCE(SUM(supplier_detail."pending"),0) = 0
+                                THEN 'Completo'
+                            WHEN COALESCE(SUM(supplier_detail."quantity"),0) <> COALESCE(SUM(supplier_detail."pending"),0)
+                                THEN 'Completo'
+                            ELSE 'Incompleto' 
                         END AS estado
                         FROM purch_fact.supplier_ord_header AS supplier_ord
                         LEFT JOIN purch_fact.supplier_ord_detail AS supplier_detail ON supplier_ord."id" = supplier_detail."supplier_ord_header_id"
@@ -735,9 +738,12 @@ class Ui_PurchasingGeneralQuery_Window(QtWidgets.QMainWindow):
                         (SELECT supplier_ord."id", supplier_ord."notes", TO_CHAR(supplier_ord."order_date",'dd/MM/yyyy'), TO_CHAR(supplier_ord."delivery_date",'dd/MM/yyyy'),
                         TO_CHAR(supplier_ord."deliv_date_1",'dd/MM/yyyy'), TO_CHAR(supplier_ord."deliv_date_2",'dd/MM/yyyy'), TO_CHAR(supplier_ord."deliv_date_3",'dd/MM/yyyy'),
                         CASE 
-                            WHEN SUM(supplier_detail."quantity") <> SUM(supplier_detail."pending") 
-                                    THEN 'Completo' 
-                                    ELSE 'Incompleto' 
+                            WHEN COALESCE(SUM(supplier_detail."quantity"),0) = 0
+                                AND COALESCE(SUM(supplier_detail."pending"),0) = 0
+                                THEN 'Completo'
+                            WHEN COALESCE(SUM(supplier_detail."quantity"),0) <> COALESCE(SUM(supplier_detail."pending"),0)
+                                THEN 'Completo'
+                            ELSE 'Incompleto' 
                         END AS estado
                         FROM purch_fact.supplier_ord_header AS supplier_ord
                         LEFT JOIN purch_fact.supplier_ord_detail AS supplier_detail ON supplier_ord."id" = supplier_detail."supplier_ord_header_id"
