@@ -507,9 +507,11 @@ class offer_flow:
                 for sheet in self.wb_commercial.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
                 
                 path = self.save_excel_commercial()
 
@@ -724,9 +726,11 @@ class offer_flow:
                 for sheet in self.wb_technical.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
 
                 self.save_excel_technical()
 
@@ -1244,9 +1248,11 @@ class offer_short_flow_spanish:
                 for sheet in self.wb_commercial.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
                 
                 path = self.save_excel_commercial()
 
@@ -1418,9 +1424,11 @@ class offer_short_flow_spanish:
                 for sheet in self.wb_technical.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
                 
                 self.save_excel_technical()
 
@@ -1979,9 +1987,11 @@ class offer_short_flow_english:
                 for sheet in self.wb_commercial.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
                 
                 path = self.save_excel_commercial()
 
@@ -2196,9 +2206,11 @@ class offer_short_flow_english:
                 for sheet in self.wb_technical.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
                 
                 self.save_excel_technical()
 
@@ -2807,9 +2819,11 @@ class offer_temp:
                 for sheet in self.wb_commercial.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
                 
                 path = self.save_excel_commercial()
 
@@ -3026,9 +3040,11 @@ class offer_temp:
                 for sheet in self.wb_technical.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
                 
                 self.save_excel_technical()
 
@@ -3586,9 +3602,11 @@ class offer_short_temp_spanish:
                 for sheet in self.wb_commercial.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
                 
                 path = self.save_excel_commercial()
 
@@ -3764,9 +3782,11 @@ class offer_short_temp_spanish:
                 for sheet in self.wb_technical.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
                 
                 self.save_excel_technical()
 
@@ -4365,9 +4385,11 @@ class offer_short_temp_english:
                 for sheet in self.wb_commercial.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
                 
                 path = self.save_excel_commercial()
 
@@ -4584,9 +4606,11 @@ class offer_short_temp_english:
                 for sheet in self.wb_technical.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
 
                 self.save_excel_technical()
 
@@ -5050,9 +5074,11 @@ class offer_level:
                 for sheet in self.wb_commercial.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
                 
                 path = self.save_excel_commercial()
 
@@ -5245,9 +5271,11 @@ class offer_level:
                 for sheet in self.wb_technical.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
 
                 self.save_excel_technical()
 
@@ -5670,9 +5698,11 @@ class offer_short_level_spanish:
                 for sheet in self.wb_commercial.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
                 
                 path = self.save_excel_commercial()
 
@@ -5824,9 +5854,11 @@ class offer_short_level_spanish:
                 for sheet in self.wb_technical.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
 
                 self.save_excel_technical()
 
@@ -6290,9 +6322,11 @@ class offer_short_level_english:
                 for sheet in self.wb_commercial.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
                 
                 path = self.save_excel_commercial()
 
@@ -6485,9 +6519,11 @@ class offer_short_level_english:
                 for sheet in self.wb_technical.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
 
                 self.save_excel_technical()
 
@@ -7318,9 +7354,11 @@ class offer_flow_temp:
                 for sheet in self.wb_commercial.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
                 
                 path = self.save_excel_commercial()
 
@@ -7624,9 +7662,11 @@ class offer_flow_temp:
                 for sheet in self.wb_technical.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
 
                 self.save_excel_technical()
 
@@ -8588,9 +8628,11 @@ class offer_flow_temp_level:
                 for sheet in self.wb_commercial.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
                 
                 path = self.save_excel_commercial()
 
@@ -8959,9 +9001,11 @@ class offer_flow_temp_level:
                 for sheet in self.wb_technical.worksheets:
                     sheet.oddFooter.left.text = left_text
                     sheet.oddFooter.right.text = right_text
+                    sheet.oddFooter.center.text = "Page &P de &N"
 
                     sheet.oddFooter.left.size = 9
                     sheet.oddFooter.right.size = 9
+                    sheet.oddFooter.center.size = 9
 
                 self.save_excel_technical()
 
