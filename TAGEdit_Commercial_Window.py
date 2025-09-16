@@ -281,7 +281,6 @@ class CustomProxyModel(QtCore.QSortFilterProxyModel):
         # Order by text (default)
         return str(leftData) < str(rightData)
 
-
 class EditableTableModel(QtSql.QSqlTableModel):
     """
     A custom SQL table model that supports editable columns, headers, and special flagging behavior based on user permissions.
@@ -291,7 +290,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
     """
     updateFailed = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent=None, column_range=None, table_check=None):
+    def __init__(self, username, parent=None, column_range=None, table_check=None):
         """
         Initialize the model with user permissions and optional database and column range.
 
@@ -305,6 +304,7 @@ class EditableTableModel(QtSql.QSqlTableModel):
         self._modified_rows = set()
         self.column_range = column_range
         self.table_check = table_check
+        self.username = username
 
     def setData(self, index, value, role=QtCore.Qt.ItemDataRole.EditRole):
         if role == QtCore.Qt.ItemDataRole.EditRole:
@@ -382,15 +382,19 @@ class EditableTableModel(QtSql.QSqlTableModel):
 
         value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
 
-        if index.sibling(index.row(), index.model().columnCount() - 2).data() == 'Facturado':
+        if self.username == 'j.franco':
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
-            if index.column() == 0 or index.column() in self.column_range:
+            if index.sibling(index.row(), index.model().columnCount() - 2).data() == 'Facturado':
                 flags &= ~Qt.ItemFlag.ItemIsEditable
                 return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
             else:
-                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+                if index.column() == 0 or index.column() in self.column_range:
+                    flags &= ~Qt.ItemFlag.ItemIsEditable
+                    return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+                else:
+                    return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
     def getColumnHeaders(self, visible_columns):
         """
@@ -578,7 +582,7 @@ class EditableTableModel2(QtSql.QSqlTableModel):
     """
     updateFailed = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent=None, column_range=None, table_check=None):
+    def __init__(self, username, parent=None, column_range=None, table_check=None):
         """
         Initialize the model with user permissions and optional database and column range.
 
@@ -591,6 +595,7 @@ class EditableTableModel2(QtSql.QSqlTableModel):
         super().__init__(parent)
         self.column_range = column_range
         self.table_check = table_check
+        self.username = username
 
     def setAllColumnHeaders(self, headers):
         """
@@ -652,24 +657,19 @@ class EditableTableModel2(QtSql.QSqlTableModel):
 
         value = index.model().data(index, role=Qt.ItemDataRole.DisplayRole)
 
-        if index.column() == 165 and value == 'Facturado' and self.table_check == 'tags_data.tags_flow':
-            flags &= ~Qt.ItemFlag.ItemIsEditable
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        elif index.column() == 178 and value == 'Facturado' and self.table_check == 'tags_data.tags_temp':
-            flags &= ~Qt.ItemFlag.ItemIsEditable
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        elif index.column() == 175 and value == 'Facturado' and self.table_check == 'tags_data.tags_level':
-            flags &= ~Qt.ItemFlag.ItemIsEditable
-            return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
-        elif index.column() == 65 and value == 'Facturado' and self.table_check == 'tags_data.tags_others':
+        if self.username == 'j.franco':
             flags &= ~Qt.ItemFlag.ItemIsEditable
             return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         else:
-            if index.column() == 0 or index.column() in self.column_range:
+            if index.sibling(index.row(), index.model().columnCount() - 2).data() == 'Facturado':
                 flags &= ~Qt.ItemFlag.ItemIsEditable
                 return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
             else:
-                return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
+                if index.column() == 0 or index.column() in self.column_range:
+                    flags &= ~Qt.ItemFlag.ItemIsEditable
+                    return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
+                else:
+                    return flags | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsEditable
 
     def getColumnHeaders(self, visible_columns):
         """
@@ -712,9 +712,10 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         """
         super().__init__()
         self._saving1 = False
-        self.model = EditableTableModel()
+        self.username = username
+        self.model = EditableTableModel(self.username)
         self.proxy = CustomProxyModel()
-        self.model2 = EditableTableModel2()
+        self.model2 = EditableTableModel2(self.username)
         self.proxy2 = CustomProxyModel2()
         self.db = db
 
@@ -735,7 +736,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.checkbox_filters2 = {}
         self.tableEditTags2 = None
 
-        self.username = username
+        
         self.setupUi(self)
         self.model.dataChanged.connect(self.saveChanges)
 
@@ -987,7 +988,7 @@ class Ui_EditTags_Commercial_Window(QtWidgets.QMainWindow):
         self.hLayout2.addWidget(self.Button_Query)
         self.gridLayout_2.addLayout(self.hLayout2, 2, 0, 1, 1)
         self.tableEditTags=QtWidgets.QTableView(parent=self.frame)
-        self.model = EditableTableModel()
+        self.model = EditableTableModel(self.username)
         self.tableEditTags.setObjectName("tableEditTags")
         self.gridLayout_2.addWidget(self.tableEditTags, 3, 0, 1, 1)
         self.hLayout3 = QtWidgets.QHBoxLayout()

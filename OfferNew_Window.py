@@ -723,7 +723,7 @@ class Ui_New_Offer_Window(object):
                 conn.close()
 
         if self.username != 'a.calvo':
-            self.Mails_NewOffer.setText("copia:ana-calvo@eipsa.es")
+            self.Mails_NewOffer.setText("copia:jj-franco@eipsa.es,ana-calvo@eipsa.es")
 
 # Function to create a new offer
     def NewOffer(self):
