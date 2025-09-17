@@ -1637,11 +1637,49 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
             self.Button_Index_Drawings.setIconSize(QtCore.QSize(int(40), int(40)))
             self.Button_Index_Drawings.setObjectName("Button_Index_Drawings")
             self.Header.addWidget(self.Button_Index_Drawings)
+
+            spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+            self.Header.addItem(spacerItem)
+            self.Button_Verification = QtWidgets.QPushButton(parent=self.frame)
+            self.Button_Verification.setMinimumSize(QtCore.QSize(50, 50))
+            self.Button_Verification.setMaximumSize(QtCore.QSize(50, 50))
+            self.Button_Verification.setToolTip('Verificación')
+            self.Button_Verification.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+            self.Button_Verification.setStyleSheet("QPushButton{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(3, 174, 236);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:hover{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(255, 255, 255);\n"
+    "    border-radius: 10px;\n"
+    "}\n"
+    "\n"
+    "QPushButton:pressed{\n"
+    "    border: 1px solid transparent;\n"
+    "    border-color: rgb(0, 0, 0);\n"
+    "    color: rgb(0,0,0);\n"
+    "    background-color: rgb(200, 200, 200);\n"
+    "    border-radius: 10px;\n"
+    "}")
+            self.Button_Verification.setText("")
+            icon6 = QtGui.QIcon()
+            icon6.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/Verification.png"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            self.Button_Verification.setIcon(icon6)
+            self.Button_Verification.setIconSize(QtCore.QSize(int(40), int(40)))
+            self.Button_Verification.setObjectName("Button_Verification")
+            self.Header.addWidget(self.Button_Verification)
             
             self.Button_Factory.clicked.connect(self.factory)
             self.Button_OT.clicked.connect(self.otorder)
             self.Button_ClockIn.clicked.connect(self.clockin)
             self.Button_Index_Drawings.clicked.connect(self.index_drawing)
+            self.Button_Verification.clicked.connect(self.verification)
         elif username in ["s.sanchez"]:
             self.Button_TechOffice = QtWidgets.QPushButton(parent=self.frame)
             self.Button_TechOffice.setMinimumSize(QtCore.QSize(50, 50))
@@ -2672,7 +2710,15 @@ class Ui_App_Technical(QtWidgets.QMainWindow):
         self.ui.setupUi(self.purchasing_window)
         self.purchasing_window.show()
 
-
+# Function to open corresponding window when Verification button is clicked
+    def verification(self):
+        """
+        Open a new window for verification actions.
+        """
+        from VerificationInsert_Window import Ui_VerificationInsert_Window
+        self.Verificationinsert_window=QtWidgets.QMainWindow()
+        self.ui=Ui_VerificationInsert_Window(self.username)
+        self.ui.showMaximized()
 
 
 
@@ -2680,7 +2726,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Login_Window = QtWidgets.QMainWindow()
-    ui = Ui_App_Technical('Jesús Martínez','e.carrillo')
+    ui = Ui_App_Technical('Jesús Martínez','j.martinez')
     ui.setupUi(Login_Window)
     Login_Window.show()
     sys.exit(app.exec())

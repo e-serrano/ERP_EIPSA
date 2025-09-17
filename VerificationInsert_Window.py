@@ -1871,14 +1871,15 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         """
         Inserts or updates data based on the order number format.
         """
-        self.num_order_value = self.num_order.text().upper()
-        if self.num_order_value != '':
-            if self.num_order_value[:3] != 'AL-':
-                self.update_tags()
-            else:
-                self.update_al_drawings()
-        self.update_others()
-        self.query_tables()
+        if self.username == 'm.gil':
+            self.num_order_value = self.num_order.text().upper()
+            if self.num_order_value != '':
+                if self.num_order_value[:3] != 'AL-':
+                    self.update_tags()
+                else:
+                    self.update_al_drawings()
+            self.update_others()
+            self.query_tables()
 
 # Function to insert data on tags
     def update_tags(self):
@@ -2598,208 +2599,130 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         Args:
             numorder (str): The order number to process.
         """
-        if numorder == '':
-            dlg = QtWidgets.QMessageBox()
-            new_icon = QtGui.QIcon()
-            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-            dlg.setWindowIcon(new_icon)
-            dlg.setWindowTitle("Verificación")
-            dlg.setText("Introduce un número de pedido")
-            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-            dlg.exec()
-            del dlg,new_icon
-        else:
-            if numorder[:2] == 'AL':
-                selected_indexes = self.tableTags.selectedIndexes()
-                if len(selected_indexes) == 0:
-                    dlg = QtWidgets.QMessageBox()
-                    new_icon = QtGui.QIcon()
-                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                    dlg.setWindowIcon(new_icon)
-                    dlg.setWindowTitle("ERP EIPSA")
-                    dlg.setText("No has seleccionado ningún TAG")
-                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                    dlg.exec()
-                    del dlg, new_icon
-                else:
-                    self.fname_image = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos JPG", "*.jpg")],
-                                title="Seleccionar imagen")
-                    if self.fname_image:
-                        for index in selected_indexes:
-                            id_value = self.tableTags.item(index.row(), 0).text()
-                            conn = None
-                            try:
-                            # read the connection parameters
-                                params = config()
-                            # connect to the PostgreSQL server
-                                conn = psycopg2.connect(**params)
-                                cur = conn.cursor()
-                            # execution of commands
-                                commands_image_al = ("""UPDATE verification.al_drawing_verification SET image = %s WHERE id = %s""")
-                                cur.execute(commands_image_al, (self.fname_image, id_value))
-
-                            # close communication with the PostgreSQL database server
-                                cur.close()
-                            # commit the changes
-                                conn.commit()
-
-                                self.query_tables()
-
-                            except (Exception, psycopg2.DatabaseError) as error:
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("ERP EIPSA")
-                                dlg.setText("Ha ocurrido el siguiente error:\n"
-                                            + str(error))
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                dlg.exec()
-                                del dlg, new_icon
-                            finally:
-                                if conn is not None:
-                                    conn.close()
-
-                    self.fname_doc = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos PDF", "*.pdf")],
-                                title="Seleccionar PDF")
-                    if self.fname_doc:
-                        for index in selected_indexes:
-                            id_value = self.tableTags.item(index.row(), 0).text()
-                            conn = None
-                            try:
-                            # read the connection parameters
-                                params = config()
-                            # connect to the PostgreSQL server
-                                conn = psycopg2.connect(**params)
-                                cur = conn.cursor()
-                            # execution of commands
-                                commands_image_al = ("""UPDATE verification.al_drawing_verification SET document = %s WHERE id = %s""")
-                                cur.execute(commands_image_al, (self.fname_doc, id_value))
-
-                            # close communication with the PostgreSQL database server
-                                cur.close()
-                            # commit the changes
-                                conn.commit()
-
-                                self.query_tables()
-
-                            except (Exception, psycopg2.DatabaseError) as error:
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("ERP EIPSA")
-                                dlg.setText("Ha ocurrido el siguiente error:\n"
-                                            + str(error))
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                dlg.exec()
-                                del dlg, new_icon
-                            finally:
-                                if conn is not None:
-                                    conn.close()
-
+        if self.username == 'm.gil':
+            if numorder == '':
+                dlg = QtWidgets.QMessageBox()
+                new_icon = QtGui.QIcon()
+                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                dlg.setWindowIcon(new_icon)
+                dlg.setWindowTitle("Verificación")
+                dlg.setText("Introduce un número de pedido")
+                dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                dlg.exec()
+                del dlg,new_icon
             else:
-                selected_indexes = self.tableTags.selectedIndexes()
+                if numorder[:2] == 'AL':
+                    selected_indexes = self.tableTags.selectedIndexes()
+                    if len(selected_indexes) == 0:
+                        dlg = QtWidgets.QMessageBox()
+                        new_icon = QtGui.QIcon()
+                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                        dlg.setWindowIcon(new_icon)
+                        dlg.setWindowTitle("ERP EIPSA")
+                        dlg.setText("No has seleccionado ningún TAG")
+                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                        dlg.exec()
+                        del dlg, new_icon
+                    else:
+                        self.fname_image = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos JPG", "*.jpg")],
+                                    title="Seleccionar imagen")
+                        if self.fname_image:
+                            for index in selected_indexes:
+                                id_value = self.tableTags.item(index.row(), 0).text()
+                                conn = None
+                                try:
+                                # read the connection parameters
+                                    params = config()
+                                # connect to the PostgreSQL server
+                                    conn = psycopg2.connect(**params)
+                                    cur = conn.cursor()
+                                # execution of commands
+                                    commands_image_al = ("""UPDATE verification.al_drawing_verification SET image = %s WHERE id = %s""")
+                                    cur.execute(commands_image_al, (self.fname_image, id_value))
 
-                while True:
-                    pic_type, ok = QtWidgets.QInputDialog.getItem(self, "Insertar Fotos", "Selecciona un tipo:", ['Foto Única', 'MultiFoto', 'Aleatorio'], 0, False)
-                    if ok and pic_type:
-                        if pic_type == 'Foto Única':
-                            self.fname_image = askopenfilename(filetypes=[("Archivos JPG", "*.jpg")],
-                                                title="Seleccionar imagen")
-                            if self.fname_image:
-                                if len(selected_indexes) == 0:
+                                # close communication with the PostgreSQL database server
+                                    cur.close()
+                                # commit the changes
+                                    conn.commit()
+
+                                    self.query_tables()
+
+                                except (Exception, psycopg2.DatabaseError) as error:
                                     dlg = QtWidgets.QMessageBox()
                                     new_icon = QtGui.QIcon()
                                     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                     dlg.setWindowIcon(new_icon)
                                     dlg.setWindowTitle("ERP EIPSA")
-                                    dlg.setText("No has seleccionado ningún TAG")
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                + str(error))
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                                     dlg.exec()
                                     del dlg, new_icon
+                                finally:
+                                    if conn is not None:
+                                        conn.close()
 
-                                    self.Button_SeePhoto.setVisible(True)
-                                    self.Button_InsertPhoto.setVisible(True)
+                        self.fname_doc = askopenfilename(initialdir="//nas01/DATOS/Comunes/MARIO GIL/VERIFICACION/ALMACEN", filetypes=[("Archivos PDF", "*.pdf")],
+                                    title="Seleccionar PDF")
+                        if self.fname_doc:
+                            for index in selected_indexes:
+                                id_value = self.tableTags.item(index.row(), 0).text()
+                                conn = None
+                                try:
+                                # read the connection parameters
+                                    params = config()
+                                # connect to the PostgreSQL server
+                                    conn = psycopg2.connect(**params)
+                                    cur = conn.cursor()
+                                # execution of commands
+                                    commands_image_al = ("""UPDATE verification.al_drawing_verification SET document = %s WHERE id = %s""")
+                                    cur.execute(commands_image_al, (self.fname_doc, id_value))
 
-                                else:
-                                    conn = None
-                                    try:
-                                    # read the connection parameters
-                                        params = config()
-                                    # connect to the PostgreSQL server
-                                        conn = psycopg2.connect(**params)
-                                        cur = conn.cursor()
-                                    # execution of commands
-                                        for index in selected_indexes:
-                                            id_value = int(self.tableTags.item(index.row(), 0).text())
-                                            table_name = self.tableTags.item(index.row(), 21).text()
-                                            id_column = self.tableTags.item(index.row(), 20).text()
-                                            if index.column() == 22:
-                                                commands_image_tag = f"UPDATE {table_name} SET tag_images = '{self.fname_image}' WHERE {id_column} = {id_value}"
-                                            elif index.column() == 23:
-                                                commands_image_tag = f"UPDATE {table_name} SET tag_images2 = '{self.fname_image}' WHERE {id_column} = {id_value}"
-                                            cur.execute(commands_image_tag)
+                                # close communication with the PostgreSQL database server
+                                    cur.close()
+                                # commit the changes
+                                    conn.commit()
 
-                                    # close communication with the PostgreSQL database server
-                                        cur.close()
-                                    # commit the changes
-                                        conn.commit()
+                                    self.query_tables()
 
-                                        dlg = QtWidgets.QMessageBox()
-                                        new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                        dlg.setWindowIcon(new_icon)
-                                        dlg.setWindowTitle("Verificación")
-                                        dlg.setText("Datos insertados con éxito")
-                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                        dlg.exec()
-                                        del dlg,new_icon
-
-                                        self.querytags()
-
-                                    except (Exception, psycopg2.DatabaseError) as error:
-                                        dlg = QtWidgets.QMessageBox()
-                                        new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                        dlg.setWindowIcon(new_icon)
-                                        dlg.setWindowTitle("ERP EIPSA")
-                                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                                    + str(error))
-                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                        dlg.exec()
-                                        del dlg, new_icon
-                                    finally:
-                                        if conn is not None:
-                                            conn.close()
-                            break
-
-                        elif pic_type == 'MultiFoto':
-                            self.fname_images = askopenfilenames(filetypes=[("Archivos JPG", "*.jpg")],
-                                                title="Seleccionar imagen")
-                            if self.fname_images:
-                                if len(selected_indexes) == 0:
+                                except (Exception, psycopg2.DatabaseError) as error:
                                     dlg = QtWidgets.QMessageBox()
                                     new_icon = QtGui.QIcon()
                                     new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                     dlg.setWindowIcon(new_icon)
                                     dlg.setWindowTitle("ERP EIPSA")
-                                    dlg.setText("No has seleccionado ningún TAG")
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                + str(error))
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
                                     dlg.exec()
                                     del dlg, new_icon
+                                finally:
+                                    if conn is not None:
+                                        conn.close()
 
-                                else:
-                                    if len(selected_indexes) != len(self.fname_images):
+                else:
+                    selected_indexes = self.tableTags.selectedIndexes()
+
+                    while True:
+                        pic_type, ok = QtWidgets.QInputDialog.getItem(self, "Insertar Fotos", "Selecciona un tipo:", ['Foto Única', 'MultiFoto', 'Aleatorio'], 0, False)
+                        if ok and pic_type:
+                            if pic_type == 'Foto Única':
+                                self.fname_image = askopenfilename(filetypes=[("Archivos JPG", "*.jpg")],
+                                                    title="Seleccionar imagen")
+                                if self.fname_image:
+                                    if len(selected_indexes) == 0:
                                         dlg = QtWidgets.QMessageBox()
                                         new_icon = QtGui.QIcon()
                                         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                         dlg.setWindowIcon(new_icon)
                                         dlg.setWindowTitle("ERP EIPSA")
-                                        dlg.setText("La cantidad de tags seleccionados no coincide con la cantidad de fotos seleccionadas")
+                                        dlg.setText("No has seleccionado ningún TAG")
                                         dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                                         dlg.exec()
                                         del dlg, new_icon
+
+                                        self.Button_SeePhoto.setVisible(True)
+                                        self.Button_InsertPhoto.setVisible(True)
 
                                     else:
                                         conn = None
@@ -2810,14 +2733,14 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                             conn = psycopg2.connect(**params)
                                             cur = conn.cursor()
                                         # execution of commands
-                                            for i in range(len(selected_indexes)):
-                                                id_value = int(self.tableTags.item(selected_indexes[i].row(), 0).text())
-                                                table_name = self.tableTags.item(selected_indexes[i].row(), 21).text()
-                                                id_column = self.tableTags.item(selected_indexes[i].row(), 20).text()
-                                                if selected_indexes[i].column() == 22:
-                                                    commands_image_tag = f"UPDATE {table_name} SET tag_images = '{self.fname_images[i]}' WHERE {id_column} = {id_value}"
-                                                elif selected_indexes[i].column() == 23:
-                                                    commands_image_tag = f"UPDATE {table_name} SET tag_images2 = '{self.fname_images[i]}' WHERE {id_column} = {id_value}"
+                                            for index in selected_indexes:
+                                                id_value = int(self.tableTags.item(index.row(), 0).text())
+                                                table_name = self.tableTags.item(index.row(), 21).text()
+                                                id_column = self.tableTags.item(index.row(), 20).text()
+                                                if index.column() == 22:
+                                                    commands_image_tag = f"UPDATE {table_name} SET tag_images = '{self.fname_image}' WHERE {id_column} = {id_value}"
+                                                elif index.column() == 23:
+                                                    commands_image_tag = f"UPDATE {table_name} SET tag_images2 = '{self.fname_image}' WHERE {id_column} = {id_value}"
                                                 cur.execute(commands_image_tag)
 
                                         # close communication with the PostgreSQL database server
@@ -2851,85 +2774,164 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
                                         finally:
                                             if conn is not None:
                                                 conn.close()
-                            break
+                                break
 
-                        elif pic_type == 'Aleatorio':
-                            self.fname_images = askopenfilenames(filetypes=[("Archivos JPG", "*.jpg")],
-                                                title="Seleccionar imagen")
-                            if self.fname_images:
-                                if len(selected_indexes) == 0:
-                                    dlg = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg.setWindowIcon(new_icon)
-                                    dlg.setWindowTitle("ERP EIPSA")
-                                    dlg.setText("No has seleccionado ningún TAG")
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                                    dlg.exec()
-                                    del dlg, new_icon
-
-                                else:
-                                    conn = None
-                                    try:
-                                    # read the connection parameters
-                                        params = config()
-                                    # connect to the PostgreSQL server
-                                        conn = psycopg2.connect(**params)
-                                        cur = conn.cursor()
-                                    # execution of commands
-                                        for i in range(len(selected_indexes)):
-                                            id_value = int(self.tableTags.item(selected_indexes[i].row(), 0).text())
-                                            table_name = self.tableTags.item(selected_indexes[i].row(), 21).text()
-                                            id_column = self.tableTags.item(selected_indexes[i].row(), 20).text()
-                                            if selected_indexes[i].column() == 22:
-                                                commands_image_tag = f"UPDATE {table_name} SET tag_images = '{random.choice(self.fname_images)}' WHERE {id_column} = {id_value}"
-                                            elif selected_indexes[i].column() == 23:
-                                                commands_image_tag = f"UPDATE {table_name} SET tag_images2 = '{random.choice(self.fname_images)}' WHERE {id_column} = {id_value}"
-                                            cur.execute(commands_image_tag)
-
-                                    # close communication with the PostgreSQL database server
-                                        cur.close()
-                                    # commit the changes
-                                        conn.commit()
-
-                                        dlg = QtWidgets.QMessageBox()
-                                        new_icon = QtGui.QIcon()
-                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                        dlg.setWindowIcon(new_icon)
-                                        dlg.setWindowTitle("Verificación")
-                                        dlg.setText("Datos insertados con éxito")
-                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                                        dlg.exec()
-                                        del dlg,new_icon
-
-                                        self.querytags()
-
-                                    except (Exception, psycopg2.DatabaseError) as error:
+                            elif pic_type == 'MultiFoto':
+                                self.fname_images = askopenfilenames(filetypes=[("Archivos JPG", "*.jpg")],
+                                                    title="Seleccionar imagen")
+                                if self.fname_images:
+                                    if len(selected_indexes) == 0:
                                         dlg = QtWidgets.QMessageBox()
                                         new_icon = QtGui.QIcon()
                                         new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
                                         dlg.setWindowIcon(new_icon)
                                         dlg.setWindowTitle("ERP EIPSA")
-                                        dlg.setText("Ha ocurrido el siguiente error:\n"
-                                                    + str(error))
-                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                        dlg.setText("No has seleccionado ningún TAG")
+                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
                                         dlg.exec()
                                         del dlg, new_icon
-                                    finally:
-                                        if conn is not None:
-                                            conn.close()
+
+                                    else:
+                                        if len(selected_indexes) != len(self.fname_images):
+                                            dlg = QtWidgets.QMessageBox()
+                                            new_icon = QtGui.QIcon()
+                                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                            dlg.setWindowIcon(new_icon)
+                                            dlg.setWindowTitle("ERP EIPSA")
+                                            dlg.setText("La cantidad de tags seleccionados no coincide con la cantidad de fotos seleccionadas")
+                                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                            dlg.exec()
+                                            del dlg, new_icon
+
+                                        else:
+                                            conn = None
+                                            try:
+                                            # read the connection parameters
+                                                params = config()
+                                            # connect to the PostgreSQL server
+                                                conn = psycopg2.connect(**params)
+                                                cur = conn.cursor()
+                                            # execution of commands
+                                                for i in range(len(selected_indexes)):
+                                                    id_value = int(self.tableTags.item(selected_indexes[i].row(), 0).text())
+                                                    table_name = self.tableTags.item(selected_indexes[i].row(), 21).text()
+                                                    id_column = self.tableTags.item(selected_indexes[i].row(), 20).text()
+                                                    if selected_indexes[i].column() == 22:
+                                                        commands_image_tag = f"UPDATE {table_name} SET tag_images = '{self.fname_images[i]}' WHERE {id_column} = {id_value}"
+                                                    elif selected_indexes[i].column() == 23:
+                                                        commands_image_tag = f"UPDATE {table_name} SET tag_images2 = '{self.fname_images[i]}' WHERE {id_column} = {id_value}"
+                                                    cur.execute(commands_image_tag)
+
+                                            # close communication with the PostgreSQL database server
+                                                cur.close()
+                                            # commit the changes
+                                                conn.commit()
+
+                                                dlg = QtWidgets.QMessageBox()
+                                                new_icon = QtGui.QIcon()
+                                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                                dlg.setWindowIcon(new_icon)
+                                                dlg.setWindowTitle("Verificación")
+                                                dlg.setText("Datos insertados con éxito")
+                                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                                                dlg.exec()
+                                                del dlg,new_icon
+
+                                                self.querytags()
+
+                                            except (Exception, psycopg2.DatabaseError) as error:
+                                                dlg = QtWidgets.QMessageBox()
+                                                new_icon = QtGui.QIcon()
+                                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                                dlg.setWindowIcon(new_icon)
+                                                dlg.setWindowTitle("ERP EIPSA")
+                                                dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                            + str(error))
+                                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                                dlg.exec()
+                                                del dlg, new_icon
+                                            finally:
+                                                if conn is not None:
+                                                    conn.close()
+                                break
+
+                            elif pic_type == 'Aleatorio':
+                                self.fname_images = askopenfilenames(filetypes=[("Archivos JPG", "*.jpg")],
+                                                    title="Seleccionar imagen")
+                                if self.fname_images:
+                                    if len(selected_indexes) == 0:
+                                        dlg = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg.setWindowIcon(new_icon)
+                                        dlg.setWindowTitle("ERP EIPSA")
+                                        dlg.setText("No has seleccionado ningún TAG")
+                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                                        dlg.exec()
+                                        del dlg, new_icon
+
+                                    else:
+                                        conn = None
+                                        try:
+                                        # read the connection parameters
+                                            params = config()
+                                        # connect to the PostgreSQL server
+                                            conn = psycopg2.connect(**params)
+                                            cur = conn.cursor()
+                                        # execution of commands
+                                            for i in range(len(selected_indexes)):
+                                                id_value = int(self.tableTags.item(selected_indexes[i].row(), 0).text())
+                                                table_name = self.tableTags.item(selected_indexes[i].row(), 21).text()
+                                                id_column = self.tableTags.item(selected_indexes[i].row(), 20).text()
+                                                if selected_indexes[i].column() == 22:
+                                                    commands_image_tag = f"UPDATE {table_name} SET tag_images = '{random.choice(self.fname_images)}' WHERE {id_column} = {id_value}"
+                                                elif selected_indexes[i].column() == 23:
+                                                    commands_image_tag = f"UPDATE {table_name} SET tag_images2 = '{random.choice(self.fname_images)}' WHERE {id_column} = {id_value}"
+                                                cur.execute(commands_image_tag)
+
+                                        # close communication with the PostgreSQL database server
+                                            cur.close()
+                                        # commit the changes
+                                            conn.commit()
+
+                                            dlg = QtWidgets.QMessageBox()
+                                            new_icon = QtGui.QIcon()
+                                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                            dlg.setWindowIcon(new_icon)
+                                            dlg.setWindowTitle("Verificación")
+                                            dlg.setText("Datos insertados con éxito")
+                                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                                            dlg.exec()
+                                            del dlg,new_icon
+
+                                            self.querytags()
+
+                                        except (Exception, psycopg2.DatabaseError) as error:
+                                            dlg = QtWidgets.QMessageBox()
+                                            new_icon = QtGui.QIcon()
+                                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                            dlg.setWindowIcon(new_icon)
+                                            dlg.setWindowTitle("ERP EIPSA")
+                                            dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                        + str(error))
+                                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                            dlg.exec()
+                                            del dlg, new_icon
+                                        finally:
+                                            if conn is not None:
+                                                conn.close()
+                                break
+                            dlg_error = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg_error.setWindowIcon(new_icon)
+                            dlg_error.setWindowTitle("Insertar Fotos")
+                            dlg_error.setText("Selecciona un tipo")
+                            dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+                            dlg_error.exec()
+                            del dlg_error,new_icon
+                        else:
                             break
-                        dlg_error = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg_error.setWindowIcon(new_icon)
-                        dlg_error.setWindowTitle("Insertar Fotos")
-                        dlg_error.setText("Selecciona un tipo")
-                        dlg_error.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-                        dlg_error.exec()
-                        del dlg_error,new_icon
-                    else:
-                        break
 
 # Function when clicking on table tag header
     def on_header_section_clicked(self, logical_index):
@@ -4062,14 +4064,15 @@ class Ui_VerificationInsert_Window(QtWidgets.QMainWindow):
         """
         Updates data to deverify.
         """
-        self.num_order_value = self.num_order.text().upper()
-        if self.num_order_value != '':
-            if self.num_order_value[:3] != 'AL-':
-                self.deverify_tags()
-            else:
-                self.deverify_al_drawings()
-        self.deverify_others()
-        self.query_tables()
+        if self.username == 'm.gil':
+            self.num_order_value = self.num_order.text().upper()
+            if self.num_order_value != '':
+                if self.num_order_value[:3] != 'AL-':
+                    self.deverify_tags()
+                else:
+                    self.deverify_al_drawings()
+            self.deverify_others()
+            self.query_tables()
 
 # Function to deverify tags
     def deverify_tags(self):
