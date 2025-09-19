@@ -417,11 +417,11 @@ class Ui_OrderActivation_Window(object):
                         mails_copy_normal = [x[1] for x in results_mailcopy]
 
                         mails_sendto = [email_responsible]
-                        mails_copy_manager = ['ana-calvo@eipsa.es', 'jj-franco@eipsa.es']
 
                         cur.execute(commands_mail_manager)
                         results_manager=cur.fetchall()
-                        mails_manager = [x[0] for x in results_manager]
+                        mails_manager = ['jj-franco@eipsa.es']
+                        mails_copy_manager = ['ana-calvo@eipsa.es', x[0] for x in results_manager]
 
                         mail = email_order_activation(numorder, num_ref_order, client, final_client, expected_date, delivery_time, name_responsible, mails_sendto, mails_copy_normal, adit_info, email_responsible, extras_text)
                         mail.send_email()
