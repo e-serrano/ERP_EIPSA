@@ -2,40 +2,47 @@ import sys
 from PyQt6 import QtWidgets
 from Login_Window import Ui_Login_Window
 import os
-from PyQt6 import QtGui, QtCore
-import os
+from PyQt6 import QtCore
+import psycopg2
 import psutil
+from config import config
+from utils.Database_Manager import Database_Connection
+from utils.Show_Message import show_message
 
-basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
-shutdown_file = r"\\nas01\DATOS\Comunes\ENRIQUE SERRANO\00 ERP\shutdown.txt"  # Ruta del archivo de señal
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.check_shutdown_signal)
-        self.timer.start(1000)  # Verify every 1000 ms (1 second)
+        self.timer.start(5000)  # Verify every 1000 ms (1 second)
 
     def close_all_instances(self, executable_name):
         """Close all instances of executable selected."""
-        for process in psutil.process_iter(attrs=['pid', 'name']):
-            if process.info['name'] == executable_name:
-                print(f"Cerrando proceso: {process.info['name']} (PID: {process.info['pid']})")
-                process.terminate()  # Termina el proceso
+
+        for process in psutil.process_iter(attrs=["pid", "name"]):
+            if process.info["name"] == executable_name:
+                try:
+                    process.terminate()
+                    process.wait(timeout=5)
+                except psutil.TimeoutExpired:
+                    process.kill()
 
     def check_shutdown_signal(self):
         """Check if the shutdown signal file indicates a closure."""
         try:
-            if os.path.exists(shutdown_file):
-                with open(shutdown_file, 'r') as f:
-                    content = f.read().strip()  # Read the content of the file
-                    if content != "OK":
-                        print("Recibiendo comando de cierre...")
-                        self.close_all_instances("EIPSA-ERP.exe")
-                        self.close()
-                        sys.exit()  # Exit the application
-        except Exception as e:
-            print(f"Error al verificar el archivo de señal: {e}")
+            with Database_Connection(config()) as conn:
+                cur = conn.cursor()
+                cur.execute("SELECT action FROM logging.erp_control WHERE id = TRUE")
+                row = cur.fetchone()
+
+            if row and row[0].lower() == "shutdown":
+                self.close_all_instances("EIPSA-ERP.exe")
+                self.close()
+            else:
+                print('Estado normal (OK), aplicación sigue funcionando')
+        except (Exception, psycopg2.DatabaseError) as error:
+            show_message(f"Ocurrió un error en la base de datos:\n{error}", "critical")
 
 if __name__ == "__main__":
     """
@@ -62,12 +69,4 @@ if __name__ == "__main__":
         sys.exit(app.exec())
 
     else:
-        dlg = QtWidgets.QMessageBox()
-        new_icon = QtGui.QIcon()
-        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        dlg.setWindowIcon(new_icon)
-        dlg.setWindowTitle("ERP EIPSA")
-        dlg.setText("Archivo de configuraión no encontrado.\nPonte en contacto con el administrador")
-        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        dlg.exec()
-        del dlg, new_icon
+        show_message("Archivo de configuraión no encontrado.\nPonte en contacto con el administrador", "critical")
