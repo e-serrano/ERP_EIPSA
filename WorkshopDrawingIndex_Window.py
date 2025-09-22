@@ -22,9 +22,16 @@ import sys
 from datetime import *
 import pandas as pd
 from tkinter.filedialog import asksaveasfilename
-from overlay_pdf import flange_dwg_flangedTW, bar_dwg_flangedTW, bar_dwg_notflangedTW, flange_dwg_orifice, drawing_number
-from pypdf import PdfReader, PdfWriter
+from overlay_pdf import (flange_dwg_flangedTW, bar_dwg_flangedTW, bar_dwg_notflangedTW,
+                        flange_dwg_orifice, flange_dwg_line,
+                        tube_dwg_meterrun, welding_dwg_meterrun,
+                        loose_valves_dwg_dim,
+                        dwg_dim_32219, dwg_m_welding_32219, dwg_m_32219,
+                        dwg_m_landscape, general_dwg_m, drawing_number, drawing_number_landscape)
+from pypdf import PdfReader, PdfWriter, Transformation
 import fnmatch
+import math
+import numpy as np
 
 
 basedir = r"\\nas01\DATOS\Comunes\EIPSA-ERP"
@@ -1189,7 +1196,6 @@ class EditableTableModelDim(QtSql.QSqlTableModel):
         Args:
             headers (list): A list of header names.
         """
-        # Setting headers logic
         for column, header in enumerate(headers):
             self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
 
@@ -1201,7 +1207,6 @@ class EditableTableModelDim(QtSql.QSqlTableModel):
             column (int): The column index.
             header (str): The header name.
         """
-        # Setting individual header logic
         self.setHeaderData(column, Qt.Orientation.Horizontal, header, Qt.ItemDataRole.DisplayRole)
 
     def setIconColumnHeader(self, column, icon):
@@ -1212,7 +1217,6 @@ class EditableTableModelDim(QtSql.QSqlTableModel):
             column (int): The column index.
             icon (QIcon): The icon to display in the header.
         """
-        # Setting icon header logic
         self.setHeaderData(column, QtCore.Qt.Orientation.Horizontal, icon, Qt.ItemDataRole.DecorationRole)
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
@@ -1227,7 +1231,6 @@ class EditableTableModelDim(QtSql.QSqlTableModel):
         Returns:
             QVariant: The header data for the specified section.
         """
-        # Header data retrieval logic
         if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
             return super().headerData(section, orientation, role)
         return super().headerData(section, orientation, role)
@@ -1242,7 +1245,6 @@ class EditableTableModelDim(QtSql.QSqlTableModel):
         Returns:
             Qt.ItemFlags: The flags for the specified item.
         """
-        # Flags logic based on user permissions
         flags = super().flags(index)
         if self.username in ['j.sanz', 'j.zofio']:
             if index.column() >= 7 or index.column() in [0,1]:
@@ -1264,7 +1266,6 @@ class EditableTableModelDim(QtSql.QSqlTableModel):
         Returns:
             list: A list of column headers for the visible columns.
         """
-        # Column headers retrieval logic
         column_headers = [self.headerData(col, Qt.Orientation.Horizontal) for col in visible_columns]
         return column_headers
 
@@ -3936,36 +3937,46 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             cur.execute(query_description,(self.numorder, num_dim_drawing,))
                                             results_description=cur.fetchall()
 
-                                            if item_type in ['C. RING', 'P', 'RO']:
-                                                description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                                            " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][5] + " " +
-                                                            results_description[0][6] + " ESPESOR " + results_description[0][7])
+                                            check_query = ('''SELECT 1
+                                            FROM verification."workshop_dim_drawings"
+                                            WHERE UPPER(num_order) LIKE UPPER('%%' || %s || '%%')
+                                            AND drawing_number LIKE (%s || '%%')
+                                            LIMIT 1;
+                                            ''')
 
-                                            elif item_type in ['F', 'F+C.RING', 'F+P', 'M.RUN']:
-                                                description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                                            " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][8] +
-                                                            ((" BRIDAS " + results_description[0][9]) if results_description[0][0] == 'M.RUN' else " ") +
-                                                            " TOMAS: " + results_description[0][10][:-1] + ' POR BRIDA)' + " " + "Junta " +
-                                                            ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else '22,2'))))
+                                            cur.execute(check_query, (self.num_order, num_dim_drawing))
+                                            exists = cur.fetchone() is not None
+                                            if exists:
+                                                if item_type in ['C. RING', 'P', 'RO']:
+                                                    description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                                " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][5] + " " +
+                                                                results_description[0][6] + " ESPESOR " + results_description[0][7])
 
-                                            elif item_type in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW']:
-                                                description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                                            " " + results_description[0][3] + " SCH " + results_description[0][4] + " B:" + results_description[0][8] +
-                                                            ((" BRIDAS " + results_description[0][9]) if results_description[0][0] in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6'] else " ") +
-                                                            "E:" + results_description[0][5] + 
-                                                            (" TOMAS: " + results_description[0][10] if results_description[0][0] in ['NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW'] else "") +
-                                                            (" SALTOS: " + str(int(float(results_description[0][13]))) if results_description[0][0] == 'MULTISTAGE RO' else ""))
+                                                elif item_type in ['F', 'F+C.RING', 'F+P', 'M.RUN']:
+                                                    description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                                " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][8] +
+                                                                ((" BRIDAS " + results_description[0][9]) if results_description[0][0] == 'M.RUN' else " ") +
+                                                                " TOMAS: " + results_description[0][10][:-1] + ' POR BRIDA)' + " " + "Junta " +
+                                                                ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else '22,2'))))
 
-                                            elif item_type in ['NOZZLE BW', 'VWM', 'VWW']:
-                                                description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                                            " " + (results_description[0][3] if results_description[0][0] in ['VWM', 'VWW'] else "") +
-                                                            " SCH " + results_description[0][4] + " T:" + results_description[0][12] +
-                                                            "E:" + results_description[0][5] + " TOMAS: " + results_description[0][10])
+                                                elif item_type in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW']:
+                                                    description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                                " " + results_description[0][3] + " SCH " + results_description[0][4] + " B:" + results_description[0][8] +
+                                                                ((" BRIDAS " + results_description[0][9] + " ") if results_description[0][0] in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6'] else " ") +
+                                                                "E:" + results_description[0][5] + 
+                                                                (" TOMAS: " + results_description[0][10] if results_description[0][0] in ['NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW'] else "") +
+                                                                (" SALTOS: " + str(int(float(results_description[0][13]))) if results_description[0][0] == 'MULTISTAGE RO' else ""))
 
-                                            commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
-                                                                        SET "drawing_description" = '{description}'
-                                                                        WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
-                                            cur.execute(commands_insert_drawing)
+                                                elif item_type in ['NOZZLE BW', 'VWM', 'VWW']:
+                                                    description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                                " " + (results_description[0][3] if results_description[0][0] in ['VWM', 'VWW'] else "") +
+                                                                " SCH " + results_description[0][4] + " T:" + results_description[0][12] +
+                                                                "E:" + results_description[0][5] + " TOMAS: " + results_description[0][10])
+
+                                                commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
+                                                                            SET "drawing_description" = '{description}'
+                                                                            WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
+                                                cur.execute(commands_insert_drawing)
 
                                         # close communication with the PostgreSQL database server
                                             cur.close()
@@ -3994,7 +4005,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                     query_data_flow = ('''
                                         SELECT "item_type"
                                         FROM tags_data.tags_flow
-                                        WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("of_drawing") LIKE (%s||'%%')
+                                        WHERE UPPER ("num_order") LIKE UPPER('%%'||%s||'%%') and ("of_drawing") LIKE ('%%'||%s||'%%')
                                         ''')
                                     conn = None
                                     try:
@@ -4015,7 +4026,7 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             plate_type, plate_thk, flange_material, flange_type, tapping_num_size,
                                             gasket_material, tube_material, stages_number, internal_diameter
                                             FROM tags_data.tags_flow
-                                            WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_drawing) LIKE (%s||'%%')
+                                            WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (of_drawing) LIKE ('%%'||%s||'%%')
                                             ''')
                                             cur.execute(query_description,(self.numorder, num_of_drawing.split('/')[0],))
                                             results_description=cur.fetchall()
@@ -4033,80 +4044,89 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             HAVING COUNT(*) = 3;
                                             ''')
 
-                                            commands_insert_drawing = ('''
-                                                                        UPDATE verification."workshop_of_drawings"
+                                            commands_insert_drawing = ('''UPDATE verification."workshop_of_drawings"
                                                                         SET "drawing_description" = %s
                                                                         WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and (drawing_number) LIKE (%s||'%%')
                                                                         ''')
 
-                                            if item_type in ['C. RING', 'F+C.RING', 'F+P', 'M.RUN', 'P', 'RO']:
-                                                description = (str(len(results_flow)) + "-" + ('Placa' if results_description[0][0] in ['F+P', 'P'] else ('Placa M.Run' if results_description[0][0] == 'M.RUN' else results_description[0][0])) + " " + 
-                                                            results_description[0][1] + results_description[0][2] + 
-                                                            " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][5] + " " +
-                                                            results_description[0][6] + " ESPESOR " + results_description[0][7])
-                                                cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
+                                            check_query = ('''SELECT 1
+                                            FROM verification."workshop_of_drawings"
+                                            WHERE UPPER(num_order) LIKE UPPER('%%' || %s || '%%')
+                                            AND drawing_number LIKE (%s || '%%')
+                                            LIMIT 1;
+                                            ''')
 
-                                            elif item_type in ['F', 'F+C.RING', 'F+P', 'M.RUN']:
-                                                description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                                            " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][8] +
-                                                            ((" BRIDAS " + results_description[0][9]) if results_description[0][0] == 'M.RUN' else " ") +
-                                                            " TOMAS: " + results_description[0][10][:-1] + ')' + " " + "Junta " +
-                                                            ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else 22,2))))
-                                                cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
+                                            cur.execute(check_query, (self.num_order, num_of_drawing))
+                                            exists = cur.fetchone() is not None
+                                            if exists:
+                                                if item_type in ['C. RING', 'F+C.RING', 'F+P', 'M.RUN', 'P', 'RO']:
+                                                    description = (str(len(results_flow)) + "-" + ('Placa' if results_description[0][0] in ['F+P', 'P'] else ('Placa M.Run' if results_description[0][0] == 'M.RUN' else results_description[0][0])) + " " + 
+                                                                results_description[0][1] + results_description[0][2] + 
+                                                                " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][5] + " " +
+                                                                results_description[0][6] + " ESPESOR " + results_description[0][7])
+                                                    cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
 
-                                            if item_type in ['MULTISTAGE RO']:
-                                                first_value = int(num_of_drawing.split('/')[0].split('-')[1])
-
-                                                cur.execute(query_check_materials, (results_description[0][5], results_description[0][8], results_description[0][12],))
-                                                results_materials=cur.fetchall()
-
-                                                if len(results_materials) == 1 and results_description[0][1] in ['1-1/2"','1-1/4"','1"','1/2"','1/4"','1/8"','2"']:
-                                                    num_of_drawing = f"OF-{first_value:02d}"
+                                                elif item_type in ['F', 'F+C.RING', 'F+P', 'M.RUN']:
                                                     description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                                    " " + results_description[0][9] + " " + " SCH " + str(results_description[0][4]) + 
-                                                    " B:" + results_description[0][8] + " S" + str(int(float(results_description[0][13]))) + " DEDALES")
+                                                                " " + results_description[0][3] + " SCH " + results_description[0][4] + " " + results_description[0][8] +
+                                                                ((" BRIDAS " + results_description[0][9]) if results_description[0][0] == 'M.RUN' else " ") +
+                                                                " TOMAS: " + results_description[0][10][:-1] + ')' + " " + "Junta " +
+                                                                ("plana " if "Flat" in self.extract_thickness(results_description[0][11]) else ("RTJ" if "RTJ" in results_description[0][11] else ("Spiro" if "SPW" in results_description[0][11] else 22,2))))
                                                     cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
 
-                                                    num_of_drawing = 'OF-' + str(first_value + 1)
-                                                    description = (str(len(results_flow)) + " x " + str(int(float(results_description[0][13])) - 1) + " DEDALES " + results_description[0][1]
-                                                    + "SCH " + str(results_description[0][4]) + " T:" + results_description[0][12])
-                                                    cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
+                                                if item_type in ['MULTISTAGE RO']:
+                                                    first_value = int(num_of_drawing.split('/')[0].split('-')[1])
 
-                                                    num_of_drawing = 'OF-' + str(first_value + 2)
-                                                    description = (str(len(results_flow)) + " x 1 PLACA Ø = " + str(float(results_description[0][14]) + 2) +
-                                                    " " + results_description[0][5])
-                                                    cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
+                                                    cur.execute(query_check_materials, (results_description[0][5], results_description[0][8], results_description[0][12],))
+                                                    results_materials=cur.fetchall()
 
-                                                else:
-                                                    num_of_drawing = f"OF-{first_value:02d}"
-                                                    description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                                    " " + results_description[0][9] + " " + " SCH " + str(results_description[0][4]) + 
-                                                    " B:" + results_description[0][8] + " S" + str(int(float(results_description[0][13]))) + " TUBOS")
-                                                    cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
+                                                    if len(results_materials) == 1 and results_description[0][1] in ['1-1/2"','1-1/4"','1"','1/2"','1/4"','1/8"','2"']:
+                                                        num_of_drawing = f"OF-{first_value:02d}"
+                                                        description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                        " " + results_description[0][9] + " " + " SCH " + str(results_description[0][4]) + 
+                                                        " B:" + results_description[0][8] + " S" + str(int(float(results_description[0][13]))) + " DEDALES")
+                                                        cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
 
-                                                    num_of_drawing = 'OF-' + str(first_value + 1)
-                                                    description = (str(len(results_flow)) + " x " + str(int(float(results_description[0][13])) - 1) + " TUBOS " + results_description[0][1]
-                                                    + "SCH " + str(results_description[0][4]) + " T:" + results_description[0][12])
-                                                    cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
+                                                        num_of_drawing = 'OF-' + str(first_value + 1)
+                                                        description = (str(len(results_flow)) + " x " + str(int(float(results_description[0][13])) - 1) + " DEDALES " + results_description[0][1]
+                                                        + "SCH " + str(results_description[0][4]) + " T:" + results_description[0][12])
+                                                        cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
 
-                                                    num_of_drawing = 'OF-' + str(first_value + 2)
-                                                    description = (str(len(results_flow)) + " x " + str(int(float(results_description[0][13]))) + " PLACAS Ø = " + str(float(results_description[0][14]) + 2) +
-                                                    " " + results_description[0][5])
-                                                    cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
+                                                        num_of_drawing = 'OF-' + str(first_value + 2)
+                                                        description = (str(len(results_flow)) + " x 1 PLACA Ø = " + str(float(results_description[0][14]) + 2) +
+                                                        " " + results_description[0][5])
+                                                        cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
 
-                                            # elif item_type in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW']:
-                                            #     description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                            #                 " " + results_description[0][3] + " SCH " + results_description[0][4] + " B:" + results_description[0][8] +
-                                            #                 ((" BRIDAS " + results_description[0][9]) if results_description[0][0] in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6'] else " ") +
-                                            #                 "E:" + results_description[0][5] + 
-                                            #                 (" TOMAS: " + results_description[0][10] + '(Conjunto)' if results_description[0][0] in ['NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW'] else "") +
-                                            #                 (results_description[0][13] + " SALTOS: " if results_description[0][0] == 'MULTISTAGE RO' else ""))
+                                                    else:
+                                                        num_of_drawing = f"OF-{first_value:02d}"
+                                                        description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                        " " + results_description[0][9] + " " + " SCH " + str(results_description[0][4]) + 
+                                                        " B:" + results_description[0][8] + " S" + str(int(float(results_description[0][13]))) + " TUBOS")
+                                                        cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
 
-                                            # elif item_type in ['NOZZLE BW', 'VWM', 'VWW']:
-                                            #     description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
-                                            #                 " " + (results_description[0][3] if results_description[0][0] in ['VWM', 'VWW'] else "") +
-                                            #                 " SCH " + results_description[0][4] + " T:" + results_description[0][12] +
-                                            #                 "E:" + results_description[0][5] + " TOMAS: " + results_description[0][10] + '(Conjunto)')
+                                                        num_of_drawing = 'OF-' + str(first_value + 1)
+                                                        description = (str(len(results_flow)) + " x " + str(int(float(results_description[0][13])) - 1) + " TUBOS " + results_description[0][1]
+                                                        + "SCH " + str(results_description[0][4]) + " T:" + results_description[0][12])
+                                                        cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
+
+                                                        num_of_drawing = 'OF-' + str(first_value + 2)
+                                                        description = (str(len(results_flow)) + " x " + str(int(float(results_description[0][13]))) + " PLACAS Ø = " + str(float(results_description[0][14]) + 2) +
+                                                        " " + results_description[0][5])
+                                                        cur.execute(commands_insert_drawing, (description, self.numorder, num_of_drawing,))
+
+                                                # elif item_type in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW']:
+                                                #     description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                #                 " " + results_description[0][3] + " SCH " + results_description[0][4] + " B:" + results_description[0][8] +
+                                                #                 ((" BRIDAS " + results_description[0][9]) if results_description[0][0] in ['MULTISTAGE RO', 'NOZZLE BF', 'NOZZLE F', 'PTC-6'] else " ") +
+                                                #                 "E:" + results_description[0][5] + 
+                                                #                 (" TOMAS: " + results_description[0][10] + '(Conjunto)' if results_description[0][0] in ['NOZZLE BF', 'NOZZLE F', 'PTC-6', 'VFM', 'VFW'] else "") +
+                                                #                 (results_description[0][13] + " SALTOS: " if results_description[0][0] == 'MULTISTAGE RO' else ""))
+
+                                                # elif item_type in ['NOZZLE BW', 'VWM', 'VWW']:
+                                                #     description = (str(len(results_flow)) + "-" + results_description[0][0] + " " + results_description[0][1] + results_description[0][2] + 
+                                                #                 " " + (results_description[0][3] if results_description[0][0] in ['VWM', 'VWW'] else "") +
+                                                #                 " SCH " + results_description[0][4] + " T:" + results_description[0][12] +
+                                                #                 "E:" + results_description[0][5] + " TOMAS: " + results_description[0][10] + '(Conjunto)')
 
                                         # close communication with the PostgreSQL database server
                                             cur.close()
@@ -4163,31 +4183,41 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             cur.execute(query_description,(self.numorder, num_dim_drawing,))
                                             results_description=cur.fetchall()
 
-                                            if item_type in ['TW', 'TW+BIM']:
-                                                description = (str(len(results_temp)) + " " + results_description[0][0] + " " +
-                                                            results_description[0][1] + " " +
-                                                            results_description[0][2] + results_description[0][3] + results_description[0][4] + " " +
-                                                            str(results_description[0][5]) + " " + results_description[0][6] + " Ins: " + results_description[0][7] + "mm ø: " + results_description[0][8] + " " +
-                                                            (results_description[0][13] if 'BIM' in results_description[0][0] else ""))
+                                            check_query = ('''SELECT 1
+                                            FROM verification."workshop_dim_drawings"
+                                            WHERE UPPER(num_order) LIKE UPPER('%%' || %s || '%%')
+                                            AND drawing_number LIKE (%s || '%%')
+                                            LIMIT 1;
+                                            ''')
 
-                                            elif item_type in ['TW+TE','TW+TE+TIT']:
-                                                description = (str(len(results_temp)) + " " + results_description[0][0] + " " +
-                                                            results_description[0][1] + " " +
-                                                            results_description[0][2] + results_description[0][3] + results_description[0][4] + " " +
-                                                            str(results_description[0][5]) + " " + results_description[0][6] + " Ins: " + results_description[0][7] + "mm ø: " + results_description[0][8] + " " +
-                                                            results_description[0][9] + " " + results_description[0][10] + " " + results_description[0][11] + " " + ("A Masa" if results_description[0][12] == 'Grounded' else ("No Masa" if results_description[0][12] == 'Ungrounded' else "")) + " " + 
-                                                            results_description[0][13] + " " + results_description[0][14] + " " + results_description[0][15])
+                                            cur.execute(check_query, (self.num_order, num_dim_drawing))
+                                            exists = cur.fetchone() is not None
+                                            if exists:
+                                                if item_type in ['TW', 'TW+BIM']:
+                                                    description = (str(len(results_temp)) + " " + results_description[0][0] + " " +
+                                                                results_description[0][1] + " " +
+                                                                results_description[0][2] + results_description[0][3] + results_description[0][4] + " " +
+                                                                str(results_description[0][5]) + " " + results_description[0][6] + " Ins: " + results_description[0][7] + "mm ø: " + results_description[0][8] + " " +
+                                                                (results_description[0][13] if 'BIM' in results_description[0][0] else ""))
 
-                                            elif item_type in ['TE']:
-                                                description = (str(len(results_temp)) + " " + results_description[0][9] + " " + results_description[0][10] + " " + 
-                                                            results_description[0][11] + " " + "A Masa" if results_description[0][12] == 'Grounded' else ("No Masa" if results_description[0][12] == 'Unrounded' else ""))
+                                                elif item_type in ['TW+TE','TW+TE+TIT']:
+                                                    description = (str(len(results_temp)) + " " + results_description[0][0] + " " +
+                                                                results_description[0][1] + " " +
+                                                                results_description[0][2] + results_description[0][3] + results_description[0][4] + " " +
+                                                                str(results_description[0][5]) + " " + results_description[0][6] + " Ins: " + results_description[0][7] + "mm ø: " + results_description[0][8] + " " +
+                                                                results_description[0][9] + " " + results_description[0][10] + " " + results_description[0][11] + " " + ("A Masa" if results_description[0][12] == 'Grounded' else ("No Masa" if results_description[0][12] == 'Ungrounded' else "")) + " " + 
+                                                                results_description[0][13] + " " + results_description[0][14] + " " + results_description[0][15])
 
-                                            else:
-                                                description = 'escribir a mano'
-                                            commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
-                                                                        SET "drawing_description" = '{description}'
-                                                                        WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
-                                            cur.execute(commands_insert_drawing)
+                                                elif item_type in ['TE']:
+                                                    description = (str(len(results_temp)) + " " + results_description[0][9] + " " + results_description[0][10] + " " + 
+                                                                results_description[0][11] + " " + ("A Masa" if results_description[0][12] == 'Grounded' else ("No Masa" if results_description[0][12] == 'Ungrounded' else "")))
+
+                                                else:
+                                                    description = 'escribir a mano'
+                                                commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
+                                                                            SET "drawing_description" = '{description}'
+                                                                            WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
+                                                cur.execute(commands_insert_drawing)
 
                                         # close communication with the PostgreSQL database server
                                             cur.close()
@@ -4241,18 +4271,29 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             cur.execute(query_description,(self.numorder, of_drawing,))
                                             results_description=cur.fetchall()
 
-                                            if item_type in ['TW', 'TW+BIM','TW+TE', 'TW+TE+TIT']:
-                                                description = (str(len(results_temp)) + " " + results_description[0][0] + " " +
-                                                            results_description[0][1] + " " +
-                                                            results_description[0][2] + results_description[0][3] + results_description[0][4] + " " +
-                                                            str(results_description[0][5]) + " " + results_description[0][6] + " Ins: " + str(results_description[0][7]) + "mm ø: " + str(results_description[0][8]))
+                                            check_query = ('''SELECT 1
+                                            FROM verification."workshop_of_drawings"
+                                            WHERE UPPER(num_order) LIKE UPPER('%%' || %s || '%%')
+                                            AND drawing_number LIKE (%s || '%%')
+                                            LIMIT 1;
+                                            ''')
 
-                                            else:
-                                                description = 'escribir a mano'
-                                            commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
-                                                                        SET "drawing_description" = '{description}'
-                                                                        WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{of_drawing}'"""
-                                            cur.execute(commands_insert_drawing)
+                                            cur.execute(check_query, (self.num_order, of_drawing))
+                                            exists = cur.fetchone() is not None
+                                            if exists:
+
+                                                if item_type in ['TW', 'TW+BIM','TW+TE', 'TW+TE+TIT']:
+                                                    description = (str(len(results_temp)) + " " + results_description[0][0] + " " +
+                                                                results_description[0][1] + " " +
+                                                                results_description[0][2] + results_description[0][3] + results_description[0][4] + " " +
+                                                                str(results_description[0][5]) + " " + results_description[0][6] + " Ins: " + str(results_description[0][7]) + "mm ø: " + str(results_description[0][8]))
+
+                                                else:
+                                                    description = 'escribir a mano'
+                                                commands_insert_drawing = f"""UPDATE verification."workshop_of_drawings"
+                                                                            SET "drawing_description" = '{description}'
+                                                                            WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{of_drawing}'"""
+                                                cur.execute(commands_insert_drawing)
 
                                         # close communication with the PostgreSQL database server
                                             cur.close()
@@ -4374,23 +4415,33 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                             cur.execute(query_description,(self.numorder, num_dim_drawing,))
                                             results_description=cur.fetchall()
 
-                                            if item_type in ['Reflex', 'Transparent']:
-                                                description = (str(len(results_level)) + " " + results_description[0][11] + " " +
-                                                            results_description[0][1] +
-                                                            ('-M' if 'MICA' in results_description[0][6] else "") +
-                                                            ('-I' if 'YES' in results_description[0][7] else "") +
-                                                            ('-K' if 'ANTIFROST' in results_description[0][9] else "") +
-                                                            " " +
-                                                            " " + results_description[0][2] + results_description[0][3] + results_description[0][4] + " " + results_description[0][5])
+                                            check_query = ('''SELECT 1
+                                            FROM verification."workshop_dim_drawings"
+                                            WHERE UPPER(num_order) LIKE UPPER('%%' || %s || '%%')
+                                            AND drawing_number LIKE (%s || '%%')
+                                            LIMIT 1;
+                                            ''')
 
-                                            elif item_type in ['Magnetic']:
-                                                description = (str(len(results_level)) + "-" + results_description[0][0] + " " + results_description[0][1] + " " + 
-                                                            "Flotador " + results_description[0][10])
+                                            cur.execute(check_query, (self.num_order, num_dim_drawing))
+                                            exists = cur.fetchone() is not None
+                                            if exists:
+                                                if item_type in ['Reflex', 'Transparent']:
+                                                    description = (str(len(results_level)) + " " + results_description[0][11] + " " +
+                                                                results_description[0][1] +
+                                                                ('-M' if 'MICA' in results_description[0][6] else "") +
+                                                                ('-I' if 'YES' in results_description[0][7] else "") +
+                                                                ('-K' if 'ANTIFROST' in results_description[0][9] else "") +
+                                                                " " +
+                                                                " " + results_description[0][2] + results_description[0][3] + results_description[0][4] + " " + results_description[0][5])
 
-                                            commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
-                                                                        SET "drawing_description" = '{description}'
-                                                                        WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
-                                            cur.execute(commands_insert_drawing)
+                                                elif item_type in ['Magnetic']:
+                                                    description = (str(len(results_level)) + "-" + results_description[0][0] + " " + results_description[0][1] + " " + 
+                                                                "Flotador " + results_description[0][10])
+
+                                                commands_insert_drawing = f"""UPDATE verification."workshop_dim_drawings"
+                                                                            SET "drawing_description" = '{description}'
+                                                                            WHERE UPPER (num_order) LIKE UPPER('%%'||'{self.numorder}'||'%%') and (drawing_number) = '{num_dim_drawing}'"""
+                                                cur.execute(commands_insert_drawing)
 
                                         # close communication with the PostgreSQL database server
                                             cur.close()
@@ -4625,8 +4676,52 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
 
             self.query_drawings()
 
+# Function to open drawings
+    def open_drawings(self, index):
+        """
+        Opens a file based on the provided index and variable.
 
+        Args:
+            index (QModelIndex): The index representing the selected cell in the table.
 
+        Raises:
+            Exception: If there is an error while trying to open the file, a message box displays the error details.
+        """
+
+        if index.column() == 1:
+            model = self.tableMDwg.model()
+            item_index = model.index(index.row(), 2)
+            drawing_number = model.data(item_index)[:4]
+
+            order_year = str(datetime.now().year)[:2] + self.num_order [self.num_order .rfind("/") - 2:self.num_order .rfind("/")]
+
+            if self.num_order[:2] == 'PA':
+                num_order = self.num_order
+                path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
+                for folder in os.listdir(path):
+                    if num_order.replace("/", "-") in folder:
+                        folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/3-Fabricacion/Planos M/"
+                        for root, dirs, files in os.walk(folder_path):
+                            for filename in files:
+                                if fnmatch.fnmatch(filename, f'{drawing_number}*'):
+                                    file_path = os.path.join(root, filename)
+                                    file_path = os.path.normpath(file_path)
+                                    os.startfile(file_path)
+
+            elif self.num_order[:2] == 'P-':
+                num_order = self.num_order[:8]
+                path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
+                for folder in os.listdir(path):
+                    if num_order.replace("/", "-") in folder:
+                        folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/3-Fabricacion/Planos M/"
+                        for root, dirs, files in os.walk(folder_path):
+                            for filename in files:
+                                if fnmatch.fnmatch(filename, f'{drawing_number}*'):
+                                    file_path = os.path.join(root, filename)
+                                    file_path = os.path.normpath(file_path)
+                                    os.startfile(file_path)
+
+# Function to generate drawings based on the order number and equipment type
     def generate_drawings(self):
         if self.username in ['m.gil', 'j.martinez']:
             dlg = QtWidgets.QMessageBox()
@@ -4800,8 +4895,14 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         else:
                             path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
                             for folder in sorted(os.listdir(path)):
-                                if self.numorder[:8].replace("/", "-") in folder:
-                                    output_path2 = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/3-Fabricacion/Planos M/"
+                                if 'S00' in self.numorder:
+                                    if self.numorder[:8].replace("/", "-") in folder:
+                                        output_path2 = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/3-Fabricacion/Planos M/"
+                                        break
+                                else:
+                                    if self.numorder.replace("/", "-") in folder:
+                                        output_path2 = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/3-Fabricacion/Planos M/"
+                                        break
 
                         if not os.path.exists(output_path2):
                             os.makedirs(output_path2)
@@ -4809,6 +4910,13 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                         commands_select_m_drawing = ("""
                             SELECT drawing_number
                             FROM verification."m_drawing_verification"
+                            WHERE "num_order" = %s
+                            ORDER BY drawing_number DESC
+                            """)
+                        
+                        commands_select_dim_drawing = ("""
+                            SELECT drawing_number
+                            FROM verification."workshop_dim_drawings"
                             WHERE "num_order" = %s
                             ORDER BY drawing_number DESC
                             """)
@@ -4822,7 +4930,10 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                             cur = conn.cursor()
                         # execution of commands
                             cur.execute(commands_select_m_drawing,(self.numorder,))
-                            results_drawings=cur.fetchall()
+                            results_drawings_m=cur.fetchall()
+
+                            cur.execute(commands_select_dim_drawing,(self.numorder,))
+                            results_drawings_dim=cur.fetchall()
                         # close communication with the PostgreSQL database server
                             cur.close()
                         # commit the changes
@@ -4843,419 +4954,1230 @@ class Ui_WorkshopDrawingIndex_Window(QtWidgets.QMainWindow):
                                 conn.close()
 
                         dict_drawings = {}
-                        if len(results_drawings) == 0:
+                        if len(results_drawings_m) == 0:
                             counter_drawings = 0
                         else:
-                            counter_drawings = int(results_drawings[0][0][-2:])
+                            counter_drawings = int(results_drawings_m[0][0][-2:])
 
-                        if self.table_toquery == "tags_data.tags_temp":
-                            query = ('''
-                                SELECT *
-                                FROM tags_data.tags_temp
-                                WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and tag_state = 'PURCHASED'
-                                ''')
-                            conn = None
-                            try:
-                            # read the connection parameters
-                                params = config()
-                            # connect to the PostgreSQL server
-                                conn = psycopg2.connect(**params)
-                                cur = conn.cursor()
-                            # execution of commands
-                                cur.execute(query,(self.numorder,))
-                                results_tags=cur.fetchall()
-                                df_general = pd.DataFrame(results_tags)
-                            # close communication with the PostgreSQL database server
-                                cur.close()
-                            # commit the changes
-                                conn.commit()
-                            except (Exception, psycopg2.DatabaseError) as error:
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("ERP EIPSA")
-                                dlg.setText("Ha ocurrido el siguiente error:\n"
-                                            + str(error))
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                dlg.exec()
-                                del dlg, new_icon
-                            finally:
-                                if conn is not None:
-                                    conn.close()
+                        # if len(results_drawings_dim) == 0:
+                        #     counter_dim_drawings = 0
+                        # else:
+                        #     counter_dim_drawings = int(results_drawings_dim[0][0][-2:])
 
-                            df_selected = df_general.iloc[:, [0, 9, 10, 11, 12, 14, 15, 17, 43, 64]].copy()
+                        try:
+                            if self.table_toquery == "tags_data.tags_temp":
+                            # Obtain the data from the database for temperature tags and create the correspondig dataframe with the necessary columns
+                                query = ('''
+                                    SELECT *
+                                    FROM tags_data.tags_temp
+                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and tag_state = 'PURCHASED'
+                                    ''')
+                                conn = None
+                                try:
+                                # read the connection parameters
+                                    params = config()
+                                # connect to the PostgreSQL server
+                                    conn = psycopg2.connect(**params)
+                                    cur = conn.cursor()
+                                # execution of commands
+                                    cur.execute(query,(self.numorder,))
+                                    results_tags=cur.fetchall()
+                                    df_general = pd.DataFrame(results_tags)
+                                # close communication with the PostgreSQL database server
+                                    cur.close()
+                                # commit the changes
+                                    conn.commit()
+                                except (Exception, psycopg2.DatabaseError) as error:
+                                    dlg = QtWidgets.QMessageBox()
+                                    new_icon = QtGui.QIcon()
+                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg.setWindowIcon(new_icon)
+                                    dlg.setWindowTitle("ERP EIPSA")
+                                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                + str(error))
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                    dlg.exec()
+                                    del dlg, new_icon
+                                finally:
+                                    if conn is not None:
+                                        conn.close()
 
-                            for item in df_selected[9].unique().tolist():
-                                if item == 'Flanged TW':
-                                    df_selected = df_selected[df_selected[9] == 'Flanged TW'].copy()
-                                    df_selected.rename(columns={
-                                        0: 'id', 9: 'type', 10: 'size', 11: 'rating',
-                                        12: 'facing', 14: 'material', 15: 'std_length', 17: 'root_diam', 43: 'dim_tw', 64: 'notes_tw'
-                                    }, inplace=True)
+                                df_selected = df_general.iloc[:, [0, 9, 10, 11, 12, 13, 14, 15, 17, 43, 64]].copy()
+                                df_selected.rename(columns={
+                                    0: 'id', 9: 'type', 10: 'size', 11: 'rating',
+                                    12: 'facing', 13: 'std_tw', 14: 'material', 15: 'std_length', 17: 'root_diam',
+                                    43: 'dim_tw', 64: 'notes_tw'
+                                }, inplace=True)
 
-                                    df_flanges = df_selected[df_selected['type'] == item].copy()
+                            # Loop through different types of equipment and create drawings accordingly
+                                for item in df_selected['type'].unique().tolist():
+                                    if item == 'Flanged TW':
+                                        df_selected = df_selected[df_selected['type'] == 'Flanged TW'].copy()
 
-                                    df_flanges['drawing_code'] = df_flanges.apply(
-                                    lambda row: 'TBPC' + ('RF' if str(row['facing']) == 'FF' else str(row['facing'])) +
-                                                '-0' + str(row['size'])[0] + ('.5' if '1/2' in str(row['size']) else '.0') +
-                                                ('-0' + str(row['rating']) if str(row['rating']) in ['150', '300', '600', '900'] else '-' + str(row['rating'])),
-                                    axis=1)
+                                        grouped_flanges = self.create_df_flanges_flanged_tw(df_selected)
+                                        total_count = grouped_flanges['count'].explode().sum() 
 
-                                    df_flanges['connection'] = df_flanges.apply(
-                                    lambda row: str(row['size']) + " " + str(row['rating']) + "#" + str(row['facing']),
-                                    axis=1)
-                                    
-                                    df_flanges['drawing_path'] = df_flanges.apply(
-                                    lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\B-Bridas\PC-Penetracion Completa\{'RTJ-RingTypeJoint'if str(row['facing']) == 'RTJ' else 'RF-RaisedFace'}\{str(row['drawing_code'])}.pdf",
-                                    axis=1)
+                                        for _, row in grouped_flanges.iterrows():
+                                            counter_drawings += 1
 
-                                    df_flanges['base_diam'] = df_flanges.apply(
-                                    lambda row: 30 if int(row['root_diam']) < 30 else (32 if int(row['root_diam']) < 32 else 35),
-                                    axis=1)
+                                            writer = PdfWriter()
 
-                                    df_flanges = df_flanges[~df_flanges['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
-                                    grouped_flanges = df_flanges.groupby(['drawing_path','connection','base_diam','material']).count()
-                                    total_count = grouped_flanges.sum().iloc[0]
+                                            drawing_path = row["drawing_path"]
+                                            if os.path.exists(drawing_path):
+                                                reader = PdfReader(drawing_path)
+                                                page_overlay = PdfReader(flange_dwg_flangedTW(self.numorder, row["material"], row["count"][0])).pages[0]
 
-                                    for (drawing_path, connection, base_diam, material), row in grouped_flanges.iterrows():
-                                        counter_drawings += 1
+                                                if row["base_diam"] == 32:
+                                                    reader.pages[0].merge_page(page2=page_overlay)
+                                                    writer.add_page(reader.pages[0])
+                                                elif row["base_diam"] == 35:
+                                                    reader.pages[1].merge_page(page2=page_overlay)
+                                                    writer.add_page(reader.pages[1])
+                                                elif row["base_diam"] == 30:
+                                                    reader.pages[2].merge_page(page2=page_overlay)
+                                                    writer.add_page(reader.pages[2])
+                                                elif row["base_diam"] == 38:
+                                                    reader.pages[3].merge_page(page2=page_overlay)
+                                                    writer.add_page(reader.pages[3])
 
+                                                writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
+                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " BPC " + str(row["connection"]) + " " +str(row["material"]), str(sum(row["count"]))]
+                                            else:
+                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " BPC " + str(row["connection"]) + " " +str(row["material"]), str(sum(row["count"]))]
+
+                                        grouped_bars = self.create_df_bars_flanged_tw(df_selected)
+                                        total_count = grouped_bars['count'].explode().sum() 
+
+                                        for _, row in grouped_bars.iterrows():
+                                            counter_drawings += 1
+
+                                            writer = PdfWriter()
+
+                                            drawing_path = row["drawing_path"]
+                                            if os.path.exists(drawing_path):
+                                                reader = PdfReader(drawing_path)
+                                                page_overlay = PdfReader(bar_dwg_flangedTW(self.numorder, row["material"], row["base_diam"], zip(row["bore_diameter"], row["std_length"], row["p_length"], row["count"]))).pages[0]
+
+                                                reader.pages[0].merge_page(page2=page_overlay)
+                                                writer.add_page(reader.pages[0])
+
+                                                writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
+                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), str(sum(row["count"]))]
+                                            else:
+                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(sum(row["count"])) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), str(sum(row["count"]))]
+
+                                    elif item in ['Buttweld TW', 'Socket TW']:
+                                        df_selected = df_selected[df_selected['type'] in ['Buttweld TW', 'Socket TW']].copy()
+
+                                        grouped_bars = self.create_df_not_flanged_tw(df_selected, item)
+                                        total_count = grouped_bars['count'].explode().sum() 
+
+                                        for _, row in grouped_bars.iterrows():
+                                            counter_drawings += 1
+
+                                            writer = PdfWriter()
+
+                                            drawing_path = row["drawing_path"]
+                                            if os.path.exists(drawing_path):
+                                                reader = PdfReader(drawing_path)
+                                                page_overlay = PdfReader(bar_dwg_notflangedTW(self.numorder, row["material"], row['base_diam'], zip(row["bore_diameter"], row["std_length"], row["p_length"], row["count"]))).pages[0]
+
+                                                reader.pages[0].merge_page(page2=page_overlay)
+                                                writer.add_page(reader.pages[0])
+
+                                                writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
+                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), total_count]
+                                            else:
+                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(total_count) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), total_count]
+
+                            # Loop to add the drawing number and insert into the database
+                                for key, value in dict_drawings.items():
+                                    if os.path.exists(key):
                                         writer = PdfWriter()
-                                        reader = PdfReader(drawing_path)
-                                        page_overlay = PdfReader(flange_dwg_flangedTW(self.numorder, material, row.iloc[0])).pages[0]
+                                        reader = PdfReader(key)
+                                        page_overlay = PdfReader(drawing_number(self.numorder, value, counter_drawings)).pages[0]
+                                        reader.pages[0].merge_page(page2=page_overlay)
+                                        writer.add_page(reader.pages[0])
 
-                                        if base_diam == 32:
+                                        writer.write(key)
+
+                                    query_insert_drawing = ("""
+                                        INSERT INTO verification."m_drawing_verification" (num_order, drawing_number, drawing_description, printed_date, printed_state)
+                                        VALUES (%s, %s, %s, %s, %s)
+                                        """)
+
+                                    conn = None
+                                    try:
+                                    # read the connection parameters
+                                        params = config()
+                                    # connect to the PostgreSQL server
+                                        conn = psycopg2.connect(**params)
+                                        cur = conn.cursor()
+                                    # execution of commands
+                                        cur.execute(query_insert_drawing,(self.numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'))
+                                    # close communication with the PostgreSQL database server
+                                        cur.close()
+                                    # commit the changes
+                                        conn.commit()
+                                    except (Exception, psycopg2.DatabaseError) as error:
+                                        dlg = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg.setWindowIcon(new_icon)
+                                        dlg.setWindowTitle("ERP EIPSA")
+                                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                    + str(error))
+                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                        dlg.exec()
+                                        del dlg, new_icon
+                                    finally:
+                                        if conn is not None:
+                                            conn.close()
+
+                            elif self.table_toquery == "tags_data.tags_flow":
+                            # Obtain the data from the database for flow tags and create the correspondig dataframe with the necessary columns
+                                query = ('''
+                                    SELECT *
+                                    FROM tags_data.tags_flow
+                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and tag_state = 'PURCHASED'
+                                    ''')
+                                conn = None
+                                try:
+                                # read the connection parameters
+                                    params = config()
+                                # connect to the PostgreSQL server
+                                    conn = psycopg2.connect(**params)
+                                    cur = conn.cursor()
+                                # execution of commands
+                                    cur.execute(query,(self.numorder,))
+                                    results_tags=cur.fetchall()
+                                    df_general = pd.DataFrame(results_tags)
+                                # close communication with the PostgreSQL database server
+                                    cur.close()
+                                # commit the changes
+                                    conn.commit()
+                                except (Exception, psycopg2.DatabaseError) as error:
+                                    dlg = QtWidgets.QMessageBox()
+                                    new_icon = QtGui.QIcon()
+                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg.setWindowIcon(new_icon)
+                                    dlg.setWindowTitle("ERP EIPSA")
+                                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                + str(error))
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                    dlg.exec()
+                                    del dlg, new_icon
+                                finally:
+                                    if conn is not None:
+                                        conn.close()
+
+                                df_selected = df_general.iloc[:, [0, 8, 9, 10, 11, 12, 13, 14, 15, 16, 21, 50, 111]].copy()
+                                df_selected.rename(columns={
+                                    0: 'id', 8: 'type', 9: 'size', 10: 'rating',
+                                    11: 'facing', 12: 'schedule', 13: 'material', 14:'flange_type',
+                                    15: 'tube_material', 16: 'tapping', 21: 'gasket', 50: 'notes_equipment', 111: 'pipe_int_diam'
+                                }, inplace=True)
+
+                            # Loop through different types of equipment and create drawings accordingly
+                                for item in df_selected['type'].unique().tolist():
+
+                                    if item in ['F+P', 'F']:
+                                        df_selected_fp = df_selected[df_selected['type'] == item].copy()
+
+                                        grouped_flanges = self.create_df_orifice_flanges(df_selected_fp)
+                                        total_count = grouped_flanges['count'].explode().sum() 
+
+                                        for _, row in grouped_flanges.iterrows():
+                                            counter_drawings += 1
+
+                                            writer = PdfWriter()
+
+                                            drawing_path = row["drawing_path"]
+                                            if os.path.exists(drawing_path):
+                                                with open(drawing_path, 'rb') as f:
+                                                    reader = PdfReader(f)
+                                                    base_page = reader.pages[0]
+
+                                                    pdf_buffer = flange_dwg_orifice(self.numorder, row["type"], row["material"], row["schedule"], row["tapping"], row["gasket"], row["flange_type"], zip(row["pipe_int_diam"], row["count"]))
+
+                                                    page_overlay = PdfReader(pdf_buffer).pages[0]
+                                                    
+                                                    base_page.merge_page(page2=page_overlay)
+                                                    writer.add_page(base_page)
+
+                                                    writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
+                                                    dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(2*sum(row['count'])) + "-BO" + str(row["flange_type"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
+                                            else:
+                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(2*sum(row['count'])) + "-BO" + str(row["flange_type"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
+
+                                    elif item == 'M.RUN':
+                                        df_selected_mrun = df_selected[df_selected['type'] == 'M.RUN'].copy()
+
+                                        df_selected_transformed = self.transform_df_mrun(df_selected_mrun)
+
+                                        grouped_orifice_flanges = self.create_df_orifice_flanges_mrun(df_selected_transformed)
+                                        total_count = grouped_orifice_flanges['count'].explode().sum() 
+
+                                        for _, row in grouped_orifice_flanges.iterrows():
+                                            counter_drawings += 1
+
+                                            writer = PdfWriter()
+
+                                            drawing_path = row["drawing_path"]
+                                            if os.path.exists(drawing_path):
+                                                with open(drawing_path, 'rb') as f:
+                                                    reader = PdfReader(f)
+                                                    base_page = reader.pages[0]
+
+                                                    pdf_buffer = flange_dwg_orifice(self.numorder, row["type"], row["material"], row["schedule"], row["tapping"], row["gasket"], row["type_orifice_flange"], zip(row["final_pipe_int_diam"], row["orifice_flange_height"], row["count"]))
+
+                                                    page_overlay = PdfReader(pdf_buffer).pages[0]
+                                                    
+                                                    base_page.merge_page(page2=page_overlay)
+                                                    writer.add_page(base_page)
+
+                                                    writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
+                                                    dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(2*sum(row['count'])) + "-BO" + str(row["type_orifice_flange"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
+                                            else:
+                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(2*sum(row['count'])) + "-BO" + str(row["type_orifice_flange"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + "2 EXTRACTORES", 2*sum(row['count'])]
+
+                                        grouped_line_flanges = self.create_df_line_flanges_mrun(df_selected_transformed)
+                                        total_count = grouped_line_flanges['count'].explode().sum() 
+
+                                        for _, row in grouped_line_flanges.iterrows():
+                                            counter_drawings += 1
+
+                                            writer = PdfWriter()
+
+                                            drawing_path = row["drawing_path"]
+                                            if os.path.exists(drawing_path):
+                                                with open(drawing_path, 'rb') as f:
+                                                    reader = PdfReader(f)
+                                                    base_page = reader.pages[0]
+
+                                                    pdf_buffer = flange_dwg_line(self.numorder, row["material"], row["schedule"], row["type_line_flange"], row["reduction"], row["connection"], zip(row["final_pipe_int_diam"], row["line_flange_height"], row["count"]))
+
+                                                    page_overlay = PdfReader(pdf_buffer).pages[0]
+                                                    
+                                                    base_page.merge_page(page2=page_overlay)
+                                                    writer.add_page(base_page)
+
+                                                    writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
+                                                    dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(2*sum(row['count'])) + "-BL" + str(row["type_line_flange"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]), 2*sum(row['count'])]
+                                            else:
+                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // " + str(2*sum(row['count'])) + "-BL" + str(row["type_line_flange"]) + " " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]), 2*sum(row['count'])]
+
+                                        grouped_tubes = self.create_df_tubes_mrun(df_selected_transformed)
+                                        total_count = grouped_tubes['count'].explode().sum() 
+
+                                        for _, row in grouped_tubes.iterrows():
+                                            counter_drawings += 1
+
+                                            writer = PdfWriter()
+
+                                            drawing_path = row["drawing_path"]
+                                            if os.path.exists(drawing_path):
+                                                with open(drawing_path, 'rb') as f:
+                                                    reader = PdfReader(f)
+                                                    base_page = reader.pages[0]
+
+                                                    pdf_buffer = tube_dwg_meterrun(self.numorder, row["size_orifice_flange"], row["sch_orifice_flange"], row["tube_material"], row["calibrated"], zip(row["final_pipe_int_diam"], row["pipe_ext_diam"], row["length_long"], row["length_short"], row["welding_type_orifice"], row["welding_type_line"], row["count"]))
+
+                                                    page_overlay = PdfReader(pdf_buffer).pages[0]
+                                                    
+                                                    base_page.merge_page(page2=page_overlay)
+                                                    writer.add_page(base_page)
+
+                                                    writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
+                                                    dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "CORTE TUBOS TRAMO " + str(row["size_orifice_flange"]) + " SCH " + str(row["sch_orifice_flange"])  + " " + str(row["tube_material"]), sum(row['count'])]
+                                            else:
+                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // CORTE TUBOS TRAMO " + str(row["size_orifice_flange"]) + " SCH " + str(row["sch_orifice_flange"])  + " " + str(row["tube_material"]), sum(row['count'])]
+
+                                        grouped_welding = self.create_df_welding_mrun(df_selected_transformed)
+                                        total_count = grouped_welding['count'].explode().sum() 
+
+                                        for _, row in grouped_welding.iterrows():
+                                            counter_drawings += 1
+
+                                            writer = PdfWriter()
+
+                                            drawing_path = row["drawing_path"]
+                                            if os.path.exists(drawing_path):
+                                                with open(drawing_path, 'rb') as f:
+                                                    reader = PdfReader(f)
+                                                    base_page = reader.pages[0]
+
+                                                    pdf_buffer = welding_dwg_meterrun(self.numorder, row["material"], row["flange_type"], zip(row["count"]))
+
+                                                    page_overlay = PdfReader(pdf_buffer).pages[0]
+
+                                                    if row["flange_type"] == 'WN':
+                                                        reader.pages[0].merge_page(page2=page_overlay)
+                                                        writer.add_page(reader.pages[0])
+                                                    elif row["flange_type"] == 'SW/WN':
+                                                        reader.pages[1].merge_page(page2=page_overlay)
+                                                        writer.add_page(reader.pages[1])
+                                                    elif row["flange_type"] == 'SO/WN':
+                                                        reader.pages[2].merge_page(page2=page_overlay)
+                                                        writer.add_page(reader.pages[2])
+                                                    elif row["flange_type"] == 'SO/WN':
+                                                        reader.pages[3].merge_page(page2=page_overlay)
+                                                        writer.add_page(reader.pages[3])
+                                                    elif row["flange_type"] == 'SW/SO':
+                                                        reader.pages[4].merge_page(page2=page_overlay)
+                                                        writer.add_page(reader.pages[4])
+                                                    elif row["flange_type"] == 'SO':
+                                                        reader.pages[5].merge_page(page2=page_overlay)
+                                                        writer.add_page(reader.pages[5])
+
+                                                    writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
+                                                    dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "DETALLES SOLDADURA TIPO " + str(row["flange_type"]) + " " + str(row["material"]), sum(row['count'])]
+                                            else:
+                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", "FALTA PLANO // DETALLES SOLDADURA TIPO " + str(row["flange_type"]) + " " + str(row["material"]), sum(row['count'])]
+
+                                    else:
+                                        pass
+
+                            # Loop to add the drawing number and insert into the database
+                                for key, value in dict_drawings.items():
+                                    if os.path.exists(key):
+                                        writer = PdfWriter()
+                                        reader = PdfReader(key)
+                                        page_overlay = PdfReader(drawing_number(self.numorder, value, counter_drawings)).pages[0]
+                                        reader.pages[0].merge_page(page2=page_overlay)
+                                        writer.add_page(reader.pages[0])
+
+                                        writer.write(key)
+
+                                    query_insert_drawing = ("""
+                                        INSERT INTO verification."m_drawing_verification" (num_order, drawing_number, drawing_description, printed_date, printed_state)
+                                        VALUES (%s, %s, %s, %s, %s)
+                                        """)
+
+                                    conn = None
+                                    try:
+                                    # read the connection parameters
+                                        params = config()
+                                    # connect to the PostgreSQL server
+                                        conn = psycopg2.connect(**params)
+                                        cur = conn.cursor()
+                                    # execution of commands
+                                        cur.execute(query_insert_drawing,(self.numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'))
+                                    # close communication with the PostgreSQL database server
+                                        cur.close()
+                                    # commit the changes
+                                        conn.commit()
+                                    except (Exception, psycopg2.DatabaseError) as error:
+                                        dlg = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg.setWindowIcon(new_icon)
+                                        dlg.setWindowTitle("ERP EIPSA")
+                                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                    + str(error))
+                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                        dlg.exec()
+                                        del dlg, new_icon
+                                    finally:
+                                        if conn is not None:
+                                            conn.close()
+
+                            elif self.table_toquery == "tags_data.tags_level":
+                                print('c')
+
+                            elif self.table_toquery == "tags_data.tags_others":
+                            # Obtain the data from the database for temperature tags and create the correspondig dataframe with the necessary columns
+                                query = ('''
+                                    SELECT *
+                                    FROM tags_data.tags_others
+                                    WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and tag_state = 'PURCHASED'
+                                    ''')
+                                conn = None
+                                try:
+                                # read the connection parameters
+                                    params = config()
+                                # connect to the PostgreSQL server
+                                    conn = psycopg2.connect(**params)
+                                    cur = conn.cursor()
+                                # execution of commands
+                                    cur.execute(query,(self.numorder,))
+                                    results_tags=cur.fetchall()
+                                    df_general = pd.DataFrame(results_tags)
+                                # close communication with the PostgreSQL database server
+                                    cur.close()
+                                # commit the changes
+                                    conn.commit()
+                                except (Exception, psycopg2.DatabaseError) as error:
+                                    dlg = QtWidgets.QMessageBox()
+                                    new_icon = QtGui.QIcon()
+                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                    dlg.setWindowIcon(new_icon)
+                                    dlg.setWindowTitle("ERP EIPSA")
+                                    dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                + str(error))
+                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                    dlg.exec()
+                                    del dlg, new_icon
+                                finally:
+                                    if conn is not None:
+                                        conn.close()
+
+                                df_selected = df_general.iloc[:, [0, 8, 9, 15]].copy()
+                                df_selected.rename(columns={
+                                    0: 'id', 8: 'description', 9: 'code_equipment', 15: 'dim_drawing'
+                                }, inplace=True)
+
+                            # Loop through different types of equipment and create drawings accordingly
+                                for item in df_selected['description'].unique().tolist():
+                                    if '2V260' in item:
+                                        df_selected = df_selected[df_selected['description'].str.contains('2V260')].copy()
+
+                                        df_grouped = df_selected.groupby(['description', 'dim_drawing']).size().reset_index(name="count")
+                                        grouped_valves = df_grouped.groupby(['description', 'dim_drawing']).agg({"count": list}).reset_index()
+                                        total_count = grouped_valves['count'].explode().sum()
+
+                                        drawings_dict = {}
+
+                                        for _, row in grouped_valves.iterrows():
+                                            material = 'A105' if row['description'].split('-')[1] == 'NB' else '316'
+                                            connection_1 = '3/4" NPT' if row['description'].split('-')[2] == '1N' else '1/2" NPT'
+                                            connection_2 = '3/4" NPT' if row['description'].split('-')[3] == '1N' else '1/2" NPT'
+                                            connection_3 = 'Flanged' if row['description'].split('-')[4] == 'F' else 'Welded'
+                                            vent_drain = 'Tapón purga' if row['description'].split('-')[5] == 'Q' else 'Tapón'
+                                            exterior_size = row['description'].split(' / ')[1]
+
+                                            if connection_3 == 'Flanged':
+                                                coded_connection = (('-0' + exterior_size.split(' ')[0].split('"')[0] if len(exterior_size.split(' ')[0]) == 2 else '-') + ('.5' if ' 1/2' in exterior_size.split(' ')[0] else ('0.75' if '3/4' in exterior_size.split(' ')[0] else '.0')) +
+                                                                    ('-0' + str(exterior_size.split(' ')[1].split('#')[0]) if str(exterior_size.split(' ')[1].split('#')[0]) in ['150', '300', '600', '900'] else '-' + ' ' + str(exterior_size.split(' ')[2])))
+
+                                            if coded_connection in ['-0.75-0150', '-0.75-0300', '01-0150', '01-0300', '1.5-0150']:
+                                                drawing_path_1 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\D-Desbaste\NVVBBD-F Forja.pdf"
+                                            else:
+                                                drawing_path_1 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\D-Desbaste\NVVBBD-B-{coded_connection}.pdf"
+                                            drawing_path_2 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\X-Comunes\NVVCFBNX-1.0 DesbPCCuerpoVlvBrd.pdf"
+                                            drawing_path_3 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\X-Comunes\NVVCFBNX-1.1 MecCuerpoVlvBrd.pdf"
+                                            drawing_path_4 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\B-Bridas\B-220.260\A-Acabado\{'RF-RaisedFace' if exterior_size.split(' ')[2] == 'RF' else 'RTJ-RingTypeJoint'}\NVVBBA{'RF' if exterior_size.split(' ')[2] == 'RF' else 'RTJ'}{coded_connection}.pdf"
+                                            if 'BP' in self.client:
+                                                drawing_path_5 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\X-Comunes\TP-Tapones Purgadores\{'XTP-01.2 TaponPrg 0.50-AISI304L.pdf' if material == '316' else 'XTP-01.3 TaponPrg 0.50-A105 forjado.pdf'}"
+                                            else:
+                                                drawing_path_5 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\X-Comunes\TP-Tapones Purgadores\{'XTP-01.2 TaponPrg 0.50-AISI304L.pdf' if material == '316' else 'XTP-01.4 TaponPrg 0.50-A105 de barra.pdf'}"
+                                            drawing_path_6 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\X-Comunes\TP-Tapones Purgadores\XTP-02 TornilloTaponPrg.pdf"
+                                            
+                                            description_1 = 'Bridas de desgaste PC ' + exterior_size
+                                            description_2 = 'Cuerpos Válvula 2V260 ' + material
+                                            description_3 = 'Mecanizado conjunto brida-cuerpo ' + material
+                                            description_4 = 'Plano acabado brida ' + exterior_size + ' ' + material
+                                            description_5 = 'Tapones Purgadores ' + material
+                                            description_6 = 'Tornillos Purgadores 304'
+
+                                            drawings_dict.update({drawing_path_1: description_1,
+                                                                drawing_path_2: description_2,
+                                                                drawing_path_3: description_3,
+                                                                drawing_path_4: description_4,
+                                                                drawing_path_5: description_5,
+                                                                drawing_path_6: description_6})
+
+                                            if connection_3 == 'Flanged':
+                                                dim_drawing = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\E-260 Estandar\NVVCFBNE-1 Cnj V-260 Brid.pdf"
+                                            else:
+                                                dim_drawing = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\N-Nivel\V-Visuales\V-Valvulas\C-Conjuntos\F-Forja\B-220.260\N-260.70.80\E-260 Estandar\NVVCFBNE-2 Cnj V-260 Boqt.pdf"
+                                            description_dim = str(total_count) + ' válvulas ' + item
+                                            dim_drawing_number = row['dim_drawing']
+
+                                        # Write equipment data
+                                            writer = PdfWriter()
+                                            reader = PdfReader(dim_drawing)
+                                            page_overlay = PdfReader(loose_valves_dwg_dim(self.numorder, material, connection_1, connection_2, exterior_size, zip(row["count"]))).pages[0]
                                             reader.pages[0].merge_page(page2=page_overlay)
                                             writer.add_page(reader.pages[0])
-                                        elif base_diam == 35:
-                                            reader.pages[1].merge_page(page2=page_overlay)
-                                            writer.add_page(reader.pages[1])
-                                        elif base_diam == 30:
-                                            reader.pages[2].merge_page(page2=page_overlay)
-                                            writer.add_page(reader.pages[2])
+                                            writer.write(f"{output_path2}DIM-{dim_drawing_number[:2]}.pdf")
 
-                                        writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                        dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " BPC " + str(connection) + " " +str(material), total_count]
+                                        # Write Drawing data
+                                            writer = PdfWriter()
+                                            reader = PdfReader(f"{output_path2}DIM-{dim_drawing_number[:2]}.pdf")
+                                            page_overlay = PdfReader(drawing_number(self.numorder, [dim_drawing_number[:2], description_dim, total_count], 1)).pages[0]
+                                            reader.pages[0].merge_page(page2=page_overlay)
+                                            writer.add_page(reader.pages[0])
 
-                                    df_bars = df_selected[df_selected['type'] == item].copy()
+                                            writer.write(f"{output_path2}DIM-{dim_drawing_number[:2]}.pdf")
 
-                                    df_bars['bore_diameter'] = df_bars.apply(lambda row: re.search(r':\s*([\d.,]+)',row['dim_tw'].split(' // ')[0].strip()).group(1), axis=1)
-                                    df_bars['p_length'] = df_bars.apply(lambda row: int(row['std_length']) - int(re.search(r':\s*([\d.,]+)',row['dim_tw'].split(' // ')[1].strip()).group(1)) - 1, axis=1)
+                                            query_update_drawing = ("""
+                                                UPDATE verification.workshop_dim_drawings 
+                                                SET drawing_description= %s, printed_date= %s, printed_state= %s
+                                                WHERE num_order = %s AND drawing_number = %s
+                                                """)
 
-                                    df_bars['base_diam'] = df_bars.apply(
-                                    lambda row: 30 if float(row['root_diam'].replace(",",".")) < 30 else (32 if float(row['root_diam'].replace(",",".")) < 32 else (35 if float(row['root_diam'].replace(",",".")) < 35 else (38 if float(row['root_diam'].replace(",",".")) < 38 else 40))),
-                                    axis=1)
+                                            conn = None
+                                            try:
+                                            # read the connection parameters
+                                                params = config()
+                                            # connect to the PostgreSQL server
+                                                conn = psycopg2.connect(**params)
+                                                cur = conn.cursor()
+                                            # execution of commands
+                                                cur.execute(query_update_drawing,(description_dim, str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto', self.numorder, '01/01'))
+                                            # close communication with the PostgreSQL database server
+                                                cur.close()
+                                            # commit the changes
+                                                conn.commit()
+                                            except (Exception, psycopg2.DatabaseError) as error:
+                                                dlg = QtWidgets.QMessageBox()
+                                                new_icon = QtGui.QIcon()
+                                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                                dlg.setWindowIcon(new_icon)
+                                                dlg.setWindowTitle("ERP EIPSA")
+                                                dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                            + str(error))
+                                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                                dlg.exec()
+                                                del dlg, new_icon
+                                            finally:
+                                                if conn is not None:
+                                                    conn.close()
 
-                                    df_bars['drawing_code'] = df_bars.apply(
-                                    lambda row: 'TVSCP-Ø' + str(row['base_diam']) + ' Corte-Taladro',
-                                    axis=1)
+                                            for drawing, description in drawings_dict.items():
+                                                counter_drawings += 1
+                                                with open(drawing, 'rb') as f:
+                                                    writer = PdfWriter()
+                                                    reader = PdfReader(f)
+                                                    base_page = reader.pages[0]
 
-                                    df_bars['drawing_path'] = df_bars.apply(
-                                    lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\S-Soldadas\C-Cilindricas\P-Preparación\{str(row['drawing_code'])}.pdf",
-                                    axis=1)
+                                                    if counter_drawings in [2, 3]:
+                                                        pdf_buffer = dwg_m_landscape(self.numorder, zip(row["count"]), material)
+                                                    elif counter_drawings in [1, 4, 5]:
+                                                        pdf_buffer = general_dwg_m(self.numorder, zip(row["count"]))
+                                                    else:
+                                                        pdf_buffer = general_dwg_m(self.numorder, zip(row["count"]), '304')
 
-                                    df_bars = df_bars[~df_bars['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
-                                    df_grouped = df_bars.groupby(["drawing_path",'base_diam','material', "bore_diameter", "std_length","p_length"]).size().reset_index(name="count")
-                                    grouped_bars = df_grouped.groupby(['drawing_path','base_diam','material']).agg({"bore_diameter":list, "std_length": list, "p_length": list, "count": list}).reset_index()
-                                    total_count = grouped_bars['count'].explode().sum() 
+                                                    page_overlay = PdfReader(pdf_buffer).pages[0]
+                                                    
+                                                    base_page.merge_page(page2=page_overlay)
+                                                    writer.add_page(base_page)
 
-                                    for _, row in grouped_bars.iterrows():
-                                        counter_drawings += 1
+                                                    writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
+                                                    dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(sum(row['count'])) + " " + description, sum(row['count'])]
 
+                                    elif 'CN-32219-A1' in item:
+                                        df_selected = df_selected[df_selected['description'].str.contains('CN-32219-A1')].copy()
+
+                                        df_grouped = df_selected.groupby(['description', 'dim_drawing']).size().reset_index(name="count")
+                                        grouped_equipment = df_grouped.groupby(['description', 'dim_drawing']).agg({"count": list}).reset_index()
+                                        total_count = grouped_equipment['count'].explode().sum()
+
+                                        dim_drawing = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\B-CN32219-A1\TVMTUB-0.0 Cnj CN-32219-A1.pdf"
+                                        dim_description = str(total_count) + ' Vainas Múltiples Tubo 3"'
+                                        dim_drawing_number = grouped_equipment.iloc[0]['dim_drawing']
+
+                                        dict_drawings_M = self.drawings_tw_32219(total_count)
+
+                                    # Write equipment data
                                         writer = PdfWriter()
-                                        reader = PdfReader(row["drawing_path"])
-                                        page_overlay = PdfReader(bar_dwg_flangedTW(self.numorder, row["material"], zip(row["bore_diameter"], row["std_length"], row["p_length"], row["count"]))).pages[0]
+                                        reader = PdfReader(dim_drawing)
+                                        page_overlay = PdfReader(dwg_dim_32219(self.numorder, '321', zip(str(total_count)))).pages[0]
 
+                                        base_page = reader.pages[0]
+
+                                        base_page.merge_page(page2=page_overlay)
+                                        writer.add_page(reader.pages[0])
+                                        writer.write(f"{output_path2}DIM-{dim_drawing_number[:2]}.pdf")
+
+                                    # Write Drawing data
+                                        writer = PdfWriter()
+                                        reader = PdfReader(f"{output_path2}DIM-{dim_drawing_number[:2]}.pdf")
+                                        page_overlay = PdfReader(drawing_number_landscape(self.numorder, [dim_drawing_number[:2], dim_description, total_count], 1)).pages[0]
                                         reader.pages[0].merge_page(page2=page_overlay)
                                         writer.add_page(reader.pages[0])
 
-                                        writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                        dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), total_count]
+                                        writer.write(f"{output_path2}DIM-{dim_drawing_number[:2]}.pdf")
 
-                                elif item in ['Buttweld TW', 'Socket TW']:
-                                    df_selected = df_selected[df_selected[9] in ['Buttweld TW', 'Socket TW']].copy()
-                                    df_selected.rename(columns={
-                                        0: 'id', 9: 'type', 10: 'size', 11: 'rating',
-                                        12: 'facing', 14: 'material', 15: 'std_length', 17: 'root_diam', 43: 'dim_tw', 64: 'notes_tw'
-                                    }, inplace=True)
+                                        query_update_drawing = ("""
+                                            UPDATE verification.workshop_dim_drawings 
+                                            SET drawing_description= %s, printed_date= %s, printed_state= %s
+                                            WHERE num_order = %s AND drawing_number = %s
+                                            """)
 
-                                    df_bars = df_selected[df_selected['type'] == item].copy()
+                                        conn = None
+                                        try:
+                                        # read the connection parameters
+                                            params = config()
+                                        # connect to the PostgreSQL server
+                                            conn = psycopg2.connect(**params)
+                                            cur = conn.cursor()
+                                        # execution of commands
+                                            cur.execute(query_update_drawing,(dim_description, str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto', self.numorder, dim_drawing_number))
+                                        # close communication with the PostgreSQL database server
+                                            cur.close()
+                                        # commit the changes
+                                            conn.commit()
+                                        except (Exception, psycopg2.DatabaseError) as error:
+                                            dlg = QtWidgets.QMessageBox()
+                                            new_icon = QtGui.QIcon()
+                                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                            dlg.setWindowIcon(new_icon)
+                                            dlg.setWindowTitle("ERP EIPSA")
+                                            dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                        + str(error))
+                                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                            dlg.exec()
+                                            del dlg, new_icon
+                                        finally:
+                                            if conn is not None:
+                                                conn.close()
 
-                                    df_bars['bore_diameter'] = df_bars.apply(lambda row: re.search(r':\s*([\d.,]+)',row['dim_tw'].split(' // ')[0].strip()).group(1), axis=1)
-                                    df_bars['p_length'] = df_bars.apply(lambda row: int(row['std_length']) - int(re.search(r':\s*([\d.,]+)',row['dim_tw'].split(' // ')[1].strip()).group(1)), axis=1)
+                                        for drawing, description in dict_drawings_M.items():
+                                            counter_drawings += 1
+                                            with open(drawing, 'rb') as f:
+                                                writer = PdfWriter()
+                                                reader = PdfReader(f)
+                                                base_page = reader.pages[0]
 
-                                    df_bars['base_diam'] = df_bars.apply(
-                                    lambda row: 30 if row['size'] == '3/4"' else (35 if row['size'] == '1"' else (45 if row['size'] == '1-1/4"' else (50 if row['size'] == '1-1/2"' else 65))),
-                                    axis=1)
+                                                if counter_drawings == 1:
+                                                    pdf_buffer = dwg_m_welding_32219(self.numorder, '321', zip(str(total_count)))
+                                                else:
+                                                    pdf_buffer = dwg_m_32219(self.numorder, '321', zip(str(3*int(total_count)))) if any(code in drawing for code in ['TVMTUB-1.3', 'TVMTUX-3', 'TVMTUX-1']) else dwg_m_32219(self.numorder, '321', zip(str(total_count)))
 
-                                    df_bars['drawing_code'] = df_bars.apply(
-                                    lambda row: 'TVSCP-Ø' + str(row['base_diam']) + ' Corte-Taladro' if float(row['base_diam']) <= 40 else 'TVSCP-ØSuperiores Corte-Taladro',
-                                    axis=1)
+                                                page_overlay = PdfReader(pdf_buffer).pages[0]
+                                                
+                                                base_page.merge_page(page2=page_overlay)
+                                                writer.add_page(base_page)
 
-                                    df_bars['drawing_path'] = df_bars.apply(
-                                    lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\S-Soldadas\C-Cilindricas\P-Preparación\{str(row['drawing_code'])}.pdf",
-                                    axis=1)
+                                                writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
+                                                dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", description, str(total_count)]
 
-                                    df_bars = df_bars[~df_bars['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
-                                    df_grouped = df_bars.groupby(["drawing_path",'base_diam','material', "bore_diameter", "std_length", "p_length"]).size().reset_index(name="count")
-                                    grouped_bars = df_grouped.groupby(['drawing_path','base_diam','material']).agg({"bore_diameter":list, "std_length": list, "p_length": list, "count": list}).reset_index()
-                                    total_count = grouped_bars['count'].explode().sum() 
-
-                                    for _, row in grouped_bars.iterrows():
-                                        counter_drawings += 1
-
+                            # Loop to add the drawing number and insert into the database
+                                for key, value in dict_drawings.items():
+                                    if os.path.exists(key):
                                         writer = PdfWriter()
-                                        reader = PdfReader(row["drawing_path"])
-                                        page_overlay = PdfReader(bar_dwg_notflangedTW(self.numorder, row["material"], row['base_diam'], zip(row["bore_diameter"], row["std_length"], row["p_length"], row["count"]))).pages[0]
-
+                                        reader = PdfReader(key)
+                                        if any(term in value[1] for term in ['2V260', 'conjunto brida-cuerpo', 'Mapa Soldaduras']):
+                                            page_overlay = PdfReader(drawing_number_landscape(self.numorder, value, counter_drawings)).pages[0]
+                                        else:
+                                            page_overlay = PdfReader(drawing_number(self.numorder, value, counter_drawings)).pages[0]
                                         reader.pages[0].merge_page(page2=page_overlay)
                                         writer.add_page(reader.pages[0])
 
-                                        writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                        dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(total_count) + " Vainas C+R Ø" + str(row["base_diam"]) + " " + str(row["material"]), total_count]
+                                        writer.write(key)
 
-                            for key, value in dict_drawings.items():
-                                writer = PdfWriter()
-                                reader = PdfReader(key)
-                                page_overlay = PdfReader(drawing_number(self.numorder, value, counter_drawings)).pages[0]
-                                reader.pages[0].merge_page(page2=page_overlay)
-                                writer.add_page(reader.pages[0])
+                                    query_insert_drawing = ("""
+                                        INSERT INTO verification."m_drawing_verification" (num_order, drawing_number, drawing_description, printed_date, printed_state)
+                                        VALUES (%s, %s, %s, %s, %s)
+                                        """)
 
-                                writer.write(key)
+                                    conn = None
+                                    try:
+                                    # read the connection parameters
+                                        params = config()
+                                    # connect to the PostgreSQL server
+                                        conn = psycopg2.connect(**params)
+                                        cur = conn.cursor()
+                                    # execution of commands
+                                        cur.execute(query_insert_drawing,(self.numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'))
+                                    # close communication with the PostgreSQL database server
+                                        cur.close()
+                                    # commit the changes
+                                        conn.commit()
+                                    except (Exception, psycopg2.DatabaseError) as error:
+                                        dlg = QtWidgets.QMessageBox()
+                                        new_icon = QtGui.QIcon()
+                                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                                        dlg.setWindowIcon(new_icon)
+                                        dlg.setWindowTitle("ERP EIPSA")
+                                        dlg.setText("Ha ocurrido el siguiente error:\n"
+                                                    + str(error))
+                                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                                        dlg.exec()
+                                        del dlg, new_icon
+                                    finally:
+                                        if conn is not None:
+                                            conn.close()
 
-                                query_insert_drawing = ("""
-                                    INSERT INTO verification."m_drawing_verification" (num_order, drawing_number, drawing_description, printed_date, printed_state)
-                                    VALUES (%s, %s, %s, %s, %s)
-                                    """)
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("ERP EIPSA")
+                            dlg.setText("Planos Generados")
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
+                            dlg.exec()
+                            del dlg, new_icon
 
-                                conn = None
-                                try:
-                                # read the connection parameters
-                                    params = config()
-                                # connect to the PostgreSQL server
-                                    conn = psycopg2.connect(**params)
-                                    cur = conn.cursor()
-                                # execution of commands
-                                    cur.execute(query_insert_drawing,(self.numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'))
-                                # close communication with the PostgreSQL database server
-                                    cur.close()
-                                # commit the changes
-                                    conn.commit()
-                                except (Exception, psycopg2.DatabaseError) as error:
-                                    dlg = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg.setWindowIcon(new_icon)
-                                    dlg.setWindowTitle("ERP EIPSA")
-                                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                                + str(error))
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                    dlg.exec()
-                                    del dlg, new_icon
-                                finally:
-                                    if conn is not None:
-                                        conn.close()
+                            self.query_drawings()
 
-                        elif self.table_toquery == "tags_data.tags_flow":
-                            query = ('''
-                                SELECT *
-                                FROM tags_data.tags_flow
-                                WHERE UPPER (num_order) LIKE UPPER('%%'||%s||'%%') and tag_state = 'PURCHASED'
-                                ''')
-                            conn = None
-                            try:
-                            # read the connection parameters
-                                params = config()
-                            # connect to the PostgreSQL server
-                                conn = psycopg2.connect(**params)
-                                cur = conn.cursor()
-                            # execution of commands
-                                cur.execute(query,(self.numorder,))
-                                results_tags=cur.fetchall()
-                                df_general = pd.DataFrame(results_tags)
-                            # close communication with the PostgreSQL database server
-                                cur.close()
-                            # commit the changes
-                                conn.commit()
-                            except (Exception, psycopg2.DatabaseError) as error:
-                                dlg = QtWidgets.QMessageBox()
-                                new_icon = QtGui.QIcon()
-                                new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                dlg.setWindowIcon(new_icon)
-                                dlg.setWindowTitle("ERP EIPSA")
-                                dlg.setText("Ha ocurrido el siguiente error:\n"
-                                            + str(error))
-                                dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                dlg.exec()
-                                del dlg, new_icon
-                            finally:
-                                if conn is not None:
-                                    conn.close()
+                        except Exception as error:
+                            dlg = QtWidgets.QMessageBox()
+                            new_icon = QtGui.QIcon()
+                            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+                            dlg.setWindowIcon(new_icon)
+                            dlg.setWindowTitle("ERP EIPSA")
+                            dlg.setText("Ha ocurrido un error\nLos planos no se han podido generar")
+                            print(error)
+                            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+                            dlg.exec()
+                            del dlg, new_icon
 
-                            df_selected = df_general.iloc[:, [0, 8, 9, 10, 11, 12, 13, 16, 21, 111]].copy()
-                            for item in df_selected[8].unique().tolist():
-                                if item == 'F+P':
-                                    df_selected = df_selected[df_selected[8] == 'F+P'].copy()
 
-                                    df_selected.rename(columns={
-                                        0: 'id', 8: 'type', 9: 'size', 10: 'rating',
-                                        11: 'facing', 12: 'schedule', 13: 'material', 16: 'tapping', 21: 'gasket', 111: 'pipe_int_diam'
-                                    }, inplace=True)
 
-                                    df_flanges = df_selected.copy()
-                                    df_flanges['drawing_code'] = df_flanges.apply(
-                                    lambda row: 'CBWNO' + str(row['facing']) +
-                                                ('-0' if len(str(row['size'])) == 2 else '-') + str(row['size']).split('"')[0] + ('.5' if ' 1/2' in str(row['size']) else '.0') +
-                                                ('-0' + str(row['rating']) if str(row['rating']) in ['150', '300', '600', '900'] else '-' + str(row['rating'])) + ('-SA' if int(row['size'].split('"')[0])> 24 else ''),
-                                    axis=1)
 
-                                    df_flanges['connection'] = df_flanges.apply(
-                                    lambda row: str(row['size']) + " " + str(row['rating']) + "#" + str(row['facing']),
-                                    axis=1)
-                                    
-                                    df_flanges['drawing_path'] = df_flanges.apply(
-                                    lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\C-Caudal\B-Bridas\WN-WeldNeck\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\{str(row['drawing_code'])}.pdf",
-                                    axis=1)
 
-                                    df_grouped = df_flanges.groupby(['drawing_path','connection', 'schedule', 'material', 'tapping', 'gasket', 'pipe_int_diam']).size().reset_index(name="count")
-                                    grouped_flanges = df_grouped.groupby(['drawing_path','connection','schedule','material','tapping', 'gasket']).agg({"pipe_int_diam": list, "count": list}).reset_index()
-                                    total_count = grouped_flanges['count'].explode().sum() 
+    def create_df_flanges_flanged_tw(self, dataframe):
+        dataframe['drawing_code'] = dataframe.apply(
+        lambda row: 'TBPC' + ('RF' if str(row['facing']) == 'FF' else str(row['facing'])) +
+                    '-0' + str(row['size'])[0] + ('.5' if '1/2' in str(row['size']) else '.0') +
+                    ('-0' + str(row['rating']) if str(row['rating']) in ['150', '300', '600', '900'] else '-' + str(row['rating'])),
+        axis=1)
 
-                                    for _, row in grouped_flanges.iterrows():
-                                        counter_drawings += 1
+        dataframe['connection'] = dataframe.apply(
+        lambda row: str(row['size']) + " " + str(row['rating']) + "#" + str(row['facing']),
+        axis=1)
+        
+        dataframe['drawing_path'] = dataframe.apply(
+        lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\B-Bridas\PC-Penetracion Completa\{'RTJ-RingTypeJoint'if str(row['facing']) == 'RTJ' else 'RF-RaisedFace'}\{str(row['drawing_code'])}.pdf",
+        axis=1)
 
-                                        writer = PdfWriter()
+        if any('REPSOL' in c.upper() for c in [self.client, self.final_client]):
+            dataframe['base_diam'] = dataframe.apply(
+            lambda row: (35 if float(row['root_diam'].replace(",",".")) < 33 else min([38, 40, 42, 45, 48, 50], key=lambda x: abs(x - (float(row['root_diam'].replace(",",".")) + 3)))),
+            axis=1)
 
-                                        with open(row["drawing_path"], 'rb') as f:
-                                            reader = PdfReader(f)
-                                            base_page = reader.pages[0]
+        elif any(term in c.upper() for term in ['CEPSA', 'MOEVE'] for c in [self.client, self.final_client]) or dataframe['std_tw'].str.upper().str.contains('CEPSA').any():
+            dataframe['base_diam'] = dataframe.apply(
+            lambda row: (32 if (('CEPSA' in str(row['std_tw']).upper()) or (float(row['root_diam'].replace(",", ".")) < 32)) else min([38, 40, 42, 45, 48, 50], key=lambda x: abs(x - (float(row['root_diam'].replace(",",".")) + 3)))),
+            axis=1)
 
-                                            pdf_buffer = flange_dwg_orifice(self.numorder, row["material"], row["schedule"], row["tapping"], row["gasket"], self.client, self.final_client, zip(row["pipe_int_diam"], row["count"]))
+        else:
+            dataframe['base_diam'] = dataframe.apply(
+            lambda row: 30 if float(row['root_diam'].replace(",",".")) < 30 else (32 if float(row['root_diam'].replace(",",".")) < 32 else 35),
+            axis=1)
 
-                                            page_overlay = PdfReader(pdf_buffer).pages[0]
-                                            
-                                            base_page.merge_page(page2=page_overlay)
-                                            writer.add_page(base_page)
+        dataframe = dataframe[~dataframe['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
+        df_grouped = dataframe.groupby(['drawing_path','connection','base_diam','material']).size().reset_index(name='count')
+        grouped_flanges = df_grouped.groupby(['drawing_path','connection','base_diam','material']).agg({"count": list}).reset_index()
 
-                                            writer.write(f"{output_path2}M-{counter_drawings:02d}.pdf")
-                                            dict_drawings[f"{output_path2}M-{counter_drawings:02d}.pdf"] = [f"M-{counter_drawings:02d}.pdf", str(2*sum(row['count'])) + "-BO " + str(row["connection"]) + " SCH " + str(row["schedule"])  + " " + str(row["material"]) + " " + str(row["tapping"][-2:-1]) + " TOMAS + " + str(1 if ('ARAMCO' not in self.client and 'ARAMCO' not in self.final_client) else 2) + " EXTRACTOR", 2*sum(row['count'])]
+        return grouped_flanges
 
-                            for key, value in dict_drawings.items():
-                                writer = PdfWriter()
-                                reader = PdfReader(key)
-                                page_overlay = PdfReader(drawing_number(self.numorder, value, counter_drawings)).pages[0]
-                                reader.pages[0].merge_page(page2=page_overlay)
-                                writer.add_page(reader.pages[0])
+    def create_df_bars_flanged_tw(self, dataframe):
+        dataframe['bore_diameter'] = dataframe.apply(lambda row: re.search(r':\s*([\d.,]+)',row['dim_tw'].split(' // ')[0].strip()).group(1), axis=1)
+        dataframe['p_length'] = dataframe.apply(lambda row: int(row['std_length']) - int(re.search(r':\s*([\d.,]+)',row['dim_tw'].split(' // ')[1].strip()).group(1)) - 3, axis=1)
 
-                                writer.write(key)
+        if any('REPSOL' in c.upper() for c in [self.client, self.final_client]):
+            dataframe['base_diam'] = dataframe.apply(
+            lambda row: (35 if float(row['root_diam'].replace(",",".")) < 33 else min([38, 40, 42, 45, 48, 50], key=lambda x: abs(x - (float(row['root_diam'].replace(",",".")) + 3)))),
+            axis=1)
 
-                                query_insert_drawing = ("""
-                                    INSERT INTO verification."m_drawing_verification" (num_order, drawing_number, drawing_description, printed_date, printed_state)
-                                    VALUES (%s, %s, %s, %s, %s)
-                                    """)
+        elif any(term in c.upper() for term in ['CEPSA', 'MOEVE'] for c in [self.client, self.final_client]) or dataframe['std_tw'].str.upper().str.contains('CEPSA').any():
+            dataframe['base_diam'] = dataframe.apply(
+            lambda row: (32 if (('CEPSA' in str(row['std_tw']).upper()) or (float(row['root_diam'].replace(",", ".")) < 32)) else min([38, 40, 42, 45, 48, 50], key=lambda x: abs(x - (float(row['root_diam'].replace(",",".")) + 3)))),
+            axis=1)
 
-                                conn = None
-                                try:
-                                # read the connection parameters
-                                    params = config()
-                                # connect to the PostgreSQL server
-                                    conn = psycopg2.connect(**params)
-                                    cur = conn.cursor()
-                                # execution of commands
-                                    cur.execute(query_insert_drawing,(self.numorder,value[0][:4] + f"/{counter_drawings:02d}", value[1], str(datetime.today().strftime('%d/%m/%Y')), 'Realizado por Julio' if self.username == 'j.zofio' else 'Realizado por Jose Alberto'))
-                                # close communication with the PostgreSQL database server
-                                    cur.close()
-                                # commit the changes
-                                    conn.commit()
-                                except (Exception, psycopg2.DatabaseError) as error:
-                                    dlg = QtWidgets.QMessageBox()
-                                    new_icon = QtGui.QIcon()
-                                    new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                                    dlg.setWindowIcon(new_icon)
-                                    dlg.setWindowTitle("ERP EIPSA")
-                                    dlg.setText("Ha ocurrido el siguiente error:\n"
-                                                + str(error))
-                                    dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-                                    dlg.exec()
-                                    del dlg, new_icon
-                                finally:
-                                    if conn is not None:
-                                        conn.close()
+        else:
+            dataframe['base_diam'] = dataframe.apply(
+            lambda row: 30 if float(row['root_diam'].replace(",",".")) < 30 else (32 if float(row['root_diam'].replace(",",".")) < 32 else 35),
+            axis=1)
 
-                        dlg = QtWidgets.QMessageBox()
-                        new_icon = QtGui.QIcon()
-                        new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-                        dlg.setWindowIcon(new_icon)
-                        dlg.setWindowTitle("ERP EIPSA")
-                        dlg.setText("Planos Generados")
-                        dlg.setIcon(QtWidgets.QMessageBox.Icon.Information)
-                        dlg.exec()
-                        del dlg, new_icon
+        dataframe['drawing_code'] = dataframe.apply(
+        lambda row: 'TVSCP-Ø' + str(int(row['base_diam'])) + ' Corte-Taladro',
+        axis=1)
 
-                        self.query_drawings()
+        dataframe['drawing_path'] = dataframe.apply(
+        lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\S-Soldadas\C-Cilindricas\P-Preparación\{str(row['drawing_code'])}.pdf",
+        axis=1)
 
-# Function to open drawings
-    def open_drawings(self, index):
-        """
-        Opens a file based on the provided index and variable.
+        dataframe = dataframe[~dataframe['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
+        df_grouped = dataframe.groupby(["drawing_path",'base_diam','material', "bore_diameter", "std_length","p_length"]).size().reset_index(name="count")
+        grouped_bars = df_grouped.groupby(['drawing_path','base_diam','material']).agg({"bore_diameter":list, "std_length": list, "p_length": list, "count": list}).reset_index()
 
-        Args:
-            index (QModelIndex): The index representing the selected cell in the table.
+        return grouped_bars
 
-        Raises:
-            Exception: If there is an error while trying to open the file, a message box displays the error details.
-        """
+    def create_df_not_flanged_tw(self, dataframe, item):
+        dataframe['bore_diameter'] = dataframe.apply(lambda row: re.search(r':\s*([\d.,]+)',row['dim_tw'].split(' // ')[0].strip()).group(1), axis=1)
+        dataframe['p_length'] = dataframe.apply(lambda row: int(row['std_length']) - int(re.search(r':\s*([\d.,]+)',row['dim_tw'].split(' // ')[1].strip()).group(1)) - 2, axis=1)
 
-        if index.column() == 1:
-            model = self.tableMDwg.model()
-            item_index = model.index(index.row(), 2)
-            drawing_number = model.data(item_index)[:4]
+        if any('REPSOL' in c.upper() for c in [self.client, self.final_client]):
+            dataframe['base_diam'] = dataframe.apply(
+            lambda row: 35 if row['size'] in ['3/4"','1"'] else (45 if row['size'] == '1-1/4"' else (50 if row['size'] == '1-1/2"' else 65)),
+            axis=1)
 
-            order_year = str(datetime.now().year)[:2] + self.num_order [self.num_order .rfind("/") - 2:self.num_order .rfind("/")]
+        else:
+            dataframe['base_diam'] = dataframe.apply(
+            lambda row: 30 if row['size'] == '3/4"' else (35 if row['size'] == '1"' else (45 if row['size'] == '1-1/4"' else (50 if row['size'] == '1-1/2"' else 65))),
+            axis=1)
 
-            if self.num_order[:2] == 'PA':
-                num_order = self.num_order
-                path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen"
-                for folder in os.listdir(path):
-                    if num_order.replace("/", "-") in folder:
-                        folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos Almacen/" + folder + "/3-Fabricacion/Planos M/"
-                        for root, dirs, files in os.walk(folder_path):
-                            for filename in files:
-                                if fnmatch.fnmatch(filename, f'{drawing_number}*'):
-                                    file_path = os.path.join(root, filename)
-                                    file_path = os.path.normpath(file_path)
-                                    os.startfile(file_path)
+        dataframe['drawing_code'] = dataframe.apply(
+        lambda row: 'TVSCP-Ø' + str(row['base_diam']) + ' Corte-Taladro' if float(row['base_diam']) <= 40 else 'TVSCP-ØSuperiores Corte-Taladro',
+        axis=1)
 
-            elif self.num_order[:2] == 'P-':
-                num_order = self.num_order[:8]
-                path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos"
-                for folder in os.listdir(path):
-                    if num_order.replace("/", "-") in folder:
-                        folder_path = "//srvad01/base de datos de pedidos/Año " + order_year + "/" + order_year + " Pedidos/" + folder + "/3-Fabricacion/Planos M/"
-                        for root, dirs, files in os.walk(folder_path):
-                            for filename in files:
-                                if fnmatch.fnmatch(filename, f'{drawing_number}*'):
-                                    file_path = os.path.join(root, filename)
-                                    file_path = os.path.normpath(file_path)
-                                    os.startfile(file_path)
+        dataframe['drawing_path'] = dataframe.apply(
+        lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\S-Soldadas\C-Cilindricas\P-Preparación\{str(row['drawing_code'])}.pdf",
+        axis=1)
 
-        #     if value != '':
-        #         try:
-        #             file_path = os.path.normpath(value)
-        #             os.startfile(file_path)
+        dataframe = dataframe[~dataframe['notes_tw'].str.contains('FORJADA', case=False, na=False)].copy()
+        df_grouped = dataframe.groupby(["drawing_path",'base_diam','material', "bore_diameter", "std_length", "p_length"]).size().reset_index(name="count")
+        grouped_bars = df_grouped.groupby(['drawing_path','base_diam','material']).agg({"bore_diameter":list, "std_length": list, "p_length": list, "count": list}).reset_index()
 
-        #         except (Exception, psycopg2.DatabaseError) as error:
-        #             dlg = QtWidgets.QMessageBox()
-        #             new_icon = QtGui.QIcon()
-        #             new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        #             dlg.setWindowIcon(new_icon)
-        #             dlg.setWindowTitle("ERP EIPSA")
-        #             dlg.setText("Ha ocurrido el siguiente error:\n"
-        #                         + str(error))
-        #             dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
-        #             dlg.exec()
-        #             del dlg, new_icon
+        return grouped_bars
+
+    def create_df_orifice_flanges(self, dataframe):
+        df_flanges = dataframe.copy()
+
+        df_flanges.loc[df_flanges['gasket'].str.contains('SPW', na=False), 'gasket'] = 'SPW'
+        df_flanges.loc[df_flanges['gasket'].str.contains('Flat', na=False), 'gasket'] = 'Flat'
+        df_flanges.loc[df_flanges['gasket'].str.contains('RTJ', na=False), 'gasket'] = 'RTJ'
+
+        df_flanges['drawing_code'] = df_flanges.apply(
+        lambda row: 'CBWNO' + str(row['facing']) +
+                    ('-0' if len(str(row['size'])) == 2 else '-') + str(row['size']).split('"')[0] + ('.5' if ' 1/2' in str(row['size']) else '.0') +
+                    ('-0' + str(row['rating']) if str(row['rating']) in ['150', '300', '600', '900'] else '-' + str(row['rating'])) + ('-SA' if int(row['size'].split('"')[0])> 24 else ''),
+        axis=1)
+
+        df_flanges['connection'] = df_flanges.apply(
+        lambda row: str(row['size']) + " " + str(row['rating']) + "#" + str(row['facing']),
+        axis=1)
+
+        df_flanges['drawing_path'] = df_flanges.apply(
+        lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\C-Caudal\B-Bridas\{'WN-WeldNeck' if str(row['flange_type']) in ['WN','16.47-A'] else ('R-Roscadas' if str(row['flange_type']) == 'TH' else 'SW-SocketWeld')}\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\{str(row['drawing_code'])}.pdf",
+        axis=1)
+
+        df_grouped = df_flanges.groupby(['drawing_path', 'connection', 'type', 'schedule', 'material', 'tapping', 'gasket', 'flange_type', 'pipe_int_diam']).size().reset_index(name="count")
+        grouped_flanges = df_grouped.groupby(['drawing_path', 'connection','type','schedule','material','tapping', 'gasket', 'flange_type']).agg({"pipe_int_diam": list, "count": list}).reset_index()
+
+        return grouped_flanges
+
+    def transform_df_mrun(self, dataframe):
+        dataframe['final_pipe_int_diam'] = dataframe.apply(
+            lambda row: math.floor(row['pipe_int_diam']) if row['material'] in ['ASTM A105', 'ASTM A105+GALV', 'ASTM A105N', 'ASTM A350 LF2 CL1', 'ASTM A350 LF2 CL2']
+            and row['size'] in ['3/4"', '1-1/2"', '2"/1-1/2"']
+            and row['schedule'] in ['40', '80', 'STD', 'XS']
+            else math.ceil(row['pipe_int_diam']) if row['material'] in ['ASTM A105', 'ASTM A105+GALV', 'ASTM A105N', 'ASTM A350 LF2 CL1', 'ASTM A350 LF2 CL2']
+            and row['size'] in ['1/2"', '1"', '2"/1"']
+            and row['schedule'] in ['40', '80', 'STD', 'XS']
+            else row['pipe_int_diam'],
+            axis=1
+        )
+
+        dataframe['calibrated'] = dataframe.apply(
+            lambda row: 'YES' if (row['material'] in ['ASTM A105', 'ASTM A105+GALV', 'ASTM A105N', 'ASTM A350 LF2 CL1', 'ASTM A350 LF2 CL2']
+            and row['size'] in ['3/4"', '1-1/2"', '1/2"', '1"', '2"/1-1/2"', '2"/1"']
+            and row['schedule'] in ['40', '80', 'STD', 'XS'])
+            else 'NO',
+            axis=1
+        )
+
+        dataframe['taps'] = dataframe.apply(lambda row: 'CORNER' if 'CORNER' in str(row['notes_equipment']).upper() else 'FLANGE',axis=1)
+
+        dataframe['reduction'] = dataframe.apply(lambda row: 'REDUCTION' if '/' in row['size'] else '',axis=1)
+
+        dataframe['size_orifice_flange'] = dataframe['size'].apply(lambda x: str(x).split('/')[1] if '/' in str(x) else x)
+        dataframe['rating_orifice_flange'] = dataframe['rating'].apply(lambda x: str(x).split('/')[1] if '/' in str(x) else x)
+        dataframe['type_orifice_flange'] = dataframe['flange_type'].apply(lambda x: str(x).split('/')[1] if '/' in str(x) else x)
+        dataframe['sch_orifice_flange'] = dataframe['schedule'].apply(lambda x: str(x).split(' / ')[1] if '/' in str(x) else x)
+
+        dataframe['size_line_flange'] = dataframe['size'].apply(lambda x: str(x).split('/')[0])
+        dataframe['rating_line_flange'] = dataframe['rating'].apply(lambda x: str(x).split('/')[0])
+        dataframe['type_line_flange'] = dataframe['flange_type'].apply(lambda x: str(x).split('/')[0])
+        dataframe['sch_line_flange'] = dataframe['schedule'].apply(lambda x: str(x).split(' / ')[0])
+
+        dataframe['welding_type_orifice'] = dataframe['flange_type'].map({'WN': 'A', 'SW/SO': 'B', 'SW/WN': 'A'})
+        dataframe['welding_type_line'] = dataframe['flange_type'].map({'WN': 'A', 'SW/SO': 'C', 'SW/WN': 'C'})
+
+        dataframe['orifice_flange_code'] = dataframe.apply(lambda row: ('B16.36-' if row['type_orifice_flange'] == 'WN' else 'Socket-') + row['size_orifice_flange'] + '-' + row['rating_orifice_flange'], axis=1)
+        dataframe['line_flange_code'] = dataframe.apply(lambda row: ('B16.5-' if row['type_line_flange'] == 'WN' else ('Socket-' if row['type_line_flange'] == 'SW' else 'SlipOn-')) + row['size_line_flange'] + '-' + row['rating_line_flange'], axis=1)
+
+        query_flanges_rf = ("""SELECT code_flange, dim_h, dim_y
+                        FROM verification.flanges_verification""")
+        query_flanges_rtj = ("""SELECT code_flange, dim_e, dim_y
+                        FROM verification.flanges_verification""")
+        query_flanges_ff = ("""SELECT code_flange, dim_h
+                        FROM verification.flanges_verification""")
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(query_flanges_rf)
+            results_flanges_rf=cur.fetchall()
+            flanges_rf = {}
+            for item in results_flanges_rf:
+                flanges_rf[item[0]] = float(item[1].replace(',', '.') if item[1] != 'N/A' else 0) + float(item[2].replace(',', '.') if item[2] != 'N/A' else 0)
+
+            cur.execute(query_flanges_rtj)
+            results_flanges_rtj=cur.fetchall()
+            flanges_rtj = {}
+            for item in results_flanges_rtj:
+                flanges_rtj[item[0]] = float(item[1].replace(',', '.') if item[1] != 'N/A' else 0) + float(item[2].replace(',', '.') if item[2] != 'N/A' else 0)
+
+            cur.execute(query_flanges_ff)
+            results_flanges_ff=cur.fetchall()
+            flanges_ff = {}
+            for item in results_flanges_ff:
+                flanges_ff[item[0]] = float(item[1].replace(',', '.') if item[1] != 'N/A' else 0)
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            print(error)
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        dataframe['orifice_flange_height'] = np.select(
+            [
+                dataframe['facing'].str.contains('RF', na=False),
+                dataframe['facing'].str.contains('RTJ', na=False)
+            ],
+            [
+                dataframe['orifice_flange_code'].map(flanges_rf),
+                dataframe['orifice_flange_code'].map(flanges_rtj)
+            ],
+            default=dataframe['orifice_flange_code'].map(flanges_ff)
+        ).astype(float)
+
+        dataframe['orifice_flange_height'] = np.floor(dataframe['orifice_flange_height'] - np.where(dataframe['type_orifice_flange'] == 'WN', 1.5, 0))
+
+        dataframe['line_flange_height'] = np.select(
+            [
+                dataframe['facing'].str.contains('RF', na=False),
+                dataframe['facing'].str.contains('RTJ', na=False)
+            ],
+            [
+                dataframe['line_flange_code'].map(flanges_rf),
+                dataframe['line_flange_code'].map(flanges_rtj)
+            ],
+            default=dataframe['line_flange_code'].map(flanges_ff)
+        ).astype(float)
+
+        dataframe['line_flange_height'] = np.floor(dataframe['line_flange_height'] - np.where(dataframe['type_line_flange'] == 'WN', 1.5, 0))
+
+        return dataframe
+
+    def create_df_orifice_flanges_mrun(self, dataframe):
+        df_orifice_flanges = dataframe.copy()
+
+        df_orifice_flanges.loc[df_orifice_flanges['gasket'].str.contains('SPW', na=False), 'gasket'] = 'SPW'
+        df_orifice_flanges.loc[df_orifice_flanges['gasket'].str.contains('Flat', na=False), 'gasket'] = 'Flat'
+        df_orifice_flanges.loc[df_orifice_flanges['gasket'].str.contains('RTJ', na=False), 'gasket'] = 'RTJ'
+
+        df_orifice_flanges['drawing_code'] = df_orifice_flanges.apply(
+        lambda row: 'CB' + str(row['type_orifice_flange']) + ('O' if row['type_orifice_flange'] == 'WN' else '') + str(row['facing']) +
+                    ('-0' if len(str(row['size_orifice_flange'])) == 2 else '-') + str(row['size_orifice_flange']).split('"')[0] + ('.5' if ' 1/2' in str(row['size_orifice_flange']) else '.0') +
+                    ('-0' + str(row['rating_orifice_flange']) if str(row['rating_orifice_flange']) in ['150', '300', '600', '900'] else '-' + str(row['rating_orifice_flange'])),
+        axis=1)
+
+        df_orifice_flanges['connection'] = df_orifice_flanges.apply(
+        lambda row: str(row['size_orifice_flange']) + " " + str(row['rating_orifice_flange']) + "#" + str(row['facing']),
+        axis=1)
+
+        df_orifice_flanges['drawing_path'] = df_orifice_flanges.apply(
+        lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\C-Caudal\B-Bridas\WN-WeldNeck\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\{str(row['drawing_code'])}.pdf" if 'CORNER' not in str(row["notes_equipment"]) else rf"\\nas01\DATOS\Comunes\TALLER\Taller24\C-Caudal\MR-MeterRun\B-Bridas\WN-WeldNeck\O-Orificio\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\Q-CornerTaps\{str(row['drawing_code'])}.pdf",
+        axis=1)
+
+        df_grouped = df_orifice_flanges.groupby(['drawing_path','connection', 'schedule', 'material', 'tapping', 'gasket', 'type_orifice_flange', 'type', 'final_pipe_int_diam', 'orifice_flange_height']).size().reset_index(name="count")
+        grouped_orifice_flanges = df_grouped.groupby(['drawing_path','connection','schedule','material','tapping', 'gasket', 'type_orifice_flange', "type"]).agg({"final_pipe_int_diam": list, "orifice_flange_height": list, "count": list}).reset_index()
+
+        return grouped_orifice_flanges
+
+    def create_df_line_flanges_mrun(self, dataframe):
+        df_line_flanges = dataframe.copy()
+
+        df_line_flanges['drawing_code'] = df_line_flanges.apply(
+        lambda row: 'CB' + str(row['type_line_flange']) + ('L'if row['type_line_flange'] == 'WN' else '') + str(row['facing']) +
+                    ('-0' if len(str(row['size_line_flange'])) == 2 else '-') + str(row['size_line_flange']).split('"')[0] + ('.5' if ' 1/2' in str(row['size_line_flange']) else '.0') +
+                    ('-0' + str(row['rating_line_flange']) if str(row['rating_line_flange']) in ['150', '300', '600', '900'] else '-' + str(row['rating_line_flange'])),
+        axis=1)
+
+        df_line_flanges['connection'] = df_line_flanges.apply(
+        lambda row: str(row['size']) + " " + str(row['rating_line_flange']) + "# " + str(row['facing']),
+        axis=1)
+
+        df_line_flanges['drawing_path'] = df_line_flanges.apply(
+        lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\C-Caudal\B-Bridas\WN-WeldNeck\L-Línea\{'RF-RaisedFace' if str(row['facing']) == 'RF' else ('FF-FlatFace' if str(row['facing']) == 'FF' else 'RTJ-RingTypeJoint')}\{str(row['drawing_code'])}.pdf" if row["reduction"] != 'REDUCTION' else rf"\\nas01\DATOS\Comunes\TALLER\Taller24\C-Caudal\MR-MeterRun\B-Bridas\WN-WeldNeck\L-Línea\RF-RaisedFace\R-Reducciones\CMRBWNLRFR-00 CnjGen Reducc.pdf",
+        axis=1)
+
+        df_grouped = df_line_flanges.groupby(['drawing_path','connection', 'schedule', 'material', 'type_line_flange', 'reduction', 'final_pipe_int_diam', 'line_flange_height']).size().reset_index(name="count")
+        grouped_line_flanges = df_grouped.groupby(['drawing_path','connection','schedule','material', 'type_line_flange', 'reduction']).agg({"final_pipe_int_diam": list, "line_flange_height":list, "count": list}).reset_index()
+
+        return grouped_line_flanges
+
+    def create_df_tubes_mrun(self, dataframe):
+        df_tubes = dataframe.copy()
+
+        df_tubes['connection'] = df_tubes.apply(
+        lambda row: str(row['size_orifice_flange']) + " " + str(row['rating_orifice_flange']) + "# " + str(row['facing']),
+        axis=1)
+
+        query_mruns = ('''
+            SELECT *
+            FROM validation_data.mrun_lengths
+            ''')
+        
+        query_ext_diam = ('''
+            SELECT line_size, out_diam
+            FROM validation_data.pipe_diam
+            ''')
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(query_mruns)
+            results_mrun=cur.fetchall()
+            mrun_lengths = {}
+            for item in results_mrun:
+                mrun_lengths[item[1]] = [item[2], item[3]]
+
+            cur.execute(query_ext_diam)
+            results_ext_diam=cur.fetchall()
+            pipe_ext_diam = {}
+            for item in results_ext_diam:
+                pipe_ext_diam[item[0]] = item[1]
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            print(error)
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        df_tubes[['length_long', 'length_short']] = df_tubes['size_orifice_flange'].map(mrun_lengths).apply(pd.Series)
+
+        adjustments_long = {'WN': 1, 'SW/WN': 2, 'SO/WN': -0.5, 'SW/SO': -2, 'SO': -5}
+        adjustments_short = {'WN': -4, 'SW/WN': -3, 'SO/WN': -5.5, 'SW/SO': -7, 'SO': -10}
+
+        df_tubes['length_long'] = (
+            df_tubes['length_long'].astype(float)
+            - df_tubes['orifice_flange_height']
+            - df_tubes['line_flange_height']
+            + df_tubes['flange_type'].map(adjustments_long).fillna(0)
+        )
+
+        df_tubes['length_short'] = (
+            df_tubes['length_short'].astype(float)
+            - df_tubes['orifice_flange_height']
+            - df_tubes['line_flange_height']
+            + df_tubes['flange_type'].map(adjustments_short).fillna(0)
+        )
+
+        df_tubes['pipe_ext_diam'] = df_tubes['size_orifice_flange'].map(pipe_ext_diam)
+
+        df_tubes['drawing_path'] = df_tubes.apply(
+        lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\C-Caudal\MR-MeterRun\B-Bridas\X-Comunes\CMRBX-01b TuboMeterRun.pdf",
+        axis=1)
+
+        query_inner_in_diam = ('''
+        SELECT line_size, sch, in_diam FROM validation_data.pipe_diam
+        ''')
+
+        conn = None
+        try:
+        # read the connection parameters
+            params = config()
+        # connect to the PostgreSQL server
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+        # execution of commands
+            cur.execute(query_inner_in_diam)
+
+            df_diam = pd.DataFrame(cur.fetchall(), columns=['line_size', 'sch', 'in_diam'])
+        # close communication with the PostgreSQL database server
+            cur.close()
+        # commit the changes
+            conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            dlg = QtWidgets.QMessageBox()
+            new_icon = QtGui.QIcon()
+            new_icon.addPixmap(QtGui.QPixmap(os.path.abspath(os.path.join(basedir, "Resources/Iconos/icon.ico"))), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+            dlg.setWindowIcon(new_icon)
+            dlg.setWindowTitle("ERP EIPSA")
+            dlg.setText("Ha ocurrido el siguiente error:\n"
+                        + str(error))
+            dlg.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+            dlg.exec()
+            del dlg, new_icon
+        finally:
+            if conn is not None:
+                conn.close()
+
+        df_tubes = df_tubes.merge(df_diam, how='left', left_on=['size_orifice_flange', 'sch_orifice_flange'], right_on=['line_size', 'sch'])
+        df_tubes['final_pipe_int_diam'] = df_tubes['in_diam']
+
+        df_grouped = df_tubes.groupby(['drawing_path','size_orifice_flange', 'sch_orifice_flange', 'tube_material', 'calibrated', 'final_pipe_int_diam', 'pipe_ext_diam', 'length_long', 'length_short', 'welding_type_orifice', 'welding_type_line']).size().reset_index(name="count")
+        grouped_tubes = df_grouped.groupby(['drawing_path','size_orifice_flange','sch_orifice_flange','tube_material', 'calibrated']).agg({"final_pipe_int_diam": list, "pipe_ext_diam": list, "length_long": list, "length_short": list, "welding_type_orifice": list, "welding_type_line": list, "count": list}).reset_index()
+
+        return grouped_tubes
+
+    def create_df_welding_mrun(self, dataframe):
+        df_welding = dataframe.copy()
+
+        df_welding['drawing_path'] = df_welding.apply(
+        lambda row: rf"\\nas01\DATOS\Comunes\TALLER\Taller24\C-Caudal\MR-MeterRun\B-Bridas\X-Comunes\CMRBX-01a TiposAcabadoSoldadura.pdf",
+        axis=1)
+
+        df_grouped = df_welding.groupby(['drawing_path','material', 'flange_type']).size().reset_index(name="count")
+        grouped_welding = df_grouped.groupby(['drawing_path', 'material', 'flange_type']).agg({"count": list}).reset_index()
+        return grouped_welding
+
+    def drawings_tw_32219(self, equipment_count):
+        drawings_dict = {}
+
+        drawing_path_1 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\B-CN32219-A1\TVMTUB-1.0 ConjVainaMultipleTubo.pdf"
+        drawing_path_2 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\B-CN32219-A1\TVMTUB-1.1 04.00-0900-RTJ BridaUnion.pdf"
+        drawing_path_3 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\B-CN32219-A1\TVMTUB-1.2 TuboVaina.pdf"
+        drawing_path_4 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\X-Comunes\TVMTUX-2 TaponCierreVaina.pdf"
+        drawing_path_5 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\B-CN32219-A1\TVMTUB-1.3 TuboSensor.pdf"
+        drawing_path_6 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\X-Comunes\TVMTUX-3 AccesorioFijacion.pdf"
+        drawing_path_7= rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\X-Comunes\TVMTUX-1 Reduccion 0.25 SW-NPT.pdf"
+        drawing_path_8 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\T-Temperatura\V-Vainas\M- Multiples\TU-Tipo Tubo\X-Comunes\TVMTUX-4 SopTaponPurgador.pdf"
+        drawing_path_9 = rf"\\nas01\DATOS\Comunes\TALLER\Taller24\X-Comunes\TP-Tapones Purgadores\XTP-01.1 TaponPrg 0.25-AISI321.pdf"
+        
+        description_1 = 'Mapa Soldaduras'
+        description_2 = str(equipment_count) + ' Bridas 4" 900# RTJ 321'
+        description_3 = str(equipment_count) + ' Tubos Vaina 3" SCH 80S 321'
+        description_4 = str(equipment_count) + ' Tapones Cierre Vaina 321'
+        description_5 = str(3 * int(equipment_count)) + ' Tubo Vaina 1/4" SCH 40S 321'
+        description_6 = str(3 * int(equipment_count)) + ' Accesorios Fijación 321'
+        description_7 = str(3 * int(equipment_count)) + ' Reducciones 321'
+        description_8 = str(equipment_count) + ' Soportes de tapón 321'
+        description_9 = str(equipment_count) + ' Tapones Purgadores 321'
+
+        drawings_dict.update({drawing_path_1: description_1,
+                            drawing_path_2: description_2,
+                            drawing_path_3: description_3,
+                            drawing_path_4: description_4,
+                            drawing_path_5: description_5,
+                            drawing_path_6: description_6,
+                            drawing_path_7: description_7,
+                            drawing_path_8: description_8,
+                            drawing_path_9: description_9})
+
+        return drawings_dict
 
 
 
