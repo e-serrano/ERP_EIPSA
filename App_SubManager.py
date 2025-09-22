@@ -14,6 +14,7 @@ from config import config, get_path
 import configparser
 from Database_Connection import createConnection
 from datetime import *
+import re
 
 
 class AlignDelegate(QtWidgets.QStyledItemDelegate):
@@ -431,12 +432,14 @@ class CustomTableWidget(QtWidgets.QTableWidget):
             sortOrder (Qt.SortOrder): The order to sort the column (ascending or descending).
         """
         if column_index == 5:
-            self.custom_sort(column_index, sortOrder)
+            self.custom_sort_dates(column_index, sortOrder)
+        elif column_index == 7:
+            self.custom_sort_currency(column_index, sortOrder)
         else:
             self.sortByColumn(column_index, sortOrder)
 
-# Function to sort column based on special datatypes
-    def custom_sort(self, column, order):
+# Function to sort column based on date datatype
+    def custom_sort_dates(self, column, order):
         """
         Custom sorting method for date columns. Sorts the specified column based on date values.
 
@@ -468,6 +471,70 @@ class CustomTableWidget(QtWidgets.QTableWidget):
 
         for row in hidden_rows:
             self.setRowHidden(row, True)
+
+# Function to sort column based on currency datatype
+    def custom_sort_currency(self, column, order):
+        """
+        Custom sorting method for currency-formatted text columns.
+        Sorts the specified column based on numeric currency values.
+
+        Args:
+            column (int): The index of the column to sort.
+            order (Qt.SortOrder): The order to sort the column (ascending or descending).
+        """
+        row_count = self.rowCount()
+
+        
+        indexes = list(range(row_count))
+
+        def parse_currency(text):
+            """
+            Convierte un string de moneda a float, eliminando símbolos y separadores.
+            Adapta según el formato de tu app (coma decimal, punto de miles, etc.)
+            """
+            if not text:
+                return 0.0
+
+            # Eliminar cualquier símbolo no numérico excepto coma/punto
+            clean = re.sub(r"[^\d,.-]", "", text)
+
+            # Si hay coma y punto, asumir formato europeo "1.234,56"
+            if "," in clean and "." in clean:
+                clean = clean.replace(".", "").replace(",", ".")
+            # Si solo hay coma, tratamos la coma como decimal
+            elif "," in clean:
+                clean = clean.replace(",", ".")
+            # Si solo hay punto -> ya es decimal estándar
+
+            try:
+                return float(clean)
+            except ValueError:
+                return 0.0
+
+        # Ordenamos usando la conversión
+        indexes.sort(key=lambda i: parse_currency(self.item(i, column).text()))
+
+        if order == QtCore.Qt.SortOrder.DescendingOrder:
+            indexes.reverse()
+
+        # Guardar las filas ocultas para restaurarlas
+        hidden_rows = [row for row in range(row_count) if self.isRowHidden(row)]
+
+        rows = self.rowCount()
+        for i in range(rows):
+            self.insertRow(i)
+
+        for new_row, old_row in enumerate(indexes):
+            for col in range(self.columnCount()):
+                item = self.takeItem(old_row + rows, col)
+                self.setItem(new_row, col, item)
+
+        for i in range(rows):
+            self.removeRow(rows)
+
+        for row in hidden_rows:
+            self.setRowHidden(row, True)
+
 
 # Function with the menu configuration
     def contextMenuEvent(self, event):
@@ -832,9 +899,9 @@ class Ui_App_SubManager(object):
         self.tableOffer = CustomTableWidget()
         self.tableOffer.setMinimumSize(QtCore.QSize(650, 280))
         self.tableOffer.setObjectName("tableOffer")
-        self.tableOffer.setColumnCount(11)
+        self.tableOffer.setColumnCount(12)
         self.tableOffer.setRowCount(0)
-        for i in range(11):
+        for i in range(12):
             item = QtWidgets.QTableWidgetItem()
             font = QtGui.QFont()
             font.setPointSize(10)
@@ -947,7 +1014,8 @@ class Ui_App_SubManager(object):
 
 
         commands_appcomercial = ("""
-                    SELECT "num_offer","state","responsible","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material","offer_amount","notes","important","tracking"
+                    SELECT "num_offer","state","responsible","client","final_client",TO_CHAR("presentation_date", 'DD-MM-YYYY'),"material",
+                            "offer_amount","probability","notes","important","tracking"
                     FROM offers
                     WHERE (("state" = 'Presentada'
                     OR
@@ -970,7 +1038,7 @@ class Ui_App_SubManager(object):
 
         # fill the Qt Table with the query results
             for row in results:
-                for column in range(11):
+                for column in range(12):
                     value = row[column]
                     if value is None:
                         value = ''
@@ -1036,10 +1104,12 @@ class Ui_App_SubManager(object):
         item = self.tableOffer.horizontalHeaderItem(7)
         item.setText(_translate("App_SubManager", "Importe"))
         item = self.tableOffer.horizontalHeaderItem(8)
-        item.setText(_translate("App_SubManager", "Notas"))
+        item.setText(_translate("App_SubManager", "Prob. Adj."))
         item = self.tableOffer.horizontalHeaderItem(9)
-        item.setText(_translate("App_SubManager", "Ptos. Importantes"))
+        item.setText(_translate("App_SubManager", "Notas"))
         item = self.tableOffer.horizontalHeaderItem(10)
+        item.setText(_translate("App_SubManager", "Ptos. Importantes"))
+        item = self.tableOffer.horizontalHeaderItem(11)
         item.setText(_translate("App_SubManager", "Seguimiento"))
         __sortingEnabled = self.tableOffer.isSortingEnabled()
         self.tableOffer.setSortingEnabled(False)
@@ -1228,7 +1298,7 @@ class Ui_App_SubManager(object):
         if item.column() == 2:
             self.clientresume(item)
 
-        elif item.column() in [8,9,10]:
+        elif item.column() in [9,10,11]:
             cell_content = item.text()
             dlg = QtWidgets.QMessageBox()
             new_icon = QtGui.QIcon()
