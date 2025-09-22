@@ -191,8 +191,18 @@ class Ui_New_Offer_Window(object):
         self.label_Portal.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_Portal.setObjectName("label_Portal")
         self.vLayout1.addWidget(self.label_Portal)
-        spacerItem5 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        spacerItem5 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout1.addItem(spacerItem5)
+        self.label_Probability = QtWidgets.QLabel(parent=self.frame)
+        self.label_Probability.setMinimumSize(QtCore.QSize(110, 25))
+        self.label_Probability.setMaximumSize(QtCore.QSize(110, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Probability.setFont(font)
+        self.label_Probability.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_Probability.setObjectName("label_Probability")
+        self.vLayout1.addWidget(self.label_Probability)
         self.hLayout.addLayout(self.vLayout1)
         self.vLayout2 = QtWidgets.QVBoxLayout()
         self.vLayout2.setObjectName("vLayout2")
@@ -266,8 +276,19 @@ class Ui_New_Offer_Window(object):
         self.Portal_NewOffer.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         self.Portal_NewOffer.setObjectName("Portal_NewOffer")
         self.vLayout2.addWidget(self.Portal_NewOffer)
-        spacerItem9 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        spacerItem9 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
         self.vLayout2.addItem(spacerItem9)
+        # spacerItem27 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        # self.vLayout2.addItem(spacerItem27)
+        self.Probability_NewOffer = QtWidgets.QComboBox(parent=self.frame)
+        self.Probability_NewOffer.setMinimumSize(QtCore.QSize(175, 25))
+        self.Probability_NewOffer.setMaximumSize(QtCore.QSize(175, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Probability_NewOffer.setFont(font)
+        self.Probability_NewOffer.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
+        self.Probability_NewOffer.setObjectName("Probability_NewOffer")
+        self.vLayout2.addWidget(self.Probability_NewOffer)
         self.hLayout.addLayout(self.vLayout2)
         spacerItem10 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         self.hLayout.addItem(spacerItem10)
@@ -610,6 +631,7 @@ class Ui_New_Offer_Window(object):
         self.Material_NewOffer.addItems(list_material)
 
         self.Portal_NewOffer.addItems(['Sí', 'No'])
+        self.Probability_NewOffer.addItems(['Alta', 'Media', 'Baja'])
 
         self.load_clients()
 
@@ -634,6 +656,7 @@ class Ui_New_Offer_Window(object):
         self.label_Important.setText(_translate("New_Offer", "Importante:"))
         self.label_RateType.setText(_translate("New_Offer", "Tipo Tarifa:"))
         self.label_Portal.setText(_translate("New_Offer", "*Portal:"))
+        self.label_Probability.setText(_translate("New_Offer", "*Prob. Adj.:"))
         self.label_NumItems.setText(_translate("New_Offer", "*Nº Equipos:"))
         self.label_Mails.setText(_translate("New_Offer", "*Mails Contacto:"))
         self.Button_NewOffer.setText(_translate("New_Offer", "Crear Oferta"))
@@ -748,6 +771,7 @@ class Ui_New_Offer_Window(object):
         mails=self.Mails_NewOffer.toPlainText()
         items_number=self.NumItems_NewOffer.text()
         portal=self.Portal_NewOffer.currentText()
+        probability=self.Probability_NewOffer.currentText()
 
         if numoffer=="" or (client=="" or (numref=="" or (recepdate=="" or (limitdate=="" or (mails=="" or items_number==""))))):
             self.label_error_newoffer.setText('Rellene todos los campos con *')
@@ -845,9 +869,9 @@ class Ui_New_Offer_Window(object):
                             "num_offer","state","responsible","client","final_client",
                             "num_ref_offer","register_date","nac_ext","buyer","material",
                             "notes","limit_date","rate_type","important","recep_date",
-                            "mails", "portal", "items_number", "rec_times"
+                            "mails", "portal", "probability", "items_number", "rec_times"
                             )
-                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                             """)
                 conn = None
                 try:
@@ -857,7 +881,7 @@ class Ui_New_Offer_Window(object):
                     conn = psycopg2.connect(**params)
                     cur = conn.cursor()
                 # execution of commands
-                    data=(numoffer, state, self.username, client, finalclient, numref, actual_date, nacext, buyer, material, notes, limitdate, ratetype, important, recepdate, mails, portal, items_number, 0)
+                    data=(numoffer, state, self.username, client, finalclient, numref, actual_date, nacext, buyer, material, notes, limitdate, ratetype, important, recepdate, mails, portal, probability, items_number, 0)
                     cur.execute(commands_newoffer, data)
                 # close communication with the PostgreSQL database server
                     cur.close()

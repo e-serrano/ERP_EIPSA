@@ -492,6 +492,23 @@ class Ui_Edit_Offer_Window(object):
         self.NacExt_EditOffer.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
         self.NacExt_EditOffer.setObjectName("NacExt_EditOffer")
         self.gridLayout_2.addWidget(self.NacExt_EditOffer, 7, 1, 1, 1)
+        self.label_Probability = QtWidgets.QLabel(parent=self.frame)
+        self.label_Probability.setMinimumSize(QtCore.QSize(90, 25))
+        self.label_Probability.setMaximumSize(QtCore.QSize(90, 25))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        self.label_Probability.setFont(font)
+        self.label_Probability.setObjectName("label_Probability")
+        self.gridLayout_2.addWidget(self.label_Probability, 8, 0, 1, 1)
+        self.Probability_EditOffer = QtWidgets.QComboBox(parent=self.frame)
+        self.Probability_EditOffer.setMinimumSize(QtCore.QSize(150, 25))
+        self.Probability_EditOffer.setMaximumSize(QtCore.QSize(150, 25))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.Probability_EditOffer.setFont(font)
+        self.Probability_EditOffer.setObjectName("Probability_EditOffer")
+        self.gridLayout_2.addWidget(self.Probability_EditOffer, 8, 1, 1, 1)
         self.label_Portal = QtWidgets.QLabel(parent=self.frame)
         self.label_Portal.setMinimumSize(QtCore.QSize(90, 25))
         self.label_Portal.setMaximumSize(QtCore.QSize(90, 25))
@@ -553,7 +570,7 @@ class Ui_Edit_Offer_Window(object):
         self.label_Mails.setFont(font)
         self.label_Mails.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label_Mails.setObjectName("label_Mails")
-        self.gridLayout_2.addWidget(self.label_Mails, 8, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_Mails, 9, 0, 1, 1)
         self.Mails_EditOffer = QtWidgets.QTextEdit(parent=self.frame)
         self.Mails_EditOffer.setMinimumSize(QtCore.QSize(100, 25))
         self.Mails_EditOffer.setMaximumSize(QtCore.QSize(16777215, 16777215))
@@ -561,7 +578,7 @@ class Ui_Edit_Offer_Window(object):
         font.setPointSize(10)
         self.Mails_EditOffer.setFont(font)
         self.Mails_EditOffer.setObjectName("Mails_EditOffer")
-        self.gridLayout_2.addWidget(self.Mails_EditOffer, 8, 1, 2, 7)
+        self.gridLayout_2.addWidget(self.Mails_EditOffer, 9, 1, 2, 7)
         self.label = QtWidgets.QLabel(parent=self.frame)
         self.label.setMinimumSize(QtCore.QSize(130, 25))
         self.label.setMaximumSize(QtCore.QSize(130, 25))
@@ -571,7 +588,7 @@ class Ui_Edit_Offer_Window(object):
         self.label.setFont(font)
         self.label.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeading|QtCore.Qt.AlignmentFlag.AlignLeft|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.label.setObjectName("label")
-        self.gridLayout_2.addWidget(self.label, 9, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label, 10, 0, 1, 1)
         self.MailsHint_EditOffer = QtWidgets.QLabel(parent=self.frame)
         self.MailsHint_EditOffer.setMinimumSize(QtCore.QSize(25, 25))
         self.MailsHint_EditOffer.setMaximumSize(QtCore.QSize(16777215, 25))
@@ -581,21 +598,21 @@ class Ui_Edit_Offer_Window(object):
         self.MailsHint_EditOffer.setText('FORMATO MAILS -> mail1,mail2 copia:mailc1,mailc2')
         self.MailsHint_EditOffer.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextSelectableByMouse)
         self.MailsHint_EditOffer.setObjectName("MailsHint_EditOffer")
-        self.gridLayout_2.addWidget(self.MailsHint_EditOffer, 10, 1, 1, 3)
+        self.gridLayout_2.addWidget(self.MailsHint_EditOffer, 11, 1, 1, 3)
         self.Button_EditOffer = QtWidgets.QPushButton(parent=self.frame)
         self.Button_EditOffer.setMinimumSize(QtCore.QSize(100, 30))
         # self.Button_EditOffer.setMaximumSize(QtCore.QSize(200, 30))
         self.Button_EditOffer.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_EditOffer.setAutoDefault(True)
         self.Button_EditOffer.setObjectName("Button_EditOffer")
-        self.gridLayout_2.addWidget(self.Button_EditOffer, 11, 1, 1, 2)
+        self.gridLayout_2.addWidget(self.Button_EditOffer, 12, 1, 1, 2)
         self.Button_Cancel = QtWidgets.QPushButton(parent=self.frame)
         self.Button_Cancel.setMinimumSize(QtCore.QSize(100, 30))
         # self.Button_Cancel.setMaximumSize(QtCore.QSize(200, 30))
         self.Button_Cancel.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.Button_Cancel.setAutoDefault(True)
         self.Button_Cancel.setObjectName("Button_Cancel")
-        self.gridLayout_2.addWidget(self.Button_Cancel, 11, 5, 1, 2)
+        self.gridLayout_2.addWidget(self.Button_Cancel, 12, 5, 1, 2)
         self.gridLayout.addWidget(self.frame, 0, 0, 1, 1)
         Edit_Offer_Window.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=Edit_Offer_Window)
@@ -658,6 +675,7 @@ class Ui_Edit_Offer_Window(object):
         self.Material_EditOffer.addItems(list_material)
 
         self.Portal_EditOffer.addItems(['Sí', 'No'])
+        self.Probability_EditOffer.addItems(['Alta', 'Media', 'Baja'])
 
         self.PayTerm_EditOffer.addItems(['', '100% entrega', '100% pedido', '90%-10%', '50%-50%', 'Otros'])
 
@@ -680,6 +698,7 @@ class Ui_Edit_Offer_Window(object):
         self.label_NumRef.setText(_translate("Edit_Offer_Window", "Nº Referencia:"))
         self.label_State.setText(_translate("Edit_Offer_Window", "Estado:"))
         self.label_NacExt.setText(_translate("Edit_Offer_Window", "Nacional/Exterior:"))
+        self.label_Probability.setText(_translate("Edit_Offer_Window", "Prob. Adj.:"))
         self.label_LimitDate.setText(_translate("Edit_Offer_Window", "Fecha Límite:"))
         self.label_RecepDate.setText(_translate("Edit_Offer_Window", "Fecha Recep.:"))
         self.label_Buyer.setText(_translate("Edit_Offer_Window", "Comprador:"))
@@ -739,6 +758,7 @@ class Ui_Edit_Offer_Window(object):
                         else ('90_10' if self.PayTerm_EditOffer.currentText() == '90%-10%'
                         else ('50_50' if self.PayTerm_EditOffer.currentText() == '50%-50%'
                         else ('Others' if self.PayTerm_EditOffer.currentText() == 'Otros' else '')))))
+            probability = self.Probability_EditOffer.currentText()
 
             if state in ['Presentada', 'Adjudicada','Perdida'] and (last_update in ['None',''] or presentation_date in ['None','']):
                 dlg = QtWidgets.QMessageBox()
@@ -840,7 +860,7 @@ class Ui_Edit_Offer_Window(object):
                                 "material" = %s, "notes" = %s, "offer_amount" = %s, "limit_date" = %s, "rate_type" = %s,
                                 "important" = %s, "tracking" = %s, "recep_date" = %s, "mails" = %s, "last_update" = %s,
                                 "presentation_date" = %s, "portal" = %s, "items_number" = %s, "project" = %s, "validity" = %s,
-                                "delivery_term" = %s, "delivery_time" = %s, "payment_term" = %s
+                                "delivery_term" = %s, "delivery_time" = %s, "payment_term" = %s, "probability" = %s
                                 WHERE "num_offer" = %s
                                 """)
                     conn = None
@@ -855,7 +875,7 @@ class Ui_Edit_Offer_Window(object):
                             material, notes, amount, limit_date, rate_type,
                             important_issues, tracking, recep_date, mails, last_update,
                             presentation_date, portal, numitems, project, validity,
-                            delivterm, delivtime, payterm,
+                            delivterm, delivtime, payterm, probability,
                             numoffer,)
                         cur.execute(commands_updateoffer,data)
                     # close communication with the PostgreSQL database server
@@ -923,7 +943,7 @@ class Ui_Edit_Offer_Window(object):
                     offers."nac_ext", offers."buyer", offers."material", offers."notes", CAST(offers."offer_amount" AS numeric) AS "amount",
                     TO_CHAR(offers."limit_date", 'DD-MM-YYYY'), offers."rate_type", offers."important", offers."tracking", TO_CHAR(offers."recep_date", 'DD-MM-YYYY'),
                     offers."mails", TO_CHAR(offers."last_update", 'DD-MM-YYYY'), TO_CHAR(offers."presentation_date", 'DD-MM-YYYY'),  offers."portal",  offers."items_number",
-                    initials."initials", offers."project", offers."validity", offers."delivery_term", offers."delivery_time", offers."payment_term"
+                    initials."initials", offers."project", offers."validity", offers."delivery_term", offers."delivery_time", offers."payment_term", offers."probability"
                     FROM offers
                     JOIN users_data.initials as initials ON (offers."responsible" = initials."username")
                     WHERE "num_offer" = %s
@@ -1001,6 +1021,7 @@ class Ui_Edit_Offer_Window(object):
                     else ('Otros' if str(results[0][25]) == 'Others' else str(results[0][25]))))))
 
             self.PayTerm_EditOffer.setCurrentText(payterm_text if str(results[0][25]) != 'None' else '')
+            self.Probability_EditOffer.setCurrentText(str(results[0][26]) if str(results[0][26]) != 'None' else '')
 
 # Function to load client list
     def load_clients(self):
